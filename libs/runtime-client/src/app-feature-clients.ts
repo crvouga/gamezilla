@@ -1,9 +1,13 @@
 import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-chess-client';
+import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
+import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
+import { PuzzleManagementSettings } from '@libs/chess-puzzle-client/puzzle-management-settings';
 import {
   defineFeatureClient,
   type FeatureClient,
 } from '@libs/feature-client/client';
-import { lazy } from 'solid-js';
+import { GAME_CLIENT_DEFINITIONS } from '@libs/games-client/game-plugins.client';
+import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 /**
  * The client half of the composition root: which bounded contexts this
  * product's UI runs, and in what order they nest.
@@ -25,18 +29,12 @@ import { createSpacesClient } from '@libs/spaces-client/feature-client';
 
 /**
  * Games depend on spaces, so the composition root hands spaces its plugin
- * registry. Dynamic import keeps the heavy plugins off the shell entry graph.
+ * registry. The complete registry is available at startup.
  */
 const SPACES_CLIENT = createSpacesClient({
-  loadGameRegistry: async () => {
-    const [plugins, clients] = await Promise.all([
-      import('@libs/games-shared/game-plugins'),
-      import('@libs/games-client/game-plugins.client'),
-    ]);
-    return {
-      games: plugins.GAME_DEFINITIONS,
-      clients: clients.GAME_CLIENT_DEFINITIONS,
-    };
+  registry: {
+    games: GAME_DEFINITIONS,
+    clients: GAME_CLIENT_DEFINITIONS,
   },
 });
 
@@ -45,17 +43,10 @@ const PUZZLE_MANAGEMENT_CLIENT = defineFeatureClient({
   routes: [
     {
       path: '/more/puzzles',
-      load: () =>
-        import('@libs/chess-puzzle-client/puzzle-management-screen').then(
-          (module) => ({ default: module.PuzzleManagementScreen })
-        ),
+      component: PuzzleManagementScreen,
     },
   ],
-  settings: lazy(() =>
-    import('@libs/chess-puzzle-client/puzzle-management-settings').then(
-      (module) => ({ default: module.PuzzleManagementSettings })
-    )
-  ),
+  settings: PuzzleManagementSettings,
 });
 
 export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
@@ -64,9 +55,7 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   PROFILE_CLIENT,
   ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
-  createMultiplayerChessClient(
-    () => import('@libs/chess-matchmaking-client/multiplayer-screen')
-  ),
+  createMultiplayerChessClient(MultiplayerScreen),
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.
   FRIENDS_CLIENT,

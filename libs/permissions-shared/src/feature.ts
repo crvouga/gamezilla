@@ -1,3 +1,4 @@
+import { PERMISSIONS_MUTATIONS } from './mutations';
 /**
  * The permissions feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about permissions
@@ -19,5 +20,5 @@ export const PERMISSIONS_FEATURE = defineFeature({
   // of the local database warm.
   sessionQueries: ['permissionQuotaLedger'],
   queries: PERMISSIONS_QUERIES,
-  mutations: async () => (await import('./mutations')).PERMISSIONS_MUTATIONS,
+  mutations: async () => PERMISSIONS_MUTATIONS,
 });

@@ -1,3 +1,4 @@
+import { AUTH_MUTATIONS } from './mutations';
 /**
  * The auth feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about auth
@@ -24,5 +25,5 @@ export const AUTH_FEATURE = defineFeature({
     'ownExternalAccounts',
   ],
   queries: AUTH_QUERIES,
-  mutations: async () => (await import('./mutations')).AUTH_MUTATIONS,
+  mutations: async () => AUTH_MUTATIONS,
 });

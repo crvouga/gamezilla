@@ -1,3 +1,8 @@
+import ProfileScreen from './profile';
+import ProfileAvatarScreen from './profile-avatar';
+import ProfileEditScreen from './profile-edit';
+import ProfileHandleScreen from './profile-handle';
+import SessionProvider from './session-provider';
 /** @jsxImportSource solid-js */
 /**
  * What profile contributes to a client app: the profile tab and the screens
@@ -19,10 +24,10 @@ function profileTabLabel(): string {
 export const PROFILE_CLIENT = defineFeatureClient({
   name: 'profile',
   routes: [
-    { path: '/profile', tab: true, load: () => import('./profile') },
-    { path: '/profile/edit', load: () => import('./profile-edit') },
-    { path: '/profile/handle', load: () => import('./profile-handle') },
-    { path: '/profile/avatar', load: () => import('./profile-avatar') },
+    { path: '/profile', tab: true, component: ProfileScreen },
+    { path: '/profile/edit', component: ProfileEditScreen },
+    { path: '/profile/handle', component: ProfileHandleScreen },
+    { path: '/profile/avatar', component: ProfileAvatarScreen },
   ],
   tabs: [
     {
@@ -34,5 +39,5 @@ export const PROFILE_CLIENT = defineFeatureClient({
       testID: Handles.tabProfile,
     },
   ],
-  session: () => import('./session-provider'),
+  session: SessionProvider,
 });

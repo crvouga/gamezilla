@@ -1,8 +1,8 @@
 // @io-wall-ok — static analysis over the source tree (scripts/**).
 /**
  * Walk static imports from apps/client/src/main.tsx and report modules that
- * must stay off the low-end Android critical path, and any file on that
- * closure that runs a top-level import(). Asserted by this package's tests.
+ * defer application imports or pull in the full harness screen. Application
+ * code is loaded up front so navigation has no module-loading boundary.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -10,13 +10,6 @@ import { dirname, join, relative, resolve } from 'node:path';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ENTRY_REL = 'apps/client/src/main.tsx';
 const TSCONFIG_REL = 'tsconfig.base.json';
-
-const DENY_SPECIFIER_PREFIXES = [
-  '@libs/chess',
-  '@libs/games-client/game-plugins.client',
-  '@pkgs/harness-console-client',
-  '@sqlite.org/sqlite-wasm',
-] as const;
 
 const STATIC_FROM =
   /(?:^|[;\n])\s*(?:export|import)\s+(?!type\b)(?:[\s\S]*?\s+from\s+|[\s]*)['"]([^'"]+)['"]/g;
@@ -54,23 +47,16 @@ export function loadPathAliases(tsconfigAbs: string): PathAlias[] {
 }
 
 export function isDeniedSpecifier(specifier: string): boolean {
-  for (const prefix of DENY_SPECIFIER_PREFIXES) {
-    if (specifier === prefix || specifier.startsWith(`${prefix}/`)) return true;
-  }
-  return (
-    /^@libs\/chess(?:-|\/)/.test(specifier) || specifier.includes('sql-workers')
+  return specifier.startsWith(
+    '@pkgs/harness-console-client/product-harness-screen'
   );
 }
 
 export function isDeniedResolvedPath(absPath: string): boolean {
-  const norm = absPath.split('\\').join('/');
-  return (
-    norm.includes('/sql-workers/') ||
-    /\/libs\/chess(?:-|\/)/.test(norm) ||
-    norm.includes('game-plugins.client') ||
-    norm.includes('/pkgs/harness-console-client/') ||
-    norm.includes('sqlite-wasm')
-  );
+  return absPath
+    .split('\\')
+    .join('/')
+    .includes('/pkgs/harness-console-client/src/product-harness-screen.');
 }
 
 function stripComments(source: string): string {
@@ -268,12 +254,11 @@ export function scanTopLevelDynamicImports(args: {
     const source = readFileSync(file, 'utf8');
     const fromRel = relative(args.repoRoot, file);
     for (const hit of collectDynamicImports(source)) {
-      if (!hit.topLevel) continue;
       violations.push({
         fromRel: `${fromRel}:${String(hit.line)}`,
         specifier: hit.specifier,
         reason:
-          'top-level import() on the initial static closure — defer behind a function or route',
+          'dynamic import in the app graph — import application code eagerly',
       });
     }
   }

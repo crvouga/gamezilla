@@ -1,3 +1,4 @@
+import { reportSolidBoundaryError } from './browser-boundaries';
 /** @jsxImportSource solid-js */
 
 import { reloadApp } from '@libs/app-root-shared/reload-app';
@@ -67,14 +68,12 @@ function useCrashTrace(error: () => Error): () => string | undefined {
   });
   onMount(() => {
     const exception = untrack(error);
-    void import('./browser-boundaries')
-      .then(({ reportSolidBoundaryError }) => {
-        const id = reportSolidBoundaryError(exception);
-        if (mounted && id !== undefined && !/^0+$/.test(id)) setTraceId(id);
-      })
-      .catch(() => {
-        /* Recovery must survive a failed reporting chunk. */
-      });
+    try {
+      const id = reportSolidBoundaryError(exception);
+      if (mounted && id !== undefined && !/^0+$/.test(id)) setTraceId(id);
+    } catch {
+      // Recovery must survive a failed telemetry report.
+    }
   });
   return traceId;
 }

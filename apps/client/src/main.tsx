@@ -1,3 +1,9 @@
+import {
+  installBrowserObservabilityBoundaries,
+  setBrowserTraceFlush,
+} from '@libs/app-root-client/browser-boundaries';
+import { APP } from '@libs/runtime-shared/app-features';
+import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
 /**
@@ -38,29 +44,25 @@ setMutationCorrelationIdentity(sessionId, buildSha);
 installBrowserObsHelper();
 
 function initializeObservability() {
-  const telemetry = import('@pkgs/observability-root-client/browser').then(
-    ({ createBrowserTelemetry }) =>
-      createBrowserTelemetry({
-        serviceName: 'gamezilla-client',
-        serviceVersion: APP_VERSION,
-        environment: telemetryEnv.DEV === true ? 'local' : 'prod',
-        buildSha,
-        identity: browserObservabilityIdentity,
-        document,
-        // The API ingress forwards to the configured Collector. The browser
-        // never receives backend credentials; vendor changes remain server config.
-        otlpUrl: new URL(
-          '/api/observability/v1/traces',
-          clientEnv.serverUrl
-        ).toString(),
-      })
+  const telemetry = Promise.resolve(
+    createBrowserTelemetry({
+      serviceName: 'gamezilla-client',
+      serviceVersion: APP_VERSION,
+      environment: telemetryEnv.DEV === true ? 'local' : 'prod',
+      buildSha,
+      identity: browserObservabilityIdentity,
+      document,
+      // The API ingress forwards to the configured Collector. The browser
+      // never receives backend credentials; vendor changes remain server config.
+      otlpUrl: new URL(
+        '/api/observability/v1/traces',
+        clientEnv.serverUrl
+      ).toString(),
+    })
   );
-  const boundaries = telemetry.then(async (runtime) => {
-    const boundariesModule = await import(
-      '@libs/app-root-client/browser-boundaries'
-    );
-    boundariesModule.setBrowserTraceFlush(() => runtime.forceFlush());
-    return boundariesModule.installBrowserObservabilityBoundaries();
+  const boundaries = telemetry.then((runtime) => {
+    setBrowserTraceFlush(() => runtime.forceFlush());
+    return installBrowserObservabilityBoundaries();
   });
   return { boundaries, telemetry };
 }
@@ -74,7 +76,7 @@ if (root === null) {
 
 const client = createClient(clientEnv, {
   features: APP_FEATURE_CLIENTS,
-  loadApp: async () => (await import('@libs/runtime-shared/app-features')).APP,
+  loadApp: () => Promise.resolve(APP),
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
 });
 

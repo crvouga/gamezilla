@@ -863,13 +863,6 @@
         "!**/libs/harness/src/**"
       ]
     },
-    {
-      "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
-      "includes": [
-        "**/libs/app-root-shared/src/**/*.{ts,tsx}",
-        "**/libs/app-root-client/src/**/*.{ts,tsx}"
-      ]
-    },
     "./libs/tools/biome-plugins/no-vitest.grit",
     {
       "path": "./libs/tools/biome-plugins/no-infra-outside-tofu.grit",

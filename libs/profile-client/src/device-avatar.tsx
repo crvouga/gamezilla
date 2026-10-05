@@ -2,16 +2,8 @@ import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 import { Avatar } from '@pkgs/ui-root-client/avatar';
 import { UserIcon } from '@pkgs/ui-root-client/icons';
 import type { JSX } from 'solid-js';
-import { lazy, Show, Suspense } from 'solid-js';
-
-/**
- * DiceBear stays off the shell entry graph — load only when a persisted
- * avatar config exists (see README.md).
- */
-const ProfileDiceBearAvatar = lazy(async () => {
-  const mod = await import('./public-profile-dicebear-avatar');
-  return { default: mod.ProfileDiceBearAvatar };
-});
+import { Show } from 'solid-js';
+import { ProfileDiceBearAvatar } from './public-profile-dicebear-avatar';
 
 export type DeviceAvatarProps = {
   avatarConfig: AvatarConfig | null;
@@ -46,22 +38,11 @@ export function DeviceAvatar(props: DeviceAvatarProps): JSX.Element {
       }
     >
       {(config) => (
-        <Suspense
-          fallback={
-            <Avatar
-              size={props.size}
-              icon={UserIcon}
-              background={props.vividBackdrop ? 'onTintScrim' : 'outline'}
-              foreground={props.vividBackdrop ? 'onPrimary' : 'tabIconDefault'}
-            />
-          }
-        >
-          <ProfileDiceBearAvatar
-            config={config}
-            fallbackSeed={props.seedFallback}
-            size={props.size}
-          />
-        </Suspense>
+        <ProfileDiceBearAvatar
+          config={config}
+          fallbackSeed={props.seedFallback}
+          size={props.size}
+        />
       )}
     </Show>
   );

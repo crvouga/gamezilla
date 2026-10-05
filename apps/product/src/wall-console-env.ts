@@ -3,6 +3,7 @@ import { i18n } from '@libs/app-root-shared/i18n';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client/wall-browser-fs';
+import { bootProductHarnessSession } from './boot-product-harness';
 import type { ConsoleEnv } from './root-app';
 
 /** Wall services for the console, never for the actors' in-process HTTP. */
@@ -20,9 +21,6 @@ export function wallConsoleEnv(): ConsoleEnv {
       timers: wallTimers,
       fetch: http.fetch,
       async bootProductHarness(options) {
-        const { bootProductHarnessSession } = await import(
-          './boot-product-harness'
-        );
         return bootProductHarnessSession(
           { clock: wallClock, timers: wallTimers, snapshotStore },
           options

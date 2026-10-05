@@ -1,7 +1,10 @@
+import { APP } from '@libs/runtime-shared/app-features';
+import { HarnessBoot } from './harness-boot';
+import { ReportsScreen } from './reports-screen';
 // @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`, spec reports at `/reports`)
 /**
  * Path-gated boot: `/harness` mounts the Harness screen, `/reports` the spec
- * reports screen (its own lazy chunk); every other path mounts the real wall
+ * reports screen; every other path mounts the real wall
  * client (`wallClientEnv` + production/synced config). They are flat
  * siblings — the app and the harness reach each other through their command
  * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
@@ -18,15 +21,7 @@ import { assert } from '@pkgs/assert-root-shared/singleton';
 import '@pkgs/tailwind-shared/tailwind.css';
 import '@pkgs/ui-root-client/tokens.css';
 import '@pkgs/ui-root-client/hosts.css';
-import {
-  createSignal,
-  type JSX,
-  lazy,
-  Match,
-  onCleanup,
-  Suspense,
-  Switch,
-} from 'solid-js';
+import { createSignal, type JSX, Match, onCleanup, Switch } from 'solid-js';
 import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
@@ -54,8 +49,7 @@ function redirectedToHarness(): boolean {
 function AppBoot(): JSX.Element {
   const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
     features: APP_FEATURE_CLIENTS,
-    loadApp: async () =>
-      (await import('@libs/runtime-shared/app-features')).APP,
+    loadApp: async () => APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
   });
   const onPageHide = (): void => {
@@ -67,48 +61,6 @@ function AppBoot(): JSX.Element {
     void client.close();
   });
   return <client.App />;
-}
-
-const ReportsScreen = lazy(async () => ({
-  default: (await import('./reports-screen')).ReportsScreen,
-}));
-
-const HarnessBoot = lazy(async () => ({
-  default: (await import('./harness-boot')).HarnessBoot,
-}));
-
-function StartupShell(): JSX.Element {
-  return (
-    <div
-      class="startup-shell"
-      role="status"
-      aria-label="Starting Gamezilla"
-      data-startup-shell
-    >
-      <svg class="startup-shell-spinner" viewBox="0 0 48 48" aria-hidden="true">
-        <circle
-          cx="24"
-          cy="24"
-          r="21.5"
-          stroke="currentColor"
-          stroke-width="5"
-          fill="none"
-          opacity="0.25"
-        />
-        <circle
-          cx="24"
-          cy="24"
-          r="21.5"
-          stroke="currentColor"
-          stroke-width="5"
-          fill="none"
-          stroke-linecap="round"
-          stroke-dasharray="33.77 101.32"
-        />
-      </svg>
-      <span class="startup-shell-caption">Starting…</span>
-    </div>
-  );
 }
 
 type Surface = 'app' | 'harness' | 'reports';
@@ -131,14 +83,10 @@ function Boot(): JSX.Element {
   return (
     <Switch fallback={<AppBoot />}>
       <Match when={surface() === 'harness'}>
-        <Suspense fallback={<StartupShell />}>
-          <HarnessBoot />
-        </Suspense>
+        <HarnessBoot />
       </Match>
       <Match when={surface() === 'reports'}>
-        <Suspense fallback={<StartupShell />}>
-          <ReportsScreen />
-        </Suspense>
+        <ReportsScreen />
       </Match>
     </Switch>
   );

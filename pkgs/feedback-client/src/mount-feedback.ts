@@ -4,6 +4,7 @@ import { installCrashHandlers } from './crash-handlers';
 import type { FeedbackDiagnostics } from './diagnostics-buffer';
 import { installInteractionRecording } from './interaction-recording';
 import { FEEDBACK_OPEN_EVENT } from './open-feedback';
+import { createReportingSurface } from './reporting-surface';
 
 export function mountFeedback(
   options: FeedbackControllerOptions & {
@@ -35,27 +36,18 @@ export function mountFeedback(
     path: () => options.window.location.pathname,
     recorder: controller.recorder,
   });
-  let disposed = false;
-  let unmount: (() => void) | undefined;
-  const ready = import('./reporting-surface').then((module) => {
-    if (!disposed)
-      unmount = module.createReportingSurface(
-        options.host,
-        controller,
-        options
-      );
-  });
+  const unmount = createReportingSurface(options.host, controller, options);
+  const ready = Promise.resolve();
   return {
     controller,
     ready,
     open: controller.open,
     dispose(): void {
-      disposed = true;
       options.document.removeEventListener(FEEDBACK_OPEN_EVENT, openFeedback);
       removeCrashHandlers();
       removeInteractions();
       controller.dispose();
-      unmount?.();
+      unmount();
       options.host.remove();
     },
   };

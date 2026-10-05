@@ -1,7 +1,6 @@
-/** @jsxImportSource solid-js */
-
 import { describe, expect, it } from 'bun:test';
 import { matchAppRoute } from '@libs/app-root-client/match-route-path';
+import NotFoundScreen from '@libs/app-root-client/not-found';
 import {
   buildRouteTable,
   SHELL_ROUTE_TABLE,
@@ -33,12 +32,12 @@ const SHELL_PATHS: readonly string[] = [
 const FAKE_TAB: FeatureRoute = {
   path: '/fake',
   tab: true,
-  load: () => import('@libs/app-root-client/not-found'),
+  component: NotFoundScreen,
 };
 
 const FAKE_STACK: FeatureRoute = {
   path: '/fake/:id',
-  load: () => import('@libs/app-root-client/not-found'),
+  component: NotFoundScreen,
 };
 
 describe('route table', () => {
@@ -73,10 +72,19 @@ describe('route table', () => {
     expect(routes.at(-1)?.path).toBe('/*all');
   });
 
-  it('every shell stub module default-exports a component', async () => {
+  // regression: lazy-route-navigation
+  it('mounts the contributed component directly without a loading boundary', () => {
+    const routes = buildAppRoutes([FAKE_TAB, FAKE_STACK]);
+    const tabs = routes[0]?.children;
+    expect(Array.isArray(tabs) ? tabs[0]?.component : undefined).toBe(
+      FAKE_TAB.component
+    );
+    expect(routes[1]?.component).toBe(FAKE_STACK.component);
+  });
+
+  it('every shell route has an eager component', () => {
     for (const entry of SHELL_ROUTE_TABLE) {
-      const mod = await entry.load();
-      expect(typeof mod.default, entry.path).toBe('function');
+      expect(typeof entry.component, entry.path).toBe('function');
     }
   }, 30_000);
 });

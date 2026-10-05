@@ -1,0 +1,4 @@
+{
+  "summary": "Navigating to an app route suspended on a deferred module import, even though the product prioritizes instant navigation over initial load time.",
+  "regressionTest": "libs/app-root-client/tests/routes.test.ts"
+}

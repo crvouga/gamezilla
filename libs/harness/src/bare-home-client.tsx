@@ -33,7 +33,7 @@ export const BARE_HOME_CLIENT = defineFeatureClient({
     {
       path: '/',
       tab: true,
-      load: () => Promise.resolve({ default: BareHomeScreen }),
+      component: BareHomeScreen,
     },
   ],
   tabs: [

@@ -1,3 +1,7 @@
+import SessionProvider from './session-provider';
+import SpaceScreen from './space';
+import { SpaceMiniplayer } from './space-miniplayer';
+import SpacesScreen from './spaces';
 /** @jsxImportSource solid-js */
 /**
  * What spaces contributes to a client app: the lobby and space screens, the
@@ -11,28 +15,13 @@ import { defineFeatureClient } from '@libs/feature-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
-import { type JSX, lazy, Suspense } from 'solid-js';
-import type { LoadGameRegistry } from './games-provider';
+import type { JSX } from 'solid-js';
+import type { GameRegistry } from './games-provider';
 import { AppGamesProvider } from './games-provider';
 import {
   createSpaceHostingsInFlight,
   SpaceHostingsInFlightContext,
 } from './space-hostings-in-flight';
-
-/** Pulls space-room / mutation graphs that must stay off the shell entry. */
-const SpaceMiniplayer = lazy(() =>
-  import('./space-miniplayer').then((mod) => ({
-    default: mod.SpaceMiniplayer,
-  }))
-);
-
-function SpacesDock(): JSX.Element {
-  return (
-    <Suspense fallback={null}>
-      <SpaceMiniplayer />
-    </Suspense>
-  );
-}
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function spacesTabLabel(): string {
@@ -41,11 +30,11 @@ function spacesTabLabel(): string {
 }
 
 /**
- * The composition root injects the game-plugin registry loader: games depend
+ * The composition root injects the game-plugin registry: games depend
  * on spaces, so spaces cannot import them.
  */
 export function createSpacesClient(options: {
-  readonly loadGameRegistry: LoadGameRegistry;
+  readonly registry: GameRegistry;
 }): FeatureClient {
   function SpacesChrome(props: {
     readonly children: JSX.Element;
@@ -55,7 +44,7 @@ export function createSpacesClient(options: {
     const hostings = createSpaceHostingsInFlight();
     return (
       <SpaceHostingsInFlightContext.Provider value={hostings}>
-        <AppGamesProvider loadGameRegistry={options.loadGameRegistry}>
+        <AppGamesProvider registry={options.registry}>
           {props.children}
         </AppGamesProvider>
       </SpaceHostingsInFlightContext.Provider>
@@ -64,8 +53,8 @@ export function createSpacesClient(options: {
   return defineFeatureClient({
     name: 'spaces',
     routes: [
-      { path: '/', tab: true, load: () => import('./spaces') },
-      { path: '/space/:id', load: () => import('./space') },
+      { path: '/', tab: true, component: SpacesScreen },
+      { path: '/space/:id', component: SpaceScreen },
     ],
     tabs: [
       {
@@ -78,7 +67,7 @@ export function createSpacesClient(options: {
       },
     ],
     chrome: SpacesChrome,
-    session: () => import('./session-provider'),
-    tabsDock: SpacesDock,
+    session: SessionProvider,
+    tabsDock: SpaceMiniplayer,
   });
 }

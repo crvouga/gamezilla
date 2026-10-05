@@ -29,25 +29,25 @@ describe('client-critical-path-imports', () => {
   });
 
   // regression: flat-package-critical-path-boundaries
-  test('isDeniedSpecifier matches chess / games / harness-console / wasm', () => {
-    expect(isDeniedSpecifier('@libs/chess-puzzle-client/x')).toBe(true);
+  test('allows eager product imports while excluding harness modules', () => {
+    expect(isDeniedSpecifier('@libs/chess-puzzle-client/x')).toBe(false);
     expect(isDeniedSpecifier('@libs/games-client/game-plugins.client')).toBe(
-      true
+      false
     );
-    expect(isDeniedSpecifier('@pkgs/harness-console-client/console')).toBe(
-      true
-    );
-    expect(isDeniedSpecifier('@sqlite.org/sqlite-wasm')).toBe(true);
+    expect(
+      isDeniedSpecifier('@pkgs/harness-console-client/product-harness-screen')
+    ).toBe(true);
+    expect(isDeniedSpecifier('@sqlite.org/sqlite-wasm')).toBe(false);
     expect(isDeniedSpecifier('@libs/spaces-client/x')).toBe(false);
   });
 
-  test('isDeniedResolvedPath matches chess and sql-workers paths', () => {
+  test('allows eager chess and SQLite paths', () => {
     expect(
       isDeniedResolvedPath('/repo/libs/chess-custom-game-client/src/board.tsx')
-    ).toBe(true);
+    ).toBe(false);
     expect(
       isDeniedResolvedPath('/repo/apps/client/public/sql-workers/sqlite3.wasm')
-    ).toBe(true);
+    ).toBe(false);
     expect(isDeniedResolvedPath('/repo/apps/client/src/main.tsx')).toBe(false);
   });
 
@@ -110,7 +110,7 @@ describe('client-critical-path-imports', () => {
     writeFileSync(entry, `import { App } from './shell/app';\n`);
     writeFileSync(
       shell,
-      `import { GAME_DEFINITIONS } from '@libs/games-client/game-plugins.client';\n`
+      `import { ProductHarnessScreen } from '@pkgs/harness-console-client/product-harness-screen';\n`
     );
     const { violations } = walkCriticalPath({
       entryAbs: entry,
@@ -118,9 +118,9 @@ describe('client-critical-path-imports', () => {
       aliases: [],
     });
     expect(violations.length).toBeGreaterThan(0);
-    expect(violations.some((v) => v.specifier.includes('game-plugins'))).toBe(
-      true
-    );
+    expect(
+      violations.some((v) => v.specifier.includes('harness-console'))
+    ).toBe(true);
   });
 });
 
@@ -132,7 +132,7 @@ describe('client-critical-path-imports', () => {
 const CRITICAL_PATH_WALK_TIMEOUT_MS = 30_000;
 
 test(
-  'the shipped client keeps heavy modules off the critical path',
+  'the shipped client eagerly imports application code and excludes the harness',
   () => {
     const found = criticalPathViolations().map(
       (v) => `${v.fromRel} → ${v.specifier} (${v.reason})`

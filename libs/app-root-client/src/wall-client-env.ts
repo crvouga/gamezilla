@@ -1,3 +1,4 @@
+import { openMainSqlClient } from './open-main-sql-client';
 // @io-wall-ok — browser / production ClientEnv composition root.
 /**
  * Production / localhost `ClientEnv` built from browser APIs only. Call only
@@ -103,10 +104,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     server,
     events: createInMemoryPubSub({ logger: pubsubLogger }),
     createPubSub: () => createInMemoryPubSub({ logger: pubsubLogger }),
-    // Dynamic: keeps the web SQLite client (worker transport, OPFS recovery)
-    // off first load; it is only needed once the sync engine opens.
     openSqlClient: async (openArgs) => {
-      const { openMainSqlClient } = await import('./open-main-sql-client');
       return openMainSqlClient(
         openArgs?.userId ?? 'pending',
         wallTimers,

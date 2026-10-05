@@ -5,8 +5,7 @@
  * RN → web deltas: the gesture root and safe-area provider are gone
  * (CSS `env()` insets); typography uses the system font stack from `@pkgs/ui`
  * (see README.md) and
- * mark the paint latch through `document.fonts.ready`; the RN suspense root is
- * not needed (Solid `lazy` routes suspend inside the router outlet).
+ * mark the paint latch through `document.fonts.ready`.
  *
  * `PerfRoot` (perf HUD preference + sampler) mounts inside the theme so the
  * `/more/performance` toggle and the palette commands share one preference.

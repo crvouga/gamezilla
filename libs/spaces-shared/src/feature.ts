@@ -1,3 +1,4 @@
+import { SPACE_MUTATIONS } from './mutations';
 /**
  * The spaces feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about spaces
@@ -19,5 +20,5 @@ export const SPACES_FEATURE = defineFeature({
   // of the local database warm.
   sessionQueries: ['openSpaceSessions', 'mySpaces', 'mySpaceUsers'],
   queries: SPACE_QUERIES,
-  mutations: async () => (await import('./mutations')).SPACE_MUTATIONS,
+  mutations: async () => SPACE_MUTATIONS,
 });

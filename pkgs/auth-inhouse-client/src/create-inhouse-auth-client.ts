@@ -16,7 +16,7 @@ import { AUTH_SESSION_INITIAL } from '@pkgs/auth-root-shared/auth-session-state'
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SessionBody } from './auth-client-http';
 import { apiUrl, postJson, toVerified } from './auth-client-http';
-import type { LinkingOps } from './auth-client-linking';
+import { createLinkingOps } from './auth-client-linking';
 import type { AuthClientAdapterConfig, SignInCtx } from './auth-client-oauth';
 import { codeOrThrow, exchangeCode, signInOauth } from './auth-client-oauth';
 import { readCallbackOutcome } from './auth-errors';
@@ -135,16 +135,7 @@ export function createInhouseAuthClient(
     bearerStore,
   });
   const ctx: SignInCtx = { config, bearerStore, callbackUrl, session };
-  // Managing sign-in methods (Settings, link prompts) is off the boot path:
-  // load it on first use. `prepareLink` runs ahead of the tap, so the module
-  // is already resolved when `linkProvider` opens the popup.
-  let linkingOps: Promise<LinkingOps> | null = null;
-  const linking = (): Promise<LinkingOps> => {
-    linkingOps ??= import('./auth-client-linking').then((m) =>
-      m.createLinkingOps(ctx, config.clock)
-    );
-    return linkingOps;
-  };
+  const linkingOps = createLinkingOps(ctx, config.clock);
 
   const signOut = async (): Promise<void> => {
     bearerStore.setSuppressCapture(true);
@@ -177,16 +168,15 @@ export function createInhouseAuthClient(
     },
     signOut,
     async signOutEverywhere() {
-      await (await linking()).signOutEverywhere();
+      await linkingOps.signOutEverywhere();
       await signOut();
     },
-    listIdentities: async () => (await linking()).listIdentities(),
-    prepareLink: async () => (await linking()).prepareLink(),
-    linkProvider: async (provider) => (await linking()).linkProvider(provider),
-    unlinkProvider: async (provider) =>
-      (await linking()).unlinkProvider(provider),
+    listIdentities: async () => linkingOps.listIdentities(),
+    prepareLink: async () => linkingOps.prepareLink(),
+    linkProvider: async (provider) => linkingOps.linkProvider(provider),
+    unlinkProvider: async (provider) => linkingOps.unlinkProvider(provider),
     createSeparateAccount: async (pendingLinkToken) =>
-      (await linking()).createSeparateAccount(pendingLinkToken),
+      linkingOps.createSeparateAccount(pendingLinkToken),
     async getFreshToken(options?: GetFreshTokenOptions) {
       // After a 401 the caller asks for a fresh token: re-check the session,
       // which drops a bearer the server no longer honours.

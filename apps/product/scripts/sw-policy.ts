@@ -7,8 +7,8 @@
  * a runtime cache rule helps only a chunk that happened to be fetched while
  * online, and a lazy chunk never opened online is simply absent offline. So
  * the policy is one rule: **precache every file the wall client can load**
- * (`index.html`, its whole static + lazy module graph, the URL-loaded SQL
- * workers) and nothing the harness alone reaches. `build-sw.ts` applies it
+ * (`index.html`, its whole module graph, the URL-loaded SQL
+ * workers). `build-sw.ts` applies it
  * to Workbox's manifest; `check-offline-shell.ts` re-derives it from the
  * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
  *
@@ -25,23 +25,8 @@
  * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
  *   links.
  *
- * The dev surfaces — the harness (`/harness`) and the spec reports
- * (`/reports`) — are each booted by one lazy chunk, identified by its *source*
- * path through Vite's manifest (not by a chunk-name glob). Those chunks are
- * never entered, so what only a dev surface reaches (in-browser Postgres,
- * harness seeds, the harness console, the report viewer) stays out of
- * first-install precache, while anything the wall client also reaches is
- * still required.
+ * Every surface is imported eagerly, so its shared entry graph is precached.
  */
-
-/** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
-export const VITE_MANIFEST = '.vite/manifest.json';
-
-/** Dev-surface boots; their exclusive subgraphs are not part of the wall client. */
-export const DEV_SURFACE_BOOT_SOURCES: readonly string[] = [
-  'src/boot-product-harness.ts',
-  'src/reports-screen.tsx',
-];
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
 export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
@@ -62,18 +47,11 @@ export const PRECACHE_GLOB_IGNORES: readonly string[] = [
 ];
 
 /**
- * First-install precache ceiling, raw bytes (what Workbox downloads and
- * stores). The wall shell is ~8.3 MB raw / ~2.4 MB gzip today, dominated by
- * node-sql-parser (mutation SQL capture, ~2.4 MB raw), DiceBear (~2 MB) and
- * sqlite3.wasm (~0.9 MB). On a low-end Android over Slow 3G
- * (README.md) the service worker installs it in the
- * background after first paint, so it never gates interactivity — but it is
- * data and storage the person pays for once. 9 MiB leaves ~14% headroom so
- * growth is a deliberate decision: shrink the heavy chunks before raising it.
- * Also the per-file Workbox cap: no single file can exceed the whole budget,
- * so Workbox never drops a large chunk silently.
+ * The eager super-app graph measures about 12.4 MB raw, including a 9.94 MB
+ * entry file. Allow 16 MiB for the complete graph and each individual file,
+ * so Workbox never silently omits the app while installing its offline cache.
  */
-export const PRECACHE_BUDGET_BYTES = 9 * 1024 * 1024;
+export const PRECACHE_BUDGET_BYTES = 16 * 1024 * 1024;
 
 export type DistFile = {
   readonly path: string;
