@@ -155,17 +155,30 @@ terms:
     definition: >-
       The host gives their space a new name. Everyone in the space, and every
       friend whose lobby lists it, sees the new name.
-    forms: [renames the space, renamed the space, rename the space]
+    forms: [renames the space, renamed the space, rename the space, clears the space name, cleared the space name]
     model: [rename, lastRename, RenameResult, NoRename, NameSaved, NameNotAllowed]
 
   - term: space name
     definition: >-
       What a space is called: the name its host gave it, or, without one,
       the host's name as everyone sees it, their username or their stand-in
-      name, followed by "'s space" (the space is then named after its host). A name that is not allowed is refused and the space
-      keeps the name it had.
+      name, followed by "'s space" (the space is then named after its host).
+      A name is not allowed when it holds an offensive word (however
+      disguised, but not one only inside an ordinary word such as
+      Scunthorpe), a web or email address, or letters that are invisible or
+      make the name read backwards. A name that is not allowed is refused and the space keeps
+      the name it had. The host can clear the name, and the space is named
+      after them again.
     forms: [space names, named after]
     model: [spaceName, givenName, NAMED_AFTER_HOST]
+
+  - term: not allowed
+    definition: >-
+      Said of a space name the rules refuse (see space name). These standing
+      rules never change; the team can also stop allowing other names on top
+      of them.
+    avoid: [banned, blocked, censored, moderated, inappropriate]
+    model: [ALWAYS_REFUSED]
 
   - term: no longer allowed
     definition: >-

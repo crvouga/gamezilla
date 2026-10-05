@@ -23,9 +23,14 @@ Feature: Rename a space
       Then Alice can rename the space
       And Bob cannot rename the space
 
+    Scenario: Clearing the space name names the space after its host again
+      Given Alice has renamed the space to "Friday puzzles"
+      When Alice clears the space name
+      Then Bob sees the space is named after Alice within 15 seconds
+
   Rule: A space name that is not allowed is refused and the space keeps its name
 
-    Scenario: A space name that only looks like a rude word is saved
+    Scenario: A space name that only looks like an offensive word is saved
       When Alice renames the space to "Assassin chess club"
       Then Bob sees the space is called "Assassin chess club" within 15 seconds
 

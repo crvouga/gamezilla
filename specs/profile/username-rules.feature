@@ -28,6 +28,24 @@ Feature: Username rules
       When Alice tries to use username "official_support"
       Then Alice's username change is refused with "That username is not allowed"
 
+    Scenario: A username that only holds an offensive word inside an ordinary word is saved
+      Given Alice is a guest
+      When Alice tries to use username "scunthorpe_fan"
+      Then Alice's profile shows @scunthorpe_fan
+
+    Scenario: A username change moments after the last one is refused
+      Given Alice has just renamed themselves to @alice_one
+      When Alice tries to use username "alice_two"
+      Then Alice's username change is refused with "Username was changed recently"
+      And Alice's profile still shows @alice_one
+
+    Scenario: A username change without a connection is refused
+      Given Alice's username is @alice_one
+      And Alice is offline
+      When Alice tries to use username "alice_two"
+      Then Alice's username change is refused with "You're offline"
+      And Alice's profile still shows @alice_one
+
     Scenario: A username is saved in lowercase
       Given Alice is a guest
       When Alice tries to use username "Chess_Fan_7"
@@ -68,3 +86,8 @@ Feature: Username rules
       When Alice tries to use username "chess_cheater"
       Then Alice's username change is refused with "That username is not allowed"
       And Alice's profile still shows a stand-in name
+
+    Scenario: A device without a connection shows the stand-in name at once
+      Given Alice is offline
+      When the team stops allowing the username @chess_cheater
+      Then Alice's profile shows a stand-in name
