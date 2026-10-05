@@ -334,6 +334,10 @@ module multiplayer {
     }
   }
 
+  /// The legal next move of the game a device shows, played for its board.
+  action playCurrentMove(device: PlayDevice, sequence: int): bool =
+    playMove(device, _current.get(device.person), moveCount.get(device), true, sequence)
+
   /// Once both people have made their first move, either person can resign
   /// this unfinished game; before that they abort instead. Old resignations stay old.
   action resignPlay(device: PlayDevice, number: int): bool = {
@@ -499,7 +503,7 @@ module multiplayer {
       openMultiplayer(device), findOpponent(device, control), findNewOpponent(device),
       stopFindingOpponent(device), matchFormed(matchNumber, white, black),
       playMove(moveDevice, moveNumber, position, legal, sequence),
-      playMove(moveDevice, _current.get(moveDevice.person), moveCount.get(moveDevice), true, sequence),
+      playCurrentMove(moveDevice, sequence),
       all { _rareEvent == 0, resignPlay(device, number) },
       all { _rareEvent == 0, deletePlayAccount(person) },
       all { _rareEvent % 8 == 0, abortPlay(device, number) },

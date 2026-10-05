@@ -696,7 +696,7 @@ terms:
       last accepted board and cannot send a move, resignation, abort or offer
       for later.
     forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
-    model: [playMove, moveCount, turn]
+    model: [playMove, playCurrentMove, moveCount, turn]
 
   - term: multiplayer move list
     definition: >-
