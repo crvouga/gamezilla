@@ -96,6 +96,11 @@ msgstr "{0} rated puzzles remaining today"
 msgid "{0} themes"
 msgstr "{0} themes"
 
+#. placeholder {0}: winnerName()
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "{0} won the multiplayer game."
+msgstr "{0} won the multiplayer game."
+
 #. placeholder {0}: parts.hostName
 #: libs/spaces-client/src/use-space-display-title.tsx
 msgid "{0}'s space"
@@ -503,7 +508,6 @@ msgstr "Change participant"
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
 
-#: libs/app-root-client/src/multiplayer-chess-client.tsx
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Chess"
@@ -1156,8 +1160,8 @@ msgid "Find a chess opponent"
 msgstr "Find a chess opponent"
 
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Find an opponent for a private game"
-msgstr "Find an opponent for a private game"
+msgid "Find an opponent and watch together"
+msgstr "Find an opponent and watch together"
 
 #: libs/friends-client/src/friends-list-screen-view.tsx
 #: libs/friends-client/src/profile-friends-actions-view.tsx
@@ -1336,10 +1340,6 @@ msgstr "Hide performance monitor"
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
-
-#: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
-msgid "Home"
-msgstr "Home"
 
 #: libs/spaces-client/src/member-host-badge.tsx
 #: libs/spaces-client/src/space-members-host-block.tsx
@@ -1644,7 +1644,6 @@ msgstr "Move on to the next puzzle by itself after a solve."
 msgid "moves accepted."
 msgstr "moves accepted."
 
-#: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
@@ -3358,6 +3357,10 @@ msgstr "Waiting for the host"
 #: libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
+
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "Watching multiplayer chess."
+msgstr "Watching multiplayer chess."
 
 #: libs/account-privacy-client/src/privacy-explanation.tsx
 msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
