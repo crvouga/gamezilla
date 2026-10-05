@@ -111,6 +111,7 @@ test('health loads its live entry and constructs the real S3 transport', () => {
 });
 
 // regression: health-solid-preload-order
+// regression: health-journeys-share-monitor-account
 test('live health runs server adapters without the local DOM harness conditions', () => {
   const stub = '.cache/spec-live/runtime-stored-files.feature.test.ts';
   const args = healthTestArguments(parseCli(['--bail']), [stub]);
@@ -118,12 +119,46 @@ test('live health runs server adapters without the local DOM harness conditions'
     'test',
     '--timeout',
     '900000',
-    '--parallel',
+    '--max-concurrency',
+    '1',
     '--bail',
     stub,
   ]);
   const health = readFileSync(join(import.meta.dir, 'health.ts'), 'utf8');
   expect(health).toContain("'tests/steps/live-index.ts'");
+});
+
+// regression: health-journeys-share-monitor-account
+test('one live scenario releases the monitor before the next uses it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'health-monitor-'));
+  const fixture = join(dir, 'monitor.test.ts');
+  writeFileSync(
+    fixture,
+    `
+import { expect, test } from 'bun:test';
+let hosting = false;
+test.each(['host a space', 'start a puzzle'])('%s', async () => {
+  expect(hosting).toBe(false);
+  hosting = true;
+  try {
+    for (let turn = 0; turn < 100; turn++) await Promise.resolve();
+  } finally {
+    hosting = false;
+  }
+});
+`
+  );
+  try {
+    const result = spawnSync(
+      process.execPath,
+      healthTestArguments(parseCli([]), [fixture]),
+      { encoding: 'utf8' }
+    );
+    expect(result.status, result.stdout + result.stderr).toBe(0);
+    expect(result.stderr).toContain('2 pass');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 describe('health host limits', () => {
