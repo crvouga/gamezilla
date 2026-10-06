@@ -6,6 +6,8 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import type {
   PickerOption,
@@ -28,6 +30,8 @@ export type PickerTriggerProps<T extends PickerValue> = {
   open: boolean;
   onClick: () => void;
   'aria-label': string | undefined;
+  /** DOM `data-*` identifiers for the trigger button. */
+  dataSet?: ComponentDataSet | undefined;
 };
 
 export function PickerLabel(props: { label: JSX.Element }): JSX.Element {
@@ -54,7 +58,7 @@ export function PickerTrigger<T extends PickerValue>(
   return (
     <button
       class={triggerClass(compact())}
-      data-component="PickerTrigger"
+      {...dataAttrs({ component: 'PickerTrigger', ...props.dataSet })}
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}

@@ -37,6 +37,18 @@ export async function customGameInvitationShown(
   return ui.get(`chess-custom-${side}-invitation`).isVisible();
 }
 
+/** What the person's invitation to play `side` says, or `null` with none. */
+export async function readCustomGameInvitation(
+  s: ProductHarness,
+  actor: string,
+  side: CustomGameSide
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  const invitation = ui.get(`chess-custom-${side}-invitation`);
+  return (await invitation.isVisible()) ? await invitation.text() : null;
+}
+
 /** Whether the person is told the other participant is away. */
 export async function customGameAwayShown(
   s: ProductHarness,
@@ -65,4 +77,19 @@ export async function readCustomGameScreenText(
   await bringToFront(s, actor);
   const content = ui.get('chess-custom-content');
   return (await content.isVisible()) ? await content.text() : null;
+}
+
+/**
+ * What the Custom Game screen tells the person after a refused choice: the
+ * alert's words, `''` with none, or `null` when the screen is not shown.
+ */
+export async function readCustomGameAlert(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  if (!(await ui.get('chess-custom-content').isVisible())) return null;
+  const alert = ui.get('chess-custom-error');
+  return (await alert.isVisible()) ? ((await alert.text()) ?? '') : '';
 }

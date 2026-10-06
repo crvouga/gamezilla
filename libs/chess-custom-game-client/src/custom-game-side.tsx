@@ -62,13 +62,20 @@ function CustomGameInvitation(props: SideProps): JSX.Element {
 function CustomGameSideChoices(props: SideProps): JSX.Element {
   const [person, setPerson] = createSignal('');
   const invitations = createMemo(() =>
-    props.model.members().map((id) => ({
-      value: id,
-      label: <UserUsername profileId={id} withAt={false} />,
-      disabled:
+    props.model.members().map((id) => {
+      const disabled =
         id === props.model.current()?.white.person ||
-        id === props.model.current()?.black.person,
-    }))
+        id === props.model.current()?.black.person;
+      return {
+        value: id,
+        label: <UserUsername profileId={id} withAt={false} />,
+        disabled,
+        // Someone who may be invited, as a person picks them from the list.
+        ...(disabled
+          ? {}
+          : { dataSet: { testid: `chess-custom-${props.side}-invitable` } }),
+      };
+    })
   );
   return (
     <div class="box gap-2">
@@ -112,6 +119,9 @@ function CustomGameSideChoices(props: SideProps): JSX.Element {
           value={person()}
           onValueChange={(value) => setPerson(String(value))}
           dataSet={{ testid: `chess-custom-${props.side}-invite-person` }}
+          triggerDataSet={{
+            testid: `chess-custom-${props.side}-invite-choose`,
+          }}
         />
         <CustomGameAction
           title={<Trans>Invite</Trans>}

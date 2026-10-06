@@ -1,4 +1,7 @@
-import { readCustomGameScreenText } from '@libs/chess-custom-game-harness/custom-game-play-reads';
+import {
+  readCustomGameAlert,
+  readCustomGameScreenText,
+} from '@libs/chess-custom-game-harness/custom-game-play-reads';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { multiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { scenarioAction } from '@libs/harness/actor-ui';
@@ -16,13 +19,16 @@ export const focusChessScreen = scenarioAction({
   },
 });
 
-/** What the person's chess screen says: a Custom Game, else multiplayer chess. */
-export async function readChessScreenText(
+/**
+ * What the person's chess screen tells them: a Custom Game's refusal alert,
+ * else multiplayer chess's search status.
+ */
+export async function readChessToldText(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
   return (
-    (await readCustomGameScreenText(s, actor)) ??
+    (await readCustomGameAlert(s, actor)) ??
     (await multiplayerText(s, actor, 'multiplayer-waiting'))
   );
 }

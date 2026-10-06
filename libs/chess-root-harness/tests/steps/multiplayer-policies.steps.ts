@@ -28,7 +28,7 @@ import {
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import {
   focusChessScreen,
-  readChessScreenText,
+  readChessToldText,
 } from '@libs/chess-root-harness/chess-screen-reads';
 import {
   blockPerson,
@@ -75,7 +75,7 @@ Then(
   '{actor} is not told {actor} blocked him',
   async (w, actor: Actor, blocker: Actor) => {
     await w.s.apply(focusChessScreen, actor);
-    const text = await w.s.read(readChessScreenText, actor);
+    const text = await w.s.read(readChessToldText, actor);
     expect(text).not.toBeNull();
     expect(text).not.toContain('block');
     expect(text).not.toContain(blocker);
