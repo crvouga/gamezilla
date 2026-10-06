@@ -138,4 +138,11 @@ export type RoomModule<
    * `hashRoomState` unless the module needs a narrower projection.
    */
   hash(state: S): string;
+  /**
+   * The command to commit when who is connected changes (presence), or
+   * `null` when the change means nothing to the module. Evaluated on the
+   * room's serial chain with the distinct ids of the connected actors; it is
+   * injected as `ROOM_PRESENCE_IDENTITY` (`@pkgs/room-root-shared/builtin`).
+   */
+  presenceCommand?(state: S, present: readonly string[]): C | null;
 };

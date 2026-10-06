@@ -6,11 +6,9 @@ import {
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerRating,
-  multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
@@ -28,6 +26,10 @@ import {
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
   PUZZLE_RATING_RD_MIN,
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import {
+  focusChessScreen,
+  readChessToldText,
+} from '@libs/chess-root-harness/chess-screen-reads';
 import {
   blockPerson,
   openPersonFromSearch,
@@ -72,8 +74,9 @@ Then(
 Then(
   '{actor} is not told {actor} blocked him',
   async (w, actor: Actor, blocker: Actor) => {
-    await w.s.apply(openMultiplayerChess, actor);
-    const text = await w.s.read(multiplayerText, actor, 'multiplayer-waiting');
+    await w.s.apply(focusChessScreen, actor);
+    const text = await w.s.read(readChessToldText, actor);
+    expect(text).not.toBeNull();
     expect(text).not.toContain('block');
     expect(text).not.toContain(blocker);
   }

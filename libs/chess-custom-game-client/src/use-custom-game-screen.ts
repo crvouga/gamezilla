@@ -9,6 +9,7 @@ import {
   SetChessMainMenuScreen,
 } from '@libs/chess-root-shared/chess-main-menu';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client/use-space-can';
 import { useSpaceDecision } from '@libs/spaces-client/use-space-decision';
@@ -16,7 +17,10 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
-import { spaceSeatMemberIds } from '@libs/spaces-shared/space-members-messages';
+import {
+  SpaceMembersRoomAttr,
+  spaceSeatMemberIds,
+} from '@libs/spaces-shared/space-members-messages';
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
@@ -30,9 +34,17 @@ export function useCustomGameScreen() {
   const games = useSpaceRoomSelector(CustomGamesAttr.from);
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
+  const away = useSpaceRoomSelector(SpaceMembersRoomAttr.away.from);
   const connected = useSpaceRoomSelector(
     (s) => RoomMetaAttr.isConnected.from(s) && RoomMetaAttr.isSynced.from(s)
   );
+  // Name everyone the screen shows: the members, and whoever holds a side.
+  useSyncedProfiles(() => {
+    const game = current();
+    return game === null
+      ? members()
+      : [...members(), game.creator, game.white.person, game.black.person];
+  });
   const command = useCustomGameCommand();
   const dispatch = useSpaceRoomDispatch();
   const choose = (input: CustomGameInput): Promise<void> =>
@@ -62,6 +74,10 @@ export function useCustomGameScreen() {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());
     }),
+    /** The people in the space who are away, each with since when. */
+    away,
+    /** Since when a person in the space has been away, or `null` while present. */
+    awaySince: (person: string): number | null => away()[person] ?? null,
     watchDecision: useSpaceDecision(scope, PERMISSION.chessCustomWatch),
     canCreate: useSpaceCan(scope, PERMISSION.chessCustomCreate),
     canConfigure: useSpaceCan(scope, PERMISSION.chessCustomConfigure),

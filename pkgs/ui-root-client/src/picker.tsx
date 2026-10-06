@@ -146,6 +146,7 @@ export function Picker<T extends PickerValue = string>(
         open={open()}
         onClick={() => setOpen(true)}
         aria-label={name()}
+        dataSet={props.triggerDataSet}
       />
       <ResponsiveSurface
         visible={open()}

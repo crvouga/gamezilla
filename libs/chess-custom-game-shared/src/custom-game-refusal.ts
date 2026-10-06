@@ -8,7 +8,21 @@ import {
   customGamePersonSide,
   customGameStartable,
   customGameTerminal,
+  otherCustomGameSide,
 } from './custom-game-state';
+
+/** How long the other participant must stay away before a claim, in ms. */
+export const CUSTOM_GAME_AWAY_CLAIM_MS = 60_000;
+
+/** What the space tells a Custom Game choice about the people in it. */
+export type CustomGameRoom = {
+  readonly members: readonly string[];
+  /** Whether either of two people has blocked the other. */
+  readonly restricted: (a: string, b: string) => boolean;
+  /** Since when a member has been away, or `null` while present. */
+  readonly awaySince: (person: string) => number | null;
+  readonly now: number;
+};
 
 export const CUSTOM_GAME_CREATOR_OPERATIONS: readonly CustomGameOperation[] = [
   'create',
@@ -70,9 +84,11 @@ function reservedFor(game: CustomGame, person: string): boolean {
 function claimRefusal(
   game: CustomGame,
   choice: CustomGameChoice,
-  actor: string
+  actor: string,
+  room: CustomGameRoom
 ): string {
   if (choice.operation !== 'claim') return '';
+  if (room.restricted(game.creator, actor)) return 'side not available';
   const participant = game[choice.side];
   if (participant.kind !== 'open')
     return participant.kind === 'person' && participant.person === actor
@@ -84,11 +100,13 @@ function claimRefusal(
 function invitationRefusal(
   game: CustomGame,
   choice: CustomGameChoice,
-  members: readonly string[]
+  room: CustomGameRoom
 ): string {
   const participant = 'side' in choice ? game[choice.side] : null;
   if (choice.operation === 'invite') {
-    if (!members.includes(choice.person)) return 'person not in the space';
+    if (!room.members.includes(choice.person)) return 'person not in the space';
+    if (room.restricted(game.creator, choice.person))
+      return 'cannot be invited';
     if (
       reservedFor(game, choice.person) &&
       participant?.person !== choice.person
@@ -102,7 +120,7 @@ function relationshipRefusal(
   game: CustomGame,
   choice: CustomGameChoice,
   actor: string,
-  members: readonly string[]
+  room: CustomGameRoom
 ): string {
   const participant = 'side' in choice ? game[choice.side] : null;
   if (
@@ -111,7 +129,7 @@ function relationshipRefusal(
     participant?.person !== actor
   )
     return 'one side per person';
-  const invitation = invitationRefusal(game, choice, members);
+  const invitation = invitationRefusal(game, choice, room);
   if (invitation !== '') return invitation;
   if (
     (choice.operation === 'accept' || choice.operation === 'decline') &&
@@ -120,7 +138,7 @@ function relationshipRefusal(
     return 'not your invitation';
   if (choice.operation === 'revoke' && participant?.kind !== 'invitation')
     return 'no invitation';
-  const claim = claimRefusal(game, choice, actor);
+  const claim = claimRefusal(game, choice, actor, room);
   if (claim !== '') return claim;
   if (
     choice.operation === 'release' &&
@@ -128,7 +146,9 @@ function relationshipRefusal(
   )
     return 'not your side';
   if (
-    ['ready', 'unready', 'resign', 'offer'].includes(choice.operation) &&
+    ['ready', 'unready', 'resign', 'offer', 'claimWin'].includes(
+      choice.operation
+    ) &&
     customGamePersonSide(game, actor) === null
   )
     return 'not a participant';
@@ -146,13 +166,46 @@ function startRefusal(game: CustomGame, choice: CustomGameChoice): string {
   return customGameStartable(game) ? '' : 'every person must be ready';
 }
 
+/** A participant other than the creator cancels only a two-person game, early. */
+export function customGameCancelRefusal(
+  game: CustomGame,
+  actor: string
+): string {
+  if (game.creator === actor) return '';
+  if (
+    game.status !== 'active' ||
+    game.white.kind !== 'person' ||
+    game.black.kind !== 'person'
+  )
+    return 'only the creator';
+  return game.moves.length >= CUSTOM_GAME_SIDES.length ? 'resign instead' : '';
+}
+
+/** The win is claimed only once the other participant has stayed away long enough. */
+function claimWinRefusal(
+  game: CustomGame,
+  actor: string,
+  room: CustomGameRoom
+): string {
+  const side = customGamePersonSide(game, actor);
+  if (side === null) return 'not a participant';
+  const other = game[otherCustomGameSide(side)];
+  const since = other.kind === 'person' ? room.awaySince(other.person) : null;
+  return since !== null && room.now - since >= CUSTOM_GAME_AWAY_CLAIM_MS
+    ? ''
+    : 'may still return';
+}
+
 function playRefusal(
   game: CustomGame,
   choice: CustomGameChoice,
-  actor: string
+  actor: string,
+  room: CustomGameRoom
 ): string {
   if (
-    ['resign', 'offer', 'agree', 'reject', 'move'].includes(choice.operation) &&
+    ['resign', 'offer', 'agree', 'reject', 'move', 'claimWin'].includes(
+      choice.operation
+    ) &&
     game.status !== 'active'
   )
     return 'not started';
@@ -161,6 +214,12 @@ function playRefusal(
     (game.white.kind !== 'person' || game.black.kind !== 'person')
   )
     return 'draw agreement needs two people';
+  if (choice.operation === 'offer' && game.declinedOffers.includes(actor))
+    return 'offer again after moving';
+  if (choice.operation === 'cancel')
+    return customGameCancelRefusal(game, actor);
+  if (choice.operation === 'claimWin')
+    return claimWinRefusal(game, actor, room);
   if (
     (choice.operation === 'agree' || choice.operation === 'reject') &&
     (customGamePersonSide(game, actor) === null ||
@@ -182,13 +241,17 @@ export function customGameRefusal(
   game: CustomGame | null,
   choice: CustomGameChoice,
   actor: string,
-  members: readonly string[]
+  room: CustomGameRoom
 ): string {
-  if (!members.includes(actor)) return 'not in the space';
+  if (!room.members.includes(actor)) return 'not in the space';
   if (
     game !== null &&
     CUSTOM_GAME_CREATOR_OPERATIONS.includes(choice.operation) &&
-    game.creator !== actor
+    game.creator !== actor &&
+    !(
+      choice.operation === 'cancel' &&
+      customGamePersonSide(game, actor) !== null
+    )
   )
     return 'only the creator';
   const lifecycle = lifecycleRefusal(game, choice);
@@ -202,7 +265,7 @@ export function customGameRefusal(
     choice.revision !== game.revision
   )
     return 'choices changed';
-  const relationship = relationshipRefusal(game, choice, actor, members);
+  const relationship = relationshipRefusal(game, choice, actor, room);
   if (relationship !== '') return relationship;
   if (
     choice.operation === 'clock' &&
@@ -214,5 +277,5 @@ export function customGameRefusal(
       choice.increment > 60)
   )
     return 'invalid time choice';
-  return playRefusal(game, choice, actor);
+  return playRefusal(game, choice, actor, room);
 }

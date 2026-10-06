@@ -1,0 +1,4 @@
+{
+  "summary": "The Bun Postgres contract passed after node-pg set search_path on their shared Mockingbird wire database, but failed alone with current_schema() = public. Give the Bun driver an isolated server so prior tests cannot hide startup option failures.",
+  "regressionTest": "pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts"
+}

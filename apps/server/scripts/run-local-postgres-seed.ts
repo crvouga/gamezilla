@@ -1,6 +1,6 @@
 // @io-wall-ok
 /**
- * Local seed orchestrator. Invoked after migrate when tests boot embedded Postgres.
+ * Local seed orchestrator. Invoked after migrate when tests boot Mockingbird Postgres.
  * Compose {@link DatabaseSeeder} units here (same pattern as migrations).
  */
 
@@ -12,7 +12,7 @@ import { ComposedDatabaseSeeder } from '@pkgs/db-migrate-shared/composed-databas
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 
 const fs = wallNodeFs();

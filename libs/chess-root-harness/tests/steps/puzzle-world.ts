@@ -36,6 +36,11 @@ import { activeSpaceVisible } from '@libs/spaces-harness/spaces-ui-reads';
 export const SECOND_MS = 1_000;
 /** Memo key: the puzzles a scenario's pool can serve. */
 export const SERVABLE_KEY = 'servablePuzzles';
+/** Where a step remembers the move a person last tried on a board. */
+export function lastMoveKey(actor: string): string {
+  return `lastMove:${actor}`;
+}
+
 /** How long a puzzle screen may take to settle when a step names no time. */
 export const SETTLE_MS = 20_000;
 

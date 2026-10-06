@@ -115,6 +115,12 @@
           "tag": "Some",
           "value": "offering"
         },
+        "blocks": {
+          "tag": "Some",
+          "value": {
+            "#set": []
+          }
+        },
         "command": {
           "tag": "None",
           "value": {
@@ -393,6 +399,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "offer"
@@ -647,6 +659,12 @@
           "value": "bob"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -911,6 +929,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "revoke"
@@ -1170,6 +1194,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "create"
@@ -1424,6 +1454,12 @@
           "value": "carol"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -1693,6 +1729,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "invite"
@@ -1952,6 +1994,12 @@
           "value": "carol"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -2226,6 +2274,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "resign"
@@ -2490,6 +2544,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []

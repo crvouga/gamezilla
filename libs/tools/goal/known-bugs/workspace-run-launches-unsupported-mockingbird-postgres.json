@@ -1,0 +1,4 @@
+{
+  "summary": "The workspace Run hook launched the dev stack without verifying the installed Mockingbird Postgres wire server could reconcile the application schema. Mockingbird 2.3.0 lacks pg_index.indisvalid, so startup failed after beginning reconciliation and resetting instance state.",
+  "regressionTest": "libs/tools/scripts/workspace-run.test.ts"
+}

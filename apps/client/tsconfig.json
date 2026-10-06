@@ -344,11 +344,11 @@
       "@pkgs/outbox-shared/*": ["../../pkgs/outbox-shared/src/*"],
       "@pkgs/permissions-shared/*": ["../../pkgs/permissions-shared/src/*"],
       "@pkgs/polyfill-shared/*": ["../../pkgs/polyfill-shared/src/*"],
-      "@pkgs/postgres-embedded-server/*": [
-        "../../pkgs/postgres-embedded-server/src/*"
+      "@pkgs/postgres-mockingbird-server/*": [
+        "../../pkgs/postgres-mockingbird-server/src/*"
       ],
-      "@pkgs/postgres-embedded-shared/*": [
-        "../../pkgs/postgres-embedded-shared/src/*"
+      "@pkgs/postgres-local-shared/*": [
+        "../../pkgs/postgres-local-shared/src/*"
       ],
       "@pkgs/postgres-sqlite-compat-shared/*": [
         "../../pkgs/postgres-sqlite-compat-shared/src/*"

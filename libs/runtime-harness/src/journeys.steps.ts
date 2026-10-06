@@ -23,7 +23,7 @@ import {
   startGoogleSignIn,
 } from './anonymous-gestures';
 import { expectPlusPrices, viewBillingPlans } from './billing-gestures';
-import { endActiveSpace, hostSpace } from './journey-gestures';
+import { endHostedSpace, hostDeferringEnd } from './journey-space';
 import type { JourneyBrowser, JourneyWorld } from './journey-types';
 import { expectNextPuzzleReady, solveChessPuzzle } from './puzzle-gestures';
 import {
@@ -36,9 +36,6 @@ import {
 } from './space-gestures';
 
 const { Given, When, Then, Step } = stepsFor<JourneyWorld>();
-
-/** Cleanup key of a hosted space the scenario has not ended yet. */
-const HOSTED_SPACE = 'hosted-space';
 
 function avatarSeed(w: JourneyWorld): string {
   return `synthetic-${w.journey.runId}`;
@@ -91,16 +88,6 @@ Then('their account offers to sign in again', async (w) => {
   await w.journey.act('expectSignInOffered', expectSignInOffered);
 });
 
-/**
- * Host a space and end it when the scenario closes, unless it ended it.
- * The cleanup is registered first so a failure after the space exists still
- * ends it, instead of leaving the monitor account at its hosting limit.
- */
-async function hostDeferringEnd(w: JourneyWorld): Promise<void> {
-  w.journey.defer(HOSTED_SPACE, endActiveSpace);
-  await w.journey.act('hostSpace', hostSpace);
-}
-
 When('they host a space', async (w) => {
   await hostDeferringEnd(w);
 });
@@ -112,11 +99,6 @@ Given('they are hosting a space', async (w) => {
 Then('the space offers games to play', async (w) => {
   await w.journey.act('expectGamesOffered', expectGamesOffered);
 });
-
-async function endHostedSpace(w: JourneyWorld): Promise<void> {
-  await w.journey.act('endActiveSpace', endActiveSpace);
-  w.journey.settle(HOSTED_SPACE);
-}
 
 When('they end the space', async (w) => {
   await endHostedSpace(w);

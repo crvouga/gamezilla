@@ -31,8 +31,14 @@ Feature: Finish or cancel a Custom Game
       When Alice cancels the Custom Game
       Then The Custom Game is cancelled with no winner
 
-    Scenario: A participant cannot cancel the creator's game
+    Scenario: A watcher cannot cancel the creator's game
       Given Alice has an active Custom Game between Alice as White and Bob as Black
+      And Carol is in Alice's space
+      When Carol cancels the Custom Game
+      Then Carol is told only the creator cancels the Custom Game
+
+    Scenario: A participant cannot cancel a game that has not started
+      Given Alice has a Custom Game between Alice as White and Bob as Black
       When Bob cancels the Custom Game
       Then Bob is told only the creator cancels the Custom Game
 
@@ -40,6 +46,19 @@ Feature: Finish or cancel a Custom Game
       Given Alice has a completed Custom Game between Alice as White and Bob as Black
       When Alice cancels the Custom Game
       Then Alice is told the Custom Game has finished
+
+  Rule: Either participant may cancel a game between two people until each side has moved
+
+    Scenario: Black cancels before making a move
+      Given Alice has an active Custom Game after White's e4
+      When Bob cancels the Custom Game
+      Then The Custom Game is cancelled with no winner
+
+    Scenario: A participant cannot cancel the creator's game once both sides have moved
+      Given Alice has an active Custom Game after White's e4 and Black's e5
+      When Bob cancels the Custom Game
+      Then Bob is told to resign instead of cancelling
+      And The Custom Game remains active
 
   Rule: Leaving the space releases a waiting side and resigns an active side
 
@@ -62,6 +81,7 @@ Feature: Finish or cancel a Custom Game
       And Bob cannot move pieces in the Custom Game
 
   Rule: Ending the space cancels every unfinished Custom Game
+    No counter-example: nobody can keep an unfinished game once its space ends; a completed result is simply kept.
 
     Scenario: The host's departure ends an active game
       Given Alice has an active Custom Game between Alice as White and Bob as Black

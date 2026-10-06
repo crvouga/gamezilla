@@ -84,21 +84,15 @@ async function readInvalidIndexNames(
   client: PostgresSqlClient,
   schemaName: string
 ): Promise<ReadonlySet<string>> {
-  try {
-    const rows = await client.query<{ name: string }>(sql`
-      SELECT c.relname AS name
-      FROM pg_index i
-      JOIN pg_class c ON c.oid = i.indexrelid
-      JOIN pg_namespace n ON n.oid = c.relnamespace
-      WHERE n.nspname = ${schemaName}
-        AND NOT i.indisvalid
-    `);
-    return new Set(rows.map((r) => r.name));
-  } catch {
-    // Engines without pg_index (mockingbird-postgres) cannot report a failed
-    // CONCURRENTLY build; nothing is marked invalid.
-    return new Set<string>();
-  }
+  const rows = await client.query<{ name: string }>(sql`
+    SELECT c.relname AS name
+    FROM pg_index i
+    JOIN pg_class c ON c.oid = i.indexrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = ${schemaName}
+      AND NOT i.indisvalid
+  `);
+  return new Set(rows.map((r) => r.name));
 }
 
 async function readPostgresIndexes(

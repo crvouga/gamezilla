@@ -14,8 +14,10 @@ import {
   customFact,
   customGame,
   customHost,
+  customMembers,
   customPeople,
   customPerson,
+  customScreen,
   customSpace,
   customStart,
 } from './custom-game-world';
@@ -110,6 +112,7 @@ When(
 When(
   '{actor} claims {word} in the Custom Game',
   async (w, actor: string, name: string) => {
+    if (customMembers(w).has(actor)) await customScreen(w, actor);
     if ((await w.s.read(readCustomGameProbe, actor)) !== null) {
       await w.s.apply(changeCustomGame, actor, {
         operation: 'claim',
@@ -169,6 +172,7 @@ When(
         invited,
         await w.s.read(readCustomGameIdentity, invited)
       );
+    await customScreen(w, actor);
     await w.s.apply(changeCustomGame, actor, {
       operation: 'invite',
       side: customSide(name),

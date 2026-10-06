@@ -4,7 +4,9 @@
 // A bot's choice among legal moves is intentionally not promised; the game
 // here is one allowed choice. Other chess laws belong to chess itself.
 // People lose their connection independently. Bots keep playing their own
-// turns, and a returning person sees the current board and outcome.
+// turns, and a returning person sees the current board and outcome. Only the
+// creator cancels a game with a bot; in a game between two people the other
+// participant may also cancel until each side has moved.
 module custom_game_control {
   pure val PEOPLE = Set("alice","bob")
   pure val COLORS = Set("white","black")
@@ -66,9 +68,11 @@ module custom_game_control {
     if(controlledStatus == "active" and not(_offline.contains(actor)) and COLORS.exists(c => controllers.get(c) == actor))
       _update("completed",controlledPly,controlledTurn,if(controllers.get("white") == actor) "black wins by resignation" else "white wins by resignation",_offline,"")
     else _hold
-  /// The creator can cancel while watching or playing, before completion.
+  /// The creator can cancel while watching or playing, before completion. In a
+  /// game between two people, the other participant may cancel until each side has moved.
   action cancelControlledGame(actor: str): bool =
-    if(controlledStatus == "active" and actor == "alice" and not(_offline.contains(actor)))
+    if(controlledStatus == "active" and not(_offline.contains(actor)) and (actor == "alice" or
+        (controlledPly < 2 and COLORS.forall(c => controllers.get(c) != "bot") and COLORS.exists(c => controllers.get(c) == actor))))
       _update("cancelled",controlledPly,controlledTurn,"cancelled",_offline,"")
     else _hold
   /// A bot asked to play the wrong turn changes nothing.

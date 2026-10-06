@@ -1,6 +1,7 @@
 import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
+import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
@@ -28,7 +29,11 @@ const FRIENDS_SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [
     ACCOUNT_PRIVACY_HARNESS_SLICE,
     PROFILE_HARNESS_SLICE,
-    spacesHarnessSlice({ games: [], clients: [] }),
+    spacesHarnessSlice({
+      games: [],
+      clients: [],
+      blocks: FRIENDS_BLOCK_RELATION,
+    }),
     FRIENDS_HARNESS_SLICE,
     NOTIFICATIONS_HARNESS_SLICE,
     SEARCH_HARNESS_SLICE,

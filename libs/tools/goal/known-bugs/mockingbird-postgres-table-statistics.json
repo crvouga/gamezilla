@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 2.3.0 lacks pg_stat_user_tables. Upstream: https://github.com/crvouga/mockingbird/issues/320",
+  "regressionTest": "pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts"
+}

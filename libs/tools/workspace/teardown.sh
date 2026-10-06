@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Release this workspace's dev listeners and sidecar state. No containers or
-# daemons to stop: the local stack (embedded Postgres, Mockingbird S3, EMQX) is spawned
+# daemons to stop: the local stack (Mockingbird Postgres, Mockingbird S3, EMQX) is spawned
 # per-command and everything else lives inside the worktree, which the
 # orchestrator removes.
 set -euo pipefail
@@ -32,6 +32,3 @@ if command -v lsof >/dev/null 2>&1; then
     done
   done
 fi
-
-# A reused port block must never inherit a half-initialised cluster.
-rm -rf pkgs/postgres-embedded/data

@@ -7,8 +7,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { AddOne, readTally } from '@pkgs/room-root-harness/game-room';
+import {
+  AddOne,
+  gameRoomModule,
+  readTally,
+} from '@pkgs/room-root-harness/game-room';
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-root-shared/bounds';
+import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import type { LogEntry } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import { WIRE_VERSION } from '@pkgs/room-root-shared/wire';
@@ -202,6 +207,30 @@ describe('room server: roster', () => {
     expect(framesOfKind(connection(rig, 'bob').frames, 'roster')).toHaveLength(
       1
     );
+  });
+});
+
+describe('room server: presence', () => {
+  test('a module commits what a change of who is connected means to it, as the room engine', async () => {
+    const seen: (readonly string[])[] = [];
+    const rig = await startServer({
+      module: {
+        ...gameRoomModule,
+        presenceCommand: (_state, present) => {
+          seen.push(present);
+          return present.length === 0 ? AddOne({}) : null;
+        },
+      },
+    });
+    connectPerson(rig, 'bob');
+    await rig.server.readCommittedState();
+    rig.server.unregisterConnection('bob');
+    await rig.server.readCommittedState();
+    expect(seen).toEqual([['bob'], []]);
+    expect(tally(rig)).toBe(1);
+    expect(rig.storage.entries.map((e) => e.actor?.id)).toEqual([
+      ROOM_PRESENCE_IDENTITY,
+    ]);
   });
 });
 

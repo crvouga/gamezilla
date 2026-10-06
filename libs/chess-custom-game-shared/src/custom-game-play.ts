@@ -22,6 +22,7 @@ export function finishCustomGame(
     outcome,
     endedAt: now,
     drawOfferedBy: '',
+    declinedOffers: [],
     remaining: {
       white: customGameTimeLeft(game, 'white', now),
       black: customGameTimeLeft(game, 'black', now),
@@ -41,9 +42,13 @@ export function finishCustomGame(
 export function customGameWinOrDraw(
   game: CustomGame,
   winner: CustomGameSide,
-  reason: 'resignation' | 'time'
+  reason: 'resignation' | 'time' | 'away'
 ): CustomGame['outcome'] {
   if (!customGameCanMate(customGameChess(game), winner)) return 'draw';
+  if (reason === 'away')
+    return winner === 'white'
+      ? 'white wins because black stayed away'
+      : 'black wins because white stayed away';
   return reason === 'time'
     ? `${winner} wins on time`
     : `${winner} wins by resignation`;
@@ -81,6 +86,9 @@ export function playCustomGameMove(
     turn: chess.turn() === 'w' ? 'white' : 'black',
     moves: [...game.moves, { uci, san: move.san }],
     drawOfferedBy: '',
+    declinedOffers: game.declinedOffers.filter(
+      (person) => person !== game[game.turn].person
+    ),
     turnStartedAt: now,
     remaining: {
       ...game.remaining,
@@ -133,7 +141,17 @@ export function playCustomGameChoice(
     case 'agree':
       return finishCustomGame(game, 'draw', now);
     case 'reject':
-      return { ...game, drawOfferedBy: '' };
+      return {
+        ...game,
+        drawOfferedBy: '',
+        declinedOffers: [...game.declinedOffers, game.drawOfferedBy],
+      };
+    case 'claimWin': {
+      const side = customGamePersonSide(game, actor);
+      return side === null
+        ? game
+        : finishCustomGame(game, customGameWinOrDraw(game, side, 'away'), now);
+    }
     case 'move':
       return playCustomGameMove(game, choice.uci, now);
     default:

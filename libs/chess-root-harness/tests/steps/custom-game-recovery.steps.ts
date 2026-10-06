@@ -23,6 +23,7 @@ import {
   customFact,
   customGame,
   customHost,
+  customMembers,
   customPerson,
   customScreen,
   customSpace,
@@ -48,14 +49,16 @@ Given(
     );
   }
 );
-Given("{actor} has left {actor}'s space", async (w, actor: string) =>
-  w.s.apply(leaveSpace, actor)
-);
+Given("{actor} has left {actor}'s space", async (w, actor: string) => {
+  await w.s.apply(leaveSpace, actor);
+  customMembers(w).delete(actor);
+});
 Given(
   '{actor} has left the space after releasing Black',
   async (w, actor: string) => {
     await customFact(w, actor, { operation: 'claim', side: 'black' });
     await w.s.apply(leaveSpace, actor);
+    customMembers(w).delete(actor);
   }
 );
 Given(

@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 2.3.0 lacks persisted index comments and pg_description, blocking automatic index ownership queries; upstream issue #331.",
+  "regressionTest": "pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts"
+}

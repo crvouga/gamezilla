@@ -2,7 +2,7 @@
 // @api-wall-ok
 /**
  * CLI entry for root `bun run db:migrate` / infra migrate phase.
- * Tests/CI boot `@pkgs/postgres-embedded` then migrate via `@libs/runtime`.
+ * Tests/CI boot `@pkgs/postgres-mockingbird-server` then migrate via `@libs/runtime`.
  */
 
 import { migratePostgresApp } from '@libs/runtime-server/migrate';

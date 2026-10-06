@@ -189,3 +189,45 @@ export const CUSTOM_GAME_REPETITION = [
   'f3g1',
   'f6g8',
 ] as const;
+/** White's pawn stands on e7 with e8 empty and White to move. */
+export const CUSTOM_GAME_BEFORE_PROMOTION = [
+  'd2d4',
+  'e7e5',
+  'd4e5',
+  'g8h6',
+  'g1f3',
+  'f8c5',
+  'e2e3',
+  'e8g8',
+  'e5e6',
+  'b8c6',
+  'e6e7',
+  'a7a6',
+] as const;
+/** White may castle kingside next. */
+export const CUSTOM_GAME_BEFORE_CASTLING = [
+  'e2e4',
+  'e7e5',
+  'g1f3',
+  'b8c6',
+  'f1c4',
+  'g8f6',
+] as const;
+/** Black's d-pawn has just passed White's pawn on e5. */
+export const CUSTOM_GAME_BEFORE_EN_PASSANT = [
+  'e2e4',
+  'a7a6',
+  'e4e5',
+  'd7d5',
+] as const;
+/** Black's bishop on a6 attacks f1, the square White's king would cross. */
+export const CUSTOM_GAME_CASTLING_THROUGH_CHECK = [
+  'e2e4',
+  'b7b6',
+  'g1f3',
+  'c8a6',
+  'g2g3',
+  'e7e6',
+  'f1g2',
+  'h7h6',
+] as const;

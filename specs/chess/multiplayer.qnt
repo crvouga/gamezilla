@@ -1,7 +1,8 @@
 // A matchmaking match gives its two people one shared, untimed chess game.
 // The game owns the sides, moves and result, never the pairing algorithm.
 // Either side assignment is permitted. People cannot search while their game
-// is unfinished. Repeating the same match keeps the same game.
+// is unfinished, nor while they are a participant of an active Custom Game.
+// Repeating the same match keeps the same game.
 //
 // Four people each have two devices. Two successive games and eight moves
 // expose competing devices, stale moves, old resignations and repeated
@@ -44,6 +45,8 @@ module multiplayer {
   var _lastTurn: PlayDevice -> str
   var _lastOutcome: PlayDevice -> PlayOutcome
   var _lastSeeking: PlayDevice -> bool
+  /// Bookkeeping: people who are participants of an active Custom Game.
+  var _inCustomGame: Set[str]
 
   def _game(p: str): PlayGame = _games.get(_current.get(p))
   def _unfinished(p: str): bool = _current.get(p) != 0 and _game(p).outcome == OngoingPlay
@@ -51,7 +54,11 @@ module multiplayer {
     if (g.outcome != OngoingPlay) "nobody"
     else if (g.moves % 2 == 0) g.white else g.black
 
-  action _show(games, received, current, seeking, accounts, offline) = all {
+  action _show(games, received, current, seeking, accounts, offline) =
+    _showWith(games, received, current, seeking, accounts, offline, _inCustomGame)
+
+  action _showWith(games, received, current, seeking, accounts, offline, inCustomGame) = all {
+    _inCustomGame' = inCustomGame,
     _games' = games, _received' = received, _current' = current,
     _sequence' = _sequence,
     _seeking' = seeking, _accounts' = accounts, _offline' = offline,
@@ -68,6 +75,7 @@ module multiplayer {
   }
 
   action init = all {
+    _inCustomGame' = Set(),
     _games' = Set(0, 1, 2).mapBy(_ => { white: "nobody", black: "nobody", moves: 0, outcome: NoPlay }),
     _sequence' = Set(0, 1, 2).mapBy(_ => -1),
     _received' = Set(), _current' = PEOPLE.mapBy(_ => 0), _seeking' = Set(),
@@ -87,6 +95,7 @@ module multiplayer {
   /// The game supplies availability and asks matchmaking for an opponent.
   action findOpponent(device: PlayDevice): bool = {
     val canAsk = not(_offline.contains(device)) and _accounts.contains(device.person) and not(_unfinished(device.person))
+      and not(_inCustomGame.contains(device.person))
     _show(_games, _received, _current,
       if (canAsk) _seeking.union(Set(device.person)) else _seeking, _accounts, _offline)
   }
@@ -139,6 +148,7 @@ module multiplayer {
       lookingForOpponent' = lookingForOpponent,
       _lastNumber' = _lastNumber, _lastMoves' = _lastMoves, _lastTurn' = _lastTurn,
       _lastOutcome' = _lastOutcome, _lastSeeking' = _lastSeeking,
+      _inCustomGame' = _inCustomGame,
     }
   }
 
@@ -160,6 +170,12 @@ module multiplayer {
     _show(if (_unfinished(person)) _games.set(n, { ...g, outcome: WonPlay(winner) }) else _games,
       _received, _current.set(person, 0), _seeking.exclude(Set(person)), _accounts.exclude(Set(person)), _offline)
   }
+
+  /// A person becomes a participant of an active Custom Game, or that game finishes.
+  /// Neither changes a multiplayer game or a search already under way.
+  action _customGameChanges(person: str, active: bool): bool =
+    _showWith(_games, _received, _current, _seeking, _accounts, _offline,
+      if (active) _inCustomGame.union(Set(person)) else _inCustomGame.exclude(Set(person)))
 
   /// An offline device keeps its last accepted board; the untimed game stays.
   action loseConnection(device: PlayDevice): bool = all {
@@ -184,6 +200,7 @@ module multiplayer {
     nondet position = Set(moveCount.get(moveDevice), earlierPosition).oneOf()
     nondet _rareEvent = 0.to(127).oneOf()
     nondet legal = Set(true, false).oneOf()
+    nondet customGameActive = Set(true, false).oneOf()
     nondet sequence = (if (_sequence.get(moveNumber) >= 0) Set(_sequence.get(moveNumber)) else Set(0, 1, 2)).oneOf()
     nondet matchNumber = NUMBERS.oneOf()
     nondet white = (if (_received.contains(matchNumber)) Set(_games.get(matchNumber).white)
@@ -197,6 +214,7 @@ module multiplayer {
       all { _rareEvent == 0, resignPlay(device, number) },
       all { _rareEvent == 0, deletePlayAccount(person) },
       loseConnection(device), comeBackOnline(device),
+      all { _rareEvent < 16, _customGameChanges(person, customGameActive) },
     }
   }
 
@@ -283,6 +301,7 @@ module multiplayer {
     turn.in(DEVICES.setOfMaps(_people)),
     playOutcome.in(DEVICES.setOfMaps(_outcomes)),
     lookingForOpponent.in(DEVICES.setOfMaps(Set(true, false))),
+    _inCustomGame.in(PEOPLE.powerset()),
 
     _wellFormed, invDistinctSides, invOneUnfinishedGame, invHonestResult,
     invDevicesAgree, invOfflineBoard, invDeletedCannotPlay, invAcceptedMoves,

@@ -1,6 +1,6 @@
 /**
  * Harness SQL fabric id. In-process harness always uses mockingbird-postgres + mockingbird-sqlite.
- * Fidelity-max / `HARNESS_MODE=real` uses postgres-embedded outside this fabric.
+ * Fidelity-max / `HARNESS_MODE=real` uses the Mockingbird wire server outside this fabric.
  */
 
 export type HarnessSqlBackend = 'mem';

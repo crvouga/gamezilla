@@ -66,8 +66,12 @@ export const customGameSchema = z
       'black wins by checkmate',
       'white wins on time',
       'black wins on time',
+      'white wins because black stayed away',
+      'black wins because white stayed away',
     ]),
     drawOfferedBy: z.string(),
+    /** People whose draw offer was declined and who have not moved since. */
+    declinedOffers: z.array(z.string()).default([]),
   })
   .strict();
 export type CustomGame = z.infer<typeof customGameSchema>;
@@ -108,6 +112,7 @@ export function newCustomGame(id: string, creator: string): CustomGame {
     moves: [],
     outcome: '',
     drawOfferedBy: '',
+    declinedOffers: [],
   };
 }
 
@@ -123,6 +128,19 @@ export function customGamePersonSide(
     CUSTOM_GAME_SIDES.find(
       (side) => game[side].kind === 'person' && game[side].person === person
     ) ?? null
+  );
+}
+
+/** Whether `person` takes part in a space's current, active Custom Game. */
+export function customGameActiveParticipant(
+  games: CustomGames,
+  person: string
+): boolean {
+  const game = games.current;
+  return (
+    game !== null &&
+    game.status === 'active' &&
+    customGamePersonSide(game, person) !== null
   );
 }
 

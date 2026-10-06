@@ -9,6 +9,7 @@ import type { DenialReason } from '@pkgs/permissions-shared/policy';
 const COPY: Readonly<Record<string, () => string>> = {
   'unlock.multiplayer.finish.title': () =>
     t`Finish your current multiplayer game first`,
+  'unlock.custom-game.finish.title': () => t`Finish your Custom Game first`,
   'unlock.privacy.proof.title': () => t`Prove the account again to continue`,
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>

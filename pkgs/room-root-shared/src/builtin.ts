@@ -8,6 +8,9 @@ import {
 /** Identity used when the engine injects a scheduled command. */
 export const ROOM_SCHEDULER_IDENTITY = 'room:scheduler';
 
+/** Identity used when the engine injects a module's presence command. */
+export const ROOM_PRESENCE_IDENTITY = 'room:presence';
+
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
 }

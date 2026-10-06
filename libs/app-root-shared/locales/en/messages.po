@@ -430,8 +430,20 @@ msgid "Black to move."
 msgstr "Black to move."
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
-msgid "Black wins."
-msgstr "Black wins."
+msgid "Black wins because White stayed away."
+msgstr "Black wins because White stayed away."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "Black wins by checkmate."
+msgstr "Black wins by checkmate."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "Black wins by resignation."
+msgstr "Black wins by resignation."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "Black wins on time."
+msgstr "Black wins on time."
 
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 #: libs/friends-client/src/use-friend-user-overflow-menu.tsx
@@ -447,6 +459,10 @@ msgstr "Block this user?"
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Bot"
 msgstr "Bot"
+
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "Both sides have moved. Resign instead of cancelling."
+msgstr "Both sides have moved. Resign instead of cancelling."
 
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "Both sides must be filled and every person ready."
@@ -550,6 +566,10 @@ msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60.
 #: libs/app-root-client/src/app-commands.tsx
 msgid "ci"
 msgstr "ci"
+
+#: libs/chess-custom-game-client/src/custom-game-active.tsx
+msgid "Claim the win"
+msgstr "Claim the win"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 msgid "Claim this side"
@@ -1190,12 +1210,20 @@ msgid "Finding an opponent…"
 msgstr "Finding an opponent…"
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "Finish a game before asking for a rematch."
+msgstr "Finish a game before asking for a rematch."
+
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Finish or cancel this game before creating another."
 msgstr "Finish or cancel this game before creating another."
 
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Finish your current multiplayer game first"
 msgstr "Finish your current multiplayer game first"
+
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "Finish your Custom Game first"
+msgstr "Finish your Custom Game first"
 
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Finishing checkout…"
@@ -1436,6 +1464,18 @@ msgstr "Invited person: {0}"
 #: libs/chess-custom-game-client/src/custom-game-person.tsx
 msgid "Invited:"
 msgstr "Invited:"
+
+#: libs/chess-custom-game-client/src/custom-game-side.tsx
+msgid "invites you to play Black."
+msgstr "invites you to play Black."
+
+#: libs/chess-custom-game-client/src/custom-game-side.tsx
+msgid "invites you to play White."
+msgstr "invites you to play White."
+
+#: libs/chess-custom-game-client/src/custom-game-active.tsx
+msgid "is away. After a minute away you may claim the win."
+msgstr "is away. After a minute away you may claim the win."
 
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
@@ -3068,6 +3108,10 @@ msgstr "That move is not legal in this position."
 msgid "That side is no longer open."
 msgstr "That side is no longer open."
 
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "That side is not available to you."
+msgstr "That side is not available to you."
+
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
@@ -3132,6 +3176,10 @@ msgstr "The link may be wrong, or the space may never have existed."
 msgid "The multiplayer game is drawn."
 msgstr "The multiplayer game is drawn."
 
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "The other participant may still return. Wait before claiming the win."
+msgstr "The other participant may still return. Wait before claiming the win."
+
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
@@ -3144,6 +3192,10 @@ msgstr "Theme"
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Themes"
 msgstr "Themes"
+
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "There is no invitation for that side."
+msgstr "There is no invitation for that side."
 
 #: libs/account-privacy-client/src/privacy-explanation.tsx
 msgid "There is no legal preservation obligation on this account unless one is listed below."
@@ -3216,6 +3268,10 @@ msgstr "This is your only way to sign in, so it can't be removed."
 #: libs/auth-client/src/account-device-detail-screen.tsx
 msgid "This link is missing a device id."
 msgstr "This link is missing a device id."
+
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "This person cannot be invited."
+msgstr "This person cannot be invited."
 
 #: libs/friends-client/src/friend-user-screen-view.tsx
 msgid "This profile is no longer available because the account was deleted."
@@ -3463,8 +3519,20 @@ msgid "White vs Black — play, invite or watch"
 msgstr "White vs Black — play, invite or watch"
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
-msgid "White wins."
-msgstr "White wins."
+msgid "White wins because Black stayed away."
+msgstr "White wins because Black stayed away."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "White wins by checkmate."
+msgstr "White wins by checkmate."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "White wins by resignation."
+msgstr "White wins by resignation."
+
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
+msgid "White wins on time."
+msgstr "White wins on time."
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "White: {white}. Black: {black}. {state}"
@@ -3536,6 +3604,11 @@ msgstr "You have unsaved avatar changes."
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 msgid "You left the space"
 msgstr "You left the space"
+
+#: libs/chess-custom-game-client/src/custom-game-active.tsx
+#: libs/chess-custom-game-client/src/custom-game-error.tsx
+msgid "You may offer a draw again after your next move."
+msgstr "You may offer a draw again after your next move."
 
 #. placeholder {0}: part.from
 #. placeholder {1}: part.to

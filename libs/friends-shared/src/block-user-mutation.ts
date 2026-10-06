@@ -10,7 +10,7 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { friendsActor } from './friends-actor';
 import { FRIENDS_SELF } from './friends-mutation-codes';
-import { FriendRequestClosed } from './friends-outbox-messages';
+import { BlockChanged, FriendRequestClosed } from './friends-outbox-messages';
 import { FriendshipRepository } from './friendship-repository';
 
 async function cancelPendingRequests(args: {
@@ -72,5 +72,9 @@ export const blockUserMutation = defineMutation({
         deleted_at = NULL,
         created_at = excluded.created_at
     `);
+    await new Outbox({ tx, env }).send({
+      id: `friends.outbox/block-changed:${env.createId()}`,
+      message: BlockChanged({ blockerId: actor, blockedId: userId }),
+    });
   },
 });
