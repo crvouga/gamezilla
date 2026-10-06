@@ -318,8 +318,9 @@ terms:
 
   - term: opponent
     definition: >-
-      The side the solver plays against. Its setup move and its replies play
-      by themselves.
+      The side the solver plays against in a puzzle; its setup move and its
+      replies play by themselves. In multiplayer chess it is the multiplayer
+      opponent.
 
   - term: prompt
     definition: >-
@@ -479,13 +480,14 @@ terms:
 
   - term: provisional
     definition: >-
-      A puzzle rating that has not yet settled, shown with a trailing "?"
-      (for example "1500?").
+      A puzzle rating or multiplayer rating that has not yet settled, shown
+      with a trailing "?" (for example "1500?").
 
   - term: settle
     definition: >-
-      A puzzle rating settles once enough rated attempts have been played; it
-      then loses its "?".
+      A puzzle rating settles once enough rated attempts have been played,
+      and a multiplayer rating once enough rated multiplayer games have been
+      played at its speed; it then loses its "?".
     forms: [settles, settled, settling]
 
   - term: rated attempt
@@ -585,30 +587,87 @@ terms:
   - term: keyboard
     from: runtime
 
+  # --- Multiplayer chess -------------------------------------------------------
+
   - term: multiplayer chess
     definition: >-
-      An untimed game of ordinary chess between two people with
-      accounts, played exclusively within spaces. People in either space
-      may watch the same game, including guests, but only its matched people
-      may move or resign. Each
-      person can have one unfinished multiplayer game, across all devices.
-      White starts; the people see their side, opponent and the same board.
-      Either assignment of White and Black is allowed and remains fixed.
-    forms: [multiplayer game, multiplayer games, multiplayer board]
-    model: [PlayGame, playNumber, whiteSide, blackSide, playBoard, PlayBoard]
+      A rated game of ordinary chess between two people with accounts,
+      played at the time control both of them chose, within spaces. People
+      in either space may watch the same game, including guests, but only
+      its matched people may move, resign or abort. It is separate from the
+      puzzle a space is playing. Each person can have one unfinished
+      multiplayer game, across all devices. White starts; both people see
+      their colour, their multiplayer opponent, both multiplayer clocks and
+      the same board. Colours follow the colour balance and stay fixed for
+      the game.
+    forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
+    model: [PlayGame, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
+
+  - term: matched
+    definition: >-
+      Given a multiplayer opponent by a matchmaking match. A matched person
+      sees their multiplayer opponent, the time control and their colour.
+    forms: [matched with, being matched]
+
+  - term: multiplayer opponent
+    definition: >-
+      The other person in someone's multiplayer game, shown with their
+      username and their multiplayer rating for the game's speed.
+    forms: [multiplayer opponents, multiplayer opponent's]
+
+  - term: time control
+    definition: >-
+      How fast a multiplayer game is played, written as the minutes each side
+      starts with plus the seconds of increment each move earns: 1+0 and 2+1
+      (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5 and 15+10 (rapid);
+      30+0 and 30+20 (classical). Finding a chess opponent needs exactly one
+      of these, and people are paired only with someone who chose the same
+      one. No multiplayer game is untimed.
+    forms: [time controls, increment, offered time control]
+    avoid: [time format, game mode, pace]
+    model: [TimeControl, timeControl]
+
+  - term: speed
+    definition: >-
+      The family a time control belongs to: bullet, blitz, rapid or
+      classical, as the time control lists them. Each speed has its own
+      multiplayer rating.
+    forms: [speeds, bullet, blitz, rapid, classical]
 
   - term: find a chess opponent
     definition: >-
-      From a space, ask matchmaking for another person available for an untimed multiplayer
-      game. Everyone starts with a multiplayer rating of 1500, separate from
-      puzzle ratings. This game is unrated: its result never changes either
-      rating. The rating range grows as matchmaking defines it. Blocking in
-      either direction prevents a new pairing. A participant of an active
-      Custom Game finishes it before finding a chess opponent. Signing out on one device
-      leaves an accepted wait available on the person's other devices.
-    forms: [finds a chess opponent, finding a chess opponent, chess opponent search, opponent search, search]
-    model: [findOpponent, lookingForOpponent]
+      From a space, ask matchmaking for another person available for a
+      multiplayer game at one chosen time control. People are paired only
+      with someone who chose the same time control, by their multiplayer
+      ratings for its speed, with the rating range growing as matchmaking
+      defines it. Blocking in either direction prevents a new pairing. A
+      participant of an active Custom Game finishes it before finding a
+      chess opponent. While looking, a person sees their time control and
+      how long they have been looking. Signing out on one device leaves an
+      accepted search available on the person's other devices.
+    forms:
+      - finds a chess opponent
+      - finding a chess opponent
+      - chess opponent
+      - chess opponents
+      - looking for a chess opponent
+      - looking for chess opponents
+      - looking for other chess opponents
+      - began looking
+      - chess opponent search
+      - opponent search
+      - search
+    model: [findOpponent, lookingForOpponent, lookingSeconds]
+
+  - term: find a new opponent
+    definition: >-
+      From a multiplayer game that is over or aborted, look for a chess
+      opponent again at that game's time control, in one step. It ends any
+      waiting multiplayer rematch offer. During an unfinished game it is
+      refused like any other search.
+    forms: [finds a new opponent, found a new opponent, finding a new opponent]
+    model: [findNewOpponent]
 
   - term: stop finding a chess opponent
     definition: >-
@@ -619,60 +678,227 @@ terms:
 
   - term: open multiplayer chess
     definition: >-
-      Within a space, see the person's current opponent search or most recent multiplayer
-      game. A space can watch its host's multiplayer game, including a game
-      against someone in another space. Coming back or opening it on another device never starts a
-      second game. After a result, the person may ask for a new opponent.
+      Within a space, see the person's current opponent search or most
+      recent multiplayer game. A space can watch its host's multiplayer
+      game, including a game against someone in another space. Coming back
+      or opening it on another device never starts a second game. After a
+      game is over or aborted, the person may find a new opponent, and after
+      a result they may offer a multiplayer rematch.
     forms: [opens multiplayer chess, returns to multiplayer chess]
     model: [openMultiplayer]
 
+  - term: colour balance
+    definition: >-
+      How many more of their finished multiplayer games a person has played
+      as White than as Black; aborted games do not count. When two people
+      are matched, the one with the greater colour balance plays Black; when
+      the balances are equal, either may be White. A multiplayer rematch
+      swaps the colours instead.
+    forms: [colour balances, colour, colours]
+    avoid: [color, side preference]
+
   - term: multiplayer turn
     definition: >-
-      The person whose side may move next. A legal move changes the board
-      and passes the turn exactly once. A move attempted for a different
-      board position, from another device or after the game is over never
-      moves a piece. An offline person sees the last accepted board and
-      cannot send a move or resignation for later.
+      The person whose side may move next. A legal move changes the board,
+      joins the multiplayer move list and passes the turn exactly once. A
+      move attempted for a different board position, from another device or
+      after the game is over never moves a piece. An offline person sees the
+      last accepted board and cannot send a move, resignation, abort or offer
+      for later.
     forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
-    model: [playMove, moveCount, turn]
+    model: [playMove, playCurrentMove, moveCount, turn]
+
+  - term: multiplayer move list
+    definition: >-
+      The moves of one multiplayer game in algebraic notation, shown to both
+      people and kept with its result.
+    forms: [multiplayer move lists]
+
+  - term: multiplayer clock
+    definition: >-
+      The time each side has left in a multiplayer game, shown to both
+      people. Each side starts with the time control's minutes. Neither
+      clock runs until both people have made their first move; then only
+      the side to move spends time, even while they are disconnected, and
+      each legal move adds the time control's increment to the person who
+      made it.
+    forms:
+      - multiplayer clocks
+      - seconds pass in multiplayer chess
+      - second passes in multiplayer chess
+      - seconds have passed in multiplayer chess
+    avoid: [timer]
+    model: [whiteClock, blackClock, multiplayerTimePasses]
+
+  - term: run out of time
+    definition: >-
+      A multiplayer clock reaching zero for the side to move. That person
+      loses at once, even if their move arrives at that moment, unless their
+      multiplayer opponent cannot checkmate by any series of legal moves,
+      which makes it a multiplayer draw (FIDE Laws of Chess, Article 6.9).
+    forms: [runs out of time, ran out of time, running out of time, has run out]
+
+  - term: miss the first move
+    definition: >-
+      Not make one's first move in time: White within 30 seconds of the
+      multiplayer game's start, and Black within 30 seconds of White's first
+      move. It aborts the game, so nobody loses a game they never began, even
+      when they were matched while away.
+    forms: [misses the first move, missed the first move, missing the first move]
+
+  - term: abort the multiplayer game
+    definition: >-
+      End a multiplayer game before both people have made their first move.
+      It has no winner, moves nobody's multiplayer rating, and frees both
+      people to find a chess opponent again; it has no rematch. Either person
+      may abort until both have moved, and only afterwards may resign.
+      Missing the first move, or confirming account deletion before both
+      people have moved, aborts the game too.
+    forms:
+      - aborts the multiplayer game
+      - aborted the multiplayer game
+      - multiplayer game was aborted
+      - aborted multiplayer game
+      - aborted
+      - aborts
+      - abort
+      - can no longer be aborted
+    avoid: [void]
+    model: [abortPlay, AbortedPlay, AbortedGame]
 
   - term: multiplayer result
     definition: >-
       The permanent win or draw both people see when the multiplayer game
       is over. Checkmate wins for the mating side; resignation wins for the
-      other side. Stalemate, insufficient mating material, the same position
-      for the third time, or fifty moves by each side without a pawn move
-      or capture automatically draw this casual game. Once over, the board
-      cannot move. Disconnection alone never ends an untimed game.
-    forms: [multiplayer game is over, multiplayer draw, multiplayer win]
+      other side; running out of time loses. An accepted multiplayer draw
+      offer draws by agreement. Stalemate, insufficient mating material, the
+      same position for the third time, or fifty moves by each side without
+      a pawn move or capture draw the game automatically. Once over, the
+      board cannot move. Disconnection alone never ends a game, but a
+      disconnected person's multiplayer clock keeps running on their turn.
+      An aborted game is over without a result.
+    forms: [multiplayer game is over, multiplayer draw, multiplayer win, drawn, drawn by agreement, finished multiplayer game]
     model: [PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
     published: true
 
+  - term: offer a multiplayer draw
+    definition: >-
+      One person in an unfinished multiplayer game asking the other to agree
+      to a draw. Only the other person may accept or decline it, and offering
+      a draw back accepts it. A move by the person offered declines it; a
+      move by the person who offered keeps it. A game that is over takes no
+      offer.
+    forms:
+      - offers a multiplayer draw
+      - offered a multiplayer draw
+      - offered someone a multiplayer draw
+      - multiplayer draw offer
+      - multiplayer draw offers
+    model: [offerPlayDraw, drawOffer]
+
+  - term: accept the multiplayer draw
+    definition: >-
+      The person offered a multiplayer draw agreeing to it. The game is drawn
+      by agreement and rated as a draw.
+    forms: [accepts the multiplayer draw, accepted the multiplayer draw]
+    model: [acceptPlayDraw]
+
+  - term: decline the multiplayer draw
+    definition: >-
+      The person offered a multiplayer draw turning it down. The game goes
+      on and nobody is offered a draw.
+    forms: [declines the multiplayer draw, declined the multiplayer draw]
+    model: [declinePlayDraw]
+
+  - term: offer a multiplayer rematch
+    definition: >-
+      After a finished multiplayer game, one of its two people asking the
+      other to play again: a new multiplayer game between them at the same
+      time control with colours swapped, without a new search. Offering a
+      rematch back accepts it. An aborted game has none, and it is refused
+      once either person is in another unfinished game. The offer ends when
+      either person declines it or finds a chess opponent.
+    forms:
+      - offers a multiplayer rematch
+      - offered a multiplayer rematch
+      - offered someone a multiplayer rematch
+      - multiplayer rematch
+      - multiplayer rematch offer
+    model: [offerRematch, rematchOffer, rematchOf]
+
+  - term: accept the multiplayer rematch
+    definition: >-
+      The person offered a multiplayer rematch agreeing to it, which starts
+      the new multiplayer game at once.
+    forms: [accepts the multiplayer rematch, accepted the multiplayer rematch]
+    model: [acceptRematch]
+
+  - term: decline the multiplayer rematch
+    definition: >-
+      The person offered a multiplayer rematch turning it down. The offer
+      ends.
+    forms: [declines the multiplayer rematch, declined the multiplayer rematch]
+    model: [declineRematch]
+
   - term: resign multiplayer chess
     definition: >-
-      Give up the unfinished multiplayer game. Either person may resign
-      regardless of turn; repeating the same resignation keeps its result.
-      Confirming account deletion gives up that person's unfinished game
-      and stops their opponent search before their account disappears.
+      Give up the unfinished multiplayer game once both people have made
+      their first move; before that, resigning is refused and the person is
+      told to abort the multiplayer game instead. From then on either person
+      may resign regardless of turn; repeating the same resignation keeps
+      its result. Confirming account deletion gives up that person's
+      unfinished game, or aborts it if both people have not yet moved, and
+      stops their opponent search before their account disappears.
     forms: [resigns multiplayer chess, resigned multiplayer chess]
     model: [resignPlay]
 
   - term: multiplayer rating
     definition: >-
-      The strength used to seek an ordinary chess opponent, 1500 for everyone
-      while multiplayer games are unrated. Puzzle ratings never supply it.
+      A person's strength at one speed of multiplayer chess. Every account
+      has a separate bullet, blitz, rapid and classical rating, each starting
+      at 1500 and provisional until it settles; puzzle ratings never supply
+      or receive it. Finding a chess opponent uses the rating for the chosen
+      time control's speed. Every finished multiplayer game moves both
+      people's rating for its speed once, as Mark Glickman's Glicko-2 rating
+      system works it out; an aborted game moves none. Each person sees
+      their multiplayer opponent's rating when the game starts and their own
+      rating move after the result.
+    source: Mark Glickman, "Example of the Glicko-2 system", Boston University (how a result moves the ratings)
+    forms:
+      - multiplayer ratings
+      - bullet rating
+      - blitz rating
+      - rapid rating
+      - classical rating
+      - bullet ratings
+      - blitz ratings
+      - rapid ratings
+      - classical ratings
+    avoid: [elo, ladder points]
+
+  - term: rated multiplayer game
+    definition: >-
+      A multiplayer game that finished with a win or a draw. It counts once
+      toward both people's multiplayer rating for its speed, and each person
+      sees how many rated multiplayer games they have played at each speed.
+      An aborted game is not rated.
+    forms: [rated multiplayer games]
+    model: [ratedGames]
 
   - term: last known multiplayer board
     definition: >-
-      The accepted board and result shown before a device went offline.
-      They stay visible until a connection brings the accepted outcome back.
+      The accepted board, multiplayer clocks, offers and result shown before
+      a device went offline. They stay visible until a connection brings the
+      accepted outcome back.
+    model: [LastKnownPlay]
 
   - term: unfinished multiplayer game limit
     definition: >-
       Every account has at most one unfinished multiplayer game. Before
       seeking a new opponent, the person finishes that game, and also any
-      active Custom Game they are a participant of. Free accounts and Plus
-      members have the same allowance.
+      active Custom Game they are a participant of. A game that is over or
+      aborted no longer counts. Free accounts and Plus members have the same
+      allowance.
 
   # --- Custom Games --------------------------------------------------------
 
@@ -724,8 +950,8 @@ terms:
     model:
     - creator
   - term: side
-    definition: White or Black in a Custom Game. Each has one choice of participant. One
-      person cannot be accepted or invited on both sides.
+    definition: White or Black in a Custom Game or a multiplayer game. In a Custom Game each
+      has one choice of participant, and one person cannot be accepted or invited on both sides.
     forms:
     - sides
     - White
@@ -1005,8 +1231,8 @@ terms:
       as a draw.
   - term: mating material
     definition: Pieces remaining that can produce checkmate, including help from the other
-      side's pieces. A bare king has none. Without it, running out of time or resignation
-      cannot award a win.
+      side's pieces. A bare king has none. Without it, running out of time cannot award a
+      win; in a Custom Game, resignation cannot either.
     forms:
     - insufficient mating material
     - remaining material
