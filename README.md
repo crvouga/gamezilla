@@ -284,6 +284,16 @@ adopted by import blocks on apply, never recreated. The old protection state
 address is forgotten without deleting any safeguard; the inspected repository
 had no legacy branch protection or ruleset to import.
 
+If CI cannot authenticate after a repository transfer, a person can restore
+only the existing Infisical CI identity with `bun run infra:bootstrap
+--recover-ci-identity`. Select the matching local Infisical login with
+`INFISICAL_PROFILE` when the CLI has multiple accounts. This recovery uses
+the declared bootstrap module, existing encrypted remote state, deletion
+policy and state backup. It permits only in-place identity updates and needs
+no AWS account login. It cannot initialize a new bootstrap or change other
+resources. This is an emergency repair; run the full guarded bootstrap with
+an active AWS login to reconcile AWS trust and repository settings as well.
+
 Actions stay enabled with the existing action-source policy (`all`, no SHA
 pinning requirement). Workflow tokens default to read and cannot approve PRs;
 workflow/job `permissions` grant the existing artifact, OIDC, and branch-cleanup

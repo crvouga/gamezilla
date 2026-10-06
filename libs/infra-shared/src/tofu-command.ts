@@ -228,17 +228,33 @@ export function tofuEnvironment(
   target: Target,
   aws: AwsSession | null = null
 ): TofuEnvResult {
+  const { env, missing } = tofuCredentialEnvironment(
+    secrets,
+    paths,
+    target,
+    CREDENTIAL_ENV[target.stack]
+  );
+  if (target.stack === 'bootstrap')
+    copyCredentials(secrets, STATE_CREDENTIALS, env);
+  if (target.stack === 'foundation' || target.stack === 'bootstrap')
+    writeAwsProvider(secrets, env, missing, aws);
+  return { env, missing };
+}
+
+/** Assemble only the credentials used by the selected provider graph. */
+export function tofuCredentialEnvironment(
+  secrets: Readonly<Record<string, string | undefined>>,
+  paths: TofuPaths,
+  target: Target,
+  mapping: Readonly<Record<string, string>>
+): { env: Record<string, string>; missing: string[] } {
   const env: Record<string, string> = {
     TF_IN_AUTOMATION: '1',
     TF_INPUT: '0',
     TF_DATA_DIR: `${paths.cacheDir}/data/${targetLabel(target)}`,
     TF_PLUGIN_CACHE_DIR: `${paths.cacheDir}/plugins`,
   };
-  const missing = copyCredentials(secrets, CREDENTIAL_ENV[target.stack], env);
-  if (target.stack === 'bootstrap')
-    copyCredentials(secrets, STATE_CREDENTIALS, env);
-  if (target.stack === 'foundation' || target.stack === 'bootstrap')
-    writeAwsProvider(secrets, env, missing, aws);
+  const missing = copyCredentials(secrets, mapping, env);
   return { env, missing };
 }
 

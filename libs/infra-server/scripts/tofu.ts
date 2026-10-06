@@ -28,6 +28,12 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tofuLayout } from '@libs/infra-server/tofu-layout';
+import {
+  ciIdentityRecoveryDenials,
+  ciIdentityRecoveryEnvironment,
+  ciIdentityRecoveryPlanArgs,
+  validateCiIdentityRecovery,
+} from '@libs/infra-shared/ci-identity-recovery';
 import { envFile } from '@libs/infra-shared/envs';
 import type { PlanJson } from '@libs/infra-shared/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
@@ -76,6 +82,7 @@ type Cli = {
   readonly stack: Stack;
   /** `destroy --stack fleet` only: the environment whose entries go. */
   readonly env: string | null;
+  readonly recoverCiIdentity: boolean;
 };
 
 function flag(argv: readonly string[], name: string): string | null {
@@ -93,7 +100,9 @@ function parseCli(argv: readonly string[]): Cli {
   const stack = flag(argv, '--stack') as Stack;
   if (!STACKS.includes(stack))
     fail(`--stack must be one of ${STACKS.join(', ')}`);
-  return { command, stack, env: flag(argv, '--env') };
+  const recoverCiIdentity = argv.includes('--recover-ci-identity');
+  if (recoverCiIdentity) validateCiIdentityRecovery(command, stack);
+  return { command, stack, env: flag(argv, '--env'), recoverCiIdentity };
 }
 
 function targetFor(stack: Stack): Target {
@@ -106,13 +115,18 @@ function targetFor(stack: Stack): Target {
 }
 
 async function toolEnvironment(
-  target: Target
+  target: Target,
+  cli: Cli
 ): Promise<Record<string, string>> {
   const label = `${target.stack}/${target.env ?? 'global'}`;
-  const aws = await infraOperation(`${label}: AWS credentials`, (signal) =>
-    resolveAwsSession(process.env, target.stack, signal)
-  );
-  const { env, missing } = tofuEnvironment(process.env, PATHS, target, aws);
+  const aws = cli.recoverCiIdentity
+    ? null
+    : await infraOperation(`${label}: AWS credentials`, (signal) =>
+        resolveAwsSession(process.env, target.stack, signal)
+      );
+  const { env, missing } = cli.recoverCiIdentity
+    ? ciIdentityRecoveryEnvironment(process.env, PATHS)
+    : tofuEnvironment(process.env, PATHS, target, aws);
   if (missing.length > 0) fail(missingSecretsMessage(target.stack, missing));
   if (target.stack === 'edge') return { ...env };
   return {
@@ -146,7 +160,9 @@ async function planTarget(
   const args =
     cli.command === 'destroy'
       ? destroyPlanArgs(PATHS, target, teardownScope(target, cli))
-      : planArgs(PATHS, target);
+      : cli.recoverCiIdentity
+        ? ciIdentityRecoveryPlanArgs(PATHS)
+        : planArgs(PATHS, target);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
     const result = spawnTool('tofu', args, { env, capture: true });
     const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
@@ -170,7 +186,8 @@ async function planTarget(
 function checkPolicy(
   target: Target,
   env: Record<string, string>,
-  teardown: Teardown
+  teardown: Teardown,
+  recoverCiIdentity: boolean
 ): void {
   const shown = spawnTool('tofu', showArgs(PATHS, target), {
     env,
@@ -184,8 +201,12 @@ function checkPolicy(
     POLICY_DIR,
     conftest
   );
-  if (!verdict.allowed) {
-    for (const denial of verdict.denials) console.error(`  ✗ ${denial}`);
+  const denials = [
+    ...verdict.denials,
+    ...(recoverCiIdentity ? ciIdentityRecoveryDenials(plan) : []),
+  ];
+  if (denials.length > 0) {
+    for (const denial of denials) console.error(`  ✗ ${denial}`);
     fail(
       `${target.stack}: plan refused by policy/stateful.rego — nothing was applied`
     );
@@ -205,11 +226,11 @@ function teardownOf(target: Target, cli: Cli): Teardown {
 
 async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
   const { command } = cli;
-  const env = await toolEnvironment(target);
+  const env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
   const status = await planTarget(target, env, cli);
-  checkPolicy(target, env, teardown);
+  checkPolicy(target, env, teardown, cli.recoverCiIdentity);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
     return;
@@ -236,6 +257,8 @@ async function main(): Promise<void> {
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
+  if (cli.recoverCiIdentity && firstRun)
+    fail('CI identity recovery requires the existing encrypted remote state');
   if (!firstRun) return run(cli, target, false);
 
   console.log(
