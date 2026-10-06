@@ -1,0 +1,4 @@
+{
+  "summary": "Quint induction verification always launched two solver phases even with MODEL_CHECK_CONCURRENCY=1. Honor a lower configured phase concurrency while preserving the existing two-phase ceiling, every proof, and failure propagation.",
+  "regressionTest": "pkgs/quint-server/tests/verify-phase-pool.test.ts"
+}
