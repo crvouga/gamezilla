@@ -38,7 +38,7 @@ function HistoryPoint(props: {
 }
 
 export type ChessRatingHistoryProps = {
-  /** Rated attempts newest first, as the game log lists them. */
+  /** The game log, newest first; only its rated attempts are drawn. */
   readonly entries: readonly ChessPuzzleGameLogEntry[];
 };
 
@@ -51,7 +51,10 @@ export function ChessRatingHistory(
   props: ChessRatingHistoryProps
 ): JSX.Element {
   const latest = createMemo(() =>
-    props.entries.slice(0, RATING_HISTORY_LENGTH).reverse()
+    props.entries
+      .filter((entry) => entry.rated)
+      .slice(0, RATING_HISTORY_LENGTH)
+      .reverse()
   );
   return (
     <Show when={latest().length > 0}>

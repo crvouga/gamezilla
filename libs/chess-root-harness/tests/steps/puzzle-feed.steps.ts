@@ -42,22 +42,18 @@ import {
   isEmptyPoolVisible,
   isPuzzleUnratedNoticeVisible,
   readActivePuzzleId,
-  readPuzzleDebug,
   readStatsElo,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   playPuzzleFeedPass,
   readExcludedFeedPassPuzzles,
   readPuzzleFeedPass,
-  readPuzzleFeedPassOrder,
 } from '@libs/chess-puzzle-harness/puzzle-feed-pass';
 import type { IngestRow } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import {
   FEED_POOL_IDS,
   FULL_INGEST_ROWS,
   ingestCsv,
-  SELECTION_CSV,
-  SELECTION_GROUPS,
   STANDARD_PUZZLE_IDS,
 } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { Given, Then, When } from '@libs/harness/define';
@@ -73,8 +69,10 @@ import {
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import {
   currentPuzzle,
+  ensureOnPuzzle,
   ensureStatsOpen,
-  lastPlayer,
+  focusFeed,
+  puzzleOnBoard,
   recalled,
   required,
   SECOND_MS,
@@ -84,9 +82,6 @@ import {
 } from './puzzle-world';
 
 const REJECTED = 'rejectedPuzzles';
-const LOW_QUALITY = 'lowQualityPuzzles';
-const IN_WINDOW = 'inWindowPuzzles';
-const OUT_OF_WINDOW = 'outOfWindowPuzzles';
 const firstPlayedKey = (actor: Actor) => `firstPlayed:${actor}`;
 const ratingBeforeRepeatKey = (actor: Actor) => `ratingBeforeRepeat:${actor}`;
 
@@ -108,6 +103,7 @@ async function untilFeedTarget(
   mode: 'auto' | 'custom',
   rating: number
 ): Promise<void> {
+  await focusFeed(w, actor);
   await w.s.until(async (surf) => readFeedTargetLabel(surf, actor), {
     maxMs: SETTLE_MS,
     pred: (label) => label?.mode === mode && label.rating === rating,
@@ -116,6 +112,7 @@ async function untilFeedTarget(
 
 /** Solve `count` puzzles in a row, noting the first as "the first played". */
 async function solveInARow(w: HarnessWorld, actor: Actor, count: number) {
+  await ensureOnPuzzle(w, actor);
   remember(w, firstPlayedKey(actor), currentPuzzle(w, actor));
   await w.s.apply(solvePuzzlesInARow, actor, count);
   await trackPuzzle(w, actor);
@@ -143,39 +140,19 @@ async function retireFeedPool(w: HarnessWorld): Promise<void> {
 }
 
 Given('the puzzle pool holds just three puzzles', async (w) => {
-  await retireFeedPool(w);
-  const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
-  expect(pool).toEqual([...STANDARD_PUZZLE_IDS]);
-});
-
-Given(
-  'the puzzle pool also holds:',
-  async (w, table: readonly (readonly string[])[]) => {
-    const [header, ...rows] = table;
-    expect(header).toEqual(['puzzles', 'rated', 'quality']);
-    // The table names fixture groups; each must match one exactly.
-    const groups = rows.map(([count, rated, quality]) => {
-      const group = Object.values(SELECTION_GROUPS).find(
-        (g) => g.rated === rated && g.quality === quality
-      );
-      if (group?.ids.length !== Number(count)) {
-        throw new Error(`no ${count ?? ''} fixture puzzles ${rated ?? ''}`);
-      }
-      return group;
-    });
-    expect(new Set(groups).size).toBe(Object.keys(SELECTION_GROUPS).length);
-    await w.s.apply(ingestChessPuzzleCsv, SELECTION_CSV);
-    remember(w, IN_WINDOW, SELECTION_GROUPS.goodNear1500.ids);
-    remember(w, OUT_OF_WINDOW, SELECTION_GROUPS.good1800To1900.ids);
-    remember(w, LOW_QUALITY, SELECTION_GROUPS.lowQuality.ids);
-    remember(w, SERVABLE_KEY, [
-      ...SELECTION_GROUPS.goodNear1500.ids,
-      ...SELECTION_GROUPS.good1800To1900.ids,
-      ...STANDARD_PUZZLE_IDS,
-      ...FEED_POOL_IDS,
-    ]);
+  // A puzzle already on someone's board stays one of the three, so what
+  // the board shows is part of the pool the scenario describes.
+  const onBoard = puzzleOnBoard(w);
+  const kept =
+    onBoard !== null && FEED_POOL_IDS.includes(onBoard)
+      ? [...STANDARD_PUZZLE_IDS.slice(0, 2), onBoard]
+      : [...STANDARD_PUZZLE_IDS];
+  for (const id of [...FEED_POOL_IDS, ...STANDARD_PUZZLE_IDS]) {
+    if (!kept.includes(id)) await w.s.apply(retireChessPuzzle, id);
   }
-);
+  const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
+  expect(pool).toEqual(kept.sort());
+});
 
 Given('the team has added seven puzzles, five of them broken', async (w) => {
   const valid = FULL_INGEST_ROWS.filter((row) => row.valid);
@@ -210,21 +187,6 @@ When(
 );
 
 Then(
-  'none of the low-quality puzzles was served to {actor}',
-  async (w, actor: Actor) => {
-    const ids = await w.s.read(readPuzzleFeedPass, actor);
-    expect(ids.length).toBeGreaterThan(0);
-    expect(
-      await w.s.read(
-        readExcludedFeedPassPuzzles,
-        actor,
-        recalled<readonly string[]>(w, LOW_QUALITY)
-      )
-    ).toEqual([]);
-  }
-);
-
-Then(
   'none of the broken puzzles was served to {actor}',
   async (w, actor: Actor) => {
     const ids = await w.s.read(readPuzzleFeedPass, actor);
@@ -236,21 +198,6 @@ Then(
         recalled<readonly string[]>(w, REJECTED)
       )
     ).toEqual([]);
-  }
-);
-
-Then(
-  'every good puzzle near 1500 was served before any puzzle rated 1800 to 1900',
-  async (w) => {
-    const inWindow = recalled<readonly string[]>(w, IN_WINDOW);
-    const outOfWindow = recalled<readonly string[]>(w, OUT_OF_WINDOW);
-    const order = await w.s.read(readPuzzleFeedPassOrder, lastPlayer(w), {
-      near: inWindow,
-      far: outOfWindow,
-    });
-    expect(order.allNearPresent).toBe(true);
-    expect(order.allFarPresent).toBe(true);
-    expect(order.lastNear).toBeLessThan(order.firstFar);
   }
 );
 
@@ -316,7 +263,11 @@ Then(
 Then(
   "{actor}'s feed history shows {string}",
   async (w, actor: Actor, label: string) => {
-    expect(await w.s.read(readFeedHistoryLabel, actor)).toBe(label);
+    await focusFeed(w, actor);
+    await w.s.until((surf) => readFeedHistoryLabel(surf, actor), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => shown === label,
+    });
   }
 );
 
@@ -335,11 +286,6 @@ Given(
     await w.s.apply(setPuzzleFeedHistory, actor, historyFilter(label));
   }
 );
-
-When('{actor} saves the feed settings', async (w, actor: Actor) => {
-  await w.s.apply(closePuzzleFeedSettings, actor);
-  await trackPuzzle(w, actor);
-});
 
 Given(
   '{actor} has changed the feed history to {string} and saved the feed settings',
@@ -458,17 +404,6 @@ Then(
   async (w, actor: Actor) => {
     const pool = required(await w.s.read(readFeedModalPool, actor), 'pool');
     expect(pool.matched).toBeGreaterThan(0);
-  }
-);
-
-Then(
-  '{actor} is solving a puzzle rated between {int} and {int}',
-  async (w, actor: Actor, low: number, high: number) => {
-    const debug = required(await w.s.read(readPuzzleDebug, actor), 'puzzle');
-    expect(debug.status).toBe('solving');
-    const rating = required(debug.puzzleRating, 'puzzle rating');
-    expect(rating).toBeGreaterThanOrEqual(low);
-    expect(rating).toBeLessThanOrEqual(high);
   }
 );
 

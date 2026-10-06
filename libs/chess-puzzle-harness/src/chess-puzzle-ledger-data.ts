@@ -197,3 +197,18 @@ export function readMsUntilNextUtcDay(s: ProductHarness): number {
   const now = s.harness.clock.now();
   return DAY_MS - (now % DAY_MS);
 }
+
+/** Whether the device's history records any attempt at `puzzleId`. */
+export async function hasPlayedPuzzle(
+  s: ProductHarness,
+  actorId: string,
+  puzzleId: string
+): Promise<boolean> {
+  const rows = await localSql(s, actorId).query(sql<{
+    readonly n: number;
+  }>`
+    SELECT COUNT(*) AS n FROM chess_puzzle_interactions
+    WHERE puzzle_id = ${puzzleId} AND deleted_at IS NULL
+  `);
+  return Number(rows[0]?.n ?? 0) > 0;
+}

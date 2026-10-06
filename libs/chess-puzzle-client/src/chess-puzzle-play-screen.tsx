@@ -14,12 +14,14 @@ import { SpeakingAvatar } from '@pkgs/ui-root-client/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client/spectator-indicator';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleClock } from './chess-puzzle-clock';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
 import type { PuzzlePlayBoardChrome } from './chess-puzzle-play-layout';
 import { PuzzlePlayLayout } from './chess-puzzle-play-layout';
 import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
+import { ChessPuzzleShareLink } from './chess-puzzle-share-link';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
 import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
@@ -160,6 +162,7 @@ function PuzzlePlayerChrome(props: {
       backToRoot={p.backToRoot}
       puzzleId={p.puzzleId()}
       puzzleRating={p.rating()}
+      puzzleThemes={p.themes()}
       spectator={p.isSpectator}
       assistant={
         <SpeakingAvatar
@@ -179,6 +182,9 @@ function PuzzlePlayerChrome(props: {
                   <ChessPuzzleClock elapsedMs={p.clockElapsedMs} />
                   <Show when={p.isSpectator()}>
                     <SpectatorIndicator />
+                  </Show>
+                  <Show when={!p.isSpectator() && p.puzzleId()} keyed>
+                    {(puzzleId) => <ChessPuzzleShareLink puzzleId={puzzleId} />}
                   </Show>
                 </>
               }
@@ -211,6 +217,18 @@ function PuzzlePlayerChrome(props: {
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
       testHints={<PuzzlePlayerTestHints p={p} />}
+      announcement={
+        <ChessPuzzleAnnouncement
+          status={p.status}
+          moves={p.movesStr}
+          solveIdx={p.solveIdx}
+          solverSide={p.orientation}
+          hintStage={p.hintStage}
+          fen={p.displayFen}
+          hintSquare={p.expectedFromSquare}
+          completion={p.completion}
+        />
+      }
     />
   );
 }

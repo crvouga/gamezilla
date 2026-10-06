@@ -1,0 +1,38 @@
+# A solver who moves on quickly has the next puzzle ready to solve.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: next-puzzle-ready-time
+  displayName: Time until the next puzzle is on the board
+spec:
+  description: >-
+    The time from a solver moving on from a puzzle that is over until the
+    next puzzle is on their board and they are asked to find the next move.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          The seconds between a solver moving on to the next puzzle and that
+          puzzle being on their board, ready to solve.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: next-puzzle-is-ready-quickly
+  displayName: The next puzzle is ready quickly
+spec:
+  description: >-
+    At least 99 in every 100 times a solver moves on, the next puzzle is on
+    their board within one second, judged over four weeks.
+  service: chess
+  indicatorRef: next-puzzle-ready-time
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Nearly every next puzzle is on the board within one second
+      op: lte
+      value: 1
+      target: 0.99

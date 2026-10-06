@@ -50,17 +50,3 @@ export function readExcludedFeedPassPuzzles(
 ) {
   return readPuzzleFeedPass(s, actor).filter((id) => excluded.includes(id));
 }
-
-export function readPuzzleFeedPassOrder(
-  s: ProductHarness,
-  actor: string,
-  groups: { near: readonly string[]; far: readonly string[] }
-) {
-  const ids = readPuzzleFeedPass(s, actor);
-  return {
-    allNearPresent: groups.near.every((id) => ids.includes(id)),
-    allFarPresent: groups.far.every((id) => ids.includes(id)),
-    lastNear: Math.max(...groups.near.map((id) => ids.indexOf(id))),
-    firstFar: Math.min(...groups.far.map((id) => ids.indexOf(id))),
-  };
-}

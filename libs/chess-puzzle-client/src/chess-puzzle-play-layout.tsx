@@ -45,6 +45,7 @@ export type PuzzlePlayLayoutProps = {
   boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
   puzzleId?: string;
   puzzleRating?: number;
+  puzzleThemes?: readonly string[];
   status: Accessor<SolveStatus>;
   hintStage: Accessor<HintStage>;
   canGoBack: Accessor<boolean>;
@@ -62,7 +63,14 @@ export type PuzzlePlayLayoutProps = {
   recommendationLegend?: JSX.Element;
   testHints?: JSX.Element;
   testLoadingStatus?: JSX.Element;
+  /** The live region someone listening to the app hears. */
+  announcement?: JSX.Element;
 };
+
+/** Solved, solution shown or skipped: nothing more to play on this puzzle. */
+function isPuzzleOver(status: SolveStatus): boolean {
+  return status === 'solved' || status === 'revealed' || status === 'skipped';
+}
 
 function puzzleRatingOrUndef(rating: number | undefined): number | undefined {
   if (rating !== undefined && rating > 0) return rating;
@@ -74,6 +82,8 @@ function PuzzlePlayFeed(props: PlayChromeProps): JSX.Element {
     <ChessPuzzleFeedBar
       puzzleId={props.layout.puzzleId}
       rating={puzzleRatingOrUndef(props.layout.puzzleRating)}
+      themes={props.layout.puzzleThemes}
+      over={isPuzzleOver(props.layout.status())}
       onOpenFeedSettings={props.openFeedSettings}
     />
   );
@@ -223,6 +233,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
       data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={props.backToRoot} />
+      {props.announcement}
       {props.testLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
       <CelebrationLayer

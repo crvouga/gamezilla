@@ -19,7 +19,10 @@ function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
   return (
     <div class="box gap-2 items-center">
       {streak > 1 ? <StreakBadge streak={streak} /> : null}
-      <p class="text textCaption text-text-secondary">
+      <p
+        class="text textCaption text-text-secondary"
+        data-testid="chess-puzzle-summary-puzzle-rating"
+      >
         {<Trans>Puzzle rating {puzzleRating}</Trans>}
       </p>
     </div>

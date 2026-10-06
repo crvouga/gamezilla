@@ -47,6 +47,7 @@
     "chessPuzzleById",
     "chessPuzzleFeedSettings",
     "chessPuzzleInteractions",
+    "chessPuzzleNearest",
     "chessPuzzlePool",
     "chessPuzzleProfile",
     "chessPuzzleRatingEvents",

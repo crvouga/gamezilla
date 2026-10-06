@@ -47,11 +47,11 @@ export async function readSavedFeedChoice(
 ): Promise<string> {
   const ui = await actorUi(s, actor);
   await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
-  const html = await ui.snapshotHtml();
-  const tag =
-    html?.match(/<[^>]*data-testid="chess-puzzle-feed-summary"[^>]*>/)?.[0] ??
-    '';
-  const description = tag.match(/aria-label="([^"]*)"/)?.[1] ?? '';
+  const description = (
+    (await ui.get('chess-puzzle-feed-description').text()) ?? ''
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
   if (description.length === 0)
     throw new Error('Feed description is unavailable');
   const mode = description.includes('Custom target') ? 'custom' : 'auto';
