@@ -67,10 +67,10 @@ test('downloads every paginated artifact by ID even when attempts share a name',
         'api',
         '--paginate',
         '--slurp',
-        'repos/gamezilla-org/gamezilla/actions/runs/42/artifacts?per_page=100',
+        'repos/crvouga/gamezilla/actions/runs/42/artifacts?per_page=100',
       ],
-      ['api', 'repos/gamezilla-org/gamezilla/actions/artifacts/11/zip'],
-      ['api', 'repos/gamezilla-org/gamezilla/actions/artifacts/12/zip'],
+      ['api', 'repos/crvouga/gamezilla/actions/artifacts/11/zip'],
+      ['api', 'repos/crvouga/gamezilla/actions/artifacts/12/zip'],
     ]);
   } finally {
     rmSync(root, { recursive: true, force: true });
