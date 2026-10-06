@@ -1,6 +1,6 @@
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import type { OutboxSendCtx } from '@pkgs/outbox-shared/types';
-import type { MultiplayerGame } from './game';
+import type { MultiplayerGame } from './game-state';
 import { MultiplayerGameChanged } from './match-room';
 
 export async function publishMatchGame(

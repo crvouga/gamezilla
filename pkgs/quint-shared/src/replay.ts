@@ -144,10 +144,14 @@ async function checkState(
     world.settle !== undefined &&
     mismatches(state.vars, observed).length > 0
   ) {
-    await world.settle(w, async () => {
-      observed = await binding.observe(w);
-      return mismatches(state.vars, observed).length === 0;
-    });
+    await world.settle(
+      w,
+      async () => {
+        observed = await binding.observe(w);
+        return mismatches(state.vars, observed).length === 0;
+      },
+      binding.settleStepMs === undefined ? {} : { stepMs: binding.settleStepMs }
+    );
   }
   const names = Object.keys(observed);
   if (names.length === 0) {

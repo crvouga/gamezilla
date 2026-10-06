@@ -26,8 +26,12 @@ export const chessMultiplayerSession = defineQuery({
     const profiles = await profilesByIds.run(ctx, {
       ids: ids.length > 0 ? ids : ['__no_multiplayer_profile__'],
     });
+    const ratings = await ctx.db.query(
+      sql`SELECT * FROM chess_multiplayer_ratings WHERE owner_id = ${ctx.env.actorId}`
+    );
     return {
       ...profiles,
+      chess_multiplayer_ratings: ratings,
       chess_multiplayer_players: players,
       chess_multiplayer_games: games,
       chess_opponent_searches: searches,

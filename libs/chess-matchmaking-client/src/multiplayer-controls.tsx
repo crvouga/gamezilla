@@ -1,80 +1,92 @@
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client/button';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
-import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
-import { createSignal, type JSX, Show } from 'solid-js';
-import type { useMultiplayerControls } from './use-multiplayer-controls';
-import type { useMultiplayerData } from './use-multiplayer-data';
+import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
+import { MultiplayerFindPanel } from './multiplayer-find-panel';
+import { MultiplayerGameActions } from './multiplayer-game-actions';
+import { MultiplayerWaiting } from './multiplayer-waiting';
+import type { MultiplayerControlsModel } from './use-multiplayer-controls';
+import type { MultiplayerData } from './use-multiplayer-data';
+
+type Confirm = 'stop' | 'resign' | 'abort';
+
+function ConfirmTitle(props: { readonly kind: Confirm | null }): JSX.Element {
+  return (
+    <Switch fallback={<Trans>Resign multiplayer chess?</Trans>}>
+      <Match when={props.kind === 'stop'}>
+        <Trans>Stop finding an opponent?</Trans>
+      </Match>
+      <Match when={props.kind === 'abort'}>
+        <Trans>Abort the multiplayer game?</Trans>
+      </Match>
+    </Switch>
+  );
+}
+
+function ConfirmMessage(props: { readonly kind: Confirm | null }): JSX.Element {
+  return (
+    <Switch fallback={<Trans>Your opponent will win this game.</Trans>}>
+      <Match when={props.kind === 'stop'}>
+        <Trans>Your search will end.</Trans>
+      </Match>
+      <Match when={props.kind === 'abort'}>
+        <Trans>The game ends with no result and no rating change.</Trans>
+      </Match>
+    </Switch>
+  );
+}
 
 export function MultiplayerControls(props: {
-  readonly controls: ReturnType<typeof useMultiplayerControls>;
-  readonly data: ReturnType<typeof useMultiplayerData>;
+  readonly controls: MultiplayerControlsModel;
+  readonly data: MultiplayerData;
 }): JSX.Element {
-  const [confirm, setConfirm] = createSignal<'stop' | 'resign' | null>(null);
-  const begin = useMutationButton({
-    operation: () => props.controls.begin(),
-    labels: {
-      idle: <Trans>Find a chess opponent</Trans>,
-      loading: <Trans>Finding an opponent…</Trans>,
-      success: <Trans>Opponent search accepted</Trans>,
-      error: <Trans>Try finding an opponent again</Trans>,
-    },
-  });
+  const [confirm, setConfirm] = createSignal<Confirm | null>(null);
+  const looking = () => props.data.search()?.standing === 'waiting';
+  const operation = () => {
+    const kind = confirm();
+    if (kind === 'stop') return props.controls.stop();
+    if (kind === 'abort') return props.controls.abort();
+    return props.controls.resign();
+  };
   return (
     <div class="box gap-4" data-component="MultiplayerControls">
-      <Show
-        when={
-          props.data.participant() && props.data.game()?.outcome === 'ongoing'
-        }
-      >
-        <Button
-          title={<Trans>Resign multiplayer chess</Trans>}
-          onClick={() => setConfirm('resign')}
-          dataSet={{ testid: 'multiplayer-resign' }}
-        />
+      <Show when={props.data.game()}>
+        {(game) => (
+          <MultiplayerGameActions
+            game={game()}
+            myId={props.data.myId()}
+            controls={props.controls}
+            looking={looking()}
+            onConfirm={setConfirm}
+          />
+        )}
       </Show>
       <Show
-        when={props.data.search()?.standing === 'waiting'}
+        when={looking() ? props.data.search() : null}
         fallback={
-          <Show when={props.data.hostId() === props.data.myId()}>
-            <Button
-              {...begin.buttonProps}
-              dataSet={{ testid: 'multiplayer-find' }}
-            />
+          <Show
+            when={
+              props.data.participant() || props.data.hostId() === props.data.myId()
+                ? props.data.game()?.outcome !== 'ongoing'
+                : false
+            }
+          >
+            <MultiplayerFindPanel controls={props.controls} />
           </Show>
         }
       >
-        <p role="status" data-testid="multiplayer-waiting">
-          <Trans>Looking for a chess opponent.</Trans>
-        </p>
-        <Show when={props.data.hostId() === props.data.myId()}>
-          <Button
-            title={<Trans>Stop finding an opponent</Trans>}
-            onClick={() => setConfirm('stop')}
-            dataSet={{ testid: 'multiplayer-stop' }}
+        {(search) => (
+          <MultiplayerWaiting
+            search={search()}
+            onStop={() => setConfirm('stop')}
           />
-        </Show>
+        )}
       </Show>
       <MutationModal
         visible={confirm() !== null}
         onClose={() => setConfirm(null)}
-        title={
-          confirm() === 'stop' ? (
-            <Trans>Stop finding an opponent?</Trans>
-          ) : (
-            <Trans>Resign multiplayer chess?</Trans>
-          )
-        }
-        message={
-          confirm() === 'stop' ? (
-            <Trans>Your search will end.</Trans>
-          ) : (
-            <Trans>Your opponent will win this game.</Trans>
-          )
-        }
-        operation={() =>
-          confirm() === 'stop' ? props.controls.stop() : props.controls.resign()
-        }
+        title={<ConfirmTitle kind={confirm()} />}
+        message={<ConfirmMessage kind={confirm()} />}
+        operation={operation}
         submitLabel={<Trans>Confirm</Trans>}
         successTitle={<Trans>Multiplayer command accepted</Trans>}
         variant="destructive"

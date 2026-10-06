@@ -38,7 +38,8 @@ export type QuintWorld<W> = {
    */
   readonly settle?: (
     world: W,
-    matches: () => Promise<boolean>
+    matches: () => Promise<boolean>,
+    opts: { readonly stepMs?: number }
   ) => Promise<void>;
   /** Run one trace step as a labelled step of the world's report. */
   readonly record?: <T>(
@@ -85,6 +86,12 @@ export type QuintBinding<W> = {
   readonly verifyTimeoutMs?: number;
   /** Opt into Apalache's array encoding without changing proof obligations. */
   readonly encoding?: 'fun-arrays';
+  /**
+   * How far the world's clock moves between re-checks while it settles.
+   * Default: the world's. A model whose state is a count of seconds keeps it
+   * small, so settling never spends time the model did not pass.
+   */
+  readonly settleStepMs?: number;
   /** Per-trace test timeout. Default: the runner's. */
   readonly timeoutMs?: number;
   /** Literal histories retained after a failing model trace found a defect. */

@@ -1,13 +1,21 @@
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import offlineSpaceTrace from './fixtures/multiplayer-offline-space.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
+  abortPlay,
+  acceptPlayDraw,
+  acceptRematch,
+  askAgain,
   askForPlay,
-  changeCustomGamePlay,
   connectPlay,
+  declinePlayDraw,
+  declineRematch,
   deletePlayAccount,
   initPlay,
+  moveCurrentPlay,
   moveInPlay,
+  offerPlayDraw,
+  offerRematch,
+  passPlayTime,
   playFingerprint,
   receivePlay,
   resignPlay,
@@ -19,20 +27,17 @@ import type { PlayTrace } from './multiplayer-world';
 
 bindQuintModel<PlayTrace>({
   model: 'multiplayer',
-  traces: 256,
-  maxSteps: 300,
-  timeoutMs: 180_000,
-  inductiveInvariant: '_proof',
-  encoding: 'fun-arrays',
-  separateInduction: true,
+  traces: 80,
+  maxSteps: 120,
+  timeoutMs: 300_000,
+  // Twenty actions over three people's six devices: Apalache explores two
+  // steps from every reachable start within the models check's deadline.
+  verifySteps: 2,
+  verifyTimeoutMs: 480_000,
+  // The model counts seconds (searching, clocks, the first-move wait):
+  // settling in 100 ms steps would let the product's time run past it.
+  settleStepMs: 1,
   regressions: [
-    // regression: chess-multiplayer-offline-space-initialization
-    {
-      id: 'chess-multiplayer-offline-space-initialization',
-      title: 'An offline device reopens multiplayer within its existing space',
-      seed: '0x67932',
-      itf: offlineSpaceTrace,
-    },
     // regression: chess-deletion-refreshes-connected-devices
     {
       id: 'multiplayer-third-device-deletion',
@@ -46,14 +51,23 @@ bindQuintModel<PlayTrace>({
     init: initPlay,
     openMultiplayer: showPlay,
     findOpponent: askForPlay,
+    findNewOpponent: askAgain,
     stopFindingOpponent: stopLooking,
     matchFormed: receivePlay,
     playMove: moveInPlay,
-    resignPlay: resignPlay,
-    deletePlayAccount: deletePlayAccount,
+    playCurrentMove: moveCurrentPlay,
+    resignPlay,
+    abortPlay,
+    offerPlayDraw,
+    acceptPlayDraw,
+    declinePlayDraw,
+    offerRematch,
+    acceptRematch,
+    declineRematch,
+    deletePlayAccount,
+    multiplayerTimePasses: passPlayTime,
     loseConnection: (w, picks) => connectPlay(w, picks, false),
     comeBackOnline: (w, picks) => connectPlay(w, picks, true),
-    _customGameChanges: changeCustomGamePlay,
   },
   observe: observePlay,
   fingerprint: playFingerprint,

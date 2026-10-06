@@ -20,6 +20,7 @@
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/glicko2-shared": "workspace:*",
     "@pkgs/keyword-shared": "workspace:*",
     "@pkgs/matchmaking-root-shared": "workspace:*",
     "@pkgs/matchmaking-sql-shared": "workspace:*",

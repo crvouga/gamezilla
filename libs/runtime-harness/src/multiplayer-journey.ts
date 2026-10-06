@@ -37,11 +37,63 @@ async function guestInvited(ui: Driver): Promise<boolean> {
   return ui.get('multiplayer-access-denial').isVisible();
 }
 
-export async function startMultiplayerSearch(ui: Driver): Promise<void> {
-  await openMultiplayerJourney(ui);
-  // The permission surface is the guest's invitation; no command is offered.
-  if (await guestInvited(ui)) return;
-  await tap(ui, 'multiplayer-find');
+/** Choose the time control (`5+0`), then find an opponent at it. */
+export function startMultiplayerSearch(
+  timeControl: string
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await openMultiplayerJourney(ui);
+    // The permission surface is the guest's invitation; no command is offered.
+    if (await guestInvited(ui)) return;
+    await tap(ui, `multiplayer-time-control-${timeControl.replace('+', '-')}`);
+    await tap(ui, 'multiplayer-find');
+  };
+}
+
+/** Whether this device's person plays White in the shown game. */
+async function playsWhite(ui: Driver): Promise<boolean> {
+  await ui
+    .get('multiplayer-colour')
+    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  return ((await ui.get('multiplayer-colour').text()) ?? '').includes('White');
+}
+
+/** A move by tapping its two squares, at their centres on this board. */
+function tapMove(
+  from: { readonly x: number; readonly y: number },
+  to: { readonly x: number; readonly y: number },
+  expectedMoves: string
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await ui.get('multiplayer-board').layout();
+    await ui
+      .get('multiplayer-board')
+      .tapAt({ xRatio: from.x / 8, yRatio: from.y / 8 });
+    await ui
+      .get('multiplayer-board')
+      .tapAt({ xRatio: to.x / 8, yRatio: to.y / 8 });
+    await ui.get('multiplayer-move-list').expect.text(expectedMoves, {
+      exact: false,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+  };
+}
+
+/** White's board: e2 to e4. Black's board is turned round: e7 to e5. */
+const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, '1. e4');
+const PLAY_E5 = tapMove({ x: 3.5, y: 6.5 }, { x: 3.5, y: 4.5 }, '1. e4 e5');
+
+/** Whoever plays White opens with e4, and the other answers e5. */
+export async function openWithE4AndE5(host: JourneyHost): Promise<void> {
+  let firstIsWhite = false;
+  await host.act('readMultiplayerColour', async (ui) => {
+    firstIsWhite = await playsWhite(ui);
+  });
+  const [white, black] = firstIsWhite
+    ? [host.act, host.actAsGuest]
+    : [host.actAsGuest, host.act];
+  await white('playMultiplayerE4', PLAY_E4);
+  await black('playMultiplayerE5', PLAY_E5);
 }
 
 export async function resignMultiplayerJourney(ui: Driver): Promise<void> {
@@ -129,7 +181,11 @@ export async function prepareUnfinishedMultiplayerGame(
   host: JourneyHost
 ): Promise<void> {
   await prepareMultiplayerPair(host);
-  await host.act('startMultiplayerSearch', startMultiplayerSearch);
-  await host.actAsGuest('startMultiplayerSearch', startMultiplayerSearch);
+  await host.act('startMultiplayerSearch', startMultiplayerSearch('5+0'));
+  await host.actAsGuest(
+    'startMultiplayerSearch',
+    startMultiplayerSearch('5+0')
+  );
   await expectSharedMultiplayerGame(host, 5000);
+  await openWithE4AndE5(host);
 }

@@ -58,11 +58,11 @@ export function useQuintHarness(openHarness: OpenPackageHarness): void {
     calls: (w) => w.calls,
     record: (w, meta, fn) =>
       w.s.record({ kind: 'quint', title: meta.title, detail: meta.detail }, fn),
-    settle: async (w, matches) => {
+    settle: async (w, matches, opts) => {
       try {
         await w.quiet.until(() => matches(), {
           maxMs: SETTLE_MS,
-          stepMs: SETTLE_STEP_MS,
+          stepMs: opts.stepMs ?? SETTLE_STEP_MS,
         });
       } catch {
         // Still apart: the bridge reads the state once more and reports the

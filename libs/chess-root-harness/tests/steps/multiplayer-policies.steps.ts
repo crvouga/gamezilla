@@ -7,10 +7,7 @@ import {
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
 import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import {
-  multiplayerRating,
-  multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
   leavePuzzleToChessMenu,
   reopenPuzzleFromChessMenu,
@@ -21,11 +18,6 @@ import {
   readPuzzleDisplayFen,
   readStatsElo,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
-import {
-  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
-  PUZZLE_RATING_RD_MIN,
-} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import {
   focusChessScreen,
   readChessToldText,
@@ -142,27 +134,10 @@ Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
     await w.s.read(readPuzzleDisplayFen, actor),
   ]).toEqual(w.memo.get('multiplayer:unrelated-puzzle') as [string, string]);
 });
-Given(
-  '{actor} has a puzzle rating of {int} and an unfinished multiplayer game',
-  async (w, actor: Actor, rating: number) => {
-    await givenGame(w, actor, 'bob');
-    await w.s.apply(seedPuzzleRating, actor, {
-      rating,
-      ratingDeviation: PUZZLE_RATING_RD_MIN,
-      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
-    });
-  }
-);
 Then(
   "{actor}'s puzzle rating is still {int}",
   async (w, actor: Actor, rating: number) => {
     await w.s.apply(showChessStatsScreen, actor);
     expect(await w.s.read(readStatsElo, actor)).toBe(rating);
-  }
-);
-Then(
-  "{actor}'s multiplayer rating is still {int}",
-  async (w, actor: Actor, rating: number) => {
-    expect(await w.s.read(multiplayerRating, actor)).toBe(rating);
   }
 );

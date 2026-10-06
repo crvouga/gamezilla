@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 import {
+  type MatchRoomGame,
   MultiplayerGameChanged,
   matchRoomGame,
   matchRoomModule,
@@ -8,7 +8,7 @@ import {
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared/service-identity';
 import type { RoomState } from '@pkgs/room-root-shared/types';
 
-const accepted: MultiplayerGame = {
+const accepted: MatchRoomGame = {
   id: 'accepted-match',
   white_id: 'alice',
   black_id: 'bob',
@@ -21,7 +21,7 @@ const accepted: MultiplayerGame = {
 };
 async function deliver(
   state: RoomState,
-  game: MultiplayerGame,
+  game: MatchRoomGame,
   identity = ROOM_SERVICE_IDENTITY
 ) {
   const result = await matchRoomModule.handle(

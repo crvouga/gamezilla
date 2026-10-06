@@ -1,11 +1,63 @@
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
+import { MultiplayerAnnouncement } from './multiplayer-announcement';
+import { MultiplayerClocks } from './multiplayer-clocks';
+import { moveListText } from './multiplayer-format';
+
+function WatcherAnnouncement(props: {
+  readonly game: MultiplayerGame;
+}): JSX.Element {
+  const moderation = useModeration();
+  const whiteProfile = useProfileRow(() => props.game.white_id);
+  const blackProfile = useProfileRow(() => props.game.black_id);
+  const winnerName = () => {
+    const whiteWon = props.game.outcome === 'white';
+    const profile = whiteWon ? whiteProfile : blackProfile;
+    const id = whiteWon ? props.game.white_id : props.game.black_id;
+    return (
+      usernameText(moderation(), profile.row()?.username, id) ||
+      'Deleted account'
+    );
+  };
+  return (
+    <p class="text text-text" data-testid="multiplayer-announcement">
+      <Trans>Watching multiplayer chess.</Trans>
+      <Show
+        when={
+          props.game.outcome === 'white' || props.game.outcome === 'black'
+        }
+      >
+        {' '}
+        <Trans>{winnerName()} won the multiplayer game.</Trans>
+      </Show>
+      <Show when={props.game.outcome === 'draw'}>
+        {' '}
+        <Trans>The multiplayer game is drawn.</Trans>
+      </Show>
+    </p>
+  );
+}
+
+function RatingChange(props: { readonly diff: number | null }) {
+  return (
+    <Show when={props.diff !== null}>
+      <span data-testid="multiplayer-rating-change">
+        {' '}
+        <Trans>
+          Your rating changed by {(props.diff ?? 0) > 0 ? '+' : ''}
+          {props.diff ?? 0}.
+        </Trans>
+      </span>
+    </Show>
+  );
+}
 
 export function MultiplayerBoard(props: {
   readonly game: MultiplayerGame;
@@ -16,6 +68,7 @@ export function MultiplayerBoard(props: {
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
   const sounds = useSoundsPreference();
+  const moderation = useModeration();
   const participant = () =>
     props.game.white_id === props.myId || props.game.black_id === props.myId;
   const canMove = () =>
@@ -25,30 +78,13 @@ export function MultiplayerBoard(props: {
     props.game.outcome === 'ongoing' &&
     props.game.turn === props.myId;
   const white = () => props.game.white_id === props.myId || !participant();
-  const opponentId = () =>
-    white() ? props.game.black_id : props.game.white_id;
+  const opponentId = () => (white() ? props.game.black_id : props.game.white_id);
   const opponent = useProfileRow(opponentId);
-  const moderation = useModeration();
   const opponentName = () =>
     usernameText(moderation(), opponent.row()?.username, opponentId()) ||
     'Deleted account';
-  const description = createMemo(() =>
-    !participant() ? (
-      <Trans>Watching multiplayer chess.</Trans>
-    ) : props.game.outcome === 'ongoing' ? (
-      white() ? (
-        <Trans>You are White.</Trans>
-      ) : (
-        <Trans>You are Black.</Trans>
-      )
-    ) : props.game.outcome === 'draw' ? (
-      <Trans>The multiplayer game is drawn.</Trans>
-    ) : (props.game.outcome === 'white') === white() ? (
-      <Trans>You won the multiplayer game.</Trans>
-    ) : (
-      <Trans>Your opponent won the multiplayer game.</Trans>
-    )
-  );
+  const opponentRating = () =>
+    (white() ? props.game.black_rating : props.game.white_rating) ?? '';
   return (
     <div
       class="box gap-4"
@@ -62,32 +98,43 @@ export function MultiplayerBoard(props: {
       data-reason={props.game.reason ?? ''}
     >
       <p class="text text-text" data-testid="multiplayer-opponent">
-        <Trans>Opponent:</Trans> {opponentName()}
+        <Trans>Opponent:</Trans> {opponentName()} ({opponentRating()}) ·{' '}
+        <span data-testid="multiplayer-time-control">
+          {props.game.time_control ?? ''}
+        </span>{' '}
+        ·{' '}
+        <span data-testid="multiplayer-colour">
+          <Show
+            when={participant()}
+            fallback={<Trans>Watching multiplayer chess.</Trans>}
+          >
+            <Show when={white()} fallback={<Trans>You play Black</Trans>}>
+              <Trans>You play White</Trans>
+            </Show>
+          </Show>
+        </span>
       </p>
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        data-testid="multiplayer-announcement"
+      <MultiplayerClocks game={props.game} />
+      <Show
+        when={participant()}
+        fallback={<WatcherAnnouncement game={props.game} />}
       >
-        {description()}
-        <Show when={!participant() && props.game.outcome !== 'ongoing'}>
-          <MultiplayerWatcherResult game={props.game} />
-        </Show>
-        <Show when={props.game.outcome === 'ongoing' && participant()}>
-          {props.game.turn === props.myId ? (
-            <Trans>Your turn.</Trans>
-          ) : (
-            <Trans>Your opponent's turn.</Trans>
-          )}
-          <span data-testid="multiplayer-move-count">
-            {props.game.revision} <Trans>moves accepted.</Trans>
-          </span>
-        </Show>
-        <Show when={props.game.reason}>
-          <span>{props.game.reason}</span>
-        </Show>
-      </div>
+        <MultiplayerAnnouncement
+          game={props.game}
+          myId={props.myId}
+          opponentName={opponentName()}
+          opponentRating={opponentRating()}
+        />
+      </Show>
+      <Show when={participant()}>
+        <RatingChange
+          diff={
+            white()
+              ? props.game.white_rating_diff
+              : props.game.black_rating_diff
+          }
+        />
+      </Show>
       <div class="box w-full max-w-lg self-center">
         <ChessBoard
           fen={props.game.fen}
@@ -102,32 +149,11 @@ export function MultiplayerBoard(props: {
           dataSet={{ testid: 'multiplayer-board' }}
         />
       </div>
+      <section aria-label={t`Multiplayer move list`}>
+        <p class="textMono" data-testid="multiplayer-move-list">
+          {moveListText(props.game)}
+        </p>
+      </section>
     </div>
-  );
-}
-
-function MultiplayerWatcherResult(props: {
-  readonly game: MultiplayerGame;
-}): JSX.Element {
-  const whiteProfile = useProfileRow(() => props.game.white_id);
-  const blackProfile = useProfileRow(() => props.game.black_id);
-  const moderation = useModeration();
-  const winnerName = () => {
-    const whiteWon = props.game.outcome === 'white';
-    const winner = (whiteWon ? whiteProfile : blackProfile).row();
-    const winnerId = whiteWon ? props.game.white_id : props.game.black_id;
-    return (
-      usernameText(moderation(), winner?.username, winnerId) ||
-      'Deleted account'
-    );
-  };
-  return (
-    <span data-component="MultiplayerWatcherResult">
-      {props.game.outcome === 'draw' ? (
-        <Trans>The multiplayer game is drawn.</Trans>
-      ) : (
-        <Trans>{winnerName()} won the multiplayer game.</Trans>
-      )}
-    </span>
   );
 }

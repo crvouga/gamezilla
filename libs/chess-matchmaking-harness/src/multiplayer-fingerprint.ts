@@ -12,6 +12,12 @@ export function multiplayerFingerprint(
       white_id: person(game.white_id),
       black_id: person(game.black_id),
       turn: person(game.turn),
+      ...(game.draw_offer_by
+        ? { draw_offer_by: person(game.draw_offer_by) }
+        : {}),
+      ...(game.rematch_offer_by
+        ? { rematch_offer_by: person(game.rematch_offer_by) }
+        : {}),
     })),
     current: snapshot.current
       .map((row) => ({ ...row, owner_id: person(row.owner_id) }))

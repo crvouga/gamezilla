@@ -31,6 +31,11 @@ msgstr "»"
 msgid "{0, plural, one {# device} other {# devices}}"
 msgstr "{0, plural, one {# device} other {# devices}}"
 
+#. placeholder {0}: ratingOf(speed).games
+#: libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+msgid "{0, plural, one {# rated game} other {# rated games}}"
+msgstr "{0, plural, one {# rated game} other {# rated games}}"
+
 #. placeholder {0}: friendsState.friends().length
 #: libs/friends-client/src/profile-friends-stats-view.tsx
 msgid "{0, plural, one {friend} other {friends}}"
@@ -76,6 +81,16 @@ msgstr "{0} matching · {1} local puzzles"
 msgid "{0} no longer signs in to this account."
 msgstr "{0} no longer signs in to this account."
 
+#. placeholder {0}: props.opponentName
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "{0} offered you a multiplayer draw."
+msgstr "{0} offered you a multiplayer draw."
+
+#. placeholder {0}: props.opponentName
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "{0} offered you a multiplayer rematch."
+msgstr "{0} offered you a multiplayer rematch."
+
 #. placeholder {0}: count()
 #: libs/spaces-client/src/miniplayer-member-count-text.tsx
 msgid "{0} people here"
@@ -85,6 +100,16 @@ msgstr "{0} people here"
 #: libs/chess-puzzle-client/src/chess-puzzle-summary-card.tsx
 msgid "{0} puzzle streak"
 msgstr "{0} puzzle streak"
+
+#. placeholder {0}: flagged()
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "{0} ran out of time, but the other side cannot checkmate."
+msgstr "{0} ran out of time, but the other side cannot checkmate."
+
+#. placeholder {0}: flagged()
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "{0} ran out of time."
+msgstr "{0} ran out of time."
 
 #. placeholder {0}: remaining()
 #: libs/chess-puzzle-client/src/use-puzzle-allowance.tsx
@@ -177,6 +202,14 @@ msgstr "Abandoned · {0}"
 msgid "Abandoned · {puzzleRating}"
 msgstr "Abandoned · {puzzleRating}"
 
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Abort the multiplayer game"
+msgstr "Abort the multiplayer game"
+
+#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+msgid "Abort the multiplayer game?"
+msgstr "Abort the multiplayer game?"
+
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "About"
@@ -186,6 +219,14 @@ msgstr "About"
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Accept"
 msgstr "Accept"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Accept the multiplayer draw"
+msgstr "Accept the multiplayer draw"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Accept the multiplayer rematch"
+msgstr "Accept the multiplayer rematch"
 
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Accepted"
@@ -417,9 +458,16 @@ msgstr "Bishop"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "Black"
 msgstr "Black"
+
+#. placeholder {0}: label()
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "Black has {0} left"
+msgstr "Black has {0} left"
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Black time remaining"
@@ -444,6 +492,10 @@ msgstr "Black wins by resignation."
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Black wins on time."
 msgstr "Black wins on time."
+
+#: libs/chess-matchmaking-client/src/speed-name.tsx
+msgid "Blitz"
+msgstr "Blitz"
 
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 #: libs/friends-client/src/use-friend-user-overflow-menu.tsx
@@ -491,6 +543,10 @@ msgstr "Build"
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Build mode"
 msgstr "Build mode"
+
+#: libs/chess-matchmaking-client/src/speed-name.tsx
+msgid "Bullet"
+msgstr "Bullet"
 
 #: libs/auth-client/src/sign-in-link-required.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
@@ -574,6 +630,10 @@ msgstr "Claim the win"
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 msgid "Claim this side"
 msgstr "Claim this side"
+
+#: libs/chess-matchmaking-client/src/speed-name.tsx
+msgid "Classical"
+msgstr "Classical"
 
 #: libs/search-client/src/search-recent-queries.tsx
 #: pkgs/ui-root-client/src/combobox-trigger.tsx
@@ -920,6 +980,14 @@ msgstr "Decline"
 msgid "Decline draw"
 msgstr "Decline draw"
 
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Decline the multiplayer draw"
+msgstr "Decline the multiplayer draw"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Decline the multiplayer rematch"
+msgstr "Decline the multiplayer rematch"
+
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Declined"
 msgstr "Declined"
@@ -1048,6 +1116,10 @@ msgstr "Download reusable detail"
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."
+
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "Drawn by agreement."
+msgstr "Drawn by agreement."
 
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
@@ -1184,9 +1256,13 @@ msgstr "Filter by puzzles you have never seen, already seen, or failed."
 msgid "Filter fruits…"
 msgstr "Filter fruits…"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Find a chess opponent"
 msgstr "Find a chess opponent"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Find a new opponent"
+msgstr "Find a new opponent"
 
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Find an opponent and watch together"
@@ -1205,7 +1281,7 @@ msgstr "Find friends by username and send requests."
 msgid "Find people"
 msgstr "Find people"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Finding an opponent…"
 msgstr "Finding an opponent…"
 
@@ -1624,9 +1700,11 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 msgid "Long tasks"
 msgstr "Long tasks"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
-msgid "Looking for a chess opponent."
-msgstr "Looking for a chess opponent."
+#. placeholder {0}: props.search.time_control ?? ''
+#. placeholder {1}: seconds()
+#: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
+msgid "Looking for a {0} chess opponent for <0>{1}</0> seconds."
+msgstr "Looking for a {0} chess opponent for <0>{1}</0> seconds."
 
 #: libs/billing-client/src/billing-offer-sections.tsx
 msgid "Manage or cancel anytime from the billing portal"
@@ -1655,6 +1733,13 @@ msgstr "Marking…"
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
 msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
+
+#. placeholder {0}: props.opponentName
+#. placeholder {1}: props.opponentRating
+#. placeholder {2}: props.game.time_control ?? ''
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "Matched with {0}, rated {1}, at {2}."
+msgstr "Matched with {0}, rated {1}, at {2}."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
 msgid "Membership cancellation has completed."
@@ -1702,6 +1787,7 @@ msgstr "Move on to the next puzzle by itself after a solve."
 msgid "moves accepted."
 msgstr "moves accepted."
 
+#: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
@@ -1717,6 +1803,18 @@ msgstr "Multiplayer command refused"
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 msgid "Multiplayer commands need a connection. Your accepted game stays here."
 msgstr "Multiplayer commands need a connection. Your accepted game stays here."
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Multiplayer draw offered"
+msgstr "Multiplayer draw offered"
+
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "Multiplayer move list"
+msgstr "Multiplayer move list"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Multiplayer rematch offered"
+msgstr "Multiplayer rematch offered"
 
 #: pkgs/ui-root-client/src/speaking-avatar.tsx
 msgid "Mute coach"
@@ -1951,6 +2049,14 @@ msgstr "Notifications you archive are kept here."
 msgid "Off"
 msgstr "Off"
 
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Offer a multiplayer draw"
+msgstr "Offer a multiplayer draw"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
+msgid "Offer a multiplayer rematch"
+msgstr "Offer a multiplayer rematch"
+
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "Offer draw"
 msgstr "Offer draw"
@@ -2026,7 +2132,8 @@ msgstr "Open space {0}"
 msgid "Opening…"
 msgstr "Opening…"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
 msgid "Opponent search accepted"
 msgstr "Opponent search accepted"
 
@@ -2320,6 +2427,10 @@ msgstr "Random"
 msgid "Randomize"
 msgstr "Randomize"
 
+#: libs/chess-matchmaking-client/src/speed-name.tsx
+msgid "Rapid"
+msgstr "Rapid"
+
 #: libs/chess-puzzle-client/src/chess-rating-history.tsx
 msgid "Rating after each puzzle"
 msgstr "Rating after each puzzle"
@@ -2452,7 +2563,7 @@ msgstr "Resets in {minutes} min"
 msgid "Resign game"
 msgstr "Resign game"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
 msgid "Resign multiplayer chess"
 msgstr "Resign multiplayer chess"
 
@@ -2989,7 +3100,7 @@ msgstr "Status"
 msgid "Status: {0}"
 msgstr "Status: {0}"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Stop finding an opponent"
 msgstr "Stop finding an opponent"
 
@@ -3156,6 +3267,10 @@ msgstr "The export has expired. Ask for a new one."
 msgid "The game choices changed. Review them and try again."
 msgstr "The game choices changed. Review them and try again."
 
+#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+msgid "The game ends with no result and no rating change."
+msgstr "The game ends with no result and no rating change."
+
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
@@ -3172,9 +3287,13 @@ msgstr "The latest PostgreSQL result is shown on this screen."
 msgid "The link may be wrong, or the space may never have existed."
 msgstr "The link may be wrong, or the space may never have existed."
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "The multiplayer game is drawn."
 msgstr "The multiplayer game is drawn."
+
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+msgid "The multiplayer game was aborted."
+msgstr "The multiplayer game was aborted."
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "The other participant may still return. Wait before claiming the win."
@@ -3306,6 +3425,10 @@ msgstr "This tab"
 msgid "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 msgstr "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 
+#: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
+msgid "Time control"
+msgstr "Time control"
+
 #: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
@@ -3329,7 +3452,7 @@ msgstr "Try again"
 msgid "Try again later"
 msgstr "Try again later"
 
-#: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Try finding an opponent again"
 msgstr "Try finding an opponent again"
 
@@ -3502,9 +3625,16 @@ msgstr "What {0} includes"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "White"
 msgstr "White"
+
+#. placeholder {0}: label()
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "White has {0} left"
+msgstr "White has {0} left"
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "White time remaining"
@@ -3565,11 +3695,11 @@ msgstr "Yes"
 msgid "You"
 msgstr "You"
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "You are Black."
 msgstr "You are Black."
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "You are White."
 msgstr "You are White."
 
@@ -3617,6 +3747,14 @@ msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
 
 #: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "You play Black"
+msgstr "You play Black"
+
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "You play White"
+msgstr "You play White"
+
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "You won the multiplayer game."
 msgstr "You won the multiplayer game."
 
@@ -3707,15 +3845,19 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 msgid "Your live spaces"
 msgstr "Your live spaces"
 
+#: libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+msgid "Your multiplayer ratings"
+msgstr "Your multiplayer ratings"
+
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Your opponent will win this game."
 msgstr "Your opponent will win this game."
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "Your opponent won the multiplayer game."
 msgstr "Your opponent won the multiplayer game."
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "Your opponent's turn."
 msgstr "Your opponent's turn."
 
@@ -3743,6 +3885,12 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 msgid "Your rating"
 msgstr "Your rating"
 
+#. placeholder {0}: (props.diff ?? 0) > 0 ? '+' : ''
+#. placeholder {1}: props.diff ?? 0
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+msgid "Your rating changed by {0}{1}."
+msgstr "Your rating changed by {0}{1}."
+
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Your search will end."
 msgstr "Your search will end."
@@ -3755,7 +3903,7 @@ msgstr "Your turn — find the best move for Black"
 msgid "Your turn — find the best move for White"
 msgstr "Your turn — find the best move for White"
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "Your turn."
 msgstr "Your turn."
 
