@@ -58,13 +58,15 @@ export const sendMultiplayerCommand = scenarioAction({
         failure = error;
       }
     );
+    // Fine steps: a verdict arrives within milliseconds, and a coarser poll
+    // would spend clock time a multiplayer game's deadlines count.
     await pollUntil(
       s,
       async () => {
         if (failure !== undefined) throw failure;
         return result;
       },
-      { maxMs: 5000, description: 'the multiplayer command verdict' }
+      { maxMs: 5000, stepMs: 1, description: 'the multiplayer command verdict' }
     );
     let bag = results.get(s);
     if (bag === undefined) {

@@ -11,6 +11,7 @@ import {
   declineRematch,
   deletePlayAccount,
   initPlay,
+  moveCurrentPlay,
   moveInPlay,
   offerPlayDraw,
   offerRematch,
@@ -26,13 +27,16 @@ import type { PlayTrace } from './multiplayer-world';
 
 bindQuintModel<PlayTrace>({
   model: 'multiplayer',
-  traces: 64,
+  traces: 80,
   maxSteps: 120,
   timeoutMs: 300_000,
-  // Nineteen actions over three people's six devices: Apalache explores two
+  // Twenty actions over three people's six devices: Apalache explores two
   // steps from every reachable start within the models check's deadline.
   verifySteps: 2,
   verifyTimeoutMs: 480_000,
+  // The model counts seconds (searching, clocks, the first-move wait):
+  // settling in 100 ms steps would let the product's time run past it.
+  settleStepMs: 1,
   regressions: [
     // regression: chess-deletion-refreshes-connected-devices
     {
@@ -51,6 +55,7 @@ bindQuintModel<PlayTrace>({
     stopFindingOpponent: stopLooking,
     matchFormed: receivePlay,
     playMove: moveInPlay,
+    playCurrentMove: moveCurrentPlay,
     resignPlay,
     abortPlay,
     offerPlayDraw,

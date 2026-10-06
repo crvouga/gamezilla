@@ -5,6 +5,7 @@ import {
   multiplayerView,
   shownMultiplayerText,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -85,6 +86,9 @@ Given(
   '{actor} is White in a new {word} multiplayer game with {actor} and her phone has been offline since they were matched',
   async (w, white: Actor, timeControl: string, black: Actor) => {
     await multiplayerPeople(w, [white, black]);
+    // Her other device stays online: what Alice sees is read there.
+    await w.s.apply(signInWithGoogleAsAccount, `${white}_computer`, white);
+    w.memo.set(`multiplayer:viewer:${white}`, `${white}_computer`);
     await searchFor(w, white, timeControl);
     await w.s.advanceTime(1);
     await searchFor(w, black, timeControl);

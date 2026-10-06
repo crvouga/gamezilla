@@ -60,12 +60,24 @@ export async function gameOf(w: HarnessWorld, actor = 'alice') {
   return game;
 }
 
+/**
+ * The device a person looks at: their phone, or the online device the
+ * scenario gave them while that phone is offline.
+ */
+export function viewerOf(w: HarnessWorld, person: string): string {
+  return (
+    (w.memo.get(`multiplayer:viewer:${person}`) as string | undefined) ?? person
+  );
+}
+
 export async function sameBoards(
   w: HarnessWorld,
-  first = 'alice',
-  second = 'bob',
+  person = 'alice',
+  otherPerson = 'bob',
   predicate: (game: MultiplayerGame) => boolean = () => true
 ) {
+  const first = viewerOf(w, person);
+  const second = viewerOf(w, otherPerson);
   await w.s.until(async (s) => {
     const a = (await multiplayerView(s, first)).game;
     const b = (await multiplayerView(s, second)).game;

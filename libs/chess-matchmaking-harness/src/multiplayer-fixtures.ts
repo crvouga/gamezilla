@@ -26,6 +26,17 @@ export async function multiplayerFixture(
   await multiplayerTransaction(s, owner, run);
 }
 
+/** Both people of every game written, as the production topic map wakes them. */
+function gamePlayers(
+  images: Readonly<Record<string, readonly Record<string, unknown>[]>>
+): string[] {
+  return (images['chess_multiplayer_games'] ?? []).flatMap((row) =>
+    [row['white_id'], row['black_id']].filter(
+      (id): id is string => typeof id === 'string' && id.length > 0
+    )
+  );
+}
+
 /** A server event's trusted subject; independent of a device session. */
 export async function multiplayerTransaction(
   s: ProductHarness,
@@ -38,8 +49,9 @@ export async function multiplayerTransaction(
   const owners = await s.harness.serverSql.sqlClient.transaction(async (tx) => {
     const wrapped = wrapMutationDb(tx, env);
     const affected = await run(wrapped.tx, env);
-    tables = wrapped.getCapture().tables;
-    return affected;
+    const capture = wrapped.getCapture();
+    tables = capture.tables;
+    return [...new Set([...affected, ...gamePlayers(capture.images)])];
   });
   const pubsub = s.harness.server.events;
   if (pubsub === null)

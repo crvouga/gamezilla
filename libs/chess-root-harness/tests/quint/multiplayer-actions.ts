@@ -140,6 +140,19 @@ export async function moveInPlay(w: PlayTrace, picks: Picks) {
   });
 }
 
+/** The legal next move of the game the device shows, for its board. */
+export async function moveCurrentPlay(w: PlayTrace, picks: Picks) {
+  const actor = playActor(picks, 'moveDevice');
+  const game = (await w.quiet.read(multiplayerView, actor)).game;
+  const position = game?.revision ?? 0;
+  const line = PLAY_LINES[Number(picks['sequence'])];
+  await command(w, actor, 'playMultiplayerMove', {
+    gameId: game?.id ?? playId(w, 0),
+    revision: position,
+    uci: line?.[position] ?? 'a1a1',
+  });
+}
+
 export async function deletePlayAccount(w: PlayTrace, picks: Picks) {
   const person = String(picks['person']);
   if ((await w.s.read(accountIdOf, person)) === null) return;
