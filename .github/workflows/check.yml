@@ -48,8 +48,6 @@ jobs:
     name: check:plan
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    outputs:
-      plan: ${{ steps.plan.outputs.plan }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -65,8 +63,16 @@ jobs:
       - name: Plan all owners once
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: Export immutable plan
-        id: plan
         run: bun run libs/tools/scripts/check-plan-transfer.ts --export
+      - name: Upload immutable plan
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-plan
+          path: .cache/check-ci/plan.payload
+          include-hidden-files: true
+          overwrite: true
+          compression-level: 0
+          retention-days: 7
       - name: Build shared prerequisites and warm their cache
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARDS"
       - name: Transfer prerequisite outputs
@@ -98,9 +104,13 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
+      - name: Download immutable plan
+        uses: actions/download-artifact@v6
+        with:
+          name: check-plan
+          path: .cache/check-ci
       - name: Restore immutable plan and required prerequisites
         env:
-          CHECK_PLAN_PAYLOAD: ${{ needs.check-plan.outputs.plan }}
           CHECK_SHARD: ${{ matrix.shard }}
         run: bun run libs/tools/scripts/check-stage-transfer.ts --prerequisites
       - name: Select browser tasks
@@ -167,9 +177,12 @@ jobs:
           environment: dev
       - name: Download producers and their exact cache artifacts
         run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
+      - name: Download immutable plan
+        uses: actions/download-artifact@v6
+        with:
+          name: check-plan
+          path: .cache/check-ci
       - name: Restore immutable plan and producers
-        env:
-          CHECK_PLAN_PAYLOAD: ${{ needs.check-plan.outputs.plan }}
         run: bun run libs/tools/scripts/check-stage-transfer.ts
       - name: check
         timeout-minutes: 25

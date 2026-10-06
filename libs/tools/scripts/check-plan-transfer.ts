@@ -1,10 +1,5 @@
 // @io-wall-ok — compact plan transport, with no credentials or runtime metadata.
-import {
-  appendFileSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import type { CheckPlan } from './check-shards';
@@ -85,13 +80,9 @@ if (import.meta.main) {
   if (process.argv[2] === '--export') {
     const payload = packPlan();
     console.log(`Execution plan: ${payload.length} compressed transport bytes`);
-    if (payload.length > 120_000)
-      throw new Error(
-        'Compressed Check plan exceeds safe job environment size'
-      );
-    appendFileSync(process.env['GITHUB_OUTPUT']!, `plan=${payload}\n`);
+    writeFileSync(join(DIRECTORY, 'plan.payload'), payload);
   } else {
-    restorePlan(process.env['CHECK_PLAN_PAYLOAD']!);
+    restorePlan(readFileSync(join(DIRECTORY, 'plan.payload'), 'utf8'));
   }
   console.log(
     `Plan transfer: ${(Number(process.hrtime.bigint() - started) / 1e6).toFixed(1)}ms`

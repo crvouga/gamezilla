@@ -8,7 +8,7 @@ import { requiredTasks } from './check-stage-cache';
 
 const ROOT = join(import.meta.dirname, '../../..');
 if (import.meta.main) {
-  restorePlan(process.env['CHECK_PLAN_PAYLOAD']!);
+  restorePlan(readFileSync(join(ROOT, '.cache/check-ci/plan.payload'), 'utf8'));
   const directory = join(ROOT, '.cache/check-ci/transfers');
   if (process.argv.includes('--prerequisites')) {
     const plan = JSON.parse(
