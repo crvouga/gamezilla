@@ -9,7 +9,8 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
-    "./scripts/**/*.tsx"
+    "./scripts/**/*.tsx",
+    "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,8 +1,8 @@
 /**
- * Live embedded Postgres handle for mode-real DST (migrated by the stack boot).
+ * Live Mockingbird Postgres handle for mode-real DST (migrated by the stack boot).
  */
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 

@@ -1,13 +1,13 @@
 // @io-wall-ok
 /**
- * Hang with embedded Postgres + product migrate/seed for CI (`check:api`).
+ * Hang with Mockingbird Postgres + product migrate/seed for CI (`check:api`).
  */
 
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import { runLocalMigrate } from './run-local-postgres-migrate';
 import { runLocalSeed } from './run-local-postgres-seed';
 
-const handle = await startEmbeddedPostgres();
+const handle = await startMockingbirdPostgres();
 await runLocalMigrate();
 await runLocalSeed();
 process.stdout.write('[postgres] ready (persistent)\n');

@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/postgres-embedded-server",
+  "name": "@pkgs/postgres-local-shared",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -10,21 +10,15 @@
     ]
   },
   "scripts": {
-    "install:deps": "bun run scripts/install-deps.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "setup": "bun run scripts/setup.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
-  "dependencies": {
-    "@pkgs/os-server": "workspace:*",
-    "@pkgs/postgres-embedded-shared": "workspace:*",
-    "embedded-postgres": "catalog:"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "server"
+  "category": "isomorphic"
 }

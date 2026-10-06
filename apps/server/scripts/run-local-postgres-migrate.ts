@@ -8,7 +8,7 @@ import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { reconcilePostgres } from '@libs/runtime-server/reconcile-postgres';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 
 /** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */

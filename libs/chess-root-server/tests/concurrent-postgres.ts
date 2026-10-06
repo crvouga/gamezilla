@@ -1,8 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
   createPgPool,
   openPgClient,
@@ -40,7 +40,7 @@ function perRequestSessions(
 
 export async function openConcurrentPostgres(driver: ConcurrentDriver) {
   const dataDir = mkdtempSync(join(tmpdir(), 'chess-concurrent-'));
-  const pg = await startEmbeddedPostgres({
+  const pg = await startMockingbirdPostgres({
     port: await freePostgresPort(),
     dataDir,
   });

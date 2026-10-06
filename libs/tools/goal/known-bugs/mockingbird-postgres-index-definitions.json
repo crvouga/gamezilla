@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 2.3.0 lacks pg_get_indexdef and distinct index catalog identities required by automatic index reconciliation; upstream issue #330.",
+  "regressionTest": "pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts"
+}
