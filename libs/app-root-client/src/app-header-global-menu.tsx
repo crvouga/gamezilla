@@ -154,11 +154,11 @@ function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const menuIdentity = useGlobalMenuIdentity();
   return createMemo(() => {
     const current = menuIdentity();
-    const { username, email } = current;
+    const { usernameLabel, email } = current;
     const avatar = accountFace(current, HEADER_AVATAR_SIZE);
-    if (username !== null && username.length > 0) {
+    if (usernameLabel !== null && usernameLabel.length > 0) {
       return {
-        title: `@${username}`,
+        title: usernameLabel,
         subtitle: email ?? undefined,
         avatar,
       };

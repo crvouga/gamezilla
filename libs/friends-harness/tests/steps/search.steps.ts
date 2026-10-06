@@ -41,6 +41,14 @@ Then(
   }
 );
 
+// The person's row is keyed by the username it was found by.
+Then(
+  '{actor} cannot find {actor} by {username}',
+  async (w, actor: Actor, _person: Actor, username: string) => {
+    expect(await w.s.read(searchResultVisible, actor, username)).toBe(false);
+  }
+);
+
 Then("{actor}'s search shows nobody", async (w, actor: Actor) => {
   expect(await w.s.read(searchShowsNobody, actor)).toBe(true);
 });

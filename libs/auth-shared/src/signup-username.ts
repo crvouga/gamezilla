@@ -3,16 +3,19 @@
  * Keep in sync with `libs/profile-shared/src/username.ts`.
  */
 
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 
 const USERNAME_MIN_LENGTH = 3;
 const USERNAME_MAX_LENGTH = 32;
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
 
-export function isValidSignupUsername(raw: string): boolean {
+export function isValidSignupUsername(
+  raw: string,
+  moderation: AppModeration
+): boolean {
   const username = raw.trim();
   if (username.length < USERNAME_MIN_LENGTH) return false;
   if (username.length > USERNAME_MAX_LENGTH) return false;
   if (!USERNAME_PATTERN.test(username)) return false;
-  return !containsBlockedTerm(username);
+  return moderation.checkWrite('username', username).allowed;
 }

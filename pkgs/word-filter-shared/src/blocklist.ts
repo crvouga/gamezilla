@@ -19,3 +19,14 @@ export const BLOCKED_TERMS: readonly string[] = [
   'slut',
   'whore',
 ];
+
+/**
+ * Ordinary words that merely contain a blocked term (`Scunthorpe` holds
+ * `cunt`). Matching skips them, so they stay clean; a blocked term outside
+ * them is still refused. Lower-case, separator-free, like the blocklist.
+ */
+export const ALLOWED_WORDS: readonly string[] = [
+  'scunthorpe',
+  'retardant',
+  'retardants',
+];

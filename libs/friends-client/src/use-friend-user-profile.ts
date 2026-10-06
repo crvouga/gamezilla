@@ -1,4 +1,6 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
+import { usernameLabel } from '@libs/moderation-shared/display';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 import { useMyProfileId } from '@libs/profile-client/public-use-my-profile-id';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
@@ -54,9 +56,10 @@ export function useFriendUserProfile(userId: Accessor<string>): {
 }
 
 export function friendUserBreadcrumbName(
+  moderation: AppModeration,
   profile: FriendProfile,
   userId: string
 ): string {
-  if (profile.username.length > 0) return `@${profile.username}`;
-  return userId.slice(0, 8);
+  const label = usernameLabel(moderation, profile.username, userId);
+  return label.length > 0 ? label : userId.slice(0, 8);
 }

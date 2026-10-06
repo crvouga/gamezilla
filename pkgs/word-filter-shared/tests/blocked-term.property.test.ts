@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { BLOCKED_TERMS } from '@pkgs/word-filter-shared/blocklist';
 import {
+  containsAllowedWord,
   containsBlockedTerm,
   normalizeForMatch,
 } from '@pkgs/word-filter-shared/match';
@@ -97,6 +98,8 @@ describe('containsBlockedTerm refuses disguised blocked terms', () => {
     assertProperty(
       'disguised term ⇒ refused',
       fc.property(arbDisguisedTerm, ({ text }) => {
+        // Unless the disguise happens to spell an allowed word (Scunthorpe).
+        fc.pre(!containsAllowedWord(text));
         expect(containsBlockedTerm(text)).toBe(true);
       })
     );
@@ -110,7 +113,9 @@ describe('containsBlockedTerm refuses disguised blocked terms', () => {
         fc.string({ maxLength: 12 }),
         fc.string({ maxLength: 12 }),
         ({ text }, before, after) => {
-          expect(containsBlockedTerm(`${before}${text}${after}`)).toBe(true);
+          const embedded = `${before}${text}${after}`;
+          fc.pre(!containsAllowedWord(embedded));
+          expect(containsBlockedTerm(embedded)).toBe(true);
         }
       )
     );

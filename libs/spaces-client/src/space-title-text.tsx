@@ -1,6 +1,8 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { spaceTitleText } from '@libs/moderation-shared/display';
 import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 import { SpaceHostFallbackTitle } from './space-host-fallback-title';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
@@ -13,10 +15,15 @@ export type SpaceTitleTextProps = {
 
 /**
  * Renders the user-set title for a space, falling back to the localized
- * `${hostName}'s space` template when no custom title is set.
+ * `${hostName}'s space` template when no custom title is set or the
+ * moderation policy masks it.
  */
 export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
-  const customTitle = useSpaceColumn(props.spaceId, SpaceField.title);
+  const storedTitle = useSpaceColumn(props.spaceId, SpaceField.title);
+  const moderation = useModeration();
+  const customTitle = createMemo(() =>
+    spaceTitleText(moderation(), storedTitle(), props.spaceId)
+  );
   return (
     <Show
       when={customTitle()}

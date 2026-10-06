@@ -2,6 +2,10 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
 import { STYLE_KEYS, styleLabel } from '@libs/profile-shared/dicebear-styles';
 import { Handles } from '@libs/test-ids-shared/handles';
+import {
+  startAllowingUsername,
+  stopAllowingUsername,
+} from './team-rule-actions';
 
 type ActorUi = Awaited<ReturnType<typeof actorUi>>;
 
@@ -15,6 +19,8 @@ const MAX_BACK_STEPS = 4;
  * unsaved drafts unsaved.
  */
 export async function backToProfileTab(ui: ActorUi): Promise<void> {
+  // Bring the actor's app to the front: a parked app shows nothing.
+  await ui.get(Handles.statusCurrentUser).expect.visible();
   for (let step = 0; step < MAX_BACK_STEPS; step += 1) {
     if (await ui.get(Handles.profileEdit).isVisible()) return;
     if (await ui.get(Handles.profileUsernameCancel).isVisible()) {
@@ -222,4 +228,6 @@ export const PROFILE_HARNESS_ACTIONS = [
   setAvatarStyle,
   saveAvatar,
   leaveAvatarEditor,
+  stopAllowingUsername,
+  startAllowingUsername,
 ];

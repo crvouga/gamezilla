@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { specPackages } from './spec-packages';
 
 const ROOT = join(import.meta.dir, '../../..');
@@ -17,10 +18,16 @@ test('the product proof starts bounded solver workers before native replay', () 
   expect(stages[0]).toContain('tests/quint/model-checks.test.ts');
   expect(stages[1]).toContain('tests/ui-quality-render.contract.test.ts');
   for (const stage of stages) {
-    const workers = stage.match(/--max-concurrency (\d+)/)?.[1];
-    expect(workers).toBeDefined();
-    expect(Number(workers)).toBeGreaterThan(0);
-    expect(Number(workers)).toBeLessThanOrEqual(2);
+    const ceiling = stage.match(/--max-concurrency=\$\(bun [^ ]+ (\d+)\)/)?.[1];
+    expect(ceiling).toBeDefined();
+    for (const limit of [undefined, '1', '2', '8']) {
+      const workers = testConcurrency(
+        { CHECK_TEST_CONCURRENCY: limit },
+        Number(ceiling)
+      );
+      expect(workers).toBeGreaterThan(0);
+      expect(workers).toBeLessThanOrEqual(2);
+    }
   }
 });
 

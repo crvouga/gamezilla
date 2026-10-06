@@ -1,4 +1,5 @@
 import type { OpenSqlClient } from '@libs/feature-shared/sync';
+import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-module';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
@@ -34,6 +35,11 @@ export type ServerEnv = {
    * server never learns which service it is.
    */
   readonly auth: AuthProviderModule;
+  /**
+   * The moderation this server runs with: the team's rules as they ship,
+   * judging every replayed write by the rules of its time.
+   */
+  readonly moderation: ModerationRules;
   /**
    * Whether this deployment is production (the env file's `protection`).
    * Production-only behavior branches on this, never on an env name.

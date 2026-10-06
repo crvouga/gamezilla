@@ -32,6 +32,7 @@
       "inputs": [
         "tests/quint/**",
         "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/auth/**",
         "$TURBO_ROOT$/specs/billing/**",

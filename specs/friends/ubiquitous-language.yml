@@ -206,6 +206,12 @@ terms:
     from: profile
   - term: rename themselves
     from: profile
+  - term: no longer allowed
+    from: profile
+  - term: stand-in name
+    from: profile
+  - term: stop allowing
+    from: profile
 
   - term: space
     from: spaces

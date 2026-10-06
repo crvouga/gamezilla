@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/feature-shared": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
