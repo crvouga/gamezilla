@@ -63,3 +63,17 @@ export const FriendRequestClosed = friendsOutboxNs(
   'request-closed',
   isFriendRequestClosed
 );
+
+/** Someone blocked or unblocked another person (published: "block someone"). */
+export type BlockChangedPayload = {
+  readonly blockerId: string;
+  readonly blockedId: string;
+};
+
+export const BlockChanged = friendsOutboxNs(
+  'block-changed',
+  (p: unknown): p is BlockChangedPayload =>
+    isPlainRecord(p) &&
+    isNonEmptyString(p['blockerId']) &&
+    isNonEmptyString(p['blockedId'])
+);

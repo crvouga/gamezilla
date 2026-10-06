@@ -110,6 +110,12 @@
           "tag": "Some",
           "value": "people"
         },
+        "blocks": {
+          "tag": "Some",
+          "value": {
+            "#set": []
+          }
+        },
         "command": {
           "tag": "None",
           "value": {
@@ -383,6 +389,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "create"
@@ -642,6 +654,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -911,6 +929,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "clock"
@@ -1170,6 +1194,12 @@
           "value": "alice-other"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -1439,6 +1469,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "claim"
@@ -1698,6 +1734,12 @@
           "value": "bob"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -1967,6 +2009,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "decline"
@@ -2231,6 +2279,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "revoke"
@@ -2485,6 +2539,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []

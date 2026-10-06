@@ -27,6 +27,13 @@ function errorText(reason: string): string {
     'finish or cancel first': t`Finish or cancel this game before creating another.`,
     'person not in the space': t`Invite a person who is in this space.`,
     'draw agreement needs two people': t`Draw agreement is available between two people.`,
+    'side not available': t`That side is not available to you.`,
+    'cannot be invited': t`This person cannot be invited.`,
+    'resign instead': t`Both sides have moved. Resign instead of cancelling.`,
+    'offer again after moving': t`You may offer a draw again after your next move.`,
+    'may still return': t`The other participant may still return. Wait before claiming the win.`,
+    'no invitation': t`There is no invitation for that side.`,
+    'no finished game': t`Finish a game before asking for a rematch.`,
   };
   return messages[reason] ?? t`The choice could not be confirmed. Try again.`;
 }

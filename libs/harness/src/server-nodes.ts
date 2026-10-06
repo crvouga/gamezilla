@@ -16,6 +16,7 @@ import { composeFeatureServers } from '@libs/feature-shared/compose-server';
 import type { ServerHttp } from '@libs/feature-shared/sync';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import type { HarnessComposition } from './composition';
 import { serializeFetch } from './fetch';
 import { nextHarnessNodeId, normalizeHarnessNodeId } from './node-name';
@@ -29,6 +30,8 @@ export type HarnessServerNode = {
   readonly env: ServerEnv;
   readonly app: Server;
   readonly outboxConsumers: OutboxConsumerRegistry;
+  /** The features' server-only mutation checks the sync mount runs. */
+  readonly authorizeMutation: MutationAuthorize;
   /** Serialized so request ALS scopes never interleave within an instance. */
   readonly fetch: ServerHttp;
   readonly drain: () => Promise<void>;
@@ -102,6 +105,7 @@ export function createHarnessServerNodes(args: {
         env,
         app,
         outboxConsumers: featureServers.outboxConsumers,
+        authorizeMutation: featureServers.authorizeMutation,
         fetch: serialized.fetch,
         drain: serialized.drain,
       };

@@ -8,7 +8,13 @@
 // when back online. An acknowledged choice survives closing the app.
 // Simultaneous choices may succeed in either order; an earlier choice cannot
 // overwrite a newer one. Chess endings finish the same game; chess moves and
-// clocks are governed by chess, rather than a second set of move rules here.
+// clocks are governed by chess, rather than a second set of move rules here;
+// this model only notes which sides have moved. Either participant of a game
+// between two people may cancel it until each side has moved; afterwards they
+// resign instead. Someone whose draw offer was declined offers again only
+// after their next move. The creator cannot invite, and nobody can claim a
+// side, across a block with the creator; a block never ends a game under way.
+// Each person's board faces their own accepted side; everyone else's faces White.
 module custom_game {
   type Person = str
   type Side = str
@@ -34,6 +40,8 @@ module custom_game {
     ready: Set(), minutes: 0, increment: 0, starts: 0,
     outcome: "", drawOfferedBy: "",
   }
+  // Blocks between the creator and someone else; other blocks change nothing here.
+  pure val _BLOCK_PAIRS = Set(("alice","bob"),("bob","alice"),("alice","carol"),("carol","alice"))
   pure val _COMMANDS = Set("take", "bot", "open", "close", "invite", "accept", "decline", "revoke", "claim", "release", "ready", "unready", "swap", "clock", "start", "cancel", "resign", "offer", "agree", "reject", "create", "rematch")
 
   /// The agreed game remains itself when no person can currently see it.
@@ -79,6 +87,17 @@ module custom_game {
   var _cutOffStarts: Person -> int
   var _cutOffOutcome: Person -> str
   var _cutOffDrawofferedby: Person -> str
+  /// Bookkeeping: moves played in the active game, counted 0, 1, then 2 and 3 alternating;
+  /// an even count means White is to move and 2 or more means both sides have moved.
+  var _moves: int
+  /// Bookkeeping: people whose draw offer was declined and who have not moved since.
+  var _declinedOffers: Set[Person]
+  /// Bookkeeping: who has blocked whom, as (blocker, blocked person).
+  var _blocks: Set[(Person, Person)]
+  /// Bookkeeping: whether an invitation or claim ever crossed a block with the creator.
+  var _blockIgnored: bool
+  /// Each device's board faces its person's accepted side; everyone else's faces White.
+  val boardFacing = DEVICES.mapBy(d => if (blackShown.get(d) == {kind: "person", person: _personOf(d)}) "black" else "white")
 
   pure def _side(g: CustomGame, side: Side): Participant = if (side == "white") g.white else g.black
   pure def _other(side: Side): Side = if (side == "white") "black" else "white"
@@ -92,6 +111,11 @@ module custom_game {
     if (_side(g, side) == p) g
     else if (side == "white") { ...g, white: p, ready: Set() }
     else { ...g, black: p, ready: Set() }
+  def _blocked(a: Person, b: Person): bool = _blocks.contains((a,b)) or _blocks.contains((b,a))
+  pure def _declinedAfter(g: CustomGame, c: str, declined: Set[Person]): Set[Person] =
+    if (c == "reject" and g.drawOfferedBy != "") declined.union(Set(g.drawOfferedBy)) else declined
+  def _crossesBlock(c: str, actor: Person, person: Person): bool =
+    (c == "invite" and _blocked("alice", person)) or (c == "claim" and _blocked("alice", _personOf(actor)))
   pure def _config(g: CustomGame): (Participant, Participant, int, int) = (g.white, g.black, g.minutes, g.increment)
   pure def _terminal(g: CustomGame): bool = Set("completed", "cancelled").contains(g.status)
   pure def _startable(g: CustomGame): bool = SIDES.forall(s =>
@@ -103,7 +127,7 @@ module custom_game {
     val sender = _personOf(actor)
     if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(sender))) "not in the space"
     else if (g.status == "none" and not(Set("create", "rematch").contains(c))) "no Custom Game"
-    else if (_creatorCommand(c) and sender != "alice") "only the creator"
+    else if (_creatorCommand(c) and sender != "alice" and not(c == "cancel" and _personSide(g,sender) != "")) "only the creator"
     else if (Set("create", "rematch").contains(c)) {
       if (g.status == "none" and c == "rematch") "no finished game"
       else if (g.status != "none" and not(_terminal(g))) "finish or cancel first" else ""
@@ -114,16 +138,21 @@ module custom_game {
     else ""
   }
 
-  def _reason(g: CustomGame, actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): str = {
+  def _reason(g: CustomGame, actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): str =
+    _reasonWith(g, _declinedOffers, actor, c, side, person, minutes, increment)
+
+  def _reasonWith(g: CustomGame, declined: Set[Person], actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): str = {
     val sender = _personOf(actor)
     val occupied = _side(g, side)
     val priority = _priorityReason(g,actor,c)
     if (priority != "" or Set("create", "rematch").contains(c)) priority
     else if (c == "take" and _reserved(g, sender) and occupied.person != sender) "one side per person"
     else if (c == "invite" and not(_members.contains(person))) "person not in the space"
+    else if (c == "invite" and _blocked("alice", person)) "cannot be invited"
     else if (c == "invite" and _reserved(g, person) and occupied.person != person) "one side per person"
     else if (Set("accept", "decline").contains(c) and (occupied.kind != "invitation" or occupied.person != sender)) "not your invitation"
     else if (c == "revoke" and occupied.kind != "invitation") "no invitation"
+    else if (c == "claim" and _blocked("alice", sender)) "side not available"
     else if (c == "claim" and occupied.kind != "open") {
       if (occupied.kind == "person" and occupied.person == sender) "" else "not an open place"
     }
@@ -136,6 +165,9 @@ module custom_game {
     else if (Set("resign", "offer", "agree", "reject").contains(c) and g.status != "active") "not started"
     else if (Set("agree", "reject").contains(c) and (_personSide(g,sender) == "" or g.drawOfferedBy == "" or g.drawOfferedBy == sender)) "not the other participant"
     else if (c == "offer" and (g.white.kind != "person" or g.black.kind != "person")) "draw agreement needs two people"
+    else if (c == "offer" and declined.contains(sender)) "offer again after moving"
+    else if (c == "cancel" and sender != "alice" and (g.status != "active" or g.white.kind != "person" or g.black.kind != "person")) "only the creator"
+    else if (c == "cancel" and sender != "alice" and _moves >= 2) "resign instead"
     else ""
   }
 
@@ -170,7 +202,14 @@ module custom_game {
     else if (c == "reject") {...g, drawOfferedBy: ""}
     else g
 
-  action _update(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool): bool = all {
+  action _update(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool): bool =
+    _updateAll(g, offline, members, signedOut, reasons, fresh, _moves, _declinedOffers, _blocks, _blockIgnored)
+
+  action _updateAll(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool, moves: int, declined: Set[Person], blocks: Set[(Person, Person)], blockIgnored: bool): bool = all {
+    _moves' = if (g.status == "active") moves else 0,
+    _declinedOffers' = if (g.status == "active") declined else Set(),
+    _blocks' = blocks,
+    _blockIgnored' = blockIgnored,
     _status' = g.status,
     _creator' = g.creator,
     _white' = g.white,
@@ -213,12 +252,14 @@ module custom_game {
   // Accepted choices have already met their connection and refusal rules.
   action _acceptChoice(actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): bool = {
     val changed = _next(customGame,actor,c,side,person,minutes,increment)
-    _update(changed,_offline,_members,_signedOut,refusal.set(actor,""), changed != customGame and Set("create","rematch").contains(c))
+    _updateAll(changed,_offline,_members,_signedOut,refusal.set(actor,""), changed != customGame and Set("create","rematch").contains(c),
+      _moves, _declinedAfter(customGame,c,_declinedOffers), _blocks, _blockIgnored or _crossesBlock(c,actor,person))
   }
 
   pure val _BEGIN = {..._INITIAL, status: "configuring", creator: "alice", white: {kind: "person", person: "alice"}}
   action init = {
     nondet beginning = Set("choices","people","bots","playing","offering","empty").oneOf()
+    nondet blocks = Set(Set(), Set(("alice","carol")), Set(("carol","alice"))).oneOf()
     val people = {..._BEGIN, black: {kind: "person", person: "bob"}, ready: SIDES}
     val g = if (beginning == "empty") _INITIAL
       else if (beginning == "people") people
@@ -248,6 +289,7 @@ module custom_game {
       drawOfferedByShown' = DEVICES.mapBy(p => if (p == "carol") _INITIAL.drawOfferedBy else g.drawOfferedBy),
       refusal' = DEVICES.mapBy(_ => ""),
       _offline' = Set(), _members' = Set("alice","bob"), _spaceEnded' = false, _signedOut' = Set(),
+      _moves' = 0, _declinedOffers' = Set(), _blocks' = blocks, _blockIgnored' = false,
       _frozen' = if (g.starts == 1) _config(g) else _config(_INITIAL), _sealed' = false,
       _cutOffStatus' = DEVICES.mapBy(_ => _INITIAL.status),
       _cutOffCreator' = DEVICES.mapBy(_ => _INITIAL.creator),
@@ -342,6 +384,24 @@ module custom_game {
     result == "white wins on time" implies _connectedPerson(customGame.white.person),
     _update({...customGame, status: "completed", outcome: result, drawOfferedBy: ""}, _offline, _members,_signedOut, refusal, false),
   }
+  /// A participant or bot plays a legal move for the side to move, White first and
+  /// then in turn; chess decides which move. A move clears a
+  /// waiting draw offer and lets the mover offer a draw again.
+  action _sideMoves(side: Side): bool = {
+    val mover = _side(customGame,side)
+    all {
+      customGame.status == "active",
+      side == (if (_moves % 2 == 0) "white" else "black"),
+      mover.kind == "bot" or (mover.kind == "person" and _connectedPerson(mover.person)),
+      _updateAll({...customGame, drawOfferedBy: ""},_offline,_members,_signedOut,refusal,false,
+        if (_moves < 3) _moves + 1 else 2,_declinedOffers.exclude(Set(mover.person)),_blocks,_blockIgnored),
+    }
+  }
+  /// Someone blocks another person. A block changes no side and never ends a game under way.
+  action _personBlocks(blocker: Person, blocked: Person): bool = all {
+    _BLOCK_PAIRS.contains((blocker,blocked)),
+    _updateAll(customGame,_offline,_members,_signedOut,refusal,false,_moves,_declinedOffers,_blocks.union(Set((blocker,blocked))),_blockIgnored),
+  }
   /// A disconnected person retains their last picture, with no delayed choices.
   action _loseConnection(actor: Person): bool = all {
     not(_offline.contains(actor)),
@@ -375,12 +435,16 @@ module custom_game {
   action _competingChoices(actor: Person, other: Person, command: str, otherCommand: str, side: Side, otherSide: Side, person: Person): bool = {
     val firstReason = if (_offline.contains(actor)) "connection needed" else _reason(customGame,actor,command,side,person,1,0)
     val first = if (firstReason != "") customGame else _next(customGame,actor,command,side,person,1,0)
+    val firstDeclined = if (firstReason != "") _declinedOffers else _declinedAfter(customGame,command,_declinedOffers)
     val priority = _priorityReason(first,other,otherCommand)
     val choicesChanged = (_config(first) != _config(customGame) and (_settingCommand(otherCommand) or Set("start","cancel").contains(otherCommand))) or (first != customGame and Set("create","rematch").contains(command))
-    val secondReason = if (_offline.contains(other)) "connection needed" else if(priority != "") priority else if (choicesChanged) "choices changed" else _reason(first,other,otherCommand,otherSide,person,1,0)
+    val secondReason = if (_offline.contains(other)) "connection needed" else if(priority != "") priority else if (choicesChanged) "choices changed" else _reasonWith(first,firstDeclined,other,otherCommand,otherSide,person,1,0)
     val second = if (secondReason != "") first else _next(first,other,otherCommand,otherSide,person,1,0)
+    val secondDeclined = if (secondReason != "") firstDeclined else _declinedAfter(first,otherCommand,firstDeclined)
+    val crossed = (firstReason == "" and _crossesBlock(command,actor,person)) or (secondReason == "" and _crossesBlock(otherCommand,other,person))
     val fresh = (first != customGame and Set("create","rematch").contains(command)) or (second != first and Set("create","rematch").contains(otherCommand))
-    _update(second,_offline,_members,_signedOut,refusal.set(actor,firstReason).set(other,secondReason),fresh)
+    _updateAll(second,_offline,_members,_signedOut,refusal.set(actor,firstReason).set(other,secondReason),fresh,
+      _moves,secondDeclined,_blocks,_blockIgnored or crossed)
   }
 
   /// Every expressible refused choice leaves the agreed game intact.
@@ -458,7 +522,7 @@ module custom_game {
       offerDraw(actor),
       acceptDraw(actor),
       declineDraw(actor),
-      _finishGame(result), _loseConnection(actor), _connectionReturns(actor),
+      _finishGame(result), _sideMoves(side), _personBlocks(_personOf(actor), person), _loseConnection(actor), _connectionReturns(actor),
       _signOut(actor), _signIn(actor), _usernameChanges(actor), _personLeaves(actor), _personJoins(actor), _reopenApp(actor), _repeatAcknowledged, _staleChoice(actor,command), _attemptChoice(actor,command,side,person),
       _competingChoices(actor,other,command,otherCommand,side,otherSide,person),
     }
@@ -495,12 +559,22 @@ module custom_game {
   /// Connected people see the same game. Offline pictures remain legal games.
   val invConnectedAgree = DEVICES.forall(p => _offline.contains(p) or gameShown.get(p) == (if (_members.contains(_personOf(p)) and not(_signedOut.contains(p))) customGame else _INITIAL))
   /// Every refusal names one defined reason, including loss of connection.
-  pure val _REASONS = Set("","not in the space","only the creator","no finished game","finish or cancel first","no Custom Game","finished","cancelled","already started","one side per person","person not in the space","not your invitation","no invitation","not an open place","not your side","not a participant","invalid time choice","both sides need participants","every person must be ready","not started","not the other participant","draw agreement needs two people","connection needed","choices changed")
+  pure val _REASONS = Set("","not in the space","only the creator","no finished game","finish or cancel first","no Custom Game","finished","cancelled","already started","one side per person","person not in the space","not your invitation","no invitation","not an open place","not your side","not a participant","invalid time choice","both sides need participants","every person must be ready","not started","not the other participant","draw agreement needs two people","connection needed","choices changed","resign instead","offer again after moving","cannot be invited","side not available")
   val invRefusalsDefined = refusal.keys() == DEVICES and DEVICES.forall(p => _REASONS.contains(refusal.get(p)))
   /// Choices stay in their admitted time and increment ranges.
   val invClockChoices = TIMES.contains(customGame.minutes) and INCREMENTS.contains(customGame.increment) and (customGame.minutes == 0 implies customGame.increment == 0)
   /// An offline person keeps their last picture during remote choices.
   val invOfflineKeepsPicture = DEVICES.forall(p => _offline.contains(p) implies statusShown.get(p) == _cutOffStatus.get(p) and creatorShown.get(p) == _cutOffCreator.get(p) and whiteShown.get(p) == _cutOffWhite.get(p) and blackShown.get(p) == _cutOffBlack.get(p) and readyShown.get(p) == _cutOffReady.get(p) and minutesShown.get(p) == _cutOffMinutes.get(p) and incrementShown.get(p) == _cutOffIncrement.get(p) and startsShown.get(p) == _cutOffStarts.get(p) and outcomeShown.get(p) == _cutOffOutcome.get(p) and drawOfferedByShown.get(p) == _cutOffDrawofferedby.get(p))
+  /// Moves and declined draw offers belong only to an active game.
+  val invMovesOnlyWhileActive = (_moves != 0 or _declinedOffers != Set()) implies customGame.status == "active"
+  /// Someone whose draw offer was declined cannot offer again before moving.
+  val invNoRepeatedOffer = customGame.drawOfferedBy == "" or not(_declinedOffers.contains(customGame.drawOfferedBy))
+  /// No invitation or claim ever crosses a block with the creator.
+  val invBlocksRespected = not(_blockIgnored)
+  /// Each connected person's board faces their own accepted side; everyone else's faces White.
+  val invBoardFacesOwnSide = DEVICES.forall(d =>
+    (not(_offline.contains(d)) and _members.contains(_personOf(d)) and not(_signedOut.contains(d))) implies
+      boardFacing.get(d) == (if (_personSide(customGame,_personOf(d)) == "black") "black" else "white"))
   /// Only people still in the space hold a waiting side or invitation.
   val invWaitingPeopleBelong = customGame.status == "configuring" implies SIDES.forall(s => _side(customGame,s).person == "" or _members.contains(_side(customGame,s).person))
 
@@ -543,6 +617,8 @@ module custom_game {
     _offline.in(DEVICES.powerset()), _members.in(PEOPLE.powerset()), _signedOut.in(DEVICES.powerset()),
     _frozen.in(tuples(_PARTICIPANTS,_PARTICIPANTS,TIMES,INCREMENTS)),
     _sealed.in(Set(false,true)), _spaceEnded.in(Set(false,true)),
+    _moves.in(0.to(3)), _declinedOffers.in(PEOPLE.powerset()),
+    _blocks.in(_BLOCK_PAIRS.powerset()), _blockIgnored.in(Set(false,true)),
     _spaceEnded == not(_members.contains("alice")),
     _sealed == _terminal(customGame),
     customGame.status == "none" implies customGame == _INITIAL,
@@ -551,5 +627,6 @@ module custom_game {
     invOutcomeOnlyAtEnd, invCreatorAuthority, invDrawOffer, invConnectedAgree,
     invRefusalsDefined, invClockChoices, invOfflineKeepsPicture,
     invWaitingPeopleBelong, invAgreedAtStart,
+    invMovesOnlyWhileActive, invNoRepeatedOffer, invBlocksRespected, invBoardFacesOwnSide,
   }
 }

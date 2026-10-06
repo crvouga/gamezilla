@@ -15,6 +15,27 @@ Feature: Offer and accept a side
       When Alice invites Carol to Black in the Custom Game
       Then Alice is told the person must be in the space
 
+  Rule: The invited person is shown the invitation and nobody outside the space is
+
+    Scenario: The invited person sees the invitation
+      Given Alice has a configuring Custom Game
+      And Bob is in Alice's space
+      When Alice invites Bob to Black in the Custom Game
+      Then Bob sees Alice's invitation to play Black
+
+    Scenario: A revoked invitation is no longer shown to the invited person
+      Given Alice has a configuring Custom Game
+      And Black in the Custom Game is reserved for Bob
+      When Alice revokes Black in the Custom Game
+      Then Bob does not see Alice's invitation to play Black
+
+    Scenario: An outsider is never shown the invitation
+      Given Alice has a configuring Custom Game
+      And Bob is in Alice's space
+      And Carol is outside Alice's space
+      When Alice invites Bob to Black in the Custom Game
+      Then Carol cannot see the Custom Game
+
   Rule: Only the invited person accepts their current invitation
 
     Scenario: An accepted invitation becomes a participant

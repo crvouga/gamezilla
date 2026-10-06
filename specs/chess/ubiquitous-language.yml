@@ -131,8 +131,10 @@ terms:
     definition: >-
       The chessboard a puzzle is played on, as each person in the space sees
       it. It faces the solver's side, shows the last move, and shows the
-      puzzle's state; a watcher's board agrees with the host's.
-    model: [Board, playShown]
+      puzzle's state; a watcher's board agrees with the host's. In a Custom
+      Game each participant's board faces their own side, and everyone
+      else's board faces White.
+    model: [Board, playShown, boardFacing]
     published: true
 
   - term: play puzzles
@@ -602,7 +604,8 @@ terms:
       game. Everyone starts with a multiplayer rating of 1500, separate from
       puzzle ratings. This game is unrated: its result never changes either
       rating. The rating range grows as matchmaking defines it. Blocking in
-      either direction prevents a new pairing. Signing out on one device
+      either direction prevents a new pairing. A participant of an active
+      Custom Game finishes it before finding a chess opponent. Signing out on one device
       leaves an accepted wait available on the person's other devices.
     forms: [finds a chess opponent, finding a chess opponent, chess opponent search, opponent search, search]
     model: [findOpponent, lookingForOpponent]
@@ -667,8 +670,9 @@ terms:
   - term: unfinished multiplayer game limit
     definition: >-
       Every account has at most one unfinished multiplayer game. Before
-      seeking a new opponent, the person finishes that game. Free accounts
-      and Plus members have the same allowance.
+      seeking a new opponent, the person finishes that game, and also any
+      active Custom Game they are a participant of. Free accounts and Plus
+      members have the same allowance.
 
   # --- Custom Games --------------------------------------------------------
 
@@ -714,8 +718,9 @@ terms:
     published: true
   - term: creator
     definition: The host whose Custom Game it is. Only the creator creates, configures, starts,
-      cancels or makes a rematch, including when watching two other participants. Leaving
-      the space ends it and cancels unfinished games.
+      cancels or makes a rematch, including when watching two other participants; the one
+      exception is that either participant of a game between two people may cancel it until
+      each side has moved. Leaving the space ends it and cancels unfinished games.
     model:
     - creator
   - term: side
@@ -754,9 +759,10 @@ terms:
     model:
     - botPlays
   - term: open place
-    definition: An unoccupied side anybody already in the space may claim before start. Competing
-      claims leave exactly one accepted person; either may win. A person must confirm readiness
-      after claiming.
+    definition: An unoccupied side anybody already in the space may claim before start, except
+      someone who has blocked the creator or whom the creator has blocked; they are only told the
+      side is not available to them. Competing claims leave exactly one accepted person; either
+      may win. A person must confirm readiness after claiming.
     forms:
     - open places
     model:
@@ -775,9 +781,11 @@ terms:
     - closeSide
   - term: invitation
     definition: A side reserved by the creator for a person already in the space, who alone
-      may accept or decline it before start. It is not a participant until accepted. Declining
-      or revoking makes the side open; replacement removes the offer. An earlier offer cannot
-      survive new choices.
+      may accept or decline it before start. The invited person is shown it; nobody outside
+      the space is. It is not a participant until accepted. Declining or revoking makes the
+      side open and the invited person no longer sees it; replacement removes the offer. An
+      earlier offer cannot survive new choices. The creator cannot invite someone when either
+      of them has blocked the other, and is only told that person cannot be invited.
     forms:
     - invitations
     - invited
@@ -826,6 +834,7 @@ terms:
     - ready
     - not ready
     - becomes ready
+    - become ready
     - no longer ready
     model:
     - ready
@@ -837,6 +846,7 @@ terms:
     forms:
     - swaps
     - swapped
+    - swapping
     model:
     - swapSides
   - term: Custom Game status
@@ -882,8 +892,9 @@ terms:
     - customTimePasses
   - term: Custom Game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
-      winner. Wins say checkmate, resignation or time. Every game is unrated and never changes
-      puzzle progress. A finished result cannot be replaced by a later action.'
+      winner. Wins say checkmate, resignation, time, or the other participant staying away.
+      Every game is unrated and never changes puzzle progress. A finished result cannot be
+      replaced by a later action.'
     forms:
     - winner
     - unrated
@@ -898,7 +909,8 @@ terms:
   - term: draw offer
     definition: One participating person asking the other to agree to a draw in an active
       game between two people. Only the other person accepts or declines; playing a move
-      clears the offer. Bots are not offered draws.
+      clears the offer. After a declined offer, the person who offered may offer again only
+      once they have played their next move. Bots are not offered draws.
     forms:
     - offered a draw
     - offers a draw
@@ -919,8 +931,10 @@ terms:
     - rematch
   - term: Custom Game refusal
     definition: 'Why a person''s choice cannot take effect: authority, lifecycle, participant
-      relationship, readiness, time choice, changed choices or no connection. No refused
-      choice changes a side, starts play or happens later on its own.'
+      relationship, a block, readiness, time choice, a draw offer just declined, an opponent
+      who may still return, changed choices or no connection. A refusal caused by a block
+      never says who blocked whom. No refused choice changes a side, starts play or happens
+      later on its own.'
     forms:
     - refusal
     model:
@@ -931,6 +945,28 @@ terms:
       was never played cannot be reviewed.
     forms:
     - move list
+    published: true
+
+  - term: away
+    definition: A participant of an active Custom Game who has no device with a connection in
+      that game. Being away never gives up the game on its own, and a timed game's clock keeps
+      running for them. Coming back before anyone claims the win continues the game as it is.
+    forms:
+    - stayed away
+    - stays away
+
+  - term: claim the win
+    definition: In an active Custom Game between two people, a participant ending the game
+      because the other participant has been away for 60 seconds. The claimant wins because
+      the other participant stayed away, or draws when the claimant cannot mate with the
+      remaining material. Earlier, the claimant is told the other participant may still
+      return. Watchers cannot claim the win.
+    forms:
+    - claims the win
+    - claimed the win
+    model:
+    - claimWin
+
   - term: side control
     definition: Who may move for a side in a Custom Game, exclusively its accepted person
       or chosen bot.

@@ -22,6 +22,7 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
         'agree',
         'reject',
         'untimed',
+        'claimWin',
       ]),
     })
     .strict(),

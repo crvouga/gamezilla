@@ -3,6 +3,7 @@ import offlineSpaceTrace from './fixtures/multiplayer-offline-space.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
   askForPlay,
+  changeCustomGamePlay,
   connectPlay,
   deletePlayAccount,
   initPlay,
@@ -52,6 +53,7 @@ bindQuintModel<PlayTrace>({
     deletePlayAccount: deletePlayAccount,
     loseConnection: (w, picks) => connectPlay(w, picks, false),
     comeBackOnline: (w, picks) => connectPlay(w, picks, true),
+    _customGameChanges: changeCustomGamePlay,
   },
   observe: observePlay,
   fingerprint: playFingerprint,

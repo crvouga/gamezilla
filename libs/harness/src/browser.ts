@@ -17,6 +17,7 @@
 
 import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import type { ServerHttp } from '@libs/feature-shared/sync';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type {
   OpenAuthSession,
   OpenAuthSessionResult,
@@ -70,6 +71,16 @@ type PendingAuth = {
   readonly callbackUrl: string;
   readonly resolve: (result: OpenAuthSessionResult) => void;
 };
+
+export function browserLookup(
+  browsers: ReadonlyMap<string, HarnessBrowser>
+): (id: string) => HarnessBrowser {
+  return (id) => {
+    const browser = browsers.get(id);
+    assert.defined(browser, `harness browser missing for ${id}`);
+    return browser;
+  };
+}
 
 /** Cookies scoped by host, as a browser scopes them. */
 function createCookieJar(): {

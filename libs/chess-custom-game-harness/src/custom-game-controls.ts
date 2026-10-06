@@ -4,6 +4,8 @@ import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
+import type { ChessBoardPromotionChoice } from '@pkgs/chess-board-core-shared/probe';
+import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { CustomGameProbe } from './custom-game-ui';
 import {
@@ -25,6 +27,8 @@ function choiceTarget(input: CustomGameInput, probe: CustomGameProbe): string {
       return 'chess-custom-ready';
     case 'move':
       return 'chess-custom-board';
+    case 'claimWin':
+      return 'chess-custom-claim-win';
     default:
       return `chess-custom-${input.operation}`;
   }
@@ -74,8 +78,9 @@ function boardAllows(probe: CustomGameProbe, input: CustomGameInput): boolean {
     probe.live &&
     probe.current.status === 'active' &&
     probe.mySide === probe.current.turn &&
-    customGameLegalMoves(probe.current).includes(input.uci) &&
-    input.uci.length === 4
+    customGameLegalMoves(probe.current).some((move) =>
+      move.startsWith(input.uci)
+    )
   );
 }
 
@@ -109,6 +114,28 @@ async function enterMove(
   const board = new ChessBoardFlows(ui, 'chess-custom-board');
   await board.tapSquare(input.uci.slice(0, 2) as Square);
   await board.tapSquare(input.uci.slice(2, 4) as Square);
+  const piece = input.uci[4];
+  if (piece !== undefined)
+    await ui
+      .get(
+        chessBoardPromotionTestId(
+          'chess-custom-board',
+          piece as ChessBoardPromotionChoice
+        )
+      )
+      .tap();
+}
+
+/** A pawn reaching the last rank without a chosen piece waits on the picker. */
+async function promotionAsked(
+  s: ProductHarness,
+  actor: string,
+  input: CustomGameInput
+): Promise<boolean> {
+  if (input.operation !== 'move' || input.uci.length !== 4) return false;
+  const ui = await actorUi(s, actor);
+  const board = new ChessBoardFlows(ui, 'chess-custom-board');
+  return (await board.readProbe()).promotion !== null;
 }
 
 /** Normal controls for expressible choices; modified-client input for refusals. */
@@ -144,8 +171,10 @@ export async function changeThroughCustomGameControls(
     await chooseCustomGame(s, actor, input);
     return;
   }
-  if (input.operation === 'move') await enterMove(s, actor, input);
-  else {
+  if (input.operation === 'move') {
+    await enterMove(s, actor, input);
+    if (await promotionAsked(s, actor, input)) return;
+  } else {
     await ui.get(target).tap();
     if (input.operation === 'cancel' || input.operation === 'resign')
       await ui.get(`${target}-confirm`).tap();

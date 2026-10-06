@@ -6,6 +6,8 @@ import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-ga
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
+import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import type { ProductHarness } from '@libs/harness/harness';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
@@ -25,6 +27,14 @@ export function customHost(w: CustomWorld): string {
     w.memo.get('custom-host') ?? w.memo.get('spaceHost') ?? 'alice'
   );
 }
+/** The people this scenario put in the space. */
+export function customMembers(w: CustomWorld): Set<string> {
+  const members = w.memo.get('custom-members');
+  if (members instanceof Set) return members as Set<string>;
+  const created = new Set<string>();
+  w.memo.set('custom-members', created);
+  return created;
+}
 export function customPeople(w: CustomWorld): Map<string, string> {
   const people = w.memo.get('custom-people');
   if (people instanceof Map) return people as Map<string, string>;
@@ -33,12 +43,32 @@ export function customPeople(w: CustomWorld): Map<string, string> {
   return created;
 }
 
+function onStage(s: ProductHarness, actor: string): boolean {
+  return s.actors.has(actor);
+}
+
+/**
+ * Someone a scenario has not met yet arrives with a named free account (guests,
+ * free accounts and Plus members have the same Custom Games), so they can also
+ * be found and blocked; a guest stays a guest.
+ */
+async function arrive(
+  w: CustomWorld,
+  actor: string,
+  guest: boolean
+): Promise<void> {
+  if (!guest && !(await w.s.read(onStage, actor)))
+    await prepareNamedFriend(w.s, actor);
+  await w.s.apply(focusActor, actor);
+}
+
 export async function customSpace(
   w: CustomWorld,
   host = customHost(w),
-  others: readonly string[] = []
+  others: readonly string[] = [],
+  options: { readonly guests?: boolean } = {}
 ): Promise<void> {
-  await w.s.apply(focusActor, host);
+  await arrive(w, host, false);
   if (!(await w.s.read(activeSpaceVisible, host)))
     await w.s.apply(createSpace, host);
   const link = await w.s.read(readSpaceLink, host);
@@ -51,12 +81,15 @@ export async function customSpace(
   const hostProbe = await w.s.read(readCustomGameProbe, host);
   if (hostProbe === null) throw new Error(`${host} has no game screen`);
   customPeople(w).set(host, hostProbe.myId);
+  customMembers(w).add(host);
   for (const other of others) {
+    await arrive(w, other, options.guests === true);
     await w.s.apply(joinViaLink, other, link);
     await w.s.apply(openCustomGame, other);
     const probe = await w.s.read(readCustomGameProbe, other);
     if (probe === null) throw new Error(`${other} has no game screen`);
     customPeople(w).set(other, probe.myId);
+    customMembers(w).add(other);
   }
 }
 

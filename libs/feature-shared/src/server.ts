@@ -16,6 +16,7 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Hono } from 'hono';
 
@@ -88,6 +89,12 @@ export type FeatureServer = {
    * to the room with the connection. Empty for topics it does not own.
    */
   readonly roomGrants?: (ctx: RoomGrantsCtx) => Promise<readonly string[]>;
+  /**
+   * A server-only check of a replayed mutation that needs what only this
+   * feature's server half holds (a room it reads), run in the replay
+   * transaction before the body. Throws a `MutationError` to refuse.
+   */
+  readonly authorizeMutation?: MutationAuthorize;
 };
 
 export function defineFeatureServer(server: FeatureServer): FeatureServer {

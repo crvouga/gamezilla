@@ -61,6 +61,7 @@ export function CustomGameTest(props: {
             reviewPly: props.review.displayedPly(),
             live: props.review.live(),
             mySide: props.model.mySide(),
+            away: props.model.away(),
             gates: {
               create: props.model.canCreate(),
               configure: props.model.canConfigure(),

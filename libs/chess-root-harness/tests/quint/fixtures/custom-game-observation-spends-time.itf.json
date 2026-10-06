@@ -23,86 +23,312 @@
   ],
   "states": [
     {
-      "#meta": { "index": 0 },
+      "#meta": {
+        "index": 0
+      },
       "_atCutOff": {
         "#map": [
-          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
-          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
         ]
       },
       "_ended": false,
-      "_offline": { "#set": [] },
+      "_offline": {
+        "#set": []
+      },
       "_terminalPicture": {
         "#tup": [
           "active",
-          { "#bigint": "0" },
+          {
+            "#bigint": "0"
+          },
           "",
           {
             "#map": [
-              ["black", { "#bigint": "4" }],
-              ["white", { "#bigint": "4" }]
+              [
+                "black",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "white",
+                {
+                  "#bigint": "4"
+                }
+              ]
             ]
           }
         ]
       },
       "clockLeft": {
-        "#map": [["black", { "#bigint": "4" }], ["white", { "#bigint": "4" }]]
+        "#map": [
+          [
+            "black",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "white",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
       },
       "mbt::actionTaken": "init",
       "mbt::nondetPicks": {
-        "actor": { "tag": "None", "value": { "#tup": [] } },
-        "quarters": { "tag": "None", "value": { "#tup": [] } }
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "timed": {
+          "tag": "Some",
+          "value": true
+        }
       },
       "playShown": {
         "#map": [
-          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
-          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
         ]
       },
       "playStatus": "active",
-      "ply": { "#bigint": "0" },
+      "ply": {
+        "#bigint": "0"
+      },
       "result": "",
       "sideToMove": "white"
     },
     {
-      "#meta": { "index": 1 },
+      "#meta": {
+        "index": 1
+      },
       "_atCutOff": {
         "#map": [
-          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
-          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
         ]
       },
       "_ended": false,
-      "_offline": { "#set": ["alice"] },
+      "_offline": {
+        "#set": ["alice"]
+      },
       "_terminalPicture": {
         "#tup": [
           "active",
-          { "#bigint": "0" },
+          {
+            "#bigint": "0"
+          },
           "",
           {
             "#map": [
-              ["black", { "#bigint": "4" }],
-              ["white", { "#bigint": "4" }]
+              [
+                "black",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "white",
+                {
+                  "#bigint": "4"
+                }
+              ]
             ]
           }
         ]
       },
       "clockLeft": {
-        "#map": [["black", { "#bigint": "4" }], ["white", { "#bigint": "4" }]]
+        "#map": [
+          [
+            "black",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "white",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
       },
       "mbt::actionTaken": "_loseConnection",
       "mbt::nondetPicks": {
-        "actor": { "tag": "Some", "value": "alice" },
-        "quarters": { "tag": "Some", "value": { "#bigint": "1" } }
+        "actor": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "quarters": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "timed": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
       },
       "playShown": {
         "#map": [
-          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
-          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
         ]
       },
       "playStatus": "active",
-      "ply": { "#bigint": "0" },
+      "ply": {
+        "#bigint": "0"
+      },
       "result": "",
       "sideToMove": "white"
     }
