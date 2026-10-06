@@ -28,7 +28,7 @@ const BOOTSTRAP = join(
 );
 const HEALTH_WORKFLOW = join(
   import.meta.dirname,
-  '../../../.depot/workflows/health.yml'
+  '../../../.github/workflows/health.yml'
 );
 
 describe('foundation bootstrap', () => {
@@ -86,19 +86,13 @@ describe('foundation bootstrap', () => {
   });
 });
 
-// regression: depot-variable-creation-race
-test('the four native CI variables share one sequential provisioning operation', () => {
-  const native = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../infra-shared/tofu/stacks/bootstrap/depot-ci.tf'
-    ),
-    'utf8'
-  );
-  const provision = native.slice(native.indexOf('resource "terraform_data"'));
-  expect(provision).not.toContain('for_each');
-  expect(provision.match(/provisioner "local-exec"/g)).toHaveLength(1);
-  expect(provision).toContain(
-    'for CI_VARIABLE_NAME in AWS_ROLE_ARN AWS_HEALTH_ROLE_ARN SECRETS_IDENTITY_ID SECRETS_PROJECT_ID; do'
-  );
+test('bootstrap declares all CI coordinates as GitHub Actions variables', () => {
+  const bootstrap = readFileSync(BOOTSTRAP, 'utf8');
+  for (const name of [
+    'SECRETS_IDENTITY_ID',
+    'SECRETS_PROJECT_ID',
+    'AWS_ROLE_ARN',
+    'AWS_HEALTH_ROLE_ARN',
+  ])
+    expect(bootstrap).toContain(`${name} `);
 });

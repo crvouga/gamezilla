@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const WORKFLOW = join(
   import.meta.dirname,
-  '../../../.depot/workflows/check.yml'
+  '../../../.github/workflows/check.yml'
 );
 
 /** Cleanup steps must not hold a cancelled run's concurrency group. */
@@ -100,7 +100,7 @@ describe('Check workflow cancellation', () => {
     expect(
       workflow.jobs['check-shards']!.steps.filter(
         (step) =>
-          step.uses === './.depot/actions/setup' ||
+          step.uses === './.github/actions/setup' ||
           step.uses === 'jdx/mise-action@v4'
       )
     ).toHaveLength(1);

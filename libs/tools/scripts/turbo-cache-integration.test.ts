@@ -33,7 +33,7 @@ function fixture(root: string): void {
   writeFileSync(
     join(root, 'turbo.json'),
     JSON.stringify({
-      globalPassThroughEnv: ['REPORTS_TOKEN', 'DEPOT_RUN_ID'],
+      globalPassThroughEnv: ['REPORTS_TOKEN', 'GITHUB_RUN_ID'],
       tasks: {
         build: {
           dependsOn: ['^build'],
@@ -153,7 +153,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
       TURBO_TOKEN: sentinel,
       TURBO_TEAM: 'fixture',
       REPORTS_TOKEN: sentinel,
-      DEPOT_RUN_ID: 'first',
+      GITHUB_RUN_ID: 'first',
       TURBO_TELEMETRY_DISABLED: '1',
       BUILD_FLAVOR: 'plain',
     };
@@ -191,7 +191,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
       await hashes(root, {
         ...env,
         REPORTS_TOKEN: 'rotated',
-        DEPOT_RUN_ID: 'second',
+        GITHUB_RUN_ID: 'second',
       })
     ).toEqual(before);
     writeFileSync(join(root, 'packages/a/source.txt'), 'changed');

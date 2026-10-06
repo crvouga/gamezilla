@@ -85,7 +85,14 @@ function branchName(): string {
 
 /** The native job attempt publishing this report, when there is one. */
 function runUrl(): string | null {
-  return process.env['DEPOT_JOB_URL']?.trim() || null;
+  const repository = process.env['GITHUB_REPOSITORY']?.trim();
+  const runId = process.env['GITHUB_RUN_ID']?.trim();
+  const server =
+    process.env['GITHUB_SERVER_URL']?.trim() || 'https://github.com';
+  const attempt = process.env['GITHUB_RUN_ATTEMPT']?.trim() || '1';
+  return repository && runId
+    ? `${server}/${repository}/actions/runs/${runId}/attempts/${attempt}`
+    : null;
 }
 
 async function prepareReport(args: {

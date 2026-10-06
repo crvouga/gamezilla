@@ -6,7 +6,7 @@ import { WORKFLOW_DISPATCH } from './workflow-remote';
 
 const SCROLL_DOWN = '\u001b[B';
 
-const WORKFLOWS = join(import.meta.dirname, '../../../.depot/workflows');
+const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
 
 describe('WORKFLOW_DISPATCH', () => {
   test('check and health follow the checkout; deploy ships main', () => {

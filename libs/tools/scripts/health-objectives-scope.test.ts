@@ -6,7 +6,7 @@ import fc from 'fast-check';
 
 const workflow = Bun.YAML.parse(
   readFileSync(
-    join(import.meta.dirname, '../../../.depot/workflows/health.yml'),
+    join(import.meta.dirname, '../../../.github/workflows/health.yml'),
     'utf8'
   )
 ) as {

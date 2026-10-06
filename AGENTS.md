@@ -121,8 +121,8 @@ check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
-deploy, infra, secrets, Workers or `health` in Depot CI before merging,
-triggered and managed locally with the Depot CLI. Never execute a rehearsal
+deploy, infra, secrets, Workers or `health` in GitHub Actions before merging,
+triggered and managed locally with the GitHub CLI. Never execute a rehearsal
 on the developer machine. Details: [`README.md`](README.md#correctness-machinery).
 
 ## Workspaces

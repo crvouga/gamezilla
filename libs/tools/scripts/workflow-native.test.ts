@@ -4,25 +4,29 @@ import { join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
-// regression: depot-native-ci-runner-routing
-test('only native Depot owns Check, Deploy and Health triggers', () => {
-  expect(readdirSync(join(ROOT, '.depot/workflows')).sort()).toEqual([
+// regression: ci-provider-native-ci-runner-routing
+test('only GitHub Actions owns Check, Deploy and Health triggers', () => {
+  expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'check.yml',
     'deploy.yml',
     'health.yml',
   ]);
-  const github = join(ROOT, '.github/workflows');
-  expect(
-    existsSync(github)
-      ? readdirSync(github).filter((file) => /\.ya?ml$/.test(file))
-      : []
-  ).toEqual([]);
+  for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
+    const workflow = Bun.YAML.parse(
+      readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
+    ) as {
+      jobs: Record<string, { 'runs-on': string }>;
+    };
+    for (const job of Object.values(workflow.jobs)) {
+      expect(job['runs-on']).toBe('ubuntu-24.04');
+    }
+  }
 });
 
-// regression: depot-native-ci-missing-local-action
+// regression: ci-provider-native-ci-missing-local-action
 test('every native local action reference has a committed manifest, including nested actions', () => {
-  const pending = readdirSync(join(ROOT, '.depot/workflows')).map((file) =>
-    join(ROOT, '.depot/workflows', file)
+  const pending = readdirSync(join(ROOT, '.github/workflows')).map((file) =>
+    join(ROOT, '.github/workflows', file)
   );
   const visited = new Set<string>();
   while (pending.length > 0) {
@@ -32,7 +36,7 @@ test('every native local action reference has a committed manifest, including ne
     const text = readFileSync(file, 'utf8');
     for (const match of text.matchAll(/uses: (\.\/[^\s]+)/g)) {
       const directory = match[1]!;
-      expect(directory.startsWith('./.depot/actions/')).toBe(true);
+      expect(directory.startsWith('./.github/actions/')).toBe(true);
       const manifests = ['action.yml', 'action.yaml'].map((name) =>
         join(ROOT, directory, name)
       );

@@ -1,0 +1,4 @@
+{
+  "summary": "A CI ownership migration split trigger configuration and runner routing. Check, Deploy and Health must belong to GitHub Actions, use GitHub-hosted runners, and be dispatched with the GitHub CLI.",
+  "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+}

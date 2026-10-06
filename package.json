@@ -39,7 +39,7 @@
     "feedback": "bun run pkgs/feedback-harness/scripts/report.ts",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run libs/tools/scripts/remove-empty-dirs.ts & wait",
     "generate": "bun run i18n:compile && bun run spec:catalog",
-    "gh": "bun x open https://depot.dev/orgs/mk7ncjwh4n/ci",
+    "gh": "bun x open https://github.com/gamezilla-org/gamezilla/actions",
     "git-sync": "bun run libs/tools/scripts/git-sync.ts",
     "health": "bun run libs/tools/scripts/workflow-remote.ts health",
     "health:local": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts health",

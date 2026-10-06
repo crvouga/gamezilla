@@ -27,10 +27,8 @@ runs:
         version: 2026.9.13
         install_args: ${{ inputs.tools }}
 
-    # A cold install took 1.62s on Depot. Extracting dependency trees costs
-    # more, and actions/cache rejects API events without GITHUB_REF. Keep
-    # mise's platform/tool-version cache and Turbo's content-addressed cache;
-    # frozen installs need neither a synthetic ref nor dependency restore keys.
+    # Frozen installs avoid restoring platform-dependent dependency trees.
+    # mise caches pinned tools; Turbo caches content-addressed task results.
     - name: Install dependencies
       shell: bash
       env:

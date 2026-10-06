@@ -13,10 +13,10 @@ describe('tofu/global.tfvars.json', () => {
   test('main requires exactly the gate job of every workflow that reports on PRs', () => {
     const gates: string[] = [];
     for (const file of new Bun.Glob('*.yml').scanSync(
-      join(REPO_ROOT, '.depot/workflows')
+      join(REPO_ROOT, '.github/workflows')
     )) {
       const workflow = Bun.YAML.parse(
-        readFileSync(join(REPO_ROOT, '.depot/workflows', file), 'utf8')
+        readFileSync(join(REPO_ROOT, '.github/workflows', file), 'utf8')
       ) as {
         name?: string;
         on?: Record<string, unknown>;
@@ -26,7 +26,7 @@ describe('tofu/global.tfvars.json', () => {
         workflow.on !== undefined && 'pull_request' in workflow.on;
       const gate = workflow.name?.toLowerCase() ?? '';
       if (onPullRequest && workflow.jobs !== undefined && gate in workflow.jobs)
-        gates.push(`${workflow.name} / ${gate}`);
+        gates.push(gate);
     }
     expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());
   });

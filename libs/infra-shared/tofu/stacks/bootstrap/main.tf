@@ -92,8 +92,6 @@ module "aws_ci" {
   source                = "../../modules/aws-ci-identity"
   project               = var.project
   github_subject_prefix = local.github_subject_prefix
-  github_repository     = "${var.github.owner}/${var.github.repo}"
-  depot_org_id          = var.depot.org_id
 }
 
 module "repository" {

@@ -1,4 +1,0 @@
-{
-  "summary": "A native Depot CI migration left Check under .github/workflows requesting Depot managed GitHub runners, so no native workflow owned its trigger. Keep Check, Deploy and Health only under .depot/workflows and dispatch native runs.",
-  "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
-}

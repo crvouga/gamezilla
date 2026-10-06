@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const ACTION = join(
   import.meta.dirname,
-  '../../../.depot/actions/secrets-auth/impl-infisical/action.yml'
+  '../../../.github/actions/secrets-auth/impl-infisical/action.yml'
 );
 const AUDIENCE = 'https://github.com/gamezilla-org';
 type Step = { run?: string; uses?: string; with?: Record<string, string> };
@@ -17,7 +17,7 @@ function steps(): Step[] {
   return action.runs.steps;
 }
 
-// regression: depot-action-oidc-missing-audience
+// regression: ci-provider-action-oidc-missing-audience
 // regression: workflow-oidc-test-stdout-socket
 test.each([
   'https://example.test/token',

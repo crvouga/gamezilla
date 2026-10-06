@@ -1,33 +1,35 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import type { DepotTarget, DepotWorkflow } from './workflow-depot';
-import { selectWorkflow, startWorkflow, watchWorkflow } from './workflow-depot';
+import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
+import {
+  selectWorkflow,
+  startWorkflow,
+  watchWorkflow,
+} from './workflow-github';
 
 const SHA = '2a2bda778fd0e66af2a74c7e02ecea6fb80c8956';
-const TARGET: DepotTarget = {
+const TARGET: GitHubTarget = {
   repository: 'gamezilla-org/gamezilla',
-  org: 'mk7ncjwh4n',
   workflow: 'check.yml',
   branch: 'ci/speed-up-check-workflow',
   sha: SHA,
   automatic: false,
 };
-function workflow(status = 'running', id = 'native-check'): DepotWorkflow {
+function workflow(conclusion = '', id = 42): GitHubWorkflow {
   return {
-    workflow_id: id,
-    run_id: 'native-run',
-    workflow_path: 'check.yml',
-    name: 'Check',
-    head_sha: SHA,
-    sha: 'merge',
-    status,
-    created_at: '2026-10-02T05:06:11Z',
+    databaseId: id,
+    headSha: SHA,
+    status: conclusion ? 'completed' : 'in_progress',
+    conclusion,
+    createdAt: '2026-10-02T05:06:11Z',
+    event: 'pull_request',
+    url: `https://github.com/gamezilla-org/gamezilla/actions/runs/${id}`,
   };
 }
 function fixture(
-  lists: readonly (readonly DepotWorkflow[])[],
-  states: readonly string[] = []
+  lists: readonly (readonly GitHubWorkflow[])[],
+  conclusions: readonly string[] = []
 ) {
   const commands: (readonly string[])[] = [];
   let listIndex = 0;
@@ -39,23 +41,20 @@ function fixture(
     ports: {
       run(command: readonly string[]): string {
         commands.push(command);
-        if (command[2] === 'workflow')
+        if (command[2] === 'list')
           return JSON.stringify(lists[listIndex++] ?? []);
-        if (command[2] === 'status')
+        if (command[2] === 'view' && command.includes('--json')) {
+          const conclusion = conclusions[statusIndex++] ?? '';
           return JSON.stringify({
-            status: states[statusIndex],
-            workflows: [
-              {
-                workflow_id: 'native-check',
-                status: states[statusIndex++],
-                jobs: [],
-              },
-            ],
+            status: conclusion ? 'completed' : 'in_progress',
+            conclusion,
+            jobs: [],
           });
+        }
         return '';
       },
       sleep: async () => {
-        sleeps += 1;
+        sleeps++;
       },
       log() {},
       onWorkflow() {},
@@ -63,118 +62,92 @@ function fixture(
   };
 }
 
-describe('native Check run ownership', () => {
+describe('GitHub Check run ownership', () => {
   // regression: check-manual-cancels-required-pr
-  test('resumes the cancelled PR verdict without dispatching a competing Check', async () => {
+  test('resumes the cancelled PR verdict without a competing dispatch', async () => {
     const f = fixture([[workflow('cancelled')]]);
     expect(await startWorkflow(TARGET, f.ports)).toEqual(workflow('cancelled'));
     expect(f.commands.at(-1)).toEqual([
-      'depot',
-      'ci',
+      'gh',
+      'run',
       'rerun',
-      'native-run',
-      '--workflow',
-      'native-check',
-      '--org',
-      TARGET.org,
+      '42',
+      '--repo',
+      TARGET.repository,
     ]);
-    expect(f.commands.some((command) => command[2] === 'run')).toBe(false);
+    expect(f.commands.some((command) => command[1] === 'workflow')).toBe(false);
   });
-
   test('waits for the automatic run of the pushed commit', async () => {
     const f = fixture([[], [workflow()]]);
     expect(
       await startWorkflow({ ...TARGET, automatic: true }, f.ports)
     ).toEqual(workflow());
     expect(f.sleeps()).toBe(1);
-    expect(f.commands.every((command) => command[2] === 'workflow')).toBe(true);
+    expect(f.commands.every((command) => command[2] === 'list')).toBe(true);
   });
-
-  test.each(['finished', 'failed'])(
-    'observes the existing %s verdict without rerunning it',
-    async (status) => {
-      const f = fixture([[workflow(status)]]);
+  test.each(['success', 'failure'])(
+    'observes existing %s without rerunning',
+    async (conclusion) => {
+      const f = fixture([[workflow(conclusion)]]);
       await startWorkflow(TARGET, f.ports);
       expect(f.commands).toHaveLength(1);
     }
   );
-
-  test('can execute the branch YAML before native triggers merge', async () => {
-    const manual = { ...workflow(), head_sha: '', sha: SHA };
-    const f = fixture([[], [manual]]);
+  test('dispatches Check on the requested branch', async () => {
+    const f = fixture([[], [workflow()]]);
     await startWorkflow(TARGET, f.ports);
     expect(f.commands[1]).toEqual([
-      'depot',
-      'ci',
+      'gh',
+      'workflow',
       'run',
-      '--org',
-      TARGET.org,
+      'check.yml',
       '--repo',
       TARGET.repository,
-      '--workflow',
-      '.depot/workflows/check.yml',
+      '--ref',
+      TARGET.branch,
     ]);
   });
-
   test('missing automatic evidence fails without competing dispatch', async () => {
     const f = fixture([]);
     await expect(
       startWorkflow({ ...TARGET, automatic: true }, f.ports)
     ).rejects.toThrow('No PR Check run');
     expect(f.sleeps()).toBe(30);
-    expect(f.commands.every((command) => command[2] === 'workflow')).toBe(true);
+    expect(f.commands.every((command) => command[2] === 'list')).toBe(true);
   });
-
-  test('Deploy dispatches main rather than executing a feature branch locally', async () => {
-    const w = { ...workflow(), workflow_path: 'deploy.yml', name: 'Deploy' };
-    const f = fixture([[], [w]]);
+  test('Deploy dispatches main rather than executing locally', async () => {
+    const f = fixture([[], [workflow()]]);
     await startWorkflow(
       { ...TARGET, workflow: 'deploy.yml', branch: 'main' },
       f.ports
     );
     expect(f.commands[1]).toEqual([
-      'depot',
-      'ci',
-      'dispatch',
-      '--org',
-      TARGET.org,
+      'gh',
+      'workflow',
+      'run',
+      'deploy.yml',
       '--repo',
       TARGET.repository,
-      '--workflow',
-      'deploy.yml',
       '--ref',
       'main',
     ]);
   });
-
   // regression: health-inline-sha-aws-oidc
-  test('Health preserves its branch ref for read-only AWS authentication', async () => {
-    const target = {
-      ...TARGET,
-      workflow: 'health.yml',
-      branch: 'fix/deployment-workflow',
-      sha: 'b378d1f89f00cfdb5a41c08a1c6f5ffc4400526b',
-    };
-    const w = {
-      ...workflow(),
-      workflow_path: 'health.yml',
-      name: 'Health',
-      head_sha: target.sha,
-    };
-    const f = fixture([[], [w]]);
-    await startWorkflow(target, f.ports);
+  test('Health preserves the named branch for AWS authentication', async () => {
+    const f = fixture([[], [workflow()]]);
+    await startWorkflow(
+      { ...TARGET, workflow: 'health.yml', branch: 'fix/deployment-workflow' },
+      f.ports
+    );
     expect(f.commands[1]).toEqual([
-      'depot',
-      'ci',
-      'dispatch',
-      '--org',
-      target.org,
-      '--repo',
-      target.repository,
-      '--workflow',
+      'gh',
+      'workflow',
+      'run',
       'health.yml',
+      '--repo',
+      TARGET.repository,
       '--ref',
-      target.branch,
+      'fix/deployment-workflow',
     ]);
   });
 });
@@ -186,28 +159,20 @@ test('Health dispatch retains every requested branch', async () => {
       fc.stringMatching(/^[a-z][a-z0-9-]{0,12}$/),
       async (name) => {
         const branch = `health/${name}`;
-        const w = {
-          ...workflow(),
-          workflow_path: 'health.yml',
-          name: 'Health',
-        };
-        const f = fixture([[], [w]]);
+        const f = fixture([[], [workflow()]]);
         await startWorkflow(
           { ...TARGET, workflow: 'health.yml', branch },
           f.ports
         );
-        const command = f.commands[1]!;
-        expect(command[2]).toBe('dispatch');
-        expect(command.slice(-2)).toEqual(['--ref', branch]);
+        expect(f.commands[1]?.slice(-2)).toEqual(['--ref', branch]);
       }
     )
   );
 });
-
 // regression: check-duplicate-trigger-runners
-test('selects the latest exact-commit native workflow regardless of list order', () => {
+test('selects the latest exact commit regardless of list order', () => {
   assertProperty(
-    'native-workflow-selection',
+    'github-workflow-selection',
     fc.property(
       fc.array(
         fc.record({
@@ -218,56 +183,52 @@ test('selects the latest exact-commit native workflow regardless of list order',
       ),
       (items) => {
         const runs = items.map((item, index) => ({
-          ...workflow(),
-          workflow_id: String(index),
-          head_sha: item.matching ? SHA : 'other',
-          created_at: new Date(item.seconds * 1000).toISOString(),
+          ...workflow('', index),
+          headSha: item.matching ? SHA : 'other',
+          createdAt: new Date(item.seconds * 1000).toISOString(),
         }));
-        const selected = selectWorkflow(runs, 'check.yml', SHA);
+        const selected = selectWorkflow(runs, SHA);
         const eligible = items.filter((item) => item.matching);
         expect(selected === undefined).toBe(eligible.length === 0);
-        if (selected !== undefined)
-          expect(Date.parse(selected.created_at)).toBe(
+        if (selected)
+          expect(Date.parse(selected.createdAt)).toBe(
             Math.max(...eligible.map((item) => item.seconds * 1000))
           );
       }
     )
   );
 });
-
 test.each([
-  ['finished', 0],
-  ['failed', 1],
+  ['success', 0],
+  ['failure', 1],
   ['cancelled', 1],
-] as const)('native %s maps to exit %i', async (status, exit) => {
-  const f = fixture([], ['running', status]);
+] as const)('%s maps to exit %i', async (conclusion, exit) => {
+  const f = fixture([], ['', conclusion]);
   expect(await watchWorkflow(workflow(), TARGET, f.ports)).toBe(exit);
   expect(f.sleeps()).toBe(1);
 });
-
 // regression: check-gate-waits-for-publication
-test('Check returns its required verdict while publication is still running', async () => {
-  const f = fixture([], ['running']);
-  const ports = {
-    ...f.ports,
-    run: () =>
-      JSON.stringify({
-        workflows: [
-          {
-            workflow_id: 'native-check',
-            status: 'running',
-            jobs: [
-              { job_id: 'gate', job_display_name: 'check', status: 'finished' },
-              {
-                job_id: 'reports',
-                job_display_name: 'check:reports',
-                status: 'running',
-              },
-            ],
-          },
-        ],
-      }),
-  };
-  expect(await watchWorkflow(workflow(), TARGET, ports)).toBe(0);
-  expect(f.sleeps()).toBe(0);
-});
+test.each([
+  ['success', 0],
+  ['failure', 1],
+  ['skipped', 1],
+] as const)(
+  'Check returns its %s gate while publication runs',
+  async (conclusion, exit) => {
+    const f = fixture([]);
+    const ports = {
+      ...f.ports,
+      run: () =>
+        JSON.stringify({
+          status: 'in_progress',
+          conclusion: '',
+          jobs: [
+            { name: 'check', status: 'completed', conclusion },
+            { name: 'check:reports', status: 'in_progress', conclusion: '' },
+          ],
+        }),
+    };
+    expect(await watchWorkflow(workflow(), TARGET, ports)).toBe(exit);
+    expect(f.sleeps()).toBe(0);
+  }
+);

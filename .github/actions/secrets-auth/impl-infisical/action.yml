@@ -20,8 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # The action's bundled OIDC client appends &audience; Depot supplies a
-    # queryless URL. Start the query before handing it to that client.
+    # Normalize queryless token URLs before the action appends &audience.
     - name: Prepare OIDC request URL
       shell: bash
       run: |

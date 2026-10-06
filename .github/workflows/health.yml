@@ -27,7 +27,7 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # (specs/health/*.openslo.yaml, `health:objectives` in @apps/product), such as
 # "at least 99 in every 100 of the team's checks find the app answering":
 # measured over the last 28 days of the health:<env> jobs above, read back
-# from the Depot CI API. Objectives never run inside
+# from the GitHub Actions API. Objectives never run inside
 # `health`, which gates every deploy: a bad month must not block a fix.
 # Branch Health runs verify current probes without attaching that historical
 # deficit to the fix's PR. Scheduled and manual main runs retain the objective.
@@ -53,7 +53,7 @@ jobs:
     name: health:cleanup
     needs: health-matrix
     if: github.ref == 'refs/heads/main'
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: write
@@ -73,10 +73,10 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.depot/actions/setup
+      - uses: ./.github/actions/setup
         with:
           tools: bun gh
-      - uses: ./.depot/actions/secrets-auth
+      - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -86,7 +86,7 @@ jobs:
 
   health-matrix:
     name: health:matrix
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
       production: ${{ steps.envs.outputs.production }}
@@ -95,7 +95,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - uses: ./.depot/actions/setup
+      - uses: ./.github/actions/setup
 
       - name: envs
         id: envs
@@ -105,7 +105,7 @@ jobs:
     name: health:${{ matrix.env }}
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]'
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     # No GitHub environment ('') for a standard env.
     environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
@@ -124,9 +124,9 @@ jobs:
         uses: actions/checkout@v6
 
       - id: setup
-        uses: ./.depot/actions/setup
+        uses: ./.github/actions/setup
 
-      - uses: ./.depot/actions/secrets-auth
+      - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -158,29 +158,23 @@ jobs:
     name: health:objectives
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
       actions: read
       id-token: write
     env:
+      GH_TOKEN: ${{ github.token }}
       ENVS: ${{ needs.health-matrix.outputs.all }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - uses: ./.depot/actions/setup
+      - uses: ./.github/actions/setup
 
-      # DEPOT_ORG_TOKEN is shared by every environment. The automatic
-      # DEPOT_TOKEN only authorizes the current job attempt, not its history.
-      - uses: ./.depot/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ fromJSON(needs.health-matrix.outputs.all)[0] }}
-
+      # The workflow token has Actions read permission for historical attempts.
       # Every env is checked even when one misses its objectives.
       - name: health:objectives
         run: |

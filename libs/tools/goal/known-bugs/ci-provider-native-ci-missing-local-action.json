@@ -1,0 +1,4 @@
+{
+  "summary": "Check requested a local setup action whose manifest was absent from that revision. Verify the complete local-action reference graph, including nested manifests.",
+  "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+}

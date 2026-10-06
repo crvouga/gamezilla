@@ -1,4 +1,4 @@
 {
-  "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
+  "summary": "The tooling tests read .github/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
   "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
 }

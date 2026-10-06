@@ -135,10 +135,10 @@ describe('generateCommitMessage', () => {
     );
   });
 
-  // regression: depot-native-ci-commit-classification
-  test('classifies native Depot workflows as CI changes', () => {
-    expect(generateCommitMessage(['.depot/workflows/check.yml'])).toBe(
-      'ci(.depot): update check.yml'
+  // regression: ci-provider-native-ci-commit-classification
+  test('classifies GitHub Actions workflows as CI changes', () => {
+    expect(generateCommitMessage(['.github/workflows/check.yml'])).toBe(
+      'ci(.github): update check.yml'
     );
   });
 

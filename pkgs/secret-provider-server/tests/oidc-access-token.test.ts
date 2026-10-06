@@ -110,7 +110,7 @@ describe('in GitHub Actions', () => {
     process.env['SECRETS_IDENTITY_ID'] = 'identity-1';
   });
 
-  // regression: depot-native-oidc-queryless-url
+  // regression: ci-provider-native-oidc-queryless-url
   test('requests the repository audience when the native OIDC URL has no query', async () => {
     process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] =
       `http://127.0.0.1:${server.port}/github-oidc`;

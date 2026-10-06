@@ -1,17 +1,17 @@
 #!/usr/bin/env bun
-// @io-wall-ok — native Depot CI CLI and git composition root.
-/** `bun check`, `bun health`, `bun deploy`: sync, run on Depot and await the verdict. */
+// @io-wall-ok — GitHub Actions CLI and git composition root.
+/** `bun check`, `bun health`, `bun deploy`: sync, run on GitHub Actions and await the verdict. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
-import type { DepotTarget, DepotWorkflow } from './workflow-depot';
+import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
 import {
   listWorkflows,
   selectWorkflow,
   startWorkflow,
   watchWorkflow,
-} from './workflow-depot';
+} from './workflow-github';
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,
@@ -205,11 +205,6 @@ function reportUrl(sha: string): string {
 }
 
 function hasAutomaticCheck(branch: string, sha: string): boolean {
-  if (
-    run(['git', 'cat-file', '-e', 'origin/main:.depot/workflows/check.yml'])
-      .code !== 0
-  )
-    return false;
   const prs = JSON.parse(
     must([
       'gh',
@@ -238,11 +233,9 @@ async function runCommand(argv: readonly string[]): Promise<number> {
   const { branch, sha } = prepareRun(policy, argv.slice(1));
   const config = JSON.parse(readFileSync(GLOBAL_FILE, 'utf8')) as {
     github: { owner: string; repo: string };
-    depot: { org_id: string };
   };
-  const target: DepotTarget = {
+  const target: GitHubTarget = {
     repository: `${config.github.owner}/${config.github.repo}`,
-    org: config.depot.org_id,
     workflow: policy.workflow,
     branch,
     sha,
@@ -252,12 +245,12 @@ async function runCommand(argv: readonly string[]): Promise<number> {
   if (policy.printsReport && !target.automatic)
     console.log(`${command}: spec report ${reportUrl(sha)}`);
   const hold = holdTTY();
-  let current: DepotWorkflow | undefined;
+  let current: GitHubWorkflow | undefined;
   const ports = {
     run: must,
     sleep: Bun.sleep,
     log: (message: string) => console.log(`${command}: ${message}`),
-    onWorkflow: (workflow: DepotWorkflow) => {
+    onWorkflow: (workflow: GitHubWorkflow) => {
       current = workflow;
     },
   };
@@ -267,18 +260,15 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     interrupted = true;
     hold.release();
     const workflow =
-      current ??
-      selectWorkflow(listWorkflows(target, ports), target.workflow, target.sha);
+      current ?? selectWorkflow(listWorkflows(target, ports), target.sha);
     if (workflow !== undefined)
       run([
-        'depot',
-        'ci',
+        'gh',
+        'run',
         'cancel',
-        workflow.run_id,
-        '--workflow',
-        workflow.workflow_id,
-        '--org',
-        target.org,
+        String(workflow.databaseId),
+        '--repo',
+        target.repository,
       ]);
     process.exit(signal === 'SIGINT' ? 130 : 143);
   };
@@ -286,7 +276,7 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     process.once(signal, stop);
   try {
     current = await startWorkflow(target, ports);
-    const url = `https://depot.dev/orgs/${target.org}/workflows/${current.workflow_id}`;
+    const url = current.url;
     console.log(`${command}: ${url}`);
     const code = await watchWorkflow(current, target, ports);
     console.log(`${command}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);

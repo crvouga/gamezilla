@@ -228,7 +228,7 @@ describe('turbo check/deploy graph invariants', () => {
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
     ) as { tasks: { test: { inputs: string[] } } };
     for (const input of [
-      '$TURBO_ROOT$/.depot/**',
+      '$TURBO_ROOT$/.github/**',
       '$TURBO_ROOT$/specs/**',
       '$TURBO_ROOT$/apps/*/package.json',
       '$TURBO_ROOT$/libs/*/turbo.json',

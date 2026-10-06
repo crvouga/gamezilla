@@ -9,7 +9,7 @@ import {
   workflowEnvOutputs,
 } from '../../infra-shared/scripts/workflow-env-matrix';
 
-const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.depot/workflows');
+const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 
 function withName(
   base: EnvFile,

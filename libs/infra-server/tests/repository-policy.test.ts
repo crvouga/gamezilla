@@ -15,8 +15,8 @@ const actions = readFileSync(
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
 test('main policy requires verified current-main CI with no bypass or approval ceremony', () => {
-  // Decided policy: the live Check / check runs originate from Depot Code Access.
-  expect(GLOBAL.github.check_integration_id).toBe(219785);
+  // GitHub Actions owns the check status.
+  expect(GLOBAL.github.check_integration_id).toBe(15368);
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of [
     'deletion',

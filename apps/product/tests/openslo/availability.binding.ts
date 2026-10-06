@@ -1,5 +1,5 @@
-// @io-wall-ok — composition root: the wall clock, the real HTTP client, Depot credentials from the process env.
-/** Availability is measured from native Depot Health job attempts. */
+// @io-wall-ok — composition root: the wall clock, the real HTTP client, GitHub credentials from the process env.
+/** Availability is measured from GitHub Actions Health job attempts. */
 
 import { envFile } from '@libs/infra-shared/envs';
 import { wallClock } from '@pkgs/clock-shared/wall';
@@ -11,7 +11,7 @@ function required(name: string): string {
   const value = process.env[name]?.trim() ?? '';
   if (value.length === 0) {
     throw new Error(
-      `${name} is not set — the team's checks are read from Depot CI`
+      `${name} is not set — the team's checks are read from GitHub Actions`
     );
   }
   return value;
@@ -26,10 +26,9 @@ bindObjectives({
         {
           http: createGlobalHttpClient(),
           apiUrl:
-            process.env['DEPOT_API_URL']?.trim() || 'https://api.depot.dev',
+            process.env['GITHUB_API_URL']?.trim() || 'https://api.github.com',
           repository: required('GITHUB_REPOSITORY'),
           token: healthHistoryToken(process.env),
-          orgId: required('DEPOT_ORG_ID'),
         },
         {
           env: envFile(process.env['SECRETS_ENV']?.trim() || 'dev').env,

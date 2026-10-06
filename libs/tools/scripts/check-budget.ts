@@ -67,7 +67,7 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
 
 /**
  * The same ceiling on CI's 2-core runner. It must stay **below** the check
- * step's `timeout-minutes` in `.depot/workflows/check.yml`, so this process kills
+ * step's `timeout-minutes` in `.github/workflows/check.yml`, so this process kills
  * the run and names the task still running before GitHub kills the job and
  * says nothing.
  */

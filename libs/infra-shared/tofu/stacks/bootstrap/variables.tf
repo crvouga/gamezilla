@@ -56,10 +56,6 @@ variable "github" {
   })
 }
 
-variable "depot" {
-  type = object({ org_id = string })
-}
-
 variable "auth_relay" {
   type        = any
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
@@ -69,11 +65,10 @@ variable "auth_relay" {
 
 variable "global_imports" {
   type = object({
-    aws_depot_oidc_provider = optional(string)
-    infisical_environments  = optional(map(string), {})
-    github_repository       = optional(string)
-    github_variables        = optional(list(string), [])
-    grafana_stack           = optional(string)
+    infisical_environments = optional(map(string), {})
+    github_repository      = optional(string)
+    github_variables       = optional(list(string), [])
+    grafana_stack          = optional(string)
   })
   default = {}
 }

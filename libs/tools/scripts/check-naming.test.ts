@@ -24,7 +24,7 @@ describe('naming rules', () => {
     ['src/assets.d.ts', true],
     ['src/foo.harness.test.ts', true],
     ['img/icon@2x.png', true],
-    ['.depot/workflows/check.yml', true],
+    ['.github/workflows/check.yml', true],
     ['.gitignore', true],
     ['.env.local', true],
     ['docs/GOAL.md', true],

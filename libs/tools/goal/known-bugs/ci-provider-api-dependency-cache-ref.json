@@ -1,0 +1,4 @@
+{
+  "summary": "Dependency caching assumed a branch ref that an earlier CI event omitted. Use frozen dependency installs and keep caching pinned tools and content-addressed task results.",
+  "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
+}

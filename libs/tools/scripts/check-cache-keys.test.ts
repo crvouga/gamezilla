@@ -93,7 +93,7 @@ test('exact task selection preserves dependency hashes across shards, secrets, r
       TURBO_TOKEN: 'fake-test-token',
       GITHUB_RUN_ID: 'different-run',
       GITHUB_WORKSPACE: '/different/absolute/path',
-      DEPOT_JOB_ID: 'different-job',
+      GITHUB_JOB: 'different-job',
       RAYON_NUM_THREADS: '4',
       CHECK_LINT_THREADS: '4',
       GOMAXPROCS: '4',
@@ -233,7 +233,7 @@ test.each([
   'libs/chess-root-harness/package.json',
   'libs/chess-root-harness/turbo.json',
   'libs/profile-harness/src/username.steps.ts',
-  '.depot/actions/setup/action.yml',
+  '.github/actions/setup/action.yml',
   'apps/product/scripts/ui-quality/sources.json',
 ])('repository tooling verdict invalidates on %s', (path) => {
   const root = fixture();
