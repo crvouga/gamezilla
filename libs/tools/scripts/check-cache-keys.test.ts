@@ -98,6 +98,9 @@ test('exact task selection preserves dependency hashes across shards, secrets, r
       CHECK_LINT_THREADS: '4',
       GOMAXPROCS: '4',
       MODEL_CHECK_CONCURRENCY: '8',
+      CHECK_TEST_CONCURRENCY: '1',
+      CHECK_SOLVER_SLOTS: '1',
+      CHECK_CACHE_CONCURRENCY: '1',
     });
     expect(selected.length).toBe(2);
     const hashes = new Map(full.map((task) => [task.taskId, task.hash]));

@@ -1,0 +1,4 @@
+{
+  "summary": "Product contract tests hard-coded two simultaneous model verifiers and rendering cases, bypassing local Check's task and solver limits. Resolve Bun's test concurrency from CHECK_TEST_CONCURRENCY, defaulting local Checks to one and retaining two elsewhere. Ordinary product simulations and Quint verifier tests also honor the limit while retaining their existing default of twenty elsewhere.",
+  "regressionTest": "libs/tools/scripts/test-concurrency.test.ts"
+}
