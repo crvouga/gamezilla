@@ -1,0 +1,4 @@
+{
+  "summary": "Custom Game journey steps parse {actor} before the shared parameter types are registered, so loading the product spec entry throws Undefined parameter type 'actor' and health's live-entry check exits nonzero. The steps import now registers those types first, the same way the multiplayer journey steps do.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

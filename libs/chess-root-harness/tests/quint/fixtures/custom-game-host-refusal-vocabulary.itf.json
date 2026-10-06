@@ -105,6 +105,12 @@
           "tag": "Some",
           "value": "empty"
         },
+        "blocks": {
+          "tag": "Some",
+          "value": {
+            "#set": []
+          }
+        },
         "command": {
           "tag": "None",
           "value": {
@@ -373,6 +379,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "resign"
@@ -622,6 +634,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -881,6 +899,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "take"
@@ -1130,6 +1154,12 @@
           "value": "bob"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []

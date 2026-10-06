@@ -3,10 +3,12 @@ import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 
-function listingStore(keys: readonly string[]) {
+function listingStore(keys: readonly string[], holdChildren = false) {
   let active = 0;
   let peak = 0;
   let requests = 0;
+  let children = 0;
+  const pair = Promise.withResolvers<void>();
   const wireKeys = keys.map((key) => `reports/${key}`).sort();
   const store = createS3ObjectStore({
     bucket: 'reports',
@@ -24,6 +26,13 @@ function listingStore(keys: readonly string[]) {
         await Promise.resolve();
         const url = new URL(String(input));
         const prefix = url.searchParams.get('prefix') ?? '';
+        // Browser SigV4 completes asynchronously. Hold the first child until
+        // another arrives, so overlap does not depend on signing speed.
+        if (holdChildren && prefix.includes('/source-')) {
+          children += 1;
+          if (children === 2) pair.resolve();
+          await pair.promise;
+        }
         const delimiter = url.searchParams.get('delimiter');
         const entries = [
           ...new Set(
@@ -58,13 +67,14 @@ function listingStore(keys: readonly string[]) {
 }
 
 // regression: check-report-cleanup-serial-commit-listing
+// regression: s3-listing-concurrency-browser-signing
 test('lists a 56,999-object commit through its child directories concurrently', async () => {
   const sha = '075ee6c683761e1b2173d33aa0d0ccfebdb404ea';
   const keys = Array.from(
     { length: 56_999 },
     (_, n) => `commits/${sha}/tests/source-${n % 63}/file-${n}.html`
   );
-  const fixture = listingStore(keys);
+  const fixture = listingStore(keys, true);
   expect(await fixture.store.listKeys('commits/0')).toEqual(keys.sort());
   expect(fixture.peak()).toBeGreaterThan(1);
   expect(fixture.peak()).toBeLessThanOrEqual(16);

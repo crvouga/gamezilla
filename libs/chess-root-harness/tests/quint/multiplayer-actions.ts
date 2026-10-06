@@ -12,6 +12,7 @@ import {
   storedMultiplayerSnapshot,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+import { setCustomGameParticipation } from '@libs/chess-root-harness/custom-game-participation';
 import {
   controlledMultiplayerCommand,
   multiplayerMatchFact,
@@ -133,5 +134,25 @@ export async function playFingerprint(w: PlayTrace) {
   return multiplayerFingerprint(
     await w.quiet.read(storedMultiplayerSnapshot),
     w.memo.get('play:owners') as ReadonlyMap<string, string>
+  );
+}
+
+/**
+ * The person becomes White in an active Custom Game against a bot, or that
+ * game is cancelled, from a device of their own that the model never takes
+ * offline. The game is in a space someone else hosts, so the person's own
+ * space keeps showing multiplayer chess on their other devices.
+ */
+export async function changeCustomGamePlay(w: PlayTrace, picks: Picks) {
+  const person = String(picks['person']);
+  if ((await w.s.read(accountIdOf, person)) === null) return;
+  const device = `${person}_custom`;
+  if (!(await w.s.read((s) => s.actors.has(device))))
+    await w.s.apply(signInWithGoogleAsAccount, device, person);
+  await w.s.apply(
+    setCustomGameParticipation,
+    device,
+    `${person}_partner`,
+    picks['customGameActive'] === true
   );
 }

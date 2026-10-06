@@ -37,6 +37,22 @@ Feature: Find someone to play multiplayer chess
       Then Alice is told to finish her multiplayer game first
       And Alice keeps her multiplayer game with Bob
 
+  Rule: A participant of an active Custom Game finishes it before finding a chess opponent
+
+    Background:
+      Given Alice has a free account and a connection
+
+    Scenario: A person may find an opponent after their Custom Game is completed
+      Given Alice has a completed Custom Game between Alice as White and Bob as Black
+      When Alice finds a chess opponent
+      Then Alice is looking for a chess opponent
+
+    Scenario: A participant of an active Custom Game cannot find an opponent
+      Given Alice has an active Custom Game between Alice as White and Bob as Black
+      When Alice finds a chess opponent
+      Then Alice is told to finish her Custom Game first
+      And Alice is not looking for a chess opponent
+
   Rule: One matchmaking match creates one multiplayer game for its two people
     No counter-example: opening the accepted match never asks for a new match or another game.
 

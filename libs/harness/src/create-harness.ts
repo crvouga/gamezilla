@@ -8,16 +8,15 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-pr
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
-import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
-import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
+import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
 } from '@pkgs/pubsub-root-shared/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
@@ -29,6 +28,7 @@ import {
   openHarnessBillingProviders,
 } from './billing';
 import type { HarnessBrowser } from './browser';
+import { browserLookup } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
@@ -44,9 +44,15 @@ import {
 import type { HarnessLoadBalancer } from './load-balancer';
 import { createHarnessLoadBalancer } from './load-balancer';
 import { compositionMigratePostgres } from './migrate-composition';
+import { createHarnessLlm } from './mockingbird-llm';
+import { createHarnessObjectStore } from './mockingbird-object-store';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
-import type { HarnessServerNodes, Server } from './server-nodes';
+import type {
+  HarnessServerNode,
+  HarnessServerNodes,
+  Server,
+} from './server-nodes';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
@@ -69,7 +75,7 @@ export type CreateHarnessOptions = {
   readonly composition: HarnessComposition;
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
-  /** Real-mode host injects embedded Postgres; product-harness uses sqlBackend server SQL. */
+  /** Real-mode host injects Mockingbird Postgres; product-harness uses sqlBackend server SQL. */
   readonly serverSql?: HarnessSql;
   /**
    * Post-migrate server seed bytes (PGMM). When set (and
@@ -110,6 +116,8 @@ export type Harness = {
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
   outboxConsumers(): OutboxConsumerRegistry;
+  /** The primary API instance's server-only mutation checks. */
+  authorizeServerMutation(): MutationAuthorize;
   spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
@@ -167,27 +175,28 @@ type SharedServerServices = {
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
 };
 
-function buildSharedServerServices(
-  serverSql: HarnessSql,
-  appleKeys: AppleClientKeys,
-  auth: ServerEnv['auth'],
-  moderation: ServerEnv['moderation']
-): SharedServerServices {
+function buildSharedServerServices(args: {
+  readonly serverSql: HarnessSql;
+  readonly appleKeys: AppleClientKeys;
+  readonly auth: ServerEnv['auth'];
+  readonly clock: Clock;
+  readonly moderation: ServerEnv['moderation'];
+}): SharedServerServices {
   const secrets = createRecordSecretStore({
     DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
     API_URL: HARNESS_SERVER_URL,
-    ...harnessIdpSecrets(appleKeys),
+    ...harnessIdpSecrets(args.appleKeys),
   });
   return {
-    kv: new KvImplInMemory(),
-    blob: new ObjectStoreImplInMemory(),
+    kv: new KvImplPostgres(args.serverSql.sqlClient, () => args.clock.now()),
+    blob: createHarnessObjectStore(args.clock),
     tts: new InMemoryTtsProvider(),
-    llm: new InMemoryLlmProvider(),
+    llm: createHarnessLlm({ clock: args.clock }).provider,
     secrets,
     // The simulated deployment signs in through the in-house IdP.
-    auth,
-    moderation,
-    sqlClient: sharedSqlClient(serverSql.sqlClient),
+    auth: args.auth,
+    moderation: args.moderation,
+    sqlClient: sharedSqlClient(args.serverSql.sqlClient),
   };
 }
 
@@ -336,12 +345,13 @@ async function bootHarnessKernel(
   });
   const serverSql = await openServerSql(session, opts);
   const teamRules = createHarnessTeamRules(session.ports.clock);
-  const shared = buildSharedServerServices(
+  const shared = buildSharedServerServices({
     serverSql,
     appleKeys,
-    composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
-    teamRules.moderation
-  );
+    auth: composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
+    clock: session.ports.clock,
+    moderation: teamRules.moderation,
+  });
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,
@@ -443,21 +453,39 @@ function createClientEnvs(
   };
 }
 
-function harnessOutboxConsumers(
-  servers: HarnessServerNodes
-): OutboxConsumerRegistry {
+function primaryServer(servers: HarnessServerNodes): HarnessServerNode {
   const node = servers.get(HARNESS_PRIMARY_SERVER_ID);
   if (node === undefined) throw new Error('primary server is missing');
-  return node.outboxConsumers;
+  return node;
 }
 
-function browserLookup(
-  browsers: ReadonlyMap<string, HarnessBrowser>
-): (id: string) => HarnessBrowser {
-  return (id) => {
-    const browser = browsers.get(id);
-    assert.defined(browser, `harness browser missing for ${id}`);
-    return browser;
+/** The API instances: spawn, drop and read them, and the primary's ports. */
+function serverHandles(
+  servers: HarnessServerNodes,
+  net: HarnessKernel['net']
+): Pick<
+  Harness,
+  | 'spawnServer'
+  | 'dropServer'
+  | 'serverIds'
+  | 'serverEnv'
+  | 'drainServerFetch'
+  | 'outboxConsumers'
+  | 'authorizeServerMutation'
+> {
+  return {
+    async spawnServer(id) {
+      const node = await servers.spawn(id);
+      // A respawned instance must not stay marked down from a prior crash.
+      net.restart(node.id);
+      return node.app;
+    },
+    dropServer: (id) => servers.drop(id),
+    serverIds: () => servers.ids(),
+    serverEnv: (id) => servers.get(id)?.env,
+    drainServerFetch: () => servers.drainAll(),
+    outboxConsumers: () => primaryServer(servers).outboxConsumers,
+    authorizeServerMutation: () => primaryServer(servers).authorizeMutation,
   };
 }
 
@@ -489,15 +517,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     teamRules: kernel.teamRules,
     client,
     browser: browserLookup(browsers),
-    async spawnServer(id) {
-      const node = await servers.spawn(id);
-      // A respawned instance must not stay marked down from a prior crash.
-      net.restart(node.id);
-      return node.app;
-    },
-    dropServer: (id) => servers.drop(id),
-    serverIds: () => servers.ids(),
-    serverEnv: (id) => servers.get(id)?.env,
+    ...serverHandles(servers, net),
     async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
@@ -536,13 +556,11 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     heal: (a, b) => {
       net.heal(a, b);
     },
-    drainServerFetch: () => servers.drainAll(),
     dispose: async () => {
       await disposeHarness({ kernel, liveClients, clientSql });
     },
     roomNode,
     serverSql,
-    outboxConsumers: () => harnessOutboxConsumers(servers),
     clientSql: (id) => clientSql.get(id),
   };
 }

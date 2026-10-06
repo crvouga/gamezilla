@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
+    "@libs/chess-custom-game-shared": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/moderation-client": "workspace:*",

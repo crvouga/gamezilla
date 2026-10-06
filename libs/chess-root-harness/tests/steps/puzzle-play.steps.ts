@@ -31,7 +31,6 @@ import {
   readPuzzleBoardPieceAt,
   readPuzzleBoardProbe,
   readPuzzleHaptics,
-  readPuzzlePromotionPending,
   readPuzzlePrompt,
 } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
 import {
@@ -46,6 +45,10 @@ import {
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import {
+  readShownChessBoard,
+  readShownChessPromotion,
+} from '@libs/chess-root-harness/chess-board-reads';
 import { restoreNetwork } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
@@ -63,6 +66,7 @@ import {
   currentPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
+  lastMoveKey,
   previousPuzzle,
   promotionPiece,
   recalled,
@@ -76,7 +80,6 @@ import {
   waitSolverToMove,
 } from './puzzle-world';
 
-const moveKey = (actor: Actor) => `lastMove:${actor}`;
 const solvedClockKey = (actor: Actor) => `clockAtSolve:${actor}`;
 const LAST_MOVER = 'lastMover';
 
@@ -86,7 +89,7 @@ function lastMover(w: HarnessWorld): Actor {
 
 async function boardProbe(w: HarnessWorld, actor: Actor) {
   return required(
-    await w.s.read(readPuzzleBoardProbe, actor),
+    await w.s.read(readShownChessBoard, actor),
     `${actor}'s board`
   );
 }
@@ -101,7 +104,7 @@ async function playMove(
   await waitSolverToMove(w, actor);
   await rememberBoard(w, actor);
   await markPuzzleSoundBoundary(w, actor);
-  remember(w, moveKey(actor), uci);
+  remember(w, lastMoveKey(actor), uci);
   remember(w, LAST_MOVER, actor);
   await w.s.apply(playPuzzleMove, actor, uci);
 }
@@ -470,8 +473,8 @@ When(
 Then(
   '{actor} is asked which piece White promotes to on {word}',
   async (w, actor: Actor, square: string) => {
-    const from = recalled<string>(w, moveKey(actor)).slice(0, 2);
-    expect(await w.s.read(readPuzzlePromotionPending, actor)).toMatchObject({
+    const from = recalled<string>(w, lastMoveKey(actor)).slice(0, 2);
+    expect(await w.s.read(readShownChessPromotion, actor)).toMatchObject({
       from,
       to: square,
       color: 'w',
@@ -482,8 +485,8 @@ Then(
 Then(
   '{actor} is asked which piece Black promotes to',
   async (w, actor: Actor) => {
-    const uci = recalled<string>(w, moveKey(actor));
-    expect(await w.s.read(readPuzzlePromotionPending, actor)).toMatchObject({
+    const uci = recalled<string>(w, lastMoveKey(actor));
+    expect(await w.s.read(readShownChessPromotion, actor)).toMatchObject({
       from: uci.slice(0, 2),
       to: uci.slice(2, 4),
       color: 'b',

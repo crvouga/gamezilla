@@ -45,12 +45,33 @@ function participantName(
   }
 }
 
+/** A completed game's result, with how it was won. */
+function outcomeDescription(outcome: CustomGame['outcome']): string {
+  switch (outcome) {
+    case 'white wins by resignation':
+      return t`White wins by resignation.`;
+    case 'black wins by resignation':
+      return t`Black wins by resignation.`;
+    case 'white wins by checkmate':
+      return t`White wins by checkmate.`;
+    case 'black wins by checkmate':
+      return t`Black wins by checkmate.`;
+    case 'white wins on time':
+      return t`White wins on time.`;
+    case 'black wins on time':
+      return t`Black wins on time.`;
+    case 'white wins because black stayed away':
+      return t`White wins because Black stayed away.`;
+    case 'black wins because white stayed away':
+      return t`Black wins because White stayed away.`;
+    default:
+      return t`Game drawn.`;
+  }
+}
+
 function gameStateDescription(game: CustomGame): string {
   if (game.status === 'cancelled') return t`Game cancelled.`;
-  if (game.status === 'completed') {
-    if (game.outcome === 'draw') return t`Game drawn.`;
-    return game.outcome.startsWith('white') ? t`White wins.` : t`Black wins.`;
-  }
+  if (game.status === 'completed') return outcomeDescription(game.outcome);
   if (game.status === 'active')
     return game.turn === 'white' ? t`White to move.` : t`Black to move.`;
   return customGameStartable(game)

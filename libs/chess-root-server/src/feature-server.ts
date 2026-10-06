@@ -11,6 +11,7 @@ import {
   multiplayerRoomGrants,
   registerMatchRoomConsumers,
 } from './multiplayer-room-server';
+import { opponentSearchGuard } from './opponent-search-guard';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
 async function customGameRoomGrants(
@@ -43,6 +44,7 @@ export function createChessServer(rooms: RoomServicePort) {
       ...(await customGameRoomGrants(ctx)),
       ...(await multiplayerRoomGrants(ctx)),
     ],
+    authorizeMutation: opponentSearchGuard(rooms),
     registerOutbox(registry) {
       registerMatchRoomConsumers(registry, rooms);
       registry.register(

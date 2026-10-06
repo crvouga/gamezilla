@@ -241,7 +241,7 @@ Three rules cover every deployed resource.
 
 **Web scale.** This is the architecture at Google, YouTube, Facebook, and GitHub scale. Workers, the CDN, Durable Objects, R2, PlanetScale Neki, and AWS IoT Core already run at that size. Application code owns logical keys (`gameId`, `queryHash`, partition keys, object keys). Providers own placement, routing, and capacity. Neki and IoT are both `us-east-1`. PlanetScale reshardes inside that region.
 
-MQTT carries invalidation. Postgres is the record. A missed message is recovered by refetching. PlanetScale and AWS IoT have no local mode, so `bun run dev` uses embedded Postgres and a local MQTT broker. The Laptop section is the rest of that substitute.
+MQTT carries invalidation. Postgres is the record. A missed message is recovered by refetching. PlanetScale and AWS IoT have no local mode, so `bun run dev` uses Mockingbird Postgres and a local MQTT broker. The Laptop section is the rest of that substitute.
 
 ### Global, once (bootstrap)
 
@@ -388,7 +388,9 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 ## Laptop
 
-`bun run dev` (alias `bun run stack`) runs through Turborepo’s terminal UI. Turbo owns environment setup, message catalog compilation, stack preparation, backend services, and Vite; Vite waits for the backend readiness manifest. The stack boots embedded Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs through Turborepo’s terminal UI. Turbo owns environment setup, message catalog compilation, stack preparation, backend services, and Vite; Vite waits for the backend readiness manifest. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+
+Migration status and outstanding Mockingbird service/compatibility gaps are tracked in [`libs/tools/MOCKINGBIRD_MIGRATION.md`](libs/tools/MOCKINGBIRD_MIGRATION.md).
 
 ```bash
 bun run dev                         # 2 API nodes

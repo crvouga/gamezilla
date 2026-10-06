@@ -57,6 +57,7 @@ export const controlledMultiplayerCommand = scenarioAction({
       try {
         await authorizeAppMutation(context);
         await app.authorizeMutation(context);
+        await s.harness.authorizeServerMutation()(context);
         await mutation.run(context, parsed.value);
       } catch (error) {
         if (!(error instanceof MutationError)) throw error;

@@ -11,10 +11,19 @@ import { defineFeatureServer } from '@libs/feature-shared/server';
 import { roomTopic } from '@libs/spaces-shared/space-room-topic';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
+import type { SpaceBlockRelation } from './space-restrictions';
+import { registerSpaceRestrictions } from './space-restrictions';
 import { spaceRoomGrants } from './space-room-grants';
 import { registerSpaceWithdrawal } from './space-withdrawal-consumer';
 
-export function createSpacesServer(rooms: RoomServicePort) {
+/**
+ * `blocks` is the friends context's published block relation; without it
+ * (a composition with no friends) nobody in a space is restricted.
+ */
+export function createSpacesServer(
+  rooms: RoomServicePort,
+  blocks: SpaceBlockRelation | null = null
+) {
   return defineFeatureServer({
     name: 'spaces',
     pubsubTopics: async (ctx) => {
@@ -22,6 +31,9 @@ export function createSpacesServer(rooms: RoomServicePort) {
       return spaceIds.map((id) => roomTopic(id));
     },
     roomGrants: spaceRoomGrants,
-    registerOutbox: (registry) => registerSpaceWithdrawal(registry, rooms),
+    registerOutbox: (registry) => {
+      registerSpaceWithdrawal(registry, rooms, blocks);
+      if (blocks !== null) registerSpaceRestrictions(registry, rooms, blocks);
+    },
   });
 }

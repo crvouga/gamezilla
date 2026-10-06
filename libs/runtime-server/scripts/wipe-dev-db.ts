@@ -2,7 +2,7 @@
 /**
  * Wipe a non-production environment's Postgres (DROP SCHEMA public) then
  * remigrate (`bun run db:wipe:dev` targets `dev`).
- * Prefers `.dev.vars` (loopback embedded Postgres) then secrets-run env.
+ * Prefers `.dev.vars` (loopback Mockingbird Postgres) then secrets-run env.
  * No confirm flags — every guard exists only to block production.
  */
 

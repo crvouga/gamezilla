@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 2.3.0 omits pg_index.indisvalid. The local application reconcile invalid-index query fails with XX000 and poisons its table-reconcile transaction (25P02). Upstream: https://github.com/crvouga/mockingbird/issues/326",
+  "regressionTest": "libs/runtime-server/tests/mockingbird-reconcile.contract.test.ts"
+}

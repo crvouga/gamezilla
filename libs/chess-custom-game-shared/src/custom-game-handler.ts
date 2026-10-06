@@ -1,5 +1,9 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
-import { spaceSeatMemberIds } from '@libs/spaces-shared/space-members-messages';
+import {
+  spaceMemberAwaySince,
+  spaceMembersRestricted,
+  spaceSeatMemberIds,
+} from '@libs/spaces-shared/space-members-messages';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
@@ -52,7 +56,12 @@ export function handleCustomGameChoice(
   const expired = game === null ? null : expireCustomGame(game, ctx.ts);
   if (expired !== game)
     return changedCustomGames({ ...games, current: expired }, ctx, 'finished');
-  const reason = customGameRefusal(game, choice, ctx.identity, members);
+  const reason = customGameRefusal(game, choice, ctx.identity, {
+    members,
+    restricted: (a, b) => spaceMembersRestricted(state, a, b),
+    awaySince: (person) => spaceMemberAwaySince(state, person),
+    now: ctx.ts,
+  });
   if (reason !== '') return refuseCustomGame(reason);
   if (choice.operation === 'create' || choice.operation === 'rematch') {
     const created =

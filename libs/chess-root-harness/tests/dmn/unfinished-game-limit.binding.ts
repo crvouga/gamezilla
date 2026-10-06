@@ -1,6 +1,8 @@
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
-import { useLimitDecision } from '@libs/permissions-client/use-can';
+import { opponentSearchGuard } from '@libs/chess-root-server/opponent-search-guard';
+import { useUnfinishedGamesDecision } from '@libs/permissions-client/use-can';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
+import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import {
   CASE_NOW_MS,
   countInput,
@@ -13,6 +15,7 @@ import {
   replayOperation,
   serverEnforcementLayer,
 } from '@libs/permissions-shared/server';
+import { decideUnfinishedGames } from '@libs/permissions-shared/unfinished-games-permission';
 import { bindDecisions } from '@pkgs/dmn-shared/registry';
 import { decideLimit } from '@pkgs/permissions-shared/decision';
 import { policyAt } from '@pkgs/permissions-shared/policy';
@@ -20,6 +23,8 @@ import { resolveSubject } from '@pkgs/permissions-shared/resolve';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
+  CUSTOM_GAME_INPUT,
+  LIMIT_ROOMS,
   MULTIPLAYER_LIMIT_TABLES,
   seedUnfinishedGames,
   UNFINISHED_INPUT,
@@ -27,7 +32,10 @@ import {
 
 const REASONS = {
   limit_reached: 'finish the current multiplayer game',
+  restricted: 'finish the current Custom Game',
 } as const;
+
+const searchGuard = opponentSearchGuard(LIMIT_ROOMS);
 
 bindDecisions({
   spec: 'unfinished-game-limit',
@@ -37,11 +45,14 @@ bindDecisions({
       decide(input) {
         const policy = policyAt(DEFAULT_PERMISSION_POLICY, CASE_NOW_MS);
         return tableAnswer(
-          decideLimit(
-            policy,
-            resolveSubject(policy, factsOf(input, CASE_NOW_MS), []),
-            LIMIT.unfinishedMultiplayerGames,
-            countInput(input, UNFINISHED_INPUT)
+          decideUnfinishedGames(
+            decideLimit(
+              policy,
+              resolveSubject(policy, factsOf(input, CASE_NOW_MS), []),
+              LIMIT.unfinishedMultiplayerGames,
+              countInput(input, UNFINISHED_INPUT)
+            ),
+            countInput(input, CUSTOM_GAME_INPUT)
           ),
           REASONS
         );
@@ -51,6 +62,11 @@ bindDecisions({
       tables: MULTIPLAYER_LIMIT_TABLES,
       reasons: REASONS,
       seed: seedUnfinishedGames,
+      // The server reads the space rooms before the body, as the API does.
+      guard: async (ctx) => {
+        await authorizeAppMutation(ctx);
+        await searchGuard(ctx);
+      },
       operationFor: () =>
         replayOperation(findChessOpponentMutation, () => ({
           requestId: 'another-game',
@@ -61,17 +77,19 @@ bindDecisions({
       tables: MULTIPLAYER_LIMIT_TABLES,
       observes: ['answer', 'reason'],
       seed: seedUnfinishedGames,
-      probe: () => {
+      // The device reads its space's Custom Game from the room, outside this
+      // fixture's rows: the case's count stands for it.
+      probe: (input) => {
         const games = createQuery(
           () =>
             sql<{
               id: string;
             }>`SELECT id FROM chess_multiplayer_games WHERE outcome = ${'ongoing'} AND deleted_at IS NULL`
         );
-        const decision = useLimitDecision(
-          LIMIT.unfinishedMultiplayerGames,
-          () => games.rows().length
-        );
+        const decision = useUnfinishedGamesDecision(() => ({
+          multiplayer: games.rows().length,
+          customGames: countInput(input, CUSTOM_GAME_INPUT),
+        }));
         return () => tableAnswer(decision(), REASONS);
       },
     }),

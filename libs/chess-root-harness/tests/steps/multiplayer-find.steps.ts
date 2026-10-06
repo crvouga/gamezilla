@@ -136,3 +136,11 @@ Then(
     expect((await w.s.read(multiplayerView, device)).search).toEqual(search);
   }
 );
+Then(
+  '{actor} is told to finish her Custom Game first',
+  async (w, actor: Actor) => {
+    expect(
+      await w.s.read(multiplayerText, actor, 'multiplayer-command-denial')
+    ).toContain('Finish your Custom Game first');
+  }
+);

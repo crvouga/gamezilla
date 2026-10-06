@@ -74,6 +74,7 @@ test('health generates feature and objective stubs with resolvable declared brid
 });
 
 // regression: multiplayer-journey-parameter-registration
+// regression: custom-game-journey-parameter-registration
 test('health loads its live entry and constructs the real S3 transport', () => {
   // regression: health-solid-preload-after-imports
   // regression: health-browser-conditions-break-s3

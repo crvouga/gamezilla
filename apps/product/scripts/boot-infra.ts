@@ -3,8 +3,10 @@
 /** The backing services an API instance shares with its peers. */
 
 import { join } from 'node:path';
+import { DEFAULT_TOKEN } from '@crvouga/mockingbird-service-openai';
+import { createServer as createOpenAiServer } from '@crvouga/mockingbird-service-openai/server';
 import { startAedesServer } from '@pkgs/aedes-server/start';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
@@ -39,12 +41,17 @@ async function bootPostgres(dataDir: string): Promise<{
 }> {
   const reservation = reservePort();
   await reservation.release();
-  const postgres = await startEmbeddedPostgres({
+  const postgres = await startMockingbirdPostgres({
     port: reservation.port,
     dataDir: join(dataDir, 'postgres'),
   });
-  await runLocalMigrate(postgres.url);
-  await runLocalSeed(postgres.url);
+  try {
+    await runLocalMigrate(postgres.url);
+    await runLocalSeed(postgres.url);
+  } catch (error) {
+    await postgres.stop();
+    throw error;
+  }
   return { url: postgres.url, stop: () => postgres.stop() };
 }
 
@@ -74,12 +81,16 @@ export async function bootInfra(args: {
   readonly dataDir: string;
 }): Promise<InfraHandles> {
   const postgres = await bootPostgres(args.dataDir);
-  const s3 = args.options.withS3 ? await bootS3() : null;
-  const mqtt = args.options.withMqtt ? await bootMqtt() : null;
+  let openai: Awaited<ReturnType<typeof createOpenAiServer>> | null = null;
+  let s3: Awaited<ReturnType<typeof bootS3>> | null = null;
+  let mqtt: Awaited<ReturnType<typeof bootMqtt>> | null = null;
   let observability: Awaited<
     ReturnType<typeof startObservabilityStack>
   > | null = null;
   try {
+    openai = await createOpenAiServer();
+    s3 = args.options.withS3 ? await bootS3() : null;
+    mqtt = args.options.withMqtt ? await bootMqtt() : null;
     observability =
       args.options.observabilityBackend !== 'off'
         ? await startObservabilityStack({
@@ -89,9 +100,12 @@ export async function bootInfra(args: {
           })
         : null;
   } catch (error) {
-    await mqtt?.stop();
-    await s3?.stop();
-    await postgres.stop();
+    await Promise.allSettled([
+      mqtt?.stop(),
+      s3?.stop(),
+      openai?.close(),
+      postgres.stop(),
+    ]);
     throw error;
   }
 
@@ -107,6 +121,8 @@ export async function bootInfra(args: {
     env: {
       LOCALHOST_STACK: '1',
       DATABASE_URL: postgres.url,
+      OPENAI_API_KEY: DEFAULT_TOKEN,
+      OPENAI_BASE_URL: openai.url,
       ...(s3 === null
         ? {}
         : {
@@ -140,6 +156,7 @@ export async function bootInfra(args: {
       await observability?.stop();
       await mqtt?.stop();
       await s3?.stop();
+      await openai?.close();
       await postgres.stop();
     },
   };

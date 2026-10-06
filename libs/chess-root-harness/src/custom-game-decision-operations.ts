@@ -40,9 +40,13 @@ async function send(
   identity: string,
   payload: Message
 ): Promise<void> {
-  const before = JSON.stringify(
-    w.node.inspect(`space:${SPACE_ID}`)?.committedState
-  );
+  const game = () => {
+    const state = w.node.inspect(`space:${SPACE_ID}`)?.committedState;
+    return JSON.stringify(
+      state === undefined ? null : CustomGamesAttr.from(state)
+    );
+  };
+  const before = game();
   try {
     const answer = await answerOfRoomCommand(w.node, {
       spaceId: SPACE_ID,
@@ -55,10 +59,7 @@ async function send(
       timers: w.timers,
     });
     if (answer.kind !== 'rejected') return;
-    if (
-      JSON.stringify(w.node.inspect(`space:${SPACE_ID}`)?.committedState) !==
-      before
-    )
+    if (game() !== before)
       throw new Error('a denied room command changed the game');
     throw new OperationRefused(answer.error.type);
   } catch (cause) {
@@ -102,6 +103,17 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   if (capability === 'start a Custom Game') {
     await choice(w, w.host, { operation: 'bot', side: 'black' });
     await choice(w, w.host, { operation: 'ready' });
+  }
+  if (
+    capability === 'cancel a Custom Game' &&
+    spacePresenceOf(w.c.input) === 'guest'
+  ) {
+    // A participant cancels only a game between two people, before each side moved.
+    await choice(w, actor, { operation: 'claim', side: 'black' });
+    await choice(w, actor, { operation: 'ready' });
+    await choice(w, w.host, { operation: 'ready' });
+    await choice(w, w.host, { operation: 'start' });
+    return;
   }
   if (capability !== 'play a Custom Game') return;
   if (spacePresenceOf(w.c.input) === 'guest') {

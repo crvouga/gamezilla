@@ -1,6 +1,6 @@
 @domain:journeys
-Feature: A guest plays a Custom Game against a bot
-  When a guest wants to play chess, they want to choose a bot in their space, so a complete game needs neither an account nor a second person.
+Feature: Play a Custom Game in a space
+  When someone wants to play chess in their space, they want a bot or someone who joined from the link as their opponent, so a complete game is played and finished without needing an account.
 
   Rule: A guest can choose a bot, play and finish the same Custom Game
 
@@ -26,3 +26,24 @@ Feature: A guest plays a Custom Game against a bot
       When they start the Custom Game
       Then they are told Custom Games need a connection
       And their Custom Game has not started
+
+  Rule: Two people in one space can agree on sides, play and finish the same Custom Game
+
+    Scenario: Someone who joined from the link accepts an invitation and becomes ready
+      Given Alice is hosting a space that Bob joined from the link
+      When Alice invites Bob to Black in a new Custom Game
+      Then Bob sees Alice's invitation to play Black
+      When Bob accepts Black in the Custom Game
+      Then Black is Bob in the Custom Game
+      When Alice and Bob become ready for the Custom Game
+      Then The Custom Game is startable
+
+    Scenario: Two people play a move and finish by resignation
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice and Bob are ready for a Custom Game with Bob as Black
+      When Alice starts the Custom Game
+      Then Bob's board faces Black
+      When Alice plays e2-e4 in the Custom Game
+      Then Bob sees e4 in the Custom Game move list
+      When Bob resigns the Custom Game
+      Then both people see Alice wins the Custom Game by resignation

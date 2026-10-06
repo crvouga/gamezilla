@@ -11,6 +11,7 @@
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 
 import type {
   FeatureRouter,
@@ -30,6 +31,8 @@ export type ComposedFeatureServers = {
   readonly pubsubTopics: (ctx: PubSubTopicCtx) => Promise<readonly Topic[]>;
   /** Every grant the composed features give the actor in a room, sorted. */
   readonly roomGrants: (ctx: RoomGrantsCtx) => Promise<readonly string[]>;
+  /** Every composed feature's server-only mutation check, in feature order. */
+  readonly authorizeMutation: MutationAuthorize;
 };
 
 /**
@@ -77,5 +80,8 @@ export function composeFeatureServers(
       return [...new Set(granted.flat())].sort();
     },
     roomGrants: composeRoomGrants(servers),
+    authorizeMutation: async (ctx) => {
+      for (const server of servers) await server.authorizeMutation?.(ctx);
+    },
   };
 }

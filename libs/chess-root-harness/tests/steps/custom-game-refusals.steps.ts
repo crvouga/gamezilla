@@ -107,3 +107,21 @@ Then(
   refusal('invalid time choice')
 );
 Then('{actor} is told they are not in the space', refusal('not in the space'));
+Then('{actor} is told {actor} may still return', refusal('may still return'));
+Then(
+  '{actor} is told only a participant may claim the win',
+  refusal('not a participant')
+);
+Then(
+  '{actor} is told to resign instead of cancelling',
+  refusal('resign instead')
+);
+Then(
+  '{actor} is told she may offer a draw again after her next move',
+  refusal('offer again after moving')
+);
+Then('{actor} is told {actor} cannot be invited', refusal('cannot be invited'));
+Then(
+  '{actor} is told that side is not available to him',
+  refusal('side not available')
+);

@@ -8,6 +8,7 @@ import { customGameChess } from '@libs/chess-custom-game-shared/custom-game-posi
 import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
+import { remember } from '@libs/harness/spec-world';
 import { customSide } from './custom-game-choices.steps';
 import {
   customFact,
@@ -17,6 +18,7 @@ import {
   customPerson,
   customStart,
 } from './custom-game-world';
+import { lastMoveKey, promotionPiece } from './puzzle-world';
 
 Given(
   '{actor} has a completed Custom Game between {actor} as White and {actor} as Black',
@@ -57,9 +59,21 @@ When(
   '{actor} plays {word} in the Custom Game',
   async (w, actor: string, move: string) => {
     const game = await customGame(w, actor);
+    remember(w, lastMoveKey(actor), move.replace('-', ''));
     await w.s.apply(changeCustomGame, actor, {
       operation: 'move',
       uci: move.replace('-', ''),
+      ply: game.moves.length,
+    });
+  }
+);
+When(
+  '{actor} plays {word} and promotes to a {word} in the Custom Game',
+  async (w, actor: string, move: string, piece: string) => {
+    const game = await customGame(w, actor);
+    await w.s.apply(changeCustomGame, actor, {
+      operation: 'move',
+      uci: move.replace('-', '') + promotionPiece(piece),
       ply: game.moves.length,
     });
   }
@@ -78,7 +92,7 @@ Then('{word} is to move in the Custom Game', async (w, side: string) =>
   expect((await customGame(w)).turn).toBe(customSide(side))
 );
 Then('The Custom Game move list shows {word}', async (w, san: string) =>
-  expect((await customGame(w)).moves.map((move) => move.san)).toEqual([san])
+  expect((await customGame(w)).moves.at(-1)?.san).toBe(san)
 );
 Then('The Custom Game move list is unchanged', async (w) =>
   expect((await customGame(w)).moves).toEqual(

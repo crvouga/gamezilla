@@ -1,4 +1,5 @@
 import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
 import {
   CUSTOM_GAME_FOOLS_MATE,
   CUSTOM_GAME_REPETITION,
@@ -6,6 +7,7 @@ import {
 import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
 import { restartApp } from '@libs/harness/actions';
 import {
   returnToTabs,
@@ -19,9 +21,10 @@ import {
   submitUsername,
 } from '@libs/profile-harness/profile-actions';
 import { joinViaLink, leaveSpace } from '@libs/spaces-harness/space-actions';
+import { configurationTurn } from './custom-game-configuration-play';
 import {
-  CONFIGURATION_DEVICES,
   configurationLink,
+  configurationName,
   reopenConfiguration,
 } from './custom-game-configuration-world';
 
@@ -121,17 +124,6 @@ async function remoteAccountDevice(
   return device;
 }
 
-async function controller(
-  w: QuintHarnessWorld,
-  identity: string
-): Promise<string> {
-  for (const device of CONFIGURATION_DEVICES) {
-    const probe = await w.quiet.read(readCustomGameProbe, device);
-    if (probe?.connected === true && probe.myId === identity) return device;
-  }
-  throw new Error('Chess ending has no connected participant device');
-}
-
 /** Acquire the decisive chess history; the model abstracts away its moves. */
 export async function finishConfiguration(
   w: QuintHarnessWorld,
@@ -141,22 +133,24 @@ export async function finishConfiguration(
   const game = (await w.s.read(readStoredCustomGames, spaceId)).current;
   if (game === null)
     throw new Error('No active Custom Game for a chess ending');
+  const devices = {
+    white: configurationName(w, game.white.person),
+    black: configurationName(w, game.black.person),
+  };
   if (result.endsWith('on time')) {
-    if (result.startsWith('white'))
-      await w.s.apply(playCustomGameHistory, {
-        spaceId,
-        white: await controller(w, game.white.person),
-        black: 'bob',
-        moves: ['e2e4'],
-      });
-    await w.s.advanceTime(game.minutes * 60_000 + game.increment * 1000);
+    const loser = result.startsWith('white') ? 'black' : 'white';
+    await configurationTurn(w, loser, devices);
+    const now = await w.s.read(readCustomGameTime);
+    const current = (await w.s.read(readStoredCustomGames, spaceId)).current;
+    if (current === null) throw new Error('The Custom Game disappeared');
+    await w.s.advanceTime(customGameTimeLeft(current, loser, now));
     return;
   }
+  await configurationTurn(w, 'white', devices);
   const whiteMate = ['e2e4', 'f7f6', 'd2d4', 'g7g5', 'd1h5'];
   await w.s.apply(playCustomGameHistory, {
     spaceId,
-    white: await controller(w, game.white.person),
-    black: await controller(w, game.black.person),
+    ...devices,
     moves:
       result === 'draw'
         ? CUSTOM_GAME_REPETITION

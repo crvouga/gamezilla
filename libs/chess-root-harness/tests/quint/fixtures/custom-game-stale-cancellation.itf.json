@@ -115,6 +115,12 @@
           "tag": "Some",
           "value": "offering"
         },
+        "blocks": {
+          "tag": "Some",
+          "value": {
+            "#set": []
+          }
+        },
         "command": {
           "tag": "None",
           "value": {
@@ -393,6 +399,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "open"
@@ -657,6 +669,12 @@
           "value": "bob"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -931,6 +949,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "close"
@@ -1195,6 +1219,12 @@
           "value": "bob"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -1469,6 +1499,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "revoke"
@@ -1728,6 +1764,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -1997,6 +2039,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "invite"
@@ -2251,6 +2299,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -2520,6 +2574,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "claim"
@@ -2784,6 +2844,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "clock"
@@ -3038,6 +3104,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -3307,6 +3379,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "revoke"
@@ -3566,6 +3644,12 @@
           "value": "alice"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -3835,6 +3919,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "invite"
@@ -4094,6 +4184,12 @@
           "value": "carol"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []
@@ -4363,6 +4459,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "release"
@@ -4627,6 +4729,12 @@
             "#tup": []
           }
         },
+        "blocks": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
         "command": {
           "tag": "Some",
           "value": "claim"
@@ -4886,6 +4994,12 @@
           "value": "alice-other"
         },
         "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "blocks": {
           "tag": "None",
           "value": {
             "#tup": []

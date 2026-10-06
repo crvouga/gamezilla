@@ -1,0 +1,4 @@
+{
+  "summary": "Under Bun 1.4.2 --conditions=browser, @aws-sdk/client-s3 3.1146.0 loads its CommonJS Node runtime together with @aws-sdk/core/client browser exports. Constructing S3Client throws TypeError: emitWarningIfUnsupportedVersion is not a function (a Symbol), before any request reaches Mockingbird.",
+  "regressionTest": "libs/harness/tests/mockingbird-services.test.ts"
+}

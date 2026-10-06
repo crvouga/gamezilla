@@ -140,7 +140,7 @@ Per-machine extras go in the gitignored `.superset/config.local.json` or
 super.engineering's app project settings.
 
 - **Ports.** `source libs/tools/workspace/port.sh` before booting a sidecar
-  (`@pkgs/postgres-embedded`); the Run pane does it. EMQX
+  (`@pkgs/postgres-mockingbird-server`); the Run pane does it. EMQX
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bun run --filter <pkg> tc`, `bun run --filter
@@ -158,7 +158,7 @@ super.engineering's app project settings.
 
 ## Local development
 
-- **`bun run dev`** — the localhost stack: embedded Postgres, Mockingbird S3, Aedes
+- **`bun run dev`** — the localhost stack: Mockingbird Postgres, Mockingbird S3, Aedes
   MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
   the production Worker handler behind a load balancer, with the product web
   app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
@@ -172,7 +172,7 @@ super.engineering's app project settings.
 Production-likeness comes from port contract suites (mem engines vs live
 Postgres, Kv, ObjectStore, PubSub, billing / TTS / LLM stubs) and
 the live-browser runs `HARNESS_MODE=real` (`bun run --filter @apps/product
-test:max`: sidecars from `@pkgs/postgres-embedded`, `@pkgs/s3-server`,
+test:max`: sidecars from `@pkgs/postgres-mockingbird-server`, `@pkgs/s3-server`,
 `@pkgs/aedes-server`, `@pkgs/emqx-server`) and `HARNESS_MODE=stack`
 (`test:stack`). The harness migrates each composition once into
 `<package>/.cache/harness-seed-<composition>.pgmm.json` and clones it per

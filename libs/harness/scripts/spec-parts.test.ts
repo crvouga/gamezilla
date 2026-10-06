@@ -1,4 +1,9 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
+import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
+import { SPEC_GLOBS } from './spec-check-kinds';
 import type { SpecUnit } from './spec-parts';
 import {
   CHECK_WEIGHT,
@@ -191,4 +196,64 @@ describe('partOf', () => {
         expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
     }
   });
+
+  test('the chess suite keeps model traces inside the 600s task cap', () => {
+    // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
+    const count = 64;
+    const parts = chessSuiteParts(count);
+    const tracesOf = (unit: SpecUnit) =>
+      unit.path.endsWith('.qnt')
+        ? Array.from({ length: 64 }, (_, index) => index).filter(
+            (index) =>
+              index % (unit.slice?.count ?? 1) === (unit.slice?.index ?? 0)
+          )
+        : [];
+    const models = [
+      ...new Set(
+        parts
+          .flat()
+          .flatMap((unit) => (unit.path.endsWith('.qnt') ? [unit.path] : []))
+      ),
+    ];
+    expect(models.length).toBeGreaterThan(0);
+    for (const path of models) {
+      const traces = parts
+        .flat()
+        .filter((unit) => unit.path === path)
+        .flatMap(tracesOf);
+      expect(traces.sort((a, b) => a - b)).toEqual(
+        Array.from({ length: 64 }, (_, index) => index)
+      );
+    }
+    for (const part of parts) {
+      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(12);
+      for (const unit of part)
+        expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
+    }
+  });
 });
+
+/** The chess harness assignment at `count` parts, using the same spec files. */
+function chessSuiteParts(count: number): readonly (readonly SpecUnit[])[] {
+  const dir = join(import.meta.dir, '../../../specs/chess');
+  const files = [
+    ...new Set(
+      SPEC_GLOBS.flatMap((glob) => [
+        ...new Bun.Glob(glob).scanSync({ cwd: dir }),
+      ])
+    ),
+  ]
+    .filter((file) => file !== 'events.qnt')
+    .sort();
+  const units = files.flatMap((file) => {
+    const source = readFileSync(join(dir, file), 'utf8');
+    if (file.endsWith('.feature') && isSyntheticFeatureSource(source))
+      return [];
+    if (file.endsWith('.openslo.yaml') && isLiveObjectiveSource(source))
+      return [];
+    return specUnits(join('specs/chess', file), source, count);
+  });
+  return Array.from({ length: count }, (_, index) =>
+    partOf(units, { index, count })
+  );
+}

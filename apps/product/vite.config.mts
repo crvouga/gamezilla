@@ -95,11 +95,6 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
-      // Node-only harness sidecars are lazily imported (fidelity-max) and never
-      // run in the browser console; keep them out of the web graph entirely.
-      rolldownOptions: {
-        external: ['embedded-postgres', '@embedded-postgres/*'],
-      },
     },
   };
 });

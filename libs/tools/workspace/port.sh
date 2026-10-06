@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Per-workspace port block so parallel workspaces can run `dev` (and
 # their sidecars) at once. apps/product pins 5173 with strictPort, and the
-# embedded Postgres sidecar takes `POSTGRES_PORT`, so every workspace needs its
+# Mockingbird Postgres sidecar takes `POSTGRES_PORT`, so every workspace needs its
 # own block of ports rather than one.
 #
 # The workspace ID hashes to a preferred block for stability across restarts;
@@ -9,7 +9,7 @@
 # stale listener from a torn-down workspace -- we scan upward for a free block
 # instead of letting a service die on `address already in use`.
 #
-# Block layout (offsets from the block base, consumed by @pkgs/postgres-embedded
+# Block layout (offsets from the block base, consumed by @pkgs/postgres-mockingbird-server
 # via the same env vars):
 #   +0 VITE_PORT / PREVIEW_PORT     +1 POSTGRES_PORT
 #   +2, +3 stay slack: the object-store and MQTT sidecars take OS-assigned ports.
