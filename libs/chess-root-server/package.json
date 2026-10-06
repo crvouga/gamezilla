@@ -28,6 +28,7 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:"
   },
@@ -45,7 +46,6 @@
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

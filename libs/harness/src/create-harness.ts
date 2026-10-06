@@ -18,6 +18,7 @@ import {
   createInMemoryPubSub,
 } from '@pkgs/pubsub-root-shared/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
@@ -46,7 +47,11 @@ import { createHarnessLoadBalancer } from './load-balancer';
 import { compositionMigratePostgres } from './migrate-composition';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
-import type { HarnessServerNodes, Server } from './server-nodes';
+import type {
+  HarnessServerNode,
+  HarnessServerNodes,
+  Server,
+} from './server-nodes';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
@@ -106,6 +111,8 @@ export type Harness = {
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
   outboxConsumers(): OutboxConsumerRegistry;
+  /** The primary API instance's server-only mutation checks. */
+  authorizeServerMutation(): MutationAuthorize;
   spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
@@ -407,12 +414,40 @@ function createClientEnvs(
   };
 }
 
-function harnessOutboxConsumers(
-  servers: HarnessServerNodes
-): OutboxConsumerRegistry {
+function primaryServer(servers: HarnessServerNodes): HarnessServerNode {
   const node = servers.get(HARNESS_PRIMARY_SERVER_ID);
   if (node === undefined) throw new Error('primary server is missing');
-  return node.outboxConsumers;
+  return node;
+}
+
+/** The API instances: spawn, drop and read them, and the primary's ports. */
+function serverHandles(
+  servers: HarnessServerNodes,
+  net: HarnessKernel['net']
+): Pick<
+  Harness,
+  | 'spawnServer'
+  | 'dropServer'
+  | 'serverIds'
+  | 'serverEnv'
+  | 'drainServerFetch'
+  | 'outboxConsumers'
+  | 'authorizeServerMutation'
+> {
+  return {
+    async spawnServer(id) {
+      const node = await servers.spawn(id);
+      // A respawned instance must not stay marked down from a prior crash.
+      net.restart(node.id);
+      return node.app;
+    },
+    dropServer: (id) => servers.drop(id),
+    serverIds: () => servers.ids(),
+    serverEnv: (id) => servers.get(id)?.env,
+    drainServerFetch: () => servers.drainAll(),
+    outboxConsumers: () => primaryServer(servers).outboxConsumers,
+    authorizeServerMutation: () => primaryServer(servers).authorizeMutation,
+  };
 }
 
 function createHarnessHandle(kernel: HarnessKernel): Harness {
@@ -446,15 +481,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
       assert.defined(browser, `harness browser missing for ${id}`);
       return browser;
     },
-    async spawnServer(id) {
-      const node = await servers.spawn(id);
-      // A respawned instance must not stay marked down from a prior crash.
-      net.restart(node.id);
-      return node.app;
-    },
-    dropServer: (id) => servers.drop(id),
-    serverIds: () => servers.ids(),
-    serverEnv: (id) => servers.get(id)?.env,
+    ...serverHandles(servers, net),
     async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
@@ -493,13 +520,11 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     heal: (a, b) => {
       net.heal(a, b);
     },
-    drainServerFetch: () => servers.drainAll(),
     dispose: async () => {
       await disposeHarness({ kernel, liveClients, clientSql });
     },
     roomNode,
     serverSql,
-    outboxConsumers: () => harnessOutboxConsumers(servers),
     clientSql: (id) => clientSql.get(id),
   };
 }

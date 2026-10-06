@@ -131,6 +131,19 @@ export function customGamePersonSide(
   );
 }
 
+/** Whether `person` takes part in a space's current, active Custom Game. */
+export function customGameActiveParticipant(
+  games: CustomGames,
+  person: string
+): boolean {
+  const game = games.current;
+  return (
+    game !== null &&
+    game.status === 'active' &&
+    customGamePersonSide(game, person) !== null
+  );
+}
+
 export function customGameTerminal(game: CustomGame): boolean {
   return game.status === 'completed' || game.status === 'cancelled';
 }

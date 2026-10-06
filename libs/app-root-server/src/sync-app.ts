@@ -8,6 +8,7 @@ import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server/create-sync-app';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
@@ -46,6 +47,8 @@ function createRequestScopedPubSub(): PubSub {
 export async function createSyncApp(deps: {
   /** The folded feature set: schema, queries, wake topics, mutations. */
   readonly app: ComposedFeatures;
+  /** The features' server-only mutation checks (rooms they read); none by default. */
+  readonly authorizeServerMutation?: MutationAuthorize;
   readonly now: () => number;
   readonly createId: () => string;
   /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
@@ -61,6 +64,7 @@ export async function createSyncApp(deps: {
     authorizeMutation: async (ctx) => {
       await authorizeAppMutation(ctx);
       await deps.app.authorizeMutation(ctx);
+      await deps.authorizeServerMutation?.(ctx);
     },
     now: deps.now,
     createId: deps.createId,

@@ -233,6 +233,8 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.chessMultiplayerResign]: SIGN_UP_UNLOCK,
     [LIMIT.unfinishedMultiplayerGames]: {
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
+      // A participant of an active Custom Game finishes it first.
+      restricted: { titleKey: 'unlock.custom-game.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesManage]: SIGN_UP_UNLOCK,

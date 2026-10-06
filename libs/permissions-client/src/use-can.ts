@@ -2,7 +2,9 @@ import type {
   AppGrantKey,
   AppLimit,
 } from '@libs/permissions-shared/permission-catalog';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { LIMIT, PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import type { UnfinishedGames } from '@libs/permissions-shared/unfinished-games-permission';
+import { decideUnfinishedGames } from '@libs/permissions-shared/unfinished-games-permission';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared/decision';
 import { type Accessor, createMemo } from 'solid-js';
@@ -19,6 +21,20 @@ export function useLimitDecision(
   const policy = usePermissionPolicy();
   const subject = usePermissionSubject();
   return () => decideLimit(policy(), subject(), key, used());
+}
+
+/**
+ * A live decision for seeking another multiplayer game: the unfinished
+ * multiplayer game limit, then an active Custom Game the caller takes part in.
+ */
+export function useUnfinishedGamesDecision(
+  held: Accessor<UnfinishedGames>
+): Accessor<Decision> {
+  const limit = useLimitDecision(
+    LIMIT.unfinishedMultiplayerGames,
+    () => held().multiplayer
+  );
+  return () => decideUnfinishedGames(limit(), held().customGames);
 }
 
 /**

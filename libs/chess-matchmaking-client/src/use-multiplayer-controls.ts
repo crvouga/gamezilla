@@ -1,12 +1,17 @@
+import {
+  CustomGamesAttr,
+  customGameActiveParticipant,
+} from '@libs/chess-custom-game-shared/custom-game-state';
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
 import { playMultiplayerMoveMutation } from '@libs/chess-matchmaking-shared/play-multiplayer-move-mutation';
 import { resignMultiplayerMutation } from '@libs/chess-matchmaking-shared/resign-multiplayer-mutation';
 import { stopFindingChessOpponentMutation } from '@libs/chess-matchmaking-shared/stop-finding-opponent-mutation';
 import {
   useDecision,
-  useLimitDecision,
+  useUnfinishedGamesDecision,
 } from '@libs/permissions-client/use-can';
-import { LIMIT, PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import type { MutateResult } from '@pkgs/sync-engine-shared/mutations-types';
@@ -20,10 +25,13 @@ export function useMultiplayerControls(
   const client = useMutationClient();
   const createId = useCreateId();
   const beginDecision = useDecision(PERMISSION.matchmakingUse);
-  const limitDecision = useLimitDecision(
-    LIMIT.unfinishedMultiplayerGames,
-    () => (data.game()?.outcome === 'ongoing' ? 1 : 0)
-  );
+  const customGames = useSpaceRoomSelector(CustomGamesAttr.from);
+  const unfinishedDecision = useUnfinishedGamesDecision(() => ({
+    multiplayer: data.game()?.outcome === 'ongoing' ? 1 : 0,
+    customGames: customGameActiveParticipant(customGames(), data.myId())
+      ? 1
+      : 0,
+  }));
   const [denial, setDenial] = createSignal<Decision | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const [boardSync, setBoardSync] = createSignal(0);
@@ -47,7 +55,7 @@ export function useMultiplayerControls(
   };
   const begin = async () => {
     const decision = beginDecision().allowed
-      ? limitDecision()
+      ? unfinishedDecision()
       : beginDecision();
     if (!decision.allowed) {
       setDenial(decision);

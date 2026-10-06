@@ -14,6 +14,7 @@ import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties
 import { createChessServer } from '@libs/chess-root-server/feature-server';
 import type { HarnessSlice } from '@libs/harness/slices';
 import { focusChessScreen } from './chess-screen-reads';
+import { setCustomGameParticipation } from './custom-game-participation';
 import { sendMultiplayerCommand } from './multiplayer-commands';
 import {
   controlledMultiplayerCommand,
@@ -42,6 +43,7 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     controlledMultiplayerCommand,
     receiveMultiplayerMatch,
     focusChessScreen,
+    setCustomGameParticipation,
   ],
   properties: [nextPuzzleDifferent],
 };
