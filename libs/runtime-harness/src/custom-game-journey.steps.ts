@@ -190,3 +190,5 @@ Then(
     await w.journey.actAsGuest('expectOutcome', outcome);
   }
 );
+
+import '@libs/harness/define';
