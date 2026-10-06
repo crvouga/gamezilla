@@ -9,6 +9,12 @@ import { defineFeatureServer } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import {
+  multiplayerRoomGrants,
+  registerMatchRoomConsumers,
+} from './multiplayer-room-server';
+import { opponentSearchGuard } from './opponent-search-guard';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
 async function customGameRoomGrants(
@@ -33,38 +39,46 @@ async function customGameRoomGrants(
   return grants;
 }
 
-export const CHESS_SERVER = defineFeatureServer({
-  name: 'chess',
-  routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
-  roomGrants: customGameRoomGrants,
-  registerOutbox(registry) {
-    registry.register(
-      defineOutboxConsumer({
-        id: 'chess.form-opponent-match',
-        on: OpponentRequested,
-        async handler(ctx) {
-          const ids = await formChessMatches(ctx.tx, {
-            nowMs: ctx.clock.now(),
-            createId: ctx.createId,
-          });
-          await scheduleFormationRetry(ctx.tx, ctx.clock.now());
-          return { notifyUserIds: ids };
-        },
-      })
-    );
-    registry.register(
-      defineOutboxConsumer({
-        id: 'chess.settle-multiplayer-deadline',
-        on: MultiplayerDeadline,
-        async handler(ctx, payload) {
-          const ids = await settleDueGame(
-            ctx.tx,
-            payload.gameId,
-            ctx.clock.now()
-          );
-          return { notifyUserIds: ids };
-        },
-      })
-    );
-  },
-});
+export function createChessServer(rooms: RoomServicePort) {
+  return defineFeatureServer({
+    name: 'chess',
+    routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
+    roomGrants: async (ctx) => [
+      ...(await customGameRoomGrants(ctx)),
+      ...(await multiplayerRoomGrants(ctx)),
+    ],
+    authorizeMutation: opponentSearchGuard(rooms),
+    registerOutbox(registry) {
+      registerMatchRoomConsumers(registry, rooms);
+      registry.register(
+        defineOutboxConsumer({
+          id: 'chess.form-opponent-match',
+          on: OpponentRequested,
+          async handler(ctx) {
+            const ids = await formChessMatches(ctx.tx, {
+              nowMs: ctx.clock.now(),
+              createId: ctx.createId,
+            });
+            await scheduleFormationRetry(ctx.tx, ctx.clock.now());
+            return { notifyUserIds: ids };
+          },
+        })
+      );
+      registry.register(
+        defineOutboxConsumer({
+          id: 'chess.settle-multiplayer-deadline',
+          on: MultiplayerDeadline,
+          async handler(ctx, payload) {
+            const ids = await settleDueGame(
+              ctx.tx,
+              payload.gameId,
+              ctx.clock.now(),
+              ctx.createId
+            );
+            return { notifyUserIds: ids };
+          },
+        })
+      );
+    },
+  });
+}

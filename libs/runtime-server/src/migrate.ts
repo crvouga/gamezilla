@@ -9,7 +9,7 @@
  * depending on the server shell.
  *
  * Root `db:migrate` / infra run `libs/runtime-server/scripts/migrate-cli.ts`. Tests
- * and CI boot `@pkgs/postgres-embedded` first.
+ * and CI boot `@pkgs/postgres-mockingbird-server` first.
  */
 
 import { join } from 'node:path';

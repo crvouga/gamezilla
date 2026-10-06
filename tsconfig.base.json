@@ -103,6 +103,8 @@
       "@libs/permissions-shared/*": ["./libs/permissions-shared/src/*"],
       "@libs/profile-client/*": ["./libs/profile-client/src/*"],
       "@libs/profile-harness/*": ["./libs/profile-harness/src/*"],
+      "@libs/moderation-client/*": ["./libs/moderation-client/src/*"],
+      "@libs/moderation-shared/*": ["./libs/moderation-shared/src/*"],
       "@libs/profile-shared/*": ["./libs/profile-shared/src/*"],
       "@libs/pubsub-server/*": ["./libs/pubsub-server/src/*"],
       "@libs/pubsub-shared/*": ["./libs/pubsub-shared/src/*"],
@@ -283,7 +285,6 @@
       "@pkgs/object-store-opfs-shared/*": [
         "./pkgs/object-store-opfs-shared/src/*"
       ],
-      "@pkgs/object-store-s3-server/*": ["./pkgs/object-store-s3-server/src/*"],
       "@pkgs/object-store-s3-shared/*": ["./pkgs/object-store-s3-shared/src/*"],
       "@pkgs/object-store-root-shared/*": [
         "./pkgs/object-store-root-shared/src/*"
@@ -316,12 +317,10 @@
       "@pkgs/outbox-shared/*": ["./pkgs/outbox-shared/src/*"],
       "@pkgs/permissions-shared/*": ["./pkgs/permissions-shared/src/*"],
       "@pkgs/polyfill-shared/*": ["./pkgs/polyfill-shared/src/*"],
-      "@pkgs/postgres-embedded-server/*": [
-        "./pkgs/postgres-embedded-server/src/*"
+      "@pkgs/postgres-mockingbird-server/*": [
+        "./pkgs/postgres-mockingbird-server/src/*"
       ],
-      "@pkgs/postgres-embedded-shared/*": [
-        "./pkgs/postgres-embedded-shared/src/*"
-      ],
+      "@pkgs/postgres-local-shared/*": ["./pkgs/postgres-local-shared/src/*"],
       "@pkgs/postgres-sqlite-compat-shared/*": [
         "./pkgs/postgres-sqlite-compat-shared/src/*"
       ],
@@ -443,6 +442,7 @@
       "@pkgs/vite-workspace-resolver-server/*": [
         "./pkgs/vite-workspace-resolver-server/src/*"
       ],
+      "@pkgs/moderation-shared/*": ["./pkgs/moderation-shared/src/*"],
       "@pkgs/word-filter-shared/*": ["./pkgs/word-filter-shared/src/*"],
       "@pkgs/observability-runtime-shared/*": [
         "./pkgs/observability-runtime-shared/src/*"

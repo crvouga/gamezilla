@@ -8,21 +8,27 @@ import { expect } from 'bun:test';
 import { returnToTabs } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
-import { accountIdOf } from '@libs/harness/identity';
+import { accountIdOf, signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { remember } from '@libs/harness/spec-world';
 import { openInbox } from '@libs/notifications-harness/notifications-actions';
 import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness/profile-actions';
+import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import {
   peopleSearchOpen,
   searchNeedsAccount,
 } from '@libs/search-harness/search-ui-reads';
-import { joinFromPrompt } from '@libs/spaces-harness/space-actions';
+import {
+  closeSpaceScreen,
+  joinFromPrompt,
+} from '@libs/spaces-harness/space-actions';
+import { activeSpaceVisible } from '@libs/spaces-harness/spaces-ui-reads';
 import {
   acceptFriendRequest,
   cancelFriendRequest,
@@ -61,7 +67,9 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from './person-actions';
-import { setupFriendRequest } from './setup-friend-request';
+import { rememberedUsername, usernameKey } from './remembered-username';
+import { setupBlock } from './setup-block';
+import { prepareNamedFriend, setupFriendRequest } from './setup-friend-request';
 import { setupFriendsPair } from './setup-friends-pair';
 
 const SECOND_MS = 1_000;
@@ -99,7 +107,9 @@ Given(
     sameActor(to, whose, 'has sent … from profile');
     await w.s.apply(openPersonFromSearch, from, to);
     await w.s.apply(sendRequestFromProfile, from, to);
-    await w.s.until((surf) => friendRequestCardVisible(surf, to, from));
+    await w.s.until((surf) =>
+      friendRequestCardVisible(surf, to, rememberedUsername(w, from))
+    );
   }
 );
 
@@ -187,6 +197,7 @@ Given(
   async (w, actor: Actor, username: string) => {
     await w.s.apply(openProfileEdit, actor);
     await w.s.apply(setUsername, actor, username);
+    remember(w, usernameKey(actor), username);
   }
 );
 
@@ -215,6 +226,18 @@ Then(
   async (w, actor: Actor, person: string, seconds: number) => {
     await w.s.apply(openFriendsList, actor);
     await w.s.until((surf) => friendRowVisible(surf, actor, person), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
+  "{actor}'s friends list shows {actor} under a stand-in name within {int} seconds",
+  async (w, actor: Actor, friend: Actor, seconds: number) => {
+    const standIn = await w.s.read(standInNameOf, friend);
+    if (standIn === null) throw new Error(`${friend} has no profile yet`);
+    await w.s.apply(openFriendsList, actor);
+    await w.s.until((surf) => friendRowVisible(surf, actor, standIn), {
       maxMs: seconds * SECOND_MS,
     });
   }
@@ -276,26 +299,40 @@ When('{actor} opens their inbox', async (w, actor: Actor) => {
 Then(
   "{actor}'s inbox shows a friend request from {actor} within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from), {
-      maxMs: seconds * SECOND_MS,
-    });
+    await w.s.until(
+      (surf) =>
+        friendRequestCardVisible(surf, actor, rememberedUsername(w, from)),
+      {
+        maxMs: seconds * SECOND_MS,
+      }
+    );
   }
 );
 
 Then(
   "{actor}'s inbox does not show a friend request from {actor}",
   async (w, actor: Actor, from: Actor) => {
-    expect(await w.s.read(friendRequestCardVisible, actor, from)).toBe(false);
+    expect(
+      await w.s.read(
+        friendRequestCardVisible,
+        actor,
+        rememberedUsername(w, from)
+      )
+    ).toBe(false);
   }
 );
 
 Then(
   "{actor}'s inbox stops showing the friend request from {actor} within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from), {
-      pred: (visible) => !visible,
-      maxMs: seconds * SECOND_MS,
-    });
+    await w.s.until(
+      (surf) =>
+        friendRequestCardVisible(surf, actor, rememberedUsername(w, from)),
+      {
+        pred: (visible) => !visible,
+        maxMs: seconds * SECOND_MS,
+      }
+    );
   }
 );
 
@@ -424,6 +461,11 @@ async function block(
   actor: Actor,
   other: Actor
 ): Promise<void> {
+  // Someone looking at a space steps out of it (staying in it) to search.
+  await w.s.apply(focusActor, actor);
+  if (await w.s.read(activeSpaceVisible, actor))
+    await w.s.apply(closeSpaceScreen, actor);
+  await w.s.apply(backToTabs, actor);
   await w.s.apply(openPersonFromSearch, actor, other);
   await w.s.apply(blockPerson, actor, other);
 }
@@ -433,7 +475,11 @@ When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
 });
 
 Given('{actor} has blocked {actor}', async (w, actor: Actor, other: Actor) => {
-  await block(w, actor, other);
+  // Only a named account can be found and blocked; someone the scenario has
+  // not met yet becomes one first.
+  if ((await w.s.read(signedInAccountOf, other)) === null)
+    await prepareNamedFriend(w.s, other);
+  await w.s.apply(setupBlock, actor, other);
 });
 
 When(

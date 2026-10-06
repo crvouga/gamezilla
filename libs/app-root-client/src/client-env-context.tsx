@@ -2,9 +2,11 @@
 /**
  * `ClientEnvProvider` — root of the product client tree. Projects the env's
  * nondeterminism ports (clock / timers / ids / server HTTP / mutation hold)
+ * and its moderation
  * into the `@pkgs/*` Solid contexts so every screen reads them by hook.
  */
 
+import { ModerationProvider } from '@libs/moderation-client/moderation-context';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { HttpClientProvider } from '@pkgs/http-client-client/solid';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
@@ -40,7 +42,9 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
                 <MutationSuccessHoldProvider
                   successHoldMs={env.mutationSuccessHoldMs}
                 >
-                  {props.children}
+                  <ModerationProvider rules={env.moderation}>
+                    {props.children}
+                  </ModerationProvider>
                 </MutationSuccessHoldProvider>
               </IdProvider>
             </ExternalUrlProvider>

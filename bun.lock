@@ -91,6 +91,7 @@
       "dependencies": {
         "@apps/server": "workspace:*",
         "@crvouga/mockingbird-service-oauth": "catalog:",
+        "@crvouga/mockingbird-service-openai": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/app-config-shared": "workspace:*",
         "@libs/app-root-client": "workspace:*",
@@ -125,7 +126,7 @@
         "@pkgs/object-store-opfs-client": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/polyfill-shared": "workspace:*",
-        "@pkgs/postgres-embedded-shared": "workspace:*",
+        "@pkgs/postgres-local-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@pkgs/s3-server": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
@@ -173,7 +174,7 @@
         "@pkgs/openslo-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
         "@pkgs/os-shared": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@pkgs/quint-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
@@ -207,6 +208,7 @@
         "@libs/billing-shared": "workspace:*",
         "@libs/db-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/room-app-server": "workspace:*",
         "@libs/room-app-shared": "workspace:*",
         "@libs/runtime-server": "workspace:*",
@@ -243,8 +245,8 @@
         "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/os-server": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
-        "@pkgs/postgres-embedded-shared": "workspace:*",
+        "@pkgs/postgres-local-shared": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/room-adapter-bun-server": "workspace:*",
         "@pkgs/room-root-server": "workspace:*",
         "@pkgs/secrets-config-server": "workspace:*",
@@ -402,6 +404,8 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
@@ -482,6 +486,7 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/db-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/pubsub-server": "workspace:*",
         "@libs/pubsub-shared": "workspace:*",
@@ -529,6 +534,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@opentelemetry/api": "catalog:",
         "@pkgs/assert-root-shared": "workspace:*",
@@ -570,6 +576,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -623,6 +630,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/auth-root-shared": "workspace:*",
@@ -636,7 +644,6 @@
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
-        "@pkgs/word-filter-shared": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -789,6 +796,8 @@
         "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -882,15 +891,24 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
+        "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
+        "@libs/chess-root-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
+        "@libs/spaces-client": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
+        "@pkgs/kv-root-client": "workspace:*",
+        "@pkgs/message-shared": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
+        "@pkgs/room-root-client": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
         "@pkgs/sounds-client": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
@@ -914,6 +932,11 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
         "@libs/harness": "workspace:*",
+        "@libs/permissions-shared": "workspace:*",
+        "@libs/profile-shared": "workspace:*",
+        "@libs/spaces-harness": "workspace:*",
+        "@libs/spaces-shared": "workspace:*",
+        "@libs/test-ids-shared": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
@@ -938,6 +961,7 @@
         "@libs/friends-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-shared": "workspace:*",
+        "@libs/spaces-shared": "workspace:*",
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/glicko2-shared": "workspace:*",
@@ -946,6 +970,7 @@
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/message-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
@@ -1138,6 +1163,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/chess-custom-game-client": "workspace:*",
+        "@libs/chess-matchmaking-client": "workspace:*",
         "@libs/chess-puzzle-client": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
@@ -1160,12 +1186,10 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/account-privacy-harness": "workspace:*",
-        "@libs/app-root-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/chess-custom-game-harness": "workspace:*",
         "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-feature-shared": "workspace:*",
-        "@libs/chess-matchmaking-client": "workspace:*",
         "@libs/chess-matchmaking-harness": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
@@ -1176,6 +1200,7 @@
         "@libs/spaces-server": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
+        "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/message-shared": "workspace:*",
@@ -1189,6 +1214,7 @@
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-client": "workspace:*",
         "@libs/friends-harness": "workspace:*",
+        "@libs/friends-shared": "workspace:*",
         "@libs/notifications-harness": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-harness": "workspace:*",
@@ -1197,7 +1223,6 @@
         "@libs/spaces-client": "workspace:*",
         "@pkgs/alloy-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
@@ -1229,6 +1254,8 @@
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "hono": "catalog:",
       },
@@ -1240,13 +1267,12 @@
         "@pkgs/db-schema-postgres-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-postgres-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-server": "workspace:*",
-        "@pkgs/sync-engine-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1262,6 +1288,7 @@
         "@pkgs/message-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@pkgs/room-root-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
       },
       "devDependencies": {
@@ -1379,6 +1406,8 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/friends-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/notifications-client": "workspace:*",
         "@libs/notifications-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
@@ -1425,6 +1454,8 @@
         "@pkgs/harness-root-shared": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-client": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
       },
       "devDependencies": {
         "@libs/account-privacy-harness": "workspace:*",
@@ -1436,8 +1467,6 @@
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
-        "@pkgs/sync-engine-client": "workspace:*",
-        "@pkgs/sync-engine-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1535,6 +1564,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@crvouga/mockingbird-service-oauth": "catalog:",
+        "@crvouga/mockingbird-service-openai": "catalog:",
+        "@crvouga/mockingbird-service-s3": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/app-config-shared": "workspace:*",
         "@libs/app-root-client": "workspace:*",
@@ -1544,6 +1575,7 @@
         "@libs/db-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/a11y-shared": "workspace:*",
@@ -1568,17 +1600,18 @@
         "@pkgs/kv-postgres-shared": "workspace:*",
         "@pkgs/kv-root-shared": "workspace:*",
         "@pkgs/kv-web-client": "workspace:*",
-        "@pkgs/llm-root-server": "workspace:*",
+        "@pkgs/llm-openai-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/object-store-s3-server": "workspace:*",
         "@pkgs/observability-root-server": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
-        "@pkgs/postgres-embedded-shared": "workspace:*",
+        "@pkgs/postgres-local-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@pkgs/quint-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
@@ -1615,7 +1648,6 @@
         "@pkgs/dmn-shared": "workspace:*",
         "@pkgs/gherkin-server": "workspace:*",
         "@pkgs/harness-report-shared": "workspace:*",
-        "@pkgs/object-store-s3-server": "workspace:*",
         "@pkgs/openslo-server": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -1661,12 +1693,45 @@
         "wrangler": "catalog:",
       },
     },
+    "libs/moderation-client": {
+      "name": "@libs/moderation-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/moderation-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/moderation-shared": {
+      "name": "@libs/moderation-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/moderation-shared": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
+        "@pkgs/word-filter-shared": "workspace:*",
+        "unique-names-generator": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/notifications-client": {
       "name": "@libs/notifications-client",
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/notifications-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
@@ -1840,6 +1905,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/billing-root-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
@@ -1867,11 +1933,14 @@
         "@libs/auth-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/profile-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/clock-client": "workspace:*",
+        "@pkgs/i18n-shared": "workspace:*",
         "@pkgs/secure-storage-root-client": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
@@ -1896,6 +1965,7 @@
       "dependencies": {
         "@libs/auth-shared": "workspace:*",
         "@libs/harness": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
         "@libs/profile-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
@@ -1933,13 +2003,13 @@
         "@dicebear/core": "catalog:",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
-        "@pkgs/word-filter-shared": "workspace:*",
         "unique-names-generator": "catalog:",
         "zod": "catalog:",
       },
@@ -2021,7 +2091,6 @@
         "@libs/account-privacy-client": "workspace:*",
         "@libs/app-root-client": "workspace:*",
         "@libs/billing-client": "workspace:*",
-        "@libs/chess-matchmaking-client": "workspace:*",
         "@libs/chess-puzzle-client": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/friends-client": "workspace:*",
@@ -2035,6 +2104,7 @@
       "devDependencies": {
         "@libs/app-root-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/runtime-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/auth-inhouse-client": "workspace:*",
@@ -2104,6 +2174,7 @@
         "@libs/db-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
         "@libs/friends-server": "workspace:*",
+        "@libs/friends-shared": "workspace:*",
         "@libs/infra-shared": "workspace:*",
         "@libs/notifications-server": "workspace:*",
         "@libs/runtime-shared": "workspace:*",
@@ -2137,6 +2208,7 @@
       "devDependencies": {
         "@pkgs/database-url-policy-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2271,6 +2343,8 @@
         "@libs/auth-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -2304,10 +2378,15 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@lingui/core": "catalog:",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/keyword-shared": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
+        "@pkgs/secure-storage-root-client": "workspace:*",
+        "@pkgs/secure-storage-root-shared": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2352,6 +2431,7 @@
         "@libs/permissions-server": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
+        "@pkgs/message-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/room-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
@@ -2367,6 +2447,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
@@ -2425,6 +2506,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -2781,6 +2864,7 @@
         "@pkgs/billing-paddle-shared": "workspace:*",
       },
       "devDependencies": {
+        "@crvouga/mockingbird-service-paddle": "catalog:",
         "@pkgs/billing-root-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
@@ -3146,7 +3230,7 @@
         "@pkgs/db-indexes-postgres-shared": "workspace:*",
         "@pkgs/db-indexes-root-harness": "workspace:*",
         "@pkgs/db-indexes-root-shared": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -3261,8 +3345,8 @@
         "@pkgs/db-schema-postgres-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
-        "@pkgs/postgres-embedded-shared": "workspace:*",
+        "@pkgs/postgres-local-shared": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -4016,7 +4100,7 @@
         "@pkgs/harness-root-shared": "workspace:*",
         "@pkgs/matchmaking-root-shared": "workspace:*",
         "@pkgs/matchmaking-sql-server": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-postgres-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
@@ -4115,6 +4199,20 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/moderation-shared": {
+      "name": "@pkgs/moderation-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "obscenity": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -4521,14 +4619,9 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/postgres-embedded-server": {
-      "name": "@pkgs/postgres-embedded-server",
+    "pkgs/postgres-local-shared": {
+      "name": "@pkgs/postgres-local-shared",
       "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/os-server": "workspace:*",
-        "@pkgs/postgres-embedded-shared": "workspace:*",
-        "embedded-postgres": "catalog:",
-      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
@@ -4536,9 +4629,16 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/postgres-embedded-shared": {
-      "name": "@pkgs/postgres-embedded-shared",
+    "pkgs/postgres-mockingbird-server": {
+      "name": "@pkgs/postgres-mockingbird-server",
       "version": "0.0.0",
+      "dependencies": {
+        "@crvouga/mockingbird-service-postgres": "catalog:",
+        "@pkgs/object-store-node-fs-server": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/os-server": "workspace:*",
+        "@pkgs/postgres-local-shared": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
@@ -5150,7 +5250,7 @@
         "pg": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -5433,7 +5533,7 @@
         "@pkgs/db-schema-postgres-shared": "workspace:*",
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
-        "@pkgs/postgres-embedded-server": "workspace:*",
+        "@pkgs/postgres-mockingbird-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
@@ -5903,18 +6003,9 @@
     },
   },
   "trustedDependencies": [
-    "@embedded-postgres/darwin-x64",
-    "@embedded-postgres/darwin-arm64",
-    "@embedded-postgres/linux-x64",
-    "@embedded-postgres/linux-arm",
-    "@embedded-postgres/linux-ia32",
     "better-sqlite3",
-    "embedded-postgres",
     "ffmpeg-static",
     "onnxruntime-node",
-    "@embedded-postgres/linux-arm64",
-    "@embedded-postgres/linux-ppc64",
-    "@embedded-postgres/windows-x64",
   ],
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
@@ -5931,6 +6022,7 @@
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
     "serialize-javascript": "7.0.5",
+    "seroval": "1.6.8",
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
     "smol-toml": "^1.8.0",
@@ -5947,7 +6039,9 @@
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
     "@crvouga/mockingbird-service-oauth": "^1.11.0",
-    "@crvouga/mockingbird-service-postgres": "^0.3.0",
+    "@crvouga/mockingbird-service-openai": "^0.1.0",
+    "@crvouga/mockingbird-service-paddle": "^1.3.0",
+    "@crvouga/mockingbird-service-postgres": "^2.3.0",
     "@crvouga/mockingbird-service-s3": "^1.8.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
     "@crvouga/mockingbird-service-stripe": "^1.13.0",
@@ -6005,7 +6099,6 @@
     "buffer": "^6.0.3",
     "chess.js": "^1.4.0",
     "csv-parse": "^7.0.3",
-    "embedded-postgres": "18.4.0-beta.17",
     "esbuild": "^0.28.2",
     "eslint-plugin-solid": "^0.17.1",
     "fast-check": "^4.10.2",
@@ -6018,6 +6111,7 @@
     "make-plural": "^8.1.0",
     "mqtt": "^5.16.0",
     "node-sql-parser": "^5.4.0",
+    "obscenity": "^0.4.6",
     "oxlint": "^1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
     "pg": "^8.23.1",
@@ -6376,7 +6470,11 @@
 
     "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.11.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-G5EJjgDjFilrGUbTuqnapcpAiAFVu9YsWy/Vr1EzXvw5B9FnNfT10k1TCHCflRea/lEaTJiYNnPCwhIXE9RAFA=="],
 
-    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@0.3.0", "", {}, "sha512-7r2j5w+zDSB3SxrcFHmTqw8yELd6rRL7P0AZuNGfu0imp+IUQzMPDDWBm96GgeuRFkALpHAYpz+UhE2uot2/Ag=="],
+    "@crvouga/mockingbird-service-openai": ["@crvouga/mockingbird-service-openai@0.1.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "@noble/ciphers": "2.4.0", "@noble/hashes": "2.4.0", "hono": "4.11.9" }, "bin": { "mockingbird-openai": "dist/cli.js" } }, "sha512-LVsNTOqXALJDj5ywRPSQ1zsHeDWmL5TX+HVKzaxt6GvidoHICMgimgs9UDj5BXzVmxvA+tFzWmZ8jaJaVpH0uQ=="],
+
+    "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@1.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-ufNUdKQOoWmSzOy+d2AS6DTiZg6222FudMCye1lYIdjEAVldDg+nMNPz9gy6I0DYH+cD9k668svTrqR43km9dA=="],
+
+    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@2.3.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-MLEZVD0AZAhJbJ3ZDKSY3jtTPik3n13fb/U3j1ca4My8EdWY6lXqpqE6OH3DgO9LzqffUtIeJHhExiLsftZagQ=="],
 
     "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@1.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-x7gwYCVbsD33afAWaQmV7/nSgwDFhJxnaGehqwPIUe8xd/21Er3qvpjHiiIqxroBpKLJBGITlX+jaxq8C/F10g=="],
 
@@ -6461,22 +6559,6 @@
     "@dicebear/thumbs": ["@dicebear/thumbs@9.4.3", "", { "peerDependencies": { "@dicebear/core": "^9.0.0" } }, "sha512-qS58CJl7YlWcO40omsSFdUQr08Nk4EzX6EwbYUJRFQVnzyOt52MoQOeCxEcH10o8mu8PCNKX3ZfeioV/yVn+NA=="],
 
     "@dicebear/toon-head": ["@dicebear/toon-head@9.4.3", "", { "peerDependencies": { "@dicebear/core": "^9.0.0" } }, "sha512-NcXfUWk0pjMsh2xe4L8PLNQowdPsC5FCIJ2OO1CCebAaV40f3O6xsRcvgHtrore3V1433B6ENRxwPMgOkwWnDw=="],
-
-    "@embedded-postgres/darwin-arm64": ["@embedded-postgres/darwin-arm64@18.4.0-beta.17", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Kg1ZMNFzkVIJs3g4V2UYEc5X005km9rGinxFBH8R1sOU2Rblvz4pt2Uf93Pu8Rk273Ue9HIdrbMPpgUqwjUi0Q=="],
-
-    "@embedded-postgres/darwin-x64": ["@embedded-postgres/darwin-x64@18.4.0-beta.17", "", { "os": "darwin", "cpu": "x64" }, "sha512-4tShSYWMxUQTSWoQAdLnHISvRj6L9gTch9/31ASJPg6wgyN64LDRwMcOINEWybM7N0ropJ3nTYhFT3UX1bKY5Q=="],
-
-    "@embedded-postgres/linux-arm": ["@embedded-postgres/linux-arm@18.4.0-beta.17", "", { "os": "linux", "cpu": "arm" }, "sha512-VuD1nFasN7yG57zpJcp6MBXM0nXqGfb8GBQV+f1FGJ17+VMNYLIFLhFp99UlY4xnWG74FQC4NPYw8eCwSTJ6qg=="],
-
-    "@embedded-postgres/linux-arm64": ["@embedded-postgres/linux-arm64@18.4.0-beta.17", "", { "os": "linux", "cpu": "arm64" }, "sha512-TIzjtGnDGSD/LbdW0OWCEcbI+YVT0WKSfSr20TCkkP4UR8zeKe+QCZbO0/CM4hS9EWyZ4cDebjRvpRc3iMi6wg=="],
-
-    "@embedded-postgres/linux-ia32": ["@embedded-postgres/linux-ia32@18.4.0-beta.17", "", { "os": "linux", "cpu": "ia32" }, "sha512-aSRe4kknqRHuedtpo/rDIaqa8r9VrKIgW9p5FkJyIFqUUkIkxRqND1dg8xrDRREcSUXRJKS0x+j/AuxflgYIfg=="],
-
-    "@embedded-postgres/linux-ppc64": ["@embedded-postgres/linux-ppc64@18.4.0-beta.17", "", { "os": "linux", "cpu": "ppc64" }, "sha512-zO2RRUFdKRPplrdhmglG39VXJZzDXu3P3ONAG1sFPhGh89vbk24Btd5P7uOmQLIpWehzL0s+UqUWoeE/ZUKvgw=="],
-
-    "@embedded-postgres/linux-x64": ["@embedded-postgres/linux-x64@18.4.0-beta.17", "", { "os": "linux", "cpu": "x64" }, "sha512-jVw/MdDtIX/vICH/DKIe6/mHpiCggdx6QVyza4vt/NbcZFsL0KhwglF6F1Koqx3gRBZ9XtN+vi63EsqSyqOSxA=="],
-
-    "@embedded-postgres/windows-x64": ["@embedded-postgres/windows-x64@18.4.0-beta.17", "", { "os": "win32", "cpu": "x64" }, "sha512-AwRerliA4IGWyW5jWBvHt5vidVUSB0QQW9Tt2y7ScnmifnCb/awfxZr4BkBSTv+gNt8Djcddqs+xSF5Z6/CkTg=="],
 
     "@emnapi/runtime": ["@emnapi/runtime@1.11.3", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA=="],
 
@@ -6738,6 +6820,10 @@
 
     "@libs/infra-shared": ["@libs/infra-shared@workspace:libs/infra-shared"],
 
+    "@libs/moderation-client": ["@libs/moderation-client@workspace:libs/moderation-client"],
+
+    "@libs/moderation-shared": ["@libs/moderation-shared@workspace:libs/moderation-shared"],
+
     "@libs/notifications-client": ["@libs/notifications-client@workspace:libs/notifications-client"],
 
     "@libs/notifications-harness": ["@libs/notifications-harness@workspace:libs/notifications-harness"],
@@ -6831,6 +6917,8 @@
     "@modelcontextprotocol/server": ["@modelcontextprotocol/server@2.0.0", "", { "dependencies": { "@modelcontextprotocol/core": "2.0.0", "zod": "^4.2.0" } }, "sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw=="],
 
     "@napi-rs/lzma-linux-x64-gnu": ["@napi-rs/lzma-linux-x64-gnu@1.5.1", "", { "os": "linux", "cpu": "x64" }, "sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ=="],
+
+    "@noble/ciphers": ["@noble/ciphers@2.4.0", "", {}, "sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw=="],
 
     "@noble/hashes": ["@noble/hashes@2.4.0", "", {}, "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA=="],
 
@@ -7232,6 +7320,8 @@
 
     "@pkgs/message-shared": ["@pkgs/message-shared@workspace:pkgs/message-shared"],
 
+    "@pkgs/moderation-shared": ["@pkgs/moderation-shared@workspace:pkgs/moderation-shared"],
+
     "@pkgs/ndjson-client": ["@pkgs/ndjson-client@workspace:pkgs/ndjson-client"],
 
     "@pkgs/ndjson-harness": ["@pkgs/ndjson-harness@workspace:pkgs/ndjson-harness"],
@@ -7290,9 +7380,9 @@
 
     "@pkgs/polyfill-shared": ["@pkgs/polyfill-shared@workspace:pkgs/polyfill-shared"],
 
-    "@pkgs/postgres-embedded-server": ["@pkgs/postgres-embedded-server@workspace:pkgs/postgres-embedded-server"],
+    "@pkgs/postgres-local-shared": ["@pkgs/postgres-local-shared@workspace:pkgs/postgres-local-shared"],
 
-    "@pkgs/postgres-embedded-shared": ["@pkgs/postgres-embedded-shared@workspace:pkgs/postgres-embedded-shared"],
+    "@pkgs/postgres-mockingbird-server": ["@pkgs/postgres-mockingbird-server@workspace:pkgs/postgres-mockingbird-server"],
 
     "@pkgs/postgres-sqlite-compat-shared": ["@pkgs/postgres-sqlite-compat-shared@workspace:pkgs/postgres-sqlite-compat-shared"],
 
@@ -7850,8 +7940,6 @@
 
     "async": ["async@3.2.6", "", {}, "sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA=="],
 
-    "async-exit-hook": ["async-exit-hook@2.0.1", "", {}, "sha512-NW2cX8m1Q7KPA7a5M2ULQeZ2wR5qI5PAbw5L0UOMxdioVk9PMZ0h1TmyZEkPYrCvYjDlFICusOu1dlEKAAeXBw=="],
-
     "async-function": ["async-function@1.0.0", "", {}, "sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA=="],
 
     "at-least-node": ["at-least-node@1.0.0", "", {}, "sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg=="],
@@ -8043,8 +8131,6 @@
     "ejs": ["ejs@3.1.10", "", { "dependencies": { "jake": "^10.8.5" }, "bin": { "ejs": "bin/cli.js" } }, "sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA=="],
 
     "electron-to-chromium": ["electron-to-chromium@1.5.444", "", {}, "sha512-5ss/uJfoDYDHT0lfJzT6FbcskIzROIOPf0BbbFkGcvDzoJU7i//9GDrwwIHQVmIsrAGiF3ihpADBRIsrEFt1rQ=="],
-
-    "embedded-postgres": ["embedded-postgres@18.4.0-beta.17", "", { "dependencies": { "async-exit-hook": "^2.0.1", "pg": "^8.7.3" }, "optionalDependencies": { "@embedded-postgres/darwin-arm64": "^18.4.0-beta.17", "@embedded-postgres/darwin-x64": "^18.4.0-beta.17", "@embedded-postgres/linux-arm": "^18.4.0-beta.17", "@embedded-postgres/linux-arm64": "^18.4.0-beta.17", "@embedded-postgres/linux-ia32": "^18.4.0-beta.17", "@embedded-postgres/linux-ppc64": "^18.4.0-beta.17", "@embedded-postgres/linux-x64": "^18.4.0-beta.17", "@embedded-postgres/windows-x64": "^18.4.0-beta.17" } }, "sha512-ORT/A1YiO6ecpRHpyIIBgyCR/8ASqqYZuFw11aX9PkqTX3FUM5+9sNOXY1mGIixxsm2TWSIA5WghJEk7A5ZxVw=="],
 
     "emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
 
@@ -8498,6 +8584,8 @@
 
     "object.assign": ["object.assign@4.1.7", "", { "dependencies": { "call-bind": "^1.0.8", "call-bound": "^1.0.3", "define-properties": "^1.2.1", "es-object-atoms": "^1.0.0", "has-symbols": "^1.1.0", "object-keys": "^1.1.1" } }, "sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw=="],
 
+    "obscenity": ["obscenity@0.4.6", "", {}, "sha512-pHk7kNN7j3L3zGhhGnwxjvXIGsPpLrcZl2r58fqWh/V/rH6b/dafscj2sMmAY+A/9/wPsocLmimgGk2DKeKsFQ=="],
+
     "once": ["once@1.4.0", "", { "dependencies": { "wrappy": "1" } }, "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w=="],
 
     "onetime": ["onetime@7.0.0", "", { "dependencies": { "mimic-function": "^5.0.0" } }, "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ=="],
@@ -8698,7 +8786,7 @@
 
     "serialize-javascript": ["serialize-javascript@7.0.5", "", {}, "sha512-F4LcB0UqUl1zErq+1nYEEzSHJnIwb3AF2XWB94b+afhrekOUijwooAYqFyRbjYkm2PAKBabx6oYv/xDxNi8IBw=="],
 
-    "seroval": ["seroval@1.5.6", "", {}, "sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA=="],
+    "seroval": ["seroval@1.6.8", "", {}, "sha512-HlSgSAkTk4EqHcje1ptJjfZi1YDv5KbhVJ/d3P7T/nAXua2VmDu+AKDX5VTdFfZf48nDkWB2TKYt0DrCSa+3wg=="],
 
     "seroval-plugins": ["seroval-plugins@1.5.6", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ=="],
 
@@ -9013,6 +9101,10 @@
     "@bufbuild/protoplugin/typescript": ["typescript@5.4.5", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ=="],
 
     "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
+
+    "@crvouga/mockingbird-service-openai/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
+
+    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
 
     "@crvouga/mockingbird-service-s3/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
 

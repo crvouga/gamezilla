@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 
 // regression: s3-ignores-injected-http
+// regression: s3-bulk-delete-browser-request-order
 test('bulk delete uses at most 1,000 keys per request and refuses namespace escapes before deleting', async () => {
   const requests: string[] = [];
   const store = createS3ObjectStore({
@@ -22,8 +23,15 @@ test('bulk delete uses at most 1,000 keys per request and refuses namespace esca
   });
   await store.deleteMany(Array.from({ length: 1_001 }, (_, n) => `old/${n}`));
   expect(requests).toHaveLength(2);
-  expect(requests[0]?.match(/<Key>/g)).toHaveLength(1_000);
-  expect(requests[1]).toContain('<Key>reports/old/1000</Key>');
+  const batches = requests
+    .map((body) =>
+      [...body.matchAll(/<Key>([^<]*)<\/Key>/g)].map((match) => match[1])
+    )
+    .sort((left, right) => right.length - left.length);
+  expect(batches[0]).toEqual(
+    Array.from({ length: 1_000 }, (_, n) => `reports/old/${n}`)
+  );
+  expect(batches[1]).toEqual(['reports/old/1000']);
   expect(() => store.deleteMany(['valid', '../escape'])).toThrow();
   expect(requests).toHaveLength(2);
 });

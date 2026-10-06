@@ -7,7 +7,10 @@ import type { RoomCommand } from '@pkgs/room-root-shared/types';
 import type { GameDefinition } from './game';
 import { SelectGame } from './games';
 import { AnnounceRenamed } from './space-log-messages';
-import { ApplySpaceMembership } from './space-service-command';
+import {
+  ApplySpaceMembership,
+  ApplySpaceRestrictions,
+} from './space-service-command';
 
 /** Grants the spaces gateway decides; games contribute their own grants. */
 export const SPACE_ROOM_GRANT_KEYS = [
@@ -45,7 +48,10 @@ export function createSpaceRoomAuthorizer(
   return (_identity, _topic, command, grants) => {
     const msg = isMessageEnvelope(command.payload) ? command.payload : null;
     if (msg === null) return Promise.resolve({ ok: true });
-    if (msg.type === ApplySpaceMembership.type)
+    if (
+      msg.type === ApplySpaceMembership.type ||
+      msg.type === ApplySpaceRestrictions.type
+    )
       return Promise.resolve(
         grants.includes(ROOM_SERVICE_GRANT)
           ? { ok: true }

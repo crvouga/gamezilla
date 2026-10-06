@@ -19,6 +19,10 @@ import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember } from '@libs/harness/spec-world';
 import {
+  nameEveryoneSeesOf,
+  standInNameOf,
+} from '@libs/profile-harness/profile-ui-reads';
+import {
   closeSpaceMembers,
   createSpace,
   endSpace,
@@ -35,6 +39,11 @@ import {
   returnToOwnSpace,
   startSpace,
 } from '@libs/spaces-harness/space-actions';
+import { spaceNamedAfterShown } from '@libs/spaces-harness/space-name-reads';
+import {
+  startAllowingSpaceName,
+  stopAllowingSpaceName,
+} from '@libs/spaces-harness/space-name-rule-actions';
 import { spacePresenceDiagnostics } from '@libs/spaces-harness/space-screen-read';
 import {
   activeSpaceVisible,
@@ -48,6 +57,7 @@ import {
   readSpacePresenceCount,
   renameOffered,
   spaceEndedShown,
+  spaceNameRefusalShown,
   spaceNotFoundShown,
   spacesNeedConnectionShown,
   spaceTitleShown,
@@ -362,6 +372,10 @@ Then('{actor} is not offered to join', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ rename
 
+When('{actor} clears the space name', async (w, actor: Actor) => {
+  await w.s.apply(renameSpace, actor, '');
+});
+
 When(
   '{actor} renames the space to {string}',
   async (w, actor: Actor, title: string) => {
@@ -389,6 +403,77 @@ Then(
     await w.s.apply(openSpacesTab, actor);
     await w.s.until((surf) => lobbyCardText(surf, actor, host), {
       pred: (text) => text?.includes(title) === true,
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Given(
+  '{actor} has renamed the space to {string}',
+  async (w, actor: Actor, title: string) => {
+    await w.s.apply(renameSpace, actor, title);
+    if (await w.s.read(spaceNameRefusalShown, actor)) {
+      throw new Error(`${actor} could not name the space "${title}"`);
+    }
+  }
+);
+
+Then(
+  '{actor} is told that space name is not allowed',
+  async (w, actor: Actor) => {
+    await w.s.apply(focusActor, actor);
+    await w.s.until((surf) => spaceNameRefusalShown(surf, actor));
+  }
+);
+
+Then(
+  '{actor} still sees the space is called {string}',
+  async (w, actor: Actor, title: string) => {
+    await w.s.apply(focusActor, actor);
+    expect(await w.s.read(spaceTitleShown, actor)).toBe(title);
+  }
+);
+
+When(
+  'the team stops allowing the space name {string}',
+  async (w, name: string) => {
+    await w.s.apply(stopAllowingSpaceName, name);
+  }
+);
+
+Given(
+  'the team has stopped allowing the space name {string}',
+  async (w, name: string) => {
+    await w.s.apply(stopAllowingSpaceName, name);
+  }
+);
+
+When(
+  'the team starts allowing the space name {string} again',
+  async (w, name: string) => {
+    await w.s.apply(startAllowingSpaceName, name);
+  }
+);
+
+Then(
+  '{actor} sees the space is named after {actor} within {int} seconds',
+  async (w, actor: Actor, host: Actor, seconds: number) => {
+    const hostName = await w.s.read(nameEveryoneSeesOf, host);
+    if (hostName === null) throw new Error(`${host} has no name yet`);
+    await w.s.apply(focusActor, actor);
+    await w.s.until((surf) => spaceNamedAfterShown(surf, actor, hostName), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
+  "{actor} sees the space is named after {actor}'s stand-in name within {int} seconds",
+  async (w, actor: Actor, host: Actor, seconds: number) => {
+    const standIn = await w.s.read(standInNameOf, host);
+    if (standIn === null) throw new Error(`${host} has no profile yet`);
+    await w.s.apply(focusActor, actor);
+    await w.s.until((surf) => spaceNamedAfterShown(surf, actor, standIn), {
       maxMs: seconds * SECOND_MS,
     });
   }

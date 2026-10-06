@@ -6,12 +6,25 @@ import {
   customGameStartable,
   customGameTimeLeft,
 } from '@libs/chess-custom-game-shared/custom-game-state';
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { usernameText } from '@libs/moderation-shared/display';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
+
+/** Moderated name for display, or `null` while it is unknown. */
+function shownName(
+  moderation: AppModeration,
+  username: string | null,
+  profileId: string
+): string | null {
+  const text = usernameText(moderation, username, profileId);
+  return text.length > 0 ? text : null;
+}
 
 function participantName(
   game: CustomGame,
@@ -32,12 +45,33 @@ function participantName(
   }
 }
 
+/** A completed game's result, with how it was won. */
+function outcomeDescription(outcome: CustomGame['outcome']): string {
+  switch (outcome) {
+    case 'white wins by resignation':
+      return t`White wins by resignation.`;
+    case 'black wins by resignation':
+      return t`Black wins by resignation.`;
+    case 'white wins by checkmate':
+      return t`White wins by checkmate.`;
+    case 'black wins by checkmate':
+      return t`Black wins by checkmate.`;
+    case 'white wins on time':
+      return t`White wins on time.`;
+    case 'black wins on time':
+      return t`Black wins on time.`;
+    case 'white wins because black stayed away':
+      return t`White wins because Black stayed away.`;
+    case 'black wins because white stayed away':
+      return t`Black wins because White stayed away.`;
+    default:
+      return t`Game drawn.`;
+  }
+}
+
 function gameStateDescription(game: CustomGame): string {
   if (game.status === 'cancelled') return t`Game cancelled.`;
-  if (game.status === 'completed') {
-    if (game.outcome === 'draw') return t`Game drawn.`;
-    return game.outcome.startsWith('white') ? t`White wins.` : t`Black wins.`;
-  }
+  if (game.status === 'completed') return outcomeDescription(game.outcome);
   if (game.status === 'active')
     return game.turn === 'white' ? t`White to move.` : t`Black to move.`;
   return customGameStartable(game)
@@ -88,19 +122,24 @@ export function CustomGameClock(props: {
 export function CustomGameStatus(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
-  const whiteName = useProfileColumn(
-    () => props.model.current()?.white.person ?? '',
-    'username'
-  );
-  const blackName = useProfileColumn(
-    () => props.model.current()?.black.person ?? '',
-    'username'
-  );
+  const whiteId = () => props.model.current()?.white.person ?? '';
+  const blackId = () => props.model.current()?.black.person ?? '';
+  const whiteName = useProfileColumn(whiteId, 'username');
+  const blackName = useProfileColumn(blackId, 'username');
+  const moderation = useModeration();
   const description = createMemo(() => {
     const game = props.model.current();
     if (game === null) return t`No Custom Game.`;
-    const white = participantName(game, 'white', whiteName());
-    const black = participantName(game, 'black', blackName());
+    const white = participantName(
+      game,
+      'white',
+      shownName(moderation(), whiteName(), whiteId())
+    );
+    const black = participantName(
+      game,
+      'black',
+      shownName(moderation(), blackName(), blackId())
+    );
     const state = gameStateDescription(game);
     return t`White: ${white}. Black: ${black}. ${state}`;
   });

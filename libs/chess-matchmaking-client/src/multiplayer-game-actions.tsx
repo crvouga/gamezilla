@@ -101,12 +101,14 @@ export function MultiplayerGameActions(props: {
   readonly looking: boolean;
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
 }): JSX.Element {
+  const playing = () =>
+    props.game.white_id === props.myId || props.game.black_id === props.myId;
   return (
     <div
       class="box flex-row flex-wrap gap-2"
       data-component="MultiplayerGameActions"
     >
-      <Show when={props.game.outcome === 'ongoing'}>
+      <Show when={playing() && props.game.outcome === 'ongoing'}>
         <Show
           when={bothHaveMoved(props.game)}
           fallback={
@@ -129,7 +131,9 @@ export function MultiplayerGameActions(props: {
           controls={props.controls}
         />
       </Show>
-      <Show when={props.game.outcome !== 'ongoing' && !props.looking}>
+      <Show
+        when={playing() && props.game.outcome !== 'ongoing' && !props.looking}
+      >
         <Show when={isFinished(props.game.outcome)}>
           <RematchActions
             game={props.game}

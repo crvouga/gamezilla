@@ -16,7 +16,7 @@ export function createRoomService(
       throw new Error('Room service binding is missing');
     const url = new URL('https://room-service/room-service');
     url.searchParams.set('topic', topic);
-    url.searchParams.set('module', 'space');
+    url.searchParams.set('module', topic.split(':')[0]!);
     const response = await namespace.get(namespace.idFromName(topic)).fetch(
       new Request(url, {
         method: 'POST',

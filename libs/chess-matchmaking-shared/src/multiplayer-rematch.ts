@@ -76,7 +76,8 @@ async function requireBothFree(
 async function startRematch(
   tx: SqlTx,
   game: MultiplayerGame,
-  nowMs: number
+  nowMs: number,
+  createId: () => string
 ): Promise<MultiplayerGame> {
   await createMultiplayerGame(tx, {
     id: `rematch:${game.id}`,
@@ -85,6 +86,7 @@ async function startRematch(
     timeControl: game.time_control ?? '',
     rematchOf: game.id,
     nowMs,
+    createId,
   });
   return { ...game, rematch_offer_by: '' };
 }
@@ -105,7 +107,7 @@ async function decideRematch(
     answer === 'accept' ||
     game.rematch_offer_by === otherPerson(game, actorId)
   )
-    return startRematch(ctx.tx, game, nowMs);
+    return startRematch(ctx.tx, game, nowMs, ctx.env.createId);
   return { ...game, rematch_offer_by: actorId };
 }
 
@@ -121,5 +123,5 @@ export async function answerRematch(
   const repository = new MultiplayerGameRepository(ctx.tx);
   const game = await repository.owned(args.gameId, ctx.env.actorId, nowMs);
   const next = await decideRematch(ctx, game, args.answer, nowMs);
-  await repository.save(game, next, nowMs, true);
+  await repository.save(game, next, nowMs, true, ctx.env);
 }

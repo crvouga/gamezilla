@@ -1,7 +1,11 @@
 import { resolveReplayUsername } from '@libs/auth-shared/replay-username';
+import { contentRulesIn } from '@libs/moderation-shared/mutation-content';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
-import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { applyPreferredUsernameIfAvailable } from './apply-preferred-username';
@@ -37,17 +41,22 @@ function avatarConfigJson(value: z.infer<typeof avatarConfigArgs>): string {
 
 async function seedProfile(
   tx: MutationDb,
-  profileId: string,
-  now: string,
+  env: MutationEnv,
   avatarConfig: string
 ): Promise<void> {
+  const profileId = env.actorId;
+  const now = env.now().toISOString();
+  const rules = contentRulesIn(env);
   let username = '';
   for (
     let attempt = 0;
     attempt < PROFILE_SEED_USERNAME_ATTEMPTS;
     attempt += 1
   ) {
-    const candidate = generateRandomUsername(`${profileId}:seed:${attempt}`);
+    const candidate = generateRandomUsername(
+      rules,
+      `${profileId}:seed:${attempt}`
+    );
     const taken = await tx.query(sql<{ one: number }>`
       SELECT 1 AS one
       FROM profile
@@ -90,17 +99,21 @@ export const ensureProfileMutation = defineMutation({
   async run({ tx, env }, { avatarConfig, username }) {
     await seedProfile(
       tx,
-      env.actorId,
-      env.now().toISOString(),
+      env,
       avatarConfig === undefined
         ? serializeDefaultAvatarConfig(env.actorId)
         : avatarConfigJson(avatarConfig)
     );
-    await assignUniqueUsernameIfEmpty(tx, env.actorId);
+    await assignUniqueUsernameIfEmpty(tx, env.actorId, contentRulesIn(env));
     const preferred =
       env.serverNow === undefined
         ? username
         : await resolveReplayUsername(tx, env.actorId, username);
-    await applyPreferredUsernameIfAvailable(tx, env.actorId, preferred);
+    await applyPreferredUsernameIfAvailable(
+      tx,
+      env.actorId,
+      preferred,
+      contentRulesIn(env)
+    );
   },
 });

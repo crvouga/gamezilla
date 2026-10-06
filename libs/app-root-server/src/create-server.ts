@@ -241,11 +241,17 @@ async function buildDesiredClientConfig(args: {
   };
 }
 
-function createSyncAppMount(env: ServerEnv, app: ComposedFeatures) {
+function createSyncAppMount(
+  env: ServerEnv,
+  app: ComposedFeatures,
+  servers: ComposedFeatureServers
+) {
   return createSyncApp({
     app,
+    authorizeServerMutation: servers.authorizeMutation,
     now: () => env.clock.now(),
     createId: env.createId,
+    moderation: env.moderation,
     ...(env.protection === 'production' ? {} : { strictQueryLimits: true }),
   });
 }
@@ -490,7 +496,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     }),
     createTtsAppForServer(env),
     createLlmAppForServer(env),
-    createSyncAppMount(env, args.app),
+    createSyncAppMount(env, args.app, args.servers),
   ]);
 
   registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);

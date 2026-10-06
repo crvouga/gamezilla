@@ -17,9 +17,18 @@ export const CUSTOM_MODEL_OBSERVER = 'charlie';
 
 export async function prepareCustomGameModel(
   w: QuintHarnessWorld,
-  args: { timed: boolean; whiteBot?: boolean; blackBot?: boolean }
+  args: {
+    timed: boolean;
+    whiteBot?: boolean;
+    blackBot?: boolean;
+    watchers?: readonly string[];
+  }
 ): Promise<void> {
-  await customSpace(w, 'alice', ['bob', CUSTOM_MODEL_OBSERVER]);
+  await customSpace(w, 'alice', [
+    'bob',
+    ...(args.watchers ?? []),
+    CUSTOM_MODEL_OBSERVER,
+  ]);
   await customFact(w, 'alice', { operation: 'create' });
   if (args.whiteBot)
     await customFact(w, 'alice', { operation: 'bot', side: 'white' });
@@ -78,9 +87,12 @@ export async function repeatCustomModelMove(
     });
 }
 
-export async function readCustomModelShown(w: QuintHarnessWorld) {
+export async function readCustomModelShown(
+  w: QuintHarnessWorld,
+  people: readonly string[] = CUSTOM_MODEL_PEOPLE
+) {
   const shown = new Map<string, [string, number, string]>();
-  for (const actor of CUSTOM_MODEL_PEOPLE) {
+  for (const actor of people) {
     const game = await customModelGame(w, actor);
     shown.set(actor, [game.status, game.moves.length, game.outcome]);
   }

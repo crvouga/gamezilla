@@ -1,3 +1,5 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { displayNotification } from '@libs/notifications-client/notification-display';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -148,8 +150,12 @@ export function FriendRequestDecisionModal(
   props: FriendRequestDecisionModalProps
 ): JSX.Element {
   const router = useRouter();
+  const moderation = useModeration();
   const profile = createMemo(() =>
     profileFromFriendRequestNotification(props.interaction)
+  );
+  const title = createMemo(
+    () => displayNotification(moderation(), props.interaction).title
   );
 
   const onViewProfile = () => {
@@ -181,7 +187,7 @@ export function FriendRequestDecisionModal(
           <Show when={profile().userId.length > 0}>
             <FriendProfileAvatar profile={profile()} size={64} />
           </Show>
-          <p class="text textBodyBold text-center">{props.interaction.title}</p>
+          <p class="text textBodyBold text-center">{title()}</p>
         </div>
       </ModalBody>
       <ModalFooter>

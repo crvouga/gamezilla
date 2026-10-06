@@ -4,6 +4,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { Chess } from 'chess.js';
 import type { MultiplayerGame } from './game-state';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
+import { publishMatchGame } from './publish-match-game';
 import { formatMultiplayerRating } from './multiplayer-rating';
 import { MultiplayerRatingRepository } from './rating-repository';
 import { startingMs, timeControlOf } from './time-control';
@@ -15,6 +16,7 @@ export type NewMultiplayerGame = {
   readonly timeControl: string;
   readonly rematchOf: string | null;
   readonly nowMs: number;
+  readonly createId?: () => string;
 };
 
 async function shownRating(
@@ -82,4 +84,12 @@ export async function createMultiplayerGame(
     });
   }
   await scheduleMultiplayerDeadline(tx, game, input.nowMs);
+  if (input.createId !== undefined)
+    await publishMatchGame(
+      {
+        tx,
+        env: { now: () => new Date(input.nowMs), createId: input.createId },
+      },
+      game
+    );
 }

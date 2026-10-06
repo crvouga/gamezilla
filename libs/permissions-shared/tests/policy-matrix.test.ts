@@ -68,6 +68,7 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.matchmakingView, 'deny', 'allow', 'allow'],
   [PERMISSION.matchmakingStop, 'deny', 'allow', 'allow'],
   [PERMISSION.matchmakingChangeRange, 'deny', 'allow', 'allow'],
+  [PERMISSION.chessMultiplayerWatch, 'deny', 'deny', 'deny'],
   [PERMISSION.chessMultiplayerPlay, 'deny', 'allow', 'allow'],
   [PERMISSION.chessMultiplayerResign, 'deny', 'allow', 'allow'],
   [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow'],

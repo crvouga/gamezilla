@@ -6,24 +6,28 @@ import {
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
-  multiplayerText,
-  multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
+  leavePuzzleToChessMenu,
+  reopenPuzzleFromChessMenu,
+  showChessStatsScreen,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import {
   readActivePuzzleId,
   readPuzzleDisplayFen,
   readStatsElo,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
+  focusChessScreen,
+  readChessToldText,
+} from '@libs/chess-root-harness/chess-screen-reads';
+import {
   blockPerson,
   openPersonFromSearch,
 } from '@libs/friends-harness/person-actions';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { Given, Then } from '@libs/harness/define';
+import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
@@ -62,8 +66,9 @@ Then(
 Then(
   '{actor} is not told {actor} blocked him',
   async (w, actor: Actor, blocker: Actor) => {
-    await w.s.apply(openMultiplayerChess, actor);
-    const text = await w.s.read(multiplayerText, actor, 'multiplayer-waiting');
+    await w.s.apply(focusChessScreen, actor);
+    const text = await w.s.read(readChessToldText, actor);
+    expect(text).not.toBeNull();
     expect(text).not.toContain('block');
     expect(text).not.toContain(blocker);
   }
@@ -118,6 +123,10 @@ Given(
     ]);
   }
 );
+When('{actor} returns to the puzzle in the space', async (w, actor: Actor) => {
+  await w.s.apply(leavePuzzleToChessMenu, actor);
+  await w.s.apply(reopenPuzzleFromChessMenu, actor);
+});
 Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
   expect([

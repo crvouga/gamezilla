@@ -5,6 +5,7 @@ import {
   multiplayerFixture,
   multiplayerTransaction,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { acceptChessMatch } from '@libs/chess-matchmaking-shared/match-handoff';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
 import { scenarioAction } from '@libs/harness/actor-ui';
@@ -34,7 +35,10 @@ export const controlledMultiplayerCommand = scenarioAction({
     const mutation = (await app.mutations())[command.name];
     if (mutation === undefined)
       throw new Error(`Unknown command ${command.name}`);
-    const parsed = await mutation.args['~standard'].validate(command.args);
+    const parsed = await mutation.args['~standard'].validate({
+      spaceId: (await multiplayerSpaceId(s, actor)) ?? 'no-space',
+      ...command.args,
+    });
     if (parsed.issues !== undefined)
       throw new Error('Invalid multiplayer command');
     await multiplayerFixture(s, actor, async (tx, serverEnv) => {
@@ -53,6 +57,7 @@ export const controlledMultiplayerCommand = scenarioAction({
       try {
         await authorizeAppMutation(context);
         await app.authorizeMutation(context);
+        await s.harness.authorizeServerMutation()(context);
         await mutation.run(context, parsed.value);
       } catch (error) {
         if (!(error instanceof MutationError)) throw error;
@@ -74,6 +79,7 @@ export const receiveMultiplayerMatch = scenarioAction<
       await acceptChessMatch(tx, fact, {
         nowMs: s.harness.clock.now(),
         tieBreak: () => firstIsWhite,
+        createId: s.harness.server.createId,
       });
       return fact.participants.map((p) => p.ownerId);
     }),

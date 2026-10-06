@@ -1,4 +1,4 @@
-import { BLOCKED_TERMS } from './blocklist';
+import { ALLOWED_WORDS, BLOCKED_TERMS } from './blocklist';
 
 /** Homoglyph / leetspeak substitutions applied before matching. */
 const SUBSTITUTIONS: Readonly<Record<string, string>> = {
@@ -40,9 +40,33 @@ function termPattern(term: string): RegExp {
 
 const BLOCKED_PATTERNS = BLOCKED_TERMS.map(termPattern);
 
-/** True when the text contains a blocked term, disguised or not. */
+/** Each allowed word, as matching sees it (any letter run or longer). */
+const ALLOWED_PATTERN =
+  ALLOWED_WORDS.length === 0
+    ? null
+    : new RegExp(
+        ALLOWED_WORDS.map((w) => termPattern(w).source).join('|'),
+        'g'
+      );
+
+/** True when `raw` holds an allowed word such as `Scunthorpe`. */
+export function containsAllowedWord(raw: string): boolean {
+  if (ALLOWED_PATTERN === null) return false;
+  ALLOWED_PATTERN.lastIndex = 0;
+  return ALLOWED_PATTERN.test(normalizeForMatch(raw));
+}
+
+/**
+ * True when the text contains a blocked term, disguised or not, outside the
+ * allowed words (which are cut out first, so a term spanning one is not
+ * pieced together across the cut).
+ */
 export function containsBlockedTerm(raw: string): boolean {
   const normalized = normalizeForMatch(raw);
   if (normalized.length === 0) return false;
-  return BLOCKED_PATTERNS.some((pattern) => pattern.test(normalized));
+  const pieces =
+    ALLOWED_PATTERN === null ? [normalized] : normalized.split(ALLOWED_PATTERN);
+  return pieces.some((piece) =>
+    BLOCKED_PATTERNS.some((pattern) => pattern.test(piece))
+  );
 }

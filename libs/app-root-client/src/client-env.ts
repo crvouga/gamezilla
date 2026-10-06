@@ -8,6 +8,7 @@
 
 import type { DevMenuPort } from '@libs/app-root-shared/ports';
 import type { OpenSqlClient, ServerHttp } from '@libs/feature-shared/sync';
+import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { ClipboardPort } from '@pkgs/device-shared/clipboard';
@@ -29,7 +30,8 @@ import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
  * factory module still carries context helpers.
  */
 export type CreateRoomTransportArgs = {
-  readonly spaceId: string;
+  readonly topic: string;
+  readonly module: string;
   readonly apiUrl: string;
   /** Member actor id (`accountId ?? deviceId`) — room identity + roster. */
   readonly identity: string;
@@ -105,4 +107,10 @@ export type ClientEnv = {
    * omits `successHoldMs`. Wall and harness: 900 (ClientEnvProvider projects this).
    */
   readonly mutationSuccessHoldMs: number;
+  /**
+   * The moderation this device runs with: the team's rules as they ship.
+   * Every name on screen, every form and every write is judged by it, and
+   * a change to the rules shows at once, with or without a connection.
+   */
+  readonly moderation: ModerationRules;
 };

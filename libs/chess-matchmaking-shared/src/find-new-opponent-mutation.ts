@@ -9,6 +9,7 @@ export const findNewChessOpponentMutation = defineMutation({
   requiresOnline: true,
   pendingUx: 'pending',
   args: z.object({
+    spaceId: z.string().min(1),
     requestId: z.string().min(1),
     gameId: z.string().min(1),
   }),
@@ -20,6 +21,7 @@ export const findNewChessOpponentMutation = defineMutation({
     await beginChessSearch(ctx, {
       requestId: args.requestId,
       timeControl: game.time_control ?? '',
+      spaceId: args.spaceId,
     });
   },
 });

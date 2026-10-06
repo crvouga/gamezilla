@@ -211,6 +211,7 @@
     "libs/user-search-shared/src",
     "libs/app-config-shared/src",
     "libs/app-config-client/src",
+    "libs/moderation-client/src",
     "libs/permissions-client/src",
     "libs/permissions-shared/src",
     "libs/permissions-harness/src",

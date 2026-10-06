@@ -61,4 +61,6 @@ export type PickerProps<T extends PickerValue = string> = {
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
+  /** DOM `data-*` identifiers for the trigger button. */
+  triggerDataSet?: ComponentDataSet | undefined;
 };

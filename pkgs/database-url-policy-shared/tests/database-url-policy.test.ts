@@ -100,7 +100,7 @@ describe('assertNonProdDatabaseUrl', () => {
     ).rejects.toThrow(/matches a production/);
   });
 
-  test('allows loopback (@pkgs/postgres-embedded)', async () => {
+  test('allows loopback (@pkgs/postgres-mockingbird-server)', async () => {
     await expect(
       assertNonProdDatabaseUrl(LOOPBACK_URL, {}, { productionUrls: [PROD_URL] })
     ).resolves.toBeUndefined();

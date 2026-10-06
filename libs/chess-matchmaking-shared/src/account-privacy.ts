@@ -2,6 +2,7 @@ import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repositor
 import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 import { MultiplayerGameRepository } from './game-repository';
+import { publishMatchGame } from './publish-match-game';
 import type { MultiplayerGame } from './game-state';
 import { bothHaveMoved, endMultiplayerGame } from './game-state';
 import { settleMultiplayerClock } from './multiplayer-clock';
@@ -40,7 +41,8 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
       stored,
       game.outcome === 'ongoing' ? withdrawnGame(game, ctx.env.actorId) : game,
       nowMs,
-      ctx.env.serverNow !== undefined
+      ctx.env.serverNow !== undefined,
+      ctx.env
     );
   }
   if (ctx.env.serverNow !== undefined) {
@@ -68,11 +70,17 @@ export async function eraseMultiplayer(ctx: MutationCtx): Promise<void> {
     black_id: string;
   }>`SELECT id, white_id, black_id
     FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId}`);
-  for (const game of games)
+  const repository = new MultiplayerGameRepository(ctx.tx);
+  for (const game of games) {
     await ctx.tx.run(sql`UPDATE chess_multiplayer_games
     SET white_id = ${game.white_id === ctx.env.actorId ? `deleted:${game.id}:white` : game.white_id},
       black_id = ${game.black_id === ctx.env.actorId ? `deleted:${game.id}:black` : game.black_id}
     WHERE id = ${game.id}`);
+    if (ctx.env.serverNow !== undefined) {
+      const updated = await repository.byId(game.id);
+      if (updated) await publishMatchGame(ctx, updated);
+    }
+  }
   await ctx.tx.run(
     sql`UPDATE chess_multiplayer_players SET owner_id = ${null}, game_id = ${null} WHERE owner_id = ${ctx.env.actorId}`
   );

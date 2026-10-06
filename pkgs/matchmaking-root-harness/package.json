@@ -23,7 +23,7 @@
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/matchmaking-root-shared": "workspace:*",
     "@pkgs/matchmaking-sql-server": "workspace:*",
-    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/postgres-mockingbird-server": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
     "@pkgs/sql-client-postgres-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",

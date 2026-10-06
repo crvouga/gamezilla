@@ -42,8 +42,8 @@
     "unblockUser"
   ],
   "queries": [
-    "chessMultiplayerGame",
     "chessMultiplayerSession",
+    "chessMultiplayerSpace",
     "chessPuzzleById",
     "chessPuzzleFeedSettings",
     "chessPuzzleInteractions",

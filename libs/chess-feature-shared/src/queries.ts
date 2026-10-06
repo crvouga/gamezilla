@@ -1,5 +1,5 @@
-import { chessMultiplayerGame } from '@libs/chess-matchmaking-shared/chess-multiplayer-game-query';
 import { chessMultiplayerSession } from '@libs/chess-matchmaking-shared/chess-multiplayer-session-query';
+import { chessMultiplayerSpace } from '@libs/chess-matchmaking-shared/chess-multiplayer-space-query';
 import { chessPuzzleById } from '@libs/chess-puzzle-shared/chess-puzzle-by-id-query';
 import { chessPuzzleFeedSettings } from '@libs/chess-puzzle-shared/chess-puzzle-feed-settings-query';
 import { chessPuzzleInteractions } from '@libs/chess-puzzle-shared/chess-puzzle-interactions-query';
@@ -9,7 +9,7 @@ import { chessPuzzleRatingEvents } from '@libs/chess-puzzle-shared/chess-puzzle-
 
 export const CHESS_QUERIES = [
   chessMultiplayerSession,
-  chessMultiplayerGame,
+  chessMultiplayerSpace,
   chessPuzzleProfile,
   chessPuzzleFeedSettings,
   chessPuzzleInteractions,

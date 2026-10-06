@@ -3,30 +3,30 @@ Feature: Chess opponents respect the person's other choices
   When a person finds a chess opponent, they want their account, blocks and
   puzzles respected, so multiplayer chess follows those existing choices.
 
-  Rule: Blocking in either direction stops two people from being matched
+  Rule: Blocking in either direction prevents a new chess pairing
 
-    Scenario: People who have not blocked each other can be matched
-      Given Alice and Bob are looking for 5+0 chess opponents
+    Scenario: People who have not blocked each other can be paired
+      Given Alice and Bob are looking for chess opponents
       When a matchmaking match is formed for Alice and Bob
       Then Alice and Bob have the same multiplayer game
 
-    Scenario: Blocking before they are matched keeps both people seeking other chess opponents
-      Given Alice and Bob are looking for 5+0 chess opponents
+    Scenario: Blocking before pairing keeps both people seeking other opponents
+      Given Alice and Bob are looking for chess opponents
       And Alice blocked Bob
       When matchmaking pairs people up
       Then Alice and Bob are still looking for other chess opponents
       And Bob is not told Alice blocked him
 
-    Scenario: A block after they were matched does not erase the game
+    Scenario: A block after pairing does not erase the game
       Given Alice blocked Bob after their multiplayer game was formed
       When Alice opens multiplayer chess
       Then Alice keeps her multiplayer game with Bob
 
   Rule: Paid access does not govern ordinary multiplayer chess
 
-    Scenario: A Plus member can find a chess opponent
+    Scenario: A Plus member can find an opponent
       Given Alice is a Plus member with a connection
-      When Alice finds a chess opponent for 5+0
+      When Alice finds a chess opponent
       Then Alice is looking for a chess opponent
 
     Scenario: Losing paid access does not remove an opponent search
@@ -36,14 +36,14 @@ Feature: Chess opponents respect the person's other choices
 
   Rule: Multiplayer chess is separate from puzzles in a space
 
-    Scenario: Looking for a chess opponent keeps the space's puzzle as it was
+    Scenario: Returning after looking for an opponent keeps the space's puzzle as it was
       Given Alice and Bob are playing a puzzle in a space
-      When Alice finds a chess opponent for 5+0
+      When Alice finds a chess opponent
+      And Alice returns to the puzzle in the space
       Then Bob keeps the same puzzle in the space
-      And Alice is looking for a chess opponent
 
     Scenario: A multiplayer result does not move a puzzle rating
-      Given Alice's puzzle rating has settled at 1700
-      And Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+      Given Alice has a puzzle rating of 1700 and an unfinished multiplayer game
       When Alice resigns multiplayer chess
       Then Alice's puzzle rating is still 1700
+      And Alice's multiplayer rating is still 1500

@@ -18,6 +18,7 @@ import {
 } from '@pkgs/sync-engine-shared/managed-columns';
 import { mutationOriginLink } from '@pkgs/sync-engine-shared/mutation-observability';
 import type {
+  ContentRules,
   MutationAuthorize,
   MutationEnv,
   MutationFailure,
@@ -64,6 +65,11 @@ export type ReplayMutationDeps = {
   readonly createId: CreateId;
   /** Host guard run before every mutation body (server replay only). */
   readonly authorize?: MutationAuthorize;
+  /**
+   * The app's content rules as they stood at a write's time (its
+   * `created_at`), handed to the mutation body as `env.contentRules`.
+   */
+  readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
 export type ReplayOutcome =
@@ -151,6 +157,9 @@ async function applyReplayMutationInTxn(args: {
     ...(deps.auth.authenticatedAtMs === undefined
       ? {}
       : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
+    ...(deps.contentRulesAt === undefined
+      ? {}
+      : { contentRules: deps.contentRulesAt(Date.parse(m.createdAt)) }),
   };
 
   const wrapped = wrapMutationDb(txc, env);

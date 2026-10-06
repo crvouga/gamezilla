@@ -22,6 +22,7 @@ const arbArgs: fc.Arbitrary<SpaceRoomWebSocketUrlArgs> = fc.record({
         `${scheme}://${host}${port === null ? '' : `:${port}`}${path}`
     ),
   topic: fc.string({ maxLength: 40 }),
+  module: fc.constantFrom('space', 'chess-match'),
   sessionToken: arbOptionalToken,
   installId: arbOptionalToken,
   clientId: arbOptionalToken,
@@ -53,7 +54,7 @@ describe('apiUrlToRoomWebSocketUrl', () => {
       fc.property(arbArgs, (args) => {
         const params = new URL(apiUrlToRoomWebSocketUrl(args)).searchParams;
         expect(params.get('topic')).toBe(args.topic);
-        expect(params.get('module')).toBe('space');
+        expect(params.get('module')).toBe(args.module);
         expect(params.get('token')).toBe(
           present(args.sessionToken) ? args.sessionToken : null
         );

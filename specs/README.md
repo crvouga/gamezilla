@@ -1114,6 +1114,7 @@ terms and import only their `events.qnt`:
 ```text
 Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
 Identity ──► Billing, Spaces, Friends, Chess, App (account deletion, personal data, retention, recently proven account)
+Identity ──► Friends (no longer allowed, stand-in name, stop allowing), Spaces (username, rename themselves, stand-in name, stop allowing, start allowing)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
@@ -1122,7 +1123,7 @@ App      ──► Developer tools (address, version of the app, keyboard, contr
 Developer tools ──► App (the testing tool)
 Friends, Spaces ──► Developer tools (friend, space)
 Matchmaking ──► Chess (a complete matchmaking match)
-Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess)
+Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1131,11 +1132,11 @@ Published language:
 
 | Context | Published terms | `events.qnt` |
 | --- | --- | --- |
-| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account, no longer allowed, stand-in name, stop allowing, start allowing | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
 | Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
-| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result | — |
+| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

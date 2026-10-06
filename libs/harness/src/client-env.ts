@@ -40,6 +40,7 @@ import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import type { HarnessSql } from './sql-types';
+import type { HarnessTeamRules } from './team-rules';
 
 export type HarnessClientEnvDeps = {
   readonly session: Session;
@@ -52,6 +53,7 @@ export type HarnessClientEnvDeps = {
   readonly loadBalancer: HarnessLoadBalancer;
   readonly idps: HarnessIdps;
   readonly billing: HarnessBillingProviders | null;
+  readonly teamRules: HarnessTeamRules;
   readonly appBuilds: HarnessAppBuilds;
   readonly accountReadyDelays: HarnessAccountReadyDelays;
 };
@@ -193,6 +195,8 @@ export function makeHarnessClientEnv(
     openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,
+    // The app ships the team's rules: every device has them, online or not.
+    moderation: deps.teamRules.moderation,
   };
   setOriginAvailability(env, server.availability);
   return { env, browser };

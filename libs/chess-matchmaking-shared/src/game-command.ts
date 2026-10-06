@@ -6,8 +6,10 @@ import { z } from 'zod';
 import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { requireMultiplayerParticipant } from './multiplayer-space-access';
 
 export const gameCommandArgs = z.object({
+  spaceId: z.string().min(1),
   gameId: z.string().min(1),
   requestId: z.string().min(1),
 });
@@ -31,6 +33,7 @@ export async function runGameCommand(
   decide: GameDecision,
   permission: AppGrantKey = PERMISSION.chessMultiplayerPlay
 ): Promise<void> {
+  await requireMultiplayerParticipant(ctx, args);
   await requireInMutation(ctx, permission);
   const serverNow = ctx.env.serverNow;
   if (serverNow === undefined) return;
@@ -51,7 +54,8 @@ export async function runGameCommand(
     stored,
     decide(game, ctx.env.actorId, nowMs),
     nowMs,
-    true
+    true,
+    ctx.env
   );
   await repository.remember(
     ctx.env.actorId,

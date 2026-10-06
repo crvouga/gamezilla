@@ -8,6 +8,7 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import type { MultiplayerGame } from './game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from './game-state';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
+import { publishMatchGame } from './publish-match-game';
 import { rateFinishedGame } from './rate-finished-game';
 
 const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
@@ -84,7 +85,8 @@ export class MultiplayerGameRepository {
     before: MultiplayerGame,
     after: MultiplayerGame,
     nowMs: number,
-    server: boolean
+    server: boolean,
+    publish?: { readonly createId: () => string }
   ): Promise<MultiplayerGame> {
     const ended = before.outcome === 'ongoing' && after.outcome !== 'ongoing';
     const game =
@@ -95,6 +97,14 @@ export class MultiplayerGameRepository {
       draw_offer_by = ${game.draw_offer_by}, rematch_offer_by = ${game.rematch_offer_by},
       white_rating_diff = ${game.white_rating_diff}, black_rating_diff = ${game.black_rating_diff},
       updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
+    if (server && publish !== undefined)
+      await publishMatchGame(
+        {
+          tx: this.tx,
+          env: { now: () => new Date(nowMs), createId: publish.createId },
+        },
+        game
+      );
     if (!server) return game;
     if (ended)
       for (const ownerId of [game.white_id, game.black_id])

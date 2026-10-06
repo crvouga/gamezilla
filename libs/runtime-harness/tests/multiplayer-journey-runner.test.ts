@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 // regression: multiplayer-journey-unbound
+// regression: chess-match-room-initial-delivery
 test('the journey runner binds and completes all three literal multiplayer journeys', () => {
   const result = spawnSync(
     'bun',

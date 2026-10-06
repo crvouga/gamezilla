@@ -10,6 +10,7 @@ import {
 import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
+import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
@@ -33,6 +34,7 @@ function chessSystem(chess: HarnessSlice) {
   const spaces = spacesHarnessSlice({
     games: [chessGameShared],
     clients: [chessGameClient],
+    blocks: FRIENDS_BLOCK_RELATION,
   });
   if (spaces.roomNode === undefined) throw new Error('Chess needs a room node');
   return defineProductSystem(

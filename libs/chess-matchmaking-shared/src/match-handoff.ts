@@ -55,7 +55,11 @@ async function colours(
 export async function acceptChessMatch(
   tx: SqlTx,
   fact: MatchFormation,
-  ports: { readonly nowMs: number; readonly tieBreak: ColourTieBreak }
+  ports: {
+    readonly nowMs: number;
+    readonly tieBreak: ColourTieBreak;
+    readonly createId?: () => string;
+  }
 ): Promise<void> {
   assert.ok(fact.participants.length === 2, 'a chess match has two people');
   const prior = await tx.query(
@@ -82,6 +86,7 @@ export async function acceptChessMatch(
     timeControl: timeControlOf(fact),
     rematchOf: null,
     nowMs: ports.nowMs,
+    ...(ports.createId === undefined ? {} : { createId: ports.createId }),
   });
   for (const person of fact.participants)
     await projectOpponentSearch(tx, person.ownerId, ports.nowMs);
@@ -110,6 +115,7 @@ export async function formChessMatches(
         await acceptChessMatch(transaction, fact, {
           nowMs: ports.nowMs,
           tieBreak: ports.tieBreak ?? (() => coinFromId(ports.createId())),
+          createId: ports.createId,
         });
         owners.push(...fact.participants.map((person) => person.ownerId));
       },

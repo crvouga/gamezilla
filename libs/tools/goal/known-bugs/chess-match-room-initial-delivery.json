@@ -1,0 +1,4 @@
+{
+  "summary": "A newly formed match queued its first room snapshot for a later drain, so both spaces had no multiplayer board until another request",
+  "regressionTest": "libs/runtime-harness/tests/multiplayer-journey-runner.test.ts"
+}

@@ -23,12 +23,14 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # keep their critical-journey evidence on failure. Scenarios only production
 # can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
 #
-# Then health:objectives checks each environment's service level objectives
+# On main, health:objectives checks each environment's service level objectives
 # (specs/health/*.openslo.yaml, `health:objectives` in @apps/product), such as
 # "at least 99 in every 100 of the team's checks find the app answering":
 # measured over the last 28 days of the health:<env> jobs above, read back
 # from the Depot CI API. Objectives never run inside
 # `health`, which gates every deploy: a bad month must not block a fix.
+# Branch Health runs verify current probes without attaching that historical
+# deficit to the fix's PR. Scheduled and manual main runs retain the objective.
 
 permissions:
   contents: read
@@ -155,7 +157,7 @@ jobs:
   health-objectives:
     name: health:objectives
     needs: [health-matrix, health-env]
-    if: ${{ !cancelled() && needs.health-matrix.outputs.all != '[]' }}
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
     runs-on: depot-ubuntu-latest
     timeout-minutes: 15
     permissions:

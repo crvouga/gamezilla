@@ -80,3 +80,5 @@ terms:
     from: chess
   - term: Custom Game
     from: chess
+  - term: Custom Game move list
+    from: chess

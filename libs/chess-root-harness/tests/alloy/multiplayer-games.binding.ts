@@ -4,6 +4,7 @@ import {
   pairChessOpponents,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import { storedMultiplayerSnapshot } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { bindStructure } from '@pkgs/alloy-shared/registry';
@@ -38,8 +39,10 @@ async function snapshots(): Promise<readonly Snapshot[]> {
     worlds.push(
       projectMultiplayer(await s.read(storedMultiplayerSnapshot), label)
     );
-  for (const actor of ['alice', 'bob', 'carol', 'dave'])
+  for (const actor of ['alice', 'bob', 'carol', 'dave']) {
     await s.apply(signInWithGoogle, actor);
+    await s.apply(givenMultiplayerSpace, actor);
+  }
   await s.apply(givenOpponentSearch, 'alice', '5+0', 'first');
   await s.advanceTime(1);
   await s.apply(givenOpponentSearch, 'bob', '5+0', 'first');

@@ -9,13 +9,14 @@ import { settleMultiplayerClock } from './multiplayer-clock';
 export async function settleDueGame(
   tx: SqlTx,
   gameId: string,
-  nowMs: number
+  nowMs: number,
+  createId: () => string
 ): Promise<readonly string[]> {
   const repository = new MultiplayerGameRepository(tx);
   const stored = await repository.byId(gameId);
   if (stored === null) return [];
   const settled = settleMultiplayerClock(stored, nowMs);
   if (settled === stored) return [];
-  await repository.save(stored, settled, nowMs, true);
+  await repository.save(stored, settled, nowMs, true, { createId });
   return [stored.white_id, stored.black_id];
 }

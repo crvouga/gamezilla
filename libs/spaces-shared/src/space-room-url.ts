@@ -1,8 +1,7 @@
-import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
-
 export type SpaceRoomWebSocketUrlArgs = {
   apiUrl: string;
   topic: string;
+  module: string;
   sessionToken: string | null;
   /**
    * Install id: sent as `anonId` for anonymous connections, or alongside
@@ -21,7 +20,7 @@ export function apiUrlToRoomWebSocketUrl(
   const wsBase = base.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
   const u = new URL(`${wsBase}/api/room`);
   u.searchParams.set('topic', topic);
-  u.searchParams.set('module', SPACE_ROOM_MODULE_NAME);
+  u.searchParams.set('module', args.module);
   if (sessionToken !== null && sessionToken.length > 0) {
     u.searchParams.set('token', sessionToken);
     if (installId !== null && installId.length > 0) {

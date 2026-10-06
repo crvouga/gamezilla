@@ -10,6 +10,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { MultiplayerGameRepository } from './game-repository';
+import { requireMultiplayerSpace } from './multiplayer-space-access';
 import { OpponentRequested } from './opponent-requested';
 import { MultiplayerRatingRepository } from './rating-repository';
 import {
@@ -54,9 +55,15 @@ async function endRematchOffer(ctx: MutationCtx, iso: string): Promise<void> {
  */
 export async function beginChessSearch(
   ctx: MutationCtx,
-  input: { readonly requestId: string; readonly timeControl: string }
+  input: {
+    readonly requestId: string;
+    readonly timeControl: string;
+    readonly spaceId: string;
+  }
 ): Promise<void> {
   await requireInMutation(ctx, PERMISSION.matchmakingUse);
+  const scope = await requireMultiplayerSpace(ctx, input.spaceId);
+  await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
   const control = requireOfferedTimeControl(input.timeControl);
   const checkLimit = async () =>
     requireLimitInMutation(

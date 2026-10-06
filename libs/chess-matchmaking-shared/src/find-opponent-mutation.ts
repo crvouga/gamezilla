@@ -7,6 +7,7 @@ export const findChessOpponentMutation = defineMutation({
   requiresOnline: true,
   pendingUx: 'pending',
   args: z.object({
+    spaceId: z.string().min(1),
     requestId: z.string().min(1),
     timeControl: z.string().min(1).max(16),
   }),

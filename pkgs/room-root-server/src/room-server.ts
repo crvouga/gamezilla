@@ -2,6 +2,7 @@ import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { MAX_ROSTER_SIZE } from '@pkgs/room-root-shared/bounds';
+import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import { RoomCacheInvalidated } from '@pkgs/room-root-shared/cache-invalidation';
 import type { RoomEffectHandler } from '@pkgs/room-root-shared/handler';
 import { applyRoomEffects } from '@pkgs/room-root-shared/handler';
@@ -74,6 +75,7 @@ export class RoomServer<
   private committedState: S;
   private lastSeq = 0;
   private tipKnown = false;
+  private presenceSeq = 0;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
     this.topic = config.topic;
@@ -212,6 +214,31 @@ export class RoomServer<
       kind: ROOM_WIRE_KIND.roster,
       clients: this.getRoster(),
     });
+    this.notePresence();
+  }
+
+  /**
+   * Let the module commit what a presence change means to it. A failure is
+   * not lost: the next roster change compares against committed state again.
+   */
+  private notePresence(): void {
+    if (this.module.presenceCommand === undefined) return;
+    this.enqueue(() => this.presenceSerial()).catch(noop);
+  }
+
+  private async presenceSerial(): Promise<void> {
+    const present = [...new Set(this.getRoster().map((actor) => actor.id))];
+    const payload = this.module.presenceCommand?.(this.committedState, present);
+    if (payload === null || payload === undefined) return;
+    this.presenceSeq += 1;
+    await this.injectSerial(
+      {
+        id: `presence:${String(this.clock.now())}:${String(this.presenceSeq)}`,
+        payload,
+        identity: ROOM_PRESENCE_IDENTITY as Identity,
+      },
+      NO_GRANTS
+    );
   }
 
   private broadcast(frame: unknown): void {

@@ -11,6 +11,7 @@ export const CHESS_SCREEN = {
   root: 'root',
   puzzle: 'puzzle',
   customGame: 'custom-game',
+  multiplayer: 'multiplayer',
   stats: 'stats',
   statsReview: 'stats-review',
   settings: 'settings',

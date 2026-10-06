@@ -92,3 +92,16 @@ export function spaceLinkFromLocation(location: string): string {
 
 /** The world the journey steps need: every host's world carries one. */
 export type JourneyWorld = { readonly journey: JourneyHost };
+
+/**
+ * A two-person journey's devices: Alice on the device that opened the app,
+ * Bob on the guest's.
+ */
+export function journeyDevice(
+  host: JourneyHost,
+  actor: string
+): JourneyHost['act'] {
+  if (actor === 'alice') return host.act;
+  if (actor === 'bob') return host.actAsGuest;
+  throw new Error(`the two-person journey has no device for ${actor}`);
+}

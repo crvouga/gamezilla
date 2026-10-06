@@ -12,6 +12,7 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -80,6 +81,15 @@ Given(
     await searchFor(w, actor, timeControl);
   }
 );
+When('{actor} finds a chess opponent', async (w, actor: Actor) => {
+  acted(w);
+  if ((await w.s.read(multiplayerSpaceId, actor)) === null)
+    await command(w, actor, 'findChessOpponent', {
+      spaceId: 'no-space',
+      timeControl: '5+0',
+    });
+  else await w.s.apply(findChessOpponent, actor, '5+0');
+});
 When(
   '{actor} finds a chess opponent for {word}',
   async (w, actor: Actor, timeControl: string) => {
@@ -205,5 +215,13 @@ Then(
     expect(await w.s.read(multiplayerRefusalCode, device)).toBe(
       'limit_reached'
     );
+  }
+);
+Then(
+  '{actor} is told to finish her Custom Game first',
+  async (w, actor: Actor) => {
+    expect(
+      await w.s.read(multiplayerText, actor, 'multiplayer-command-denial')
+    ).toContain('Finish your Custom Game first');
   }
 );

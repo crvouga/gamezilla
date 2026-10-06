@@ -1,3 +1,7 @@
+import {
+  CustomGamesAttr,
+  customGameActiveParticipant,
+} from '@libs/chess-custom-game-shared/custom-game-state';
 import { abortMultiplayerMutation } from '@libs/chess-matchmaking-shared/abort-multiplayer-mutation';
 import { findNewChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-new-opponent-mutation';
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
@@ -17,9 +21,10 @@ import { settleMultiplayerClockMutation } from '@libs/chess-matchmaking-shared/s
 import { stopFindingChessOpponentMutation } from '@libs/chess-matchmaking-shared/stop-finding-opponent-mutation';
 import {
   useDecision,
-  useLimitDecision,
+  useUnfinishedGamesDecision,
 } from '@libs/permissions-client/use-can';
-import { LIMIT, PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import type {
@@ -52,7 +57,10 @@ function useRefusals() {
 
 function useMoves(
   data: MultiplayerData,
-  run: <A>(mutation: Mutation<A>, args: Omit<A, 'requestId'>) => Promise<void>
+  run: <A>(
+    mutation: Mutation<A>,
+    args: Omit<A, 'requestId' | 'spaceId'>
+  ) => Promise<void>
 ) {
   const [boardSync, setBoardSync] = createSignal(0);
   const [moving, setMoving] = createSignal(false);
@@ -80,21 +88,31 @@ export function useMultiplayerControls(data: MultiplayerData) {
   const client = useMutationClient();
   const createId = useCreateId();
   const beginDecision = useDecision(PERMISSION.matchmakingUse);
-  const limitDecision = useLimitDecision(
-    LIMIT.unfinishedMultiplayerGames,
-    () => (data.game()?.outcome === 'ongoing' ? 1 : 0)
-  );
+  const customGames = useSpaceRoomSelector(CustomGamesAttr.from);
+  const unfinishedDecision = useUnfinishedGamesDecision(() => ({
+    multiplayer: data.game()?.outcome === 'ongoing' ? 1 : 0,
+    customGames: customGameActiveParticipant(customGames(), data.myId())
+      ? 1
+      : 0,
+  }));
   const refusals = useRefusals();
-  const run = async <A>(mutation: Mutation<A>, args: Omit<A, 'requestId'>) =>
+  const run = async <A>(
+    mutation: Mutation<A>,
+    args: Omit<A, 'requestId' | 'spaceId'>
+  ) =>
     refusals.accept(
-      await client.mutate(mutation, { ...args, requestId: createId() } as A)
+      await client.mutate(mutation, {
+        spaceId: data.spaceId() ?? '',
+        ...args,
+        requestId: createId(),
+      } as A)
     );
   const onGame =
     (mutation: Mutation<{ gameId: string; requestId: string }>) => () =>
       run(mutation, { gameId: data.game()?.id ?? 'no-game' });
   const begin = async (timeControl: string) => {
     const decision = beginDecision().allowed
-      ? limitDecision()
+      ? unfinishedDecision()
       : beginDecision();
     if (!decision.allowed) {
       refusals.setDenial(decision);
@@ -121,7 +139,9 @@ export function useMultiplayerControls(data: MultiplayerData) {
     declineRematch: onGame(declineMultiplayerRematchMutation),
     /** Silent: the server decides whether the deadline really passed. */
     settle: async (gameId: string) => {
+      if (!data.participant()) return;
       await client.mutate(settleMultiplayerClockMutation, {
+        spaceId: data.spaceId() ?? '',
         gameId,
         requestId: createId(),
       });

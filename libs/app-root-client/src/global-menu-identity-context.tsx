@@ -14,14 +14,18 @@ import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { type Accessor, createSignal, type JSX } from 'solid-js';
 
 export type GlobalMenuIdentity = {
-  readonly username: string | null;
+  /**
+   * The person's name as shown in the menu header — already moderated and
+   * formatted by the publisher (`@name`, or an alias for a masked name).
+   */
+  readonly usernameLabel: string | null;
   readonly email: string | null;
   /** Renders the account face at `size` px, or `null` for the shell default. */
   readonly avatar: ((size: number) => JSX.Element) | null;
 };
 
 export const BOOT_GLOBAL_MENU_IDENTITY: GlobalMenuIdentity = {
-  username: null,
+  usernameLabel: null,
   email: null,
   avatar: null,
 };

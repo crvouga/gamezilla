@@ -29,6 +29,7 @@ export const CAPABILITY_KEYS = {
   'see their matchmaking wait': PERMISSION.matchmakingView,
   'stop waiting for a match': PERMISSION.matchmakingStop,
   'change their matchmaking range': PERMISSION.matchmakingChangeRange,
+  'watch multiplayer chess': PERMISSION.chessMultiplayerWatch,
   'play multiplayer chess': PERMISSION.chessMultiplayerPlay,
   'resign multiplayer chess': PERMISSION.chessMultiplayerResign,
   'start another multiplayer game': LIMIT.unfinishedMultiplayerGames,

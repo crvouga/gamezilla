@@ -1,6 +1,7 @@
 import { resolveSessionReplayAuth } from '@libs/app-root-shared/query-auth';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
+import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -8,6 +9,7 @@ import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server/create-sync-app';
+import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
@@ -46,8 +48,12 @@ function createRequestScopedPubSub(): PubSub {
 export async function createSyncApp(deps: {
   /** The folded feature set: schema, queries, wake topics, mutations. */
   readonly app: ComposedFeatures;
+  /** The features' server-only mutation checks (rooms they read); none by default. */
+  readonly authorizeServerMutation?: MutationAuthorize;
   readonly now: () => number;
   readonly createId: () => string;
+  /** The moderation replayed writes are judged by, as of their time. */
+  readonly moderation: ModerationRules;
   /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
   readonly strictQueryLimits?: boolean;
 }) {
@@ -61,9 +67,11 @@ export async function createSyncApp(deps: {
     authorizeMutation: async (ctx) => {
       await authorizeAppMutation(ctx);
       await deps.app.authorizeMutation(ctx);
+      await deps.authorizeServerMutation?.(ctx);
     },
     now: deps.now,
     createId: deps.createId,
+    contentRulesAt: (atMs) => deps.moderation.at(atMs),
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: deps.app.topicMap,

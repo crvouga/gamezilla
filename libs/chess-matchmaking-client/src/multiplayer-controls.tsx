@@ -38,7 +38,6 @@ function ConfirmMessage(props: { readonly kind: Confirm | null }): JSX.Element {
 export function MultiplayerControls(props: {
   readonly controls: MultiplayerControlsModel;
   readonly data: MultiplayerData;
-  readonly requestedGame: string | undefined;
 }): JSX.Element {
   const [confirm, setConfirm] = createSignal<Confirm | null>(null);
   const looking = () => props.data.search()?.standing === 'waiting';
@@ -66,8 +65,9 @@ export function MultiplayerControls(props: {
         fallback={
           <Show
             when={
-              props.requestedGame === undefined &&
-              props.data.game()?.outcome !== 'ongoing'
+              props.data.participant() || props.data.hostId() === props.data.myId()
+                ? props.data.game()?.outcome !== 'ongoing'
+                : false
             }
           >
             <MultiplayerFindPanel controls={props.controls} />

@@ -30,6 +30,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { checkCacheConcurrency } from './check-cache-concurrency';
 
 /** Task with a real script; `<NONEXISTENT>` placeholders are dropped. */
 export type PlannedTask = {
@@ -384,7 +385,7 @@ export async function prefetchRemoteHits(
     plan.remoteHits.map((task) => task.hash),
     cacheDir,
     wallPrefetchIo(env, cacheDir),
-    PREFETCH_CONCURRENCY
+    checkCacheConcurrency(env, PREFETCH_CONCURRENCY)
   );
   console.log(
     `turbo-ci-run: prefetched ${String(result.fetched)} remote cache hit(s) into ${cacheDir}` +

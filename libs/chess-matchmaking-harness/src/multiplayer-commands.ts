@@ -16,6 +16,7 @@ import type {
   Mutation,
 } from '@pkgs/sync-engine-shared/mutations-types';
 import { multiplayerClient } from './multiplayer-client';
+import { multiplayerSpaceId } from './multiplayer-spaces';
 
 export type MultiplayerCommand = {
   readonly name: string;
@@ -48,9 +49,13 @@ export const sendMultiplayerCommand = scenarioAction({
         engine.notifyLocalMutation(def, args, capture);
       },
     });
+    const args = {
+      spaceId: (await multiplayerSpaceId(s, actor)) ?? 'no-space',
+      ...command.args,
+    };
     let result: MutateResult | null = null;
     let failure: unknown;
-    void client.mutate(mutation as Mutation<unknown>, command.args).then(
+    void client.mutate(mutation as Mutation<unknown>, args).then(
       (value) => {
         result = value;
       },

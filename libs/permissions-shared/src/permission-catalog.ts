@@ -14,6 +14,7 @@ export const PERMISSION = defineCatalog({
   matchmakingView: 'matchmaking:view',
   matchmakingStop: 'matchmaking:stop',
   matchmakingChangeRange: 'matchmaking:change-range',
+  chessMultiplayerWatch: 'chess:multiplayer-watch',
   chessMultiplayerPlay: 'chess:multiplayer-play',
   chessMultiplayerResign: 'chess:multiplayer-resign',
   puzzlesPlay: 'puzzles:play',

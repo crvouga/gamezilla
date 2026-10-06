@@ -9,7 +9,7 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-02.1';
+export const PERMISSION_POLICY_VERSION = '2026-10-05.2';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -157,7 +157,9 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesLeave,
         PERMISSION.chessCustomJoin,
         PERMISSION.chessCustomWatch,
+        PERMISSION.chessMultiplayerWatch,
         PERMISSION.chessCustomPlay,
+        PERMISSION.chessCustomCancel,
       ],
     },
     [ROLE.spaceHost]: {
@@ -172,7 +174,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.chessCustomInvite,
         PERMISSION.chessCustomBot,
         PERMISSION.chessCustomStart,
-        PERMISSION.chessCustomCancel,
       ],
     },
   },
@@ -232,6 +233,8 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.chessMultiplayerResign]: SIGN_UP_UNLOCK,
     [LIMIT.unfinishedMultiplayerGames]: {
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
+      // A participant of an active Custom Game finishes it first.
+      restricted: { titleKey: 'unlock.custom-game.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesManage]: SIGN_UP_UNLOCK,

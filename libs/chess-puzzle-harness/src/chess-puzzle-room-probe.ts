@@ -124,7 +124,8 @@ export const attemptHostPuzzleCommand = scenarioAction({
     const commandId = newCommandId(s.harness.server.createId);
     const frames: unknown[] = [];
     const transport = s.harness.roomNode.createTransport({
-      spaceId,
+      topic: `space:${spaceId}`,
+      module: 'space',
       apiUrl: '',
       identity,
       installId: `${actorId}-room-probe`,

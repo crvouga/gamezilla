@@ -26,7 +26,8 @@ Given("{actor} is outside {actor}'s space", async (w, actor: string) => {
 });
 Given(
   "{actor} is a guest in {actor}'s space",
-  async (w, actor: string, host: string) => customSpace(w, host, [actor])
+  async (w, actor: string, host: string) =>
+    customSpace(w, host, [actor], { guests: true })
 );
 Given(
   "{actor} has joined {actor}'s space from the link",

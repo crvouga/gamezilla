@@ -1,9 +1,17 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { check, JOURNEY_WAIT_MS, openTab, tap } from './journey-gestures';
+import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
-  await openTab(ui, 'tab-chess');
+  if (
+    !(await ui.get('chess-menu-multiplayer').isVisible()) &&
+    !(await ui.get('multiplayer-game').isVisible())
+  ) {
+    await hostSpace(ui);
+    await tap(ui, 'game-menu-chess');
+  }
+  if (await ui.get('chess-menu-multiplayer').isVisible())
+    await tap(ui, 'chess-menu-multiplayer');
 }
 
 const SURFACE_POLLS = 10;
