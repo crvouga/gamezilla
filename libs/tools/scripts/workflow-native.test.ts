@@ -6,16 +6,28 @@ import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 const ROOT = join(import.meta.dirname, '../../..');
 
 // regression: github-check-test-concurrency-oversubscription
+// regression: github-spec-workers-ignore-concurrency
+// regression: github-model-phase-concurrency-starvation
 test('a two-core Check runner never starts twenty concurrent test processes', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(join(ROOT, '.github/workflows/check.yml'), 'utf8')
-  ) as { env: Record<string, string | number> };
+  ) as {
+    env: Record<string, string | number>;
+    on: { workflow_dispatch: { inputs: { concurrency: { default: number } } } };
+  };
   const env = {
     CHECK_TEST_CONCURRENCY: String(workflow.env['CHECK_TEST_CONCURRENCY']),
   };
   expect(testConcurrency(env, 20)).toBe(1);
   expect(testConcurrency(env, 2)).toBe(1);
+  expect(
+    readFileSync(join(ROOT, 'libs/harness/scripts/test-spec.ts'), 'utf8')
+  ).toContain('testConcurrency(process.env, 2)');
   expect(workflow.env['CHECK_CONCURRENCY']).toEndWith("|| '1' }}");
+  expect(workflow.on.workflow_dispatch.inputs.concurrency.default).toBe(1);
+  expect(workflow.env['MODEL_CHECK_CONCURRENCY']).toBe(2);
+  expect(workflow.env['CHECK_SOLVER_SLOTS']).toBe(1);
+  expect(workflow.env['JVM_GC_ARGS']).toContain('-Xmx2048m');
 });
 
 // regression: ci-provider-native-ci-runner-routing

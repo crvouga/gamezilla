@@ -14,11 +14,11 @@ on:
         description: Duration-balanced shard count
         type: choice
         options: [8, 12, 16, 24, 32]
-        default: 16
+        default: 32
       concurrency:
         description: Turbo slots per shard
         type: number
-        default: 2
+        default: 1
       cache-mode:
         description: normal or cold (cold forces execution without deleting remote caches)
         type: choice
@@ -34,14 +34,15 @@ env:
   CHECK_TEST_CONCURRENCY: 1
   GOMAXPROCS: 1
   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
-  JVM_GC_ARGS: -XX:+UseParallelGC -Xmx4096m -Xms512m
-  MODEL_CHECK_CONCURRENCY: 1
+  JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+  MODEL_CHECK_CONCURRENCY: 2
+  CHECK_SOLVER_SLOTS: 1
   SECRETS_ENV: dev
   SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '16' }}
+  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '32' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
@@ -95,7 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         # Add a count here and in inputs; the immutable plan uses the same count.
-        shard: ${{ fromJSON('{"8":[0,1,2,3,4,5,6,7],"12":[0,1,2,3,4,5,6,7,8,9,10,11],"16":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"24":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],"32":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}')[format('{0}', inputs.shards || vars.CHECK_SHARDS || '16')] }}
+        shard: ${{ fromJSON('{"8":[0,1,2,3,4,5,6,7],"12":[0,1,2,3,4,5,6,7,8,9,10,11],"16":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"24":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],"32":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}')[format('{0}', inputs.shards || vars.CHECK_SHARDS || '32')] }}
     steps:
       - uses: actions/checkout@v6
         with:

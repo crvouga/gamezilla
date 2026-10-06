@@ -85,6 +85,7 @@ function checkFrame(
     assertMoving(piece, time, previous?.moving[index]);
 }
 
+// regression: browser-frame-contract-host-capabilities
 for (const fixture of SPECIAL_FRAMES)
   test(`${fixture.name} paints a coherent native path and independent final raster`, async () => {
     const chess = new Chess(fixture.fen);
@@ -125,3 +126,26 @@ for (const fixture of SPECIAL_FRAMES)
         expect((await raster()).equals(completed)).toBe(true);
       }
   }, 60_000);
+
+test('a two-core profile keeps the captured pawn opaque until the slide completes', async () => {
+  // regression: browser-frame-contract-host-capabilities
+  const fixture = SPECIAL_FRAMES.find((frame) => frame.name === 'en passant');
+  if (fixture === undefined) throw new Error('Missing en passant fixture');
+  await act(
+    `window.boardExample.reset({fen:${JSON.stringify(fixture.fen)},size:196}); window.boardExample.lowEndDevice(true); window.boardExample.move('e5','f6'); window.boardExample.freeze(150)`
+  );
+  const frame = await browser.view.evaluate<SpecialFrame>(
+    specialFrameRead([{ from: 'e5', to: 'f6' }])
+  );
+  expect(frame.ghosts).toHaveLength(1);
+  const ghost = frame.ghosts[0];
+  const moving = frame.moving[0];
+  if (ghost === undefined || moving === undefined)
+    throw new Error('Missing capture frame');
+  expect(ghost.opacity).toBe(1);
+  aligned(moving.piece, moving.destination);
+  await act('window.boardExample.advance(150)');
+  expect(
+    (await browser.view.evaluate<SpecialFrame>(specialFrameRead([]))).ghosts
+  ).toHaveLength(0);
+});

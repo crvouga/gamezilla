@@ -77,6 +77,45 @@ describe('partOf', () => {
   const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
 
+  // regression: github-chess-spec-trace-batch-timeout
+  test('sixty-four chess parts preserve all 256 multiplayer traces in smaller batches', () => {
+    const units = specUnits('specs/chess/multiplayer.qnt', '', 64);
+    const parts = Array.from({ length: 64 }, (_, index) =>
+      partOf(units, { index, count: 64 })
+    );
+    const traces = parts.map((part) =>
+      part.flatMap((unit) =>
+        Array.from({ length: 256 }, (_, i) => i).filter(
+          (i) => i % unit.slice!.count === unit.slice!.index
+        )
+      )
+    );
+    expect(traces.flat().sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 256 }, (_, i) => i)
+    );
+    expect(Math.max(...traces.map((part) => part.length))).toBe(8);
+  });
+
+  // regression: github-matchmaking-spec-single-part-timeout
+  test('eight matchmaking parts replay all 128 traces exactly once', () => {
+    const units = specUnits('specs/matchmaking/matching.qnt', '', 8);
+    expect(units).toEqual(specUnits('specs/matchmaking/matching.qnt', '', 1));
+    const parts = Array.from({ length: 8 }, (_, index) =>
+      partOf(units, { index, count: 8 })
+    );
+    const traces = parts.map((part) =>
+      part.flatMap((unit) =>
+        Array.from({ length: 128 }, (_, i) => i).filter(
+          (i) => i % unit.slice!.count === unit.slice!.index
+        )
+      )
+    );
+    expect(traces.flat().sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 128 }, (_, i) => i)
+    );
+    expect(traces.every((part) => part.length === 16)).toBe(true);
+  });
+
   // regression: github-chess-board-spec-single-part-timeout
   test('eight board parts retain every unit of the original seven-model suite', () => {
     const original = Array.from(

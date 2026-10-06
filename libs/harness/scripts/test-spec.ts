@@ -55,6 +55,7 @@ import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { parseJunit } from '@pkgs/harness-root-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
+import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
@@ -356,7 +357,7 @@ const result = spawnSync(
     String(TIMEOUT_MS),
     // Full product worlds own DOMs, databases and recorded frames. Two
     // workers keep those worlds moving instead of competing for memory.
-    '--parallel=2',
+    `--parallel=${String(testConcurrency(process.env, 2))}`,
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,

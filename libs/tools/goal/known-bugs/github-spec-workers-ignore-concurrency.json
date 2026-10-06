@@ -1,0 +1,4 @@
+{
+  "summary": "Check 37515771723 capped concurrent tests at one but test-spec.ts still hard-coded two full-world spec workers. Some GitHub VMs received shutdown signals while running those suites. Apply the existing injected concurrency ceiling to spec workers as well, keeping all cases and deadlines unchanged.",
+  "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+}
