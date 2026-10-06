@@ -21,6 +21,7 @@ import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client-postgres-shared/s
 import {
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
+  setPgSessionSchema,
   withPostgresSearchPathOption,
 } from '@pkgs/sql-client-postgres-shared/session-schema';
 import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
@@ -222,6 +223,7 @@ export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
   const pool = new PgPool({
     connectionString,
     max: args.max ?? 1,
+    onConnect: (client) => setPgSessionSchema(client, args.dbScope),
   });
   return {
     pool: pool as unknown as Pool,

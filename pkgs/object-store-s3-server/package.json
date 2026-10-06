@@ -3,6 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./impl-s3": {
+      "types": "./src/impl-s3.ts",
+      "bun": {
+        "browser": "./.cache/browser/impl-s3.js",
+        "default": "./src/impl-s3.ts"
+      },
+      "default": "./src/impl-s3.ts"
+    },
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -10,6 +18,7 @@
     ]
   },
   "scripts": {
+    "generate:browser": "bun run scripts/generate-browser.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",

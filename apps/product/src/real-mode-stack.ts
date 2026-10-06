@@ -11,7 +11,7 @@ import {
   EMQX_JWT_SECRET,
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared/ports';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 import { bootLocalStack } from '../../server/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;

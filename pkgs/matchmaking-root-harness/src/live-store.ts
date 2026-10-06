@@ -2,8 +2,8 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client-root-shared/impl-agnostic';
@@ -12,7 +12,7 @@ import type { HarnessStore } from './store';
 
 export async function openLiveStore(): Promise<HarnessStore> {
   const dataDir = mkdtempSync(join(tmpdir(), 'matchmaking-'));
-  const pg = await startEmbeddedPostgres({
+  const pg = await startMockingbirdPostgres({
     port: await freePostgresPort(),
     dataDir,
   });
