@@ -164,6 +164,7 @@ test('local checks default to one task and solver without changing the caller', 
     ...source,
     TURBO_CONCURRENCY: '1',
     CHECK_CACHE_CONCURRENCY: '1',
+    CHECK_TEST_CONCURRENCY: '1',
     MODEL_CHECK_CONCURRENCY: '1',
     CHECK_SOLVER_SLOTS: '1',
   });

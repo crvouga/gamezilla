@@ -41,6 +41,7 @@ export function localCheckEnv(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     ...source,
     TURBO_CONCURRENCY: source['TURBO_CONCURRENCY']?.trim() || '1',
     CHECK_CACHE_CONCURRENCY: source['CHECK_CACHE_CONCURRENCY']?.trim() || '1',
+    CHECK_TEST_CONCURRENCY: source['CHECK_TEST_CONCURRENCY']?.trim() || '1',
     MODEL_CHECK_CONCURRENCY: source['MODEL_CHECK_CONCURRENCY']?.trim() || '1',
     CHECK_SOLVER_SLOTS: source['CHECK_SOLVER_SLOTS']?.trim() || '1',
   };
