@@ -49,9 +49,9 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
   const puzzleRating = props.entry.puzzleRating;
   const timeLabel = useRelativeTimeLabel(() => props.entry.at);
   const deltaColor =
-    props.entry.delta > 0
+    props.entry.rated && props.entry.delta > 0
       ? theme.colors.success
-      : props.entry.delta < 0
+      : props.entry.rated && props.entry.delta < 0
         ? theme.colors.destructive
         : theme.colors.textSecondary;
   const Icon = solved ? CircleCheckIcon : XIcon;
@@ -87,8 +87,16 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
             }
           </p>
         </div>
-        <p class="text textBodyBold shrink-0" style={{ color: deltaColor }}>
-          {formatSignedDelta(props.entry.delta)}
+        <p
+          class="text textBodyBold shrink-0"
+          style={{ color: deltaColor }}
+          data-testid={`chess-game-log-row-${props.entry.puzzleId}-change`}
+        >
+          {props.entry.rated ? (
+            formatSignedDelta(props.entry.delta)
+          ) : (
+            <Trans>Unrated</Trans>
+          )}
         </p>
         <ChevronRightIcon size={20} color="icon" />
       </div>

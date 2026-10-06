@@ -105,7 +105,7 @@ describe('buildPuzzleCandidatesSql', () => {
     const normalized = query.sql.replace(/\s+/g, ' ');
     expect(normalized).toContain('instr(themes, ?) > 0 OR instr(themes, ?)');
     expect(query.values).toEqual(
-      expect.arrayContaining(['"fork"', '"mate"', 50, 0])
+      expect.arrayContaining(['"fork"', '"mate"', 50])
     );
   });
 
@@ -134,11 +134,13 @@ describe('buildPuzzleCandidatesSql', () => {
     });
     expect(query.sql).not.toContain('rating >=');
     expect(query.sql).not.toContain('rating <=');
+    // Nearest the target first, and never rotated by the pick offset.
+    expect(query.sql).toContain('ORDER BY ABS(rating - ?)');
     expect(query.values).toEqual([
       PUZZLE_MIN_POPULARITY,
       PUZZLE_MIN_PLAYS,
+      3000,
       50,
-      28,
     ]);
   });
 });

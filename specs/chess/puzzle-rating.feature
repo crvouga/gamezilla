@@ -1,10 +1,8 @@
 @domain:chess
 Feature: Puzzle rating
   When a solver plays puzzles, they want a running puzzle rating that moves
-  after every rated puzzle, online or offline, so they can see how they are
-  doing. A new solver starts at 1500 with a "?" until the rating settles.
-  Every device shows the same rating, and a puzzle moves it at most once,
-  ever. A wrong move earns half credit, just like a hint.
+  fairly after every rated puzzle, online or offline, so it honestly shows
+  their skill and the feed can match puzzles to it.
 
   Rule: The first rated attempt moves the puzzle rating once and every device shows that rating
 
@@ -48,13 +46,85 @@ Feature: Puzzle rating
       When Alice's account opens on another device
       Then Alice's other device shows the same puzzle rating within 30 seconds
 
+  Rule: Solving a harder puzzle gains more than solving an easier one, and failing an easier puzzle costs more than failing a harder one
+    No counter-example: every rated result moves the rating by how hard the puzzle was for the solver; nothing a solver does opts out of it.
+
+    Background:
+      Given Alice and Bob are signed in
+      And Alice's puzzle rating has settled at 1500
+      And Bob's puzzle rating has settled at 1500
+
+    Scenario: Solving a puzzle rated 1700 gains more than solving one rated 1300
+      Given Bob has solved a puzzle rated 1300
+      And Alice is solving a puzzle rated 1700
+      When Alice solves the puzzle
+      Then Alice's puzzle rating is above Bob's
+
+    Scenario: Failing a puzzle rated 1300 costs more than failing one rated 1700
+      Given Bob has played a wrong move on a puzzle rated 1700
+      And Alice is solving a puzzle rated 1300
+      When Alice plays a wrong move
+      Then Alice's puzzle rating is below Bob's
+
+  Rule: A provisional rating moves further for each puzzle than a settled one
+    No counter-example: every new solver starts provisional and settles by playing; nothing a solver does changes how far it moves.
+
+    Scenario: A provisional rating gains more from a solve than a settled one
+      Given Alice is a new solver with a provisional 1500 puzzle rating
+      And Bob's puzzle rating has settled at 1500
+      And Bob has solved the hook-mate puzzle
+      And Alice is solving the hook-mate puzzle
+      When Alice solves the puzzle
+      Then Alice's puzzle rating is above Bob's
+
+  Rule: The puzzle rating never goes below the rating floor of 400 or above the rating ceiling of 3000
+
+    Background:
+      Given Alice is signed in
+
+    Scenario: Solving at the rating floor raises the rating
+      Given Alice's puzzle rating has settled at 400
+      And Alice is playing puzzles in their space
+      When Alice solves the puzzle
+      Then Alice's puzzle rating is above 400
+
+    Scenario: Failing at the rating floor leaves the rating at 400
+      Given Alice's puzzle rating has settled at 400
+      And Alice is playing puzzles in their space
+      When Alice plays a wrong move
+      Then Alice's puzzle rating cannot go below 400
+
+    Scenario: Failing at the rating ceiling lowers the rating
+      Given Alice's puzzle rating has settled at 3000
+      And Alice is playing puzzles in their space
+      When Alice plays a wrong move
+      Then Alice's puzzle rating is below 3000
+
+    Scenario: Solving at the rating ceiling leaves the rating at 3000
+      Given Alice's puzzle rating has settled at 3000
+      And Alice is playing puzzles in their space
+      When Alice solves the puzzle
+      Then Alice's puzzle rating cannot go above 3000
+
+  Rule: A solve after a hint earns half credit: the same as a wrong move, and less than a clean solve
+    No counter-example: a hint is always available while solving, and a solve after one always earns half credit.
+
+    Background:
+      Given Alice and Bob are signed in
+
     @regression:puzzle-wrong-move-half-credit
     Scenario: A wrong move costs the same as a hint
-      Given Alice and Bob are signed in
-      And Alice is solving the hook-mate puzzle
+      Given Alice is solving the hook-mate puzzle
       And Bob is solving the hook-mate puzzle
       And Bob has taken a hint
       And Bob has solved the puzzle
       When Alice plays a wrong move
       Then Alice's puzzle rating is below 1500
       And Bob's puzzle rating is the same as Alice's
+
+    Scenario: A solve after a hint gains less than a clean solve
+      Given Bob has solved the hook-mate puzzle
+      And Alice is solving the hook-mate puzzle
+      And Alice has taken a hint
+      When Alice solves the puzzle
+      Then Alice's puzzle rating is below Bob's

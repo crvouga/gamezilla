@@ -25,11 +25,14 @@ import { readPuzzleRatingHistoryDirections } from '@libs/chess-puzzle-harness/pu
 import {
   PUZZLE_PROVISIONAL_RD,
   PUZZLE_RATING_DEFAULT,
+  PUZZLE_RATING_DEFAULT_RD,
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
   PUZZLE_RATING_RD_MIN,
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
+import { accountIdOf } from '@libs/harness/identity';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -37,11 +40,14 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import {
   currentPuzzle,
+  ensureOnPuzzle,
   ensureStatsOpen,
+  failedPuzzlesKey,
   recalled,
   required,
   SECOND_MS,
   SETTLE_MS,
+  trackPuzzle,
 } from './puzzle-world';
 
 /**
@@ -105,6 +111,13 @@ async function untilSameRating(
 
 // ------------------------------------------------------ the rating itself
 
+/** A puzzle rating to set belongs to an account: sign in if not yet. */
+async function withAccount(w: HarnessWorld, actor: Actor): Promise<void> {
+  if ((await w.s.read(accountIdOf, actor)) !== null) return;
+  await w.s.apply(signInWithGoogle, actor);
+  await w.s.apply(returnToTabs, actor);
+}
+
 Given(
   "{actor}'s puzzle rating is one rated puzzle from settling",
   async (w, actor: Actor) => {
@@ -121,10 +134,24 @@ Given(
 Given(
   "{actor}'s puzzle rating has settled at {int}",
   async (w, actor: Actor, rating: number) => {
+    await withAccount(w, actor);
     // As settled as a rating gets: the deviation at its floor.
     await w.s.apply(seedPuzzleRating, actor, {
       rating,
       ratingDeviation: PUZZLE_RATING_RD_MIN,
+      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+    });
+  }
+);
+
+Given(
+  '{actor} is a new solver with a provisional {int} puzzle rating',
+  async (w, actor: Actor, rating: number) => {
+    await withAccount(w, actor);
+    // No rated attempt yet: the deviation at its ceiling.
+    await w.s.apply(seedPuzzleRating, actor, {
+      rating,
+      ratingDeviation: PUZZLE_RATING_DEFAULT_RD,
       volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
     });
   }
@@ -185,6 +212,7 @@ Then(
 // -------------------------------------------------------- offline, devices
 
 Given('{actor} has solved a puzzle while offline', async (w, actor: Actor) => {
+  await ensureOnPuzzle(w, actor);
   await cutConnection(w, actor);
   await w.s.apply(playUntilSolved, actor);
 });
@@ -237,7 +265,15 @@ const resultsKey = (actor: Actor) => `puzzleResults:${actor}`;
 Given(
   '{actor} has solved {int} puzzles and failed {int}',
   async (w, actor: Actor, solved: number, failed: number) => {
-    await w.s.apply(playPuzzleResults, actor, solved, failed);
+    await ensureOnPuzzle(w, actor);
+    await w.s.apply(playPuzzleResults, actor, solved, 0);
+    const failedIds: string[] = [];
+    for (let i = 0; i < failed; i += 1) {
+      failedIds.push(await trackPuzzle(w, actor));
+      await w.s.apply(playPuzzleResults, actor, 0, 1);
+    }
+    await trackPuzzle(w, actor);
+    remember(w, failedPuzzlesKey(actor), failedIds);
     // The run solves first, then fails (see `playPuzzleResults`).
     remember(w, resultsKey(actor), [
       ...Array.from({ length: solved }, (): PuzzleResult => 'solved'),

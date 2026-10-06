@@ -4,6 +4,10 @@ import type {
   ChessPuzzleOutcomeKind,
 } from './chess-puzzle-interaction-entities';
 import {
+  CHESS_PUZZLE_INTERACTION_KIND,
+  isOutcomeKind,
+} from './chess-puzzle-interaction-entities';
+import {
   isProvisionalPuzzleRating,
   PUZZLE_RATING_DEFAULT,
   PUZZLE_RATING_DEFAULT_RD,
@@ -33,6 +37,8 @@ export type ChessPuzzleGameLogEntry = {
   readonly ratingBefore: number;
   readonly ratingAfter: number;
   readonly delta: number;
+  /** False for a repeat of a puzzle that already moved the rating (§8). */
+  readonly rated: boolean;
   readonly at: string;
 };
 
@@ -95,19 +101,65 @@ export function deriveChessPuzzleStats(
   };
 }
 
-/** Rated attempts newest first. */
-export function deriveChessPuzzleGameLog(
-  ratingEvents: readonly ChessPuzzleRatingEvent[]
+/**
+ * Repeats of puzzles the ledger already rated: every later play's first
+ * outcome, unrated (§8 a puzzle moves the rating once, ever).
+ */
+function unratedRepeats(
+  ratedAt: ReadonlyMap<string, string>,
+  interactions: readonly ChessPuzzleInteractionRow[]
 ): ChessPuzzleGameLogEntry[] {
-  return [...sortRatingEventsAscending(ratingEvents)]
-    .reverse()
-    .map((event) => ({
+  const repeats: ChessPuzzleGameLogEntry[] = [];
+  const playStart = new Map<string, string>();
+  const logged = new Set<string>();
+  for (const row of [...interactions].sort((a, b) =>
+    compareCodeUnit(a.at, b.at)
+  )) {
+    const rated = ratedAt.get(row.puzzleId);
+    if (rated === undefined) continue;
+    if (row.kind === CHESS_PUZZLE_INTERACTION_KIND.started) {
+      playStart.set(row.puzzleId, row.at);
+      continue;
+    }
+    const start = playStart.get(row.puzzleId);
+    if (start === undefined || compareCodeUnit(start, rated) <= 0) continue;
+    if (!isOutcomeKind(row.kind) || logged.has(`${row.puzzleId}|${start}`)) {
+      continue;
+    }
+    logged.add(`${row.puzzleId}|${start}`);
+    repeats.push({
+      puzzleId: row.puzzleId,
+      puzzleRating: row.puzzleRating,
+      outcome: row.kind,
+      ratingBefore: 0,
+      ratingAfter: 0,
+      delta: 0,
+      rated: false,
+      at: row.at,
+    });
+  }
+  return repeats;
+}
+
+/** Every finished puzzle newest first: rated ones and unrated repeats. */
+export function deriveChessPuzzleGameLog(
+  ratingEvents: readonly ChessPuzzleRatingEvent[],
+  interactions: readonly ChessPuzzleInteractionRow[]
+): ChessPuzzleGameLogEntry[] {
+  const rated = ratingEvents.map(
+    (event): ChessPuzzleGameLogEntry => ({
       puzzleId: event.puzzleId,
       puzzleRating: event.puzzleRating,
       outcome: event.outcome,
       ratingBefore: event.ratingBefore,
       ratingAfter: event.ratingAfter,
       delta: ratingEventDelta(event),
+      rated: true,
       at: event.at,
-    }));
+    })
+  );
+  const ratedAt = new Map(ratingEvents.map((e) => [e.puzzleId, e.at]));
+  return [...rated, ...unratedRepeats(ratedAt, interactions)].sort((a, b) =>
+    compareCodeUnit(b.at, a.at)
+  );
 }

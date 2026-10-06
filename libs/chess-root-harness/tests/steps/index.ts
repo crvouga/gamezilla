@@ -35,6 +35,16 @@ useHarnessWorld(openSpecHarness, (w) => ({
     const customLink = await w.s.read(readSpaceLink, actor);
     await w.s.apply(openPuzzleFromSpace, actor);
     await w.s.apply(playUntilSolved, actor);
+    // A saved custom feed target, two steps up.
+    await w.s.apply(openPuzzleFeedSettings, actor);
+    await w.s.apply(setPuzzleFeedMode, actor, 'custom');
+    await w.s.apply(bumpPuzzleFeedCustomRating, actor, 2);
+    await w.s.apply(closePuzzleFeedSettings, actor);
+    remember(
+      w,
+      'deleted-feed-target',
+      await w.s.read(readFeedTargetLabel, actor)
+    );
     await w.s.apply(showChessStatsScreen, actor);
     remember(w, 'deleted-puzzle-rating', await w.s.read(readStatsElo, actor));
     remember(
@@ -58,11 +68,16 @@ useHarnessWorld(openSpecHarness, (w) => ({
 
 import { proveAccount } from '@libs/account-privacy-harness/privacy-actions';
 import {
+  bumpPuzzleFeedCustomRating,
+  closePuzzleFeedSettings,
   leaveChessStatsScreen,
+  openPuzzleFeedSettings,
   openPuzzleFromSpace,
   playUntilSolved,
+  setPuzzleFeedMode,
   showChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
+import { readFeedTargetLabel } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
 import {
   readStatsElo,
   readStatsRatingLabel,

@@ -80,18 +80,34 @@ export async function selectFeedMode(
     .tap({ timeoutMs: WAIT_MS });
 }
 
+async function tapTimes(
+  s: ProductHarness,
+  actorId: string,
+  handle: string,
+  steps: number
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  for (let i = 0; i < steps; i += 1) {
+    await ui.get(handle).tap({ timeoutMs: WAIT_MS });
+  }
+}
+
 /** Tap the offset "+" `steps` times (each step is one offset increment). */
 export async function increaseFeedOffset(
   s: ProductHarness,
   actorId: string,
   steps: number
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  for (let i = 0; i < steps; i += 1) {
-    await ui
-      .get(Handles.chessPuzzleFeedOffsetIncrease)
-      .tap({ timeoutMs: WAIT_MS });
-  }
+  await tapTimes(s, actorId, Handles.chessPuzzleFeedOffsetIncrease, steps);
+}
+
+/** Tap the offset "−" `steps` times. */
+export async function decreaseFeedOffset(
+  s: ProductHarness,
+  actorId: string,
+  steps: number
+): Promise<void> {
+  await tapTimes(s, actorId, Handles.chessPuzzleFeedOffsetDecrease, steps);
 }
 export type FeedAutoAdvance = 'off' | 'after1s' | 'immediate';
 
@@ -131,18 +147,31 @@ export async function selectFeedTheme(
 }
 
 /** Tap the custom target rating '+' `steps` times. */
-
 export async function increaseFeedCustomRating(
   s: ProductHarness,
   actorId: string,
   steps: number
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  for (let i = 0; i < steps; i += 1) {
-    await ui
-      .get(Handles.chessPuzzleFeedCustomRatingIncrease)
-      .tap({ timeoutMs: WAIT_MS });
-  }
+  await tapTimes(
+    s,
+    actorId,
+    Handles.chessPuzzleFeedCustomRatingIncrease,
+    steps
+  );
+}
+
+/** Tap the custom target rating '−' `steps` times. */
+export async function decreaseFeedCustomRating(
+  s: ProductHarness,
+  actorId: string,
+  steps: number
+): Promise<void> {
+  await tapTimes(
+    s,
+    actorId,
+    Handles.chessPuzzleFeedCustomRatingDecrease,
+    steps
+  );
 }
 
 export async function readFeedOffsetValue(
@@ -219,6 +248,19 @@ export async function readFeedHistoryLabel(
     await ui.get(Handles.chessPuzzleFeedHistoryLabel).text()
   );
   return raw.length > 0 ? raw : null;
+}
+
+/** The feed bar names `theme` as the one theme the feed is limited to. */
+export async function isFeedLimitedToTheme(
+  s: ProductHarness,
+  actorId: string,
+  theme: ChessPuzzleTheme
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  const raw = stripProbe(
+    await ui.get(Handles.chessPuzzleFeedThemesLabel).text()
+  );
+  return raw === formatChessPuzzleThemeLabel(theme);
 }
 
 export async function waitFeedTargetRating(

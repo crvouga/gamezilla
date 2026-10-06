@@ -64,6 +64,8 @@ import {
   activePuzzle,
   boardBefore,
   currentPuzzle,
+  deviceInHand,
+  ensureOnPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
   lastMoveKey,
@@ -207,7 +209,9 @@ Given(
 );
 
 Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
-  expect(await w.s.read(readActivePuzzleId, actor)).not.toBeNull();
+  const device = deviceInHand(w, actor);
+  await w.s.apply(focusActor, device);
+  expect(await w.s.read(readActivePuzzleId, device)).not.toBeNull();
 });
 
 Then(
@@ -240,6 +244,7 @@ When('{actor} solves the puzzle', async (w, actor: Actor) => {
 });
 
 Given('{actor} has solved the puzzle', async (w, actor: Actor) => {
+  await ensureOnPuzzle(w, actor);
   await solve(w, actor);
 });
 

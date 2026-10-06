@@ -54,9 +54,12 @@ function usePuzzleCandidateQueries(args: {
     ownerId: args.myId,
     themes: args.themes,
     currentPuzzleId: args.currentPuzzleId,
-    // Only the "hide played puzzles" feed can exhaust; every other filter
-    // already serves attempted puzzles on its own terms.
-    enabled: () => args.historyFilter() === 'neverSeen',
+    // Only the "hide played puzzles" feed over every theme comes round to
+    // played puzzles; every other history filter serves attempted puzzles
+    // on its own terms, and a chosen theme with nothing unplayed left is an
+    // empty feed until played puzzles are included.
+    enabled: () =>
+      args.historyFilter() === 'neverSeen' && args.themes().length === 0,
   });
   return { banded, fallback, exhausted };
 }

@@ -179,6 +179,13 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     transformer: (text: string) => text.split(/, | and /).sort(),
   },
   {
+    // "1450, 1650 and 1900": puzzle ratings, in the order written.
+    name: 'ratings',
+    regexp: /\d{3,4}(?:(?:, | and )\d{3,4})+/,
+    transformer: (text: string) =>
+      text.split(/, | and /).map((rating) => Number.parseInt(rating, 10)),
+  },
+  {
     name: 'chessSide',
     regexp: /White|Black/,
     transformer: (text: string) => text,

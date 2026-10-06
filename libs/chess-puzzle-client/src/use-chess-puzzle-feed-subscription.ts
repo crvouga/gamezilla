@@ -2,7 +2,10 @@ import type {
   ChessPuzzleFeedConfig,
   ChessPuzzlePoolRange,
 } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { chessPuzzlePoolRangesForRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import {
+  chessPuzzleNearestRating,
+  chessPuzzlePoolRangesForRating,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
@@ -14,14 +17,16 @@ import {
 import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 
 const POOL_QUERY_NAME = 'chessPuzzlePool';
+const NEAREST_QUERY_NAME = 'chessPuzzleNearest';
 
 function rangesKey(ranges: readonly ChessPuzzlePoolRange[]): string {
   return ranges.map((r) => `${r.ratingMin}-${r.ratingMax}`).join(',');
 }
 
 /**
- * Hydrate the puzzle pool bands around the player's effective rating for the
- * lifetime of the mounted feed. Re-subscribes only when the band set changes
+ * Hydrate the puzzle pool bands around the player's effective rating, and
+ * the servable puzzles nearest it wherever they sit (the §9 fallback when the
+ * bands hold nothing unplayed), for the lifetime of the mounted feed. Re-subscribes only when the band set changes
  * (rating crossing a band edge, or a feed-config edit), so per-solve Elo
  * drift does not churn subscriptions. Rows from earlier bands stay local.
  *
@@ -38,11 +43,18 @@ export function useChessPuzzleFeedSubscription(
     [],
     { equals: (a, b) => rangesKey(a) === rangesKey(b) }
   );
+  // Band-centred, so it changes only when the bands do.
+  const nearestRating = createMemo(() => chessPuzzleNearestRating(rating()));
   createEffect(() => {
     setPoolReady(false);
-    const handle = sync.subscribeQueries(
-      ranges().map((params) => ({ name: POOL_QUERY_NAME, params }))
-    );
+    const bands = ranges();
+    const handle = sync.subscribeQueries([
+      ...bands.map((params) => ({ name: POOL_QUERY_NAME, params })),
+      {
+        name: NEAREST_QUERY_NAME,
+        params: { rating: nearestRating() },
+      },
+    ]);
     let live = true;
     void handle.ready.then((ready) => {
       if (live && ready) setPoolReady(true);

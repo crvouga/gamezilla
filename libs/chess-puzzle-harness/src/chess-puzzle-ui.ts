@@ -128,17 +128,41 @@ async function waitBoardReady(
   );
 }
 
+/**
+ * Puzzle entry from the space's game menu, or from the chess choices when
+ * the actor is already inside chess (a keyboard account opens chess first).
+ */
+async function openPuzzleChoice(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) {
+    await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.chessMenuPuzzle)
+      .expect.visible({ timeoutMs: WAIT_MS });
+  }
+  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+}
+
 export async function openPuzzlePlay(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
   await waitActiveSpace(s, actorId);
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await openPuzzleChoice(s, actorId);
   await expectPlayReady(s, actorId);
+}
+
+/** The puzzle screen is the one on show. */
+export async function isPuzzlePlayScreenVisible(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessPuzzlePlayScreen).isVisible();
 }
 
 /**
@@ -149,11 +173,7 @@ export async function openPuzzlePlayNoWait(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await openPuzzleChoice(s, actorId);
 }
 
 /** §5 result panel CTA: "Next puzzle" inside the summary. */
@@ -920,6 +940,40 @@ export async function readGameLogRowTitle(
   }
 }
 
+export type GameLogRow = {
+  readonly title: string;
+  /** The puzzle's own rating, from the row's title ("Solved · 1458"). */
+  readonly puzzleRating: number | null;
+  /** The row's signed rating change, or `'unrated'`. */
+  readonly change: number | 'unrated' | null;
+};
+
+/** What the game log row of `puzzleId` shows, or null when there is none. */
+export async function readGameLogRow(
+  s: ProductHarness,
+  actorId: string,
+  puzzleId: string
+): Promise<GameLogRow | null> {
+  const title = await readGameLogRowTitle(s, actorId, puzzleId);
+  if (title === null) return null;
+  const ui = await actorUi(s, actorId);
+  const node = ui.get(Handles.chessGameLogRowChange(puzzleId));
+  const text = (await node.isVisible()) ? stripProbe(await node.text()) : '';
+  const signed = /^([+\-−]?)(\d+)$/.exec(text);
+  const rating = /(\d{3,4})\s*$/.exec(title)?.[1];
+  return {
+    title,
+    puzzleRating: rating === undefined ? null : Number.parseInt(rating, 10),
+    change:
+      signed === null
+        ? text.length > 0
+          ? 'unrated'
+          : null
+        : (signed[1] === '+' || signed[1] === '' ? 1 : -1) *
+          Number.parseInt(signed[2] ?? '0', 10),
+  };
+}
+
 export async function isGameLogEmpty(
   s: ProductHarness,
   actorId: string
@@ -963,6 +1017,16 @@ export async function isEmptyPoolVisible(
   const frame = ui.get(Handles.chessPuzzleBoardFrame);
   if (await frame.isVisible()) await frame.layout();
   return ui.get(Handles.chessPuzzleEmptyPool).isVisible();
+}
+
+/** The empty feed says it is empty because nothing was ever failed. */
+export async function isEmptyPoolForNoFailedAttempts(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  if (!(await isEmptyPoolVisible(s, actorId))) return false;
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessPuzzleEmptyPoolNoFailed).isVisible();
 }
 
 /** The permission denial surface that replaces the board at the limit. */
