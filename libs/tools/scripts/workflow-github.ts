@@ -22,6 +22,31 @@ export type GitHubTarget = {
   readonly automatic: boolean;
 };
 
+/** Fork checkouts must discover PRs on the configured repository, not its upstream. */
+export function hasAutomaticCheck(
+  target: Pick<GitHubTarget, 'repository' | 'branch' | 'sha'>,
+  ports: Pick<GitHubPorts, 'run'>
+): boolean {
+  const prs = JSON.parse(
+    ports.run([
+      'gh',
+      'pr',
+      'list',
+      '--repo',
+      target.repository,
+      '--head',
+      target.branch,
+      '--base',
+      'main',
+      '--state',
+      'open',
+      '--json',
+      'headRefOid',
+    ])
+  ) as readonly { headRefOid: string }[];
+  return prs.some((pr) => pr.headRefOid === target.sha);
+}
+
 export function selectWorkflow(
   workflows: readonly GitHubWorkflow[],
   sha: string

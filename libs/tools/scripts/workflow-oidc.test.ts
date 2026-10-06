@@ -7,7 +7,7 @@ const ACTION = join(
   import.meta.dirname,
   '../../../.github/actions/secrets-auth/impl-infisical/action.yml'
 );
-const AUDIENCE = 'https://github.com/gamezilla-org';
+const AUDIENCE = 'https://github.com/crvouga';
 type Step = { run?: string; uses?: string; with?: Record<string, string> };
 
 function steps(): Step[] {

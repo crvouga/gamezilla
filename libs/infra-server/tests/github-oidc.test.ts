@@ -8,9 +8,9 @@ const read = (path: string) => readFileSync(join(TOFU, path), 'utf8');
 
 // regression: github-transfer-immutable-oidc-subject
 test('CI trust matches the transferred repository immutable OIDC subject', () => {
-  // GET /repos/gamezilla-org/gamezilla/actions/oidc/customization/sub
-  // returned this prefix when Check run 36971916169 was denied by Infisical.
-  const prefix = 'repo:gamezilla-org@336801040/gamezilla@1165464734';
+  // The repository API resolves the former origin to crvouga (owner ID
+  // 49178412); the repository ID remains 1165464734.
+  const prefix = 'repo:crvouga@49178412/gamezilla@1165464734';
   const github = GLOBAL.github;
   expect(
     `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}`

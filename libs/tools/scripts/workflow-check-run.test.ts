@@ -3,6 +3,7 @@ import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
 import {
+  hasAutomaticCheck,
   selectWorkflow,
   startWorkflow,
   watchWorkflow,
@@ -16,6 +17,36 @@ const TARGET: GitHubTarget = {
   sha: SHA,
   automatic: false,
 };
+// regression: github-fork-upstream-check-discovery
+test('discovers the PR on the configured repository instead of the CLI default upstream', () => {
+  const commands: (readonly string[])[] = [];
+  expect(
+    hasAutomaticCheck(TARGET, {
+      run: (command) => {
+        commands.push(command);
+        return JSON.stringify([{ headRefOid: SHA }]);
+      },
+    })
+  ).toBe(true);
+  expect(commands).toEqual([
+    [
+      'gh',
+      'pr',
+      'list',
+      '--repo',
+      'gamezilla-org/gamezilla',
+      '--head',
+      TARGET.branch,
+      '--base',
+      'main',
+      '--state',
+      'open',
+      '--json',
+      'headRefOid',
+    ],
+  ]);
+});
+
 function workflow(conclusion = '', id = 42): GitHubWorkflow {
   return {
     databaseId: id,

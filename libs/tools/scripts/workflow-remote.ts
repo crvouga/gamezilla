@@ -7,6 +7,7 @@ import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
 import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
 import {
+  hasAutomaticCheck,
   listWorkflows,
   selectWorkflow,
   startWorkflow,
@@ -204,25 +205,6 @@ function reportUrl(sha: string): string {
   return `https://${env.hosts.apex}/reports/${sha}`;
 }
 
-function hasAutomaticCheck(branch: string, sha: string): boolean {
-  const prs = JSON.parse(
-    must([
-      'gh',
-      'pr',
-      'list',
-      '--head',
-      branch,
-      '--base',
-      'main',
-      '--state',
-      'open',
-      '--json',
-      'headRefOid',
-    ])
-  ) as readonly { headRefOid: string }[];
-  return prs.some((pr) => pr.headRefOid === sha);
-}
-
 async function runCommand(argv: readonly string[]): Promise<number> {
   const command = argv[0] ?? '';
   if (!isRemoteCommand(command))
@@ -234,12 +216,15 @@ async function runCommand(argv: readonly string[]): Promise<number> {
   const config = JSON.parse(readFileSync(GLOBAL_FILE, 'utf8')) as {
     github: { owner: string; repo: string };
   };
+  const repository = `${config.github.owner}/${config.github.repo}`;
   const target: GitHubTarget = {
-    repository: `${config.github.owner}/${config.github.repo}`,
+    repository,
     workflow: policy.workflow,
     branch,
     sha,
-    automatic: command === 'check' && hasAutomaticCheck(branch, sha),
+    automatic:
+      command === 'check' &&
+      hasAutomaticCheck({ repository, branch, sha }, { run: must }),
   };
   // A pull request's Check publishes no report (check.yml `check-reports`).
   if (policy.printsReport && !target.automatic)

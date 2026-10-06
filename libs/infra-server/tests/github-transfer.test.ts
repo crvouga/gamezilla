@@ -6,10 +6,10 @@ import { GLOBAL } from '@libs/infra-shared/global';
 test('the transferred repository supplies its current OIDC subject and audience', () => {
   // regression: ci-repository-transfer-oidc-subject
   expect(`repo:${GLOBAL.github.owner}/${GLOBAL.github.repo}:pull_request`).toBe(
-    'repo:gamezilla-org/gamezilla:pull_request'
+    'repo:crvouga/gamezilla:pull_request'
   );
   expect(`https://github.com/${GLOBAL.github.owner}`).toBe(
-    'https://github.com/gamezilla-org'
+    'https://github.com/crvouga'
   );
 });
 
@@ -19,7 +19,7 @@ test('CI trusts the literal immutable subject returned after the repository tran
   const github = GLOBAL.github;
   expect(
     `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}:pull_request`
-  ).toBe('repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request');
+  ).toBe('repo:crvouga@49178412/gamezilla@1165464734:pull_request');
   const tofu = join(import.meta.dirname, '../../infra-shared/tofu');
   const bootstrap = readFileSync(
     join(tofu, 'stacks/bootstrap/main.tf'),
