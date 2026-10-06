@@ -207,6 +207,7 @@
         "@libs/billing-shared": "workspace:*",
         "@libs/db-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/room-app-server": "workspace:*",
         "@libs/room-app-shared": "workspace:*",
         "@libs/runtime-server": "workspace:*",
@@ -402,6 +403,8 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
@@ -482,6 +485,7 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/db-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/pubsub-server": "workspace:*",
         "@libs/pubsub-shared": "workspace:*",
@@ -529,6 +533,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@opentelemetry/api": "catalog:",
         "@pkgs/assert-root-shared": "workspace:*",
@@ -570,6 +575,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -623,6 +629,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/auth-root-shared": "workspace:*",
@@ -636,7 +643,6 @@
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
-        "@pkgs/word-filter-shared": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -789,6 +795,8 @@
         "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -885,6 +893,8 @@
         "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -1394,6 +1404,8 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/friends-shared": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/notifications-client": "workspace:*",
         "@libs/notifications-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
@@ -1559,6 +1571,7 @@
         "@libs/db-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/a11y-shared": "workspace:*",
@@ -1676,12 +1689,45 @@
         "wrangler": "catalog:",
       },
     },
+    "libs/moderation-client": {
+      "name": "@libs/moderation-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/moderation-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/moderation-shared": {
+      "name": "@libs/moderation-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/moderation-shared": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
+        "@pkgs/word-filter-shared": "workspace:*",
+        "unique-names-generator": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/notifications-client": {
       "name": "@libs/notifications-client",
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/notifications-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
@@ -1855,6 +1901,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/billing-root-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
@@ -1882,11 +1929,14 @@
         "@libs/auth-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/profile-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/clock-client": "workspace:*",
+        "@pkgs/i18n-shared": "workspace:*",
         "@pkgs/secure-storage-root-client": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
@@ -1911,6 +1961,7 @@
       "dependencies": {
         "@libs/auth-shared": "workspace:*",
         "@libs/harness": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
         "@libs/profile-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
@@ -1948,13 +1999,13 @@
         "@dicebear/core": "catalog:",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
-        "@pkgs/word-filter-shared": "workspace:*",
         "unique-names-generator": "catalog:",
         "zod": "catalog:",
       },
@@ -2049,6 +2100,7 @@
       "devDependencies": {
         "@libs/app-root-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/runtime-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/auth-inhouse-client": "workspace:*",
@@ -2286,6 +2338,8 @@
         "@libs/auth-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -2319,10 +2373,15 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@lingui/core": "catalog:",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/keyword-shared": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
+        "@pkgs/secure-storage-root-client": "workspace:*",
+        "@pkgs/secure-storage-root-shared": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2383,6 +2442,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/feature-shared": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
@@ -2441,6 +2501,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
+        "@libs/moderation-client": "workspace:*",
+        "@libs/moderation-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-client": "workspace:*",
@@ -4131,6 +4193,20 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/moderation-shared": {
+      "name": "@pkgs/moderation-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "obscenity": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -5947,6 +6023,7 @@
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
     "serialize-javascript": "7.0.5",
+    "seroval": "1.6.8",
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
     "smol-toml": "^1.8.0",
@@ -6034,6 +6111,7 @@
     "make-plural": "^8.1.0",
     "mqtt": "^5.16.0",
     "node-sql-parser": "^5.4.0",
+    "obscenity": "^0.4.6",
     "oxlint": "^1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
     "pg": "^8.23.1",
@@ -6754,6 +6832,10 @@
 
     "@libs/infra-shared": ["@libs/infra-shared@workspace:libs/infra-shared"],
 
+    "@libs/moderation-client": ["@libs/moderation-client@workspace:libs/moderation-client"],
+
+    "@libs/moderation-shared": ["@libs/moderation-shared@workspace:libs/moderation-shared"],
+
     "@libs/notifications-client": ["@libs/notifications-client@workspace:libs/notifications-client"],
 
     "@libs/notifications-harness": ["@libs/notifications-harness@workspace:libs/notifications-harness"],
@@ -7247,6 +7329,8 @@
     "@pkgs/matchmaking-sql-shared": ["@pkgs/matchmaking-sql-shared@workspace:pkgs/matchmaking-sql-shared"],
 
     "@pkgs/message-shared": ["@pkgs/message-shared@workspace:pkgs/message-shared"],
+
+    "@pkgs/moderation-shared": ["@pkgs/moderation-shared@workspace:pkgs/moderation-shared"],
 
     "@pkgs/ndjson-client": ["@pkgs/ndjson-client@workspace:pkgs/ndjson-client"],
 
@@ -8514,6 +8598,8 @@
 
     "object.assign": ["object.assign@4.1.7", "", { "dependencies": { "call-bind": "^1.0.8", "call-bound": "^1.0.3", "define-properties": "^1.2.1", "es-object-atoms": "^1.0.0", "has-symbols": "^1.1.0", "object-keys": "^1.1.1" } }, "sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw=="],
 
+    "obscenity": ["obscenity@0.4.6", "", {}, "sha512-pHk7kNN7j3L3zGhhGnwxjvXIGsPpLrcZl2r58fqWh/V/rH6b/dafscj2sMmAY+A/9/wPsocLmimgGk2DKeKsFQ=="],
+
     "once": ["once@1.4.0", "", { "dependencies": { "wrappy": "1" } }, "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w=="],
 
     "onetime": ["onetime@7.0.0", "", { "dependencies": { "mimic-function": "^5.0.0" } }, "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ=="],
@@ -8714,7 +8800,7 @@
 
     "serialize-javascript": ["serialize-javascript@7.0.5", "", {}, "sha512-F4LcB0UqUl1zErq+1nYEEzSHJnIwb3AF2XWB94b+afhrekOUijwooAYqFyRbjYkm2PAKBabx6oYv/xDxNi8IBw=="],
 
-    "seroval": ["seroval@1.5.6", "", {}, "sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA=="],
+    "seroval": ["seroval@1.6.8", "", {}, "sha512-HlSgSAkTk4EqHcje1ptJjfZi1YDv5KbhVJ/d3P7T/nAXua2VmDu+AKDX5VTdFfZf48nDkWB2TKYt0DrCSa+3wg=="],
 
     "seroval-plugins": ["seroval-plugins@1.5.6", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ=="],
 

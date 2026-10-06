@@ -3,6 +3,7 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import {
   publishCheckArtifacts,
   restoreCheckArtifacts,
@@ -11,11 +12,32 @@ import { readLatestRunSummary } from './check-budget';
 import { createCheckSnapshot } from './check-snapshot';
 import { archiveCheckSnapshot } from './check-snapshot-archive';
 import { killProcessTree } from './kill-process-tree';
+import { localCheckLeasePath, openLocalCheckLease } from './local-check-lease';
+import {
+  launchLocalCheck,
+  watchLocalCheckCancellation,
+} from './local-check-process';
+import { localCheckEnv, withLocalCheckSlot } from './local-check-queue';
 
 export async function runLocalCheck(
   source: string,
-  args: string[]
+  args: string[],
+  signal: AbortSignal
 ): Promise<number> {
+  return withLocalCheckSlot(() => runIsolatedCheck(source, args, signal), {
+    openLease: () => openLocalCheckLease(localCheckLeasePath()),
+    sleep: (signal) => sleep(1000, undefined, { signal }),
+    signal,
+    queued: () => console.log('check:local: queued behind another local check'),
+  });
+}
+
+async function runIsolatedCheck(
+  source: string,
+  args: string[],
+  signal: AbortSignal
+): Promise<number> {
+  console.log('check:local: acquired machine-wide slot');
   const started = process.hrtime.bigint();
   const root = await createCheckSnapshot(source);
   console.log(
@@ -23,7 +45,7 @@ export async function runLocalCheck(
   );
   console.log(`check:local: private run directory ${root}`);
   try {
-    return await runSnapshot(root, source, args);
+    return await runSnapshot(root, source, args, signal);
   } finally {
     const archive = await archiveCheckSnapshot(root);
     console.log(`check:local: diagnostics archived at ${archive}`);
@@ -33,7 +55,8 @@ export async function runLocalCheck(
 async function runSnapshot(
   root: string,
   source: string,
-  args: string[]
+  args: string[],
+  signal: AbortSignal
 ): Promise<number> {
   const store = join(source, '.cache/check-artifacts');
   const cache = join(root, '.turbo/cache');
@@ -42,7 +65,7 @@ async function runSnapshot(
   const temporary = join(dirname(root), 'tmp');
   mkdirSync(temporary, { recursive: true });
   const env = {
-    ...process.env,
+    ...localCheckEnv(process.env),
     TMPDIR: temporary,
     TMP: temporary,
     TEMP: temporary,
@@ -53,44 +76,71 @@ async function runSnapshot(
       .filter(Boolean)
       .join(':'),
   };
-  const child = spawn(process.execPath, ['run', 'generate'], {
-    cwd: root,
-    stdio: 'inherit',
-    env,
-  });
-  const generated = await new Promise<number>((resolve) => {
-    child.on('error', () => resolve(1));
-    child.on('exit', (code) => resolve(code ?? 1));
-  });
+  const generated = await runCheckChild(root, ['run', 'generate'], env, signal);
   if (generated !== 0) return generated;
-  const runner = spawn(
-    process.execPath,
+  const verdict = await runCheckChild(
+    root,
     ['run', 'libs/tools/scripts/turbo-ci-run.ts', 'check', ...args],
-    {
-      cwd: root,
-      stdio: 'inherit',
-      env,
-    }
+    env,
+    signal
   );
-  const terminate = () => {
-    if (runner.pid !== undefined) killProcessTree(runner.pid, 'SIGTERM');
-  };
-  process.once('SIGINT', terminate);
-  process.once('SIGTERM', terminate);
-  const verdict = await new Promise<number>((resolve) => {
-    runner.on('error', () => resolve(1));
-    runner.on('exit', (code) => {
-      process.removeListener('SIGINT', terminate);
-      process.removeListener('SIGTERM', terminate);
-      resolve(code ?? 1);
-    });
-  });
   publishCheckArtifacts(cache, store, readLatestRunSummary(root));
   return verdict;
 }
 
+async function runCheckChild(
+  root: string,
+  args: string[],
+  env: NodeJS.ProcessEnv,
+  signal: AbortSignal
+): Promise<number> {
+  signal.throwIfAborted();
+  const child = spawn(process.execPath, args, {
+    cwd: root,
+    stdio: 'inherit',
+    env,
+  });
+  const terminate = () => {
+    if (child.pid !== undefined) killProcessTree(child.pid, 'SIGKILL');
+  };
+  signal.addEventListener('abort', terminate, { once: true });
+  if (signal.aborted) terminate();
+  return new Promise((resolve) => {
+    const finish = (code: number) => {
+      signal.removeEventListener('abort', terminate);
+      resolve(signal.aborted ? 130 : code);
+    };
+    child.once('error', () => finish(1));
+    child.once('close', (code) => finish(code ?? 1));
+  });
+}
+
+async function workerMain(): Promise<number> {
+  const controller = new AbortController();
+  const unwatch = watchLocalCheckCancellation(controller, process);
+  const cancel = () => controller.abort();
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const)
+    process.on(signal, cancel);
+  if (!process.connected) cancel();
+  try {
+    return await runLocalCheck(
+      join(import.meta.dirname, '../../..'),
+      process.argv.slice(2),
+      controller.signal
+    );
+  } catch (error) {
+    if (controller.signal.aborted) return 130;
+    throw error;
+  } finally {
+    unwatch();
+    for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const)
+      process.off(signal, cancel);
+    if (process.connected) process.disconnect();
+  }
+}
+
 if (import.meta.main)
-  process.exitCode = await runLocalCheck(
-    join(import.meta.dirname, '../../..'),
-    process.argv.slice(2)
-  );
+  process.exitCode =
+    process.send === undefined
+      ? await launchLocalCheck(process.argv.slice(2))
+      : await workerMain();

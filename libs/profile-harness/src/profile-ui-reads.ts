@@ -1,6 +1,9 @@
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { standInName, usernameText } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
+import sql from '@pkgs/sql-root-shared/sql';
 import { backToProfileTab, NAV_WAIT_MS } from './profile-actions';
 
 export async function readUsername(
@@ -131,4 +134,66 @@ export async function readSavedAvatar(
   } catch {
     return null;
   }
+}
+
+/**
+ * The actor's profile id, as their device knows its own person (a guest's
+ * anonymous account included), or `null` before the app has one.
+ */
+export async function profileIdOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const id = (await s.harness.client(actorId)).secureStorage.getValue(
+    LAST_LOCAL_ACCOUNT_ID_KEY
+  );
+  return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
+/**
+ * The stand-in name everyone sees for the actor while their username is no
+ * longer allowed (the same every time for that person).
+ */
+export async function standInNameOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const id = await profileIdOf(s, actorId);
+  return id === null ? null : standInName(id);
+}
+
+/**
+ * The actor's Profile tab tells them other people see a stand-in name until
+ * they rename themselves (backs out to the tab first).
+ */
+export async function standInNoticeShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    await backToProfileTab(ui);
+    return await ui.get(Handles.profileStandInNotice).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The actor's name as everyone else sees it: their saved username, or their
+ * stand-in name while it is no longer allowed.
+ */
+export async function nameEveryoneSeesOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const id = await profileIdOf(s, actorId);
+  if (id === null) return null;
+  const rows = await s.harness.serverSql.sqlClient.query(sql<{
+    readonly username: string;
+  }>`
+    SELECT username FROM profile WHERE id = ${id} AND deleted_at IS NULL`);
+  const username = rows[0]?.username;
+  if (username === undefined) return null;
+  return usernameText(s.harness.teamRules.moderation.current(), username, id);
 }

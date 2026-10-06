@@ -10,6 +10,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile-shared/username';
 import {
   cancelAvatarEdits,
   leaveAvatarEditor,
@@ -28,7 +29,13 @@ import {
   readProfileUsernameShown,
   readSavedAvatar,
   readUsernameSaveFace,
+  standInNameOf,
+  standInNoticeShown,
 } from './profile-ui-reads';
+import {
+  startAllowingUsername,
+  stopAllowingUsername,
+} from './team-rule-actions';
 
 const SECOND_MS = 1_000;
 
@@ -79,15 +86,33 @@ When("{actor}'s account opens on another device", async (w, actor: Actor) => {
   await w.s.apply(returnToTabs, otherDevice(actor));
 });
 
+/** `actor` saves `username`, failing the scenario if it is not saved. */
+async function takeUsername(
+  w: HarnessWorld,
+  actor: Actor,
+  username: string
+): Promise<void> {
+  await tryUsername(w, actor, username);
+  const face = await w.s.read(readUsernameSaveFace, actor);
+  if (face !== 'Saved') {
+    throw new Error(`${actor} could not take @${username}: ${face}`);
+  }
+  await w.s.apply(leaveUsernameEditor, actor);
+}
+
 Given(
   "{actor}'s username is {username}",
   async (w, actor: Actor, username: string) => {
-    await tryUsername(w, actor, username);
-    const face = await w.s.read(readUsernameSaveFace, actor);
-    if (face !== 'Saved') {
-      throw new Error(`${actor} could not take @${username}: ${face}`);
-    }
-    await w.s.apply(leaveUsernameEditor, actor);
+    await takeUsername(w, actor, username);
+    // A username they have, not one they changed moments ago.
+    await w.s.advanceTime(USERNAME_CHANGE_COOLDOWN_MS * 2);
+  }
+);
+
+Given(
+  '{actor} has just renamed themselves to {username}',
+  async (w, actor: Actor, username: string) => {
+    await takeUsername(w, actor, username);
   }
 );
 
@@ -147,7 +172,7 @@ When(
 );
 
 Then(
-  "{actor}'s profile shows {username}",
+  "{actor}'s profile (still )shows {username}",
   async (w, actor: Actor, username: string) => {
     await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
       pred: (shown) => shown === username,
@@ -224,3 +249,44 @@ Then('{actor} already has an avatar', async (w, actor: Actor) => {
     pred: (avatar) => avatar !== null && (avatar.seed ?? '') !== '',
   });
 });
+
+// ------------------------------------------------------------ team rules
+
+When(
+  'the team stops allowing the username {username}',
+  async (w, username: string) => {
+    await w.s.apply(stopAllowingUsername, username);
+  }
+);
+
+Given(
+  'the team has stopped allowing the username {username}',
+  async (w, username: string) => {
+    await w.s.apply(stopAllowingUsername, username);
+  }
+);
+
+When(
+  'the team starts allowing the username {username} again',
+  async (w, username: string) => {
+    await w.s.apply(startAllowingUsername, username);
+  }
+);
+
+Then(
+  "{actor}'s profile (still )shows a stand-in name",
+  async (w, actor: Actor) => {
+    const standIn = await w.s.read(standInNameOf, actor);
+    expect(standIn).not.toBeNull();
+    await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
+      pred: (shown) => shown === standIn,
+    });
+  }
+);
+
+Then(
+  '{actor} is told other people see a stand-in name until they rename themselves',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => standInNoticeShown(harness, actor));
+  }
+);

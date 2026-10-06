@@ -32,6 +32,7 @@ export type MutationModalLabels = {
 
 export type MutationModalIds = {
   submitDataSet: ComponentDataSet | undefined;
+  cancelDataSet: ComponentDataSet | undefined;
   successDataSet: ComponentDataSet | undefined;
   dismissDataSet: ComponentDataSet | undefined;
 };
@@ -171,7 +172,7 @@ export function MutationIdle(props: {
           label={props.labels.cancelLabel ?? t`Cancel`}
           variant="cancel"
           onClick={() => props.onClose()}
-          dataSet={{ action: 'cancel' }}
+          dataSet={{ action: 'cancel', ...props.ids.cancelDataSet }}
         />
       </ModalFooter>
     </>

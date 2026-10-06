@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared/bounds';
 import type {
+  ContentRules,
   MutationAuthorize,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
@@ -43,6 +44,11 @@ export type ProcessMutationsBatchDeps = {
   readonly createId: CreateId;
   readonly authorize?: MutationAuthorize;
   /**
+   * The app's content rules as they stood at a write's time (its
+   * `created_at`), handed to the mutation body as `env.contentRules`.
+   */
+  readonly contentRulesAt?: (atMs: number) => ContentRules;
+  /**
    * Called after each mutation attempt (applied/rejected/duplicate).
    * Harness uses this for in-txn fault injection at the replay loop boundary.
    */
@@ -75,6 +81,9 @@ export async function processMutationsBatch(
         now: deps.now,
         createId: deps.createId,
         ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+        ...(deps.contentRulesAt !== undefined
+          ? { contentRulesAt: deps.contentRulesAt }
+          : {}),
       },
       row
     );

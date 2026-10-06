@@ -259,6 +259,9 @@ function snapshotMutationEnv(env: MutationEnv): MutationEnv {
     isAnon: env.isAnon,
     now: env.now,
     createId: env.createId,
+    ...(env.contentRules === undefined
+      ? {}
+      : { contentRules: env.contentRules }),
   };
   if (env.serverNow === undefined) {
     return snapshot;

@@ -2028,6 +2028,11 @@ msgstr "os"
 msgid "OS"
 msgstr "OS"
 
+#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/stand-in-notice.tsx
+msgid "Other people see you as {alias} until you choose a new username"
+msgstr "Other people see you as {alias} until you choose a new username"
+
 #: pkgs/ui-devtools-client/src/data-table-pagination.tsx
 msgid "Page {current} of {total}"
 msgstr "Page {current} of {total}"
@@ -3051,6 +3056,10 @@ msgstr "That side is no longer open."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "That side is not available to you."
 msgstr "That side is not available to you."
+
+#: libs/spaces-client/src/rename-space-modal.tsx
+msgid "That space name is not allowed"
+msgstr "That space name is not allowed"
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."

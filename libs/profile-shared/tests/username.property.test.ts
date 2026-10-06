@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import {
   canChangeUsername,
   normalizeUsername,
@@ -9,8 +12,9 @@ import {
   validateUsername,
 } from '@libs/profile-shared/username';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
 import fc from 'fast-check';
+
+const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
 const ALPHABET = [
   ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_',
@@ -43,9 +47,11 @@ describe('validateUsername', () => {
       fc.property(arbRaw, arbPadding, arbPadding, (raw, pre, post) => {
         const once = normalizeUsername(raw);
         expect(normalizeUsername(once)).toBe(once);
-        expect(validateUsername(once)).toBe(validateUsername(raw));
-        expect(validateUsername(`${pre}${raw}${post}`)).toBe(
-          validateUsername(raw)
+        expect(validateUsername(once, moderation)).toBe(
+          validateUsername(raw, moderation)
+        );
+        expect(validateUsername(`${pre}${raw}${post}`, moderation)).toBe(
+          validateUsername(raw, moderation)
         );
       })
     );
@@ -55,12 +61,12 @@ describe('validateUsername', () => {
     assertProperty(
       'accepted => well formed',
       fc.property(arbRaw, (raw) => {
-        if (validateUsername(raw) !== null) return;
+        if (validateUsername(raw, moderation) !== null) return;
         const name = normalizeUsername(raw);
         expect(name.length).toBeGreaterThanOrEqual(USERNAME_MIN_LENGTH);
         expect(name.length).toBeLessThanOrEqual(USERNAME_MAX_LENGTH);
         expect(isInAlphabet(name)).toBe(true);
-        expect(containsBlockedTerm(name)).toBe(false);
+        expect(moderation.checkWrite('username', name).allowed).toBe(true);
       })
     );
   });
@@ -76,10 +82,10 @@ describe('validateUsername', () => {
               ? 'too_short'
               : name.length > USERNAME_MAX_LENGTH
                 ? 'too_long'
-                : containsBlockedTerm(name)
+                : !moderation.checkWrite('username', name).allowed
                   ? 'blocked'
                   : null;
-        expect(validateUsername(name)).toBe(expected);
+        expect(validateUsername(name, moderation)).toBe(expected);
       })
     );
   });
@@ -98,7 +104,9 @@ describe('validateUsername', () => {
             .slice(0, USERNAME_MAX_LENGTH)
             .padEnd(USERNAME_MIN_LENGTH, 'z');
           fc.pre(!isInAlphabet(candidate));
-          expect(validateUsername(candidate)).toBe('invalid_format');
+          expect(validateUsername(candidate, moderation)).toBe(
+            'invalid_format'
+          );
         }
       )
     );
@@ -108,8 +116,8 @@ describe('validateUsername', () => {
     assertProperty(
       'validate(lower(x)) = validate(x)',
       fc.property(arbWellFormed, (name) => {
-        expect(validateUsername(name.toLowerCase())).toBe(
-          validateUsername(name)
+        expect(validateUsername(name.toLowerCase(), moderation)).toBe(
+          validateUsername(name, moderation)
         );
       })
     );

@@ -30,6 +30,7 @@ import {
   openHarnessBillingProviders,
 } from './billing';
 import type { HarnessBrowser } from './browser';
+import { browserLookup } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
@@ -62,6 +63,8 @@ import {
 } from './sql';
 import type { HarnessSql } from './sql-types';
 import { sharedSqlClient } from './sql-types';
+import type { HarnessTeamRules } from './team-rules';
+import { createHarnessTeamRules } from './team-rules';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
 const HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL =
@@ -99,6 +102,8 @@ export type Harness = {
   readonly idps: HarnessIdps;
   /** The payment providers, when the composition sells something. */
   readonly billing: HarnessBillingProviders | null;
+  /** The team's moderation rules every device and API instance runs with. */
+  readonly teamRules: HarnessTeamRules;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
   clientNamespace(id: string): string;
@@ -166,13 +171,15 @@ type SharedServerServices = {
   readonly llm: ServerEnv['llm'];
   readonly secrets: ServerEnv['secrets'];
   readonly auth: ServerEnv['auth'];
+  readonly moderation: ServerEnv['moderation'];
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
 };
 
 function buildSharedServerServices(
   serverSql: HarnessSql,
   appleKeys: AppleClientKeys,
-  auth: ServerEnv['auth']
+  auth: ServerEnv['auth'],
+  moderation: ServerEnv['moderation']
 ): SharedServerServices {
   const secrets = createRecordSecretStore({
     DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
@@ -187,6 +194,7 @@ function buildSharedServerServices(
     secrets,
     // The simulated deployment signs in through the in-house IdP.
     auth,
+    moderation,
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
 }
@@ -228,6 +236,7 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     llm: shared.llm,
     secrets: shared.secrets,
     auth: shared.auth,
+    moderation: shared.moderation,
     protection: 'standard',
     serverUrl: HARNESS_SERVER_URL,
     skipDatabaseUrlPolicy: true,
@@ -240,6 +249,7 @@ type HarnessKernel = {
   readonly composition: HarnessComposition;
   readonly idps: HarnessIdps;
   readonly billing: HarnessBillingProviders | null;
+  readonly teamRules: HarnessTeamRules;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createHarnessNet>;
@@ -283,6 +293,38 @@ async function openServerSql(
   return serverSql;
 }
 
+/** Each API instance's env, wired to this deployment's shared services. */
+function serverEnvBuilder(deps: {
+  readonly session: Session;
+  readonly seed: bigint;
+  readonly timers: Timers;
+  readonly shared: SharedServerServices;
+  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+  readonly idps: HarnessIdps;
+  readonly net: ReturnType<typeof createHarnessNet>;
+  readonly billing: HarnessBillingProviders | null;
+}): (id: string) => Promise<ServerEnv> {
+  const { session, idps, net, billing } = deps;
+  return (id) =>
+    Promise.resolve(
+      buildServerEnv({
+        id,
+        session,
+        seed: deps.seed,
+        timers: deps.timers,
+        shared: deps.shared,
+        pubSubBus: deps.pubSubBus,
+        vendorFetch: harnessIdpFetchFrom({ idps, net, from: id }),
+        billing: harnessMembershipBilling({
+          billing,
+          net,
+          from: id,
+          clock: session.ports.clock,
+        }),
+      })
+    );
+}
+
 async function bootHarnessKernel(
   session: Session,
   opts: CreateHarnessOptions
@@ -301,10 +343,12 @@ async function bootHarnessKernel(
     toApi: () => loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID),
   });
   const serverSql = await openServerSql(session, opts);
+  const teamRules = createHarnessTeamRules(session.ports.clock);
   const shared = buildSharedServerServices(
     serverSql,
     appleKeys,
-    composition.authProvider ?? INHOUSE_AUTH_PROVIDER
+    composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
+    teamRules.moderation
   );
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
@@ -324,24 +368,16 @@ async function bootHarnessKernel(
   const servers = createHarnessServerNodes({
     composition,
     rooms,
-    buildEnv: (id) =>
-      Promise.resolve(
-        buildServerEnv({
-          id,
-          session,
-          seed,
-          timers,
-          shared,
-          pubSubBus,
-          vendorFetch: harnessIdpFetchFrom({ idps, net, from: id }),
-          billing: harnessMembershipBilling({
-            billing,
-            net,
-            from: id,
-            clock: session.ports.clock,
-          }),
-        })
-      ),
+    buildEnv: serverEnvBuilder({
+      session,
+      seed,
+      timers,
+      shared,
+      pubSubBus,
+      idps,
+      net,
+      billing,
+    }),
     disposed: () => disposed.value,
   });
   const loadBalancer = createHarnessLoadBalancer({
@@ -354,6 +390,7 @@ async function bootHarnessKernel(
     composition,
     idps,
     billing,
+    teamRules,
     seed,
     timers,
     net,
@@ -475,12 +512,9 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     loadBalancer: kernel.loadBalancer,
     idps,
     billing: kernel.billing,
+    teamRules: kernel.teamRules,
     client,
-    browser: (id) => {
-      const browser = browsers.get(id);
-      assert.defined(browser, `harness browser missing for ${id}`);
-      return browser;
-    },
+    browser: browserLookup(browsers),
     ...serverHandles(servers, net),
     async spawnClient(id, env) {
       const existing = liveClients.get(id);

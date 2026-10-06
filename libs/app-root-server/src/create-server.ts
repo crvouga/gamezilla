@@ -251,6 +251,7 @@ function createSyncAppMount(
     authorizeServerMutation: servers.authorizeMutation,
     now: () => env.clock.now(),
     createId: env.createId,
+    moderation: env.moderation,
     ...(env.protection === 'production' ? {} : { strictQueryLimits: true }),
   });
 }

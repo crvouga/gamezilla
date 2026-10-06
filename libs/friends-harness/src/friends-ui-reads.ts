@@ -42,6 +42,26 @@ export async function friendRequestCardVisible(
   }
 }
 
+/**
+ * What the actor's inbox card for a friend request from `fromUsername` reads
+ * (opens the tab); `null` while there is none.
+ */
+export async function friendRequestCardText(
+  s: ProductHarness,
+  actorId: string,
+  fromUsername: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.tabNotifications).tap({ timeoutMs: 2_000 });
+    return await ui
+      .get(Handles.notificationsFriendRequestCard(fromUsername))
+      .text();
+  } catch {
+    return null;
+  }
+}
+
 /** A search result row for `username` offers Add (no friendship, no pending request). */
 export async function addFriendOffered(
   s: ProductHarness,

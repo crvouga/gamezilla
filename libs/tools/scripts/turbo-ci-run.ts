@@ -72,6 +72,7 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+import { checkCacheConcurrency } from './check-cache-concurrency';
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
 import type { ReportTaskIdentity } from './check-report-stream';
@@ -418,7 +419,7 @@ function turboCiFlags(
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
   const TURBO_CI_FLAGS = [
     `--concurrency=${resolveConcurrency()}`,
-    `--cache-workers=${String(CACHE_WORKERS)}`,
+    `--cache-workers=${String(checkCacheConcurrency(process.env, CACHE_WORKERS))}`,
     `--cache=${cache}`,
     '--framework-inference=false',
     '--summarize',
