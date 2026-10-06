@@ -1,8 +1,22 @@
 import { expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 
 const ROOT = join(import.meta.dirname, '../../..');
+
+// regression: github-check-test-concurrency-oversubscription
+test('a two-core Check runner never starts twenty concurrent test processes', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(join(ROOT, '.github/workflows/check.yml'), 'utf8')
+  ) as { env: Record<string, string | number> };
+  const env = {
+    CHECK_TEST_CONCURRENCY: String(workflow.env['CHECK_TEST_CONCURRENCY']),
+  };
+  expect(testConcurrency(env, 20)).toBe(1);
+  expect(testConcurrency(env, 2)).toBe(1);
+  expect(workflow.env['CHECK_CONCURRENCY']).toEndWith("|| '1' }}");
+});
 
 // regression: ci-provider-native-ci-runner-routing
 test('only GitHub Actions owns Check, Deploy and Health triggers', () => {

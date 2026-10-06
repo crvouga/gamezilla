@@ -31,6 +31,7 @@ env:
   TURBO_CACHE_DIR: .turbo/cache
   RAYON_NUM_THREADS: 1
   CHECK_LINT_THREADS: 1
+  CHECK_TEST_CONCURRENCY: 1
   GOMAXPROCS: 1
   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx4096m -Xms512m
@@ -41,7 +42,7 @@ env:
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
   CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '16' }}
-  CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '2' }}
+  CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:

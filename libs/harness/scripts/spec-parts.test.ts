@@ -77,6 +77,30 @@ describe('partOf', () => {
   const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
 
+  // regression: github-chess-board-spec-single-part-timeout
+  test('eight board parts retain every unit of the original seven-model suite', () => {
+    const original = Array.from(
+      { length: 7 },
+      (_, i) => `specs/chess-board/model-${i}.qnt`
+    ).flatMap((path) => specUnits(path, '', 1));
+    const split = [...new Set(original.map((u) => u.path))].flatMap((path) =>
+      specUnits(path, '', 8)
+    );
+    expect(split).toEqual(original);
+    const parts = Array.from({ length: 8 }, (_, index) =>
+      partOf(split, { index, count: 8 })
+    );
+    expect(
+      parts
+        .flat()
+        .sort(
+          (a, b) =>
+            a.path.localeCompare(b.path) || a.slice!.index - b.slice!.index
+        )
+    ).toEqual(original);
+    expect(Math.max(...parts.map((part) => part.length))).toBe(7);
+  });
+
   test('every unit lands in exactly one part', () => {
     const parts = [0, 1, 2].map((index) => partOf(units, { index, count: 3 }));
     expect(paths(parts.flat()).sort()).toEqual(['a', 'b', 'c', 'd']);
