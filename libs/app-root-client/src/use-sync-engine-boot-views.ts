@@ -76,6 +76,7 @@ function useSyncBootPromise(args: {
       timers: env.timers,
       createId: env.createId,
       random: env.random,
+      moderation: env.moderation,
       getFreshAuthToken: () => Promise.resolve(identity.sessionToken()),
       databaseName: databaseName(),
       userId: args.userId(),

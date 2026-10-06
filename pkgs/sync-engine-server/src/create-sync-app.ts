@@ -4,6 +4,7 @@ import { FRAMEWORK_MUTATIONS } from '@pkgs/sync-engine-shared/acknowledge-write-
 import { createMonotonicCheckpoint } from '@pkgs/sync-engine-shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '@pkgs/sync-engine-shared/framework-topic-map';
 import type {
+  ContentRules,
   MutationAuthorize,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
@@ -46,6 +47,11 @@ export type CreateSyncAppDeps = {
    * reject.
    */
   readonly authorizeMutation?: MutationAuthorize;
+  /**
+   * The app's content rules as they stood at a write's time (its
+   * `created_at`), handed to the mutation body as `env.contentRules`.
+   */
+  readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
 const FRAMEWORK_MUTATION_NAMES: ReadonlySet<string> = new Set(
@@ -90,6 +96,9 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     ...(topicMap !== undefined ? { topicMap } : {}),
     ...(deps.authorizeMutation !== undefined
       ? { authorize: productOnly(deps.authorizeMutation) }
+      : {}),
+    ...(deps.contentRulesAt !== undefined
+      ? { contentRulesAt: deps.contentRulesAt }
       : {}),
   });
   return app;

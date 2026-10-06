@@ -12,11 +12,13 @@ import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { remember } from '@libs/harness/spec-world';
 import { openInbox } from '@libs/notifications-harness/notifications-actions';
 import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness/profile-actions';
+import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import {
   peopleSearchOpen,
@@ -61,6 +63,7 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from './person-actions';
+import { rememberedUsername, usernameKey } from './remembered-username';
 import { setupFriendRequest } from './setup-friend-request';
 import { setupFriendsPair } from './setup-friends-pair';
 
@@ -99,7 +102,9 @@ Given(
     sameActor(to, whose, 'has sent … from profile');
     await w.s.apply(openPersonFromSearch, from, to);
     await w.s.apply(sendRequestFromProfile, from, to);
-    await w.s.until((surf) => friendRequestCardVisible(surf, to, from));
+    await w.s.until((surf) =>
+      friendRequestCardVisible(surf, to, rememberedUsername(w, from))
+    );
   }
 );
 
@@ -187,6 +192,7 @@ Given(
   async (w, actor: Actor, username: string) => {
     await w.s.apply(openProfileEdit, actor);
     await w.s.apply(setUsername, actor, username);
+    remember(w, usernameKey(actor), username);
   }
 );
 
@@ -215,6 +221,18 @@ Then(
   async (w, actor: Actor, person: string, seconds: number) => {
     await w.s.apply(openFriendsList, actor);
     await w.s.until((surf) => friendRowVisible(surf, actor, person), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
+  "{actor}'s friends list shows {actor} under a stand-in name within {int} seconds",
+  async (w, actor: Actor, friend: Actor, seconds: number) => {
+    const standIn = await w.s.read(standInNameOf, friend);
+    if (standIn === null) throw new Error(`${friend} has no profile yet`);
+    await w.s.apply(openFriendsList, actor);
+    await w.s.until((surf) => friendRowVisible(surf, actor, standIn), {
       maxMs: seconds * SECOND_MS,
     });
   }
@@ -276,26 +294,40 @@ When('{actor} opens their inbox', async (w, actor: Actor) => {
 Then(
   "{actor}'s inbox shows a friend request from {actor} within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from), {
-      maxMs: seconds * SECOND_MS,
-    });
+    await w.s.until(
+      (surf) =>
+        friendRequestCardVisible(surf, actor, rememberedUsername(w, from)),
+      {
+        maxMs: seconds * SECOND_MS,
+      }
+    );
   }
 );
 
 Then(
   "{actor}'s inbox does not show a friend request from {actor}",
   async (w, actor: Actor, from: Actor) => {
-    expect(await w.s.read(friendRequestCardVisible, actor, from)).toBe(false);
+    expect(
+      await w.s.read(
+        friendRequestCardVisible,
+        actor,
+        rememberedUsername(w, from)
+      )
+    ).toBe(false);
   }
 );
 
 Then(
   "{actor}'s inbox stops showing the friend request from {actor} within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from), {
-      pred: (visible) => !visible,
-      maxMs: seconds * SECOND_MS,
-    });
+    await w.s.until(
+      (surf) =>
+        friendRequestCardVisible(surf, actor, rememberedUsername(w, from)),
+      {
+        pred: (visible) => !visible,
+        maxMs: seconds * SECOND_MS,
+      }
+    );
   }
 );
 

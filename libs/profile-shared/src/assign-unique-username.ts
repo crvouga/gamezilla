@@ -1,5 +1,8 @@
 import sql from '@pkgs/sql-root-shared/sql';
-import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  ContentRules,
+  MutationDb,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 
 import { generateRandomUsername } from './username-generator';
@@ -12,7 +15,8 @@ const MAX_USERNAME_ASSIGN_ATTEMPTS = 8;
  */
 export async function assignUniqueUsernameIfEmpty(
   tx: MutationDb,
-  profileId: string
+  profileId: string,
+  rules: ContentRules
 ): Promise<void> {
   const current = await tx.query(sql<{ username: string | null }>`
     SELECT username
@@ -26,7 +30,7 @@ export async function assignUniqueUsernameIfEmpty(
   }
 
   for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
-    const username = generateRandomUsername(`${profileId}:${attempt}`);
+    const username = generateRandomUsername(rules, `${profileId}:${attempt}`);
     const taken = await tx.query(sql<{ one: number }>`
       SELECT 1 AS one
       FROM profile

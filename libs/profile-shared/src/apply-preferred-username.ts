@@ -1,5 +1,8 @@
 import sql from '@pkgs/sql-root-shared/sql';
-import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  ContentRules,
+  MutationDb,
+} from '@pkgs/sync-engine-shared/mutations-types';
 
 import { normalizeUsername, validateUsername } from './username';
 
@@ -10,11 +13,12 @@ import { normalizeUsername, validateUsername } from './username';
 export async function applyPreferredUsernameIfAvailable(
   tx: MutationDb,
   profileId: string,
-  rawUsername: string | undefined
+  rawUsername: string | undefined,
+  rules: ContentRules
 ): Promise<void> {
   if (rawUsername === undefined) return;
   const username = normalizeUsername(rawUsername).toLowerCase();
-  if (validateUsername(username) !== null) return;
+  if (validateUsername(username, rules) !== null) return;
 
   const taken = await tx.query(sql<{ one: number }>`
     SELECT 1 AS one

@@ -15,6 +15,8 @@ import {
   useGlobalMenuIdentityPublisher,
 } from '@libs/app-root-client/global-menu-identity-context';
 import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { usernameLabel } from '@libs/moderation-shared/display';
 import { parseAvatarConfig } from '@libs/profile-shared/avatar-config';
 import {
   type Accessor,
@@ -34,6 +36,7 @@ function PublishIdentity(props: {
   readonly avatarConfigRaw: Accessor<string | null>;
 }): JSX.Element {
   const publish = useGlobalMenuIdentityPublisher();
+  const moderation = useModeration();
   const email = useSessionAccountEmail();
   const avatarConfig = createMemo(() =>
     parseAvatarConfig(props.avatarConfigRaw())
@@ -42,8 +45,13 @@ function PublishIdentity(props: {
   // inside the menu — rather than closing over the value at publish time. The
   // avatar then follows an edit without this effect having to republish.
   createEffect(() => {
+    const profileId = props.profileId;
+    const username = props.username();
     publish({
-      username: props.username(),
+      usernameLabel:
+        profileId === null
+          ? null
+          : usernameLabel(moderation(), username, profileId),
       email: email(),
       avatar: (size) => (
         <DeviceAvatar

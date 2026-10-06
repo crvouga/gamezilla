@@ -8,6 +8,7 @@
 import type { ClientEnv } from '@libs/app-root-client/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
 import { createSecureStoreAuthClientStorage } from '@libs/app-root-shared/auth-client-storage';
+import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
@@ -96,6 +97,7 @@ export async function harnessClientEnv(
     openExternalUrl: () => Promise.resolve(),
     resolveDatabaseName: ({ userId }) => `harness_client_${userId}`,
     mutationSuccessHoldMs: 0,
+    moderation: shippedModerationRules(),
   };
 
   return {
