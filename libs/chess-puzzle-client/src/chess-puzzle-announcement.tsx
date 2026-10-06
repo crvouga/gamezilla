@@ -7,15 +7,15 @@
 
 import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import type {
-  PuzzleAnnouncementPart,
-  PuzzleSide,
+import {
+  type PuzzleAnnouncementPart,
+  type PuzzleSide,
+  puzzleAnnouncement,
+  spokenPiece,
 } from '@libs/chess-puzzle-shared/puzzle-announcement';
-import { puzzleAnnouncement } from '@libs/chess-puzzle-shared/puzzle-announcement';
 import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
-import { pieceName } from '@pkgs/chess-board-core-shared/speak-move';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
 function sideWord(side: PuzzleSide): string {
@@ -48,7 +48,7 @@ function partWords(part: PuzzleAnnouncementPart): string {
   if (part.kind === 'wrong') return t`Wrong move. That is not the solution.`;
   if (part.kind === 'hint') {
     const side = sideWord(part.side);
-    const piece = pieceName(part.piece).toLowerCase();
+    const piece = spokenPiece(part.piece);
     return t`Hint: move the ${side} ${piece} on ${part.square}.`;
   }
   if (part.kind === 'solved') return t`Puzzle solved.`;

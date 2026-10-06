@@ -128,16 +128,31 @@ async function waitBoardReady(
   );
 }
 
+/**
+ * Puzzle entry from the space's game menu, or from the chess choices when
+ * the actor is already inside chess (a keyboard account opens chess first).
+ */
+async function openPuzzleChoice(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) {
+    await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.chessMenuPuzzle)
+      .expect.visible({ timeoutMs: WAIT_MS });
+  }
+  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+}
+
 export async function openPuzzlePlay(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
   await waitActiveSpace(s, actorId);
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await openPuzzleChoice(s, actorId);
   await expectPlayReady(s, actorId);
 }
 
@@ -158,11 +173,7 @@ export async function openPuzzlePlayNoWait(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await openPuzzleChoice(s, actorId);
 }
 
 /** §5 result panel CTA: "Next puzzle" inside the summary. */

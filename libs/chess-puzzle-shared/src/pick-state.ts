@@ -48,7 +48,35 @@ export type PuzzlePlacementArgs = {
   readonly canPick: boolean;
   /** A puzzle a puzzle link asked for, until it is placed. */
   readonly linked?: string | null | undefined;
+  /**
+   * False when the room's puzzle must not be resumed: it is finished, or its
+   * status has not arrived. Omitted means the room puzzle can be resumed.
+   */
+  readonly roomResumable?: boolean;
 };
+
+/** The room puzzle, when this device should rejoin it instead of picking. */
+function roomToResume(a: PuzzlePlacementArgs): string | null {
+  if (a.roomResumable === false || a.room === null) return null;
+  return a.room;
+}
+
+/**
+ * Nothing is on the board yet. A finished room puzzle waits to be cleared;
+ * an unfinished one is rejoined; otherwise the feed's next puzzle is placed.
+ */
+function placeOnEmptyBoard(a: PuzzlePlacementArgs): PuzzlePlacementDecision {
+  if (a.seed !== a.placedSeed && a.room !== null) return { kind: 'none' };
+  if (a.seed === 0 && a.room !== null) {
+    const resume = roomToResume(a);
+    if (resume === null) return { kind: 'none' };
+    return { kind: 'place', puzzleId: resume, armStart: false };
+  }
+  if (a.nextId !== null) {
+    return { kind: 'place', puzzleId: a.nextId, armStart: true };
+  }
+  return { kind: 'none' };
+}
 
 export type PuzzlePlacementDecision =
   | { readonly kind: 'none' }
@@ -79,17 +107,10 @@ export function decidePuzzlePlacement(
   if (linked !== null && linked !== a.active) {
     return { kind: 'place', puzzleId: linked, armStart: true };
   }
-  if (a.active === null) {
-    if (a.seed === 0 && a.room !== null) {
-      return { kind: 'place', puzzleId: a.room, armStart: false };
-    }
-    if (a.nextId !== null) {
-      return { kind: 'place', puzzleId: a.nextId, armStart: true };
-    }
-    return { kind: 'none' };
-  }
-  if (a.room !== null && a.room !== a.active) {
-    return { kind: 'place', puzzleId: a.room, armStart: false };
+  if (a.active === null) return placeOnEmptyBoard(a);
+  const resume = roomToResume(a);
+  if (resume !== null && resume !== a.active) {
+    return { kind: 'place', puzzleId: resume, armStart: false };
   }
   if (a.seed === a.placedSeed) return { kind: 'none' };
   if (

@@ -28,6 +28,50 @@ describe('placing a linked puzzle', () => {
     );
   });
 
+  test('a finished room puzzle is not resumed on an empty board', () => {
+    expect(
+      decidePuzzlePlacement(
+        args({
+          active: null,
+          seed: 0,
+          placedSeed: 0,
+          room: 'played',
+          nextId: 'fresh',
+          roomResumable: false,
+        })
+      )
+    ).toEqual({ kind: 'none' });
+  });
+
+  test('an unfinished room puzzle is resumed', () => {
+    expect(
+      decidePuzzlePlacement(
+        args({
+          active: null,
+          seed: 0,
+          placedSeed: 0,
+          room: 'live',
+          nextId: 'fresh',
+        })
+      )
+    ).toEqual({ kind: 'place', puzzleId: 'live', armStart: false });
+  });
+
+  test('after the finished room is cleared, the next puzzle is placed', () => {
+    expect(
+      decidePuzzlePlacement(
+        args({
+          active: null,
+          seed: 1,
+          placedSeed: 0,
+          room: null,
+          nextId: 'fresh',
+          roomResumable: false,
+        })
+      )
+    ).toEqual({ kind: 'place', puzzleId: 'fresh', armStart: true });
+  });
+
   test('a watcher never places a linked puzzle', () => {
     expect(
       decidePuzzlePlacement(args({ linked: 'linked1', canPick: false }))

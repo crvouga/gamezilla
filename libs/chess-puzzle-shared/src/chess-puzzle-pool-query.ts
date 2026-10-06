@@ -87,7 +87,6 @@ export const chessPuzzleNearest = defineQuery({
       WHERE popularity >= ${PUZZLE_MIN_POPULARITY}
         AND nb_plays >= ${PUZZLE_MIN_PLAYS}
       ORDER BY ABS(rating - ${rating}) ASC, id ASC
-      LIMIT ${PUZZLE_POOL_NEAREST_ROW_LIMIT}
 `);
     return { chess_puzzles: rows };
   },

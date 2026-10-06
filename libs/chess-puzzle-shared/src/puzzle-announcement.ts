@@ -13,6 +13,20 @@ import type { SolveStatus } from './solve-status';
 
 export type PuzzleSide = 'white' | 'black';
 
+const SPOKEN_PIECE: Record<PieceType, string> = {
+  p: 'pawn',
+  n: 'knight',
+  b: 'bishop',
+  r: 'rook',
+  q: 'queen',
+  k: 'king',
+};
+
+/** The piece a hint names, in the words the live region says. */
+export function spokenPiece(type: PieceType): string {
+  return SPOKEN_PIECE[type];
+}
+
 export type PuzzleAnnouncementPart =
   | {
       readonly kind: 'opponentMove';
