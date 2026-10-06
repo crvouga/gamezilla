@@ -1,12 +1,13 @@
 // @io-wall-ok
 // @api-wall-ok
 
-// Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
 import type {
   ExecutionContext,
   ExportedHandler,
   ScheduledController,
 } from '@libs/app-root-shared/worker-handler';
+// Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
+import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import './install-native-als';
 
 import { createServer } from '@libs/app-root-server/create-server';
@@ -308,6 +309,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     llm: localStack ? new InMemoryLlmProvider() : null,
     secrets: secretStore,
     auth: APP_AUTH_PROVIDER,
+    moderation: shippedModerationRules(),
     protection: readDeploymentProtection(env),
     puzzleManagerAccountIds: readPuzzleManagerAccountIds(env),
     serverUrl,

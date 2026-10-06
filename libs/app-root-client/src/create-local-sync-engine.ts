@@ -12,6 +12,7 @@ import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ChannelsCtx, OpenSqlClient } from '@libs/feature-shared/sync';
 import { defaultEntryChannel } from '@libs/feature-shared/sync';
+import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
@@ -57,6 +58,8 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random: Random;
+  /** The device's moderation: every write is judged by its current rules. */
+  readonly moderation: ModerationRules;
   /** Product mutation registry (loaded by the pool with this module). */
   readonly mutationRegistry: MutationRegistry;
   /** Harness override; defaults to the OPFS broker client. */
@@ -84,6 +87,7 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
     }),
     now: () => new Date(args.clock.now()),
     createId: args.createId,
+    contentRules: args.moderation.current(),
   };
 }
 

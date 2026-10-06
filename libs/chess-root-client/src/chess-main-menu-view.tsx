@@ -1,4 +1,5 @@
 import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
+import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
 import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
@@ -22,10 +23,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import {
-  useLocalSearchParams,
-  useRouter,
-} from '@pkgs/ui-root-client/app-router';
+import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
@@ -44,6 +42,9 @@ function ChessScreenContent(props: {
     <Switch fallback={<RootMainMenu onBackToGames={props.onBackToGames} />}>
       <Match when={props.screen === CHESS_SCREEN.puzzle}>
         <PuzzlePlayScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.multiplayer}>
+        <MultiplayerScreen />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.customGame}>
         <CustomGameScreen />
@@ -111,7 +112,6 @@ export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
 }
 
 function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
-  const router = useRouter();
   const dispatch = useSpaceRoomDispatch();
   const items: readonly MainMenuItem[] = [
     {
@@ -141,9 +141,10 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     {
       key: 'matchmaking',
       title: <Trans>Multiplayer chess</Trans>,
-      caption: <Trans>Find an opponent for a private game</Trans>,
+      caption: <Trans>Find an opponent and watch together</Trans>,
       dataSet: { testid: 'chess-menu-multiplayer' },
-      onClick: () => router.push('/chess/multiplayer'),
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.multiplayer })),
     },
     {
       key: 'settings',

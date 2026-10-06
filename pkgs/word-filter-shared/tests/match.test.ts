@@ -35,6 +35,13 @@ describe('containsBlockedTerm', () => {
     expect(containsBlockedTerm('fagot')).toBe(false);
   });
 
+  test('an ordinary word that merely holds a blocked term stays clean', () => {
+    expect(containsBlockedTerm('Scunthorpe')).toBe(false);
+    expect(containsBlockedTerm('scunthorpe_fan')).toBe(false);
+    expect(containsBlockedTerm('fire retardant')).toBe(false);
+    expect(containsBlockedTerm('scunthorpe_cunt')).toBe(true);
+  });
+
   test('accepts ordinary usernames', () => {
     expect(containsBlockedTerm('BraveTiger482')).toBe(false);
     expect(containsBlockedTerm('alice')).toBe(false);

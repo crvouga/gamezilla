@@ -10,6 +10,7 @@
 
 import { ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
 import { CLIENT_CONFIG_TABLES } from '@libs/app-config-shared/tables';
+import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
@@ -132,6 +133,7 @@ export function mutationEnvFor(person: Person, nowMs: number): MutationEnv {
     now: () => new Date(nowMs),
     serverNow: () => new Date(nowMs),
     createId: () => `conformance-id-${String(++mintedIds)}`,
+    contentRules: shippedModerationRules().at(nowMs),
   };
 }
 

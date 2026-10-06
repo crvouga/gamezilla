@@ -84,6 +84,9 @@ export const Handles = {
   spaceRename: 'space-rename',
   spaceRenameInput: 'space-rename-input',
   spaceRenameConfirm: 'space-rename-confirm',
+  /** The rename dialog says the typed space name is not allowed. */
+  spaceRenameNotAllowed: 'space-rename-not-allowed',
+  spaceRenameCancel: 'space-rename-cancel',
   /** Cancel outgoing friend request pill (scoped by username). */
   friendCancel: (username: string) => `friend-cancel-${username}`,
   /** Decline incoming friend request pill (scoped by username). */
@@ -177,6 +180,8 @@ export const Handles = {
   profileUsernameSave: 'profile-username-save',
   profileUsernameCancel: 'profile-username-cancel',
   profileDisplayUsername: 'profile-display-username',
+  /** The profile tells its person which stand-in name others see them by. */
+  profileStandInNotice: 'profile-stand-in-notice',
   profileAvatarSeed: 'profile-avatar-seed',
   profileAvatarSave: 'profile-avatar-save',
   profileAvatarCancel: 'profile-avatar-cancel',

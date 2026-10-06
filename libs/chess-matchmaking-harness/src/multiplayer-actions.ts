@@ -9,7 +9,10 @@ import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { multiplayerClient } from './multiplayer-client';
+import { reachMultiplayerChoices } from './multiplayer-navigation';
 import { multiplayerView } from './multiplayer-reads';
+import { multiplayerSpaceId } from './multiplayer-spaces';
+import { multiplayerWatcherBoard } from './multiplayer-watchers';
 
 /** Ask the ordinary query transport to observe the changed network. */
 export const refreshMultiplayerConnection = scenarioAction({
@@ -48,30 +51,32 @@ export const openMultiplayerChess = scenarioAction({
     await ensureActor(s, actor);
     const ui = await actorUi(s, actor);
     await ui.get('status-current-user').expect.visible();
-    for (
-      let pops = 0;
-      pops < 4 && !(await ui.get('tab-chess').isVisible());
-      pops++
-    ) {
-      const back = (await ui.get('space-close').isVisible())
-        ? 'space-close'
-        : 'nav-back';
-      if (keyboard) await ui.get(back).key('enter');
-      else await ui.get(back).tap();
-      await s.session.waitForIdle();
+    const spaceId = await multiplayerSpaceId(s, actor);
+    if (spaceId === null) return;
+    const path = await s.actors.get(actor)!.currentPath();
+    if (!path.includes(spaceId))
+      await s.actors.get(actor)!.openLink(`/space/${spaceId}`);
+    await s.session.waitForIdle();
+    const surface = await reachMultiplayerChoices(s, actor);
+    if (surface === 'game-menu-chess') {
+      await ui.get('game-menu-chess').tap();
+      await ui.get('chess-menu-multiplayer').expect.visible();
     }
-    if (gameId === undefined) {
-      if (keyboard) await ui.get('tab-chess').key('enter');
-      else await ui.get('tab-chess').tap();
-    } else
-      await s.actors
-        .get(actor)!
-        .openLink(`/chess/multiplayer/${encodeURIComponent(gameId)}`);
+    if (await ui.get('chess-menu-multiplayer').isVisible()) {
+      if (keyboard) await ui.get('chess-menu-multiplayer').key('enter');
+      else await ui.get('chess-menu-multiplayer').tap();
+    }
     await s.session.waitForIdle();
     await pollUntil(
       s,
       async () => {
         if (await ui.get('multiplayer-access-denial').isVisible()) return true;
+        const rendered = await multiplayerWatcherBoard(s, actor);
+        if (
+          rendered.gameId !== null &&
+          (gameId === undefined || rendered.gameId === gameId)
+        )
+          return true;
         const view = await multiplayerView(s, actor);
         const target =
           gameId !== undefined
@@ -85,7 +90,7 @@ export const openMultiplayerChess = scenarioAction({
                 : 'multiplayer-find';
         return (await ui.get(target).isVisible()) ? true : null;
       },
-      { maxMs: 5000, description: 'the owned multiplayer screen' }
+      { maxMs: 5000, description: 'multiplayer chess inside the space' }
     );
   },
 });

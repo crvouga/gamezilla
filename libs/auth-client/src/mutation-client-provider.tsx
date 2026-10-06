@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { useClock } from '@pkgs/clock-client/solid';
 import { MutationClientProvider as SyncMutationClientProvider } from '@pkgs/sync-engine-client/mutation-client-provider';
 import type {
@@ -16,6 +17,7 @@ export function MutationClientProvider(
   const auth = useRulesAuth();
   const clock = useClock();
   const createId = useCreateId();
+  const moderation = useModeration();
   // Live env view: stable identity (bootstrap `ensure*` effects never re-fire)
   // while identity fields resolve at mutate time — signing in upgrades the
   // anon user in place, so a mount-time snapshot would pin `isAnon: true`
@@ -35,6 +37,10 @@ export function MutationClientProvider(
     },
     now: () => new Date(clock.now()),
     createId,
+    // The device's rules as they stand when the write is made.
+    get contentRules() {
+      return moderation();
+    },
   };
   const ids = untrack(() => ({ clientId: auth.deviceId }));
   return (

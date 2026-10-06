@@ -25,6 +25,7 @@
     "@libs/db-shared": "workspace:*",
     "@libs/feature-client": "workspace:*",
     "@libs/feature-shared": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",

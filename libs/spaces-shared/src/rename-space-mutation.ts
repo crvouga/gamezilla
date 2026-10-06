@@ -1,6 +1,8 @@
+import { allowedInMutation } from '@libs/moderation-shared/mutation-content';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
+import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 
 import {
@@ -17,9 +19,16 @@ export const renameSpaceMutation = defineMutation({
       permission: PERMISSION.spacesRename,
       message: 'Only the host can rename this space.',
     });
+    const nextTitle = title.trim();
+    if (!allowedInMutation(env, 'spaceTitle', nextTitle)) {
+      throw new MutationError(
+        'SPACE_TITLE_NOT_ALLOWED',
+        'That space name is not allowed.'
+      );
+    }
     await tx.run(sql`
       UPDATE spaces
-      SET title = ${title.trim() || null},
+      SET title = ${nextTitle || null},
           host_id = ${env.deviceId},
           host_member_id = ${memberId(env)}
       WHERE id = ${spaceId}

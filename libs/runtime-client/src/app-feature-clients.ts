@@ -1,9 +1,6 @@
-import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-chess-client';
-import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
-import { PuzzleLinkScreen } from '@libs/chess-puzzle-client/puzzle-link-screen';
+import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { PuzzleManagementSettings } from '@libs/chess-puzzle-client/puzzle-management-settings';
-import { PUZZLE_LINK_ROUTE } from '@libs/chess-puzzle-shared/puzzle-link';
 import {
   defineFeatureClient,
   type FeatureClient,
@@ -57,9 +54,7 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   PROFILE_CLIENT,
   ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
-  createMultiplayerChessClient(MultiplayerScreen, [
-    { path: PUZZLE_LINK_ROUTE, component: PuzzleLinkScreen },
-  ]),
+  PUZZLE_LINK_CLIENT,
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.
   FRIENDS_CLIENT,

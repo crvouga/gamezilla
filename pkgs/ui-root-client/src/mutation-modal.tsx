@@ -82,6 +82,8 @@ export type MutationModalProps = {
   stackId?: string | undefined;
   /** `data-*` identifiers for the idle-phase confirm/submit button. */
   submitDataSet?: ComponentDataSet | undefined;
+  /** `data-*` identifiers for the idle-phase cancel button. */
+  cancelDataSet?: ComponentDataSet | undefined;
   /** `data-*` identifiers for the success-state block. */
   successDataSet?: ComponentDataSet | undefined;
   /** `data-*` identifiers for the success-phase dismiss button. */
@@ -138,6 +140,9 @@ function mutationModalIds(props: MutationModalProps): MutationModalIds {
   return {
     get submitDataSet() {
       return props.submitDataSet;
+    },
+    get cancelDataSet() {
+      return props.cancelDataSet;
     },
     get successDataSet() {
       return props.successDataSet;

@@ -1,12 +1,18 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { validateUsername } from '@libs/profile-shared/username';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
+
+const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
 async function openProfileDb() {
   const client = new SqlClientImplBunSqlite(new Database(':memory:'));
@@ -48,14 +54,14 @@ describe('profile username uniqueness', () => {
 
 describe('username content filter', () => {
   test('refuses slurs and leetspeak disguises', () => {
-    expect(validateUsername('fuck')).toBe('blocked');
-    expect(validateUsername('FuCk3r')).toBe('blocked');
-    expect(validateUsername('fuuuck')).toBe('blocked');
-    expect(validateUsername('n1gga')).toBe('blocked');
+    expect(validateUsername('fuck', moderation)).toBe('blocked');
+    expect(validateUsername('FuCk3r', moderation)).toBe('blocked');
+    expect(validateUsername('fuuuck', moderation)).toBe('blocked');
+    expect(validateUsername('n1gga', moderation)).toBe('blocked');
   });
 
   test('accepts ordinary usernames', () => {
-    expect(validateUsername('BraveTiger482')).toBeNull();
-    expect(validateUsername('alice')).toBeNull();
+    expect(validateUsername('BraveTiger482', moderation)).toBeNull();
+    expect(validateUsername('alice', moderation)).toBeNull();
   });
 });

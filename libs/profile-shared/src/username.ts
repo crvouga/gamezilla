@@ -1,4 +1,4 @@
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import type { ContentRules } from '@pkgs/sync-engine-shared/mutations-types';
 
 export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 32;
@@ -18,13 +18,17 @@ export function normalizeUsername(raw: string): string {
   return raw.trim();
 }
 
-export function validateUsername(raw: string): UsernameValidationError | null {
+/** Why `raw` cannot be a username under the content `rules`, or `null`. */
+export function validateUsername(
+  raw: string,
+  rules: ContentRules
+): UsernameValidationError | null {
   const username = normalizeUsername(raw);
   if (username.length === 0) return 'empty';
   if (username.length < USERNAME_MIN_LENGTH) return 'too_short';
   if (username.length > USERNAME_MAX_LENGTH) return 'too_long';
   if (!USERNAME_PATTERN.test(username)) return 'invalid_format';
-  if (containsBlockedTerm(username)) return 'blocked';
+  if (!rules.checkWrite('username', username).allowed) return 'blocked';
   return null;
 }
 export function canChangeUsername(

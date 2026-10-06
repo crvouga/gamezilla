@@ -54,7 +54,10 @@ export function useMultiplayerControls(
       return;
     }
     accept(
-      await client.mutate(findChessOpponentMutation, { requestId: createId() })
+      await client.mutate(findChessOpponentMutation, {
+        spaceId: data.spaceId() ?? '',
+        requestId: createId(),
+      })
     );
   };
   const stop = async () =>
@@ -67,6 +70,7 @@ export function useMultiplayerControls(
   const resign = async () =>
     accept(
       await client.mutate(resignMultiplayerMutation, {
+        spaceId: data.spaceId() ?? '',
         gameId: data.game()?.id ?? 'no-game',
         requestId: createId(),
       })
@@ -78,6 +82,7 @@ export function useMultiplayerControls(
     try {
       accept(
         await client.mutate(playMultiplayerMoveMutation, {
+          spaceId: data.spaceId() ?? '',
           gameId: game.id,
           revision: game.revision,
           uci,

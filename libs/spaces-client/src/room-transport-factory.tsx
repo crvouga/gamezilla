@@ -11,7 +11,8 @@ import type { Random } from '@pkgs/uuid-shared/create-id';
 import { createContext, type JSX, useContext } from 'solid-js';
 
 export type CreateRoomTransportArgs = {
-  readonly spaceId: string;
+  readonly topic: string;
+  readonly module: string;
   readonly apiUrl: string;
   /** Member actor id (`accountId ?? deviceId`) — room identity + roster. */
   readonly identity: string;
@@ -35,7 +36,7 @@ export class WebSocketRoomTransportFactory {
   create(
     args: Omit<CreateRoomTransportArgs, 'timers' | 'random'>
   ): ClientTransport {
-    const topic = `space:${args.spaceId}`;
+    const topic = args.topic;
     return new WebSocketRoomTransport({
       timers: this.timers,
       random: this.random,
@@ -44,6 +45,7 @@ export class WebSocketRoomTransportFactory {
         return apiUrlToRoomWebSocketUrl({
           apiUrl: args.apiUrl,
           topic,
+          module: args.module,
           sessionToken: token,
           installId: args.installId,
           clientId: args.clientId,

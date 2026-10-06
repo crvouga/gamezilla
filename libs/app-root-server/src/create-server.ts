@@ -246,6 +246,7 @@ function createSyncAppMount(env: ServerEnv, app: ComposedFeatures) {
     app,
     now: () => env.clock.now(),
     createId: env.createId,
+    moderation: env.moderation,
     ...(env.protection === 'production' ? {} : { strictQueryLimits: true }),
   });
 }

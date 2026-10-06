@@ -1,7 +1,9 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
@@ -9,9 +11,10 @@ import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
 import { useProfileRow } from './claim-username-use-profile-row';
+import { useStandInName } from './use-stand-in-name';
 
 function useSyncedUsername(row: Accessor<ProfileRow | null>) {
   const [value, setValue] = createSignal('');
@@ -37,10 +40,38 @@ function useSyncedUsername(row: Accessor<ProfileRow | null>) {
   return [value, setValue] as const;
 }
 
+/**
+ * As-you-type moderation (the first level of the shared policy): a draft the
+ * rules refuse is flagged before saving — saving it is refused all the same,
+ * and says so; a saved name the rules no longer allow tells its owner which
+ * stand-in name everyone sees instead. The saved name is kept.
+ */
+function useUsernameModeration(
+  value: Accessor<string>,
+  row: Accessor<ProfileRow | null>
+) {
+  const { t } = useLingui();
+  const moderation = useModeration();
+  const standIn = useStandInName(row);
+  const error = createMemo(() =>
+    moderation().checkWrite('username', value().trim().toLowerCase()).allowed
+      ? undefined
+      : t`That username is not allowed`
+  );
+  const helperText = createMemo(() => {
+    const alias = standIn();
+    if (alias === null) return undefined;
+    return t`Other people see you as ${alias} until you choose a new username`;
+  });
+  return { error, helperText };
+}
+
 function ProfileHandleScreenBody(props: {
   class?: string | undefined;
   value: Accessor<string>;
   setValue: (v: string) => void;
+  error: Accessor<LocalizedString | undefined>;
+  helperText: Accessor<LocalizedString | undefined>;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -50,6 +81,8 @@ function ProfileHandleScreenBody(props: {
         aria-label={t`Username`}
         value={props.value()}
         onChangeText={props.setValue}
+        error={props.error()}
+        helperText={props.helperText()}
         placeholder={t`your_handle`}
         autocapitalize="none"
         autocorrect="off"
@@ -92,6 +125,7 @@ export function ProfileHandleScreen(): JSX.Element {
   const profileId = useMyProfileId();
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
+  const usernameModeration = useUsernameModeration(value, row);
   const nav = useBreadcrumbNav();
   const mutationClient = useMutationClient();
   const [lastError, setLastError] = createSignal<{
@@ -150,6 +184,8 @@ export function ProfileHandleScreen(): JSX.Element {
           class={bodyClass}
           value={value}
           setValue={setValue}
+          error={usernameModeration.error}
+          helperText={usernameModeration.helperText}
         />
       )}
     />

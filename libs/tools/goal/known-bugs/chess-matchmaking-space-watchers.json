@@ -1,0 +1,4 @@
+{
+  "summary": "Guests in the matched players spaces could not watch their shared match",
+  "regressionTest": "specs/chess/multiplayer-in-spaces.feature"
+}

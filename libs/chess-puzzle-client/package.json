@@ -20,6 +20,7 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
+    "@libs/feature-client": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",

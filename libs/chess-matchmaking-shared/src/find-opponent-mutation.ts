@@ -10,6 +10,7 @@ import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { MultiplayerGameRepository } from './game-repository';
+import { requireMultiplayerSpace } from './multiplayer-space-access';
 import { OpponentRequested } from './opponent-requested';
 import {
   CHESS_OPPONENT_POOL,
@@ -22,9 +23,11 @@ export const findChessOpponentMutation = defineMutation({
   name: 'findChessOpponent',
   requiresOnline: true,
   pendingUx: 'pending',
-  args: z.object({ requestId: z.string().min(1) }),
+  args: z.object({ spaceId: z.string().min(1), requestId: z.string().min(1) }),
   async run(ctx, args) {
     await requireInMutation(ctx, PERMISSION.matchmakingUse);
+    const scope = await requireMultiplayerSpace(ctx, args.spaceId);
+    await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
     const checkLimit = async () =>
       requireLimitInMutation(
         ctx,

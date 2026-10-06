@@ -30,6 +30,7 @@ import {
 } from './apalache';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
+import { runVerifyPhaseGroup } from './verify-phase-pool';
 import type { VerifyPhase } from './verify-phases';
 import { verifyPhases } from './verify-phases';
 
@@ -107,32 +108,14 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     'preservation',
     'implication',
   ] as const) {
-    const failure = await runPhaseGroup(
+    const failure = await runVerifyPhaseGroup(
       phases.filter((phase) => phase.name === name),
-      runPhase
+      runPhase,
+      process.env['MODEL_CHECK_CONCURRENCY']
     );
     if (failure !== undefined) return failure;
   }
   return { ok: true, durationMs: elapsed() };
-}
-
-/** Independent cases share one deadline and at most two solver processes. */
-async function runPhaseGroup(
-  phases: readonly VerifyPhase[],
-  runPhase: (phase: VerifyPhase) => Promise<VerifyResult | undefined>
-): Promise<VerifyResult | undefined> {
-  let next = 0;
-  let failure: VerifyResult | undefined;
-  const worker = async () => {
-    while (failure === undefined) {
-      const phase = phases[next++];
-      if (phase === undefined) return;
-      const result = await runPhase(phase);
-      if (result !== undefined) failure ??= result;
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(2, phases.length) }, worker));
-  return failure;
 }
 
 function runFailure(

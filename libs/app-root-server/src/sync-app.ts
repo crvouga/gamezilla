@@ -1,6 +1,7 @@
 import { resolveSessionReplayAuth } from '@libs/app-root-shared/query-auth';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
+import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -48,6 +49,8 @@ export async function createSyncApp(deps: {
   readonly app: ComposedFeatures;
   readonly now: () => number;
   readonly createId: () => string;
+  /** The moderation replayed writes are judged by, as of their time. */
+  readonly moderation: ModerationRules;
   /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
   readonly strictQueryLimits?: boolean;
 }) {
@@ -64,6 +67,7 @@ export async function createSyncApp(deps: {
     },
     now: deps.now,
     createId: deps.createId,
+    contentRulesAt: (atMs) => deps.moderation.at(atMs),
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: deps.app.topicMap,

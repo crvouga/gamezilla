@@ -1,4 +1,5 @@
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import offlineSpaceTrace from './fixtures/multiplayer-offline-space.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
   askForPlay,
@@ -24,6 +25,13 @@ bindQuintModel<PlayTrace>({
   encoding: 'fun-arrays',
   separateInduction: true,
   regressions: [
+    // regression: chess-multiplayer-offline-space-initialization
+    {
+      id: 'chess-multiplayer-offline-space-initialization',
+      title: 'An offline device reopens multiplayer within its existing space',
+      seed: '0x67932',
+      itf: offlineSpaceTrace,
+    },
     // regression: chess-deletion-refreshes-connected-devices
     {
       id: 'multiplayer-third-device-deletion',
@@ -40,8 +48,8 @@ bindQuintModel<PlayTrace>({
     stopFindingOpponent: stopLooking,
     matchFormed: receivePlay,
     playMove: moveInPlay,
-    resignPlay,
-    deletePlayAccount,
+    resignPlay: resignPlay,
+    deletePlayAccount: deletePlayAccount,
     loseConnection: (w, picks) => connectPlay(w, picks, false),
     comeBackOnline: (w, picks) => connectPlay(w, picks, true),
   },

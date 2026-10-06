@@ -1,6 +1,11 @@
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import {
+  cancelRenameSpace,
+  startAllowingSpaceName,
+  stopAllowingSpaceName,
+} from './space-name-rule-actions';
+import {
   confirmSpaceMutation,
   leaveToLobby,
   reenterOwnSpace,
@@ -200,6 +205,9 @@ export const renameSpace = scenarioAction({
     await input.expect.visible({ timeoutMs: SPACE_WAIT_MS });
     await input.clear();
     await input.input(title);
+    // A name that is not allowed is refused as it is typed: the dialog
+    // stays open saying so, and nothing is saved.
+    if (await ui.get(Handles.spaceRenameNotAllowed).isVisible()) return;
     await confirmSpaceMutation(s, actorId, Handles.spaceRenameConfirm);
   },
 });
@@ -304,6 +312,9 @@ export const reopenSpaceLink = scenarioAction({
 
 /** Registered on every system that composes this feature. */
 export const SPACES_HARNESS_ACTIONS = [
+  stopAllowingSpaceName,
+  startAllowingSpaceName,
+  cancelRenameSpace,
   startSpace,
   reopenLiveSpace,
   returnToOwnSpace,

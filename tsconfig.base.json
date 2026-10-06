@@ -103,6 +103,8 @@
       "@libs/permissions-shared/*": ["./libs/permissions-shared/src/*"],
       "@libs/profile-client/*": ["./libs/profile-client/src/*"],
       "@libs/profile-harness/*": ["./libs/profile-harness/src/*"],
+      "@libs/moderation-client/*": ["./libs/moderation-client/src/*"],
+      "@libs/moderation-shared/*": ["./libs/moderation-shared/src/*"],
       "@libs/profile-shared/*": ["./libs/profile-shared/src/*"],
       "@libs/pubsub-server/*": ["./libs/pubsub-server/src/*"],
       "@libs/pubsub-shared/*": ["./libs/pubsub-shared/src/*"],
@@ -443,6 +445,7 @@
       "@pkgs/vite-workspace-resolver-server/*": [
         "./pkgs/vite-workspace-resolver-server/src/*"
       ],
+      "@pkgs/moderation-shared/*": ["./pkgs/moderation-shared/src/*"],
       "@pkgs/word-filter-shared/*": ["./pkgs/word-filter-shared/src/*"],
       "@pkgs/observability-runtime-shared/*": [
         "./pkgs/observability-runtime-shared/src/*"

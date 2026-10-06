@@ -1,6 +1,10 @@
+import { contentRulesIn } from '@libs/moderation-shared/mutation-content';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
-import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 
@@ -65,17 +69,22 @@ async function getUsernameRow(
 
 async function seedProfile(
   tx: MutationDb,
-  profileId: string,
-  now: string,
+  env: MutationEnv,
   avatarConfig: string
 ): Promise<void> {
+  const profileId = env.actorId;
+  const now = env.now().toISOString();
+  const rules = contentRulesIn(env);
   let username = '';
   for (
     let attempt = 0;
     attempt < PROFILE_SEED_USERNAME_ATTEMPTS;
     attempt += 1
   ) {
-    const candidate = generateRandomUsername(`${profileId}:seed:${attempt}`);
+    const candidate = generateRandomUsername(
+      rules,
+      `${profileId}:seed:${attempt}`
+    );
     const taken = await tx.query(sql<{ one: number }>`
       SELECT 1 AS one
       FROM profile
@@ -116,15 +125,10 @@ export const claimUsernameMutation = defineMutation({
   },
   async run({ tx, env }, { username: rawUsername }) {
     const username = normalizeUsername(rawUsername).toLowerCase();
-    const validationError = validateUsername(username);
+    const validationError = validateUsername(username, contentRulesIn(env));
     if (validationError !== null) usernameFailure(validationError);
     const now = env.now().toISOString();
-    await seedProfile(
-      tx,
-      env.actorId,
-      now,
-      serializeDefaultAvatarConfig(env.actorId)
-    );
+    await seedProfile(tx, env, serializeDefaultAvatarConfig(env.actorId));
     const row = await getUsernameRow(tx, env.actorId);
     if (row.username === username) return;
     if (!canChangeUsername(row.username_changed_at, env.now().getTime())) {

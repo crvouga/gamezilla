@@ -1,4 +1,4 @@
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import type { ContentRules } from '@pkgs/sync-engine-shared/mutations-types';
 import {
   adjectives,
   animals,
@@ -23,17 +23,20 @@ function generateOnce(seed: number | string | undefined): string {
 /**
  * Single-token username: capitalized adjective + animal + 3-digit number
  * (e.g. `BraveTiger482`). Pass `seed` for deterministic output in tests /
- * collision retries (`seed + attempt`). Candidates the content filter refuses
+ * collision retries (`seed + attempt`). Candidates the content `rules` refuse
  * are regenerated from a derived seed.
  */
-export function generateRandomUsername(seed?: number | string): string {
+export function generateRandomUsername(
+  rules: ContentRules,
+  seed?: number | string
+): string {
   for (let attempt = 0; attempt < MAX_GENERATOR_ATTEMPTS; attempt += 1) {
     const candidate = generateOnce(
       attempt === 0 || seed === undefined
         ? seed
         : `${String(seed)}:${String(attempt)}`
     );
-    if (!containsBlockedTerm(candidate)) return candidate;
+    if (rules.checkWrite('username', candidate).allowed) return candidate;
   }
   return generateOnce(seed);
 }

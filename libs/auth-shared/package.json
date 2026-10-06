@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/feature-shared": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/auth-root-shared": "workspace:*",
@@ -29,7 +30,6 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
-    "@pkgs/word-filter-shared": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

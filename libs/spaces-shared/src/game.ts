@@ -4,6 +4,7 @@ import type { MessageRouter } from '@pkgs/message-shared/router';
 import type {
   HandleResult,
   RoomEffect,
+  RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
@@ -41,6 +42,13 @@ export type GameCommandContext = {
 export type GameDefinition = {
   /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
   readonly id: string;
+  /** Independent rooms shared by spaces playing a matched game. */
+  readonly matchRooms?: readonly RoomModule<
+    RoomState,
+    Message,
+    Message,
+    string
+  >[];
   /** Command sub-routers this game contributes (one per namespace). */
   readonly commandRouters: readonly GameRouterEntry<
     GameCommandContext,

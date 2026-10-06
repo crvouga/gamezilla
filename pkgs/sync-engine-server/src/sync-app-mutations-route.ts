@@ -4,6 +4,7 @@ import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type {
+  ContentRules,
   MutationAuthorize,
   MutationEnv,
   MutationRegistry,
@@ -145,6 +146,9 @@ async function prepareMutationNotify(
       now: deps.now,
       createId: deps.createId,
       ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+      ...(deps.contentRulesAt !== undefined
+        ? { contentRulesAt: deps.contentRulesAt }
+        : {}),
     });
     if (result.applied.length === 0 || deps.pubsub === undefined) {
       return {
@@ -231,6 +235,11 @@ export type MountMutationsRouteDeps = {
   readonly rowImageFanout?: boolean;
   readonly topicMap?: TopicMap;
   readonly authorize?: MutationAuthorize;
+  /**
+   * The app's content rules as they stood at a write's time (its
+   * `created_at`), handed to the mutation body as `env.contentRules`.
+   */
+  readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
 export function mountMutationsRoute(
