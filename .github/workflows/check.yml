@@ -26,6 +26,7 @@ on:
         default: normal
 
 env:
+  GH_TOKEN: ${{ github.token }}
   TURBO_UI: stream
   TURBO_CACHE_DIR: .turbo/cache
   RAYON_NUM_THREADS: 1
