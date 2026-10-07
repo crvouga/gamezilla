@@ -6,8 +6,10 @@ set -euo pipefail
 # shellcheck source=libs/tools/workspace/lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-# System tools (Bun, Node, gh, gitleaks, actionlint, infisical, duckdb, EMQX)
-# are pinned in mise.toml. Each worktree is a new path, so trust it first.
+# System tools are pinned in mise.toml (`mise install`). Each worktree is a
+# new path, so trust it first. better-sqlite3@13 ships its N-API prebuild in
+# the package and is not a trustedDependency: `bun install` must not run
+# node-gyp. Do not add better-sqlite3 back to trustedDependencies.
 if command -v mise >/dev/null 2>&1; then
   echo "==> mise install"
   mise trust --quiet mise.toml
@@ -18,17 +20,14 @@ fi
 
 echo "==> bun install"
 if ! bun install; then
-  # `better-sqlite3` (and other native postinstalls) can fail on a machine
-  # whose Xcode license has not been accepted. The dependency tree itself is
-  # still usable for dev/tests, so finish the install without scripts and warn
-  # instead of failing workspace creation.
-  echo "!!! bun install postinstall step failed; retrying with --ignore-scripts"
+  # A failed lifecycle script must not abort workspace creation. Retry
+  # without scripts, then write the gitignored generated files the root
+  # postinstall would have written. better-sqlite3 does not need that script;
+  # ffmpeg-static and onnxruntime-node download their binaries in one.
+  echo "!!! bun install failed; retrying with --ignore-scripts"
   bun install --ignore-scripts
-  # The root postinstall writes the gitignored generated files (compiled i18n
-  # catalog, step catalogs); --ignore-scripts skipped it.
   bun run generate || echo "!!! bun run generate failed; run it in this workspace"
-  echo "!!! native modules (better-sqlite3) are NOT built in this workspace."
-  echo "!!! fix: sudo xcodebuild -license accept && bun install"
+  echo "!!! install scripts did not run. ffmpeg-static and onnxruntime-node may be missing their binaries."
 fi
 
 # `main` only moves through a merged PR: enable the repo hooks (pre-commit,
