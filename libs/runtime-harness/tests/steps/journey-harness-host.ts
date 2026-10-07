@@ -31,8 +31,8 @@ const journeyGestures = scenarioAction({
 });
 
 /** A parked actor's screen reads as empty until their tree is in front. */
-const focusGuest = scenarioAction({
-  name: 'focusGuest',
+const focusActor = scenarioAction({
+  name: 'focusActor',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
@@ -61,8 +61,12 @@ async function actorSpaceLink(
 }
 
 export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
-  const act = (name: string, gestures: JourneyGestures) =>
-    w.s.apply(journeyGestures, HOST, name, gestures);
+  const act = async (name: string, gestures: JourneyGestures) => {
+    // The guest's last gesture parks Alice. An instant visibility check then
+    // reads her game as gone and the journey tries to host another space.
+    await w.s.apply(focusActor, HOST);
+    await w.s.apply(journeyGestures, HOST, name, gestures);
+  };
   return {
     runId: 'harness',
     now: () => w.s.read((s) => s.session.ports.clock.now()),
@@ -84,7 +88,7 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
         access === 'signed-in' ? signInWithGoogle : spawnActor,
         GUEST
       );
-      await w.s.apply(focusGuest, GUEST);
+      await w.s.apply(focusActor, GUEST);
       if (access === 'signed-in')
         await w.s.apply(
           journeyGestures,
@@ -95,7 +99,7 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
     },
     actAsGuest: async (name, gestures) => {
       await w.s.apply(spawnActor, GUEST);
-      await w.s.apply(focusGuest, GUEST);
+      await w.s.apply(focusActor, GUEST);
       await w.s.apply(journeyGestures, GUEST, name, gestures);
     },
     spaceLink: () => w.s.read(actorSpaceLink, HOST),
