@@ -89,7 +89,10 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
       # The plan fingerprints the renderer; browser shards must match it.
+      # Chrome normally installs in well under a minute. Two minutes is the
+      # hard cap so a hung download cannot spend the shard's budget.
       - uses: ./.github/actions/visual-renderer
+        timeout-minutes: 2
       - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -161,6 +164,7 @@ jobs:
         run: bun run libs/tools/scripts/check-browser-tasks.ts
       - name: Install renderer for browser tasks
         if: steps.browser.outputs.needed == 'true'
+        timeout-minutes: 2
         uses: ./.github/actions/visual-renderer
       - name: check
         timeout-minutes: 25
@@ -301,13 +305,14 @@ jobs:
           retention-days: 14
 
   # The only required status. On a pull request (or `bun check`) it runs the
-  # cheap gate itself; in full scope it is green only when `check:verify` is.
+  # cheap gate itself and the whole job, including setup, dies at 8 minutes.
+  # In full scope it is green only when `check:verify` is.
   check:
     name: check
     needs: [check-verify]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 8
     steps:
       - name: Require release verification
         if: env.CHECK_SCOPE == 'full'
@@ -316,16 +321,21 @@ jobs:
         run: test "$VERIFY_RESULT" = success
       - uses: actions/checkout@v6
         if: env.CHECK_SCOPE != 'full'
+        timeout-minutes: 2
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         if: env.CHECK_SCOPE != 'full'
+        timeout-minutes: 3
       # Tests hash the renderer fingerprint; the same Chrome as full scope
       # lets release verification reuse every verdict this job caches.
+      # A healthy install is about 30s. Two minutes is the hard cap.
       - uses: ./.github/actions/visual-renderer
         if: env.CHECK_SCOPE != 'full'
+        timeout-minutes: 2
       - uses: ./.github/actions/secrets-auth
         if: env.CHECK_SCOPE != 'full'
+        timeout-minutes: 2
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -333,7 +343,7 @@ jobs:
       - name: check
         id: check
         if: env.CHECK_SCOPE != 'full'
-        timeout-minutes: 25
+        timeout-minutes: 7
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_PR_CONCURRENCY" bun run libs/tools/scripts/turbo-ci-run.ts //#check:pr
       - name: Write workflow summary
         if: always() && !cancelled() && env.CHECK_SCOPE != 'full' && steps.check.outcome != 'skipped'

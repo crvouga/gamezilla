@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
+  CI_PR_RUN_DEADLINE_SECONDS,
   CI_RUN_DEADLINE_SECONDS,
   DEFAULT_RUN_DEADLINE_SECONDS,
   DEFAULT_TASK_BUDGET_SECONDS,
@@ -74,6 +75,24 @@ describe('resolveRunDeadlineSeconds', () => {
     ).toBe(CI_RUN_DEADLINE_SECONDS);
   });
 
+  test('the pull-request gate on CI is much shorter than a full shard', () => {
+    expect(CI_PR_RUN_DEADLINE_SECONDS).toBeLessThan(20 * 60);
+    expect(CI_PR_RUN_DEADLINE_SECONDS).toBeLessThan(CI_RUN_DEADLINE_SECONDS);
+    expect(
+      resolveRunDeadlineSeconds(
+        {},
+        { isDeploy: false, slowRunner: true, prGate: true }
+      )
+    ).toBe(CI_PR_RUN_DEADLINE_SECONDS);
+    // A laptop still uses the laptop ceiling; the short cap is the CI runner.
+    expect(
+      resolveRunDeadlineSeconds(
+        {},
+        { isDeploy: false, slowRunner: false, prGate: true }
+      )
+    ).toBe(DEFAULT_RUN_DEADLINE_SECONDS);
+  });
+
   test('deploy is not scaled either', () => {
     expect(
       resolveRunDeadlineSeconds({}, { isDeploy: true, slowRunner: true })
@@ -96,6 +115,39 @@ describe('resolveRunDeadlineSeconds', () => {
     ).exec(workflow);
     expect(step, `${file} ${name} step has a timeout-minutes`).not.toBeNull();
     expect(Number(step?.[1]) * 60).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS);
+  });
+
+  test('the pull-request job dies at 8 minutes, and its gate step outlives the process deadline', () => {
+    const workflow = Bun.YAML.parse(
+      readFileSync(
+        join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+        'utf8'
+      )
+    ) as {
+      jobs: Record<
+        string,
+        {
+          'timeout-minutes'?: number;
+          steps: {
+            name?: string;
+            uses?: string;
+            'timeout-minutes'?: number;
+          }[];
+        }
+      >;
+    };
+    const job = workflow.jobs['check'];
+    expect(job?.['timeout-minutes']).toBe(8);
+    const gate = job?.steps.find((step) => step.name === 'check');
+    expect(gate?.['timeout-minutes']).toBe(7);
+    expect((gate?.['timeout-minutes'] ?? 0) * 60).toBeGreaterThan(
+      CI_PR_RUN_DEADLINE_SECONDS
+    );
+    const chrome = Object.values(workflow.jobs).flatMap((candidate) =>
+      candidate.steps.filter((step) => step.uses?.includes('visual-renderer'))
+    );
+    expect(chrome.length).toBeGreaterThan(0);
+    expect(chrome.every((step) => step['timeout-minutes'] === 2)).toBe(true);
   });
 
   test('a positive env override wins', () => {
