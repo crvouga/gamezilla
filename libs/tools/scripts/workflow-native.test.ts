@@ -41,9 +41,14 @@ test('only GitHub Actions owns Check, Deploy and Health triggers', () => {
     const workflow = Bun.YAML.parse(
       readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
     ) as {
-      jobs: Record<string, { 'runs-on': string }>;
+      jobs: Record<string, { 'runs-on'?: string; uses?: string }>;
     };
     for (const job of Object.values(workflow.jobs)) {
+      // A reusable-workflow call runs on its callee's runners.
+      if (job.uses !== undefined) {
+        expect(job.uses).toBe('./.github/workflows/check.yml');
+        continue;
+      }
       expect(job['runs-on']).toBe('ubuntu-24.04');
     }
   }
@@ -62,6 +67,10 @@ test('every native local action reference has a committed manifest, including ne
     const text = readFileSync(file, 'utf8');
     for (const match of text.matchAll(/uses: (\.\/[^\s]+)/g)) {
       const directory = match[1]!;
+      if (directory.startsWith('./.github/workflows/')) {
+        expect(existsSync(join(ROOT, directory)), directory).toBe(true);
+        continue;
+      }
       expect(directory.startsWith('./.github/actions/')).toBe(true);
       const manifests = ['action.yml', 'action.yaml'].map((name) =>
         join(ROOT, directory, name)

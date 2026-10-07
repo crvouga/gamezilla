@@ -3,16 +3,23 @@ name: Deploy
 # Run title, identical shape in every workflow (enforced by
 # libs/tools/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
+run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}"
 
-# Deploy: ships the code. `bun deploy` dispatches this workflow on `main`.
-# Each environment job runs `bun run deploy:local`. `main` is what ships,
-# to every environment in
+# Deploy is the release: the only path to production, run by hand.
+# `bun deploy` (or "Run workflow" on `main`) dispatches it; merging to `main`
+# never does, so `main` may hold unverified work between releases. Each
+# environment job runs `bun run deploy:local`. One commit — `github.sha` — is
+# verified and shipped, to every environment in
 # libs/infra-shared/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
 # here:
 #
 #   deploy:matrix  reads the env files (libs/infra-shared/scripts/workflow-env-matrix.ts)
 #                  from a job with no secrets and publishes the env lists.
+#   deploy:verify  the full Check (check.yml, scope `full`) on that commit:
+#                  every suite runs, fail-fast off, one aggregated verdict.
+#                  Nothing below starts unless it is green. Its cached
+#                  verdicts and build outputs are the ones `//#deploy`
+#                  restores, so the shipped bundles are the verified ones.
 #   deploy:<env>   one job per `protection: "standard"` env, in parallel: the
 #                  full replica's OpenTofu foundation apply → migrations → the
 #                  three Workers → OpenTofu edge apply → billing sync →
@@ -32,9 +39,12 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
 # `deploy:prd` package.json aliases, which force TURBO_UI=tui (a TTY UI).
 #
+#   deploy:release tags the shipped commit `release-<run number>` and
+#                  publishes a GitHub release once production is live.
+#
 # This never runs on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
-# secrets. PRs get `bun run check` in the Check workflow
+# secrets. PRs get the fast `check` gate in the Check workflow
 # (.github/workflows/check.yml) instead.
 
 permissions:
@@ -46,8 +56,6 @@ permissions:
   pull-requests: read
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 env:
@@ -131,6 +139,13 @@ jobs:
         id: envs
         run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
+  deploy-verify:
+    name: deploy:verify
+    needs: deploy-matrix
+    uses: ./.github/workflows/check.yml
+    with:
+      scope: full
+
   # Every env file's secrets environment and its import of the shared
   # credentials (libs/infra-shared/tofu/stacks/fleet), then no env may keep a local
   # copy that would shadow a shared one. A new env file gets its secrets
@@ -138,7 +153,7 @@ jobs:
   # first deploy reads it.
   deploy-fleet:
     name: deploy:fleet
-    needs: deploy-matrix
+    needs: [deploy-matrix, deploy-verify]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -235,12 +250,13 @@ jobs:
 
   deploy-production:
     name: deploy:${{ matrix.env }}
-    needs: [deploy-matrix, deploy-fleet, deploy-standard]
+    needs: [deploy-matrix, deploy-verify, deploy-fleet, deploy-standard]
     # Every standard env deployed — or there is none (the standard job is
     # skipped on an empty list, and a skipped `needs` would skip this job).
     if: >-
       !cancelled()
       && needs.deploy-matrix.result == 'success'
+      && needs.deploy-verify.result == 'success'
       && needs.deploy-fleet.result == 'success'
       && needs.deploy-matrix.outputs.production != '[]'
       && (needs.deploy-standard.result == 'success'
@@ -298,3 +314,25 @@ jobs:
           WORKFLOW_JOB: deploy:${{ matrix.env }}
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
+
+  # The verified, shipped commit gets a tag and a release; a red or partial
+  # release gets neither.
+  deploy-release:
+    name: deploy:release
+    needs: [deploy-production]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: release-${{ github.run_number }}
+    steps:
+      - name: Tag and publish the release
+        run: |
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes \
+            --notes "Verified and deployed by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."
