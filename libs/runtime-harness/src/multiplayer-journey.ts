@@ -1,8 +1,18 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import {
+  atTabShell,
+  check,
+  hostSpace,
+  JOURNEY_WAIT_MS,
+  tap,
+} from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
+  // A parked device reads as blank until its chrome is in front. Deciding
+  // from that blank read hosts a new space and waits for a control the open
+  // game does not have.
+  await atTabShell(ui);
   if (
     !(await ui.get('chess-menu-multiplayer').isVisible()) &&
     !(await ui.get('multiplayer-game').isVisible())

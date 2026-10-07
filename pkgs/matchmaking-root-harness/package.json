@@ -15,7 +15,14 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --parallel=1 --timeout 120000 tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/8",
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/8",
+    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/8",
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/8",
+    "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/8",
+    "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
+    "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
   },
   "dependencies": {
     "@pkgs/assert-root-shared": "workspace:*",
@@ -46,5 +53,5 @@
   "specDomains": [
     "matchmaking"
   ],
-  "specParts": 1
+  "specParts": 8
 }

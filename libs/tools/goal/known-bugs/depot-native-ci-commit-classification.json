@@ -1,4 +1,0 @@
-{
-  "summary": "The native CI migration changed the workflow path to .depot/workflows/check.yml, but git-sync classified it as chore instead of ci. Classify both CI providers' configuration paths as ci changes.",
-  "regressionTest": "libs/tools/scripts/git-sync.test.ts"
-}

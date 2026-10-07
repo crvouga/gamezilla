@@ -2,10 +2,10 @@ import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repositor
 import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 import { MultiplayerGameRepository } from './game-repository';
-import { publishMatchGame } from './publish-match-game';
 import type { MultiplayerGame } from './game-state';
 import { bothHaveMoved, endMultiplayerGame } from './game-state';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { publishMatchGame } from './publish-match-game';
 import { projectOpponentSearch } from './search-projection';
 
 /** Before both people have moved the game is aborted; afterwards it is given up. */
@@ -41,8 +41,7 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
       stored,
       game.outcome === 'ongoing' ? withdrawnGame(game, ctx.env.actorId) : game,
       nowMs,
-      ctx.env.serverNow !== undefined,
-      ctx.env
+      { server: ctx.env.serverNow !== undefined, publish: ctx.env }
     );
   }
   if (ctx.env.serverNow !== undefined) {

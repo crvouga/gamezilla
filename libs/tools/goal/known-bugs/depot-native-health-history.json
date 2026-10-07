@@ -1,4 +1,0 @@
-{
-  "summary": "The availability objective kept reading GitHub Actions history after native Depot migration, losing the new Health checks. Read every native run page and every job attempt, including failed originals and successful reruns.",
-  "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
-}

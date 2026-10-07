@@ -47,13 +47,16 @@ describe('turbo globalPassThroughEnv', () => {
     ).toEqual([]);
   });
 
-  // regression: turbo-strips-depot-context
-  test('passes native CI tokens, organization and attempt links to tasks', () => {
+  // regression: turbo-strips-ci-provider-context
+  test('passes GitHub tokens and run context to tasks', () => {
     const patterns = loadPassThroughEnv();
     expect(
-      ['DEPOT_TOKEN', 'DEPOT_ORG_ID', 'DEPOT_JOB_URL'].filter(
-        (name) => !passesThrough(name, patterns)
-      )
+      [
+        'GH_TOKEN',
+        'GITHUB_REPOSITORY',
+        'GITHUB_RUN_ID',
+        'GITHUB_RUN_ATTEMPT',
+      ].filter((name) => !passesThrough(name, patterns))
     ).toEqual([]);
   });
 

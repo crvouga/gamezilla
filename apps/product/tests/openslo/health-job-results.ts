@@ -1,15 +1,13 @@
-/** Every finished native Health check of one environment, including reruns. */
+/** Every finished Health check of one environment, including every rerun. */
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
 
 export const HEALTH_WORKFLOW_FILE = 'health.yml';
 const RUN_LEAD_MS = 86_400_000;
-
-export type DepotSource = {
+export type GitHubSource = {
   readonly http: HttpClient;
   readonly apiUrl: string;
   readonly repository: string;
-  readonly orgId: string;
   readonly token: string;
 };
 export type HealthChecksQuery = {
@@ -18,130 +16,108 @@ export type HealthChecksQuery = {
   readonly endMs: number;
 };
 
-/** The automatic DEPOT_TOKEN can only access the current job attempt. */
+/** The workflow token needs Actions read permission. */
 export function healthHistoryToken(
   vars: Readonly<Record<string, string | undefined>>
 ): string {
-  const token = vars['DEPOT_ORG_TOKEN']?.trim() ?? '';
-  if (token.length === 0) {
+  const token = vars['GH_TOKEN']?.trim() || vars['GITHUB_TOKEN']?.trim() || '';
+  if (!token)
     throw new Error(
-      'DEPOT_ORG_TOKEN is missing — seed a Depot organization API token in the shared secrets environment; the automatic DEPOT_TOKEN cannot read Health history'
+      'GH_TOKEN or GITHUB_TOKEN is missing — Health history requires Actions read permission'
     );
-  }
   return token;
 }
-type Run = { readonly runId: string; readonly createdAt: string };
-type RunsPage = {
-  readonly runs: readonly Run[];
-  readonly nextPageToken?: string;
-};
-type Attempt = {
-  readonly status: string;
-  readonly finishedAt: string;
-};
+type Run = { readonly id: number; readonly run_attempt: number };
 type Job = {
-  readonly jobDisplayName: string;
-  readonly attempts?: readonly Attempt[];
-};
-type Workflow = {
-  readonly workflowId: string;
-  readonly workflowPath?: string;
-  readonly name?: string;
+  readonly name: string;
+  readonly status: string;
+  readonly conclusion: string | null;
+  readonly completed_at: string | null;
 };
 
-async function rpc<T>(
-  source: DepotSource,
-  method: string,
-  body: Readonly<Record<string, unknown>>
-): Promise<T> {
+async function get<T>(source: GitHubSource, path: string): Promise<T> {
   const response = await source.http.fetch(
-    `${source.apiUrl}/depot.ci.v1.CIService/${method}`,
+    `${source.apiUrl}/repos/${source.repository}/actions/${path}`,
     {
-      method: 'POST',
       headers: {
         Authorization: `Bearer ${source.token}`,
-        'Content-Type': 'application/json',
-        'Connect-Protocol-Version': '1',
-        'X-Depot-Org': source.orgId,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2026-03-10',
       },
-      body: JSON.stringify(body),
     }
   );
-  if (!response.ok) {
-    throw new Error(`Depot ${method} answered ${String(response.status)}`);
-  }
+  if (!response.ok)
+    throw new Error(`GitHub ${path} answered ${String(response.status)}`);
   return (await response.json()) as T;
 }
 
 async function healthRuns(
-  source: DepotSource,
-  sinceMs: number
+  source: GitHubSource,
+  query: HealthChecksQuery
 ): Promise<readonly Run[]> {
   const runs: Run[] = [];
-  let pageToken = '';
-  do {
-    const page = await rpc<RunsPage>(source, 'ListRuns', {
-      repo: source.repository,
-      status: ['queued', 'running', 'finished', 'failed', 'cancelled'],
-      pageSize: 100,
-      pageToken,
-    });
-    runs.push(
-      ...page.runs.filter((run) => Date.parse(run.createdAt) >= sinceMs)
+  const since = new Date(query.startMs - RUN_LEAD_MS).toISOString();
+  const until = new Date(query.endMs).toISOString();
+  for (let page = 1; ; page++) {
+    const result = await get<{ readonly workflow_runs: readonly Run[] }>(
+      source,
+      `workflows/${HEALTH_WORKFLOW_FILE}/runs?branch=main&created=${encodeURIComponent(`${since}..${until}`)}&per_page=100&page=${page}`
     );
-    if (page.runs.some((run) => Date.parse(run.createdAt) < sinceMs)) break;
-    pageToken = page.nextPageToken ?? '';
-  } while (pageToken !== '');
-  return runs;
+    runs.push(...result.workflow_runs);
+    if (result.workflow_runs.length < 100) return runs;
+  }
 }
 
-async function runJobs(source: DepotSource, run: Run): Promise<readonly Job[]> {
-  const status = await rpc<{ readonly workflows?: readonly Workflow[] }>(
-    source,
-    'GetRunStatus',
-    { runId: run.runId }
-  );
+async function runJobs(
+  source: GitHubSource,
+  run: Run
+): Promise<readonly Job[]> {
   const jobs: Job[] = [];
-  for (const workflow of status.workflows ?? []) {
-    if (
-      workflow.workflowPath?.split('/').at(-1) !== HEALTH_WORKFLOW_FILE &&
-      workflow.name !== 'Health'
-    )
-      continue;
-    const detail = await rpc<{ readonly jobs?: readonly Job[] }>(
-      source,
-      'GetWorkflow',
-      { workflowId: workflow.workflowId }
-    );
-    jobs.push(...(detail.jobs ?? []));
+  for (let attempt = 1; attempt <= run.run_attempt; attempt++) {
+    for (let page = 1; ; page++) {
+      const result = await get<{ readonly jobs: readonly Job[] }>(
+        source,
+        `runs/${run.id}/attempts/${attempt}/jobs?per_page=100&page=${page}`
+      );
+      jobs.push(...result.jobs);
+      if (result.jobs.length < 100) break;
+    }
   }
   return jobs;
 }
 
-/** A completed attempt inside the inclusive window; cancelled attempts do not count. */
+/** Completed attempts in the inclusive window; cancelled and skipped checks do not count. */
 export function jobEvent(
-  attempt: Attempt,
+  job: Job,
   query: HealthChecksQuery
 ): { readonly atMs: number; readonly good: boolean } | null {
-  if (!['finished', 'failed'].includes(attempt.status)) return null;
-  const atMs = Date.parse(attempt.finishedAt);
+  if (
+    job.status !== 'completed' ||
+    ![
+      'success',
+      'failure',
+      'timed_out',
+      'action_required',
+      'startup_failure',
+      'stale',
+    ].includes(job.conclusion ?? '')
+  )
+    return null;
+  const atMs = Date.parse(job.completed_at ?? '');
   if (!(atMs >= query.startMs && atMs <= query.endMs)) return null;
-  return { atMs, good: attempt.status === 'finished' };
+  return { atMs, good: job.conclusion === 'success' };
 }
 
 export async function healthCheckEvents(
-  source: DepotSource,
+  source: GitHubSource,
   query: HealthChecksQuery
 ): Promise<Measurement> {
-  const runs = await healthRuns(source, query.startMs - RUN_LEAD_MS);
   const events = [];
-  for (const run of runs) {
+  for (const run of await healthRuns(source, query)) {
     for (const job of await runJobs(source, run)) {
-      if (job.jobDisplayName !== `health:${query.env}`) continue;
-      for (const attempt of job.attempts ?? []) {
-        const event = jobEvent(attempt, query);
-        if (event !== null) events.push(event);
-      }
+      if (job.name !== `health:${query.env}`) continue;
+      const event = jobEvent(job, query);
+      if (event !== null) events.push(event);
     }
   }
   events.sort((a, b) => a.atMs - b.atMs);

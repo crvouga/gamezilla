@@ -47,7 +47,23 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
   return [...result.values()];
 }
 
-/** LPT over measured seconds; ties use task ID, then the lowest shard index. */
+function modelCount(tasks: readonly CheckTask[]): number {
+  return tasks.filter(
+    (task) => !task.hit && task.taskId.endsWith('#check:models')
+  ).length;
+}
+
+function lighter(a: CheckShard, b: CheckShard): boolean {
+  return (
+    a.seconds < b.seconds ||
+    (a.seconds === b.seconds &&
+      (a.tasks.filter(unknown).length < b.tasks.filter(unknown).length ||
+        (a.tasks.filter(unknown).length === b.tasks.filter(unknown).length &&
+          a.tasks.length < b.tasks.length)))
+  );
+}
+
+/** Spread uncached solver groups, then LPT; ties use stable discovery order. */
 export function balanceShards(
   tasks: readonly CheckTask[],
   count: number
@@ -68,17 +84,12 @@ export function balanceShards(
     [...stages.checks].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
   for (const group of ordered) {
-    const bin = bins.reduce((best, candidate) =>
-      candidate.seconds < best.seconds ||
-      (candidate.seconds === best.seconds &&
-        candidate.tasks.filter(unknown).length <
-          best.tasks.filter(unknown).length) ||
-      (candidate.seconds === best.seconds &&
-        candidate.tasks.filter(unknown).length ===
-          best.tasks.filter(unknown).length &&
-        candidate.tasks.length < best.tasks.length)
-        ? candidate
-        : best
+    const leastModels = Math.min(...bins.map((bin) => modelCount(bin.tasks)));
+    const candidates = modelCount(group)
+      ? bins.filter((bin) => modelCount(bin.tasks) === leastModels)
+      : bins;
+    const bin = candidates.reduce((best, candidate) =>
+      lighter(candidate, best) ? candidate : best
     );
     bin.tasks.push(...group);
     bin.seconds += cost(group);

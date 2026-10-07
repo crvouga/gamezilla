@@ -6,7 +6,7 @@ process needs a protocol endpoint. Do not patch installed dependencies or add
 consumer-side simulations of missing vendor behavior. Report gaps using the
 [Mockingbird issue guide](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md).
 
-This migration is **not ready for release**. The checks below remain red on the
+This migration is **not ready for release**. Some checks below remain red on the
 published package versions; a green `bun check` remains the release decision.
 
 | Integration | Current migration state | Evidence or blocker |
@@ -15,7 +15,7 @@ published package versions; a green `bun check` remains the release decision.
 | SQLite | Existing Mockingbird client engine retained | `@pkgs/sql-client-sqlite-root-shared` |
 | Server KV | Harness now uses the production Postgres-backed adapter over its Mockingbird database | All five KV port contract tests pass; no separate Redis service is needed |
 | OAuth / Stripe | Existing Mockingbird integrations retained | `@pkgs/auth-root-harness`, `@pkgs/billing-stripe-harness`, local product stack |
-| Paddle | Existing in-house fake remains pending vendor API coverage | Mockingbird 1.3.0 returns 404 for [portal sessions #327](https://github.com/crvouga/mockingbird/issues/327) and [notification settings #328](https://github.com/crvouga/mockingbird/issues/328); both are pinned in `pkgs/billing-paddle-harness/tests/mockingbird-gaps.test.ts` |
+| Paddle | Catalog uses `@crvouga/mockingbird-service-paddle` 2.1.0 for portal sessions and notification settings | [Portal sessions #327](https://github.com/crvouga/mockingbird/issues/327) and [notification settings #328](https://github.com/crvouga/mockingbird/issues/328) are served. The production client assertions stay in `pkgs/billing-paddle-harness/tests/mockingbird-gaps.test.ts` |
 | OpenAI | Harness now uses the production OpenAI adapter against Mockingbird 0.1.0; local stack starts a mock server and overrides its key/base URL | Scripted structured-response integration check passes. Configure synthetic models/scripts rather than expecting semantic inference |
 | S3 | Existing local Mockingbird service retained; harness routes the real S3 adapter to an isolated in-process Mockingbird runtime | Binary round-trip and isolation regression now passes under Bun browser conditions. Install generates the adapter's browser bundle; Bun selects it through conditional package exports. The production Worker and ordinary Node/Bun imports retain the source adapter |
 | MQTT / EMQX | Aedes/local EMQX and the harness bus still require replacement | No published Mockingbird MQTT package; [#316](https://github.com/crvouga/mockingbird/issues/316) specifies MQTT 5, TCP/WS, JWT ACLs and session buffering |
@@ -99,8 +99,9 @@ not automatically imported; the first Mockingbird database starts fresh.
 - S3 adapter typecheck and lint passed; its six unit/property checks and ten
   wire contracts passed. The Postgres schema package's import-order lint
   failure is corrected and its lint passes.
-- Full application reconciliation, Postgres schema/index/concurrency contracts
-  and the two new Paddle API checks remain red on the documented gaps.
+- Full application reconciliation and Postgres schema/index/concurrency contracts
+  remain red on the documented gaps. The Paddle portal and notification-setting
+  checks pass on `@crvouga/mockingbird-service-paddle` 2.1.0.
 - Type checks passed for the new Postgres packages and the affected product,
   server, runtime, harness, SQL client, schema, index, sync harness and Paddle
   harness packages. Package lint, naming and whitespace checks passed.

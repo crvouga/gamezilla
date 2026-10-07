@@ -228,7 +228,7 @@ function isTestPath(path: string): boolean {
 }
 
 function isCiPath(path: string): boolean {
-  return path.startsWith('.github/') || path.startsWith('.depot/');
+  return path.startsWith('.github/') || path.startsWith('.github/');
 }
 
 /** A Conventional Commit header describing `paths`, derived from where they live. */

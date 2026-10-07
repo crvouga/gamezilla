@@ -230,7 +230,7 @@ describe('turbo check/deploy graph invariants', () => {
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
     ) as { tasks: { test: { inputs: string[] } } };
     for (const input of [
-      '$TURBO_ROOT$/.depot/**',
+      '$TURBO_ROOT$/.github/**',
       '$TURBO_ROOT$/specs/**',
       '$TURBO_ROOT$/apps/*/package.json',
       '$TURBO_ROOT$/libs/*/turbo.json',
@@ -310,10 +310,11 @@ describe('turbo check/deploy graph invariants', () => {
     expect(scripts['health:prd']).toContain('health:local');
   });
 
-  test('bun check, bun health, and bun deploy dispatch their workflows', () => {
+  test('bun check, bun verify, bun health, and bun deploy dispatch their workflows', () => {
     const scripts = loadRootScripts();
     const dispatch = 'libs/tools/scripts/workflow-remote.ts';
     expect(scripts['check']).toBe(`bun run ${dispatch} check`);
+    expect(scripts['verify']).toBe(`bun run ${dispatch} verify`);
     expect(scripts['health']).toBe(`bun run ${dispatch} health`);
     expect(scripts['deploy']).toBe(`bun run ${dispatch} deploy`);
     expect(scripts['check']).not.toContain('turbo-ci-run');

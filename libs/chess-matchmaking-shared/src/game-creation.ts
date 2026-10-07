@@ -4,8 +4,8 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { Chess } from 'chess.js';
 import type { MultiplayerGame } from './game-state';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
-import { publishMatchGame } from './publish-match-game';
 import { formatMultiplayerRating } from './multiplayer-rating';
+import { publishMatchGame } from './publish-match-game';
 import { MultiplayerRatingRepository } from './rating-repository';
 import { startingMs, timeControlOf } from './time-control';
 

@@ -6,7 +6,7 @@ import { checkObjectiveSpec } from '@pkgs/openslo-shared/check';
 import { objectiveSpecStem } from '@pkgs/openslo-shared/registry';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import type { DepotSource } from './health-job-results';
+import type { GitHubSource } from './health-job-results';
 import {
   HEALTH_WORKFLOW_FILE,
   healthCheckEvents,
@@ -29,80 +29,43 @@ type FakeJob = {
   readonly at: number;
 };
 
-/** Recorded native API pages, workflow details and every job attempt. */
-function fakeDepot(
-  runs: ReadonlyMap<number, readonly FakeJob[]>,
-  otherWorkflows: readonly Record<string, unknown>[] = []
-): {
-  readonly http: HttpClient;
-  readonly asked: { method: string; body: Record<string, unknown> }[];
-} {
-  const asked: { method: string; body: Record<string, unknown> }[] = [];
+/** Recorded Actions run pages and per-attempt job pages. */
+function fakeGitHub(runs: ReadonlyMap<number, readonly FakeJob[]>) {
+  const asked: URL[] = [];
   const ids = [...runs.keys()];
-  const answer = (method: string, body: Record<string, unknown>): unknown => {
-    if (method === 'ListRuns') {
-      const start = Number(body['pageToken'] || 0);
-      const end = start + Number(body['pageSize']);
-      return {
-        runs: ids.slice(start, end).map((id) => ({
-          runId: String(id),
-          createdAt: new Date(NOW_MS).toISOString(),
-        })),
-        nextPageToken: end < ids.length ? String(end) : '',
-      };
-    }
-    if (method === 'GetRunStatus')
-      return {
-        workflows: [
-          ...otherWorkflows,
-          {
-            workflowId: body['runId'],
-            workflowPath: `.depot/workflows/${HEALTH_WORKFLOW_FILE}`,
-            name: 'Health',
-          },
-        ],
-      };
-    const jobs = (runs.get(Number(body['workflowId'])) ?? []).map((job) => ({
-      jobDisplayName: job.name,
-      attempts: [
-        {
-          status:
-            job.status === 'in_progress'
-              ? 'running'
-              : job.conclusion === 'success'
-                ? 'finished'
-                : job.conclusion === 'failure'
-                  ? 'failed'
-                  : job.conclusion,
-          finishedAt: new Date(job.at).toISOString(),
-        },
-      ],
-    }));
-    return { jobs };
-  };
   const http: HttpClient = {
     fetch: async (input, init) => {
-      const method = new URL(String(input)).pathname.split('/').at(-1) ?? '';
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-      asked.push({ method, body });
-      const headers = new Headers(init?.headers);
-      if (
-        headers.get('Authorization') !== 'Bearer token-1' ||
-        headers.get('X-Depot-Org') !== 'org-1'
-      )
+      const url = new URL(String(input));
+      asked.push(url);
+      if (new Headers(init?.headers).get('Authorization') !== 'Bearer token-1')
         return new Response('', { status: 401 });
-      return Response.json(answer(method, body));
+      const page = Number(url.searchParams.get('page'));
+      const start = (page - 1) * 100;
+      if (url.pathname.endsWith('/runs'))
+        return Response.json({
+          workflow_runs: ids
+            .slice(start, start + 100)
+            .map((id) => ({ id, run_attempt: 1 })),
+        });
+      const id = Number(/runs\/(\d+)/.exec(url.pathname)?.[1]);
+      return Response.json({
+        jobs: (runs.get(id) ?? []).slice(start, start + 100).map((job) => ({
+          name: job.name,
+          status: job.status ?? 'completed',
+          conclusion: job.conclusion,
+          completed_at: new Date(job.at).toISOString(),
+        })),
+      });
     },
   };
   return { http, asked };
 }
 
-function source(http: HttpClient): DepotSource {
+function source(http: HttpClient): GitHubSource {
   return {
     http,
-    apiUrl: 'https://api.depot.test',
+    apiUrl: 'https://api.github.test',
     repository: 'team/app',
-    orgId: 'org-1',
     token: 'token-1',
   };
 }
@@ -124,41 +87,33 @@ function hourlyRuns(conclusions: readonly string[]) {
   );
 }
 
-describe('the team checks of one environment, from Depot CI', () => {
-  // regression: health-history-job-token-unauthorized
-  test('a job-scoped token cannot substitute for organization history credentials', () => {
-    expect(() =>
-      healthHistoryToken({ DEPOT_TOKEN: 'job-attempt-token' })
-    ).toThrow('DEPOT_ORG_TOKEN is missing');
-    expect(
-      healthHistoryToken({
-        DEPOT_TOKEN: 'job-attempt-token',
-        DEPOT_ORG_TOKEN: 'org-token',
-      })
-    ).toBe('org-token');
+describe('the team checks of one environment, from GitHub Actions', () => {
+  test('missing Actions history credentials fail instead of passing silently', () => {
+    expect(() => healthHistoryToken({})).toThrow(
+      'GH_TOKEN or GITHUB_TOKEN is missing'
+    );
+    expect(healthHistoryToken({ GITHUB_TOKEN: 'workflow-token' })).toBe(
+      'workflow-token'
+    );
   });
 
-  test('history always uses the supplied organization token regardless of the job token', () => {
+  test('uses the supplied CLI token before a fallback workflow token', () => {
     assertProperty(
-      'history uses organization credentials regardless of the job token',
+      'explicit history credentials take precedence',
       fc.property(
         fc.string().filter((token) => token.trim().length > 0),
         fc.option(fc.string(), { nil: undefined }),
-        (orgToken, jobToken) => {
+        (token, fallback) =>
           expect(
-            healthHistoryToken({
-              DEPOT_ORG_TOKEN: orgToken,
-              DEPOT_TOKEN: jobToken,
-            })
-          ).toBe(orgToken.trim());
-        }
+            healthHistoryToken({ GH_TOKEN: token, GITHUB_TOKEN: fallback })
+          ).toBe(token.trim())
       )
     );
   });
 
   test('each finished check of the environment in the window is one event, good when it succeeded', async () => {
     const at = NOW_MS - DAY_MS;
-    const { http } = fakeDepot(
+    const { http } = fakeGitHub(
       new Map([
         [
           1,
@@ -207,49 +162,52 @@ describe('the team checks of one environment, from Depot CI', () => {
     });
   });
 
-  test('pages beyond 100 native runs and reads every workflow attempt', async () => {
-    const { http, asked } = fakeDepot(hourlyRuns(Array(150).fill('success')));
+  // regression: ci-provider-native-health-history
+  test('pages beyond 100 runs, targets only main Health, and reads every attempt', async () => {
+    const { http, asked } = fakeGitHub(hourlyRuns(Array(150).fill('success')));
     const measured = await healthCheckEvents(source(http), {
       env: 'prd',
       ...WINDOW,
     });
     expect(measured.kind === 'events' && measured.events.length).toBe(150);
+    const pages = asked.filter((url) => url.pathname.endsWith('/runs'));
+    expect(pages.map((url) => url.searchParams.get('page'))).toEqual([
+      '1',
+      '2',
+    ]);
     expect(
-      asked
-        .filter((request) => request.method === 'ListRuns')
-        .map((request) => request.body['pageToken'])
-    ).toEqual(['', '100']);
-    expect(asked).toContainEqual({
-      method: 'GetWorkflow',
-      body: { workflowId: '150' },
-    });
-    expect(asked[0]?.body['status']).toContain('failed');
+      pages.every(
+        (url) =>
+          url.pathname.endsWith(`/workflows/${HEALTH_WORKFLOW_FILE}/runs`) &&
+          url.searchParams.get('branch') === 'main'
+      )
+    ).toBe(true);
+    expect(
+      asked.some((url) => url.pathname.endsWith('/runs/150/attempts/1/jobs'))
+    ).toBe(true);
   });
 
-  // regression: depot-native-health-history
-  test('counts the failed original and successful rerun of the same native job', async () => {
-    const f = fakeDepot(hourlyRuns(['success']));
+  test('counts the failed original and successful rerun separately', async () => {
+    const asked: string[] = [];
     const http: HttpClient = {
-      fetch: async (input, init) => {
-        if (String(input).endsWith('/GetWorkflow'))
-          return Response.json({
-            jobs: [
-              {
-                jobDisplayName: 'health:prd',
-                attempts: [
-                  {
-                    status: 'failed',
-                    finishedAt: new Date(NOW_MS - 1).toISOString(),
-                  },
-                  {
-                    status: 'finished',
-                    finishedAt: new Date(NOW_MS).toISOString(),
-                  },
-                ],
-              },
-            ],
-          });
-        return f.http.fetch(input, init);
+      fetch: async (input) => {
+        const path = new URL(String(input)).pathname;
+        asked.push(path);
+        if (path.endsWith('/runs'))
+          return Response.json({ workflow_runs: [{ id: 1, run_attempt: 2 }] });
+        const original = path.includes('/attempts/1/');
+        return Response.json({
+          jobs: [
+            {
+              name: 'health:prd',
+              status: 'completed',
+              conclusion: original ? 'failure' : 'success',
+              completed_at: new Date(
+                original ? NOW_MS - 1 : NOW_MS
+              ).toISOString(),
+            },
+          ],
+        });
       },
     };
     expect(
@@ -261,54 +219,29 @@ describe('the team checks of one environment, from Depot CI', () => {
         { atMs: NOW_MS, good: true },
       ],
     });
+    expect(asked).toContain('/repos/team/app/actions/runs/1/attempts/2/jobs');
   });
 
-  // regression: health-history-inline-workflow-path
-  test('an inline Check workflow without a path does not prevent counting Health checks', async () => {
-    const f = fakeDepot(hourlyRuns(['success']), [
-      { workflowId: '31fg9907r7', status: 'finished', name: 'Check · manual' },
-    ]);
+  test('pages all jobs in each attempt and counts timeouts as failures', async () => {
+    const jobs = Array.from({ length: 101 }, (_, index) => ({
+      name: index === 100 ? 'health:prd' : 'unrelated',
+      conclusion: 'timed_out',
+      at: NOW_MS,
+    }));
+    const f = fakeGitHub(new Map([[1, jobs]]));
     expect(
       await healthCheckEvents(source(f.http), { env: 'prd', ...WINDOW })
-    ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: true }] });
-    expect(f.asked).not.toContainEqual({
-      method: 'GetWorkflow',
-      body: { workflowId: '31fg9907r7' },
-    });
-  });
-
-  test('unrelated workflows with optional metadata leave Health measurements unchanged', async () => {
-    await assertProperty(
-      'unrelated workflows cannot affect Health measurements',
-      fc.asyncProperty(
-        fc.record({
-          workflowPath: fc.option(
-            fc
-              .string()
-              .filter(
-                (path) => path.split('/').at(-1) !== HEALTH_WORKFLOW_FILE
-              ),
-            { nil: undefined }
-          ),
-          name: fc.option(
-            fc.string().filter((name) => name !== 'Health'),
-            { nil: undefined }
-          ),
-        }),
-        async (metadata) => {
-          const f = fakeDepot(hourlyRuns(['success']), [
-            { workflowId: 'other', ...metadata },
-          ]);
-          expect(
-            await healthCheckEvents(source(f.http), { env: 'prd', ...WINDOW })
-          ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: true }] });
-        }
+    ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: false }] });
+    expect(
+      f.asked.some(
+        (url) =>
+          url.pathname.endsWith('/jobs') && url.searchParams.get('page') === '2'
       )
-    );
+    ).toBe(true);
   });
 
   test('a refused request fails the measure', async () => {
-    const { http } = fakeDepot(hourlyRuns(['success']));
+    const { http } = fakeGitHub(hourlyRuns(['success']));
     const refused = healthCheckEvents(
       { ...source(http), token: 'wrong' },
       { env: 'prd', ...WINDOW }
@@ -319,7 +252,7 @@ describe('the team checks of one environment, from Depot CI', () => {
 
 describe('the app answers people (availability objective)', () => {
   async function verdict(conclusions: readonly string[]) {
-    const { http } = fakeDepot(hourlyRuns(conclusions));
+    const { http } = fakeGitHub(hourlyRuns(conclusions));
     const { issues, results } = await checkObjectiveSpec({
       text: SPEC,
       binding: {

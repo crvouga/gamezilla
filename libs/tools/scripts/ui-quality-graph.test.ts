@@ -109,6 +109,6 @@ test('PR Check and Deploy never run the visual gate or prepare its model', () =>
     );
   for (const name of ['check', 'deploy'])
     expect(
-      readFileSync(join(ROOT, '.depot/workflows', `${name}.yml`), 'utf8')
+      readFileSync(join(ROOT, '.github/workflows', `${name}.yml`), 'utf8')
     ).not.toContain('ui-quality');
 });

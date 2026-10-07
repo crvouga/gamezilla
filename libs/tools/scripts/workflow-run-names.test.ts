@@ -8,7 +8,7 @@ import { join } from 'node:path';
  * (`<workflow>:<env>` for a job with an env matrix), so
  * the Actions run list and the PR checks box read the same everywhere.
  */
-const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.depot/workflows');
+const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 const SEPARATOR = ' · ';
 
 /** The `<trigger>` label each event renders as. */
@@ -41,11 +41,11 @@ const workflows = readdirSync(WORKFLOWS_DIR)
     ) as Workflow,
   }));
 
-// regression: depot-native-workflows-missing-auth
-// regression: depot-migration-workflow-on-feature-branch
+// regression: ci-provider-native-workflows-missing-auth
+// regression: ci-provider-migration-workflow-on-feature-branch
 test('Check, Deploy and Health have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
-    'migrate-secrets-to-depot-ci-1790912980154.yml'
+    'temporary-ci-migration.yml'
   );
   expect(workflows.map(({ file }) => file).sort()).toEqual([
     'check.yml',
@@ -66,7 +66,10 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     expect(segments).toHaveLength(2);
     expect(runName).not.toMatch(/github\.(head_|base_)?ref/u);
     expect(segments[0]).toBe(workflow.name);
-    for (const event of Object.keys(workflow.on)) {
+    // GitHub never renders a called workflow's run-name: the caller's shows.
+    for (const event of Object.keys(workflow.on).filter(
+      (name) => name !== 'workflow_call'
+    )) {
       const label = TRIGGER_LABELS[event];
       expect(label, `no trigger label for event ${event}`).toBeDefined();
       expect(segments[1]).toContain(label as string);

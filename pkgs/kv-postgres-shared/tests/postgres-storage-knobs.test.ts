@@ -55,6 +55,43 @@ describe('applyKvStorageOptimizations', () => {
     ).toBe(true);
   });
 
+  // regression: mockingbird-postgres-storage-sqlstate
+  test('continues when Mockingbird reports unsupported storage DDL as XX000', async () => {
+    const statements: string[] = [];
+    const client = clientWithRun(async (query) => {
+      statements.push(query.sql);
+      if (query.sql.includes('SET STORAGE')) {
+        throw Object.assign(
+          new Error('this ALTER COLUMN SET form is not supported'),
+          { code: 'XX000' }
+        );
+      }
+      return { changes: 0, lastInsertRowid: 0 };
+    }, 'p');
+
+    await expect(applyKvStorageOptimizations(client, log)).resolves.toBe(
+      undefined
+    );
+    expect(statements.some((sql) => sql.includes('SET STORAGE MAIN'))).toBe(
+      true
+    );
+    expect(statements.some((sql) => sql.includes('SET UNLOGGED'))).toBe(true);
+  });
+
+  test('does not treat an unrelated XX000 as optional storage DDL', async () => {
+    const failure = Object.assign(
+      new Error('operator does not exist: oid = regnamespace'),
+      { code: 'XX000' }
+    );
+    const client = clientWithRun(async () => {
+      throw failure;
+    });
+
+    await expect(applyKvStorageOptimizations(client, log)).rejects.toBe(
+      failure
+    );
+  });
+
   // regression: neki-kv-storage-ddl-unsupported
   test('defers optional storage DDL while a reconciled table becomes visible', async () => {
     const failure = Object.assign(new Error('relation "kv" does not exist'), {

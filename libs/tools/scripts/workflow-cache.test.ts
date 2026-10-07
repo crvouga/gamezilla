@@ -7,7 +7,7 @@ const root = join(import.meta.dirname, '../../..');
 // regression: check-cache-write-only-override
 test('Check enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.depot/workflows/check.yml'),
+    join(root, '.github/workflows/check.yml'),
     'utf8'
   );
   expect(workflow).toContain(
@@ -15,10 +15,10 @@ test('Check enforces read/write after secrets injection', () => {
   );
 });
 
-// regression: depot-api-dependency-cache-ref
+// regression: ci-provider-api-dependency-cache-ref
 test('setup does not use ref-dependent dependency cache actions', () => {
   const setup = readFileSync(
-    join(root, '.depot/actions/setup/action.yml'),
+    join(root, '.github/actions/setup/action.yml'),
     'utf8'
   );
   expect(setup).not.toMatch(/uses: actions\/cache/);

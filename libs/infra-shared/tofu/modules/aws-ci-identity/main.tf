@@ -22,14 +22,6 @@ variable "github_subject_prefix" {
   description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
 }
 
-variable "github_repository" {
-  type = string
-}
-
-variable "depot_org_id" {
-  type = string
-}
-
 locals {
   issuer           = "https://token.actions.githubusercontent.com"
   deploy_role_name = "${var.project}-github-deploy"
@@ -63,20 +55,11 @@ resource "aws_iam_openid_connect_provider" "github" {
   }
 }
 
-resource "aws_iam_openid_connect_provider" "depot" {
-  url            = "https://identity.depot.dev"
-  client_id_list = ["sts.amazonaws.com"]
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
 resource "aws_iam_role" "deploy" {
   name = local.deploy_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = concat([{
+    Statement = [{
       Effect    = "Allow"
       Action    = "sts:AssumeRoleWithWebIdentity"
       Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
@@ -88,21 +71,7 @@ resource "aws_iam_role" "deploy" {
           "token.actions.githubusercontent.com:sub" = local.deploy_subjects
         }
       }
-      }], [{
-      Effect    = "Allow"
-      Action    = "sts:AssumeRoleWithWebIdentity"
-      Principal = { Federated = aws_iam_openid_connect_provider.depot.arn }
-      Condition = {
-        StringEquals = {
-          "identity.depot.dev:aud" = "sts.amazonaws.com"
-        }
-        StringLike = {
-          "identity.depot.dev:sub" = [for ref in ["refs/heads/main"] :
-            "spiffe://identity.depot.dev/org/${var.depot_org_id}/ci/github/${var.github_repository}/ref/${ref}/sandbox/*"
-          ]
-        }
-      }
-    }])
+    }]
   })
 
   lifecycle {
@@ -267,7 +236,7 @@ resource "aws_iam_role" "health" {
   name = local.health_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = concat([{
+    Statement = [{
       Effect    = "Allow"
       Action    = "sts:AssumeRoleWithWebIdentity"
       Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
@@ -279,21 +248,7 @@ resource "aws_iam_role" "health" {
           "token.actions.githubusercontent.com:sub" = local.health_subjects
         }
       }
-      }], [{
-      Effect    = "Allow"
-      Action    = "sts:AssumeRoleWithWebIdentity"
-      Principal = { Federated = aws_iam_openid_connect_provider.depot.arn }
-      Condition = {
-        StringEquals = {
-          "identity.depot.dev:aud" = "sts.amazonaws.com"
-        }
-        StringLike = {
-          "identity.depot.dev:sub" = [for ref in ["refs/heads/*"] :
-            "spiffe://identity.depot.dev/org/${var.depot_org_id}/ci/github/${var.github_repository}/ref/${ref}/sandbox/*"
-          ]
-        }
-      }
-    }])
+    }]
   })
 
   lifecycle {

@@ -71,7 +71,10 @@ function buildStatusMarkdown(
   }
   if (actor !== '') lines.push(`- **actor:** @${actor}`);
   if (secretsEnv !== '') lines.push(`- **SECRETS_ENV:** \`${secretsEnv}\``);
-  const jobUrl = process.env['DEPOT_JOB_URL']?.trim() ?? '';
+  const jobUrl =
+    repo && runId
+      ? `${server}/${repo}/actions/runs/${runId}/attempts/${process.env['GITHUB_RUN_ATTEMPT'] || '1'}`
+      : '';
   if (jobUrl !== '') {
     lines.push(`- **workflow run:** [view run](${jobUrl})`);
   }

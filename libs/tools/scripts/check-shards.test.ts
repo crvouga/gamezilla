@@ -27,6 +27,50 @@ function task(id: string, seconds = 1, dependencies: string[] = []): CheckTask {
   };
 }
 
+// regression: github-model-checks-share-solver-slot
+test('cold chess, board and room model checks use separate runners', () => {
+  const tasks = [
+    task('@libs/chess-root-harness#check:models', 16),
+    task('@pkgs/chess-board-root-harness#check:models', 16),
+    task('@pkgs/room-root-harness#check:models', 18),
+    ...Array.from({ length: 20 }, (_, i) => task(`pkg-${i}#test`, 30)),
+  ];
+  const plan = balanceShards(tasks, 16);
+  expect(
+    plan.shards.filter((shard) =>
+      shard.tasks.some((task) => task.taskId.endsWith('#check:models'))
+    )
+  ).toHaveLength(3);
+});
+
+test('uncached solver groups spread evenly regardless of estimates and discovery order', () => {
+  assertProperty(
+    'check-solver-shards',
+    fc.property(
+      fc.array(fc.integer({ min: 1, max: 1000 }), {
+        minLength: 1,
+        maxLength: 11,
+      }),
+      fc.integer({ min: 1, max: 16 }),
+      (durations, count) => {
+        const tasks = durations.map((seconds, i) =>
+          task(`pkg-${i}#check:models`, seconds)
+        );
+        tasks.push({ ...task('cached#check:models'), hit: true });
+        const plan = balanceShards(tasks, count);
+        const sizes = plan.shards
+          .slice(0, count)
+          .map((shard) => shard.tasks.filter((task) => !task.hit).length);
+        expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+        expect(plan.shards).toEqual(
+          balanceShards([...tasks].reverse(), count).shards
+        );
+        validatePlan(plan);
+      }
+    )
+  );
+});
+
 test('LPT preserves every input exactly once and is independent of discovery order', () => {
   assertProperty(
     'check-balanced-partition',

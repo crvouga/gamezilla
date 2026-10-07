@@ -1,0 +1,4 @@
+{
+  "summary": "GitHub Check 37512663922 ran all seven chess-board models and their eight slices in one task, exceeding 600 seconds. Split the same model slices and feature scenarios across eight independently cached parts, preserving all checks.",
+  "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
+}

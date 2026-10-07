@@ -1,4 +1,4 @@
 {
-  "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
+  "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh CI checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
   "regressionTest": "apps/product/scripts/health.test.ts"
 }

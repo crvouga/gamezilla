@@ -1,4 +1,0 @@
-{
-  "summary": "actions/cache rejects Depot API events without GITHUB_REF. Remove redundant dependency-tree and install-store actions; cold frozen installs took 1.62 seconds.",
-  "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
-}

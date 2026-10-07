@@ -1,4 +1,0 @@
-{
-  "summary": "The multiplayer model opened an unvisited space after losing connection, so its offline room selection could not settle",
-  "regressionTest": "libs/chess-root-harness/tests/quint/multiplayer.binding.ts"
-}

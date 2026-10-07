@@ -8,13 +8,13 @@ Get all three workflows green, and do it in **one pull request** on the current 
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.depot/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
-| **Deploy** (`.depot/workflows/deploy.yml`) | shipping `main` fails | push to `main`, and `bun deploy` dispatches it on `main` |
-| **Health** (`.depot/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
+| **Check** (`.github/workflows/check.yml`) | the code is bad | fast gate on every PR (`bun check`); every gate via `bun verify` |
+| **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | only by hand: `bun deploy` dispatches it on `main` (full verification, then every env) |
+| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
-Deploy and Health only run from `main`, so a fix for them reaches CI only after a
+Deploy runs only from `main`; Health also accepts branch dispatches. Deploy changes ship from `main`, so a fix for them reaches CI only after a
 human merges the PR. Agents never merge. The loop therefore ends with a green Check
-on the PR **and** every Deploy/Health failure reproduced locally and shown fixed.
+on the PR **and** every Deploy/Health failure reproduced and shown fixed in GitHub Actions.
 After the merge it resumes to confirm Deploy and Health on `main`.
 
 ## 1. Survey — what is red, and why
@@ -24,15 +24,15 @@ Run all of these every iteration. Never rely on an earlier survey.
 ```bash
 gh pr view --json number,url,headRefName,mergeStateStatus 2>/dev/null   # this branch's PR, if any
 gh pr checks 2>/dev/null                                                 # Check on the PR
-depot ci workflow list --org mk7ncjwh4n --repo gamezilla-org/gamezilla --name Deploy -n 3 -o json
-depot ci workflow list --org mk7ncjwh4n --repo gamezilla-org/gamezilla --name Health -n 3 -o json
+gh run list --repo crvouga/gamezilla --workflow deploy.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --repo crvouga/gamezilla --workflow health.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 ```
 
 For every red run, read the failure itself. Do not guess from the job name.
 
 ```bash
-depot ci status <run-id> --org mk7ncjwh4n -o json
-depot ci logs <failed-job-id> --org mk7ncjwh4n | tail -200
+gh run view <run-id> --json status,conclusion,jobs
+gh run view <run-id> --job <failed-job-id> --log | tail -200
 bun obs find <trace/test/mutation id from the log>    # observability comes before new logging
 bun obs test '<failing test name>' --source <downloaded-artifact>
 ```
@@ -44,7 +44,7 @@ before you chase it.
 Write down one line per failure, like `workflow · job · root cause · fix`. That list is your
 work queue. Group failures that share a root cause.
 
-## 2. Reproduce locally, then fix
+## 2. Reproduce, then fix
 
 Every failure gets reproduced by a command before it is fixed, and the same command
 shows it fixed afterwards:
@@ -53,8 +53,8 @@ shows it fixed afterwards:
 | --- | --- |
 | Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check:local` |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#check` leaf first |
-| Deploy, a deploy step (build, wrangler, migrate) | that package's script with `SECRETS_ENV=dev`, using the dry-run form where one exists (e.g. `wrangler deploy --dry-run`) |
-| Health | `SECRETS_ENV=dev bun run health:local`, `bun health:prd` (read-only probes) |
+| Deploy, infrastructure or deployment | a GitHub Actions rehearsal on the branch, reusing the dev job and deployment lock; AWS trust may block a branch infrastructure apply |
+| Health | `bun health` dispatches the branch workflow and its read-only probes |
 
 Fix the root cause the repo's way (see `AGENTS.md`):
 
@@ -77,7 +77,8 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check --message "fix(scope): …"   # git-sync, then the whole gate on Depot
+bun check --message "fix(scope): …"   # git-sync, then the fast PR gate on GitHub Actions
+bun verify                            # every gate; read check:verify for the whole failure list
 # bun check:local                    # the same gate on this machine, when you need it
 ```
 
@@ -89,7 +90,7 @@ If it reports a red Check, return to step 1 with that failure.
 Repeat steps 1–3 until the survey shows:
 
 - Check is green on the PR's latest head, and
-- every Deploy/Health failure in the queue was reproduced locally and now passes locally.
+- every Deploy/Health failure in the queue was reproduced in GitHub Actions and now passes there.
 
 Stop and report instead of looping when either of these happens:
 
@@ -99,13 +100,15 @@ Stop and report instead of looping when either of these happens:
 
 ## 5. After the human merges
 
-The merge triggers Deploy. Watch that run. Do not start a second Deploy while it is
-still going. If `main` has no Deploy for the merged commit, `bun deploy` dispatches
-it (it ships `origin/main` only). Then `bun health` runs Health without waiting for
+A merge deploys nothing; releasing is the human's call. When asked to release,
+`bun deploy` dispatches Deploy on `origin/main`: full verification first, then every
+environment. Do not start a second Deploy while one is still going. If `deploy:verify`
+is red, fix every failure its `check:verify` summary lists in one batch, then rerun
+`bun verify` before the next `bun deploy`. Then `bun health` runs Health without waiting for
 the hourly schedule:
 
 ```bash
-depot ci status <deploy-run-id> --org mk7ncjwh4n -o json
+gh run view <deploy-run-id> --json status,conclusion,jobs
 bun health
 ```
 

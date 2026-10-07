@@ -11,6 +11,7 @@ import {
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness/report-ready';
 import { readLatestRunSummary } from './check-budget';
+import { preserveInterruptedModels } from './check-interrupted-models';
 import { preserveInterruptedReports } from './check-interrupted-reports';
 import { copyModelEvidence } from './check-model-evidence';
 import { packPlan } from './check-plan-transfer';
@@ -134,6 +135,10 @@ function preserveFailedReports(results: readonly Result[]): void {
       );
       copyModelEvidence(
         join(ROOT, modelPath),
+        join(DIRECTORY, 'failed-reports', modelPath)
+      );
+      preserveInterruptedModels(
+        join(ROOT, task.replace('@', '')),
         join(DIRECTORY, 'failed-reports', modelPath)
       );
     }

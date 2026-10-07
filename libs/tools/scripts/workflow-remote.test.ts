@@ -6,27 +6,37 @@ import { WORKFLOW_DISPATCH } from './workflow-remote';
 
 const SCROLL_DOWN = '\u001b[B';
 
-const WORKFLOWS = join(import.meta.dirname, '../../../.depot/workflows');
+const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
 
 describe('WORKFLOW_DISPATCH', () => {
-  test('check and health follow the checkout; deploy ships main', () => {
+  test('check, verify and health follow the checkout; deploy ships main', () => {
     expect(WORKFLOW_DISPATCH.check).toEqual({
       workflow: 'check.yml',
       sync: 'branch',
       refuseOnMain: true,
+      printsReport: false,
+      inputs: { scope: 'pr' },
+    });
+    expect(WORKFLOW_DISPATCH.verify).toEqual({
+      workflow: 'check.yml',
+      sync: 'branch',
+      refuseOnMain: false,
       printsReport: true,
+      inputs: { scope: 'full' },
     });
     expect(WORKFLOW_DISPATCH.health).toEqual({
       workflow: 'health.yml',
       sync: 'branch',
       refuseOnMain: false,
       printsReport: false,
+      inputs: {},
     });
     expect(WORKFLOW_DISPATCH.deploy).toEqual({
       workflow: 'deploy.yml',
       sync: 'trunk',
       refuseOnMain: false,
       printsReport: false,
+      inputs: {},
     });
   });
 
@@ -81,5 +91,25 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy).toContain('run: bun run deploy:local');
     expect(deploy).not.toContain('run: bun run deploy\n');
     expect(deploy).toContain('refs/heads/main');
+  });
+
+  test('Deploy is manual and ships only what the full Check verified', () => {
+    const deploy = Bun.YAML.parse(
+      readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
+    ) as {
+      on: Record<string, unknown>;
+      jobs: Record<
+        string,
+        { uses?: string; with?: Record<string, string>; needs?: string[] }
+      >;
+    };
+    expect(Object.keys(deploy.on)).toEqual(['workflow_dispatch']);
+    expect(deploy.jobs['deploy-verify']).toMatchObject({
+      uses: './.github/workflows/check.yml',
+      with: { scope: 'full' },
+    });
+    expect(deploy.jobs['deploy-fleet']!.needs).toContain('deploy-verify');
+    expect(deploy.jobs['deploy-production']!.needs).toContain('deploy-verify');
+    expect(deploy.jobs['deploy-release']!.needs).toEqual(['deploy-production']);
   });
 });

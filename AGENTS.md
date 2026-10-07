@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (`bun verify`, which every `bun deploy` runs first) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -112,17 +112,20 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-`bun check`, `bun health`, and `bun deploy` dispatch the Check, Health, and
-Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)). `bun check` publishes the spec report of the
-commit to `/reports/<sha>`. `bun check:local`, `bun health:local`, and
+`bun check`, `bun verify`, `bun health`, and `bun deploy` dispatch the
+Check, Health, and Deploy workflows and block on the verdict
+([`README.md`](README.md#correctness-machinery)). `bun check` is the fast PR
+gate (`//#check:pr`); `bun verify` runs every gate (`//#check`) and publishes
+the spec report of the commit to `/reports/<sha>`; `bun deploy` is the
+release: full verification of `main`, then every environment. Merging never
+deploys. `bun check:local`, `bun health:local`, and
 `bun deploy:local` run that work on this machine. Every check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
-deploy, infra, secrets, Workers or `health` in Depot CI before merging,
-triggered and managed locally with the Depot CLI. Never execute a rehearsal
+deploy, infra, secrets, Workers or `health` in GitHub Actions before merging,
+triggered and managed locally with the GitHub CLI. Never execute a rehearsal
 on the developer machine. Details: [`README.md`](README.md#correctness-machinery).
 
 ## Workspaces

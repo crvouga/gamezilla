@@ -152,17 +152,32 @@ async function insertRatingEvent(
 async function writeProfile(
   tx: MutationDb,
   ownerId: string,
-  next: { state: PuzzleRatingState; at: string; exists: boolean }
+  next: {
+    state: PuzzleRatingState;
+    before: PuzzleRatingState;
+    at: string;
+    exists: boolean;
+  }
 ): Promise<void> {
   if (next.exists) {
-    await tx.run(sql`
+    // Two results can read one profile before either commits. Matching that
+    // read makes the later update miss, so the attempt is retried.
+    const written = await tx.query(sql<{ readonly id: string }>`
       UPDATE chess_puzzle_profiles
       SET rating = ${next.state.rating},
           rating_deviation = ${next.state.ratingDeviation},
           volatility_micros = ${next.state.volatilityMicros},
           last_interaction_at = ${next.at}
       WHERE id = ${ownerId}
+        AND deleted_at IS NULL
+        AND rating = ${next.before.rating}
+        AND rating_deviation = ${next.before.ratingDeviation}
+        AND volatility_micros = ${next.before.volatilityMicros}
+      RETURNING id
     `);
+    if (written.length !== 1) {
+      throw new Error('Puzzle rating changed while this result was recorded.');
+    }
     return;
   }
   await tx.run(sql`
@@ -228,6 +243,7 @@ export const ratePuzzleAttemptMutation = defineMutation({
     });
     await writeProfile(tx, args.ownerId, {
       state: after,
+      before: profile.state,
       at,
       exists: profile.exists,
     });

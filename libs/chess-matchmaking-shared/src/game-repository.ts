@@ -85,9 +85,12 @@ export class MultiplayerGameRepository {
     before: MultiplayerGame,
     after: MultiplayerGame,
     nowMs: number,
-    server: boolean,
-    publish?: { readonly createId: () => string }
+    write: {
+      readonly server: boolean;
+      readonly publish?: { readonly createId: () => string };
+    }
   ): Promise<MultiplayerGame> {
+    const { server, publish } = write;
     const ended = before.outcome === 'ongoing' && after.outcome !== 'ongoing';
     const game =
       server && ended ? await rateFinishedGame(this.tx, after, nowMs) : after;

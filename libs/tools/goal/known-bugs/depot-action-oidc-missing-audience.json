@@ -1,4 +1,0 @@
-{
-  "summary": "Native Check failed before running checks because the Infisical action omitted the required OIDC audience. Its bundled client also appends &audience to Depot's queryless token URL. Supply the repository-owner audience matching the declared trust and start the query before invoking the action.",
-  "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
-}

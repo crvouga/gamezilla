@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird's wire server reports unsupported storage DDL as SQLSTATE XX000 when the caller supplies a Database from the package entry, so KV reconcile aborted on ALTER COLUMN SET STORAGE instead of skipping that optional statement.",
+  "regressionTest": "pkgs/kv-postgres-shared/tests/postgres-storage-knobs.test.ts"
+}

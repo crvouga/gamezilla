@@ -123,5 +123,5 @@ export async function answerRematch(
   const repository = new MultiplayerGameRepository(ctx.tx);
   const game = await repository.owned(args.gameId, ctx.env.actorId, nowMs);
   const next = await decideRematch(ctx, game, args.answer, nowMs);
-  await repository.save(game, next, nowMs, true, ctx.env);
+  await repository.save(game, next, nowMs, { server: true, publish: ctx.env });
 }

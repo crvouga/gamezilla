@@ -4,6 +4,10 @@ import './styles.css';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import {
+  BoardMotionProvider,
+  createWallMotionEnvironment,
+} from '@pkgs/chess-board-root-client/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { ChessBoardBenchPage } from '@pkgs/chess-board-root-client/chess-board-bench-page';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared/chess-board-types';
@@ -31,6 +35,16 @@ const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
 const root = document.getElementById('example');
 if (root === null) throw new Error('Missing example host');
 const reducedMotion = installMotionPreference();
+const [lowEnd, setLowEnd] = createRoot(() => createSignal(false));
+function exampleMotion() {
+  const native = createWallMotionEnvironment();
+  return {
+    ...native,
+    get lowEnd() {
+      return lowEnd();
+    },
+  };
+}
 function mount(container: HTMLElement, benchmark = false) {
   return render(
     () => (
@@ -38,17 +52,19 @@ function mount(container: HTMLElement, benchmark = false) {
         <ClockProvider clock={clock} timers={timers}>
           <ThemeProvider colorScheme="light">
             <AudioPlaybackProvider value={audio.port}>
-              <Show
-                when={benchmark}
-                fallback={
-                  <ChessBoard
-                    {...config()}
-                    dataSet={{ testid: 'browser-board' }}
-                  />
-                }
-              >
-                <ChessBoardBenchPage />
-              </Show>
+              <BoardMotionProvider value={exampleMotion()}>
+                <Show
+                  when={benchmark}
+                  fallback={
+                    <ChessBoard
+                      {...config()}
+                      dataSet={{ testid: 'browser-board' }}
+                    />
+                  }
+                >
+                  <ChessBoardBenchPage />
+                </Show>
+              </BoardMotionProvider>
             </AudioPlaybackProvider>
           </ThemeProvider>
         </ClockProvider>
@@ -104,6 +120,7 @@ const api = {
   },
   reset(next: ChessBoardProps) {
     dispose();
+    setLowEnd(false);
     reducedMotion(false);
     setConfig({
       fen: INITIAL,
@@ -124,6 +141,7 @@ const api = {
     freeze(0);
   },
   freeze,
+  lowEndDevice: setLowEnd,
   reducedMotion,
   play() {
     for (const animation of document.getAnimations()) {

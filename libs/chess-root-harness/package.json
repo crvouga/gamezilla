@@ -82,7 +82,6 @@
   },
   "dependencies": {
     "@libs/account-privacy-harness": "workspace:*",
-    "@libs/auth-shared": "workspace:*",
     "@libs/chess-custom-game-harness": "workspace:*",
     "@libs/chess-custom-game-shared": "workspace:*",
     "@libs/chess-feature-shared": "workspace:*",

@@ -3,12 +3,11 @@
   "extends": ["//"],
   "tasks": {
     "lint": {
-      "inputs": ["$TURBO_EXTENDS$", "!CHECK_BENCHMARK.md"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test": {
       "inputs": [
         "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/.depot/**",
         "$TURBO_ROOT$/.github/**",
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/package.json",

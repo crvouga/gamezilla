@@ -30,9 +30,7 @@ function WatcherAnnouncement(props: {
     <p class="text text-text" data-testid="multiplayer-announcement">
       <Trans>Watching multiplayer chess.</Trans>
       <Show
-        when={
-          props.game.outcome === 'white' || props.game.outcome === 'black'
-        }
+        when={props.game.outcome === 'white' || props.game.outcome === 'black'}
       >
         {' '}
         <Trans>{winnerName()} won the multiplayer game.</Trans>
@@ -78,7 +76,8 @@ export function MultiplayerBoard(props: {
     props.game.outcome === 'ongoing' &&
     props.game.turn === props.myId;
   const white = () => props.game.white_id === props.myId || !participant();
-  const opponentId = () => (white() ? props.game.black_id : props.game.white_id);
+  const opponentId = () =>
+    white() ? props.game.black_id : props.game.white_id;
   const opponent = useProfileRow(opponentId);
   const opponentName = () =>
     usernameText(moderation(), opponent.row()?.username, opponentId()) ||

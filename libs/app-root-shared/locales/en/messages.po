@@ -1783,11 +1783,6 @@ msgstr "Move number to review"
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
-msgid "moves accepted."
-msgstr "moves accepted."
-
-#: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
@@ -3288,6 +3283,7 @@ msgid "The link may be wrong, or the space may never have existed."
 msgstr "The link may be wrong, or the space may never have existed."
 
 #: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
 msgid "The multiplayer game is drawn."
 msgstr "The multiplayer game is drawn."
 
@@ -3740,12 +3736,6 @@ msgstr "You left the space"
 msgid "You may offer a draw again after your next move."
 msgstr "You may offer a draw again after your next move."
 
-#. placeholder {0}: part.from
-#. placeholder {1}: part.to
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
-msgid "You played {0} to {1}."
-msgstr "You played {0} to {1}."
-
 #: libs/chess-matchmaking-client/src/multiplayer-board.tsx
 msgid "You play Black"
 msgstr "You play Black"
@@ -3753,6 +3743,12 @@ msgstr "You play Black"
 #: libs/chess-matchmaking-client/src/multiplayer-board.tsx
 msgid "You play White"
 msgstr "You play White"
+
+#. placeholder {0}: part.from
+#. placeholder {1}: part.to
+#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+msgid "You played {0} to {1}."
+msgstr "You played {0} to {1}."
 
 #: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "You won the multiplayer game."

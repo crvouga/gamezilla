@@ -1,17 +1,23 @@
 #!/usr/bin/env bun
-// @io-wall-ok — native Depot CI CLI and git composition root.
-/** `bun check`, `bun health`, `bun deploy`: sync, run on Depot and await the verdict. */
+// @io-wall-ok — GitHub Actions CLI and git composition root.
+/**
+ * `bun check`, `bun verify`, `bun health`, `bun deploy`: sync, run on GitHub
+ * Actions and await the verdict. `check` is the fast PR gate, `verify` the
+ * full release verification (any branch, `main` included), `deploy` the
+ * release: full verification of `origin/main`, then every environment.
+ */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
-import type { DepotTarget, DepotWorkflow } from './workflow-depot';
+import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
 import {
+  hasAutomaticCheck,
   listWorkflows,
   selectWorkflow,
   startWorkflow,
   watchWorkflow,
-} from './workflow-depot';
+} from './workflow-github';
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,
@@ -23,7 +29,7 @@ const GLOBAL_FILE = join(
 );
 const TRUNK = 'main';
 
-export type RemoteCommand = 'check' | 'health' | 'deploy';
+export type RemoteCommand = 'check' | 'verify' | 'health' | 'deploy';
 
 /** How one laptop command maps onto its workflow. */
 export type WorkflowDispatch = {
@@ -32,6 +38,7 @@ export type WorkflowDispatch = {
   readonly sync: 'branch' | 'trunk';
   readonly refuseOnMain: boolean;
   readonly printsReport: boolean;
+  readonly inputs: Readonly<Record<string, string>>;
 };
 
 export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
@@ -39,19 +46,29 @@ export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
     workflow: 'check.yml',
     sync: 'branch',
     refuseOnMain: true,
+    printsReport: false,
+    inputs: { scope: 'pr' },
+  },
+  verify: {
+    workflow: 'check.yml',
+    sync: 'branch',
+    refuseOnMain: false,
     printsReport: true,
+    inputs: { scope: 'full' },
   },
   health: {
     workflow: 'health.yml',
     sync: 'branch',
     refuseOnMain: false,
     printsReport: false,
+    inputs: {},
   },
   deploy: {
     workflow: 'deploy.yml',
     sync: 'trunk',
     refuseOnMain: false,
     printsReport: false,
+    inputs: {},
   },
 };
 
@@ -204,60 +221,38 @@ function reportUrl(sha: string): string {
   return `https://${env.hosts.apex}/reports/${sha}`;
 }
 
-function hasAutomaticCheck(branch: string, sha: string): boolean {
-  if (
-    run(['git', 'cat-file', '-e', 'origin/main:.depot/workflows/check.yml'])
-      .code !== 0
-  )
-    return false;
-  const prs = JSON.parse(
-    must([
-      'gh',
-      'pr',
-      'list',
-      '--head',
-      branch,
-      '--base',
-      'main',
-      '--state',
-      'open',
-      '--json',
-      'headRefOid',
-    ])
-  ) as readonly { headRefOid: string }[];
-  return prs.some((pr) => pr.headRefOid === sha);
-}
-
 async function runCommand(argv: readonly string[]): Promise<number> {
   const command = argv[0] ?? '';
   if (!isRemoteCommand(command))
     throw new WorkflowRemoteError(
-      'usage: workflow-remote.ts <check|health|deploy> [--message "type(scope): summary"]'
+      'usage: workflow-remote.ts <check|verify|health|deploy> [--message "type(scope): summary"]'
     );
   const policy = WORKFLOW_DISPATCH[command];
   const { branch, sha } = prepareRun(policy, argv.slice(1));
   const config = JSON.parse(readFileSync(GLOBAL_FILE, 'utf8')) as {
     github: { owner: string; repo: string };
-    depot: { org_id: string };
   };
-  const target: DepotTarget = {
-    repository: `${config.github.owner}/${config.github.repo}`,
-    org: config.depot.org_id,
+  const repository = `${config.github.owner}/${config.github.repo}`;
+  const target: GitHubTarget = {
+    repository,
     workflow: policy.workflow,
     branch,
     sha,
-    automatic: command === 'check' && hasAutomaticCheck(branch, sha),
+    automatic:
+      command === 'check' &&
+      hasAutomaticCheck({ repository, branch, sha }, { run: must }),
+    inputs: policy.inputs,
   };
-  // A pull request's Check publishes no report (check.yml `check-reports`).
-  if (policy.printsReport && !target.automatic)
+  // Only a full Check publishes a report (check.yml `check-reports`).
+  if (policy.printsReport)
     console.log(`${command}: spec report ${reportUrl(sha)}`);
   const hold = holdTTY();
-  let current: DepotWorkflow | undefined;
+  let current: GitHubWorkflow | undefined;
   const ports = {
     run: must,
     sleep: Bun.sleep,
     log: (message: string) => console.log(`${command}: ${message}`),
-    onWorkflow: (workflow: DepotWorkflow) => {
+    onWorkflow: (workflow: GitHubWorkflow) => {
       current = workflow;
     },
   };
@@ -267,18 +262,15 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     interrupted = true;
     hold.release();
     const workflow =
-      current ??
-      selectWorkflow(listWorkflows(target, ports), target.workflow, target.sha);
+      current ?? selectWorkflow(listWorkflows(target, ports), target.sha);
     if (workflow !== undefined)
       run([
-        'depot',
-        'ci',
+        'gh',
+        'run',
         'cancel',
-        workflow.run_id,
-        '--workflow',
-        workflow.workflow_id,
-        '--org',
-        target.org,
+        String(workflow.databaseId),
+        '--repo',
+        target.repository,
       ]);
     process.exit(signal === 'SIGINT' ? 130 : 143);
   };
@@ -286,7 +278,7 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     process.once(signal, stop);
   try {
     current = await startWorkflow(target, ports);
-    const url = `https://depot.dev/orgs/${target.org}/workflows/${current.workflow_id}`;
+    const url = current.url;
     console.log(`${command}: ${url}`);
     const code = await watchWorkflow(current, target, ports);
     console.log(`${command}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);

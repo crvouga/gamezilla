@@ -1,4 +1,0 @@
-{
-  "summary": "Duplicated native Depot workflows read GitHub-only variables and failed with Missing identity ID for OIDC auth; their issuer also lacked the configured cloud trust. Run the three existing GitHub workflows on Depot runners, retaining their variables and OIDC issuer.",
-  "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
-}

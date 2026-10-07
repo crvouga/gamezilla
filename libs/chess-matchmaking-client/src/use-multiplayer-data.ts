@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { MatchRoomGame } from '@libs/chess-matchmaking-shared/match-room';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from '@libs/chess-matchmaking-shared/game-state';
+import type { MatchRoomGame } from '@libs/chess-matchmaking-shared/match-room';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import {
@@ -49,7 +49,9 @@ function withRoom(
       : {}),
     ...(room.white_ms !== undefined ? { white_ms: room.white_ms } : {}),
     ...(room.black_ms !== undefined ? { black_ms: room.black_ms } : {}),
-    ...(room.clock_at_ms !== undefined ? { clock_at_ms: room.clock_at_ms } : {}),
+    ...(room.clock_at_ms !== undefined
+      ? { clock_at_ms: room.clock_at_ms }
+      : {}),
     ...(room.draw_offer_by !== undefined
       ? { draw_offer_by: room.draw_offer_by }
       : {}),

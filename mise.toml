@@ -1,5 +1,5 @@
 # Every system tool the repo shells out to, pinned. `mise install` puts these
-# exact versions on a laptop; `jdx/mise-action` (`.depot/actions/setup`) does
+# exact versions on a laptop; `jdx/mise-action` (`.github/actions/setup`) does
 # the same on CI. npm tooling (turbo, wrangler, biome, …) is not here — it is a
 # devDependency in `package.json` and arrives with `bun install`.
 #
@@ -12,7 +12,6 @@
 bun = "1.4.2"
 node = "26.10.0"
 gh = "2.102.0"
-depot = "2.102.15"
 gitleaks = "8.30.1"
 actionlint = "1.7.12"
 infisical = { version = "0.43.138", asset_pattern = "cli_{{ version }}_{{ os(macos='darwin') }}_{{ arch(x64='amd64') }}.tar.gz" }

@@ -1,0 +1,4 @@
+{
+  "summary": "Turbo strict environment mode stripped CI credentials and evidence links. Pass GitHub workflow context and GH_TOKEN to tasks without changing task hashes.",
+  "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+}
