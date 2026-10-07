@@ -310,10 +310,11 @@ describe('turbo check/deploy graph invariants', () => {
     expect(scripts['health:prd']).toContain('health:local');
   });
 
-  test('bun check, bun health, and bun deploy dispatch their workflows', () => {
+  test('bun check, bun verify, bun health, and bun deploy dispatch their workflows', () => {
     const scripts = loadRootScripts();
     const dispatch = 'libs/tools/scripts/workflow-remote.ts';
     expect(scripts['check']).toBe(`bun run ${dispatch} check`);
+    expect(scripts['verify']).toBe(`bun run ${dispatch} verify`);
     expect(scripts['health']).toBe(`bun run ${dispatch} health`);
     expect(scripts['deploy']).toBe(`bun run ${dispatch} deploy`);
     expect(scripts['check']).not.toContain('turbo-ci-run');

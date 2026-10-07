@@ -74,6 +74,7 @@
     "synthetic": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @apps/product synthetic",
     "synthetic:prd": "SECRETS_ENV=prd bun run synthetic",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
+    "verify": "bun run libs/tools/scripts/workflow-remote.ts verify",
     "wipe": "git clean -xfd",
     "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
   },

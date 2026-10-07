@@ -20,6 +20,8 @@ export type GitHubTarget = {
   readonly branch: string;
   readonly sha: string;
   readonly automatic: boolean;
+  /** `workflow_dispatch` inputs, passed as `-f name=value`. */
+  readonly inputs: Readonly<Record<string, string>>;
 };
 
 /** Fork checkouts must discover PRs on the configured repository, not its upstream. */
@@ -94,7 +96,13 @@ export async function startWorkflow(
         `No PR Check run appeared for ${target.sha.slice(0, 9)}.`
       );
   }
-  if (target.workflow === 'check.yml' && existing !== undefined) {
+  // A full verification is always a fresh dispatch: a PR's run on the same
+  // commit is the fast gate, not the release verdict.
+  if (
+    target.workflow === 'check.yml' &&
+    existing !== undefined &&
+    target.inputs['scope'] !== 'full'
+  ) {
     ports.onWorkflow(existing);
     if (existing.conclusion === 'cancelled') {
       ports.run([
@@ -118,6 +126,10 @@ export async function startWorkflow(
     target.repository,
     '--ref',
     target.branch,
+    ...Object.entries(target.inputs).flatMap(([name, value]) => [
+      '-f',
+      `${name}=${value}`,
+    ]),
   ]);
   for (let attempt = 0; attempt < 30; attempt++) {
     const found = selectWorkflow(listWorkflows(target, ports), target.sha);

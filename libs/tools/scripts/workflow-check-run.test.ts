@@ -16,6 +16,7 @@ const TARGET: GitHubTarget = {
   branch: 'ci/speed-up-check-workflow',
   sha: SHA,
   automatic: false,
+  inputs: {},
 };
 // regression: github-fork-upstream-check-discovery
 test('discovers the PR on the configured repository instead of the CLI default upstream', () => {
@@ -136,6 +137,29 @@ describe('GitHub Check run ownership', () => {
       TARGET.repository,
       '--ref',
       TARGET.branch,
+    ]);
+  });
+  test('full verification dispatches fresh even when the commit already has a run', async () => {
+    const f = fixture([
+      [workflow('success')],
+      [workflow('', 43), workflow('success')],
+    ]);
+    const started = await startWorkflow(
+      { ...TARGET, inputs: { scope: 'full' } },
+      f.ports
+    );
+    expect(started.databaseId).toBe(43);
+    expect(f.commands[1]).toEqual([
+      'gh',
+      'workflow',
+      'run',
+      'check.yml',
+      '--repo',
+      TARGET.repository,
+      '--ref',
+      TARGET.branch,
+      '-f',
+      'scope=full',
     ]);
   });
   test('missing automatic evidence fails without competing dispatch', async () => {

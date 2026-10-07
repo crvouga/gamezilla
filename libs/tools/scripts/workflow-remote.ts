@@ -1,6 +1,11 @@
 #!/usr/bin/env bun
 // @io-wall-ok — GitHub Actions CLI and git composition root.
-/** `bun check`, `bun health`, `bun deploy`: sync, run on GitHub Actions and await the verdict. */
+/**
+ * `bun check`, `bun verify`, `bun health`, `bun deploy`: sync, run on GitHub
+ * Actions and await the verdict. `check` is the fast PR gate, `verify` the
+ * full release verification (any branch, `main` included), `deploy` the
+ * release: full verification of `origin/main`, then every environment.
+ */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GitSyncOptions } from './git-sync';
@@ -24,7 +29,7 @@ const GLOBAL_FILE = join(
 );
 const TRUNK = 'main';
 
-export type RemoteCommand = 'check' | 'health' | 'deploy';
+export type RemoteCommand = 'check' | 'verify' | 'health' | 'deploy';
 
 /** How one laptop command maps onto its workflow. */
 export type WorkflowDispatch = {
@@ -33,6 +38,7 @@ export type WorkflowDispatch = {
   readonly sync: 'branch' | 'trunk';
   readonly refuseOnMain: boolean;
   readonly printsReport: boolean;
+  readonly inputs: Readonly<Record<string, string>>;
 };
 
 export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
@@ -40,19 +46,29 @@ export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
     workflow: 'check.yml',
     sync: 'branch',
     refuseOnMain: true,
+    printsReport: false,
+    inputs: { scope: 'pr' },
+  },
+  verify: {
+    workflow: 'check.yml',
+    sync: 'branch',
+    refuseOnMain: false,
     printsReport: true,
+    inputs: { scope: 'full' },
   },
   health: {
     workflow: 'health.yml',
     sync: 'branch',
     refuseOnMain: false,
     printsReport: false,
+    inputs: {},
   },
   deploy: {
     workflow: 'deploy.yml',
     sync: 'trunk',
     refuseOnMain: false,
     printsReport: false,
+    inputs: {},
   },
 };
 
@@ -209,7 +225,7 @@ async function runCommand(argv: readonly string[]): Promise<number> {
   const command = argv[0] ?? '';
   if (!isRemoteCommand(command))
     throw new WorkflowRemoteError(
-      'usage: workflow-remote.ts <check|health|deploy> [--message "type(scope): summary"]'
+      'usage: workflow-remote.ts <check|verify|health|deploy> [--message "type(scope): summary"]'
     );
   const policy = WORKFLOW_DISPATCH[command];
   const { branch, sha } = prepareRun(policy, argv.slice(1));
@@ -225,9 +241,10 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     automatic:
       command === 'check' &&
       hasAutomaticCheck({ repository, branch, sha }, { run: must }),
+    inputs: policy.inputs,
   };
-  // A pull request's Check publishes no report (check.yml `check-reports`).
-  if (policy.printsReport && !target.automatic)
+  // Only a full Check publishes a report (check.yml `check-reports`).
+  if (policy.printsReport)
     console.log(`${command}: spec report ${reportUrl(sha)}`);
   const hold = holdTTY();
   let current: GitHubWorkflow | undefined;
