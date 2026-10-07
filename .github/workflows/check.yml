@@ -1,5 +1,18 @@
 name: Check
 run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
+
+# Check has two scopes (README "Checks and CI"):
+#
+#   pr    `//#check:pr` — lint, architecture boundaries, typecheck, unit tests
+#         and the cheap repository gates, in one job. Runs on every pull
+#         request and `bun check`. Turbo's per-package cache is the affected
+#         filter: an unchanged package is a cache hit. Required status: `check`.
+#   full  `//#check` — every gate: Gherkin specs, contract suites, Quint
+#         models, schema evolution, bundles, security scans. Duration-balanced
+#         shards, fail-fast off, then `check:verify` aggregates every failure
+#         into one summary. Runs from `bun verify`, a manual dispatch, and the
+#         Deploy workflow (`workflow_call`) on the exact commit it ships.
+
 permissions:
   contents: read
   actions: write
@@ -10,13 +23,18 @@ on:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
     inputs:
+      scope:
+        description: pr (fast feedback) or full (release verification)
+        type: choice
+        options: [full, pr]
+        default: full
       shards:
-        description: Duration-balanced shard count
+        description: Duration-balanced shard count (full scope)
         type: choice
         options: [8, 12, 16, 24, 32]
         default: 32
       concurrency:
-        description: Turbo slots per shard
+        description: Turbo slots per shard (full scope)
         type: number
         default: 1
       cache-mode:
@@ -24,6 +42,17 @@ on:
         type: choice
         options: [normal, cold]
         default: normal
+  workflow_call:
+    inputs:
+      scope:
+        type: string
+        default: full
+
+# A newer push supersedes a pull request's run; dispatched and release runs
+# each own a group and never cancel one another.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -42,13 +71,16 @@ env:
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
+  CHECK_SCOPE: ${{ inputs.scope || 'pr' }}
   CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '32' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
+  CHECK_PR_CONCURRENCY: ${{ vars.CHECK_PR_CONCURRENCY || '2' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:
   check-plan:
     name: check:plan
+    if: inputs.scope == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -76,14 +108,20 @@ jobs:
           overwrite: true
           compression-level: 0
           retention-days: 7
+      # A failed build is recorded in this shard's verdict, which
+      # `check:verify` reports; the shards still run so one red build does
+      # not hide every other failure.
       - name: Build shared prerequisites and warm their cache
+        continue-on-error: true
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARDS"
       - name: Transfer prerequisite outputs
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ env.CHECK_SHARDS }}
           path: .cache/check-ci/evidence-${{ env.CHECK_SHARDS }}.tar
           include-hidden-files: true
+          if-no-files-found: ignore
           compression-level: 0
           retention-days: 7
 
@@ -163,9 +201,12 @@ jobs:
           compression-level: 0
           retention-days: 7
 
+  # Runs after red shards too: fan-in suites report their own failures in
+  # the same run instead of waiting for the next one.
   check-consumers:
     name: check:consumers
     needs: [check-plan, check-shards]
+    if: always() && !cancelled() && needs.check-plan.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -224,29 +265,89 @@ jobs:
           compression-level: 0
           retention-days: 7
 
-  # This is the only required status. Missing, failed, skipped and cancelled
-  # matrix members fail; reports never enter this job's dependency graph.
+  # One verdict for the whole full run: every suite, every failing task, the
+  # artifact holding its evidence. Missing, failed, skipped and cancelled
+  # jobs fail; reports never enter this job's dependency graph.
+  check-verify:
+    name: check:verify
+    needs: [check-plan, check-shards, check-consumers]
+    if: always() && !cancelled() && inputs.scope == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun gh
+      - name: Transfer raw evidence
+        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers || echo "::warning::No shard evidence to aggregate"
+      - name: Summarize every suite
+        env:
+          PLAN_RESULT: ${{ needs.check-plan.result }}
+          SHARD_RESULT: ${{ needs.check-shards.result }}
+          CONSUMER_RESULT: ${{ needs.check-consumers.result }}
+        run: bun run libs/tools/scripts/check-verdict.ts
+      - name: Retain the verdict
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-verdict
+          path: |
+            .cache/check-ci/verdict.json
+            .cache/check-ci/verdict.md
+            .cache/check-ci/verdict.junit.xml
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
+  # The only required status. On a pull request (or `bun check`) it runs the
+  # cheap gate itself; in full scope it is green only when `check:verify` is.
   check:
     name: check
-    needs: [check-plan, check-shards, check-consumers]
+    needs: [check-verify]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 30
     steps:
-      - name: Require every shard
+      - name: Require release verification
+        if: env.CHECK_SCOPE == 'full'
         env:
-          PREREQUISITE_RESULT: ${{ needs.check-plan.result }}
-          CONSUMER_RESULT: ${{ needs.check-consumers.result }}
-          SHARD_RESULT: ${{ needs.check-shards.result }}
-        run: test "$PREREQUISITE_RESULT" = success && test "$SHARD_RESULT" = success && test "$CONSUMER_RESULT" = success
+          VERIFY_RESULT: ${{ needs.check-verify.result }}
+        run: test "$VERIFY_RESULT" = success
+      - uses: actions/checkout@v6
+        if: env.CHECK_SCOPE != 'full'
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        if: env.CHECK_SCOPE != 'full'
+      # Tests hash the renderer fingerprint; the same Chrome as full scope
+      # lets release verification reuse every verdict this job caches.
+      - uses: ./.github/actions/visual-renderer
+        if: env.CHECK_SCOPE != 'full'
+      - uses: ./.github/actions/secrets-auth
+        if: env.CHECK_SCOPE != 'full'
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: check
+        id: check
+        if: env.CHECK_SCOPE != 'full'
+        timeout-minutes: 25
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_PR_CONCURRENCY" bun run libs/tools/scripts/turbo-ci-run.ts //#check:pr
+      - name: Write workflow summary
+        if: always() && !cancelled() && env.CHECK_SCOPE != 'full' && steps.check.outcome != 'skipped'
+        env:
+          WORKFLOW_JOB: check
+          WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
+        run: bun run libs/tools/scripts/write-workflow-summary.ts
 
-  # Reports publish only from a dispatched run (`bun check`): on a pull
-  # request they cost minutes and gate nothing. Deploy's `deploy:cleanup`
-  # prunes stale reports.
+  # Reports publish only from a full run: on a pull request they cost minutes
+  # and gate nothing. Deploy's `deploy:cleanup` prunes stale reports.
   check-reports:
     name: check:reports
     needs: [check-plan, check-shards, check-consumers]
-    if: always() && !cancelled() && github.event_name != 'pull_request'
+    if: always() && !cancelled() && inputs.scope == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

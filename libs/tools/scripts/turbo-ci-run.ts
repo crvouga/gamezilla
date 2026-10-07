@@ -95,6 +95,8 @@ import {
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
+/** The pull-request gate: the cheap subset of `//#check` (README "Checks and CI"). */
+const CHECK_PR_AGGREGATOR = '//#check:pr';
 const DEPLOY_AGGREGATOR = '//#deploy';
 /**
  * The live health checks and critical journeys (`@apps/product#health`,
@@ -146,6 +148,9 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
   check: CHECK_AGGREGATOR,
   '//#check': CHECK_AGGREGATOR,
   '//:check': CHECK_AGGREGATOR,
+  'check:pr': CHECK_PR_AGGREGATOR,
+  '//#check:pr': CHECK_PR_AGGREGATOR,
+  '//:check:pr': CHECK_PR_AGGREGATOR,
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,

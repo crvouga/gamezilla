@@ -66,7 +66,10 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     expect(segments).toHaveLength(2);
     expect(runName).not.toMatch(/github\.(head_|base_)?ref/u);
     expect(segments[0]).toBe(workflow.name);
-    for (const event of Object.keys(workflow.on)) {
+    // GitHub never renders a called workflow's run-name: the caller's shows.
+    for (const event of Object.keys(workflow.on).filter(
+      (name) => name !== 'workflow_call'
+    )) {
       const label = TRIGGER_LABELS[event];
       expect(label, `no trigger label for event ${event}`).toBeDefined();
       expect(segments[1]).toContain(label as string);

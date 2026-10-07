@@ -35,11 +35,16 @@ describe('Check workflow cancellation', () => {
   });
   // regression: check-duplicate-trigger-runners
   // regression: concurrent-check-run-isolation
-  test('independent Check invocations never cancel or queue one another', () => {
+  test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      concurrency: { group: string };
+      concurrency: { group: string; 'cancel-in-progress': string };
     };
-    expect(workflow.concurrency).toBeUndefined();
+    expect(workflow.concurrency.group).toBe(
+      "${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-run-{0}', github.run_id) }}"
+    );
+    expect(workflow.concurrency['cancel-in-progress']).toBe(
+      "${{ github.event_name == 'pull_request' }}"
+    );
   });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
@@ -55,7 +60,7 @@ describe('Check workflow cancellation', () => {
   });
 
   // regression: check-evidence-masks-required-verdict (invalid/name artifact)
-  test('the required gate verifies all independent shards and never waits for publication', () => {
+  test('the required gate is the PR gate or the full verdict, never publication', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
@@ -66,6 +71,7 @@ describe('Check workflow cancellation', () => {
           strategy?: { 'fail-fast': boolean };
           steps: {
             name?: string;
+            if?: string;
             run?: string;
             uses?: string;
             'continue-on-error'?: boolean;
@@ -74,27 +80,51 @@ describe('Check workflow cancellation', () => {
       >;
     };
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual([
+    expect(gate.needs).toEqual(['check-verify']);
+    expect(gate.if).toBe('always() && !cancelled()');
+    const require = gate.steps.find(
+      (step) => step.name === 'Require release verification'
+    )!;
+    expect(require.if).toBe("env.CHECK_SCOPE == 'full'");
+    expect(require.run).toBe('test "$VERIFY_RESULT" = success');
+    const fast = gate.steps.find((step) => step.name === 'check')!;
+    expect(fast.if).toBe("env.CHECK_SCOPE != 'full'");
+    expect(fast.run).toContain('turbo-ci-run.ts //#check:pr');
+    expect(fast['continue-on-error']).toBeUndefined();
+
+    const verify = workflow.jobs['check-verify']!;
+    expect(verify.needs).toEqual([
       'check-plan',
       'check-shards',
       'check-consumers',
     ]);
-    expect(gate.steps[0]!.run).toContain('test "$SHARD_RESULT" = success');
+    expect(verify.if).toBe(
+      "always() && !cancelled() && inputs.scope == 'full'"
+    );
+    expect(
+      verify.steps.some((step) => step.run?.includes('check-verdict.ts'))
+    ).toBe(true);
+    expect(workflow.jobs['check-plan']!.if).toBe("inputs.scope == 'full'");
     expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
     expect(workflow.jobs['check-shards']!.needs).toEqual(['check-plan']);
+    // Fan-in suites still report when a shard is red.
     expect(workflow.jobs['check-consumers']!.needs).toEqual([
       'check-plan',
       'check-shards',
     ]);
+    expect(workflow.jobs['check-consumers']!.if).toBe(
+      "always() && !cancelled() && needs.check-plan.result == 'success'"
+    );
     expect(workflow.jobs['check-reports']!.needs).toEqual([
       'check-plan',
       'check-shards',
       'check-consumers',
     ]);
     expect(gate.needs).not.toContain('check-reports');
-    // Reports are too slow for every push; `bun check` dispatches them.
+    expect(verify.needs).not.toContain('check-reports');
+    // Reports are too slow for every push; full runs publish them.
     expect(workflow.jobs['check-reports']!.if).toBe(
-      "always() && !cancelled() && github.event_name != 'pull_request'"
+      "always() && !cancelled() && inputs.scope == 'full'"
     );
     // regression: check-repeated-mise-cache-stall (1jzx5994v8)
     expect(
