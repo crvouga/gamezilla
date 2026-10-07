@@ -241,7 +241,6 @@
     "zod": "^4.6.5"
   },
   "trustedDependencies": [
-    "better-sqlite3",
     "ffmpeg-static",
     "onnxruntime-node"
   ]

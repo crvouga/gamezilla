@@ -2,6 +2,9 @@
 # exact versions on a laptop; `jdx/mise-action` (`.github/actions/setup`) does
 # the same on CI. npm tooling (turbo, wrangler, biome, …) is not here — it is a
 # devDependency in `package.json` and arrives with `bun install`.
+# `bun install` does not compile better-sqlite3. v13 ships N-API prebuilds, and
+# the package is not a trustedDependency, so a fresh install does not need
+# node-gyp, Python, or an Xcode license.
 #
 # Bump a version here and nowhere else — except Bun, which Turborepo also reads
 # from `package.json` `packageManager`: keep the two equal. `bun install-system`

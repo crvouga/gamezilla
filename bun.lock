@@ -6008,7 +6008,6 @@
     },
   },
   "trustedDependencies": [
-    "better-sqlite3",
     "ffmpeg-static",
     "onnxruntime-node",
   ],
