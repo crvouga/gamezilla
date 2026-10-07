@@ -9,6 +9,7 @@ import { raw } from '@pkgs/sql-root-shared/sql';
 
 // Exercise the same full reconciliation used by the local stack: no skipped phases or SQL shims.
 // regression: mockingbird-postgres-index-validity
+// regression: mockingbird-postgres-regnamespace-equality
 test('the application schema reconciles twice over the Mockingbird wire server', async () => {
   const failures: { sql: string; status: string }[] = [];
   const server = await startMockingbirdPostgres({

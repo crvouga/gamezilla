@@ -25,6 +25,16 @@ function errorCode(error: unknown): string {
 function isUnsupportedStorageOptimization(error: unknown): boolean {
   const code = errorCode(error);
   if (code === '0A000') return true;
+  // The wire server copies the engine. A Database constructed from the package
+  // entry throws a PostgresError the server does not recognize, so unsupported
+  // DDL arrives as XX000 with the engine's "is not supported" message.
+  if (
+    code === 'XX000' &&
+    error instanceof Error &&
+    error.message.endsWith(' is not supported')
+  ) {
+    return true;
+  }
   return (
     code.startsWith('NK') &&
     error instanceof Error &&
@@ -126,9 +136,10 @@ export async function applyKvStorageOptimizations(
   });
   if (valueStorage === 'table-unavailable') return;
 
+  // Compare oids. Mockingbird accepts the regnamespace cast and rejects oid = regnamespace.
   const rows = await sqlClient.query(sql<{ relpersistence: string }>`
     SELECT relpersistence FROM pg_class
-     WHERE relname = ${TABLE} AND relnamespace = current_schema()::regnamespace`);
+     WHERE relname = ${TABLE} AND relnamespace = current_schema()::regnamespace::oid`);
   assert.array(rows, 'kv reconcile: pg_class lookup must return array');
   if (rows.length === 0 && allowTemporarilyUnavailableTable) {
     log.warn(

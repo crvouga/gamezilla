@@ -6040,7 +6040,7 @@
     "@crvouga/mockingbird-service-oauth": "^1.11.0",
     "@crvouga/mockingbird-service-openai": "^0.1.0",
     "@crvouga/mockingbird-service-paddle": "^1.3.0",
-    "@crvouga/mockingbird-service-postgres": "^2.3.0",
+    "@crvouga/mockingbird-service-postgres": "^3.0.0",
     "@crvouga/mockingbird-service-s3": "^1.8.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
     "@crvouga/mockingbird-service-stripe": "^1.13.0",
@@ -6473,7 +6473,7 @@
 
     "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@1.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-ufNUdKQOoWmSzOy+d2AS6DTiZg6222FudMCye1lYIdjEAVldDg+nMNPz9gy6I0DYH+cD9k668svTrqR43km9dA=="],
 
-    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@2.3.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-MLEZVD0AZAhJbJ3ZDKSY3jtTPik3n13fb/U3j1ca4My8EdWY6lXqpqE6OH3DgO9LzqffUtIeJHhExiLsftZagQ=="],
+    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.0.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-Fb7u4yeXfwPR5/Srit2asBk/lWyVzi18ukvm10FHpWecOhMS0aI+Z1bcoHNQ4zoBS+AyNfuqE3GHg5VSNPCJEQ=="],
 
     "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@1.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-x7gwYCVbsD33afAWaQmV7/nSgwDFhJxnaGehqwPIUe8xd/21Er3qvpjHiiIqxroBpKLJBGITlX+jaxq8C/F10g=="],
 
