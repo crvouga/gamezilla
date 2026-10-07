@@ -93,30 +93,50 @@ function unitKey(unit: SpecUnit): string {
   return `${unit.path}#${String(unit.slice?.index ?? 0)}`;
 }
 
+type PartLoad = { load: number; units: SpecUnit[] };
+
 /**
- * The units of part `part.index`: longest-processing-time first over their
- * weights, ties by path and slice, so the split is a pure function of the
- * specs. Part 0 also runs `tests/harness`, so it starts one unit heavier.
+ * The units of part `part.index`. Quint models are placed first, longest
+ * processing time among themselves, then every other spec the same way.
+ * Ties break by path and slice, so the split is a pure function of the
+ * specs. A heavier feature placed first leaves the other parts light, and
+ * the equal-weight model slices then stack there past the trace cap.
+ * Part 0 also runs `tests/harness`, so it starts one unit heavier.
  */
 export function partOf(
   units: readonly SpecUnit[],
   part: Part
 ): readonly SpecUnit[] {
-  const loads = Array.from({ length: part.count }, (_, index) => ({
+  const loads: PartLoad[] = Array.from({ length: part.count }, (_, index) => ({
     load: index === 0 ? 1 : 0,
-    units: [] as SpecUnit[],
+    units: [],
   }));
+  const models: SpecUnit[] = [];
+  const rest: SpecUnit[] = [];
+  for (const unit of units) {
+    if (unit.path.endsWith('.qnt')) models.push(unit);
+    else rest.push(unit);
+  }
+  placeOnLightest(loads, models);
+  placeOnLightest(loads, rest);
+  return (loads[part.index]?.units ?? []).sort((a, b) =>
+    unitKey(a).localeCompare(unitKey(b))
+  );
+}
+
+/** Longest processing time onto the lightest part; ties break by unit key. */
+function placeOnLightest(
+  loads: readonly PartLoad[],
+  units: readonly SpecUnit[]
+): void {
   const ordered = [...units].sort(
     (a, b) => b.weight - a.weight || unitKey(a).localeCompare(unitKey(b))
   );
   for (const unit of ordered) {
-    let lightest = loads[0] as (typeof loads)[number];
+    let lightest = loads[0] as PartLoad;
     for (const candidate of loads)
       if (candidate.load < lightest.load) lightest = candidate;
     lightest.units.push(unit);
     lightest.load += unit.weight;
   }
-  return (loads[part.index]?.units ?? []).sort((a, b) =>
-    unitKey(a).localeCompare(unitKey(b))
-  );
 }
