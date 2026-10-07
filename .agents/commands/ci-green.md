@@ -8,8 +8,8 @@ Get all three workflows green, and do it in **one pull request** on the current 
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
-| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main`, and `bun deploy` dispatches it on `main` |
+| **Check** (`.github/workflows/check.yml`) | the code is bad | fast gate on every PR (`bun check`); every gate via `bun verify` |
+| **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | only by hand: `bun deploy` dispatches it on `main` (full verification, then every env) |
 | **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
 Deploy runs only from `main`; Health also accepts branch dispatches. Deploy changes ship from `main`, so a fix for them reaches CI only after a
@@ -77,7 +77,8 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check --message "fix(scope): …"   # git-sync, then the whole gate on GitHub Actions
+bun check --message "fix(scope): …"   # git-sync, then the fast PR gate on GitHub Actions
+bun verify                            # every gate; read check:verify for the whole failure list
 # bun check:local                    # the same gate on this machine, when you need it
 ```
 
@@ -99,9 +100,11 @@ Stop and report instead of looping when either of these happens:
 
 ## 5. After the human merges
 
-The merge triggers Deploy. Watch that run. Do not start a second Deploy while it is
-still going. If `main` has no Deploy for the merged commit, `bun deploy` dispatches
-it (it ships `origin/main` only). Then `bun health` runs Health without waiting for
+A merge deploys nothing; releasing is the human's call. When asked to release,
+`bun deploy` dispatches Deploy on `origin/main`: full verification first, then every
+environment. Do not start a second Deploy while one is still going. If `deploy:verify`
+is red, fix every failure its `check:verify` summary lists in one batch, then rerun
+`bun verify` before the next `bun deploy`. Then `bun health` runs Health without waiting for
 the hourly schedule:
 
 ```bash
