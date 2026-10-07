@@ -25,7 +25,7 @@ ENV EMQX_NODE__DATA_DIR=/opt/emqx/data \
     PORT=8080
 
 EXPOSE 8080
-# Starts as root on purpose: Railway mounts the data volume root-owned at run
-# time (the chown above only covers the image layer), so the entrypoint fixes
-# ownership and then drops to `emqx` before starting anything.
+# Starts as root so a root-owned data directory can be chowned, then the
+# entrypoint drops to `emqx`. This image is the local version pin, not a
+# deployed broker. Production MQTT is AWS IoT Core.
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

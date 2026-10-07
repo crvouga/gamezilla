@@ -1,15 +1,14 @@
 #!/bin/sh
-# Supervises EMQX + Caddy. Either one exiting stops the container, so Railway
-# (restartPolicyType = ON_FAILURE) restarts it instead of Caddy serving 502s
-# in front of a dead broker.
+# Supervises EMQX + Caddy for this local image. Either one exiting stops
+# the container. This is not a hosted broker.
 set -eu
 
 PORT="${PORT:-8080}"
 export PORT
 DATA_DIR="${EMQX_NODE__DATA_DIR:-/opt/emqx/data}"
 
-# Railway mounts the volume at DATA_DIR owned by root, hiding the image's
-# emqx-owned directory. Take ownership once as root, then re-exec as `emqx`.
+# A root-owned data directory hides the image's emqx-owned directory.
+# Take ownership once as root, then re-exec as `emqx`.
 if [ "$(id -u)" = 0 ]; then
   mkdir -p "$DATA_DIR"
   chown -R emqx:emqx "$DATA_DIR"
@@ -24,7 +23,7 @@ for required in EMQX_API_KEY EMQX_API_SECRET EMQX_JWT_SECRET EMQX_DASHBOARD_PASS
   fi
 done
 
-# Credentials come from Railway variables, never from the image.
+# Credentials come from the environment, never from the image.
 export EMQX_AUTHENTICATION__1__SECRET="$EMQX_JWT_SECRET"
 BOOTSTRAP="$DATA_DIR/api-keys.bootstrap"
 umask 077

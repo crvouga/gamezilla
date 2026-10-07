@@ -20,9 +20,9 @@ import {
   id       = "write-only:${var.infisical.project_id}:${var.env}:/:${each.value}"
 }
 
-# Neon and Railway stay in those vendors. An ordinary apply must not delete
-# them: forget the addresses that were in this state. A person deletes the
-# old project and the old broker after this path is healthy (README.md).
+# Neon stays at Neon. Forget those addresses; an ordinary apply must not
+# delete them. The Railway EMQX project is deleted. Forget its addresses
+# so an apply does not recreate the broker (README.md).
 removed {
   from = module.database.neon_branch.this
   lifecycle {
@@ -100,8 +100,8 @@ removed {
   }
 }
 
-# The retired broker keeps its credentials in Railway. Forget the local
-# random values without deleting them from state as an ordinary resource.
+# Generated passwords for the deleted Railway broker. Forget them so an
+# apply does not treat the values as an ordinary delete.
 removed {
   from = module.secrets.random_password.generated
   lifecycle {
