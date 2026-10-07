@@ -148,6 +148,16 @@ describe('resolveRunDeadlineSeconds', () => {
     );
     expect(chrome.length).toBeGreaterThan(0);
     expect(chrome.every((step) => step['timeout-minutes'] === 2)).toBe(true);
+    const renderer = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../../.github/actions/visual-renderer/action.yml'
+      ),
+      'utf8'
+    );
+    // regression: check-chrome-apt-stalls-pr-gate
+    expect(renderer).toContain('install-dependencies: false');
+    expect(renderer).not.toContain('install-dependencies: true');
   });
 
   test('a positive env override wins', () => {

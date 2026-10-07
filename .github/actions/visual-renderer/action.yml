@@ -3,11 +3,14 @@ description: Install the fixed Chrome release only for tasks that need a native 
 runs:
   using: composite
   steps:
+    # GitHub-hosted Ubuntu already has these libraries. `true` runs apt-get
+    # and upgrades mesa; that download stalled past the step cap
+    # (Check run 37668279155, mesa-libgallium). The action default is false.
     - uses: browser-actions/setup-chrome@v2
       id: chrome
       with:
         chrome-version: '154.0.8037.92'
-        install-dependencies: true
+        install-dependencies: false
     - name: Select visual renderer
       shell: bash
       env:
