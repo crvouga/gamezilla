@@ -368,7 +368,7 @@ OpenTofu looks them up. It does not create them.
 
 ### Data stays
 
-An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon and the old Railway broker are forgotten that way. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>

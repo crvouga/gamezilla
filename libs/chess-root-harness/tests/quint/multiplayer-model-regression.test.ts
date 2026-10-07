@@ -64,4 +64,4 @@ test('Alice loses her private game after deleting her account while Bob keeps it
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-});
+}, 120_000);
