@@ -66,10 +66,6 @@ import { sharedSqlClient } from './sql-types';
 import type { HarnessTeamRules } from './team-rules';
 import { createHarnessTeamRules } from './team-rules';
 
-/** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
-const HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL =
-  'postgresql://mockingbird-postgres/harness';
-
 export type CreateHarnessOptions = {
   /** The features this harness boots. */
   readonly composition: HarnessComposition;
@@ -183,7 +179,7 @@ function buildSharedServerServices(args: {
   readonly moderation: ServerEnv['moderation'];
 }): SharedServerServices {
   const secrets = createRecordSecretStore({
-    DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
+    DATABASE_URL: 'postgresql://mockingbird-postgres/harness',
     API_URL: HARNESS_SERVER_URL,
     ...harnessIdpSecrets(args.appleKeys),
   });
