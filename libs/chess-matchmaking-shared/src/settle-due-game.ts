@@ -17,6 +17,9 @@ export async function settleDueGame(
   if (stored === null) return [];
   const settled = settleMultiplayerClock(stored, nowMs);
   if (settled === stored) return [];
-  await repository.save(stored, settled, nowMs, true, { createId });
+  await repository.save(stored, settled, nowMs, {
+    server: true,
+    publish: { createId },
+  });
   return [stored.white_id, stored.black_id];
 }

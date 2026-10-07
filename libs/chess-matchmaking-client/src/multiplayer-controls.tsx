@@ -65,7 +65,8 @@ export function MultiplayerControls(props: {
         fallback={
           <Show
             when={
-              props.data.participant() || props.data.hostId() === props.data.myId()
+              props.data.participant() ||
+              props.data.hostId() === props.data.myId()
                 ? props.data.game()?.outcome !== 'ongoing'
                 : false
             }

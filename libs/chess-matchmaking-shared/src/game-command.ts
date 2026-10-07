@@ -50,13 +50,10 @@ export async function runGameCommand(
   )
     return;
   const game = settleMultiplayerClock(stored, nowMs);
-  await repository.save(
-    stored,
-    decide(game, ctx.env.actorId, nowMs),
-    nowMs,
-    true,
-    ctx.env
-  );
+  await repository.save(stored, decide(game, ctx.env.actorId, nowMs), nowMs, {
+    server: true,
+    publish: ctx.env,
+  });
   await repository.remember(
     ctx.env.actorId,
     args.requestId,
