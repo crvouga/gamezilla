@@ -21,6 +21,11 @@ export const CHESS_TOPIC_MAP = {
       return multiplayerTopics([String(row['owner_id'] ?? ctx.actorId)], db);
     },
   },
+  chess_multiplayer_ratings: {
+    topics(row, ctx) {
+      return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
+    },
+  },
   chess_multiplayer_commands: {
     topics(row, ctx) {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];

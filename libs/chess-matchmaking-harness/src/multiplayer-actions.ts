@@ -1,3 +1,4 @@
+import { timeControlKey } from '@libs/chess-matchmaking-shared/time-control';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   actorUi,
@@ -9,6 +10,10 @@ import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { multiplayerClient } from './multiplayer-client';
+import {
+  forgetMultiplayerReply,
+  sendMultiplayerCommand,
+} from './multiplayer-commands';
 import { reachMultiplayerChoices } from './multiplayer-navigation';
 import { multiplayerView } from './multiplayer-reads';
 import { multiplayerSpaceId } from './multiplayer-spaces';
@@ -95,23 +100,63 @@ export const openMultiplayerChess = scenarioAction({
   },
 });
 
+/**
+ * Choose a time control on the screen, then find an opponent at it. A screen
+ * that cannot express the request — a time control it does not offer, or a
+ * search already under way — sends the same client command a stale screen
+ * on another device would.
+ */
 export const findChessOpponent = scenarioAction({
   name: 'findChessOpponent',
-  act: async (s, actor: string, keyboard = false) => {
+  act: async (s, actor: string, timeControl: string, keyboard = false) => {
     await Promise.resolve(
       openMultiplayerChess.act(s, actor, undefined, keyboard)
     );
     const ui = await actorUi(s, actor);
     if (await ui.get('multiplayer-access-denial').isVisible()) return;
+    const choice = ui.get(
+      `multiplayer-time-control-${timeControlKey(timeControl)}`
+    );
+    if (!(await choice.isVisible())) {
+      await Promise.resolve(
+        sendMultiplayerCommand.act(s, actor, {
+          name: 'findChessOpponent',
+          args: { timeControl, requestId: s.session.ports.createId() },
+        })
+      );
+      return;
+    }
+    forgetMultiplayerReply(s, actor);
+    if (keyboard) await choice.key('enter');
+    else await choice.tap();
     if (keyboard) await ui.get('multiplayer-find').key('enter');
     else await ui.get('multiplayer-find').tap();
     await s.session.waitForIdle();
   },
 });
 
+/** One lightweight control on the person's multiplayer screen (offers, answers). */
+export const pressMultiplayerControl = scenarioAction({
+  name: 'pressMultiplayerControl',
+  act: async (s, actor: string, testId: string, keyboard = false) => {
+    await Promise.resolve(
+      openMultiplayerChess.act(s, actor, undefined, keyboard)
+    );
+    const ui = await actorUi(s, actor);
+    if (keyboard) await ui.get(testId).key('enter');
+    else await ui.get(testId).tap();
+    await s.session.waitForIdle();
+  },
+});
+
 export const confirmMultiplayerCommand = scenarioAction({
   name: 'confirmMultiplayerCommand',
-  act: async (s, actor: string, kind: 'stop' | 'resign', keyboard = false) => {
+  act: async (
+    s,
+    actor: string,
+    kind: 'stop' | 'resign' | 'abort',
+    keyboard = false
+  ) => {
     await Promise.resolve(
       openMultiplayerChess.act(s, actor, undefined, keyboard)
     );
@@ -159,6 +204,7 @@ export const MULTIPLAYER_HARNESS_ACTIONS = [
   setMultiplayerConnection,
   openMultiplayerChess,
   findChessOpponent,
+  pressMultiplayerControl,
   confirmMultiplayerCommand,
   moveMultiplayerPiece,
 ] as const;

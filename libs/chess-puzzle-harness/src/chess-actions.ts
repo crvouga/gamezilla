@@ -9,6 +9,8 @@ import type {
 } from './chess-puzzle-feed-ui';
 import {
   closeFeedSettings,
+  decreaseFeedCustomRating,
+  decreaseFeedOffset,
   increaseFeedCustomRating,
   increaseFeedOffset,
   openFeedSettings,
@@ -36,6 +38,7 @@ import {
 import {
   suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
+  isEmptyPoolVisible,
   isPuzzleSummaryNextVisible,
   leaveChessStats,
   openChessStats,
@@ -63,6 +66,11 @@ import {
   pressPuzzleSummaryNext as tapPuzzleSummaryNext,
   waitPuzzleHintStage,
 } from './chess-puzzle-ui';
+import {
+  listenToTheApp,
+  playPuzzleMoveWithKeyboard,
+  usePuzzleControlWithKeyboard,
+} from './puzzle-keyboard';
 
 export const openPuzzleFromSpace = scenarioAction({
   name: 'openPuzzleFromSpace',
@@ -350,6 +358,39 @@ export const bumpPuzzleFeedCustomRating = scenarioAction({
   },
 });
 
+export const lowerPuzzleFeedOffset = scenarioAction({
+  name: 'lowerPuzzleFeedOffset',
+  act: decreaseFeedOffset,
+});
+
+export const lowerPuzzleFeedCustomRating = scenarioAction({
+  name: 'lowerPuzzleFeedCustomRating',
+  act: decreaseFeedCustomRating,
+});
+
+/**
+ * Done saves the feed settings; wait for what the feed comes to — a playable
+ * puzzle, or the empty-feed notice when the saved choices fit no puzzle.
+ */
+export const savePuzzleFeedSettings = scenarioAction({
+  name: 'savePuzzleFeedSettings',
+  act: async (s, actorId: string) => {
+    await closeFeedSettings(s, actorId);
+    await pollUntil(
+      s,
+      async () =>
+        (await isEmptyPoolVisible(s, actorId)) ||
+        (await readActivePuzzleId(s, actorId)) !== null
+          ? true
+          : null,
+      { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'feed settled' }
+    );
+    if (!(await isEmptyPoolVisible(s, actorId))) {
+      await expectPlayReady(s, actorId);
+    }
+  },
+});
+
 const SETTLE_MS = 20_000;
 const POLL_MS = 250;
 
@@ -550,6 +591,9 @@ export const solvePuzzlesDaily = scenarioAction({
 
 /** Registered on every system that composes this feature. */
 export const CHESS_HARNESS_ACTIONS = [
+  listenToTheApp,
+  playPuzzleMoveWithKeyboard,
+  usePuzzleControlWithKeyboard,
   openPuzzleFromSpace,
   openPuzzleFromSpaceNoWait,
   playUntilSolved,
@@ -589,6 +633,9 @@ export const CHESS_HARNESS_ACTIONS = [
   setPuzzleFeedTheme,
   bumpPuzzleFeedOffset,
   bumpPuzzleFeedCustomRating,
+  lowerPuzzleFeedOffset,
+  lowerPuzzleFeedCustomRating,
+  savePuzzleFeedSettings,
   openPuzzleByTheme,
   castlePuzzleKing,
   playNextSolutionMove,

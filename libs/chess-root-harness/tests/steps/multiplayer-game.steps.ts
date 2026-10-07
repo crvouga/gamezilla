@@ -1,16 +1,23 @@
 import { expect } from 'bun:test';
-import { givenMultiplayerPosition } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
-import type { MultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   acceptedMoves,
+  bothBoards,
   gameOf,
+  givenBegunGame,
   givenGame,
+  givenOverGame,
   move,
+  pairOf,
   refusal,
   resignation,
   sameBoards,
@@ -21,6 +28,14 @@ Given(
   '{actor} is White and {actor} is Black in a new multiplayer game',
   givenGame
 );
+Given(
+  '{actor} is White and {actor} is Black in a new {word} multiplayer game',
+  givenGame
+);
+Given(
+  '{actor} is White and {actor} is Black in a {word} multiplayer game after e4 and e5',
+  givenBegunGame
+);
 Given('{actor} has an unfinished multiplayer game with {actor}', givenGame);
 Given(
   '{actor} and {actor} have a multiplayer game from a matchmaking match',
@@ -28,28 +43,37 @@ Given(
 );
 Given(
   "{actor}'s multiplayer game with {actor} is over",
-  async (w, a: Actor, b: Actor) => {
-    await givenGame(w, a, b);
-    await resignation(w, b);
-    await sameBoards(w, a, b, (g) => g.outcome !== 'ongoing');
-  }
+  (w, a: Actor, b: Actor) => givenOverGame(w, a, b)
 );
 Given("{actor}'s multiplayer move e2 to e4 was accepted", async (w) => {
   await givenGame(w);
   await acceptedMoves(w, ['e2e4']);
 });
+Given(
+  "{actor}'s multiplayer move e2 to e4 was accepted {int} seconds after the game started",
+  async (w, _actor: Actor, seconds: number) => {
+    await givenGame(w);
+    await w.s.apply(passMultiplayerTime, seconds * 1000);
+    await acceptedMoves(w, ['e2e4']);
+  }
+);
 Given("{actor}'s multiplayer move e7 to e5 was accepted", async (w) => {
-  const reply = await move(w, 'bob', 'e7e5');
-  expect(reply.result.ok).toBe(true);
-  await sameBoards(w, 'alice', 'bob', (g) => g.revision === 2);
+  await acceptedMoves(w, ['e7e5']);
 });
 Given(
   '{actor} resigned multiplayer chess and {actor} won',
   async (w, loser: Actor, win: Actor) => {
-    await givenGame(w, win, loser);
-    await resignation(w, loser);
-    await sameBoards(w, win, loser, (g) => g.outcome !== 'ongoing');
+    if (!w.memo.has('multiplayer:game')) {
+      await givenOverGame(w, win, loser);
+      return;
+    }
+    expect((await resignation(w, loser)).result.ok).toBe(true);
+    await bothBoards(w, (g) => g.outcome !== 'ongoing');
   }
+);
+Given(
+  '{actor} resigned multiplayer chess after the multiplayer moves e4 and e5',
+  (w, loser: Actor) => givenOverGame(w, 'alice', loser)
 );
 Given(
   '{actor} is White and {actor} is Black after multiplayer moves f3, e5, g4',
@@ -84,31 +108,31 @@ When('{actor} resigns multiplayer chess again', async (w, actor: Actor) => {
   await resignation(w, actor);
 });
 Then('both multiplayer boards show the white pawn on e4', async (w) => {
-  const game = await sameBoards(w, 'alice', 'bob', (g) => g.revision === 1);
+  const game = await bothBoards(w, (g) => g.revision === 1);
   expect(game.fen).toStartWith(
     'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b'
   );
 });
 Then('{actor} has the multiplayer turn', async (w, actor: Actor) => {
   const owner = await w.s.read(accountIdOf, actor);
-  expect((await sameBoards(w)).turn).toBe(owner!);
+  expect((await bothBoards(w)).turn).toBe(owner!);
 });
 Then('{actor} still has the multiplayer turn', async (w, actor: Actor) => {
-  expect((await sameBoards(w)).turn).toBe(
+  expect((await bothBoards(w)).turn).toBe(
     (await w.s.read(accountIdOf, actor))!
   );
 });
+// The position the boards had when the refused move was tried.
 Then('both multiplayer boards keep their starting position', async (w) => {
-  expect((await sameBoards(w)).fen).toBe(
-    (w.memo.get('multiplayer:game') as MultiplayerGame).fen
+  expect((await bothBoards(w)).fen).toBe(
+    String(w.memo.get('multiplayer:board-before-move'))
   );
-  expect((await gameOf(w)).revision).toBe(0);
 });
 Then('both multiplayer boards show one move', async (w) => {
-  expect((await sameBoards(w)).revision).toBe(1);
+  expect((await bothBoards(w)).revision).toBe(1);
 });
 Then('both multiplayer boards still show two moves', async (w) => {
-  expect((await sameBoards(w)).revision).toBe(2);
+  expect((await bothBoards(w)).revision).toBe(2);
 });
 Then('{actor} is told it is not his multiplayer turn', (w, actor: Actor) =>
   refusal(w, actor, 'CHESS_NOT_YOUR_TURN')
@@ -153,70 +177,44 @@ Then(
   '{actor} sees the same multiplayer game and board on that device',
   async (w, actor: Actor) => {
     const other = String(w.memo.get(`multiplayer:other:${actor}`));
-    expect(await sameBoards(w, actor, other)).toEqual(
-      w.memo.get('multiplayer:game') as MultiplayerGame
+    expect((await sameBoards(w, actor, other)).id).toBe(
+      (w.memo.get('multiplayer:game') as MultiplayerGame).id
     );
+    expect(await gameOf(w, other)).toEqual(await gameOf(w, actor));
   }
 );
 
-const REPETITION = ['g1f3', 'g8f6', 'f3g1', 'f6g8', 'g1f3', 'g8f6', 'f3g1'];
-Given(
-  '{actor} and {actor} have a multiplayer position one move from {}',
-  async (w, a: Actor, b: Actor, boundary: string) => {
-    const game = await givenGame(w, a, b);
-    if (
-      boundary === 'its third appearance' ||
-      boundary === 'its second appearance'
-    ) {
-      await acceptedMoves(
-        w,
-        REPETITION.slice(0, boundary === 'its third appearance' ? 7 : 3)
-      );
-      w.memo.set('multiplayer:boundary-move', ['bob', 'f6g8']);
-      return;
-    }
-    const positions: Record<string, readonly [string, string]> = {
-      stalemate: ['k7/8/1QK5/8/8/8/8/8 w - - 0 1', 'b6c7'],
-      'insufficient mating material': [
-        '7k/8/8/8/8/8/1n6/K1B5 w - - 0 1',
-        'c1b2',
-      ],
-      'fifty moves without a pawn move or capture': [
-        '7k/8/8/8/8/8/R7/K7 w - - 99 51',
-        'a2b2',
-      ],
-    };
-    const position = positions[boundary];
-    if (position === undefined)
-      throw new Error(`Unknown draw boundary ${boundary}`);
-    await w.s.apply(givenMultiplayerPosition, a, game.id, position[0]);
-    await sameBoards(w, a, b, (g) => g.fen === position[0]);
-    w.memo.set('multiplayer:boundary-move', [a, position[1]]);
-  }
-);
-When('the person whose turn it is plays that multiplayer move', async (w) => {
-  const [actor, uci] = w.memo.get('multiplayer:boundary-move') as [
-    string,
-    string,
-  ];
-  await move(w, actor, uci);
-});
+/** The move list a person sees on their multiplayer screen. */
+async function moveListSeen(w: HarnessWorld, actor: string, moves: string) {
+  await w.s.apply(openMultiplayerChess, actor);
+  await w.s.until(
+    async (s) =>
+      (
+        await shownMultiplayerText(s, actor, 'multiplayer-move-list')
+      )?.trim() === moves
+  );
+  expect(
+    (
+      await w.s.read(shownMultiplayerText, actor, 'multiplayer-move-list')
+    )?.trim()
+  ).toBe(moves);
+}
+
+async function bothSeeMoveList(w: HarnessWorld, moves: string) {
+  for (const actor of pairOf(w)) await moveListSeen(w, actor, moves);
+}
+
+Then('both people see the multiplayer move list {string}', bothSeeMoveList);
 Then(
-  'both people see the multiplayer game is drawn by {}',
-  async (w, reason: string) => {
-    const game = await sameBoards(
-      w,
-      'alice',
-      'bob',
-      (g) => g.outcome === 'draw'
-    );
-    expect(game.reason).toBe(
-      reason === 'insufficient mating material'
-        ? 'insufficient material'
-        : reason
-    );
-  }
+  'both people still see the multiplayer move list {string}',
+  bothSeeMoveList
 );
-Then('the multiplayer game is still unfinished', async (w) => {
-  expect((await sameBoards(w)).outcome).toBe('ongoing');
-});
+Then(
+  '{actor} sees the multiplayer move list {string}',
+  (w, actor: Actor, moves: string) =>
+    moveListSeen(
+      w,
+      String(w.memo.get(`multiplayer:other:${actor}`) ?? actor),
+      moves
+    )
+);

@@ -1,5 +1,5 @@
 {
-  "release": 10,
+  "release": 11,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -68,18 +68,37 @@
       },
       "chess_multiplayer_games": {
         "black_id": "text",
+        "black_ms": "integer",
+        "black_rating": "text",
+        "black_rating_diff": "integer",
+        "clock_at_ms": "integer",
+        "draw_offer_by": "text",
         "fen": "text",
         "match_id": "text",
         "outcome": "text",
         "pgn": "text",
         "reason": "text",
+        "rematch_of": "text",
+        "rematch_offer_by": "text",
         "revision": "integer",
+        "time_control": "text",
         "turn": "text",
-        "white_id": "text"
+        "white_id": "text",
+        "white_ms": "integer",
+        "white_rating": "text",
+        "white_rating_diff": "integer"
       },
       "chess_multiplayer_players": {
         "game_id": "text",
         "owner_id": "text"
+      },
+      "chess_multiplayer_ratings": {
+        "games": "integer",
+        "owner_id": "text",
+        "rating": "integer",
+        "rating_deviation": "integer",
+        "speed": "text",
+        "volatility_micros": "integer"
       },
       "chess_opponent_searches": {
         "formulas": "json",
@@ -88,7 +107,8 @@
         "observed_at_ms": "integer",
         "owner_id": "text",
         "search_id": "text",
-        "standing": "text"
+        "standing": "text",
+        "time_control": "text"
       },
       "chess_puzzle_feed_settings": {
         "config": "text",
@@ -303,6 +323,7 @@
       ["chess_multiplayer_commands", "owner_id", "request_id"],
       ["chess_multiplayer_games", "match_id"],
       ["chess_multiplayer_players", "owner_id"],
+      ["chess_multiplayer_ratings", "owner_id", "speed"],
       ["chess_opponent_searches", "owner_id"],
       ["chess_puzzles", "position_key"],
       ["friends_blocks", "blocker_id", "blocked_id"],

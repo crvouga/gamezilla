@@ -179,11 +179,25 @@ export function capPuzzleCandidateOffset(
   );
 }
 
+/**
+ * The rating window's page (rotated by `pickOffset`), or — with no window —
+ * the unplayed puzzles nearest the feed target first (§9 fallback).
+ */
 export function buildPuzzleCandidatesSql(
   args: BuildPuzzleCandidatesSqlArgs
 ): Sql<PuzzleCandidateRow> {
   const pickOffset = args.pickOffset ?? 0;
   const whereClause = whereFromConditions(buildPuzzleFilterConditions(args));
+  if (args.halfWindow === null) {
+    return sql<PuzzleCandidateRow>`
+      SELECT id, rating
+      FROM chess_puzzles
+      ${whereClause}
+      ORDER BY ABS(rating - ${args.rating}) ASC, popularity DESC,
+        nb_plays DESC, id ASC
+      LIMIT ${PUZZLE_CANDIDATE_LIMIT}
+    `;
+  }
   return sql<PuzzleCandidateRow>`
     SELECT id, rating
     FROM chess_puzzles
@@ -336,7 +350,8 @@ export function selectPuzzleCandidates(
  * Where the served puzzle came from:
  *
  *   - `unseen`: inside the ±window around the rating — the §9 default;
- *   - `widened`: unseen, but the window had nothing (rating at an extreme);
+ *   - `widened`: the unseen puzzle nearest the rating, when the window had
+ *     nothing;
  *   - `exhausted`: everything is played, so the oldest attempt comes round
  *     again — and it is unrated.
  */
@@ -355,21 +370,21 @@ export function pickNextPuzzle(args: {
   readonly seed: string;
 }): PuzzlePick {
   const { rating, seed } = args;
-  for (const [source, result] of [
-    ['unseen', args.banded],
-    ['widened', args.fallback],
-  ] as const) {
-    if (result.rows.length === 0) continue;
+  if (args.banded.rows.length > 0) {
     return {
       puzzleId: pickPuzzleIdFromPool({
-        rows: result.rows,
+        rows: args.banded.rows,
         rating,
         preferredBand: PUZZLE_PREFERRED_BAND,
         seed,
       }),
-      source,
+      source: 'unseen',
     };
   }
+  // Nothing in the window: the unplayed puzzle nearest the target, which
+  // the fallback page lists first.
+  const nearest = args.fallback.rows[0];
+  if (nearest !== undefined) return { puzzleId: nearest.id, source: 'widened' };
   // Oldest-attempted first: deterministic, not seeded — the point is that the
   // puzzle the player has not seen in longest comes back first.
   const oldest = args.exhausted[0];

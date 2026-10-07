@@ -230,7 +230,10 @@ Given("{actor}'s account deletion has completed", async (w, actor: Actor) => {
 Given(
   "{actor}'s account deletion has been confirmed on another device",
   async (w, actor: Actor) => {
-    await recentAccount(w, actor);
+    // Already signed in (perhaps offline): keep that device as it is.
+    const account = await w.s.read(signedInAccountOf, actor);
+    if (account === null) await recentAccount(w, actor);
+    else remember(w, signedInAccountKey(actor), account);
     await w.s.apply(proveAccount, otherDevice(actor), actor);
     await w.s.apply(confirmDeletion, otherDevice(actor));
   }

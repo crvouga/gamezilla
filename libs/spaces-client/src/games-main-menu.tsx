@@ -3,12 +3,14 @@ import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { SelectedGameId } from '@libs/spaces-shared/games';
 import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
 import { Trans } from '@lingui/solid/macro';
+import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import type { JSX } from 'solid-js';
-import { createMemo, onMount, Show } from 'solid-js';
+import { createEffect, createMemo, onMount, Show, untrack } from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
+import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { useSpaceCan } from './use-space-can';
 import {
@@ -32,6 +34,24 @@ function buildSpaceGameMenuItems(
   }));
 }
 
+/**
+ * A space opened with `?game=<id>` (a puzzle link, …) starts that game for
+ * its host at once, as picking it from this list would.
+ */
+function useOpenLinkedGame(args: {
+  games: () => readonly GameClientDefinition[];
+  canSelectGame: () => boolean;
+  onSelectGame: (game: SelectedGameId) => void;
+}): void {
+  const params = useLocalSearchParams<{ game?: string | undefined }>();
+  createEffect(() => {
+    const game = params()[SPACE_GAME_PARAM];
+    if (game === undefined || !args.canSelectGame()) return;
+    const linked = args.games().find((g) => g.id === game);
+    if (linked !== undefined) untrack(() => args.onSelectGame(linked.id));
+  });
+}
+
 function GameListMenu(props: {
   games: readonly GameClientDefinition[];
 }): JSX.Element {
@@ -48,6 +68,12 @@ function GameListMenu(props: {
   // game does not block on a first-time load (no Suspense spinner on entry).
   onMount(() => {
     for (const game of props.games) game.preload?.();
+  });
+
+  useOpenLinkedGame({
+    games: () => props.games,
+    canSelectGame,
+    onSelectGame,
   });
 
   const items = createMemo(() =>

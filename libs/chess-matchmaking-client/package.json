@@ -25,6 +25,7 @@
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
     "@libs/spaces-client": "workspace:*",
+    "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client": "workspace:*",
     "@pkgs/clock-client": "workspace:*",

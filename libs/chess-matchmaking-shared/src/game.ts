@@ -1,17 +1,15 @@
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import { Chess } from 'chess.js';
-
-export type MultiplayerGame = {
-  readonly id: string;
-  readonly white_id: string;
-  readonly black_id: string;
-  readonly fen: string;
-  readonly pgn: string;
-  readonly revision: number;
-  readonly turn: string;
-  readonly outcome: 'ongoing' | 'white' | 'black' | 'draw';
-  readonly reason: string | null;
-};
+import type { Chess } from 'chess.js';
+import type { MultiplayerGame } from './game-state';
+import {
+  endMultiplayerGame,
+  multiplayerBoard,
+  requireUnfinished,
+} from './game-state';
+import {
+  settleMultiplayerClock,
+  spendMultiplayerClock,
+} from './multiplayer-clock';
 
 function ending(board: Chess): Pick<MultiplayerGame, 'outcome' | 'reason'> {
   if (board.isCheckmate())
@@ -29,17 +27,33 @@ function ending(board: Chess): Pick<MultiplayerGame, 'outcome' | 'reason'> {
   return { outcome: 'ongoing', reason: null };
 }
 
-/** The stored game owns legal chess moves and endings; matchmaking never does. */
+function legalMove(board: Chess, uci: string): void {
+  try {
+    board.move({
+      from: uci.slice(0, 2),
+      to: uci.slice(2, 4),
+      ...(uci.length > 4 ? { promotion: uci.slice(4) } : {}),
+    });
+  } catch {
+    throw new MutationError(
+      'CHESS_ILLEGAL_MOVE',
+      'That multiplayer move is illegal.'
+    );
+  }
+}
+
+/** The stored game owns legal chess moves, clocks and endings; matchmaking never does. */
 export function playMultiplayerMove(
-  game: MultiplayerGame,
+  stored: MultiplayerGame,
   input: {
     readonly actorId: string;
     readonly revision: number;
     readonly uci: string;
+    readonly nowMs: number;
   }
 ): MultiplayerGame {
-  if (game.outcome !== 'ongoing')
-    throw new MutationError('CHESS_GAME_OVER', 'The multiplayer game is over.');
+  const game = settleMultiplayerClock(stored, input.nowMs);
+  requireUnfinished(game);
   if (input.revision !== game.revision)
     throw new MutationError(
       'CHESS_BOARD_CHANGED',
@@ -50,32 +64,19 @@ export function playMultiplayerMove(
       'CHESS_NOT_YOUR_TURN',
       'It is not your multiplayer turn.'
     );
-  const board = new Chess(game.fen);
-  if (game.pgn.length > 0) board.loadPgn(game.pgn);
-  try {
-    board.move({
-      from: input.uci.slice(0, 2),
-      to: input.uci.slice(2, 4),
-      ...(input.uci.length > 4 ? { promotion: input.uci.slice(4) } : {}),
-    });
-  } catch {
-    throw new MutationError(
-      'CHESS_ILLEGAL_MOVE',
-      'That multiplayer move is illegal.'
-    );
-  }
+  const board = multiplayerBoard(game);
+  legalMove(board, input.uci);
   const result = ending(board);
-  return {
-    ...game,
+  const moved: MultiplayerGame = {
+    ...spendMultiplayerClock(game, input.nowMs),
     ...result,
     fen: board.fen(),
     pgn: board.pgn(),
     revision: game.revision + 1,
-    turn:
-      result.outcome === 'ongoing'
-        ? board.turn() === 'w'
-          ? game.white_id
-          : game.black_id
-        : '',
+    draw_offer_by: game.draw_offer_by === input.actorId ? input.actorId : '',
+    turn: board.turn() === 'w' ? game.white_id : game.black_id,
   };
+  return result.outcome === 'ongoing'
+    ? moved
+    : endMultiplayerGame(moved, result.outcome, result.reason ?? '');
 }

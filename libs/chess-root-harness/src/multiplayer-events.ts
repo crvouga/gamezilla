@@ -1,4 +1,6 @@
 import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   multiplayerFixture,
   multiplayerTransaction,
@@ -13,8 +15,6 @@ import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared/search-read';
 import sql from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import type { MultiplayerCommand } from './multiplayer-commands';
-import { sendMultiplayerCommand } from './multiplayer-commands';
 
 /**
  * The downstream model controls when an upstream fact arrives. Its commands
@@ -70,16 +70,17 @@ export const controlledMultiplayerCommand = scenarioAction({
 });
 
 /** A published upstream fact, delivered to the production handoff handler. */
-export const receiveMultiplayerMatch = scenarioAction({
+export const receiveMultiplayerMatch = scenarioAction<
+  [fact: MatchFormation, firstIsWhite?: boolean]
+>({
   name: 'receiveMultiplayerMatch',
-  act: (s, fact: MatchFormation) =>
+  act: (s, fact: MatchFormation, firstIsWhite = true) =>
     multiplayerTransaction(s, fact.participants[0]!.ownerId, async (tx) => {
-      await acceptChessMatch(
-        tx,
-        fact,
-        s.harness.clock.now(),
-        s.harness.server.createId
-      );
+      await acceptChessMatch(tx, fact, {
+        nowMs: s.harness.clock.now(),
+        tieBreak: () => firstIsWhite,
+        createId: s.harness.server.createId,
+      });
       return fact.participants.map((p) => p.ownerId);
     }),
 });

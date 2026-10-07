@@ -30,7 +30,9 @@ export function useChessPuzzleHistory(): {
       interactions: interactions(),
     })
   );
-  const gameLog = createMemo(() => deriveChessPuzzleGameLog(ratingEvents()));
+  const gameLog = createMemo(() =>
+    deriveChessPuzzleGameLog(ratingEvents(), interactions())
+  );
 
   return {
     stats,

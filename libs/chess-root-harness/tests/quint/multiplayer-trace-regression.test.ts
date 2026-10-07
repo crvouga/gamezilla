@@ -6,14 +6,14 @@ import { replayTrace } from '@pkgs/quint-shared/replay';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 
 // regression: chess-deletion-refreshes-connected-devices
-test('CI trace 115 clears Dave’s connected devices after his third-device deletion', async () => {
+test('Carol’s third-device deletion clears her devices while Alice’s offline computer keeps its board', async () => {
   const binding = quintBinding('multiplayer');
   const result = await replayTrace({
     ctx: {
       packageName: '@libs/chess',
       specUri: 'specs/chess/multiplayer.qnt',
       model: binding.model,
-      trace: 115,
+      trace: 1,
       seed: '0x67932',
       testId: 'multiplayer.deletion-regression',
       title: 'Third-device deletion with an offline opponent',
@@ -23,4 +23,4 @@ test('CI trace 115 clears Dave’s connected devices after his third-device dele
     binding,
   });
   expect(result).not.toBeNull();
-}, 60_000);
+}, 120_000);

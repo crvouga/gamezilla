@@ -66,36 +66,12 @@ export const NAMED_PUZZLES = {
 } as const satisfies Record<string, NamedPuzzle>;
 
 /**
- * `fixtures/chess-puzzles-selection.harness.csv`, by the rows a scenario's
- * "the puzzle pool also holds" table describes.
+ * `fixtures/chess-puzzles-selection.harness.csv`: twelve distinct, valid
+ * positions a scenario stocks the pool from (`puzzle-pool-stock.ts`).
  */
-export const SELECTION_CSV = await fixtureCsv(
+export const POSITION_BANK_CSV = await fixtureCsv(
   'chess-puzzles-selection.harness.csv'
 );
-
-export type SelectionGroup = {
-  readonly rated: string;
-  readonly quality: string;
-  readonly ids: readonly string[];
-};
-
-export const SELECTION_GROUPS = {
-  goodNear1500: {
-    rated: 'near 1500',
-    quality: 'good',
-    ids: ['008aL', '008cl', '008rw', '009bn'],
-  },
-  lowQuality: {
-    rated: 'near 1500',
-    quality: 'too unpopular or too rarely played',
-    ids: ['00A8H', '00A9Q', '00AEM', '00AfZ', '00BNd'],
-  },
-  good1800To1900: {
-    rated: '1800 to 1900',
-    quality: 'good',
-    ids: ['00Bot', '00C8e', '00CYP'],
-  },
-} as const satisfies Record<string, SelectionGroup>;
 
 const INGEST_HEADER =
   'PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags';

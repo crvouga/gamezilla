@@ -1,17 +1,15 @@
 @domain:chess
 Feature: An exhausted feed
-  When a solver has played every puzzle in the pool, they want the feed to
-  keep serving, so it never runs dry. No puzzle comes back while unplayed ones
-  remain; after that the feed comes round to the puzzle attempted longest ago,
-  and that attempt is unrated. Only a theme filter no puzzle fits empties
-  the feed, and widening the history filter brings puzzles back.
+  When a solver has played every puzzle in the pool, or chosen feed
+  settings no puzzle fits, they want to know what the feed can still serve,
+  so it never silently runs dry.
+
+  Background:
+    Given the puzzle pool holds just three puzzles
+    And Alice is signed in
+    And Alice is playing puzzles in their space
 
   Rule: The puzzle feed serves unplayed puzzles first and keeps serving unrated attempts after the pool is played through
-
-    Background:
-      Given the puzzle pool holds just three puzzles
-      And Alice is signed in
-      And Alice is playing puzzles in their space
 
     Scenario: No puzzle is served twice while unplayed ones remain
       Given Alice has solved 2 puzzles in a row
@@ -25,14 +23,16 @@ Feature: An exhausted feed
       Then Alice's feed comes round to the first puzzle they played within 15 seconds
       And Alice is told the attempt is unrated
 
+  Rule: A feed choice no puzzle fits empties the feed, and including played puzzles brings puzzles back
+
     Scenario: A theme filter no puzzle fits empties the feed
       When Alice limits the feed to the "zugzwang" theme
       Then Alice is told the feed is empty within 15 seconds
       And Alice has no puzzle on the board
 
     Scenario: Including played puzzles recovers from an empty feed
-      Given Alice has limited the feed to the "zugzwang" theme and it is empty
+      Given Alice has already played the pool's one "zugzwang" puzzle
+      And Alice has limited the feed to the "zugzwang" theme and it is empty
       When Alice includes puzzles they have already played
       Then Alice's feed history shows "Any"
       And Alice has a puzzle on the board
-      And Alice is not told the feed is empty

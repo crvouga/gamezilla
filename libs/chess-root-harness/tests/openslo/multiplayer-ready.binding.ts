@@ -2,6 +2,7 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
   multiplayerView,
@@ -18,9 +19,10 @@ async function gameReadyTime(context: MeasureContext) {
     await s.apply(signInWithGoogle, actor);
     await s.apply(givenMultiplayerSpace, actor);
   }
-  await s.apply(findChessOpponent, 'alice');
+  await s.apply(findChessOpponent, 'alice', '5+0');
   const beganAtMs = await s.read((world) => world.harness.clock.now());
-  await s.apply(findChessOpponent, 'bob');
+  await s.apply(findChessOpponent, 'bob', '5+0');
+  await s.apply(pairChessOpponents);
   await s.until(
     async (world) => {
       const first = (await multiplayerView(world, 'alice')).game;

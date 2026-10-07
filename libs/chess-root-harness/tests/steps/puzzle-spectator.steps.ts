@@ -32,6 +32,8 @@ import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { joinViaLink } from '@libs/spaces-harness/space-actions';
+import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import {
   activePuzzle,
   rememberBoard,
@@ -109,13 +111,22 @@ async function untilBoardsAgree(
 
 // ---------------------------------------------------------------- watching
 
-Given("{actor} is watching {actor}'s puzzle", async (w, watcher: Actor) => {
-  await w.s.apply(focusActor, watcher);
-  await w.s.until(async (surf) => readPuzzleStatus(surf, watcher), {
-    maxMs: SETTLE_MS,
-    pred: (status) => status === 'solving',
-  });
-});
+Given(
+  "{actor} is watching {actor}'s puzzle",
+  async (w, watcher: Actor, host: Actor) => {
+    await w.s.apply(focusActor, watcher);
+    if ((await w.s.read(readPuzzleStatus, watcher)) === null) {
+      // Not in the host's space yet: join it from the host's link.
+      await w.s.apply(focusActor, host);
+      const link = required(await w.s.read(readSpaceLink, host), 'a space');
+      await w.s.apply(joinViaLink, watcher, link);
+    }
+    await w.s.until(async (surf) => readPuzzleStatus(surf, watcher), {
+      maxMs: SETTLE_MS,
+      pred: (status) => status === 'solving',
+    });
+  }
+);
 
 Given(
   "{actor} has joined the space from the link and is watching {actor}'s puzzle",

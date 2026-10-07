@@ -23,6 +23,24 @@ Feature: Feed choices stick
 
     Scenario: The history filter is kept after the app closes
       Given Alice has changed the feed history to "Any" and saved the feed settings
-      Given Alice has closed and reopened the app
+      And Alice has closed and reopened the app
       When Alice returns to their space
       Then Alice's feed history shows "Any"
+
+  Rule: A chosen puzzle theme stays after the app closes and follows the account to other devices
+    No counter-example: a chosen theme belongs to the account and remains its choice on return.
+
+    Background:
+      Given Alice is signed in
+      And the puzzle pool holds puzzles with and without the "fork" theme
+      And Alice is playing puzzles in their space
+      And Alice has limited the feed to the "fork" theme
+
+    Scenario: The chosen theme is kept after the app closes
+      Given Alice has closed and reopened the app
+      When Alice returns to their space
+      Then Alice's feed is limited to the "fork" theme
+
+    Scenario: The chosen theme reaches the solver's other device
+      When Alice's account opens on another device
+      Then Alice's other device's feed is limited to the "fork" theme within 30 seconds

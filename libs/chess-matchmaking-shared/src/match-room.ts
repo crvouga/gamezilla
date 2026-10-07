@@ -12,8 +12,6 @@ import { z } from 'zod';
 
 const MATCH_GAME_KEY = asKeyword('chess-match/game');
 
-import type { MultiplayerGame } from './game';
-
 export const MATCH_ROOM_MODULE = 'chess-match';
 export const matchRoomTopic = (gameId: string): string =>
   `${MATCH_ROOM_MODULE}:${gameId}`;
@@ -25,19 +23,30 @@ const gameSchema = z.object({
   pgn: z.string(),
   revision: z.number().int().nonnegative(),
   turn: z.string(),
-  outcome: z.enum(['ongoing', 'white', 'black', 'draw']),
+  outcome: z.enum(['ongoing', 'white', 'black', 'draw', 'aborted']),
   reason: z.string().nullable(),
+  time_control: z.string().nullable().optional(),
+  white_ms: z.number().nullable().optional(),
+  black_ms: z.number().nullable().optional(),
+  clock_at_ms: z.number().nullable().optional(),
+  draw_offer_by: z.string().nullable().optional(),
+  rematch_offer_by: z.string().nullable().optional(),
+  rematch_of: z.string().nullable().optional(),
+  white_rating: z.string().nullable().optional(),
+  black_rating: z.string().nullable().optional(),
+  white_rating_diff: z.number().nullable().optional(),
+  black_rating_diff: z.number().nullable().optional(),
 });
+/** The accepted game a match room shares. Clock fields travel with a timed game. */
+export type MatchRoomGame = z.infer<typeof gameSchema>;
 export const MultiplayerGameChanged = createMessageNamespace('chess-match')(
   'game-changed',
-  (value): value is MultiplayerGame => gameSchema.safeParse(value).success
+  (value): value is MatchRoomGame => gameSchema.safeParse(value).success
 );
 
-export function matchRoomGame(state: RoomState): MultiplayerGame | null {
-  const value = state[MATCH_GAME_KEY];
-  return gameSchema.safeParse(value).success
-    ? (value as MultiplayerGame)
-    : null;
+export function matchRoomGame(state: RoomState): MatchRoomGame | null {
+  const parsed = gameSchema.safeParse(state[MATCH_GAME_KEY]);
+  return parsed.success ? parsed.data : null;
 }
 
 /** One accepted match, shared by the clients in both spaces. Only mutation

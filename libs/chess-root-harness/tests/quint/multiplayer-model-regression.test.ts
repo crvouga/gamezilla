@@ -7,7 +7,7 @@ import { simulate } from '@pkgs/quint-server/simulate';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 
 // regression: chess-model-deleted-game-access
-test('Dave loses his private game after deleting his account while Bob keeps the win', () => {
+test('Alice loses her private game after deleting her account while Bob keeps it', () => {
   const root = join(import.meta.dir, '../../../..');
   const source = readFileSync(
     join(root, 'specs/chess/multiplayer.qnt'),
@@ -34,10 +34,10 @@ test('Dave loses his private game after deleting his account while Bob keeps the
         `  action step = all {
     _regressionStep < 4,
     _regressionStep' = _regressionStep + 1,
-    if (_regressionStep == 0) findOpponent({ person: "dave", place: "phone" })
-    else if (_regressionStep == 1) findOpponent({ person: "bob", place: "phone" })
-    else if (_regressionStep == 2) matchFormed(1, "dave", "bob")
-    else deletePlayAccount("dave"),
+    if (_regressionStep == 0) findOpponent({ person: "alice", place: "phone" }, "3+2")
+    else if (_regressionStep == 1) findOpponent({ person: "bob", place: "phone" }, "3+2")
+    else if (_regressionStep == 2) matchFormed(1, "alice", "bob")
+    else deletePlayAccount("alice"),
   }
 
   ///`
@@ -58,7 +58,7 @@ test('Dave loses his private game after deleting his account while Bob keeps the
     >;
     for (const [device, number] of numbers) {
       const person = (device as { person: string }).person;
-      if (person === 'dave') expect(number).toBe(0);
+      if (person === 'alice') expect(number).toBe(0);
       if (person === 'bob') expect(number).toBe(1);
     }
   } finally {

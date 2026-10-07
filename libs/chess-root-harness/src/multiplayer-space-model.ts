@@ -1,4 +1,5 @@
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   givenOpponentSearch,
   pairChessOpponents,
@@ -9,7 +10,6 @@ import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multipl
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
-import { sendMultiplayerCommand } from './multiplayer-commands';
 
 export const prepareMultiplayerSpaceModel = scenarioAction({
   name: 'prepareMultiplayerSpaceModel',

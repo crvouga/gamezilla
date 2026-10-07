@@ -1,26 +1,67 @@
 import { opponentRestrictions } from '@libs/friends-shared/opponent-restrictions';
 import { assert } from '@pkgs/assert-root-shared/singleton';
-import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
+import type {
+  FormedParticipant,
+  MatchFormation,
+} from '@pkgs/matchmaking-sql-shared/match-pass';
 import { formMatches } from '@pkgs/matchmaking-sql-shared/match-pass';
-import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
-import { Chess } from 'chess.js';
+import { createMultiplayerGame } from './game-creation';
 import { MultiplayerGameRepository } from './game-repository';
-import { publishMatchGame } from './publish-match-game';
-import { CHESS_OPPONENT_POOL, CHESS_SEARCH_RADIUS } from './search-config';
+import {
+  CHESS_SEARCH_RADIUS,
+  CHESS_TIME_CONTROL_KEY,
+  chessOpponentPool,
+} from './search-config';
 import { projectOpponentSearch } from './search-projection';
+import { TIME_CONTROLS } from './time-control';
+
+/**
+ * Settles equal colour balances. Callers inject the chance: the formation
+ * derives it from a freshly minted id; a fixture may fix it.
+ */
+export type ColourTieBreak = () => boolean;
+
+/** An unbiased coin from an injected id source: true keeps the first person White. */
+export function coinFromId(id: string): boolean {
+  let hash = 0;
+  for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+  return (hash & 1) === 0;
+}
+
+function timeControlOf(fact: MatchFormation): string {
+  const control = fact.participants[0]!.data[asKeyword(CHESS_TIME_CONTROL_KEY)];
+  assert.ok(typeof control === 'string', 'a chess match has a time control');
+  return control;
+}
+
+/** The person with the greater colour balance plays Black. */
+async function colours(
+  tx: SqlTx,
+  people: readonly FormedParticipant[],
+  tieBreak: ColourTieBreak
+): Promise<readonly [string, string]> {
+  const games = new MultiplayerGameRepository(tx);
+  const [first, second] = [people[0]!.ownerId, people[1]!.ownerId];
+  const a = await games.colourBalance(first);
+  const b = await games.colourBalance(second);
+  const firstIsWhite = a === b ? tieBreak() : a < b;
+  return firstIsWhite ? [first, second] : [second, first];
+}
 
 /** Invoked inside the reusable package's formation transaction. */
 export async function acceptChessMatch(
   tx: SqlTx,
   fact: MatchFormation,
-  nowMs: number,
-  createId: () => string
+  ports: {
+    readonly nowMs: number;
+    readonly tieBreak: ColourTieBreak;
+    readonly createId?: () => string;
+  }
 ): Promise<void> {
   assert.ok(fact.participants.length === 2, 'a chess match has two people');
-  const white = fact.participants[0]!;
-  const black = fact.participants[1]!;
   const prior = await tx.query(
     sql<{
       id: string;
@@ -33,44 +74,51 @@ export async function acceptChessMatch(
       (await games.unfinishedCount(person.ownerId)) === 0,
       'an unfinished game makes its person unavailable'
     );
-  const iso = new Date(nowMs).toISOString();
-  await tx.run(sql`INSERT INTO chess_multiplayer_games
-    (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, created_at, updated_at, deleted_at)
-    VALUES (${fact.matchId}, ${fact.matchId}, ${white.ownerId}, ${black.ownerId}, ${new Chess().fen()},
-      ${''}, ${0}, ${white.ownerId}, ${'ongoing'}, ${null}, ${iso}, ${iso}, ${null})`);
-  const game = await games.owned(fact.matchId, white.ownerId);
-  await publishMatchGame(
-    { tx, env: { now: () => new Date(nowMs), createId } },
-    game
+  const [whiteId, blackId] = await colours(
+    tx,
+    fact.participants,
+    ports.tieBreak
   );
-  for (const person of fact.participants) {
-    await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
-      VALUES (${person.ownerId}, ${person.ownerId}, ${fact.matchId}, ${iso}, ${iso}, ${null})
-      ON CONFLICT (id) DO UPDATE SET game_id = excluded.game_id, updated_at = excluded.updated_at`);
-    await changeAvailability(tx, {
-      ownerId: person.ownerId,
-      available: false,
-      nowMs,
-    });
-    await projectOpponentSearch(tx, person.ownerId, nowMs);
-  }
+  await createMultiplayerGame(tx, {
+    id: fact.matchId,
+    whiteId,
+    blackId,
+    timeControl: timeControlOf(fact),
+    rematchOf: null,
+    nowMs: ports.nowMs,
+    ...(ports.createId === undefined ? {} : { createId: ports.createId }),
+  });
+  for (const person of fact.participants)
+    await projectOpponentSearch(tx, person.ownerId, ports.nowMs);
 }
 
-export function formChessMatches(
+/** One formation pass per time control's pool; people meet only within one. */
+export async function formChessMatches(
   tx: SqlTx,
-  ports: { readonly nowMs: number; readonly createId: () => string }
+  ports: {
+    readonly nowMs: number;
+    readonly createId: () => string;
+    readonly tieBreak?: ColourTieBreak;
+  }
 ): Promise<readonly string[]> {
   const owners: string[] = [];
-  return formMatches(tx, {
-    ...ports,
-    partitionSignature: CHESS_OPPONENT_POOL,
-    groupSize: 2,
-    maxPairsPerPass: 500,
-    radius: CHESS_SEARCH_RADIUS,
-    restrictionsFor: opponentRestrictions,
-    onFormed: async (transaction, fact) => {
-      await acceptChessMatch(transaction, fact, ports.nowMs, ports.createId);
-      owners.push(...fact.participants.map((person) => person.ownerId));
-    },
-  }).then(() => owners);
+  for (const control of TIME_CONTROLS)
+    await formMatches(tx, {
+      nowMs: ports.nowMs,
+      createId: ports.createId,
+      partitionSignature: chessOpponentPool(control.id),
+      groupSize: 2,
+      maxPairsPerPass: 500,
+      radius: CHESS_SEARCH_RADIUS,
+      restrictionsFor: opponentRestrictions,
+      onFormed: async (transaction, fact) => {
+        await acceptChessMatch(transaction, fact, {
+          nowMs: ports.nowMs,
+          tieBreak: ports.tieBreak ?? (() => coinFromId(ports.createId())),
+          createId: ports.createId,
+        });
+        owners.push(...fact.participants.map((person) => person.ownerId));
+      },
+    });
+  return owners;
 }

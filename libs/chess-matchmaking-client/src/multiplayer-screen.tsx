@@ -14,6 +14,8 @@ import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
+import { MultiplayerRatings } from './multiplayer-ratings';
+import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
 
@@ -35,6 +37,11 @@ function MultiplayerContent(props: {
       ? decision()
       : searchDecision();
   const sync = useSyncEngine();
+  useDeadlineSettle({
+    game: props.data.game,
+    online: () => sync.status().online,
+    settle: props.controls.settle,
+  });
   return (
     <div class="box gap-4" data-component="MultiplayerContent">
       <Show
@@ -88,7 +95,8 @@ function MultiplayerContent(props: {
           when={
             props.data.game() === null &&
             props.data.search() === null &&
-            !props.data.loading()
+            !props.data.loading() &&
+            props.data.hostId() !== props.data.myId()
           }
         >
           <p role="status" data-testid="multiplayer-unavailable">
@@ -96,6 +104,7 @@ function MultiplayerContent(props: {
           </p>
         </Show>
         <MultiplayerControls data={props.data} controls={props.controls} />
+        <MultiplayerRatings ratings={props.data.ratings()} />
       </Show>
     </div>
   );
@@ -114,8 +123,8 @@ export default function MultiplayerScreen(): JSX.Element {
       />
       <ScreenBase
         screenId="chess-multiplayer"
-        breadcrumbs={[]}
         scroll
+        breadcrumbs={[]}
         content={() => <MultiplayerContent data={data} controls={controls} />}
       />
     </>

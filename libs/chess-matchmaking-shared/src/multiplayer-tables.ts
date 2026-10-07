@@ -13,9 +13,35 @@ export const chessMultiplayerGames = defineTable({
     turn: 'text',
     outcome: 'text',
     reason: 'text',
+    time_control: 'text',
+    white_ms: 'integer',
+    black_ms: 'integer',
+    clock_at_ms: 'integer',
+    draw_offer_by: 'text',
+    rematch_offer_by: 'text',
+    rematch_of: 'text',
+    white_rating: 'text',
+    black_rating: 'text',
+    white_rating_diff: 'integer',
+    black_rating_diff: 'integer',
   },
   uniqueIndexes: ['match_id'],
   indexes: ['white_id', 'black_id'],
+});
+
+/** One person's multiplayer rating at one speed (Glicko-2, integral). */
+export const chessMultiplayerRatings = defineTable({
+  domain: 'chess',
+  name: 'chess_multiplayer_ratings',
+  columns: {
+    owner_id: 'text',
+    speed: 'text',
+    rating: 'integer',
+    rating_deviation: 'integer',
+    volatility_micros: 'integer',
+    games: 'integer',
+  },
+  uniqueIndexes: [['owner_id', 'speed']],
 });
 
 export const chessMultiplayerPlayers = defineTable({
@@ -37,6 +63,7 @@ export const chessOpponentSearches = defineTable({
     joined_at_ms: 'integer',
     observed_at_ms: 'integer',
     formulas: 'json',
+    time_control: 'text',
   },
   uniqueIndexes: ['owner_id'],
 });
@@ -58,4 +85,5 @@ export const CHESS_MULTIPLAYER_TABLES = [
   chessMultiplayerPlayers,
   chessOpponentSearches,
   chessMultiplayerCommands,
+  chessMultiplayerRatings,
 ] as const;
