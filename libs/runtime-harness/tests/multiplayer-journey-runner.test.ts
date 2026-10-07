@@ -18,4 +18,7 @@ test('the journey runner binds and completes all three literal multiplayer journ
   expect(result.status).toBe(0);
   expect(result.stderr).toContain('3 pass');
   expect(result.stderr).toContain('0 fail');
-}, 20_000);
+  // Nested `bun test` of the three journeys. A 20s cap killed the child on
+  // the CI runner before it could exit, so a slow pass and a hung step
+  // both arrived as a null status.
+}, 60_000);
