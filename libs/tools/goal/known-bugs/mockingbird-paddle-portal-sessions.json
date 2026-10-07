@@ -1,4 +1,4 @@
 {
-  "summary": "Mockingbird Paddle 1.3.0 returns HTTP 404 for POST /customers/{id}/portal-sessions after creating a customer. The production membership adapter needs the returned overview link. Upstream: https://github.com/crvouga/mockingbird/issues/327",
+  "summary": "Mockingbird Paddle 1.3.0 returned HTTP 404 for POST /customers/{id}/portal-sessions after creating a customer. The production membership adapter needs the returned overview link. @crvouga/mockingbird-service-paddle@2.1.0 returns that https link. Upstream: https://github.com/crvouga/mockingbird/issues/327",
   "regressionTest": "pkgs/billing-paddle-harness/tests/mockingbird-gaps.test.ts"
 }

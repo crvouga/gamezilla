@@ -6046,7 +6046,7 @@
     "@clack/prompts": "^1.8.1",
     "@crvouga/mockingbird-service-oauth": "^1.11.0",
     "@crvouga/mockingbird-service-openai": "^0.1.0",
-    "@crvouga/mockingbird-service-paddle": "^1.3.0",
+    "@crvouga/mockingbird-service-paddle": "^2.1.0",
     "@crvouga/mockingbird-service-postgres": "^3.0.0",
     "@crvouga/mockingbird-service-s3": "^1.8.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
@@ -6478,7 +6478,7 @@
 
     "@crvouga/mockingbird-service-openai": ["@crvouga/mockingbird-service-openai@0.1.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "@noble/ciphers": "2.4.0", "@noble/hashes": "2.4.0", "hono": "4.11.9" }, "bin": { "mockingbird-openai": "dist/cli.js" } }, "sha512-LVsNTOqXALJDj5ywRPSQ1zsHeDWmL5TX+HVKzaxt6GvidoHICMgimgs9UDj5BXzVmxvA+tFzWmZ8jaJaVpH0uQ=="],
 
-    "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@1.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-ufNUdKQOoWmSzOy+d2AS6DTiZg6222FudMCye1lYIdjEAVldDg+nMNPz9gy6I0DYH+cD9k668svTrqR43km9dA=="],
+    "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@2.1.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.0.0", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-0heg92K4jJoCUsM7gaM950S7YQHzgRwmLabgQwCGerHvNzNnwsmJ5viMs4UvN4UiO75boxeBLWhmXGgetfqk4Q=="],
 
     "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.0.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-Fb7u4yeXfwPR5/Srit2asBk/lWyVzi18ukvm10FHpWecOhMS0aI+Z1bcoHNQ4zoBS+AyNfuqE3GHg5VSNPCJEQ=="],
 
@@ -9110,7 +9110,7 @@
 
     "@crvouga/mockingbird-service-openai/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
 
-    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
+    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.0.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-9oVDssEcty/9zIP+gOKPM0fINfhB2omRNIqFUq8/HQvGSKloymLK9B9KblDVTDiWGyhlH3h0XJFgb6x0B3bk3w=="],
 
     "@crvouga/mockingbird-service-s3/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
 
