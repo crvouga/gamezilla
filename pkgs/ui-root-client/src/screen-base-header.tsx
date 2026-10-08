@@ -69,6 +69,7 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   return (
     <TopBar
       centerAlign="start"
+      trailingSize={(props.actions?.length ?? 0) > 0 ? 'fill' : 'fit'}
       dataSet={{ component: 'ScreenBaseHeader' }}
       leading={
         <>

@@ -9,6 +9,7 @@ import { SettingsIcon } from '@pkgs/ui-root-client/icons';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseProps } from '@pkgs/ui-root-client/screen-base-types';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
+import { TopBar } from '@pkgs/ui-root-client/top-bar';
 import { hrefToPath } from '@pkgs/ui-root-shared/href';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
@@ -52,6 +53,42 @@ function fakeRouter(canGoBack: boolean): AppRouter & { calls: string[] } {
 }
 
 describe('ScreenBase compact', () => {
+  test('a root screen titles as a heading, a pushed screen as navigation', () => {
+    renderUi(() => <Screen breadcrumbs={[{ name: 'Spaces' }]} />, COMPACT);
+    const root = screen.getByRole('heading', { level: 1 });
+    expect(root.className).toMatch(/\btextHeading\b/);
+  });
+
+  test('a pushed screen keeps the quieter navigation title', () => {
+    renderUi(() => <Screen />, COMPACT);
+    const title = screen.getByRole('heading', { level: 1 });
+    expect(title.className).toMatch(/\btextNavigationTitle\b/);
+  });
+
+  test('trailing chrome alone sizes to fit, so a long title is not cut in half', () => {
+    renderUi(
+      () => (
+        <>
+          <TopBar
+            center={<p class="text">{'Account privacy'}</p>}
+            trailing={<p class="text">{'fit'}</p>}
+            trailingSize="fit"
+          />
+          <TopBar
+            center={<p class="text">{'Space'}</p>}
+            trailing={<p class="text">{'fill'}</p>}
+          />
+        </>
+      ),
+      COMPACT
+    );
+    const fit = screen.getByText('fit').parentElement;
+    const fill = screen.getByText('fill').parentElement;
+    expect(fit?.className).toMatch(/\bshrink-0\b/);
+    expect(fit?.className).not.toMatch(/\bflex-1\b/);
+    expect(fill?.className).toMatch(/\bflex-1\b/);
+  });
+
   test('renders data-screen, TopBar h1 title, back button and body', async () => {
     const user = userEvent.setup();
     const onBack = mock();

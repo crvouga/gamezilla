@@ -34,6 +34,12 @@ export type TopBarProps = {
   centerPosition?: TopBarCenterPosition | undefined;
   /** Pad the top by `env(safe-area-inset-top)`. Default `true`. */
   safeAreaTop?: boolean | undefined;
+  /**
+   * `fill` (default) gives the trailing slot up to half the row, the width
+   * budget an `ActionBar` measures. `fit` sizes it to its content (an avatar
+   * alone), so the title keeps the rest of the row.
+   */
+  trailingSize?: 'fill' | 'fit' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -51,7 +57,12 @@ const SIDE_SLOT_CLASS =
 
 type SlotsProps = Pick<
   TopBarProps,
-  'leading' | 'center' | 'trailing' | 'centerAlign' | 'centerPosition'
+  | 'leading'
+  | 'center'
+  | 'trailing'
+  | 'centerAlign'
+  | 'centerPosition'
+  | 'trailingSize'
 >;
 
 function FlexLayout(props: SlotsProps): JSX.Element {
@@ -77,7 +88,13 @@ function FlexLayout(props: SlotsProps): JSX.Element {
           Cap trailing so ActionBar still gets a measurable width budget while
           the center title/event-log keeps at least half the row on narrow hosts.
         */}
-        <div class="box flex-1 min-w-0 max-w-1/2 self-stretch flex-row items-center justify-end gap-2">
+        <div
+          class="box min-w-0 max-w-1/2 self-stretch flex-row items-center justify-end gap-2"
+          classList={{
+            'flex-1': props.trailingSize !== 'fit',
+            'shrink-0': props.trailingSize === 'fit',
+          }}
+        >
           {props.trailing}
         </div>
       </Show>
