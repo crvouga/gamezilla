@@ -62,7 +62,7 @@ from '@pkgs/ui-root-client/button'`). No adapter layer, no third-party UI librar
 
 **How it looks** is decided once, in
 [`pkgs/ui-root-client/README.md`](pkgs/ui-root-client/README.md): the
-palette, the type roles, panels for lists, radius by hierarchy, brass only
+palette, the type roles, panels for lists, radius by hierarchy, blue only
 for what is chosen. Screens compose components and arrange them with layout
 utilities; they never pick a font size, weight, shadow, arbitrary value or
 raw color (`design-vocabulary.ts` in each product client's `lint`, plus the

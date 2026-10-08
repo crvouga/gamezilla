@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * `AppLogo` -- in-house brand wordmark in the display face. Ivory or ink by
- * default: brass is kept for what a person has chosen, not for branding.
+ * `AppLogo` -- in-house brand wordmark in the display face, in the text
+ * color by default: blue is kept for what a person can do or has chosen.
  *
  * @example
  * ```tsx

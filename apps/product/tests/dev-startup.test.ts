@@ -14,7 +14,7 @@ describe('development client startup', () => {
     for (const app of ['client', 'product']) {
       const html = source(`apps/${app}/index.html`);
       expect(html).toContain('class="startup-shell"');
-      expect(html).toContain('background: #0D1C17');
+      expect(html).toContain('background: #000000');
       expect(html).toContain('prefers-reduced-motion: reduce');
     }
   });

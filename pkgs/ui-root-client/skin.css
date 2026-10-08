@@ -1,9 +1,9 @@
 /* Component paint. One class + data-face / data-status. Colors are tokens.
  *
- * Club room rules, so every screen agrees without trying:
- * - Brass (`tint-active` fill, ink `on-primary` label) means "the thing to
- *   do" or "the thing chosen": primary buttons, the FAB, selected chips, the
- *   active tab. Never decoration.
+ * Rules, so every screen agrees without trying:
+ * - Blue (`tint-active` fill, white `on-primary` label) means "the thing to
+ *   do" or "the thing chosen": primary buttons, the FAB, selected chips,
+ *   checked controls. Never decoration.
  * - Controls share `--ui-radius-md`. Pills are only for round things.
  * - No shadows and no gradients: surfaces step up in tone instead, which is
  *   also what a low-end phone can paint at 60fps.
@@ -242,7 +242,7 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  /* Chips are choices. Chosen is brass, like every other "this one". */
+  /* Chips are choices. Chosen is the blue fill, like every other "this one". */
   .chip {
     height: 36px;
     min-width: 48px;

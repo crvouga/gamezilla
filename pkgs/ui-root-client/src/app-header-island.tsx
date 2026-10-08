@@ -31,13 +31,13 @@ const PILL_MIN_HEIGHT = 44;
 const PILL_ICON_SIZE = 18;
 
 function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
-  const color = (): 'onPrimary' | 'textSecondary' =>
-    props.item.active ? 'onPrimary' : 'textSecondary';
+  const color = (): 'text' | 'textSecondary' =>
+    props.item.active ? 'text' : 'textSecondary';
   return (
     <button
       class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-full"
       classList={{
-        'bg-tint-active': props.item.active,
+        'bg-surface-muted': props.item.active,
         'bg-transparent': !props.item.active,
       }}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
@@ -56,7 +56,7 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
       <label
         class="text textLabel"
         classList={{
-          'text-on-primary': props.item.active,
+          'text-text': props.item.active,
           'text-text-secondary': !props.item.active,
         }}
       >

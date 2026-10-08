@@ -76,7 +76,7 @@ describe('Switch', () => {
     const thumb = track?.firstElementChild;
     expect(thumb?.className).toMatch(/bg-text-secondary/);
     fireEvent.click(el);
-    // On is the brass fill with an ink thumb, never ink on bronze `tint`.
+    // On is the accent fill with its own on-color thumb, never the text tint.
     expect(track?.className).toMatch(/\bbg-tint-active\b/);
     expect(track?.className).not.toMatch(/\bbg-tint\b(?!-)/);
     expect(thumb?.className).toMatch(/bg-on-primary/);

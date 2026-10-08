@@ -3,20 +3,20 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: club room
+## The look: neutral and blue
 
-A chess club's back room on game night. Dark is the green baize table, light
-is the chalk scoresheet, and brass is the one accent: clock plungers, the
-chosen piece, the thing to do next.
+The proven look of the big social apps: white and true black, gray text
+tiers, and one blue for what to do or what is chosen. Nothing themed,
+nothing decorative.
 
 | Token | Role |
 | --- | --- |
-| `background` | the canvas: baize `hsla(160 36% 8%)` / chalk `hsla(100 14% 95%)` |
-| `surface` | panels and cards, one step up from the canvas |
+| `background` | the canvas: white / true black |
+| `surface` | panels and cards, one step off the canvas |
 | `surface-muted` | inputs, tags, segmented tracks, coach bubbles |
-| `text` / `text-secondary` | ivory or ink, and its quiet partner |
-| `tint-active` + `on-primary` | brass fill with an ink label, in both schemes |
-| `tint` | brass as text, links, focus and selection (bronze on chalk) |
+| `text` / `text-secondary` | near-black or near-white, and its gray partner |
+| `tint-active` + `on-primary` | the blue fill with a white label, in both schemes |
+| `tint` | blue as text, links, focus and selection |
 | `destructive`, `success`, `warning`, `info` | status, each with a `*-surface` wash |
 
 Values live in `@pkgs/ui-root-shared/color-palette`; `tokens.css` is generated
@@ -26,10 +26,10 @@ that loses contrast fails.
 
 ## Rules
 
-1. **Brass means chosen.** `tint-active` fills only primary buttons, the FAB,
-   selected chips, the active tab, a checked switch or box, and the current
-   price. Never decoration. On a brass fill the label is `on-primary`, never
-   white.
+1. **Blue means do or chosen.** `tint-active` fills only primary buttons,
+   the FAB, selected chips, a checked switch or box, and the current price.
+   Never decoration. On the blue fill the label is `on-primary`. The active
+   tab is full text color, not blue.
 2. **Pick a role, never a size.** Text is `text` plus one role:
    `textTitle` (36), `textHeading` (24), `textSubtitle` (21),
    `textNavigationTitle` (18), `textLabel` (16, display face), `textBody` /
@@ -74,8 +74,8 @@ The rules are enforced, so the easy path is the right one:
 
 ```tsx
 <ScreenBase
-  screenId="club-settings"
-  breadcrumbs={[{ name: <Trans>Settings</Trans>, href: '/more' }, { name: <Trans>Club</Trans> }]}
+  screenId="table-settings"
+  breadcrumbs={[{ name: <Trans>Settings</Trans>, href: '/more' }, { name: <Trans>Table</Trans> }]}
   scroll
   content={() => (
     <div class="box gap-6">

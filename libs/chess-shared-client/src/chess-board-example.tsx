@@ -1,4 +1,4 @@
-import { CLUB_BOARD_THEME } from '@libs/chess-root-shared/club-board-theme';
+import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
@@ -46,7 +46,7 @@ export default function ChessBoardExample(): JSX.Element {
       </p>
       <Show when={size() > 0}>
         <ChessBoard
-          theme={CLUB_BOARD_THEME}
+          theme={BOARD_THEME}
           sound={!sounds.muted()}
           fen={SAMPLE_FEN}
           size={size()}
