@@ -59,8 +59,9 @@ Feature: Multiplayer chess is played and watched within spaces
 
   Rule: Guests see the multiplayer result only while in either space
 
+    @regression:multiplayer-space-result-after-first-moves
     Scenario: A guest sees the result shared by the matched people
-      Given Alice and Bob have a multiplayer game in different spaces
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       And Carol is a guest watching Alice's multiplayer game
       When Bob resigns multiplayer chess
       Then Carol sees Alice won the multiplayer game

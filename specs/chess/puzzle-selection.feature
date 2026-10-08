@@ -89,6 +89,7 @@ Feature: Choosing the next puzzle
       When Alice opens puzzles on their other device
       Then Alice has a puzzle on the board
 
+    @regression:puzzle-other-device-skips-finished
     Scenario: A puzzle solved on one device is not offered on the other
       When Alice opens puzzles on their other device
       Then Alice is not offered that puzzle on their other device
