@@ -1,0 +1,77 @@
+journeys:
+  Account deletion erases puzzle progress on the person's other device:
+    description: Account deletion erases puzzle progress on the person's other device
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice has solved 2 puzzles in a row
+    events:
+    - Alice confirms account deletion
+    endsIn: Alice's other device cannot show the deleted account's puzzle rating, game log or stats within 30 seconds
+      — 1
+    checks:
+    - Alice's other device cannot show the deleted account's puzzle rating, game log or stats within 30 seconds
+    gherkin:
+    - specs/chess/deleted-account-progress.feature:10 — Account deletion erases puzzle progress on the person's
+      other device
+    exampleRow: []
+  A new account starts with the feed choices a new solver has:
+    description: A new account starts with the feed choices a new solver has
+    startingConditions:
+    - Alice's account deletion has completed
+    - Alice's deleted account had saved a custom feed target
+    events:
+    - Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had saved
+      a custom feed target
+    endsIn: Alice's feed targets 1500 automatically — 2
+    checks:
+    - Alice's feed targets 1500 automatically
+    - Alice's feed history shows "Unseen"
+    gherkin:
+    - specs/chess/deleted-account-progress.feature:17 — A new account starts with the feed choices a new solver
+      has
+    exampleRow: []
+  A new account starts with a new puzzle rating:
+    description: A new account starts with a new puzzle rating
+    startingConditions:
+    - Alice's account deletion has completed
+    - Alice had a settled puzzle rating on the deleted account
+    events:
+    - Alice signs in with Google when Alice's account deletion has completed and Alice had a settled puzzle rating
+      on the deleted account
+    endsIn: Alice's puzzle rating is 1500 and has not settled — 3
+    checks:
+    - Alice's puzzle rating is 1500 and has not settled
+    gherkin:
+    - specs/chess/deleted-account-progress.feature:27 — A new account starts with a new puzzle rating
+    exampleRow: []
+  A new account cannot recover the old game log:
+    description: A new account cannot recover the old game log
+    startingConditions:
+    - Alice's account deletion has completed
+    - Alice's deleted account had solved puzzles in its game log
+    events:
+    - Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had solved
+      puzzles in its game log
+    endsIn: Alice's game log cannot show the deleted account's attempts — 4
+    checks:
+    - Alice's game log cannot show the deleted account's attempts
+    - Alice's stats show 0 played and 0 solved
+    gherkin:
+    - specs/chess/deleted-account-progress.feature:33 — A new account cannot recover the old game log
+    exampleRow: []
+  A puzzle finished offline before account deletion cannot bring progress back:
+    description: A puzzle finished offline before account deletion cannot bring progress back
+    startingConditions:
+    - Alice is signed in
+    - Alice has solved a puzzle while offline
+    - Alice's account deletion has been confirmed on another device
+    events:
+    - the connection comes back
+    endsIn: Alice's game log cannot show the deleted account's attempts — 5
+    checks:
+    - Alice's game log cannot show the deleted account's attempts
+    gherkin:
+    - specs/chess/deleted-account-progress.feature:40 — A puzzle finished offline before account deletion cannot
+      bring progress back
+    exampleRow: []

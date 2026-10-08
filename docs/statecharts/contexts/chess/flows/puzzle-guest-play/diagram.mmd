@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing Puzzles without an account" as s0
+  state "Alice's puzzle is solved — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice solves the puzzle
+  s1 --> [*]

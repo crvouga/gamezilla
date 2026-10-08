@@ -1,0 +1,17 @@
+stateDiagram-v2
+  state "Opening puzzle sound" as s0
+  state "Playing puzzles with sounds off" as s1
+  state "Playing puzzles with sounds on" as s2
+  [*] --> s0
+  s0 --> s1: Opens with playing puzzles with sounds off
+  s0 --> s2: Opens with playing puzzles with sounds on
+  s1 --> s1: Play capture puzzle move resulting in playing puzzles with sounds off
+  s1 --> s2: Configure puzzle sounds resulting in playing puzzles with sounds on
+  s1 --> s1: Configure puzzle sounds resulting in playing puzzles with sounds off
+  s1 --> s1: Step puzzle sound review resulting in playing puzzles with sounds off
+  s1 --> s1: Play quiet puzzle move resulting in playing puzzles with sounds off
+  s2 --> s2: Configure puzzle sounds resulting in playing puzzles with sounds on
+  s2 --> s1: Configure puzzle sounds resulting in playing puzzles with sounds off
+  s2 --> s2: Step puzzle sound review resulting in playing puzzles with sounds on
+  s2 --> s2: Play capture puzzle move resulting in playing puzzles with sounds on
+  s2 --> s2: Play quiet puzzle move resulting in playing puzzles with sounds on

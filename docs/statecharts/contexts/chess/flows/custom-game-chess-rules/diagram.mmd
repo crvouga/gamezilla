@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Every chess move in a Custom Game" as s0
+  state "Alice is asked which piece White promotes to on e8 — 1" as s1
+  state "The Custom Game move list shows e8=N — 2" as s2
+  state "The Custom Game move list shows O-O — 3" as s3
+  state "The Custom Game move list shows exd6 — 4" as s4
+  state "Alice is told the move is illegal — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice plays e7-e8 in the Custom Game
+  s0 --> s2: Alice plays e7-e8 and promotes to a knight in the Custom Game
+  s0 --> s3: Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game one move before White castles kingside
+  s0 --> s4: Alice plays e5-d6 in the Custom Game
+  s0 --> s5: Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game where White's king would castle through check
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

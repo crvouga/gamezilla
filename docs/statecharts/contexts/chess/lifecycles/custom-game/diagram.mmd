@@ -1,0 +1,74 @@
+stateDiagram-v2
+  state "Opening custom game" as s0
+  state "Playing a Custom Game" as s1
+  state "Seeing a finished Custom Game with black wins by checkmate" as s2
+  state "Seeing configuring Custom Game" as s3
+  state "Viewing no Custom Game" as s4
+  state "Seeing a cancelled Custom Game with cancelled" as s5
+  state "Seeing a finished Custom Game with white wins by checkmate" as s6
+  state "Seeing a finished Custom Game with black wins by resignation" as s7
+  state "Seeing a finished Custom Game with white wins by resignation" as s8
+  [*] --> s0
+  s0 --> s1: Opens with playing a Custom Game
+  s0 --> s3: Opens with seeing configuring Custom Game
+  s0 --> s4: Opens with viewing no Custom Game
+  s1 --> s2: Finish game resulting in seeing a finished Custom Game with black wins by checkmate
+  s1 --> s1: Offer draw resulting in playing a Custom Game
+  s1 --> s4: Person leaves resulting in viewing no Custom Game
+  s1 --> s6: Finish game resulting in seeing a finished Custom Game with white wins by checkmate
+  s1 --> s7: Resign game resulting in seeing a finished Custom Game with black wins by resignation
+  s1 --> s5: Cancel game resulting in seeing a cancelled Custom Game with cancelled
+  s1 --> s4: Sign out resulting in viewing no Custom Game
+  s1 --> s8: Competing choices resulting in seeing a finished Custom Game with white wins by resignation
+  s1 --> s1: Decline draw resulting in playing a Custom Game
+  s1 --> s1: Resign game resulting in playing a Custom Game
+  s1 --> s1: Rematch resulting in playing a Custom Game
+  s1 --> s1: Assign bot resulting in playing a Custom Game
+  s1 --> s1: Cancel game resulting in playing a Custom Game
+  s1 --> s5: The connection returns resulting in seeing a cancelled Custom Game with cancelled
+  s2 --> s3: Create game resulting in seeing configuring Custom Game
+  s2 --> s3: Rematch resulting in seeing configuring Custom Game
+  s3 --> s3: Swap sides resulting in seeing configuring Custom Game
+  s3 --> s3: Cancel game resulting in seeing configuring Custom Game
+  s3 --> s4: The connection returns resulting in viewing no Custom Game
+  s3 --> s3: Close side resulting in seeing configuring Custom Game
+  s3 --> s4: Person leaves resulting in viewing no Custom Game
+  s3 --> s3: Open side resulting in seeing configuring Custom Game
+  s3 --> s3: Choose clock resulting in seeing configuring Custom Game
+  s3 --> s5: Cancel game resulting in seeing a cancelled Custom Game with cancelled
+  s3 --> s3: Assign bot resulting in seeing configuring Custom Game
+  s3 --> s4: Sign out resulting in viewing no Custom Game
+  s3 --> s3: Become ready resulting in seeing configuring Custom Game
+  s3 --> s5: Competing choices resulting in seeing a cancelled Custom Game with cancelled
+  s3 --> s3: Take side resulting in seeing configuring Custom Game
+  s3 --> s3: Become unready resulting in seeing configuring Custom Game
+  s3 --> s3: Release side resulting in seeing configuring Custom Game
+  s3 --> s3: Claim side resulting in seeing configuring Custom Game
+  s3 --> s3: Invite resulting in seeing configuring Custom Game
+  s3 --> s3: Accept side resulting in seeing configuring Custom Game
+  s3 --> s3: Revoke side resulting in seeing configuring Custom Game
+  s3 --> s3: Decline side resulting in seeing configuring Custom Game
+  s4 --> s4: Claim side resulting in viewing no Custom Game
+  s4 --> s4: Become ready resulting in viewing no Custom Game
+  s4 --> s4: Become unready resulting in viewing no Custom Game
+  s4 --> s4: Swap sides resulting in viewing no Custom Game
+  s4 --> s4: Create game resulting in viewing no Custom Game
+  s4 --> s4: Choose clock resulting in viewing no Custom Game
+  s4 --> s3: Sign in resulting in seeing configuring Custom Game
+  s4 --> s4: Assign bot resulting in viewing no Custom Game
+  s4 --> s3: Create game resulting in seeing configuring Custom Game
+  s4 --> s4: Cancel game resulting in viewing no Custom Game
+  s4 --> s4: Start game resulting in viewing no Custom Game
+  s4 --> s8: Sign in resulting in seeing a finished Custom Game with white wins by resignation
+  s4 --> s4: Close side resulting in viewing no Custom Game
+  s4 --> s4: Accept draw resulting in viewing no Custom Game
+  s4 --> s4: Rematch resulting in viewing no Custom Game
+  s5 --> s4: Person leaves resulting in viewing no Custom Game
+  s5 --> s3: Rematch resulting in seeing configuring Custom Game
+  s5 --> s4: Sign out resulting in viewing no Custom Game
+  s5 --> s3: Create game resulting in seeing configuring Custom Game
+  s6 --> s3: Rematch resulting in seeing configuring Custom Game
+  s6 --> s3: Create game resulting in seeing configuring Custom Game
+  s7 --> s4: Person leaves resulting in viewing no Custom Game
+  s8 --> s4: Sign out resulting in viewing no Custom Game
+  s8 --> s3: Create game resulting in seeing configuring Custom Game

@@ -1,0 +1,1367 @@
+id: chess-puzzle-result-recovery-lifecycle
+initial: Opening puzzle result recovery
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess/puzzle-result-recovery.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening puzzle result recovery:
+    meta:
+      description: The person is opening the puzzle result recovery view.
+      snapshot: the-person-is-opening-the-puzzle-result-recovery-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+    'on':
+      Opens with seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-result-recovery_23.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:62
+  Seeing the first puzzle result none:
+    meta:
+      description: The person is seeing the first puzzle result none.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-none
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"): none
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Finish alongside other device resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: finishAlongsideOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:89
+      Read stats resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: readStats
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:105
+      Reopen app resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Connection returns resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Reopen app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 62
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Read stats resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: readStats
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:105
+      Reopen app resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Read stats resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: readStats
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:105
+      Reopen app resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 40
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Finish resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: finish
+          witness:
+            trace: chess--puzzle-result-recovery_13.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:76
+      Retry and solve resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: retryAndSolve
+          witness:
+            trace: chess--puzzle-result-recovery_13.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:98
+      Read stats on other device resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_13.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+      Read stats on other device resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_21.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+      Finish as app closes resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: finishAsAppCloses
+          witness:
+            trace: chess--puzzle-result-recovery_15.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:82
+      Read stats on other device resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_15.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+      Read stats resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: readStats
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:105
+      Reopen app resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 33
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Read stats resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: readStats
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:105
+      Reopen app resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+  Seeing the first puzzle result Skipped:
+    meta:
+      description: The person is seeing the first puzzle result Skipped.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-skipped
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"):
+        - Skipped
+        - []
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Close app resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Reopen app resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Connection returns resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_6.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Read stats on other device resulting in seeing the first puzzle result Skipped:
+        target: Seeing the first puzzle result Skipped
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_11.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+  Seeing the first puzzle result Unfinished:
+    meta:
+      description: The person is seeing the first puzzle result Unfinished.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-unfinished
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"):
+        - Unfinished
+        - []
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Close app resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Reopen app resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 12
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Connection returns resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_7.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Read stats on other device resulting in seeing the first puzzle result Unfinished:
+        target: Seeing the first puzzle result Unfinished
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_18.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+      Connection returns resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_3.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+  Seeing the first puzzle result Clean Solve:
+    meta:
+      description: The person is seeing the first puzzle result Clean Solve.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-clean-solve
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"):
+        - CleanSolve
+        - []
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Connection returns resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 8
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Close app resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Reopen app resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_12.itf.json
+            step: 34
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Read stats on other device resulting in seeing the first puzzle result Clean Solve:
+        target: Seeing the first puzzle result Clean Solve
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_9.itf.json
+            step: 94
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+  Seeing the first puzzle result Hinted Solve:
+    meta:
+      description: The person is seeing the first puzzle result Hinted Solve.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-hinted-solve
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"):
+        - HintedSolve
+        - []
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Close app resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Connection returns resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: Skipped
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Reopen app resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_1.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Read stats on other device resulting in seeing the first puzzle result Hinted Solve:
+        target: Seeing the first puzzle result Hinted Solve
+        meta:
+          action: readStatsOnOtherDevice
+          witness:
+            trace: chess--puzzle-result-recovery_8.itf.json
+            step: 49
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:112
+  Seeing the first puzzle result Shown Solution:
+    meta:
+      description: The person is seeing the first puzzle result Shown Solution.
+      snapshot: the-person-is-seeing-the-first-puzzle-result-shown-solution
+      recognize: []
+      checks:
+      - The first result cannot change when a solver retries or returns.
+      - A game log and puzzle rating always count the same first result.
+      - No open device shows somebody else's result or a different later result.
+      - A watcher receives no attempt or puzzle rating for watching.
+      - Each connected open account device knows a result once it has counted.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-result-recovery.qnt
+      quintPredicates:
+      - ratedResult.get("alice"):
+        - ShownSolution
+        - []
+      invariants:
+      - invFirstResultSurvives
+      - invRatingAndLogAgree
+      - invOnlyFirstResultCounts
+      - invWatcherIsNeverRated
+      - invConnectedDevicesAgree
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Close app resulting in seeing the first puzzle result none:
+        target: Seeing the first puzzle result none
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119
+      Connection returns resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: ShownSolution
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:137
+      Reopen app resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 37
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: charlie
+              otherResult:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: HintedSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:125
+      Close app resulting in seeing the first puzzle result Shown Solution:
+        target: Seeing the first puzzle result Shown Solution
+        meta:
+          action: closeApp
+          witness:
+            trace: chess--puzzle-result-recovery_2.itf.json
+            step: 38
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              otherResult:
+                tag: Some
+                value:
+                  tag: WrongMove
+                  value:
+                    '#tup': []
+              result:
+                tag: Some
+                value:
+                  tag: CleanSolve
+                  value:
+                    '#tup': []
+          source:
+          - specs/chess/puzzle-result-recovery.qnt:119

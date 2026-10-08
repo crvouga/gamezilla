@@ -1,0 +1,40 @@
+journeys:
+  A friend's lobby lists a space as soon as it is created:
+    description: A friend's lobby lists a space as soon as it is created
+    startingConditions:
+    - Alice and Bob are friends
+    events:
+    - Alice creates a space
+    endsIn: Bob's lobby lists Alice's space — 1
+    checks:
+    - Bob's lobby lists Alice's space
+    gherkin:
+    - specs/spaces/space-friend-join.feature:11 — A friend's lobby lists a space as soon as it is created
+    exampleRow: []
+  A friend joins an open space from the lobby:
+    description: A friend joins an open space from the lobby
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space
+    events:
+    - Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice is hosting a space
+    endsIn: Bob is in the space — 2
+    checks:
+    - Bob is in the space
+    gherkin:
+    - specs/spaces/space-friend-join.feature:15 — A friend joins an open space from the lobby
+    exampleRow: []
+  A friend is not offered a space that has ended:
+    description: A friend is not offered a space that has ended
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice has hosted a space and ended it
+    events:
+    - Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice has hosted a space and ended
+      it
+    endsIn: Bob is not offered to join — 3
+    checks:
+    - Bob is not offered to join
+    gherkin:
+    - specs/spaces/space-friend-join.feature:21 — A friend is not offered a space that has ended
+    exampleRow: []

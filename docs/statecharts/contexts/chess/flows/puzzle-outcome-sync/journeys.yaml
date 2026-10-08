@@ -1,0 +1,287 @@
+journeys:
+  A puzzle finished offline by solving it cleanly is logged as solved, once:
+    description: A puzzle finished offline by <finish> is logged as <outcome>, once
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle offline by solving it cleanly
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle offline by solving it cleanly
+    endsIn: Alice's game log records that puzzle as solved — 1
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:10 — A puzzle finished offline by <finish> is logged as <outcome>,
+      once
+    exampleRow:
+    - '7'
+  A puzzle finished offline by taking a hint, then solving it is logged as solved, once:
+    description: A puzzle finished offline by <finish> is logged as <outcome>, once
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle offline by taking a hint, then solving it
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle offline by taking a hint, then solving it
+    endsIn: Alice's game log records that puzzle as solved — 2
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:10 — A puzzle finished offline by <finish> is logged as <outcome>,
+      once
+    exampleRow:
+    - '8'
+  A puzzle finished offline by playing a wrong move, retrying, then solving it is logged as failed, once:
+    description: A puzzle finished offline by <finish> is logged as <outcome>, once
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle offline by playing a wrong move, retrying, then solving it
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle offline by playing a wrong move, retrying, then solving it
+    endsIn: Alice's game log records that puzzle as failed — 3
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:10 — A puzzle finished offline by <finish> is logged as <outcome>,
+      once
+    exampleRow:
+    - '9'
+  A puzzle finished offline by showing the solution is logged as failed, once:
+    description: A puzzle finished offline by <finish> is logged as <outcome>, once
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle offline by showing the solution
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle offline by showing the solution
+    endsIn: Alice's game log records that puzzle as failed — 4
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:10 — A puzzle finished offline by <finish> is logged as <outcome>,
+      once
+    exampleRow:
+    - '10'
+  A puzzle finished offline by skipping it is logged as abandoned, once:
+    description: A puzzle finished offline by <finish> is logged as <outcome>, once
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle offline by skipping it
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle offline by skipping it
+    endsIn: Alice's game log records that puzzle as abandoned — 5
+    checks:
+    - Alice's game log records that puzzle as abandoned
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:10 — A puzzle finished offline by <finish> is logged as <outcome>,
+      once
+    exampleRow:
+    - '11'
+  An attempt finishing differently on two devices counts the first solved:
+    description: An attempt finishing differently on two devices counts the first <outcome>
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice is playing puzzles in their space
+    events:
+    - Alice's attempt finishes on two devices with clean solve reaching the account first
+    endsIn: Alice's stats show 1 played, 1 solved, and 100% accuracy — 6
+    checks:
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    - Alice's other device shows 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:29 — An attempt finishing differently on two devices counts the first
+      <outcome>
+    exampleRow:
+    - '22'
+  An attempt finishing differently on two devices counts the first failed:
+    description: An attempt finishing differently on two devices counts the first <outcome>
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice is playing puzzles in their space
+    events:
+    - Alice's attempt finishes on two devices with wrong then solve reaching the account first
+    endsIn: Alice's stats show 1 played, 0 solved, and 0% accuracy — 7
+    checks:
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    - Alice's other device shows 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:29 — An attempt finishing differently on two devices counts the first
+      <outcome>
+    exampleRow:
+    - '23'
+  A later device keeps the first recorded solved result:
+    description: A later device keeps the first recorded <outcome> result
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice is playing puzzles in their space
+    - Alice's clean solve result reached the account before the other device's wrong then solve result
+    events:
+    - the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice
+      is playing puzzles in their space and Alice's clean solve result reached the account before the other device's
+      wrong then solve result
+    endsIn: Alice's game log records that puzzle as solved — 8
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    - Alice's other device shows 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:42 — A later device keeps the first recorded <outcome> result
+    exampleRow:
+    - '35'
+  A later device keeps the first recorded failed result:
+    description: A later device keeps the first recorded <outcome> result
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice is playing puzzles in their space
+    - Alice's wrong then solve result reached the account before the other device's clean solve result
+    events:
+    - the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice
+      is playing puzzles in their space and Alice's wrong then solve result reached the account before the other
+      device's clean solve result
+    endsIn: Alice's game log records that puzzle as failed — 9
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    - Alice's other device shows 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:42 — A later device keeps the first recorded <outcome> result
+    exampleRow:
+    - '36'
+  Finishing by solving it cleanly as the app closes keeps the result:
+    description: Finishing by <finish> as the app closes keeps the result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by solving it cleanly as the app closes
+    events:
+    - Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has finished the puzzle by solving it cleanly as the app closes
+    endsIn: Alice's game log records that puzzle as solved — 10
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:61 — Finishing by <finish> as the app closes keeps the result
+    exampleRow:
+    - '47'
+  Finishing by taking a hint, then solving it as the app closes keeps the result:
+    description: Finishing by <finish> as the app closes keeps the result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by taking a hint, then solving it as the app closes
+    events:
+    - Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has finished the puzzle by taking a hint, then solving it as the app closes
+    endsIn: Alice's game log records that puzzle as solved — 11
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:61 — Finishing by <finish> as the app closes keeps the result
+    exampleRow:
+    - '48'
+  Finishing by playing a wrong move, retrying, then solving it as the app closes keeps the result:
+    description: Finishing by <finish> as the app closes keeps the result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+    events:
+    - Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+    endsIn: Alice's game log records that puzzle as failed — 12
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:61 — Finishing by <finish> as the app closes keeps the result
+    exampleRow:
+    - '49'
+  Finishing by showing the solution as the app closes keeps the result:
+    description: Finishing by <finish> as the app closes keeps the result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by showing the solution as the app closes
+    events:
+    - Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has finished the puzzle by showing the solution as the app closes
+    endsIn: Alice's game log records that puzzle as failed — 13
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:61 — Finishing by <finish> as the app closes keeps the result
+    exampleRow:
+    - '50'
+  Finishing by skipping it as the app closes keeps the result:
+    description: Finishing by <finish> as the app closes keeps the result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by skipping it as the app closes
+    events:
+    - Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has finished the puzzle by skipping it as the app closes
+    endsIn: Alice's game log records that puzzle as abandoned — 14
+    checks:
+    - Alice's game log records that puzzle as abandoned
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:61 — Finishing by <finish> as the app closes keeps the result
+    exampleRow:
+    - '51'
+  Returning offline keeps the result for the next connection:
+    description: Returning offline keeps the result for the next connection
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+    - Alice is offline
+    - Alice has returned to their space
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle by playing a wrong move, retrying, then solving it as the app closes and Alice is offline
+      and Alice has returned to their space
+    endsIn: Alice's game log records that puzzle as failed — 15
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:79 — Returning offline keeps the result for the next connection
+    exampleRow: []
+  Reading stats offline before hearing the finish keeps its result:
+    description: Reading stats offline before hearing the finish keeps its result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+    - Alice is viewing their puzzle stats offline
+    events:
+    - the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      finished the puzzle by playing a wrong move, retrying, then solving it as the app closes and Alice is viewing
+      their puzzle stats offline
+    endsIn: Alice's game log records that puzzle as failed — 16
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-outcome-sync.feature:89 — Reading stats offline before hearing the finish keeps its result
+    exampleRow: []

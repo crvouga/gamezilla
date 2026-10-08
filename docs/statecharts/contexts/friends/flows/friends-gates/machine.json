@@ -1,0 +1,144 @@
+{
+  "id": "friends-friends-gates",
+  "initial": "Viewing Friends are for people with an account",
+  "meta": {
+    "context": "Friends",
+    "kind": "flow",
+    "owner": "Friends owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/friends-client/src/use-friends.ts",
+      "libs/friends-client/src/use-friends-client-deps.ts",
+      "libs/friends-client/src/friends-permission-gate.tsx",
+      "libs/friends-client/src/friends-notification-provider.tsx",
+      "libs/friends-client/src/friends-list-screen-view.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Friends are for people with an account": {
+      "meta": {
+        "description": "The person is at the place where friends are for people with an account.",
+        "snapshot": "the-person-is-at-the-place-where-friends-are-for-people-with-an-account",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:2"]
+      },
+      "on": {
+        "Alice searches for 'bob'": {
+          "target": "Alice is told search needs an account — 1",
+          "meta": {
+            "source": ["specs/friends/friends-gates.feature:10"],
+            "condition": ["Alice is a guest"],
+            "example": "A guest's search says it needs an account"
+          }
+        },
+        "Alice chooses to sign in from search": {
+          "target": "Alice is asked to sign in — 2",
+          "meta": {
+            "source": ["specs/friends/friends-gates.feature:15"],
+            "condition": ["Alice is a guest", "Alice has searched for \"bob\""],
+            "example": "A guest can sign in straight from search"
+          }
+        },
+        "Alice opens their friends list when Alice is a guest": {
+          "target": "Alice is asked to sign in within 5 seconds — 3",
+          "meta": {
+            "source": ["specs/friends/friends-gates.feature:21"],
+            "condition": ["Alice is a guest"],
+            "example": "A guest opening their friends list is asked to sign in"
+          }
+        },
+        "Alice opens their friends list when Alice is signed in": {
+          "target": "Alice is told they have no friends yet within 5 seconds — 4",
+          "meta": {
+            "source": ["specs/friends/friends-gates.feature:28"],
+            "condition": ["Alice is signed in"],
+            "example": "An empty friends list says so"
+          }
+        },
+        "Alice chooses to find friends": {
+          "target": "Alice can search for people — 5",
+          "meta": {
+            "source": ["specs/friends/friends-gates.feature:33"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is viewing their empty friends list"
+            ],
+            "example": "An empty friends list leads to people search"
+          }
+        }
+      }
+    },
+    "Alice is told search needs an account — 1": {
+      "meta": {
+        "description": "The person observes that alice is told search needs an account.",
+        "snapshot": "the-person-observes-that-alice-is-told-search-needs-an-account",
+        "recognize": [],
+        "checks": ["Alice is told search needs an account"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:10"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is asked to sign in — 2": {
+      "meta": {
+        "description": "The person observes that alice is asked to sign in.",
+        "snapshot": "the-person-observes-that-alice-is-asked-to-sign-in",
+        "recognize": [],
+        "checks": ["Alice is asked to sign in"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:15"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is asked to sign in within 5 seconds — 3": {
+      "meta": {
+        "description": "The person observes that alice is asked to sign in within 5 seconds.",
+        "snapshot": "the-person-observes-that-alice-is-asked-to-sign-in-within-5-seconds",
+        "recognize": [],
+        "checks": ["Alice is asked to sign in within 5 seconds"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:21"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told they have no friends yet within 5 seconds — 4": {
+      "meta": {
+        "description": "The person observes that alice is told they have no friends yet within 5 seconds.",
+        "snapshot": "the-person-observes-that-alice-is-told-they-have-no-friends-yet-within-5-seconds",
+        "recognize": [],
+        "checks": ["Alice is told they have no friends yet within 5 seconds"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:28"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice can search for people — 5": {
+      "meta": {
+        "description": "The person observes that alice can search for people.",
+        "snapshot": "the-person-observes-that-alice-can-search-for-people",
+        "recognize": [],
+        "checks": ["Alice can search for people"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/friends-gates.feature:33"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

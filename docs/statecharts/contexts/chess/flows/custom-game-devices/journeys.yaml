@@ -1,0 +1,62 @@
+journeys:
+  Another device sees the participant's current side:
+    description: Another device sees the participant's current side
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has an active Custom Game after White's e4
+    events:
+    - Alice returns to the Custom Game on another device
+    endsIn: Black is to move on both of Alice's devices — 1
+    checks:
+    - Black is to move on both of Alice's devices
+    - Both of Alice's devices show the Custom Game move list with e4
+    gherkin:
+    - specs/chess/custom-game-devices.feature:7 — Another device sees the participant's current side
+    exampleRow: []
+  Two devices cannot play White's turn twice:
+    description: Two devices cannot play White's turn twice
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has the Custom Game open on another device
+    events:
+    - Alice plays e2-e4 on both devices at the same time
+    endsIn: The Custom Game move list shows e4 once — 2
+    checks:
+    - The Custom Game move list shows e4 once
+    - Black is to move on both of Alice's devices
+    gherkin:
+    - specs/chess/custom-game-devices.feature:14 — Two devices cannot play White's turn twice
+    exampleRow: []
+  Another device sees a resignation that happened while it was away:
+    description: Another device sees a resignation that happened while it was away
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice's other device is offline with the Custom Game open
+    - Bob has resigned the Custom Game
+    events:
+    - Alice's other device returns online
+    endsIn: Both of Alice's devices show Alice's win by resignation — 3
+    checks:
+    - Both of Alice's devices show Alice's win by resignation
+    gherkin:
+    - specs/chess/custom-game-devices.feature:24 — Another device sees a resignation that happened while it was
+      away
+    exampleRow: []
+  An offline second device cannot move after the first device finishes:
+    description: An offline second device cannot move after the first device finishes
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice's other device is offline with the Custom Game open
+    - Bob has resigned the Custom Game
+    events:
+    - Alice plays e2-e4 on the offline other device
+    endsIn: Alice is told Custom Games need a connection on the other device — 4
+    checks:
+    - Alice is told Custom Games need a connection on the other device
+    - The Custom Game keeps its completed outcome
+    gherkin:
+    - specs/chess/custom-game-devices.feature:32 — An offline second device cannot move after the first device finishes
+    exampleRow: []

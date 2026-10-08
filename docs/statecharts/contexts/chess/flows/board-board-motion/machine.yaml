@@ -1,0 +1,353 @@
+id: chess-board-board-motion
+initial: Viewing Keep moving pieces coherent
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - pkgs/chess-board-root-client/src/board-motion-context.ts
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  - pkgs/chess-board-root-client/src/chess-board-view.tsx
+  - pkgs/chess-board-root-client/src/chess-board-user-shapes.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Keep moving pieces coherent:
+    meta:
+      description: The person is at the place where keep moving pieces coherent.
+      snapshot: the-person-is-at-the-place-where-keep-moving-pieces-coherent
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:2
+    'on':
+      Alice moves the piece from e4 to d5:
+        target: Alice sees a White pawn on d5 — 1
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:9
+          condition:
+          - Alice has a chessboard ready for a capture
+          example: A capture settles on the destination
+      Alice's activity replaces the position:
+        target: Alice sees no capture remnant — 2
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:16
+          condition:
+          - Alice's capture from e4 to d5 is animating
+          example: A replacement position clears a capture remnant immediately
+      Alice waits for the animation to finish:
+        target: Alice sees no unfinished animation — 3
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:22
+          condition:
+          - Alice's capture from e4 to d5 is animating
+          example: A completed capture keeps its destination and removes its remnant
+      Alice's activity supplies the same position again:
+        target: Alice sees the current capture still animating — 4
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:29
+          condition:
+          - Alice's capture from e4 to d5 is animating
+          example: Confirming the same capture preserves its current arrival
+      Alice's activity supplies Black's reply from g8 to f6:
+        target: Alice sees a Black knight on f6 — 5
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:40
+          condition:
+          - Alice's capture from e4 to d5 is animating
+          example: An opponent reply preserves a capture still arriving at its valid destination
+      Alice moves the piece from d5 to a5:
+        target: Alice sees the completed position after those six moves — 6
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:48
+          condition:
+          - Alice has played e2-e4, d7-d5, e4-d5, d8-d5 and b1-c3 without waiting for their arrivals
+          example: A rapid legal capture sequence settles at its final position without losing move order
+      ? Alice's earlier interrupted arrival finishes when Alice's capture from e4 to d5 was interrupted by turning
+        the chessboard and Alice's activity has supplied the replacement position
+      : target: Alice sees the replacement position — 7
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:56
+          condition:
+          - Alice's capture from e4 to d5 was interrupted by turning the chessboard
+          - Alice's activity has supplied the replacement position
+          example: An old arrival cannot restore pieces after turning and replacement
+      ? Alice's earlier interrupted arrival finishes when Alice's earlier capture from e4 to d5 was interrupted
+        by a replacement and Alice's capture from e4 to d5 is animating again
+      : target: Alice sees the current capture still animating — 8
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:64
+          condition:
+          - Alice's earlier capture from e4 to d5 was interrupted by a replacement
+          - Alice's capture from e4 to d5 is animating again
+          example: An earlier capture cannot finish a newer capture at the same destination
+      Alice's earlier interrupted arrival finishes when Alice's capture from e4 to d5 was interrupted by closing the chessboard:
+        target: Alice cannot see the chessboard because it is closed — 9
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:72
+          condition:
+          - Alice's capture from e4 to d5 was interrupted by closing the chessboard
+          example: An earlier arrival cannot bring back a closed chessboard
+      ? Alice's earlier interrupted arrival finishes when Alice's capture from e4 to d5 was interrupted by closing
+        the chessboard and Alice's activity has started another chessboard at the normal opening
+      : target: Alice still sees the position before White's first move — 10
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:78
+          condition:
+          - Alice's capture from e4 to d5 was interrupted by closing the chessboard
+          - Alice's activity has started another chessboard at the normal opening
+          example: An earlier arrival cannot alter a newly opened chessboard
+      Alice moves the piece from g1 to f3:
+        target: Alice sees the knight slide from g1 to f3 — 11
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:88
+          condition:
+          - Alice has an interactive chessboard
+          example: A move animates when motion is enabled
+      Alice's board settings enable reduced motion when Alice's move from g1 to f3 is animating:
+        target: Alice sees no unfinished animation — 12
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:94
+          condition:
+          - Alice's move from g1 to f3 is animating
+          example: Reduced motion interrupts a running slide
+      Alice's board settings enable reduced motion when Alice's capture from e4 to d5 is animating:
+        target: Alice sees no capture remnant — 13
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:100
+          condition:
+          - Alice's capture from e4 to d5 is animating
+          example: Reduced motion interrupts a capture remnant
+      Alice's chessboard becomes visible:
+        target: Alice sees no unfinished animation — 14
+        meta:
+          source:
+          - specs/chess-board/board-motion.feature:110
+          condition:
+          - Alice has a hidden chessboard after capturing from e4 to d5
+          example: Showing a chessboard does not replay a completed move
+  Alice sees a White pawn on d5 — 1:
+    meta:
+      description: The person observes that alice sees a White pawn on d5.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-d5
+      recognize: []
+      checks:
+      - Alice sees a White pawn on d5
+      - Alice sees no captured piece after the animation
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no capture remnant — 2:
+    meta:
+      description: The person observes that alice sees no capture remnant.
+      snapshot: the-person-observes-that-alice-sees-no-capture-remnant
+      recognize: []
+      checks:
+      - Alice sees no capture remnant
+      - Alice sees the replacement position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:16
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no unfinished animation — 3:
+    meta:
+      description: The person observes that alice sees no unfinished animation.
+      snapshot: the-person-observes-that-alice-sees-no-unfinished-animation
+      recognize: []
+      checks:
+      - Alice sees no unfinished animation
+      - Alice sees no capture remnant
+      - Alice sees the White pawn remaining on d5
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:22
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the current capture still animating — 4:
+    meta:
+      description: The person observes that alice sees the current capture still animating.
+      snapshot: the-person-observes-that-alice-sees-the-current-capture-still-animating
+      recognize: []
+      checks:
+      - Alice sees the current capture still animating
+      - Alice sees its capture remnant
+      - Alice sees the White pawn remaining on d5
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a Black knight on f6 — 5:
+    meta:
+      description: The person observes that alice sees a Black knight on f6.
+      snapshot: the-person-observes-that-alice-sees-a-black-knight-on-f6
+      recognize: []
+      checks:
+      - Alice sees a Black knight on f6
+      - Alice sees the White pawn remaining on d5
+      - Alice sees the current capture still animating
+      - Alice sees its capture remnant
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:40
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the completed position after those six moves — 6:
+    meta:
+      description: The person observes that alice sees the completed position after those six moves.
+      snapshot: the-person-observes-that-alice-sees-the-completed-position-after-those-six-moves
+      recognize: []
+      checks:
+      - Alice sees the completed position after those six moves
+      - Alice sees no capture remnant
+      - Alice sees no unfinished animation
+      - Alice's activity receives those six moves exactly once each in order
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:48
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the replacement position — 7:
+    meta:
+      description: The person observes that alice sees the replacement position.
+      snapshot: the-person-observes-that-alice-sees-the-replacement-position
+      recognize: []
+      checks:
+      - Alice sees the replacement position
+      - Alice sees no capture remnant
+      - Alice sees no unfinished animation
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:56
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the current capture still animating — 8:
+    meta:
+      description: The person observes that alice sees the current capture still animating.
+      snapshot: the-person-observes-that-alice-sees-the-current-capture-still-animating
+      recognize: []
+      checks:
+      - Alice sees the current capture still animating
+      - Alice sees its capture remnant
+      - Alice sees the White pawn remaining on d5
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:64
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot see the chessboard because it is closed — 9:
+    meta:
+      description: The person observes that alice cannot see the chessboard because it is closed.
+      snapshot: the-person-observes-that-alice-cannot-see-the-chessboard-because-it-is-closed
+      recognize: []
+      checks:
+      - Alice cannot see the chessboard because it is closed
+      - Alice hears no chessboard sounds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:72
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice still sees the position before White's first move — 10:
+    meta:
+      description: The person observes that alice still sees the position before White's first move.
+      snapshot: the-person-observes-that-alice-still-sees-the-position-before-white-s-first-move
+      recognize: []
+      checks:
+      - Alice still sees the position before White's first move
+      - Alice sees no capture remnant
+      - Alice sees no unfinished animation
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the knight slide from g1 to f3 — 11:
+    meta:
+      description: The person observes that alice sees the knight slide from g1 to f3.
+      snapshot: the-person-observes-that-alice-sees-the-knight-slide-from-g1-to-f3
+      recognize: []
+      checks:
+      - Alice sees the knight slide from g1 to f3
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:88
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no unfinished animation — 12:
+    meta:
+      description: The person observes that alice sees no unfinished animation.
+      snapshot: the-person-observes-that-alice-sees-no-unfinished-animation
+      recognize: []
+      checks:
+      - Alice sees no unfinished animation
+      - Alice still sees a White knight on f3
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:94
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no capture remnant — 13:
+    meta:
+      description: The person observes that alice sees no capture remnant.
+      snapshot: the-person-observes-that-alice-sees-no-capture-remnant
+      recognize: []
+      checks:
+      - Alice sees no capture remnant
+      - Alice sees the White pawn remaining on d5
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:100
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no unfinished animation — 14:
+    meta:
+      description: The person observes that alice sees no unfinished animation.
+      snapshot: the-person-observes-that-alice-sees-no-unfinished-animation
+      recognize: []
+      checks:
+      - Alice sees no unfinished animation
+      - Alice sees no capture remnant
+      - Alice sees the White pawn remaining on d5
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:110
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

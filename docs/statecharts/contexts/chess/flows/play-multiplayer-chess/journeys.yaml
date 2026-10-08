@@ -1,0 +1,223 @@
+journeys:
+  White's first legal move passes the turn to Black:
+    description: White's first legal move passes the turn to Black
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - Alice plays e2 to e4 as a multiplayer move when Alice is White and Bob is Black in a new multiplayer game
+    endsIn: both multiplayer boards show the white pawn on e4 — 1
+    checks:
+    - both multiplayer boards show the white pawn on e4
+    - Bob has the multiplayer turn
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:9 — White's first legal move passes the turn to Black
+    exampleRow: []
+  Black cannot make the first multiplayer move:
+    description: Black cannot make the first multiplayer move
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - Bob plays e7 to e5 as a multiplayer move
+    endsIn: Bob is told it is not his multiplayer turn — 2
+    checks:
+    - Bob is told it is not his multiplayer turn
+    - both multiplayer boards keep their starting position
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:15 — Black cannot make the first multiplayer move
+    exampleRow: []
+  An illegal move keeps the turn and board:
+    description: An illegal move keeps the turn and board
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - Alice plays e2 to e5 as a multiplayer move
+    endsIn: Alice is told that multiplayer move is illegal — 3
+    checks:
+    - Alice is told that multiplayer move is illegal
+    - both multiplayer boards keep their starting position
+    - Alice still has the multiplayer turn
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:21 — An illegal move keeps the turn and board
+    exampleRow: []
+  Repeating an accepted move keeps its one effect:
+    description: Repeating an accepted move keeps its one effect
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    events:
+    - Alice repeats that multiplayer move
+    endsIn: both multiplayer boards show one move — 4
+    checks:
+    - both multiplayer boards show one move
+    - Bob has the multiplayer turn
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:30 — Repeating an accepted move keeps its one effect
+    exampleRow: []
+  Another device's move for an earlier board is refused:
+    description: Another device's move for an earlier board is refused
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    - Bob's multiplayer move e7 to e5 was accepted
+    events:
+    - Alice plays d2 to d4 for her earlier multiplayer position
+    endsIn: Alice is told her multiplayer board has changed — 5
+    checks:
+    - Alice is told her multiplayer board has changed
+    - both multiplayer boards still show two moves
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:36 — Another device's move for an earlier board is refused
+    exampleRow: []
+  A person resigns outside their turn:
+    description: A person resigns outside their turn
+    startingConditions:
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess
+    endsIn: both people see Alice won the multiplayer game — 6
+    checks:
+    - both people see Alice won the multiplayer game
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:45 — A person resigns outside their turn
+    exampleRow: []
+  Resigning again keeps the accepted multiplayer result:
+    description: Resigning again keeps the accepted multiplayer result
+    startingConditions:
+    - Bob resigned multiplayer chess and Alice won
+    events:
+    - Bob resigns multiplayer chess again
+    endsIn: both people still see Alice won the multiplayer game — 7
+    checks:
+    - both people still see Alice won the multiplayer game
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:50 — Resigning again keeps the accepted multiplayer result
+    exampleRow: []
+  Checkmate gives both people the same multiplayer win:
+    description: Checkmate gives both people the same multiplayer win
+    startingConditions:
+    - Alice is White and Bob is Black after multiplayer moves f3, e5, g4
+    events:
+    - Bob plays d8 to h4 as a multiplayer move
+    endsIn: both people see Bob won the multiplayer game by checkmate — 8
+    checks:
+    - both people see Bob won the multiplayer game by checkmate
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:57 — Checkmate gives both people the same multiplayer win
+    exampleRow: []
+  A move after resigning multiplayer chess is refused:
+    description: A move after resigning multiplayer chess is refused
+    startingConditions:
+    - Bob resigned multiplayer chess and Alice won
+    events:
+    - Alice plays e2 to e4 as a multiplayer move when Bob resigned multiplayer chess and Alice won
+    endsIn: Alice is told the multiplayer game is over — 9
+    checks:
+    - Alice is told the multiplayer game is over
+    - both multiplayer boards keep their starting position
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:62 — A move after resigning multiplayer chess is refused
+    exampleRow: []
+  An accepted move joins both people's multiplayer move list:
+    description: An accepted move joins both people's multiplayer move list
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    - Bob's multiplayer move e7 to e5 was accepted
+    events:
+    - Alice plays g1 to f3 as a multiplayer move
+    endsIn: both people see the multiplayer move list "1  e4 e5 2  Nf3" — 10
+    checks:
+    - both people see the multiplayer move list "1. e4 e5 2. Nf3"
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:70 — An accepted move joins both people's multiplayer move list
+    exampleRow: []
+  An illegal move never joins the multiplayer move list:
+    description: An illegal move never joins the multiplayer move list
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    events:
+    - Bob plays e7 to e4 as a multiplayer move
+    endsIn: Bob is told that multiplayer move is illegal — 11
+    checks:
+    - Bob is told that multiplayer move is illegal
+    - both people still see the multiplayer move list "1. e4"
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:76 — An illegal move never joins the multiplayer move list
+    exampleRow: []
+  The multiplayer move list is kept with the multiplayer result:
+    description: The multiplayer move list is kept with the multiplayer result
+    startingConditions:
+    - Bob resigned multiplayer chess after the multiplayer moves e4 and e5
+    events:
+    - Alice opens multiplayer chess on another device
+    endsIn: Alice sees she won the multiplayer game — 12
+    checks:
+    - Alice sees she won the multiplayer game
+    - Alice sees the multiplayer move list "1. e4 e5"
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:82 — The multiplayer move list is kept with the multiplayer result
+    exampleRow: []
+  Stalemate ends the multiplayer game in a multiplayer draw:
+    description: Stalemate ends the multiplayer game in a multiplayer draw
+    startingConditions:
+    - Alice and Bob have a multiplayer position one move from stalemate
+    events:
+    - the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+      move from stalemate
+    endsIn: both people see the multiplayer game is drawn by stalemate — 13
+    checks:
+    - both people see the multiplayer game is drawn by stalemate
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:90 — Stalemate ends the multiplayer game in a multiplayer draw
+    exampleRow: []
+  A position repeated for the third time ends in a multiplayer draw:
+    description: A position repeated for the third time ends in a multiplayer draw
+    startingConditions:
+    - Alice and Bob have a multiplayer position one move from its third appearance
+    events:
+    - the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+      move from its third appearance
+    endsIn: both people see the multiplayer game is drawn by repetition — 14
+    checks:
+    - both people see the multiplayer game is drawn by repetition
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:95 — A position repeated for the third time ends in a multiplayer
+      draw
+    exampleRow: []
+  A position's second appearance keeps the game unfinished:
+    description: A position's second appearance keeps the game unfinished
+    startingConditions:
+    - Alice and Bob have a multiplayer position one move from its second appearance
+    events:
+    - the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+      move from its second appearance
+    endsIn: the multiplayer game is still unfinished — 15
+    checks:
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:100 — A position's second appearance keeps the game unfinished
+    exampleRow: []
+  Insufficient mating material ends in a multiplayer draw:
+    description: Insufficient mating material ends in a multiplayer draw
+    startingConditions:
+    - Alice and Bob have a multiplayer position one move from insufficient mating material
+    events:
+    - the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+      move from insufficient mating material
+    endsIn: both people see the multiplayer game is drawn by insufficient mating material — 16
+    checks:
+    - both people see the multiplayer game is drawn by insufficient mating material
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:105 — Insufficient mating material ends in a multiplayer draw
+    exampleRow: []
+  Fifty moves without a pawn move or capture end in a multiplayer draw:
+    description: Fifty moves without a pawn move or capture end in a multiplayer draw
+    startingConditions:
+    - Alice and Bob have a multiplayer position one move from fifty moves without a pawn move or capture
+    events:
+    - the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+      move from fifty moves without a pawn move or capture
+    endsIn: both people see the multiplayer game is drawn by fifty moves — 17
+    checks:
+    - both people see the multiplayer game is drawn by fifty moves
+    gherkin:
+    - specs/chess/play-multiplayer-chess.feature:110 — Fifty moves without a pawn move or capture end in a multiplayer
+      draw
+    exampleRow: []

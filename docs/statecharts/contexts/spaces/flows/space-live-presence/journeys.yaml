@@ -1,0 +1,54 @@
+journeys:
+  Everyone in a space sees who is there:
+    description: Everyone in a space sees who is there
+    startingConditions:
+    - Alice is hosting a space
+    events:
+    - Bob joins the space from the link
+    endsIn: Alice sees 2 people in the space within 20 seconds — 1
+    checks:
+    - Alice sees 2 people in the space within 20 seconds
+    - Bob sees 2 people in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-live-presence.feature:8 — Everyone in a space sees who is there
+    exampleRow: []
+  Someone stops showing as there after leaving:
+    description: Someone stops showing as there after leaving
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    events:
+    - Bob leaves the space when Alice is hosting a space that Bob joined from the link
+    endsIn: Alice sees 1 person in the space within 20 seconds — 2
+    checks:
+    - Alice sees 1 person in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-live-presence.feature:14 — Someone stops showing as there after leaving
+    exampleRow: []
+  Someone who leaves can choose to rejoin the open space:
+    description: Someone who leaves can choose to rejoin the open space
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    events:
+    - Bob leaves the space when Alice is hosting a space that Bob joined from the link
+    endsIn: Alice sees 1 person in the space within 20 seconds — 2
+    checks:
+    - Bob is offered to join
+    - Alice sees 1 person in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-live-presence.feature:22 — Someone who leaves can choose to rejoin the open space
+    exampleRow: []
+  Someone who left stops being offered to join when the space ends:
+    description: Someone who left stops being offered to join when the space ends
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    - Bob has left the space
+    events:
+    - Alice ends the space
+    endsIn: Bob sees the space has ended within 20 seconds — 4
+    checks:
+    - Bob sees the space has ended within 20 seconds
+    - Bob is not offered to join
+    gherkin:
+    - specs/spaces/space-live-presence.feature:28 — Someone who left stops being offered to join when the space
+      ends
+    exampleRow: []

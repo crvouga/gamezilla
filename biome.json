@@ -20,6 +20,7 @@
       "!.superset/config.json",
       "!.super.engineering/config.json",
       "!apps/product/public/sql-workers/**/*.js",
+      "!docs/statecharts/index.html",
       "!.agents/skills/**/assets",
       "!qa",
       "!!pkgs/postgres/.postgres"

@@ -1,0 +1,144 @@
+id: chess-solve-move-rules
+initial: Viewing Who may move, and when
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-opponent-move-stage.ts
+  - libs/chess-puzzle-client/src/chess-puzzle-move-history.tsx
+  - libs/chess-puzzle-client/src/chess-puzzle-move-history-ply.tsx
+  - libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
+  - libs/chess-puzzle-client/src/chess-puzzle-move-history-bar.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Who may move, and when:
+    meta:
+      description: The person is at the place where who may move, and when.
+      snapshot: the-person-is-at-the-place-where-who-may-move-and-when
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:2
+    'on':
+      Alice tries to move the opponent's piece g8-f8:
+        target: Alice is still asked to find the next move — 1
+        meta:
+          source:
+          - specs/chess/solve-move-rules.feature:15
+          condition:
+          - Alice is signed in
+          - Alice is solving the two-rook clearance puzzle
+          example: The opponent's pieces cannot be moved
+      Alice tries the illegal move a1-a8:
+        target: Alice's board is unchanged — 2
+        meta:
+          source:
+          - specs/chess/solve-move-rules.feature:20
+          condition:
+          - Alice is signed in
+          - Alice is solving the two-rook clearance puzzle
+          example: An illegal move goes back and is not held against the solver
+      Alice plays a wrong move:
+        target: Alice cannot move pieces — 3
+        meta:
+          source:
+          - specs/chess/solve-move-rules.feature:26
+          condition:
+          - Alice is signed in
+          - Alice is solving the two-rook clearance puzzle
+          example: Pieces cannot be moved after a wrong move until a retry
+      Alice solves the puzzle:
+        target: Alice cannot move pieces — 4
+        meta:
+          source:
+          - specs/chess/solve-move-rules.feature:30
+          condition:
+          - Alice is signed in
+          - Alice is solving the two-rook clearance puzzle
+          example: Pieces cannot be moved once the puzzle is over
+      Alice picks up the rook on a1:
+        target: Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1 — 5
+        meta:
+          source:
+          - specs/chess/solve-move-rules.feature:34
+          condition:
+          - Alice is signed in
+          - Alice is solving the two-rook clearance puzzle
+          example: Picking up a piece shows where it can go
+  Alice is still asked to find the next move — 1:
+    meta:
+      description: The person observes that alice is still asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-still-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is still asked to find the next move
+      - Alice's board is unchanged
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's board is unchanged — 2:
+    meta:
+      description: The person observes that alice's board is unchanged.
+      snapshot: the-person-observes-that-alice-s-board-is-unchanged
+      recognize: []
+      checks:
+      - Alice's board is unchanged
+      - Alice is still asked to find the next move
+      - Alice's puzzle rating is 1500
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move pieces — 3:
+    meta:
+      description: The person observes that alice cannot move pieces.
+      snapshot: the-person-observes-that-alice-cannot-move-pieces
+      recognize: []
+      checks:
+      - Alice cannot move pieces
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:26
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move pieces — 4:
+    meta:
+      description: The person observes that alice cannot move pieces.
+      snapshot: the-person-observes-that-alice-cannot-move-pieces
+      recognize: []
+      checks:
+      - Alice cannot move pieces
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1 — 5:
+    meta:
+      description: The person observes that alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1,
+        c1 and d1.
+      snapshot: the-person-observes-that-alice-s-board-shows-the-rook-on-a1-can-go-to-a2-a3-a4-a5-a6-
+      recognize: []
+      checks:
+      - Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/solve-move-rules.feature:34
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

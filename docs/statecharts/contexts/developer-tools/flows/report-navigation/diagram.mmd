@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Move through a test report" as s0
+  state "the team sees the second recorded moment — 1" as s1
+  state "the team still sees the final recorded moment because there is no later moment — 2" as s2
+  state "the team sees the first recorded moment — 3" as s3
+  state "the team still sees the first recorded moment because there is no earlier moment — 4" as s4
+  state "the team sees the first failed recorded moment — 5" as s5
+  state "the team still sees the final recorded moment because no recorded moment failed — 6" as s6
+  state "the team sees the second recorded moment — 7" as s7
+  state "the team still sees the final recorded moment because the fourth does not exist — 8" as s8
+  [*] --> s0
+  s0 --> s1: the team moves to the next recorded moment when the team is viewing the first of three recorded moments
+  s0 --> s2: the team moves to the next recorded moment when the team is viewing the final recorded moment
+  s0 --> s3: the team moves to the previous recorded moment when the team is viewing the second of three recorded moments
+  s0 --> s4: the team moves to the previous recorded moment when the team is viewing the first recorded moment
+  s0 --> s5: the team moves to the next failed recorded moment when the team is viewing the final of two failed recorded moments
+  s0 --> s6: the team moves to the next failed recorded moment when the team is viewing a passing test report's final recorded moment
+  s0 --> s7: the team opens that test report's address for its second recorded moment
+  s0 --> s8: the team opens that test report's address for its fourth recorded moment
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

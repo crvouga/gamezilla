@@ -1,0 +1,43 @@
+journeys:
+  The link to an ended space says it has ended:
+    description: The link to an ended space says it has ended
+    startingConditions:
+    - Alice and Bob are guests
+    - Alice has hosted a space and ended it
+    events:
+    - Bob joins the space from the link
+    endsIn: Bob sees the space has ended within 15 seconds — 1
+    checks:
+    - Bob sees the space has ended within 15 seconds
+    - Bob is not offered to join
+    gherkin:
+    - specs/spaces/space-links.feature:9 — The link to an ended space says it has ended
+    exampleRow: []
+  A link to a space that never existed says so:
+    description: A link to a space that never existed says so
+    startingConditions:
+    - Bob is a guest
+    events:
+    - Bob opens a link to a space that does not exist
+    endsIn: Bob is told the space cannot be found within 15 seconds — 2
+    checks:
+    - Bob is told the space cannot be found within 15 seconds
+    - Bob is offered the way back to Spaces
+    gherkin:
+    - specs/spaces/space-links.feature:17 — A link to a space that never existed says so
+    exampleRow: []
+  Someone who stepped out returns to the space once:
+    description: Someone who stepped out returns to the space once
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Bob has gone back to the lobby
+    events:
+    - Bob joins Alice's space from the lobby
+    endsIn: Bob is in the space — 3
+    checks:
+    - Bob is in the space
+    - Alice sees 2 people in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-links.feature:23 — Someone who stepped out returns to the space once
+    exampleRow: []

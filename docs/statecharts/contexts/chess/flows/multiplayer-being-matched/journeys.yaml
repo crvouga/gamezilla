@@ -1,0 +1,41 @@
+journeys:
+  A search shows its time control and how long it has run:
+    description: A search shows its time control and how long it has run
+    startingConditions:
+    - Alice is looking for a 5+0 chess opponent
+    events:
+    - 40 seconds pass in multiplayer chess
+    endsIn: Alice sees she has been looking for a 5+0 chess opponent for 40 seconds — 1
+    checks:
+    - Alice sees she has been looking for a 5+0 chess opponent for 40 seconds
+    gherkin:
+    - specs/chess/multiplayer-being-matched.feature:10 — A search shows its time control and how long it has run
+    exampleRow: []
+  Each matched person sees who they play, how fast and as which colour:
+    description: Each matched person sees who they play, how fast and as which colour
+    startingConditions:
+    - Bob has a blitz rating of 1620
+    - Alice and Bob are looking for 3+2 chess opponents
+    events:
+    - a matchmaking match is formed for Alice and Bob
+    endsIn: Alice sees Bob as her multiplayer opponent at 3+2, with his blitz rating "1620" and her colour — 2
+    checks:
+    - Alice sees Bob as her multiplayer opponent at 3+2, with his blitz rating "1620" and her colour
+    - Bob sees Alice as his multiplayer opponent at 3+2, with her blitz rating "1500?" and his colour
+    gherkin:
+    - specs/chess/multiplayer-being-matched.feature:17 — Each matched person sees who they play, how fast and as
+      which colour
+    exampleRow: []
+  A person who is still looking is shown no multiplayer opponent:
+    description: A person who is still looking is shown no multiplayer opponent
+    startingConditions:
+    - Alice is the only person looking for a 3+2 chess opponent
+    events:
+    - matchmaking pairs people up
+    endsIn: Alice is still looking for a chess opponent — 3
+    checks:
+    - Alice is still looking for a chess opponent
+    - Alice is not shown a multiplayer opponent
+    gherkin:
+    - specs/chess/multiplayer-being-matched.feature:24 — A person who is still looking is shown no multiplayer opponent
+    exampleRow: []

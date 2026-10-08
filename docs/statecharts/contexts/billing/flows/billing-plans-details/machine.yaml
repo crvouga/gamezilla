@@ -1,0 +1,149 @@
+id: billing-billing-plans-details
+initial: Viewing What the billing plans tell a person
+meta:
+  context: Billing
+  kind: flow
+  owner: Billing owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/billing-client/src/billing-view-model.ts
+  - libs/billing-client/src/billing-screen.tsx
+  - libs/billing-client/src/billing-screen-view.tsx
+  - libs/billing-client/src/billing-plan-card.tsx
+  - libs/billing-client/src/billing-offer-sections.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing What the billing plans tell a person:
+    meta:
+      description: The person is at the place where what the billing plans tell a person.
+      snapshot: the-person-is-at-the-place-where-what-the-billing-plans-tell-a-person
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:2
+    'on':
+      Alice views the billing plans when Alice is signed in with Google:
+        target: Alice sees the monthly plan at $7 00 a month — 1
+        meta:
+          source:
+          - specs/billing/billing-plans-details.feature:10
+          condition:
+          - Alice is signed in with Google
+          example: A signed-in person without a membership sees both prices and a 7-day free trial
+      Alice views the billing plans when Alice has subscribed to Plus and Alice has 5 days left in the free trial:
+        target: Alice sees their free trial ends in 5 days — 2
+        meta:
+          source:
+          - specs/billing/billing-plans-details.feature:20
+          condition:
+          - Alice has subscribed to Plus
+          - Alice has 5 days left in the free trial
+          example: A person on a free trial sees the day their free trial ends and the days left in the free trial
+      Alice views the billing plans when Alice has subscribed to Plus:
+        target: Alice sees the monthly plan marked as their current plan — 3
+        meta:
+          source:
+          - specs/billing/billing-plans-details.feature:32
+          condition:
+          - Alice has subscribed to Plus
+          example: A Plus member on the monthly plan sees it marked as their current plan
+      ? Alice views the billing plans when Alice has subscribed to Plus and Alice has switched the membership to
+        the yearly plan in the billing portal
+      : target: Alice sees the yearly plan marked as their current plan — 4
+        meta:
+          source:
+          - specs/billing/billing-plans-details.feature:37
+          condition:
+          - Alice has subscribed to Plus
+          - Alice has switched the membership to the yearly plan in the billing portal
+          example: A Plus member on the yearly plan sees it marked as their current plan
+      Alice views the billing plans when Alice has subscribed to Plus and Alice's payment has failed:
+        target: Alice is told their payment failed — 5
+        meta:
+          source:
+          - specs/billing/billing-plans-details.feature:48
+          condition:
+          - Alice has subscribed to Plus
+          - Alice's payment has failed
+          example: A Plus member whose payment failed is told so on the billing plans
+  Alice sees the monthly plan at $7 00 a month — 1:
+    meta:
+      description: The person observes that alice sees the monthly plan at $7.00 a month.
+      snapshot: the-person-observes-that-alice-sees-the-monthly-plan-at-7-00-a-month
+      recognize: []
+      checks:
+      - Alice sees the monthly plan at $7.00 a month
+      - Alice sees the yearly plan at $60.00 a year, $5.00 a month, saving 29%
+      - Alice is offered a 7-day free trial
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:10
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees their free trial ends in 5 days — 2:
+    meta:
+      description: The person observes that alice sees their free trial ends in 5 days.
+      snapshot: the-person-observes-that-alice-sees-their-free-trial-ends-in-5-days
+      recognize: []
+      checks:
+      - Alice sees their free trial ends in 5 days
+      - Alice sees the day their free trial ends
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the monthly plan marked as their current plan — 3:
+    meta:
+      description: The person observes that alice sees the monthly plan marked as their current plan.
+      snapshot: the-person-observes-that-alice-sees-the-monthly-plan-marked-as-their-current-plan
+      recognize: []
+      checks:
+      - Alice sees the monthly plan marked as their current plan
+      - Alice sees the yearly plan not marked as their current plan
+      - Alice is not told a payment failed
+      - Alice is not offered to pay with a new card
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:32
+      - specs/billing/billing-plans-details.feature:54
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+    'on': {}
+  Alice sees the yearly plan marked as their current plan — 4:
+    meta:
+      description: The person observes that alice sees the yearly plan marked as their current plan.
+      snapshot: the-person-observes-that-alice-sees-the-yearly-plan-marked-as-their-current-plan
+      recognize: []
+      checks:
+      - Alice sees the yearly plan marked as their current plan
+      - Alice sees the monthly plan not marked as their current plan
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:37
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told their payment failed — 5:
+    meta:
+      description: The person observes that alice is told their payment failed.
+      snapshot: the-person-observes-that-alice-is-told-their-payment-failed
+      recognize: []
+      checks:
+      - Alice is told their payment failed
+      - Alice is offered to pay with a new card
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:48
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,247 @@
+id: chess-multiplayer-recovery-and-privacy
+initial: Viewing Keep a multiplayer game after time away
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-matchmaking-client/src/use-multiplayer-data.ts
+  - libs/chess-matchmaking-client/src/use-multiplayer-controls.ts
+  - libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
+  - libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+  - libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Keep a multiplayer game after time away:
+    meta:
+      description: The person is at the place where keep a multiplayer game after time away.
+      snapshot: the-person-is-at-the-place-where-keep-a-multiplayer-game-after-time-away
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:2
+    'on':
+      Alice plays e2 to e4 as a multiplayer move:
+        target: Alice is told multiplayer moves need a connection — 1
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:8
+          condition:
+          - Alice has a new multiplayer game and her phone is offline
+          example: An offline person cannot defer a move
+      ? Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob's multiplayer
+        move e7 to e5 was accepted
+      : target: Alice and Bob see the same multiplayer board with two moves — 2
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:14
+          condition:
+          - Alice's phone was offline when Bob's multiplayer move e7 to e5 was accepted
+          example: Returning after Bob's multiplayer move shows the accepted board
+      Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob resigned multiplayer chess:
+        target: Alice sees she won the multiplayer game — 3
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:20
+          condition:
+          - Alice's phone was offline when Bob resigned multiplayer chess
+          example: Returning after Bob resigns shows the accepted multiplayer result
+      Alice's phone loses its multiplayer connection:
+        target: Alice and Bob keep the unfinished multiplayer game — 4
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:25
+          condition:
+          - Alice has an unfinished multiplayer game with Bob
+          example: Disconnecting does not give up the game
+      Alice opens multiplayer chess:
+        target: Alice sees her multiplayer board and Bob's name — 5
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:32
+          condition:
+          - Alice has an unfinished multiplayer game with Bob
+          example: A matched person opens their board
+      Carol opens Alice's multiplayer game:
+        target: Carol is told no multiplayer game is available to her — 6
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:37
+          condition:
+          - Alice has an unfinished multiplayer game with Bob
+          example: Another person cannot open the game
+      Carol plays e2 to e4 in Alice's multiplayer game:
+        target: Carol is told no multiplayer game is available to her — 7
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:42
+          condition:
+          - Alice has an unfinished multiplayer game with Bob
+          example: Another person cannot move in the game
+      Alice confirms account deletion when Alice is looking for a chess opponent:
+        target: Alice is not looking for a chess opponent — 8
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:50
+          condition:
+          - Alice is looking for a chess opponent
+          example: Deleting an account removes its opponent search
+      Alice confirms account deletion when Alice is White and Bob is Black in a new 5+0 multiplayer game:
+        target: Bob sees the multiplayer game was aborted — 9
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:56
+          condition:
+          - Alice is White and Bob is Black in a new 5+0 multiplayer game
+          example: Deleting an account before both first moves aborts the game
+      Alice confirms account deletion when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5:
+        target: Bob sees he won the multiplayer game — 10
+        meta:
+          source:
+          - specs/chess/multiplayer-recovery-and-privacy.feature:62
+          condition:
+          - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+          example: Deleting an account preserves the other person's multiplayer result
+  Alice is told multiplayer moves need a connection — 1:
+    meta:
+      description: The person observes that alice is told multiplayer moves need a connection.
+      snapshot: the-person-observes-that-alice-is-told-multiplayer-moves-need-a-connection
+      recognize: []
+      checks:
+      - Alice is told multiplayer moves need a connection
+      - Alice's phone keeps its last known multiplayer board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice and Bob see the same multiplayer board with two moves — 2:
+    meta:
+      description: The person observes that alice and Bob see the same multiplayer board with two moves.
+      snapshot: the-person-observes-that-alice-and-bob-see-the-same-multiplayer-board-with-two-moves
+      recognize: []
+      checks:
+      - Alice and Bob see the same multiplayer board with two moves
+      - Alice has the multiplayer turn
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees she won the multiplayer game — 3:
+    meta:
+      description: The person observes that alice sees she won the multiplayer game.
+      snapshot: the-person-observes-that-alice-sees-she-won-the-multiplayer-game
+      recognize: []
+      checks:
+      - Alice sees she won the multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice and Bob keep the unfinished multiplayer game — 4:
+    meta:
+      description: The person observes that alice and Bob keep the unfinished multiplayer game.
+      snapshot: the-person-observes-that-alice-and-bob-keep-the-unfinished-multiplayer-game
+      recognize: []
+      checks:
+      - Alice and Bob keep the unfinished multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:25
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees her multiplayer board and Bob's name — 5:
+    meta:
+      description: The person observes that alice sees her multiplayer board and Bob's name.
+      snapshot: the-person-observes-that-alice-sees-her-multiplayer-board-and-bob-s-name
+      recognize: []
+      checks:
+      - Alice sees her multiplayer board and Bob's name
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:32
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Carol is told no multiplayer game is available to her — 6:
+    meta:
+      description: The person observes that carol is told no multiplayer game is available to her.
+      snapshot: the-person-observes-that-carol-is-told-no-multiplayer-game-is-available-to-her
+      recognize: []
+      checks:
+      - Carol is told no multiplayer game is available to her
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:37
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Carol is told no multiplayer game is available to her — 7:
+    meta:
+      description: The person observes that carol is told no multiplayer game is available to her.
+      snapshot: the-person-observes-that-carol-is-told-no-multiplayer-game-is-available-to-her
+      recognize: []
+      checks:
+      - Carol is told no multiplayer game is available to her
+      - Alice and Bob keep the same multiplayer board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:42
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is not looking for a chess opponent — 8:
+    meta:
+      description: The person observes that alice is not looking for a chess opponent.
+      snapshot: the-person-observes-that-alice-is-not-looking-for-a-chess-opponent
+      recognize: []
+      checks:
+      - Alice is not looking for a chess opponent
+      - Bob cannot be matched with Alice's deleted account
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:50
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees the multiplayer game was aborted — 9:
+    meta:
+      description: The person observes that bob sees the multiplayer game was aborted.
+      snapshot: the-person-observes-that-bob-sees-the-multiplayer-game-was-aborted
+      recognize: []
+      checks:
+      - Bob sees the multiplayer game was aborted
+      - neither person's blitz rating has moved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:56
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees he won the multiplayer game — 10:
+    meta:
+      description: The person observes that bob sees he won the multiplayer game.
+      snapshot: the-person-observes-that-bob-sees-he-won-the-multiplayer-game
+      recognize: []
+      checks:
+      - Bob sees he won the multiplayer game
+      - Bob is not shown Alice's deleted personal details
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-recovery-and-privacy.feature:62
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

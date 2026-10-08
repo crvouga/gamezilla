@@ -1,0 +1,265 @@
+id: chess-puzzle-sound-lifecycle
+initial: Opening puzzle sound
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess/puzzle-sound.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening puzzle sound:
+    meta:
+      description: The person is opening the puzzle sound view.
+      snapshot: the-person-is-opening-the-puzzle-sound-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-sound.qnt
+    'on':
+      Opens with playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-sound_22.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-sound.qnt:12
+      Opens with playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-sound_16.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-sound.qnt:12
+  Playing puzzles with sounds off:
+    meta:
+      description: The person is playing puzzles with sounds off.
+      snapshot: the-person-is-playing-puzzles-with-sounds-off
+      recognize: []
+      checks:
+      - Muted puzzles and reviews never play any chess feedback class.
+      - The prepared puzzle or review keeps its legal progress and feedback meanings.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-sound.qnt
+      quintPredicates:
+      - puzzleSound.soundsOn: false
+      invariants:
+      - invPuzzleSilence
+      - invPuzzleSoundPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Play capture puzzle move resulting in playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: playCapturePuzzleMove
+          witness:
+            trace: chess--puzzle-sound_0.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: false
+          source:
+          - specs/chess/puzzle-sound.qnt:25
+      Configure puzzle sounds resulting in playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: configurePuzzleSounds
+          witness:
+            trace: chess--puzzle-sound_0.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:37
+      Configure puzzle sounds resulting in playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: configurePuzzleSounds
+          witness:
+            trace: chess--puzzle-sound_0.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: false
+          source:
+          - specs/chess/puzzle-sound.qnt:37
+      Step puzzle sound review resulting in playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: stepPuzzleSoundReview
+          witness:
+            trace: chess--puzzle-sound_6.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:31
+      Play quiet puzzle move resulting in playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: playQuietPuzzleMove
+          witness:
+            trace: chess--puzzle-sound_14.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:19
+  Playing puzzles with sounds on:
+    meta:
+      description: The person is playing puzzles with sounds on.
+      snapshot: the-person-is-playing-puzzles-with-sounds-on
+      recognize: []
+      checks:
+      - Muted puzzles and reviews never play any chess feedback class.
+      - The prepared puzzle or review keeps its legal progress and feedback meanings.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-sound.qnt
+      quintPredicates:
+      - puzzleSound.soundsOn: true
+      invariants:
+      - invPuzzleSilence
+      - invPuzzleSoundPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Configure puzzle sounds resulting in playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: configurePuzzleSounds
+          witness:
+            trace: chess--puzzle-sound_0.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:37
+      Configure puzzle sounds resulting in playing puzzles with sounds off:
+        target: Playing puzzles with sounds off
+        meta:
+          action: configurePuzzleSounds
+          witness:
+            trace: chess--puzzle-sound_0.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: false
+          source:
+          - specs/chess/puzzle-sound.qnt:37
+      Step puzzle sound review resulting in playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: stepPuzzleSoundReview
+          witness:
+            trace: chess--puzzle-sound_1.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:31
+      Play capture puzzle move resulting in playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: playCapturePuzzleMove
+          witness:
+            trace: chess--puzzle-sound_18.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:25
+      Play quiet puzzle move resulting in playing puzzles with sounds on:
+        target: Playing puzzles with sounds on
+        meta:
+          action: playQuietPuzzleMove
+          witness:
+            trace: chess--puzzle-sound_7.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              kind:
+                tag: None
+                value:
+                  '#tup': []
+              'on':
+                tag: Some
+                value: true
+          source:
+          - specs/chess/puzzle-sound.qnt:19

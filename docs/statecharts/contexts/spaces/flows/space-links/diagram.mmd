@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing What a space's link leads to" as s0
+  state "Bob sees the space has ended within 15 seconds — 1" as s1
+  state "Bob is told the space cannot be found within 15 seconds — 2" as s2
+  state "Bob is in the space — 3" as s3
+  [*] --> s0
+  s0 --> s1: Bob joins the space from the link
+  s0 --> s2: Bob opens a link to a space that does not exist
+  s0 --> s3: Bob joins Alice's space from the lobby
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

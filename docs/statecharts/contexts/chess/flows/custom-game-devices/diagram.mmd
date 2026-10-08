@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Viewing One Custom Game across a person's devices" as s0
+  state "Black is to move on both of Alice's devices — 1" as s1
+  state "The Custom Game move list shows e4 once — 2" as s2
+  state "Both of Alice's devices show Alice's win by resignation — 3" as s3
+  state "Alice is told Custom Games need a connection on the other device — 4" as s4
+  [*] --> s0
+  s0 --> s1: Alice returns to the Custom Game on another device
+  s0 --> s2: Alice plays e2-e4 on both devices at the same time
+  s0 --> s3: Alice's other device returns online
+  s0 --> s4: Alice plays e2-e4 on the offline other device
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]

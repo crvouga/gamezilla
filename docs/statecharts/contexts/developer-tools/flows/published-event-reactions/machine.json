@@ -1,0 +1,214 @@
+{
+  "id": "developer-tools-published-event-reactions",
+  "initial": "Viewing Developer tools with current information",
+  "meta": {
+    "context": "Developer tools",
+    "kind": "flow",
+    "owner": "Developer tools owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [
+      "SpaceOpened",
+      "PersonJoined",
+      "PersonLeft",
+      "SpaceEnded",
+      "BecameFriends",
+      "FriendshipEnded"
+    ],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "scope": "Boundary contract reception; per-screen interruption outcomes remain owner review questions."
+  },
+  "states": {
+    "Viewing Developer tools with current information": {
+      "meta": {
+        "description": "The person is using a Developer tools surface.",
+        "snapshot": "the-person-is-using-a-developer-tools-surface",
+        "recognize": [],
+        "checks": ["The person is using a Developer tools surface."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1100"]
+      },
+      "on": {
+        "SpaceOpened": {
+          "target": "Seeing an open space becomes visible only to people entitled to find it",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PersonJoined": {
+          "target": "Seeing current presence changes for people who can view that space",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PersonLeft": {
+          "target": "Seeing the person no longer appears as present in that space",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "SpaceEnded": {
+          "target": "Seeing the ended space is removed from live choices and an open participant view shows it ended",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "BecameFriends": {
+          "target": "Seeing the new friendship appears and may make a friend’s open space discoverable",
+          "meta": {
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "FriendshipEnded": {
+          "target": "Seeing the relationship and any friend-derived discoverability are recomputed",
+          "meta": {
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing an open space becomes visible only to people entitled to find it": {
+      "meta": {
+        "description": "The person sees that an open space becomes visible only to people entitled to find it.",
+        "snapshot": "the-person-sees-that-an-open-space-becomes-visible-only-to-people-entitled-to-find-it",
+        "recognize": [],
+        "checks": [
+          "An open space becomes visible only to people entitled to find it."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing current presence changes for people who can view that space": {
+      "meta": {
+        "description": "The person sees that current presence changes for people who can view that space.",
+        "snapshot": "the-person-sees-that-current-presence-changes-for-people-who-can-view-that-space",
+        "recognize": [],
+        "checks": [
+          "Current presence changes for people who can view that space."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the person no longer appears as present in that space": {
+      "meta": {
+        "description": "The person sees that the person no longer appears as present in that space.",
+        "snapshot": "the-person-sees-that-the-person-no-longer-appears-as-present-in-that-space",
+        "recognize": [],
+        "checks": ["The person no longer appears as present in that space."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the ended space is removed from live choices and an open participant view shows it ended": {
+      "meta": {
+        "description": "The person sees that the ended space is removed from live choices and an open participant view shows it ended.",
+        "snapshot": "the-person-sees-that-the-ended-space-is-removed-from-live-choices-and-an-open-partici",
+        "recognize": [],
+        "checks": [
+          "The ended space is removed from live choices and an open participant view shows it ended."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the new friendship appears and may make a friend’s open space discoverable": {
+      "meta": {
+        "description": "The person sees that the new friendship appears and may make a friend’s open space discoverable.",
+        "snapshot": "the-person-sees-that-the-new-friendship-appears-and-may-make-a-friend-s-open-space-di",
+        "recognize": [],
+        "checks": [
+          "The new friendship appears and may make a friend’s open space discoverable."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the relationship and any friend-derived discoverability are recomputed": {
+      "meta": {
+        "description": "The person sees that the relationship and any friend-derived discoverability are recomputed.",
+        "snapshot": "the-person-sees-that-the-relationship-and-any-friend-derived-discoverability-are-reco",
+        "recognize": [],
+        "checks": [
+          "The relationship and any friend-derived discoverability are recomputed."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Developer tools with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    }
+  }
+}

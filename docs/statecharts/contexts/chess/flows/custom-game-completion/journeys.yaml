@@ -1,0 +1,209 @@
+journeys:
+  Resignation awards the other side the game:
+    description: Resignation awards the other side the game
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob resigns the Custom Game
+    endsIn: Alice wins the Custom Game by resignation — 1
+    checks:
+    - Alice wins the Custom Game by resignation
+    gherkin:
+    - specs/chess/custom-game-completion.feature:7 — Resignation awards the other side the game
+    exampleRow: []
+  A watcher cannot resign for a participant:
+    description: A watcher cannot resign for a participant
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Carol is in Alice's space
+    events:
+    - Carol resigns the Custom Game
+    endsIn: Carol is told only a participant may resign — 2
+    checks:
+    - Carol is told only a participant may resign
+    gherkin:
+    - specs/chess/custom-game-completion.feature:12 — A watcher cannot resign for a participant
+    exampleRow: []
+  Cancellation before start closes every place:
+    description: Cancellation before start closes every place
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Black in the Custom Game is reserved for Bob
+    events:
+    - Alice cancels the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved
+      for Bob
+    endsIn: The Custom Game is cancelled with no winner — 3
+    checks:
+    - The Custom Game is cancelled with no winner
+    - Neither side offers an invitation
+    gherkin:
+    - specs/chess/custom-game-completion.feature:20 — Cancellation before start closes every place
+    exampleRow: []
+  A watching creator cancels an active bot game:
+    description: A watching creator cancels an active bot game
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - White and Black in the Custom Game are bots
+    - The Custom Game has started
+    events:
+    - Alice cancels the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game
+      are bots and The Custom Game has started
+    endsIn: The Custom Game is cancelled with no winner — 4
+    checks:
+    - The Custom Game is cancelled with no winner
+    gherkin:
+    - specs/chess/custom-game-completion.feature:27 — A watching creator cancels an active bot game
+    exampleRow: []
+  A watcher cannot cancel the creator's game:
+    description: A watcher cannot cancel the creator's game
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Carol is in Alice's space
+    events:
+    - Carol cancels the Custom Game
+    endsIn: Carol is told only the creator cancels the Custom Game — 5
+    checks:
+    - Carol is told only the creator cancels the Custom Game
+    gherkin:
+    - specs/chess/custom-game-completion.feature:34 — A watcher cannot cancel the creator's game
+    exampleRow: []
+  A participant cannot cancel a game that has not started:
+    description: A participant cannot cancel a game that has not started
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob cancels the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+    endsIn: Bob is told only the creator cancels the Custom Game — 6
+    checks:
+    - Bob is told only the creator cancels the Custom Game
+    gherkin:
+    - specs/chess/custom-game-completion.feature:40 — A participant cannot cancel a game that has not started
+    exampleRow: []
+  Cancellation cannot erase a completed outcome:
+    description: Cancellation cannot erase a completed outcome
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice cancels the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+    endsIn: Alice is told the Custom Game has finished — 7
+    checks:
+    - Alice is told the Custom Game has finished
+    gherkin:
+    - specs/chess/custom-game-completion.feature:45 — Cancellation cannot erase a completed outcome
+    exampleRow: []
+  Black cancels before making a move:
+    description: Black cancels before making a move
+    startingConditions:
+    - Alice has an active Custom Game after White's e4
+    events:
+    - Bob cancels the Custom Game when Alice has an active Custom Game after White's e4
+    endsIn: The Custom Game is cancelled with no winner — 8
+    checks:
+    - The Custom Game is cancelled with no winner
+    gherkin:
+    - specs/chess/custom-game-completion.feature:52 — Black cancels before making a move
+    exampleRow: []
+  A participant cannot cancel the creator's game once both sides have moved:
+    description: A participant cannot cancel the creator's game once both sides have moved
+    startingConditions:
+    - Alice has an active Custom Game after White's e4 and Black's e5
+    events:
+    - Bob cancels the Custom Game when Alice has an active Custom Game after White's e4 and Black's e5
+    endsIn: Bob is told to resign instead of cancelling — 9
+    checks:
+    - Bob is told to resign instead of cancelling
+    - The Custom Game remains active
+    gherkin:
+    - specs/chess/custom-game-completion.feature:57 — A participant cannot cancel the creator's game once both sides
+      have moved
+    exampleRow: []
+  A departure releases an accepted waiting side:
+    description: A departure releases an accepted waiting side
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob leaves the space when Alice has a Custom Game between Alice as White and Bob as Black
+    endsIn: Black is an open place in the Custom Game — 10
+    checks:
+    - Black is an open place in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-completion.feature:65 — A departure releases an accepted waiting side
+    exampleRow: []
+  A departure resigns an active side:
+    description: A departure resigns an active side
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob leaves the space when Alice has an active Custom Game between Alice as White and Bob as Black
+    endsIn: Alice wins the Custom Game by resignation — 11
+    checks:
+    - Alice wins the Custom Game by resignation
+    gherkin:
+    - specs/chess/custom-game-completion.feature:70 — A departure resigns an active side
+    exampleRow: []
+  Returning cannot recover a side already claimed:
+    description: Returning cannot recover a side already claimed
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob has left the space after releasing Black
+    - Carol has claimed Black in the Custom Game
+    events:
+    - Bob joins the space from the link
+    endsIn: Black is Carol in the Custom Game — 12
+    checks:
+    - Black is Carol in the Custom Game
+    - Bob cannot move pieces in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-completion.feature:75 — Returning cannot recover a side already claimed
+    exampleRow: []
+  The host's departure ends an active game:
+    description: The host's departure ends an active game
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice leaves the space
+    endsIn: The Custom Game is cancelled with no winner — 13
+    checks:
+    - The Custom Game is cancelled with no winner
+    gherkin:
+    - specs/chess/custom-game-completion.feature:86 — The host's departure ends an active game
+    exampleRow: []
+  Ending the space preserves an already completed result:
+    description: Ending the space preserves an already completed result
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice ends the space
+    endsIn: The Custom Game keeps its completed outcome — 14
+    checks:
+    - The Custom Game keeps its completed outcome
+    gherkin:
+    - specs/chess/custom-game-completion.feature:91 — Ending the space preserves an already completed result
+    exampleRow: []
+  A rematch swaps people and requires readiness again:
+    description: A rematch swaps people and requires readiness again
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice creates a rematch of the Custom Game when Alice has a completed Custom Game between Alice as White and
+      Bob as Black
+    endsIn: White is Bob and Black is Alice in the configuring Custom Game — 15
+    checks:
+    - White is Bob and Black is Alice in the configuring Custom Game
+    - Neither person is ready for the Custom Game
+    gherkin:
+    - specs/chess/custom-game-completion.feature:98 — A rematch swaps people and requires readiness again
+    exampleRow: []
+  An unfinished game cannot have a rematch:
+    description: An unfinished game cannot have a rematch
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice creates a rematch of the Custom Game when Alice has an active Custom Game between Alice as White and
+      Bob as Black
+    endsIn: Alice is told the Custom Game must finish or be cancelled first — 16
+    checks:
+    - Alice is told the Custom Game must finish or be cancelled first
+    gherkin:
+    - specs/chess/custom-game-completion.feature:104 — An unfinished game cannot have a rematch
+    exampleRow: []

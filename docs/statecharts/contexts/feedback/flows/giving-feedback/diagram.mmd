@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Write feedback freely" as s0
+  state "the team can read the local feedback — 1" as s1
+  state "the team is told to write something before sending feedback — 2" as s2
+  state "the draft offers prompts for what happened, what was expected and reproduction steps — 3" as s3
+  state "the draft includes 'Keep this observation' — 4" as s4
+  state "the draft shows 'Movement' as a heading while writing — 5" as s5
+  state "the team is offered the polish template — 6" as s6
+  state "the team is not offered a template because no template matches — 7" as s7
+  state "the draft includes 'Keep this observation' — 8" as s8
+  [*] --> s0
+  s0 --> s1: the team submits feedback titled 'Board movement' saying 'number  Movement\n\n- Pieces feel slow\n- Keep the last move visible'
+  s0 --> s2: the team sends the feedback
+  s0 --> s3: the team chooses the bug template
+  s0 --> s4: the team chooses the polish template
+  s0 --> s5: the team makes 'Movement' a heading
+  s0 --> s6: the team writes feedback saying '/pol'
+  s0 --> s7: the team writes feedback saying '/board'
+  s0 --> s8: the team chooses the suggested bug template
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

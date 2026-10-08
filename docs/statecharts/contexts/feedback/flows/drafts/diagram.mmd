@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Keep feedback drafts" as s0
+  state "the draft is titled 'Board movement' saying 'Keep the last move visible' — 1" as s1
+  state "the draft is titled 'Board movement' saying 'Keep the last move visible' — 2" as s2
+  state "the team can find the draft 'Board movement' in feedback management — 3" as s3
+  state "the team is told the draft is kept until feedback can be sent — 4" as s4
+  state "the team can review the recording before sending feedback — 6" as s5
+  [*] --> s0
+  s0 --> s1: the team returns to the wizard after closing it
+  s0 --> s2: the team's app reopens after closing when the team has a draft titled 'Board movement' saying 'Keep the last move visible'
+  s0 --> s3: the team starts new feedback
+  s0 --> s4: the team sends the feedback when the team cannot send feedback and the team has a draft titled 'Board movement' saying 'Keep the last move visible'
+  s0 --> s5: the team's app reopens after closing when the team has stopped a reproduction recording
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

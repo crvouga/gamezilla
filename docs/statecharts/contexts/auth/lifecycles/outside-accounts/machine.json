@@ -1,0 +1,1671 @@
+{
+  "id": "auth-outside-accounts-lifecycle",
+  "initial": "Opening outside accounts",
+  "meta": {
+    "context": "Auth",
+    "kind": "lifecycle",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/auth/outside-accounts.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening outside accounts": {
+      "meta": {
+        "description": "The person is opening the outside accounts view.",
+        "snapshot": "the-person-is-opening-the-outside-accounts-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/outside-accounts.qnt"]
+      },
+      "on": {
+        "Opens with choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "auth--outside-accounts_9.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/auth/outside-accounts.qnt:155"]
+          }
+        }
+      }
+    },
+    "Choosing a sign-in method": {
+      "meta": {
+        "description": "The person is choosing a sign-in method.",
+        "snapshot": "the-person-is-choosing-a-sign-in-method",
+        "recognize": [],
+        "checks": [
+          "An account never has two outside accounts from one provider.",
+          "An outside account gets into at most one account.",
+          "Devices are signed into accounts that exist, and that some sign-in method still gets into.",
+          "A device is asked to confirm exactly while a matching account waits for its answer.",
+          "A device with no connection is signed into a real account, or into none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/outside-accounts.qnt"],
+        "quintPredicates": [
+          {
+            "signedInto.keys().contains(\"phone\")": false,
+            "askedToConfirm.contains(\"phone\")": false
+          }
+        ],
+        "invariants": [
+          "invOneOfEachProvider",
+          "invOneAccountEach",
+          "invSignedIntoReachableAccounts",
+          "invAskedWhileAMatchWaits",
+          "invOfflineSignedIntoARealAccount"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Sign in resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:169"]
+          }
+        },
+        "Trouble starts resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "troubleStarts",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:353"]
+          }
+        },
+        "Lose connection resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:340"]
+          }
+        },
+        "Connection returns resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:346"]
+          }
+        },
+        "Sign out everywhere resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:317"]
+          }
+        },
+        "Trouble ends resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "troubleEnds",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:363"]
+          }
+        },
+        "Sign out resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:307"]
+          }
+        },
+        "Stop using sign in with apple resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "stopUsingSignInWithApple",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:373"]
+          }
+        },
+        "Sign in resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:169"]
+          }
+        },
+        "Delete apple account resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "deleteAppleAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:390"]
+          }
+        },
+        "Sign ins lapse resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signInsLapse",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:423"]
+          }
+        },
+        "Keep separate resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "keepSeparate",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:239"]
+          }
+        },
+        "Remove sign in method resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:291"]
+          }
+        },
+        "Connect sign in method resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:263"]
+          }
+        },
+        "Steal sign in resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "stealSignIn",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:328"]
+          }
+        },
+        "Steal sign in resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "stealSignIn",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:328"]
+          }
+        },
+        "Sign in resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:169"]
+          }
+        },
+        "Chance to confirm lapses resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "chanceToConfirmLapses",
+            "witness": {
+              "trace": "auth--outside-accounts_19.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:412"]
+          }
+        },
+        "Confirm matching account resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "confirmMatchingAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_19.itf.json",
+              "step": 54,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:209"]
+          }
+        }
+      }
+    },
+    "Signed in on this device": {
+      "meta": {
+        "description": "The person is signed in on this device.",
+        "snapshot": "the-person-is-signed-in-on-this-device",
+        "recognize": [],
+        "checks": [
+          "An account never has two outside accounts from one provider.",
+          "An outside account gets into at most one account.",
+          "Devices are signed into accounts that exist, and that some sign-in method still gets into.",
+          "A device is asked to confirm exactly while a matching account waits for its answer.",
+          "A device with no connection is signed into a real account, or into none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/outside-accounts.qnt"],
+        "quintPredicates": [
+          {
+            "signedInto.keys().contains(\"phone\")": true,
+            "askedToConfirm.contains(\"phone\")": false
+          }
+        ],
+        "invariants": [
+          "invOneOfEachProvider",
+          "invOneAccountEach",
+          "invSignedIntoReachableAccounts",
+          "invAskedWhileAMatchWaits",
+          "invOfflineSignedIntoARealAccount"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Sign ins lapse resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signInsLapse",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:423"]
+          }
+        },
+        "Lose connection resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:340"]
+          }
+        },
+        "Sign in resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 93,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:169"]
+          }
+        },
+        "Connect sign in method resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 94,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:263"]
+          }
+        },
+        "Trouble starts resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "troubleStarts",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 95,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:353"]
+          }
+        },
+        "Connection returns resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "auth--outside-accounts_20.itf.json",
+              "step": 97,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:346"]
+          }
+        },
+        "Remove sign in method resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 54,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:291"]
+          }
+        },
+        "Sign out resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "auth--outside-accounts_21.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:307"]
+          }
+        },
+        "Trouble ends resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "troubleEnds",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:363"]
+          }
+        },
+        "Steal sign in resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "stealSignIn",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:328"]
+          }
+        },
+        "Delete apple account resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "deleteAppleAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_15.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:390"]
+          }
+        },
+        "Sign out everywhere resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "auth--outside-accounts_6.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:317"]
+          }
+        },
+        "Stop using sign in with apple resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "stopUsingSignInWithApple",
+            "witness": {
+              "trace": "auth--outside-accounts_6.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:373"]
+          }
+        },
+        "Sign out everywhere resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:317"]
+          }
+        },
+        "Delete apple account resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "deleteAppleAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:390"]
+          }
+        },
+        "Sign out resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "auth--outside-accounts_1.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:307"]
+          }
+        },
+        "Steal sign in resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "stealSignIn",
+            "witness": {
+              "trace": "auth--outside-accounts_1.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:328"]
+          }
+        },
+        "Chance to confirm lapses resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "chanceToConfirmLapses",
+            "witness": {
+              "trace": "auth--outside-accounts_4.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:412"]
+          }
+        }
+      }
+    },
+    "Confirming a matching account": {
+      "meta": {
+        "description": "The person is confirming a matching account.",
+        "snapshot": "the-person-is-confirming-a-matching-account",
+        "recognize": [],
+        "checks": [
+          "An account never has two outside accounts from one provider.",
+          "An outside account gets into at most one account.",
+          "Devices are signed into accounts that exist, and that some sign-in method still gets into.",
+          "A device is asked to confirm exactly while a matching account waits for its answer.",
+          "A device with no connection is signed into a real account, or into none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/outside-accounts.qnt"],
+        "quintPredicates": [
+          {
+            "signedInto.keys().contains(\"phone\")": false,
+            "askedToConfirm.contains(\"phone\")": true
+          }
+        ],
+        "invariants": [
+          "invOneOfEachProvider",
+          "invOneAccountEach",
+          "invSignedIntoReachableAccounts",
+          "invAskedWhileAMatchWaits",
+          "invOfflineSignedIntoARealAccount"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Chance to confirm lapses resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "chanceToConfirmLapses",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:412"]
+          }
+        },
+        "Keep separate resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "keepSeparate",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:239"]
+          }
+        },
+        "Trouble starts resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "troubleStarts",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:353"]
+          }
+        },
+        "Keep separate resulting in signed in on this device": {
+          "target": "Signed in on this device",
+          "meta": {
+            "action": "keepSeparate",
+            "witness": {
+              "trace": "auth--outside-accounts_14.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:239"]
+          }
+        },
+        "Connection returns resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:346"]
+          }
+        },
+        "Sign in resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:169"]
+          }
+        },
+        "Confirm matching account resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "confirmMatchingAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:209"]
+          }
+        },
+        "Lose connection resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:340"]
+          }
+        },
+        "Sign out resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:307"]
+          }
+        },
+        "Trouble ends resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "troubleEnds",
+            "witness": {
+              "trace": "auth--outside-accounts_7.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:363"]
+          }
+        },
+        "Confirm matching account resulting in choosing a sign-in method": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "action": "confirmMatchingAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_18.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "googleChris"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:209"]
+          }
+        },
+        "Stop using sign in with apple resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "stopUsingSignInWithApple",
+            "witness": {
+              "trace": "auth--outside-accounts_10.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "phone"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleUma"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:373"]
+          }
+        },
+        "Delete apple account resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "deleteAppleAccount",
+            "witness": {
+              "trace": "auth--outside-accounts_10.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:390"]
+          }
+        },
+        "Steal sign in resulting in confirming a matching account": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "action": "stealSignIn",
+            "witness": {
+              "trace": "auth--outside-accounts_10.itf.json",
+              "step": 47,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "tablet"
+                },
+                "other": {
+                  "tag": "Some",
+                  "value": "laptop"
+                },
+                "outsideAccount": {
+                  "tag": "Some",
+                  "value": "appleDan"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": ["specs/auth/outside-accounts.qnt:328"]
+          }
+        }
+      }
+    }
+  }
+}

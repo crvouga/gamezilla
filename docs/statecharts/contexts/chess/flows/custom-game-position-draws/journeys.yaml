@@ -1,0 +1,76 @@
+journeys:
+  White's move leaves Black with no legal move and no check:
+    description: White's move leaves Black with no legal move and no check
+    startingConditions:
+    - Alice has a Custom Game one move before stalemate
+    events:
+    - Alice plays c8-e6 in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 1
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:7 — White's move leaves Black with no legal move and no check
+    exampleRow: []
+  A king in check with a legal reply is not stalemated:
+    description: A king in check with a legal reply is not stalemated
+    startingConditions:
+    - Alice has a Custom Game one move before stalemate
+    events:
+    - Alice plays c8-e8 in the Custom Game
+    endsIn: Black is in check in the active Custom Game — 2
+    checks:
+    - Black is in check in the active Custom Game
+    - Black is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:12 — A king in check with a legal reply is not stalemated
+    exampleRow: []
+  Capturing the last queen leaves only the two kings:
+    description: Capturing the last queen leaves only the two kings
+    startingConditions:
+    - Alice has a Custom Game one move before only the two kings remain
+    events:
+    - Bob plays e7-f6 in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 3
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:20 — Capturing the last queen leaves only the two kings
+    exampleRow: []
+  Keeping the last queen leaves mating material:
+    description: Keeping the last queen leaves mating material
+    startingConditions:
+    - Alice has a Custom Game one move before only the two kings remain
+    events:
+    - Bob plays e7-d7 in the Custom Game
+    endsIn: The Custom Game remains active — 4
+    checks:
+    - The Custom Game remains active
+    - Neither person has won the Custom Game
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:25 — Keeping the last queen leaves mating material
+    exampleRow: []
+  Black's fiftieth quiet move completes the draw:
+    description: Black's fiftieth quiet move completes the draw
+    startingConditions:
+    - Alice has a Custom Game one move before fifty moves without a pawn move or capture
+    events:
+    - Bob plays a4-b6 in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 5
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:33 — Black's fiftieth quiet move completes the draw
+    exampleRow: []
+  White's fiftieth quiet move still gives Black a turn:
+    description: White's fiftieth quiet move still gives Black a turn
+    startingConditions:
+    - Alice has a Custom Game two moves before fifty moves without a pawn move or capture
+    events:
+    - Alice plays b1-a1 in the Custom Game
+    endsIn: The Custom Game remains active — 6
+    checks:
+    - The Custom Game remains active
+    - Black is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-position-draws.feature:38 — White's fiftieth quiet move still gives Black a turn
+    exampleRow: []

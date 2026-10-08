@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing The daily puzzle limit is an invitation" as s0
+  state "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice asks for another puzzle
+  s1 --> [*]

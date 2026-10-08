@@ -1,0 +1,31 @@
+stateDiagram-v2
+  state "Opening tally" as s0
+  state "Viewing a zero tally" as s1
+  state "Viewing a nonzero tally" as s2
+  [*] --> s0
+  s0 --> s1: Opens with viewing a zero tally
+  s1 --> s2: Resend resulting in viewing a nonzero tally
+  s1 --> s1: Go offline resulting in viewing a zero tally
+  s1 --> s1: Take one resulting in viewing a zero tally
+  s1 --> s1: Come back online resulting in viewing a zero tally
+  s1 --> s2: Room restarts resulting in viewing a nonzero tally
+  s1 --> s1: Reopen app resulting in viewing a zero tally
+  s1 --> s1: Close unexpectedly resulting in viewing a zero tally
+  s1 --> s2: Add one resulting in viewing a nonzero tally
+  s1 --> s1: Add one resulting in viewing a zero tally
+  s1 --> s2: Network recovers resulting in viewing a nonzero tally
+  s1 --> s2: Take one resulting in viewing a nonzero tally
+  s1 --> s2: Reopen app resulting in viewing a nonzero tally
+  s1 --> s2: App closes as change lands resulting in viewing a nonzero tally
+  s2 --> s1: Take one resulting in viewing a zero tally
+  s2 --> s2: Close unexpectedly resulting in viewing a nonzero tally
+  s2 --> s2: Reopen app resulting in viewing a nonzero tally
+  s2 --> s1: App closes as change lands resulting in viewing a zero tally
+  s2 --> s2: Take one resulting in viewing a nonzero tally
+  s2 --> s2: Add one resulting in viewing a nonzero tally
+  s2 --> s2: Go offline resulting in viewing a nonzero tally
+  s2 --> s2: Come back online resulting in viewing a nonzero tally
+  s2 --> s1: Resend resulting in viewing a zero tally
+  s2 --> s1: Reopen app resulting in viewing a zero tally
+  s2 --> s1: Add one resulting in viewing a zero tally
+  s2 --> s1: Network recovers resulting in viewing a zero tally

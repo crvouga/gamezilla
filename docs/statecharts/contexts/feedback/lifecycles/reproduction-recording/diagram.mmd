@@ -1,0 +1,13 @@
+stateDiagram-v2
+  state "Activity unrecorded" as s0
+  state "Starting a recording" as s1
+  state "Recording reproduction" as s2
+  state "Stopping a recording" as s3
+  state "Reviewing a recording" as s4
+  [*] --> s0
+  s0 --> s1: Starts a reproduction recording
+  s1 --> s2: Recording becomes available
+  s1 --> s0: Recording is unavailable
+  s2 --> s3: Stops the reproduction
+  s3 --> s4: Recorded steps are ready
+  s4 --> s0: Discards the recording

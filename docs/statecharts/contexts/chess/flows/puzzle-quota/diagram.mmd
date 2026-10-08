@@ -1,0 +1,30 @@
+stateDiagram-v2
+  state "Viewing The daily rated puzzle allowance" as s0
+  state "Alice has a puzzle on the board — 1" as s1
+  state "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 2" as s2
+  state "Alice's puzzle is solved — 3" as s3
+  state "Alice has a puzzle on the board within 30 seconds — 4" as s4
+  state "Alice is on the same puzzle as before — 5" as s5
+  state "Alice is asked to find the next move within 20 seconds — 6" as s6
+  state "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 7" as s7
+  state "Alice can read that 19 rated puzzles remain today — 8" as s8
+  state "Alice can read that 19 rated puzzles remain today — 9" as s9
+  [*] --> s0
+  s0 --> s1: Alice moves on to the next puzzle
+  s0 --> s2: Alice asks for another puzzle
+  s0 --> s3: Alice solves the puzzle
+  s0 --> s4: Alice goes back to the puzzles when Alice is a guest who has been shown today's puzzle limit and Alice is signed in with Google
+  s0 --> s5: Alice goes back to the puzzles when Alice is a guest who reached today's puzzle limit while solving a puzzle and Alice has left the puzzle for the chess choices
+  s0 --> s6: Alice returns to their space
+  s0 --> s7: Alice goes back to the puzzles when Alice is a guest who has finished today's last allowed puzzle and Alice has left the puzzle for the chess choices
+  s0 --> s8: Alice opens puzzles in their space
+  s0 --> s9: Alice retries the puzzle
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]

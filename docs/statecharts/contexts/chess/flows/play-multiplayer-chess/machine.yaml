@@ -1,0 +1,404 @@
+id: chess-play-multiplayer-chess
+initial: Viewing Play the same multiplayer board together
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
+  - libs/chess-puzzle-client/src/chess-puzzle-play-queries.ts
+  - libs/chess-puzzle-client/src/chess-puzzle-play-layout.tsx
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Play the same multiplayer board together:
+    meta:
+      description: The person is at the place where play the same multiplayer board together.
+      snapshot: the-person-is-at-the-place-where-play-the-same-multiplayer-board-together
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:2
+    'on':
+      Alice plays e2 to e4 as a multiplayer move when Alice is White and Bob is Black in a new multiplayer game:
+        target: both multiplayer boards show the white pawn on e4 — 1
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:9
+          condition:
+          - Alice is White and Bob is Black in a new multiplayer game
+          example: White's first legal move passes the turn to Black
+      Bob plays e7 to e5 as a multiplayer move:
+        target: Bob is told it is not his multiplayer turn — 2
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:15
+          condition:
+          - Alice is White and Bob is Black in a new multiplayer game
+          example: Black cannot make the first multiplayer move
+      Alice plays e2 to e5 as a multiplayer move:
+        target: Alice is told that multiplayer move is illegal — 3
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:21
+          condition:
+          - Alice is White and Bob is Black in a new multiplayer game
+          example: An illegal move keeps the turn and board
+      Alice repeats that multiplayer move:
+        target: both multiplayer boards show one move — 4
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:30
+          condition:
+          - Alice's multiplayer move e2 to e4 was accepted
+          example: Repeating an accepted move keeps its one effect
+      Alice plays d2 to d4 for her earlier multiplayer position:
+        target: Alice is told her multiplayer board has changed — 5
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:36
+          condition:
+          - Alice's multiplayer move e2 to e4 was accepted
+          - Bob's multiplayer move e7 to e5 was accepted
+          example: Another device's move for an earlier board is refused
+      Bob resigns multiplayer chess:
+        target: both people see Alice won the multiplayer game — 6
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:45
+          condition:
+          - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+          example: A person resigns outside their turn
+      Bob resigns multiplayer chess again:
+        target: both people still see Alice won the multiplayer game — 7
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:50
+          condition:
+          - Bob resigned multiplayer chess and Alice won
+          example: Resigning again keeps the accepted multiplayer result
+      Bob plays d8 to h4 as a multiplayer move:
+        target: both people see Bob won the multiplayer game by checkmate — 8
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:57
+          condition:
+          - Alice is White and Bob is Black after multiplayer moves f3, e5, g4
+          example: Checkmate gives both people the same multiplayer win
+      Alice plays e2 to e4 as a multiplayer move when Bob resigned multiplayer chess and Alice won:
+        target: Alice is told the multiplayer game is over — 9
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:62
+          condition:
+          - Bob resigned multiplayer chess and Alice won
+          example: A move after resigning multiplayer chess is refused
+      Alice plays g1 to f3 as a multiplayer move:
+        target: both people see the multiplayer move list "1  e4 e5 2  Nf3" — 10
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:70
+          condition:
+          - Alice's multiplayer move e2 to e4 was accepted
+          - Bob's multiplayer move e7 to e5 was accepted
+          example: An accepted move joins both people's multiplayer move list
+      Bob plays e7 to e4 as a multiplayer move:
+        target: Bob is told that multiplayer move is illegal — 11
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:76
+          condition:
+          - Alice's multiplayer move e2 to e4 was accepted
+          example: An illegal move never joins the multiplayer move list
+      Alice opens multiplayer chess on another device:
+        target: Alice sees she won the multiplayer game — 12
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:82
+          condition:
+          - Bob resigned multiplayer chess after the multiplayer moves e4 and e5
+          example: The multiplayer move list is kept with the multiplayer result
+      ? the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+        move from stalemate
+      : target: both people see the multiplayer game is drawn by stalemate — 13
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:90
+          condition:
+          - Alice and Bob have a multiplayer position one move from stalemate
+          example: Stalemate ends the multiplayer game in a multiplayer draw
+      ? the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+        move from its third appearance
+      : target: both people see the multiplayer game is drawn by repetition — 14
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:95
+          condition:
+          - Alice and Bob have a multiplayer position one move from its third appearance
+          example: A position repeated for the third time ends in a multiplayer draw
+      ? the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+        move from its second appearance
+      : target: the multiplayer game is still unfinished — 15
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:100
+          condition:
+          - Alice and Bob have a multiplayer position one move from its second appearance
+          example: A position's second appearance keeps the game unfinished
+      ? the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+        move from insufficient mating material
+      : target: both people see the multiplayer game is drawn by insufficient mating material — 16
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:105
+          condition:
+          - Alice and Bob have a multiplayer position one move from insufficient mating material
+          example: Insufficient mating material ends in a multiplayer draw
+      ? the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one
+        move from fifty moves without a pawn move or capture
+      : target: both people see the multiplayer game is drawn by fifty moves — 17
+        meta:
+          source:
+          - specs/chess/play-multiplayer-chess.feature:110
+          condition:
+          - Alice and Bob have a multiplayer position one move from fifty moves without a pawn move or capture
+          example: Fifty moves without a pawn move or capture end in a multiplayer draw
+  both multiplayer boards show the white pawn on e4 — 1:
+    meta:
+      description: The person observes that both multiplayer boards show the white pawn on e4.
+      snapshot: the-person-observes-that-both-multiplayer-boards-show-the-white-pawn-on-e4
+      recognize: []
+      checks:
+      - both multiplayer boards show the white pawn on e4
+      - Bob has the multiplayer turn
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told it is not his multiplayer turn — 2:
+    meta:
+      description: The person observes that bob is told it is not his multiplayer turn.
+      snapshot: the-person-observes-that-bob-is-told-it-is-not-his-multiplayer-turn
+      recognize: []
+      checks:
+      - Bob is told it is not his multiplayer turn
+      - both multiplayer boards keep their starting position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told that multiplayer move is illegal — 3:
+    meta:
+      description: The person observes that alice is told that multiplayer move is illegal.
+      snapshot: the-person-observes-that-alice-is-told-that-multiplayer-move-is-illegal
+      recognize: []
+      checks:
+      - Alice is told that multiplayer move is illegal
+      - both multiplayer boards keep their starting position
+      - Alice still has the multiplayer turn
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both multiplayer boards show one move — 4:
+    meta:
+      description: The person observes that both multiplayer boards show one move.
+      snapshot: the-person-observes-that-both-multiplayer-boards-show-one-move
+      recognize: []
+      checks:
+      - both multiplayer boards show one move
+      - Bob has the multiplayer turn
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told her multiplayer board has changed — 5:
+    meta:
+      description: The person observes that alice is told her multiplayer board has changed.
+      snapshot: the-person-observes-that-alice-is-told-her-multiplayer-board-has-changed
+      recognize: []
+      checks:
+      - Alice is told her multiplayer board has changed
+      - both multiplayer boards still show two moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:36
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see Alice won the multiplayer game — 6:
+    meta:
+      description: The person observes that both people see Alice won the multiplayer game.
+      snapshot: the-person-observes-that-both-people-see-alice-won-the-multiplayer-game
+      recognize: []
+      checks:
+      - both people see Alice won the multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:45
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people still see Alice won the multiplayer game — 7:
+    meta:
+      description: The person observes that both people still see Alice won the multiplayer game.
+      snapshot: the-person-observes-that-both-people-still-see-alice-won-the-multiplayer-game
+      recognize: []
+      checks:
+      - both people still see Alice won the multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:50
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see Bob won the multiplayer game by checkmate — 8:
+    meta:
+      description: The person observes that both people see Bob won the multiplayer game by checkmate.
+      snapshot: the-person-observes-that-both-people-see-bob-won-the-multiplayer-game-by-checkmate
+      recognize: []
+      checks:
+      - both people see Bob won the multiplayer game by checkmate
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:57
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told the multiplayer game is over — 9:
+    meta:
+      description: The person observes that alice is told the multiplayer game is over.
+      snapshot: the-person-observes-that-alice-is-told-the-multiplayer-game-is-over
+      recognize: []
+      checks:
+      - Alice is told the multiplayer game is over
+      - both multiplayer boards keep their starting position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:62
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see the multiplayer move list "1  e4 e5 2  Nf3" — 10:
+    meta:
+      description: The person observes that both people see the multiplayer move list "1. e4 e5 2. Nf3".
+      snapshot: the-person-observes-that-both-people-see-the-multiplayer-move-list-1-e4-e5-2-nf3
+      recognize: []
+      checks:
+      - both people see the multiplayer move list "1. e4 e5 2. Nf3"
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:70
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told that multiplayer move is illegal — 11:
+    meta:
+      description: The person observes that bob is told that multiplayer move is illegal.
+      snapshot: the-person-observes-that-bob-is-told-that-multiplayer-move-is-illegal
+      recognize: []
+      checks:
+      - Bob is told that multiplayer move is illegal
+      - both people still see the multiplayer move list "1. e4"
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:76
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees she won the multiplayer game — 12:
+    meta:
+      description: The person observes that alice sees she won the multiplayer game.
+      snapshot: the-person-observes-that-alice-sees-she-won-the-multiplayer-game
+      recognize: []
+      checks:
+      - Alice sees she won the multiplayer game
+      - Alice sees the multiplayer move list "1. e4 e5"
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:82
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see the multiplayer game is drawn by stalemate — 13:
+    meta:
+      description: The person observes that both people see the multiplayer game is drawn by stalemate.
+      snapshot: the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-stalemate
+      recognize: []
+      checks:
+      - both people see the multiplayer game is drawn by stalemate
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:90
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see the multiplayer game is drawn by repetition — 14:
+    meta:
+      description: The person observes that both people see the multiplayer game is drawn by repetition.
+      snapshot: the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-repetition
+      recognize: []
+      checks:
+      - both people see the multiplayer game is drawn by repetition
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:95
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the multiplayer game is still unfinished — 15:
+    meta:
+      description: The person observes that the multiplayer game is still unfinished.
+      snapshot: the-person-observes-that-the-multiplayer-game-is-still-unfinished
+      recognize: []
+      checks:
+      - the multiplayer game is still unfinished
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:100
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see the multiplayer game is drawn by insufficient mating material — 16:
+    meta:
+      description: The person observes that both people see the multiplayer game is drawn by insufficient mating
+        material.
+      snapshot: the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-insufficien
+      recognize: []
+      checks:
+      - both people see the multiplayer game is drawn by insufficient mating material
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:105
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  both people see the multiplayer game is drawn by fifty moves — 17:
+    meta:
+      description: The person observes that both people see the multiplayer game is drawn by fifty moves.
+      snapshot: the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-fifty-moves
+      recognize: []
+      checks:
+      - both people see the multiplayer game is drawn by fifty moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/play-multiplayer-chess.feature:110
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

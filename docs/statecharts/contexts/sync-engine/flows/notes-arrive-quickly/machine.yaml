@@ -1,0 +1,69 @@
+id: sync-engine-notes-arrive-quickly
+initial: Viewing Notes arrive quickly
+meta:
+  context: Sync engine
+  kind: flow
+  owner: Sync engine owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Notes arrive quickly:
+    meta:
+      description: The person is at the place where notes arrive quickly.
+      snapshot: the-person-is-at-the-place-where-notes-arrive-quickly
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/notes-arrive-quickly.feature:2
+    'on':
+      Alice writes the note 'Groceries' saying 'milk':
+        target: Bob sees the note "Groceries" within a quarter of a second — 1
+        meta:
+          source:
+          - specs/sync-engine/notes-arrive-quickly.feature:9
+          condition:
+          - Alice and Bob are in the shared space "Trip"
+          - Alice and Bob have slow connections
+          example: Over slow connections a note reaches the other person within a quarter of a second
+      Alice writes 20 notes one after another:
+        target: at least 19 of the 20 notes reach Bob within a fifth of a second each — 2
+        meta:
+          source:
+          - specs/sync-engine/notes-arrive-quickly.feature:15
+          condition:
+          - Alice and Bob are in the shared space "Trip"
+          - Alice and Bob have slow connections
+          example: Over slow connections nearly every note reaches the other person within a fifth of a second
+  Bob sees the note "Groceries" within a quarter of a second — 1:
+    meta:
+      description: The person observes that bob sees the note "Groceries" within a quarter of a second.
+      snapshot: the-person-observes-that-bob-sees-the-note-groceries-within-a-quarter-of-a-second
+      recognize: []
+      checks:
+      - Bob sees the note "Groceries" within a quarter of a second
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/notes-arrive-quickly.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  at least 19 of the 20 notes reach Bob within a fifth of a second each — 2:
+    meta:
+      description: The person observes that at least 19 of the 20 notes reach Bob within a fifth of a second each.
+      snapshot: the-person-observes-that-at-least-19-of-the-20-notes-reach-bob-within-a-fifth-of-a-se
+      recognize: []
+      checks:
+      - at least 19 of the 20 notes reach Bob within a fifth of a second each
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/notes-arrive-quickly.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

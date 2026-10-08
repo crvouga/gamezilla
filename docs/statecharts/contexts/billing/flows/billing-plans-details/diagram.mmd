@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing What the billing plans tell a person" as s0
+  state "Alice sees the monthly plan at $7 00 a month — 1" as s1
+  state "Alice sees their free trial ends in 5 days — 2" as s2
+  state "Alice sees the monthly plan marked as their current plan — 3" as s3
+  state "Alice sees the yearly plan marked as their current plan — 4" as s4
+  state "Alice is told their payment failed — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice views the billing plans when Alice is signed in with Google
+  s0 --> s2: Alice views the billing plans when Alice has subscribed to Plus and Alice has 5 days left in the free trial
+  s0 --> s3: Alice views the billing plans when Alice has subscribed to Plus
+  s0 --> s4: Alice views the billing plans when Alice has subscribed to Plus and Alice has switched the membership to the yearly plan in the billing portal
+  s0 --> s5: Alice views the billing plans when Alice has subscribed to Plus and Alice's payment has failed
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

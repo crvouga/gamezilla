@@ -1,0 +1,60 @@
+{
+  "id": "spaces-space-end",
+  "initial": "Viewing End a space",
+  "meta": {
+    "context": "Spaces",
+    "kind": "flow",
+    "owner": "Spaces owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/spaces-client/src/use-end-space.ts",
+      "libs/spaces-client/src/space-end-or-leave-button.tsx",
+      "libs/spaces-client/src/end-space-modal-provider.tsx",
+      "libs/spaces-client/src/end-space-confirm-modal.tsx",
+      "libs/spaces-client/src/use-space-user-entries.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing End a space": {
+      "meta": {
+        "description": "The person is at the place where end a space.",
+        "snapshot": "the-person-is-at-the-place-where-end-a-space",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/space-end.feature:2"]
+      },
+      "on": {
+        "Alice ends the space": {
+          "target": "Bob's lobby stops listing Alice's space within 10 seconds — 1",
+          "meta": {
+            "source": ["specs/spaces/space-end.feature:8"],
+            "condition": [
+              "Alice and Bob are friends",
+              "Alice is hosting a space that Bob joined from the lobby"
+            ],
+            "example": "When the host ends the space, a friend's lobby stops listing it"
+          }
+        }
+      }
+    },
+    "Bob's lobby stops listing Alice's space within 10 seconds — 1": {
+      "meta": {
+        "description": "The person observes that bob's lobby stops listing Alice's space within 10 seconds.",
+        "snapshot": "the-person-observes-that-bob-s-lobby-stops-listing-alice-s-space-within-10-seconds",
+        "recognize": [],
+        "checks": ["Bob's lobby stops listing Alice's space within 10 seconds"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/space-end.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

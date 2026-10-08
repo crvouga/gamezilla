@@ -1,0 +1,148 @@
+id: spaces-space-disconnect-reconnect
+initial: Viewing Losing the connection in a space
+meta:
+  context: Spaces
+  kind: flow
+  owner: Spaces owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/spaces-client/src/use-space-user-entries.ts
+  - libs/spaces-client/src/use-space-room.ts
+  - libs/spaces-client/src/use-space-room-selector.ts
+  - libs/spaces-client/src/use-space-room-connection.ts
+  - libs/spaces-client/src/use-space-participant-colors.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Losing the connection in a space:
+    meta:
+      description: The person is at the place where losing the connection in a space.
+      snapshot: the-person-is-at-the-place-where-losing-the-connection-in-a-space
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:2
+    'on':
+      Bob loses the connection when Alice is hosting a space that Bob joined from the link:
+        target: Alice sees 1 person in the space within 20 seconds — 1
+        meta:
+          source:
+          - specs/spaces/space-disconnect-reconnect.feature:12
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          example: Someone stops showing as there after losing the connection
+      Bob leaves the space:
+        target: Alice sees 1 person in the space within 20 seconds — 2
+        meta:
+          source:
+          - specs/spaces/space-disconnect-reconnect.feature:16
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          - Bob has come back to the space after closing the app
+          example: Leaving after coming back leaves no trace
+      ? the connection comes back when Alice is hosting a space that Bob joined from the link and Bob has lost the
+        connection long enough to drop out of the space
+      : target: Alice sees 2 people in the space within 20 seconds — 3
+        meta:
+          source:
+          - specs/spaces/space-disconnect-reconnect.feature:23
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          - Bob has lost the connection long enough to drop out of the space
+          example: Someone whose connection comes back is there once
+      Bob opens the space link again:
+        target: Bob is in the space — 4
+        meta:
+          source:
+          - specs/spaces/space-disconnect-reconnect.feature:29
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          - Bob has closed and reopened the app
+          example: Closing the app and coming back returns Bob to the space once
+      ? the connection comes back when Alice is hosting a space that Bob joined from the link and Bob has lost the
+        connection long enough to drop out of the space and Alice has ended the space
+      : target: Bob sees the space has ended within 20 seconds — 5
+        meta:
+          source:
+          - specs/spaces/space-disconnect-reconnect.feature:37
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          - Bob has lost the connection long enough to drop out of the space
+          - Alice has ended the space
+          example: Someone offline when the space ends learns it ended once back online
+  Alice sees 1 person in the space within 20 seconds — 1:
+    meta:
+      description: The person observes that alice sees 1 person in the space within 20 seconds.
+      snapshot: the-person-observes-that-alice-sees-1-person-in-the-space-within-20-seconds
+      recognize: []
+      checks:
+      - Alice sees 1 person in the space within 20 seconds
+      - Bob sees 0 people in the space within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:12
+      - specs/spaces/space-disconnect-reconnect.feature:48
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+    'on': {}
+  Alice sees 1 person in the space within 20 seconds — 2:
+    meta:
+      description: The person observes that alice sees 1 person in the space within 20 seconds.
+      snapshot: the-person-observes-that-alice-sees-1-person-in-the-space-within-20-seconds
+      recognize: []
+      checks:
+      - Alice sees 1 person in the space within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:16
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees 2 people in the space within 20 seconds — 3:
+    meta:
+      description: The person observes that alice sees 2 people in the space within 20 seconds.
+      snapshot: the-person-observes-that-alice-sees-2-people-in-the-space-within-20-seconds
+      recognize: []
+      checks:
+      - Alice sees 2 people in the space within 20 seconds
+      - Bob sees 2 people in the space within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:23
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is in the space — 4:
+    meta:
+      description: The person observes that bob is in the space.
+      snapshot: the-person-observes-that-bob-is-in-the-space
+      recognize: []
+      checks:
+      - Bob is in the space
+      - Alice sees 2 people in the space within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees the space has ended within 20 seconds — 5:
+    meta:
+      description: The person observes that bob sees the space has ended within 20 seconds.
+      snapshot: the-person-observes-that-bob-sees-the-space-has-ended-within-20-seconds
+      recognize: []
+      checks:
+      - Bob sees the space has ended within 20 seconds
+      - Bob is not offered to join
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-disconnect-reconnect.feature:37
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

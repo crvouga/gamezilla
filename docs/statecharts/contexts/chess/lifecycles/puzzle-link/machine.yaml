@@ -1,0 +1,719 @@
+id: chess-puzzle-link-lifecycle
+initial: Opening puzzle link
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess/puzzle-link.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening puzzle link:
+    meta:
+      description: The person is opening the puzzle link view.
+      snapshot: the-person-is-opening-the-puzzle-link-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+    'on':
+      Opens with viewing a puzzle link to share:
+        target: Viewing a puzzle link to share
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-link.qnt:56
+  Viewing a puzzle link to share:
+    meta:
+      description: The person is viewing a puzzle link to share.
+      snapshot: the-person-is-viewing-a-puzzle-link-to-share
+      recognize: []
+      checks:
+      - Only a puzzle someone shared can be opened from its puzzle link.
+      - The linked attempt is rated exactly when it is Bob's first attempt.
+      - A guest never uses more than the daily puzzle limit.
+      - Whatever Bob is told, the puzzle did not open.
+      - A retired puzzle's link never opens it.
+      - 'While Bob''s device is offline, a link he opens puts nothing new on his board: he is told puzzles need
+        a connection.'
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+      quintPredicates:
+      - puzzle: none
+        rated: false
+        linkRefusal: none
+      invariants:
+      - invOnlySharedPuzzleOpens
+      - invRatedOnlyOnFirstAttempt
+      - invStartsWithinAllowance
+      - invRefusalOpensNothing
+      - invRetiredLinkNeverOpens
+      - invOfflineOpensNothing
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Retire puzzle resulting in viewing a puzzle link to share:
+        target: Viewing a puzzle link to share
+        meta:
+          action: retirePuzzle
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:90
+      Share puzzle link resulting in viewing a puzzle link to share:
+        target: Viewing a puzzle link to share
+        meta:
+          action: sharePuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:68
+      Open puzzle link resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 9
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Open puzzle link resulting in practicing the linked puzzle:
+        target: Practicing the linked puzzle
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_7.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Connection returns resulting in viewing a puzzle link to share:
+        target: Viewing a puzzle link to share
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-link_22.itf.json
+            step: 12
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:104
+      Open puzzle link resulting in told the puzzle link is puzzle no longer available:
+        target: Told the puzzle link is puzzle no longer available
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_22.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Open puzzle link resulting in playing the linked puzzle rated:
+        target: Playing the linked puzzle rated
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+  Told the puzzle link is puzzles need a connection:
+    meta:
+      description: The person is told the puzzle link is puzzles need a connection.
+      snapshot: the-person-is-told-the-puzzle-link-is-puzzles-need-a-connection
+      recognize: []
+      checks:
+      - Only a puzzle someone shared can be opened from its puzzle link.
+      - The linked attempt is rated exactly when it is Bob's first attempt.
+      - A guest never uses more than the daily puzzle limit.
+      - Whatever Bob is told, the puzzle did not open.
+      - A retired puzzle's link never opens it.
+      - 'While Bob''s device is offline, a link he opens puts nothing new on his board: he is told puzzles need
+        a connection.'
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+      quintPredicates:
+      - puzzle: none
+        rated: false
+        linkRefusal: puzzles need a connection
+      invariants:
+      - invOnlySharedPuzzleOpens
+      - invRatedOnlyOnFirstAttempt
+      - invStartsWithinAllowance
+      - invRefusalOpensNothing
+      - invRetiredLinkNeverOpens
+      - invOfflineOpensNothing
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Share puzzle link resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: sharePuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 11
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:68
+      Connection returns resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:104
+      Open puzzle link resulting in told the puzzle link is puzzle no longer available:
+        target: Told the puzzle link is puzzle no longer available
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 21
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Open puzzle link resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 34
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Retire puzzle resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: retirePuzzle
+          witness:
+            trace: chess--puzzle-link_21.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:90
+  Told the puzzle link is puzzle no longer available:
+    meta:
+      description: The person is told the puzzle link is puzzle no longer available.
+      snapshot: the-person-is-told-the-puzzle-link-is-puzzle-no-longer-available
+      recognize: []
+      checks:
+      - Only a puzzle someone shared can be opened from its puzzle link.
+      - The linked attempt is rated exactly when it is Bob's first attempt.
+      - A guest never uses more than the daily puzzle limit.
+      - Whatever Bob is told, the puzzle did not open.
+      - A retired puzzle's link never opens it.
+      - 'While Bob''s device is offline, a link he opens puts nothing new on his board: he is told puzzles need
+        a connection.'
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+      quintPredicates:
+      - puzzle: none
+        rated: false
+        linkRefusal: puzzle no longer available
+      invariants:
+      - invOnlySharedPuzzleOpens
+      - invRatedOnlyOnFirstAttempt
+      - invStartsWithinAllowance
+      - invRefusalOpensNothing
+      - invRetiredLinkNeverOpens
+      - invOfflineOpensNothing
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Share puzzle link resulting in told the puzzle link is puzzle no longer available:
+        target: Told the puzzle link is puzzle no longer available
+        meta:
+          action: sharePuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:68
+      Open puzzle link resulting in told the puzzle link is puzzle no longer available:
+        target: Told the puzzle link is puzzle no longer available
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Open puzzle link resulting in told the puzzle link is puzzles need a connection:
+        target: Told the puzzle link is puzzles need a connection
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Connection returns resulting in told the puzzle link is puzzle no longer available:
+        target: Told the puzzle link is puzzle no longer available
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-link_6.itf.json
+            step: 54
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:104
+  Practicing the linked puzzle:
+    meta:
+      description: The person is practicing the linked puzzle.
+      snapshot: the-person-is-practicing-the-linked-puzzle
+      recognize: []
+      checks:
+      - Only a puzzle someone shared can be opened from its puzzle link.
+      - The linked attempt is rated exactly when it is Bob's first attempt.
+      - A guest never uses more than the daily puzzle limit.
+      - Whatever Bob is told, the puzzle did not open.
+      - A retired puzzle's link never opens it.
+      - 'While Bob''s device is offline, a link he opens puts nothing new on his board: he is told puzzles need
+        a connection.'
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+      quintPredicates:
+      - puzzle: linked
+        rated: false
+        linkRefusal: none
+      invariants:
+      - invOnlySharedPuzzleOpens
+      - invRatedOnlyOnFirstAttempt
+      - invStartsWithinAllowance
+      - invRefusalOpensNothing
+      - invRetiredLinkNeverOpens
+      - invOfflineOpensNothing
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+      intentionalDeadEnd: The visible state is stable in this projection. Remaining operations preserve it; changing
+        data may still be possible. See Quint predicates and the projection review question.
+    'on':
+      Share puzzle link resulting in practicing the linked puzzle:
+        target: Practicing the linked puzzle
+        meta:
+          action: sharePuzzleLink
+          witness:
+            trace: chess--puzzle-link_7.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:68
+      Open puzzle link resulting in practicing the linked puzzle:
+        target: Practicing the linked puzzle
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_7.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Connection returns resulting in practicing the linked puzzle:
+        target: Practicing the linked puzzle
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-link_7.itf.json
+            step: 11
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:104
+      Retire puzzle resulting in practicing the linked puzzle:
+        target: Practicing the linked puzzle
+        meta:
+          action: retirePuzzle
+          witness:
+            trace: chess--puzzle-link_7.itf.json
+            step: 19
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:90
+  Playing the linked puzzle rated:
+    meta:
+      description: The person is playing the linked puzzle rated.
+      snapshot: the-person-is-playing-the-linked-puzzle-rated
+      recognize: []
+      checks:
+      - Only a puzzle someone shared can be opened from its puzzle link.
+      - The linked attempt is rated exactly when it is Bob's first attempt.
+      - A guest never uses more than the daily puzzle limit.
+      - Whatever Bob is told, the puzzle did not open.
+      - A retired puzzle's link never opens it.
+      - 'While Bob''s device is offline, a link he opens puts nothing new on his board: he is told puzzles need
+        a connection.'
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.qnt
+      quintPredicates:
+      - puzzle: linked
+        rated: true
+        linkRefusal: none
+      invariants:
+      - invOnlySharedPuzzleOpens
+      - invRatedOnlyOnFirstAttempt
+      - invStartsWithinAllowance
+      - invRefusalOpensNothing
+      - invRetiredLinkNeverOpens
+      - invOfflineOpensNothing
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+      intentionalDeadEnd: The visible state is stable in this projection. Remaining operations preserve it; changing
+        data may still be possible. See Quint predicates and the projection review question.
+    'on':
+      Open puzzle link resulting in playing the linked puzzle rated:
+        target: Playing the linked puzzle rated
+        meta:
+          action: openPuzzleLink
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:72
+      Share puzzle link resulting in playing the linked puzzle rated:
+        target: Playing the linked puzzle rated
+        meta:
+          action: sharePuzzleLink
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:68
+      Retire puzzle resulting in playing the linked puzzle rated:
+        target: Playing the linked puzzle rated
+        meta:
+          action: retirePuzzle
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: alice
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:90
+      Connection returns resulting in playing the linked puzzle rated:
+        target: Playing the linked puzzle rated
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-link_18.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              device:
+                tag: Some
+                value: bob
+              playedBefore:
+                tag: None
+                value:
+                  '#tup': []
+              starts:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-link.qnt:104

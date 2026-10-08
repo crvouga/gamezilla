@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Puzzle Assistant without barriers" as s0
+  state "Alice can read the assistant's current observation — 1" as s1
+  state "Alice can hear the assistant speaking — 2" as s2
+  state "Alice's assistant stays readable when speech cannot play — 3" as s3
+  state "Alice's assistant stays readable with reduced motion — 4" as s4
+  state "Alice's puzzle is solved within 20 seconds — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice mutes the Puzzle Assistant
+  s0 --> s2: Alice unmutes the Puzzle Assistant
+  s0 --> s3: Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice's speech is unavailable
+  s0 --> s4: Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice prefers reduced motion
+  s0 --> s5: Alice plays the move a7-a8
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

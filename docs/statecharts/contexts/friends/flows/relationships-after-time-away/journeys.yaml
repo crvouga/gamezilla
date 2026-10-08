@@ -1,0 +1,46 @@
+journeys:
+  A friend's removal while away preserves the last known friends list:
+    description: A friend's removal while away preserves the last known friends list
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is offline
+    - Bob has removed Alice
+    events:
+    - Alice opens their friends list
+    endsIn: Alice's friends list shows Bob — 1
+    checks:
+    - Alice's friends list shows Bob
+    gherkin:
+    - specs/friends/relationships-after-time-away.feature:10 — A friend's removal while away preserves the last
+      known friends list
+    exampleRow: []
+  A removed friendship disappears when the person returns:
+    description: A removed friendship disappears when the person returns
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is offline
+    - Bob has removed Alice
+    events:
+    - the connection comes back when Alice and Bob are friends and Alice is offline and Bob has removed Alice
+    endsIn: Alice's friends list stops showing Bob within 15 seconds — 2
+    checks:
+    - Alice's friends list stops showing Bob within 15 seconds
+    - Bob's friends list does not show Alice
+    gherkin:
+    - specs/friends/relationships-after-time-away.feature:20 — A removed friendship disappears when the person returns
+    exampleRow: []
+  A friend request sent while away appears on return:
+    description: A friend request sent while away appears on return
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice is offline
+    - Bob has sent Alice a friend request
+    events:
+    - the connection comes back when Alice and Bob are signed in and Alice is offline and Bob has sent Alice a friend
+      request
+    endsIn: Alice's inbox shows a friend request from Bob within 15 seconds — 3
+    checks:
+    - Alice's inbox shows a friend request from Bob within 15 seconds
+    gherkin:
+    - specs/friends/relationships-after-time-away.feature:31 — A friend request sent while away appears on return
+    exampleRow: []

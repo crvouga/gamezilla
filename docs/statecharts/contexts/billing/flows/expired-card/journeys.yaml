@@ -1,0 +1,33 @@
+journeys:
+  A renewal on an expired card makes the membership delinquent but still paid:
+    description: A renewal on an expired card makes the membership delinquent but still paid
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    - Alice's card has expired
+    events:
+    - Alice's billing period ends
+    endsIn: Alice's membership is delinquent — 1
+    checks:
+    - Alice's membership is delinquent
+    - Alice has paid access
+    gherkin:
+    - specs/billing/expired-card.feature:14 — A renewal on an expired card makes the membership delinquent but still
+      paid
+    exampleRow: []
+  A new card after an expired one makes the membership active again:
+    description: A new card after an expired one makes the membership active again
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    - Alice's card has expired
+    - Alice's renewal on the expired card has failed
+    events:
+    - Alice pays with a new card in the billing portal
+    endsIn: Alice's membership is active — 2
+    checks:
+    - Alice's membership is active
+    - Alice has paid access
+    gherkin:
+    - specs/billing/expired-card.feature:19 — A new card after an expired one makes the membership active again
+    exampleRow: []

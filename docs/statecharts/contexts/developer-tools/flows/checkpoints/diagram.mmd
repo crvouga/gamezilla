@@ -1,0 +1,24 @@
+stateDiagram-v2
+  state "Viewing Keep and restore checkpoints" as s0
+  state "Alice and Bob see the apps saved in checkpoint 'Before the invitation' — 1" as s1
+  state "the team is not offered restoring because the checkpoint is incompatible — 2" as s2
+  state "the team can select checkpoint 'Before the invitation' — 3" as s3
+  state "the team cannot select checkpoint 'Before the invitation' because it was deleted — 4" as s4
+  state "the team can select checkpoint 'Before the invitation' — 5" as s5
+  state "the team cannot select checkpoint 'Before the invitation' because it was removed — 6" as s6
+  state "the team can select checkpoint 'After accepting' — 7" as s7
+  [*] --> s0
+  s0 --> s1: the team restores checkpoint 'Before the invitation'
+  s0 --> s2: the team selects checkpoint 'Before the invitation'
+  s0 --> s3: the team saves checkpoint 'Before the invitation'
+  s0 --> s4: the team confirms deleting the selected checkpoints
+  s0 --> s5: the team cancels deleting the selected checkpoints
+  s0 --> s6: the team confirms removing incompatible checkpoints when checkpoint 'Before the invitation' cannot be used by this version of the app
+  s0 --> s7: the team confirms removing incompatible checkpoints when checkpoint 'After accepting' can be used by this version of the app
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]

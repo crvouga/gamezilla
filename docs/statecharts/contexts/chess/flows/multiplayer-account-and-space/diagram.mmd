@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Multiplayer chess follows the account across other changes" as s0
+  state "Alice is looking for her same chess opponent — 1" as s1
+  state "Alice is invited to sign in — 2" as s2
+  state "Bob sees his opponent's username is 'alice_atlas' — 3" as s3
+  state "Alice keeps her same multiplayer game with Bob — 4" as s4
+  state "Bob keeps his same multiplayer game with Alice — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice opens multiplayer chess on another signed-in device
+  s0 --> s2: Alice finds a chess opponent for 5+0 on her phone
+  s0 --> s3: Bob opens multiplayer chess when Alice renamed herself to 'alice_atlas' during her multiplayer game with Bob
+  s0 --> s4: Alice opens multiplayer chess
+  s0 --> s5: Bob opens multiplayer chess when Alice removed Bob from her friends list during their multiplayer game
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

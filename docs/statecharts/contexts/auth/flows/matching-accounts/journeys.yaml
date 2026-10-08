@@ -1,0 +1,113 @@
+journeys:
+  Eve's Apple account becomes a sign-in method of Eve's account at once:
+    description: Eve's Apple account becomes a sign-in method of Eve's account at once
+    startingConditions:
+    - Eve has an account they sign into with Google
+    events:
+    - Eve signs in with their Apple account
+    endsIn: Eve is signed into the same account — 1
+    checks:
+    - Eve is signed into the same account
+    - Eve's sign-in methods are Google and Apple
+    gherkin:
+    - specs/auth/matching-accounts.feature:10 — Eve's Apple account becomes a sign-in method of Eve's account at
+      once
+    exampleRow: []
+  Carol's Apple account at an unverified email address waits to be confirmed:
+    description: Carol's Apple account at an unverified email address waits to be confirmed
+    startingConditions:
+    - Carol has an account they sign into with Google
+    events:
+    - Carol signs in with their Apple account
+    endsIn: Carol is told to confirm the matching account first — 2
+    checks:
+    - Carol is told to confirm the matching account first
+    - Carol is signed out
+    gherkin:
+    - specs/auth/matching-accounts.feature:16 — Carol's Apple account at an unverified email address waits to be
+      confirmed
+    exampleRow: []
+  Confirming with Carol's own Google account adds Apple to Carol's account:
+    description: Confirming with Carol's own Google account adds Apple to Carol's account
+    startingConditions:
+    - Carol is being asked to confirm the matching account with Google
+    events:
+    - Carol confirms the matching account with Google when Carol is being asked to confirm the matching account
+      with Google
+    endsIn: Carol is signed into the same account — 3
+    checks:
+    - Carol is signed into the same account
+    - Carol's sign-in methods are Google and Apple
+    gherkin:
+    - specs/auth/matching-accounts.feature:24 — Confirming with Carol's own Google account adds Apple to Carol's
+      account
+    exampleRow: []
+  Confirming with someone else's Google account keeps Carol signed out:
+    description: Confirming with someone else's Google account keeps Carol signed out
+    startingConditions:
+    - Bob has an account they sign into with Google
+    - Carol is being asked to confirm the matching account with Google
+    events:
+    - Carol confirms the matching account with Bob's Google account
+    endsIn: Carol is told the matching account could not be confirmed — 4
+    checks:
+    - Carol is told the matching account could not be confirmed
+    - Carol is signed out
+    gherkin:
+    - specs/auth/matching-accounts.feature:30 — Confirming with someone else's Google account keeps Carol signed
+      out
+    exampleRow: []
+  Keeping the accounts separate starts a new account for Carol:
+    description: Keeping the accounts separate starts a new account for Carol
+    startingConditions:
+    - Carol is being asked to confirm the matching account with Google
+    events:
+    - Carol keeps the accounts separate when Carol is being asked to confirm the matching account with Google
+    endsIn: Carol is signed into a new account — 5
+    checks:
+    - Carol is signed into a new account
+    gherkin:
+    - specs/auth/matching-accounts.feature:40 — Keeping the accounts separate starts a new account for Carol
+    exampleRow: []
+  Confirming 9 minutes after being asked still works:
+    description: Confirming 9 minutes after being asked still works
+    startingConditions:
+    - Carol was asked to confirm the matching account with Google 9 minutes ago
+    events:
+    - Carol confirms the matching account with Google when Carol was asked to confirm the matching account with
+      Google 9 minutes ago
+    endsIn: Carol is signed into the same account — 6
+    checks:
+    - Carol is signed into the same account
+    gherkin:
+    - specs/auth/matching-accounts.feature:47 — Confirming 9 minutes after being asked still works
+    exampleRow: []
+  Confirming 11 minutes after being asked is too late:
+    description: Confirming 11 minutes after being asked is too late
+    startingConditions:
+    - Carol was asked to confirm the matching account with Google 11 minutes ago
+    events:
+    - Carol confirms the matching account with Google when Carol was asked to confirm the matching account with
+      Google 11 minutes ago
+    endsIn: Carol is told the chance to confirm has lapsed — 7
+    checks:
+    - Carol is told the chance to confirm has lapsed
+    - Carol is signed out
+    gherkin:
+    - specs/auth/matching-accounts.feature:52 — Confirming 11 minutes after being asked is too late
+    exampleRow: []
+  Keeping the accounts separate 11 minutes after being asked is too late:
+    description: Keeping the accounts separate 11 minutes after being asked is too late
+    startingConditions:
+    - Carol was asked to confirm the matching account with Google 11 minutes ago
+    events:
+    - Carol keeps the accounts separate when Carol was asked to confirm the matching account with Google 11 minutes
+      ago
+    endsIn: Carol is told the chance to confirm has lapsed — 8
+    checks:
+    - Carol is told the chance to confirm has lapsed
+    - Carol is signed out
+    gherkin:
+    - specs/auth/matching-accounts.feature:58 — Keeping the accounts separate 11 minutes after being asked is too
+      late
+    exampleRow: []

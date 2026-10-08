@@ -1,0 +1,91 @@
+journeys:
+  Support keeps the person's activity unrecorded:
+    description: Support keeps the person's activity unrecorded
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team opens Support when the team's app is working
+    endsIn: no recording has started — 1
+    checks:
+    - no recording has started
+    gherkin:
+    - specs/feedback/recording.feature:9 — Support keeps the person's activity unrecorded
+    exampleRow: []
+  Stopping a reproduction makes the recording available to review:
+    description: Stopping a reproduction makes the recording available to review
+    startingConditions:
+    - the team is recording a reproduction
+    events:
+    - the team stops recording
+    endsIn: the team can review the recording before sending feedback — 2
+    checks:
+    - the team can review the recording before sending feedback
+    gherkin:
+    - specs/feedback/recording.feature:17 — Stopping a reproduction makes the recording available to review
+    exampleRow: []
+  Recorded reproduction steps accompany the feedback:
+    description: Recorded reproduction steps accompany the feedback
+    startingConditions:
+    - the team has stopped a reproduction recording
+    - the team has described a bug saying "Hint stays loading" expecting "The hint appears" reproducing "Open a
+      puzzle and ask for a hint"
+    events:
+    - the team sends the feedback when the team has stopped a reproduction recording and the team has described
+      a bug saying 'Hint stays loading' expecting 'The hint appears' reproducing 'Open a puzzle and ask for a hint'
+    endsIn: the local feedback includes the recording and its reproduction steps — 3
+    checks:
+    - the local feedback includes the recording and its reproduction steps
+    gherkin:
+    - specs/feedback/recording.feature:22 — Recorded reproduction steps accompany the feedback
+    exampleRow: []
+  Discarding a recording removes it from the feedback:
+    description: Discarding a recording removes it from the feedback
+    startingConditions:
+    - the team has stopped a reproduction recording
+    events:
+    - the team discards the recording
+    endsIn: the feedback has no recording — 4
+    checks:
+    - the feedback has no recording
+    gherkin:
+    - specs/feedback/recording.feature:30 — Discarding a recording removes it from the feedback
+    exampleRow: []
+  Keeping a recording keeps it available to review:
+    description: Keeping a recording keeps it available to review
+    startingConditions:
+    - the team has stopped a reproduction recording
+    events:
+    - the team opens Support when the team has stopped a reproduction recording
+    endsIn: the team can review the recording before sending feedback — 5
+    checks:
+    - the team can review the recording before sending feedback
+    gherkin:
+    - specs/feedback/recording.feature:35 — Keeping a recording keeps it available to review
+    exampleRow: []
+  A device without video still records reproduction steps:
+    description: A device without video still records reproduction steps
+    startingConditions:
+    - the team's device cannot record video
+    events:
+    - the team records a reproduction
+    endsIn: the reproduction steps are recorded — 6
+    checks:
+    - the reproduction steps are recorded
+    - the team is told video is unavailable
+    gherkin:
+    - specs/feedback/recording.feature:42 — A device without video still records reproduction steps
+    exampleRow: []
+  A person can send a bug without recording it:
+    description: A person can send a bug without recording it
+    startingConditions:
+    - the team has described a bug saying "Hint stays loading" expecting "The hint appears" reproducing "Open a
+      puzzle and ask for a hint"
+    events:
+    - the team sends the feedback when the team has described a bug saying 'Hint stays loading' expecting 'The hint
+      appears' reproducing 'Open a puzzle and ask for a hint'
+    endsIn: the team can read the local feedback — 7
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/recording.feature:48 — A person can send a bug without recording it
+    exampleRow: []

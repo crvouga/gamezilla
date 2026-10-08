@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing The host chooses what the space plays" as s0
+  state "Bob is taken to chess within 15 seconds — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice picks chess for the space
+  s1 --> [*]

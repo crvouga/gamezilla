@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Viewing What the billing plans offer" as s0
+  state "Alice is offered to manage their membership — 1" as s1
+  state "Alice has free access — 2" as s2
+  state "Alice's other device has paid access within 30 seconds — 3" as s3
+  state "Alice is told subscribing needs a connection — 4" as s4
+  [*] --> s0
+  s0 --> s1: Alice views the billing plans when Alice has subscribed to Plus
+  s0 --> s2: Alice leaves checkout without paying
+  s0 --> s3: Alice subscribes to Plus
+  s0 --> s4: Alice views the billing plans when Alice is signed in with Google and Alice is offline
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]

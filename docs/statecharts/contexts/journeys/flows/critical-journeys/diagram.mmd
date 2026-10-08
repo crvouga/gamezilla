@@ -1,0 +1,32 @@
+stateDiagram-v2
+  state "Viewing Critical journeys" as s0
+  state "the app gets past its opening screen onto the tabs — 1" as s1
+  state "Google is asked to sign them in and send them back to the app — 2" as s2
+  state "their account offers to sign in again — 3" as s3
+  state "the space offers games to play — 4 step 1" as s4
+  state "the space shows it has ended — 4 step 2" as s5
+  state "a puzzle board is laid out and ready to play — 5" as s6
+  state "editing their avatar again shows the new one — 6" as s7
+  state "the search finishes with no results — 7" as s8
+  state "the next puzzle is ready to play — 8" as s9
+  state "Plus is offered at its monthly and yearly prices — 9" as s10
+  [*] --> s0
+  s0 --> s1: a person opens the app on a fresh device
+  s0 --> s2: they start signing in with Google
+  s0 --> s3: they sign out of their account
+  s0 --> s4: they host a space
+  s0 --> s6: they start a chess puzzle in the space
+  s0 --> s7: they save a new avatar
+  s0 --> s8: they search for people with a name nobody has
+  s0 --> s9: they solve the puzzle
+  s0 --> s10: they look at the billing plans
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> s5: they end the space
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

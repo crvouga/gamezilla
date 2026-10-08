@@ -1,0 +1,342 @@
+id: chess-puzzle-controls
+initial: Viewing Retry, hint and solution
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-player-controls.ts
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Retry, hint and solution:
+    meta:
+      description: The person is at the place where retry, hint and solution.
+      snapshot: the-person-is-at-the-place-where-retry-hint-and-solution
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:2
+    'on':
+      Alice asks for a hint:
+        target: Alice's hint highlights the piece to move — 1
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:13
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          example: A first hint highlights the piece to move
+      Alice asks for another hint:
+        target: Alice's hint shows the solution move — 2
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:17
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has taken a hint
+          example: A second hint shows the solution move
+      Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has taken two hints:
+        target: Alice's puzzle is solved — 3
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:22
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has taken two hints
+          example: A puzzle can still be solved after both hints
+      Alice tries to retry before a wrong move or result:
+        target: Alice is not offered to retry — 4
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:29
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          example: A puzzle without a wrong move or a result offers no retry
+      ? Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        played a wrong move
+      : target: Alice is still asked to find the next move — 5
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:34
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move
+          example: Retrying after a wrong move lets Alice carry on solving
+      ? Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        played a wrong move and retried
+      : target: Alice's puzzle is solved — 6
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:39
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move and retried
+          example: A puzzle solved after a retry is still logged as failed
+      ? Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        solved the puzzle
+      : target: Alice is asked to find the next move — 7
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:46
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has solved the puzzle
+          example: Retrying a solved puzzle keeps the solved outcome
+      ? Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        shown the solution
+      : target: Alice is asked to find the next move — 8
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:52
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has shown the solution
+          example: Retrying a shown solution keeps the failed outcome
+      ? Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        skipped the puzzle
+      : target: Alice is asked to find the next move — 9
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:58
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has skipped the puzzle
+          example: Retrying a skipped puzzle keeps the abandoned outcome
+      Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space and Alice has taken a hint:
+        target: Alice's puzzle remains revealed — 10
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:68
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has taken a hint
+          example: Showing the line after a hint finishes without an extra move
+      ? Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        played a wrong move
+      : target: Alice's game log records that puzzle as failed — 11
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:74
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move
+          example: Showing the solution after a wrong move still counts one failed puzzle
+      Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space:
+        target: Alice's game log records that puzzle as failed — 12
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:80
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          example: Showing the solution of a clean attempt fails it
+      Alice skips the puzzle:
+        target: Alice's puzzle remains skipped — 13
+        meta:
+          source:
+          - specs/chess/puzzle-controls.feature:88
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move
+          example: A wrong move followed by a skip remains failed
+  Alice's hint highlights the piece to move — 1:
+    meta:
+      description: The person observes that alice's hint highlights the piece to move.
+      snapshot: the-person-observes-that-alice-s-hint-highlights-the-piece-to-move
+      recognize: []
+      checks:
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint shows the solution move — 2:
+    meta:
+      description: The person observes that alice's hint shows the solution move.
+      snapshot: the-person-observes-that-alice-s-hint-shows-the-solution-move
+      recognize: []
+      checks:
+      - Alice's hint shows the solution move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle is solved — 3:
+    meta:
+      description: The person observes that alice's puzzle is solved.
+      snapshot: the-person-observes-that-alice-s-puzzle-is-solved
+      recognize: []
+      checks:
+      - Alice's puzzle is solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:22
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is not offered to retry — 4:
+    meta:
+      description: The person observes that alice is not offered to retry.
+      snapshot: the-person-observes-that-alice-is-not-offered-to-retry
+      recognize: []
+      checks:
+      - Alice is not offered to retry
+      - Alice is still asked to find the next move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is still asked to find the next move — 5:
+    meta:
+      description: The person observes that alice is still asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-still-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is still asked to find the next move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:34
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle is solved — 6:
+    meta:
+      description: The person observes that alice's puzzle is solved.
+      snapshot: the-person-observes-that-alice-s-puzzle-is-solved
+      recognize: []
+      checks:
+      - Alice's puzzle is solved
+      - Alice's game log records that puzzle as failed
+      - Alice's stats show 1 played, 0 solved, and 0% accuracy
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is asked to find the next move — 7:
+    meta:
+      description: The person observes that alice is asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is asked to find the next move
+      - Alice's game log records that puzzle as solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:46
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is asked to find the next move — 8:
+    meta:
+      description: The person observes that alice is asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is asked to find the next move
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is asked to find the next move — 9:
+    meta:
+      description: The person observes that alice is asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is asked to find the next move
+      - Alice's game log records that puzzle as abandoned
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:58
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle remains revealed — 10:
+    meta:
+      description: The person observes that alice's puzzle remains revealed.
+      snapshot: the-person-observes-that-alice-s-puzzle-remains-revealed
+      recognize: []
+      checks:
+      - Alice's puzzle remains revealed
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:68
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's game log records that puzzle as failed — 11:
+    meta:
+      description: The person observes that alice's game log records that puzzle as failed.
+      snapshot: the-person-observes-that-alice-s-game-log-records-that-puzzle-as-failed
+      recognize: []
+      checks:
+      - Alice's game log records that puzzle as failed
+      - Alice's stats show 1 played, 0 solved, and 0% accuracy
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:74
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's game log records that puzzle as failed — 12:
+    meta:
+      description: The person observes that alice's game log records that puzzle as failed.
+      snapshot: the-person-observes-that-alice-s-game-log-records-that-puzzle-as-failed
+      recognize: []
+      checks:
+      - Alice's game log records that puzzle as failed
+      - Alice's stats show 1 played, 0 solved, and 0% accuracy
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:80
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle remains skipped — 13:
+    meta:
+      description: The person observes that alice's puzzle remains skipped.
+      snapshot: the-person-observes-that-alice-s-puzzle-remains-skipped
+      recognize: []
+      checks:
+      - Alice's puzzle remains skipped
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-controls.feature:88
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,51 @@
+id: spaces-spaces
+initial: Viewing Spaces
+meta:
+  context: Spaces
+  kind: flow
+  owner: Spaces owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/spaces-client/src/use-spaces-list-ready.ts
+  - libs/spaces-client/src/spaces.tsx
+  - libs/spaces-client/src/spaces-screen.tsx
+  - libs/spaces-client/src/spaces-notices.tsx
+  - libs/spaces-client/src/spaces-nav-context.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Spaces:
+    meta:
+      description: The person is at the place where spaces.
+      snapshot: the-person-is-at-the-place-where-spaces
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/spaces.feature:2
+    'on':
+      Opens the described view:
+        target: spaces can open in this environment — 1
+        meta:
+          source:
+          - specs/spaces/spaces.feature:9
+          condition: []
+          example: People can host and join spaces in this environment
+  spaces can open in this environment — 1:
+    meta:
+      description: The person observes that spaces can open in this environment.
+      snapshot: the-person-observes-that-spaces-can-open-in-this-environment
+      recognize: []
+      checks:
+      - spaces can open in this environment
+      - the app can take people into a space
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/spaces.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

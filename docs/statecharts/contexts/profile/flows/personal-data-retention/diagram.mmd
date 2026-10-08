@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing End retention of deleted personal data" as s0
+  state "the team has erased Alice's ordinary personal data — 1" as s1
+  state "Bob cannot find the deleted profile because Alice deleted the account — 2" as s2
+  state "Alice sees the minimum payment records kept for accounting and disputes — 3" as s3
+  state "the team cannot use it to restore a profile or promote the product to Alice — 4" as s4
+  state "Alice has the same account and retained personal data — 5" as s5
+  [*] --> s0
+  s0 --> s1: 1 day passes
+  s0 --> s2: Bob looks for Alice's profile
+  s0 --> s3: Alice opens the retention explanation
+  s0 --> s4: the team reviews that retained personal data
+  s0 --> s5: Alice signs in with Google
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

@@ -1,0 +1,51 @@
+journeys:
+  A guest's offline solve survives the app closing before the connection comes back:
+    description: A guest's offline solve survives the app closing before the connection comes back
+    startingConditions:
+    - Alice is a guest
+    - Alice is playing puzzles in their space
+    - Alice has solved a puzzle while offline
+    - Alice has closed and reopened the app
+    events:
+    - the connection comes back
+    endsIn: Alice's game log records that puzzle as solved — 1
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-guest-carryover.feature:10 — A guest's offline solve survives the app closing before the
+      connection comes back
+    exampleRow: []
+  Signing in keeps what a guest played offline:
+    description: Signing in keeps what a guest played offline
+    startingConditions:
+    - Alice is a guest
+    - Alice is playing puzzles in their space
+    - Alice has solved a puzzle while offline
+    - the connection has come back
+    events:
+    - Alice signs in with Google
+    endsIn: Alice's stats show 1 played, 1 solved, and 100% accuracy — 2
+    checks:
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    - Alice's game log records that puzzle as solved
+    gherkin:
+    - specs/chess/puzzle-guest-carryover.feature:19 — Signing in keeps what a guest played offline
+    exampleRow: []
+  A guest's offline solve reaches their other device once they sign in:
+    description: A guest's offline solve reaches their other device once they sign in
+    startingConditions:
+    - Alice is a guest
+    - Alice is playing puzzles in their space
+    - Alice has solved a puzzle while offline
+    - Alice has since come back online and signed in with Google
+    events:
+    - Alice's account opens on another device
+    endsIn: Alice's other device shows the same puzzle rating within 30 seconds — 3
+    checks:
+    - Alice's other device shows the same puzzle rating within 30 seconds
+    - Alice's other device shows 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-guest-carryover.feature:28 — A guest's offline solve reaches their other device once they
+      sign in
+    exampleRow: []

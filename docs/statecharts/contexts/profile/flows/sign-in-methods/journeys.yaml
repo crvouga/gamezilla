@@ -1,0 +1,104 @@
+journeys:
+  A connected Apple account becomes a sign-in method:
+    description: A connected Apple account becomes a sign-in method
+    startingConditions:
+    - Alice is signed in with Google
+    events:
+    - Alice connects Apple
+    endsIn: Alice's sign-in methods are Google and Apple — 1
+    checks:
+    - Alice's sign-in methods are Google and Apple
+    gherkin:
+    - specs/profile/sign-in-methods.feature:9 — A connected Apple account becomes a sign-in method
+    exampleRow: []
+  A connected Apple account signs Alice into the same account:
+    description: A connected Apple account signs Alice into the same account
+    startingConditions:
+    - Alice has connected Apple to their account
+    - Alice has signed out
+    events:
+    - Alice signs in with Apple
+    endsIn: Alice is signed into the same account — 2
+    checks:
+    - Alice is signed into the same account
+    gherkin:
+    - specs/profile/sign-in-methods.feature:14 — A connected Apple account signs Alice into the same account
+    exampleRow: []
+  A connected Apple account can be removed:
+    description: A connected Apple account can be removed
+    startingConditions:
+    - Alice has connected Apple to their account
+    events:
+    - Alice removes Apple from their account
+    endsIn: Alice's sign-in methods are Google — 3
+    checks:
+    - Alice's sign-in methods are Google
+    gherkin:
+    - specs/profile/sign-in-methods.feature:20 — A connected Apple account can be removed
+    exampleRow: []
+  The last sign-in method cannot be removed:
+    description: The last sign-in method cannot be removed
+    startingConditions:
+    - Alice is signed in with Google
+    events:
+    - Alice tries to remove Google
+    endsIn: Alice's sign-in methods are still Google — 4
+    checks:
+    - Alice's sign-in methods are still Google
+    gherkin:
+    - specs/profile/sign-in-methods.feature:25 — The last sign-in method cannot be removed
+    exampleRow: []
+  An Apple account that already signs into another account cannot be connected:
+    description: An Apple account that already signs into another account cannot be connected
+    startingConditions:
+    - Alice's Apple account already signs into a separate account
+    - Alice is signed in with Google
+    events:
+    - Alice tries to connect that Apple account
+    endsIn: Alice is told that Apple account belongs to another account — 5
+    checks:
+    - Alice is told that Apple account belongs to another account
+    - Alice's sign-in methods are Google
+    gherkin:
+    - specs/profile/sign-in-methods.feature:30 — An Apple account that already signs into another account cannot
+      be connected
+    exampleRow: []
+  An unverified address match has Alice prove the accounts are theirs:
+    description: An unverified address match has Alice prove the accounts are theirs
+    startingConditions:
+    - Alice has an account they sign into with Google at an unverified address
+    - Alice has signed out
+    events:
+    - Alice signs in with Apple at the same address
+    endsIn: Alice is asked to prove the account match — 6
+    checks:
+    - Alice is asked to prove the account match
+    - Alice is signed out
+    gherkin:
+    - specs/profile/sign-in-methods.feature:37 — An unverified address match has Alice prove the accounts are theirs
+    exampleRow: []
+  Proving an unverified address match with Google makes one account:
+    description: Proving an unverified address match with Google makes one account
+    startingConditions:
+    - Alice is being asked to prove an unverified address match
+    events:
+    - Alice confirms the match with Google
+    endsIn: Alice is signed into the same account — 7
+    checks:
+    - Alice is signed into the same account
+    - Alice's sign-in methods are Google and Apple
+    gherkin:
+    - specs/profile/sign-in-methods.feature:44 — Proving an unverified address match with Google makes one account
+    exampleRow: []
+  Keeping an unverified address match separate makes a new account:
+    description: Keeping an unverified address match separate makes a new account
+    startingConditions:
+    - Alice is being asked to prove an unverified address match
+    events:
+    - Alice keeps the accounts separate
+    endsIn: Alice is signed into a different account — 8
+    checks:
+    - Alice is signed into a different account
+    gherkin:
+    - specs/profile/sign-in-methods.feature:50 — Keeping an unverified address match separate makes a new account
+    exampleRow: []

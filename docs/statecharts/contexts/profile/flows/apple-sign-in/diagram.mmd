@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Sign in with Apple" as s0
+  state "Alice has a signed-in account — 1" as s1
+  state "Alice is signed into the same account — 2" as s2
+  state "Alice is signed into a different account — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice signs in with Apple
+  s0 --> s2: Alice signs in with Apple using the same address
+  s0 --> s3: Alice signs in with Apple and hides their address
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

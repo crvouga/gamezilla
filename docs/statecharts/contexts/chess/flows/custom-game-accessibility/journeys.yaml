@@ -1,0 +1,54 @@
+journeys:
+  A creator chooses a bot with the keyboard alone:
+    description: A creator chooses a bot with the keyboard alone
+    startingConditions:
+    - Alice has a configuring Custom Game
+    events:
+    - Alice assigns a bot to Black in the Custom Game with the keyboard alone
+    endsIn: Black is a bot in the Custom Game — 1
+    checks:
+    - Black is a bot in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-accessibility.feature:8 — A creator chooses a bot with the keyboard alone
+    exampleRow: []
+  A creator starts with the keyboard alone:
+    description: A creator starts with the keyboard alone
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    - Alice and Bob are ready for the Custom Game
+    events:
+    - Alice starts the Custom Game with the keyboard alone
+    endsIn: The Custom Game is active with White to move — 2
+    checks:
+    - The Custom Game is active with White to move
+    gherkin:
+    - specs/chess/custom-game-accessibility.feature:13 — A creator starts with the keyboard alone
+    exampleRow: []
+  The choices are described to a person listening:
+    description: The choices are described to a person listening
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Black in the Custom Game is a bot
+    events:
+    - Alice listens to the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is
+      a bot
+    endsIn: Alice hears White is Alice and Black is a bot — 3
+    checks:
+    - Alice hears White is Alice and Black is a bot
+    - Alice hears whether the Custom Game can start
+    gherkin:
+    - specs/chess/custom-game-accessibility.feature:22 — The choices are described to a person listening
+    exampleRow: []
+  The completed outcome is described to a person listening:
+    description: The completed outcome is described to a person listening
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice listens to the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as
+      Black
+    endsIn: Alice hears the Custom Game's completed outcome — 4
+    checks:
+    - Alice hears the Custom Game's completed outcome
+    gherkin:
+    - specs/chess/custom-game-accessibility.feature:29 — The completed outcome is described to a person listening
+    exampleRow: []

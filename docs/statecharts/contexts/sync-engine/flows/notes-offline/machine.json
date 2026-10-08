@@ -1,0 +1,138 @@
+{
+  "id": "sync-engine-notes-offline",
+  "initial": "Viewing Notes written offline",
+  "meta": {
+    "context": "Sync engine",
+    "kind": "flow",
+    "owner": "Sync engine owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Notes written offline": {
+      "meta": {
+        "description": "The person is at the place where notes written offline.",
+        "snapshot": "the-person-is-at-the-place-where-notes-written-offline",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/notes-offline.feature:2"]
+      },
+      "on": {
+        "Alice writes the note 'Groceries' saying 'milk'": {
+          "target": "Alice sees the note \"Groceries\" at once — 1",
+          "meta": {
+            "source": ["specs/sync-engine/notes-offline.feature:13"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice's app is offline"
+            ],
+            "example": "A note written offline shows for its writer but waits to reach others"
+          }
+        },
+        "Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk'": {
+          "target": "Bob sees the note \"Groceries\" saying \"milk\" — 2",
+          "meta": {
+            "source": ["specs/sync-engine/notes-offline.feature:18"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice's app is offline",
+              "Alice has written the note \"Groceries\" saying \"milk\""
+            ],
+            "example": "A note written offline reaches others once the app is back online"
+          }
+        },
+        "Alice's app has its data cleared": {
+          "target": "Alice sees the note \"Groceries\" saying \"milk\" — 3",
+          "meta": {
+            "source": ["specs/sync-engine/notes-offline.feature:24"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice's app is offline",
+              "Alice has written the note \"Groceries\" saying \"milk\""
+            ],
+            "example": "Notes not yet sent still show after the app's data is cleared offline"
+          }
+        },
+        "Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk' and Alice has deleted the note 'Hotel' before anyone wrote it and Alice has deleted the note 'Groceries' and Bob has written the notes 'Hotel' and 'Groceries'": {
+          "target": "Alice and Bob agree on every note — 4",
+          "meta": {
+            "source": ["specs/sync-engine/notes-offline.feature:31"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice's app is offline",
+              "Alice has written the note \"Groceries\" saying \"milk\"",
+              "Alice has deleted the note \"Hotel\" before anyone wrote it",
+              "Alice has deleted the note \"Groceries\"",
+              "Bob has written the notes \"Hotel\" and \"Groceries\""
+            ],
+            "example": "After offline edits cross what someone else wrote meanwhile, everyone agrees on every note"
+          }
+        }
+      }
+    },
+    "Alice sees the note \"Groceries\" at once — 1": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" at once.",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-at-once",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" at once",
+          "Bob does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/notes-offline.feature:13"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob sees the note \"Groceries\" saying \"milk\" — 2": {
+      "meta": {
+        "description": "The person observes that bob sees the note \"Groceries\" saying \"milk\".",
+        "snapshot": "the-person-observes-that-bob-sees-the-note-groceries-saying-milk",
+        "recognize": [],
+        "checks": ["Bob sees the note \"Groceries\" saying \"milk\""],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/notes-offline.feature:18"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the note \"Groceries\" saying \"milk\" — 3": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" saying \"milk\".",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-saying-milk",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" saying \"milk\"",
+          "Bob does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/notes-offline.feature:24"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob agree on every note — 4": {
+      "meta": {
+        "description": "The person observes that alice and Bob agree on every note.",
+        "snapshot": "the-person-observes-that-alice-and-bob-agree-on-every-note",
+        "recognize": [],
+        "checks": ["Alice and Bob agree on every note"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/notes-offline.feature:31"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

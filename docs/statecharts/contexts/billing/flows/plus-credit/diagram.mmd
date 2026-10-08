@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Plus credit from switching plans" as s0
+  state "Alice's membership is active on the monthly plan — 1" as s1
+  state "Alice's membership is active — 2" as s2
+  state "Alice's membership is delinquent — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice switches the membership to the monthly plan in the billing portal
+  s0 --> s2: Alice's billing period ends when Alice has subscribed to Plus and Alice's free trial has ended and Alice has switched the membership to the yearly plan in the billing portal and Alice has Plus credit from the yearly plan and Alice's card has expired
+  s0 --> s3: Alice's billing period ends when Alice has subscribed to Plus and Alice's free trial has ended and Alice has switched the membership to the yearly plan in the billing portal and Alice's Plus credit no longer covers a renewal and Alice's card has expired
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

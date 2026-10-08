@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing Create a space" as s0
+  state "Alice's lobby lists Alice's space — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice goes back to the lobby
+  s1 --> [*]

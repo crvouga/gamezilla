@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Withdraw readiness" as s0
+  state "Bob is not ready for the Custom Game — 1" as s1
+  state "Bob is told the Custom Game has already started — 2" as s2
+  [*] --> s0
+  s0 --> s1: Bob withdraws readiness for the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game
+  s0 --> s2: Bob withdraws readiness for the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]

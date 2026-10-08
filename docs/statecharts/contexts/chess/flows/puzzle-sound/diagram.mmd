@@ -1,0 +1,45 @@
+stateDiagram-v2
+  state "Viewing Respect the app's sounds while solving and reviewing" as s0
+  state "Alice hears the puzzle's move sounds — 1" as s1
+  state "Alice cannot hear puzzle sounds while the app's sounds are off — 2" as s2
+  state "Alice hears the puzzle's capture sound — 3" as s3
+  state "Alice hears the puzzle's capture sound — 4" as s4
+  state "Alice cannot hear puzzle sounds while the app's sounds are off — 5" as s5
+  state "Alice is told the move was wrong — 6" as s6
+  state "Alice is told the move was wrong — 7" as s7
+  state "Alice's sounds are off — 8" as s8
+  state "Alice cannot hear puzzle sounds while the app's sounds are off — 9" as s9
+  state "Alice's sounds are on — 10" as s10
+  state "Alice hears no new puzzle feedback — 11" as s11
+  state "Alice hears no new puzzle feedback — 12" as s12
+  state "Alice hears the review's move sound — 13" as s13
+  state "Alice cannot hear puzzle sounds while the app's sounds are off — 14" as s14
+  [*] --> s0
+  s0 --> s1: Alice plays a1-a5 when Alice is signed in and Alice has turned sounds on and Alice is solving the two-rook clearance puzzle
+  s0 --> s2: Alice plays a1-a5 when Alice is signed in and Alice has turned sounds off and Alice is solving the two-rook clearance puzzle
+  s0 --> s3: Alice plays e5-d6 when Alice is signed in and Alice has turned sounds on and Alice is solving the en passant puzzle
+  s0 --> s4: Alice plays e5-d6 when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle and Alice has since turned sounds on and returned to that unfinished puzzle
+  s0 --> s5: Alice plays e5-d6 when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle
+  s0 --> s6: Alice plays a wrong move when Alice is signed in and Alice has turned sounds on and Alice is solving the castling puzzle
+  s0 --> s7: Alice plays a wrong move when Alice is signed in and Alice has turned sounds off and Alice is solving the castling puzzle
+  s0 --> s8: Alice turns sounds off
+  s0 --> s9: Alice plays a1-a5 when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has since turned sounds off and returned to that unfinished puzzle
+  s0 --> s10: Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice is solving the two-rook clearance puzzle
+  s0 --> s11: Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle
+  s0 --> s12: Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice has solved the en passant puzzle
+  s0 --> s13: Alice steps forward one move in the review when Alice is signed in and Alice has turned sounds on and Alice is reviewing the solved puzzle at move 3
+  s0 --> s14: Alice steps forward one move in the review when Alice is signed in and Alice has turned sounds off and Alice is reviewing the solved puzzle at move 3
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]

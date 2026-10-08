@@ -1,0 +1,1418 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing Lobby while hosting an open space
+    - End space resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Stop viewing presence resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    endsIn: Seeing Viewing Presence while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0e6626ead9ab75fa98e6a11b048da29bb7dde6b03b3711bc0282dcdf66fcd9dc
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - The connection returns resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing Lobby while hosting an open space
+    endsIn: Seeing Lobby while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0dd2d9b5722e7c99269f7acba6729baf8d1adca0152212120ac252eef3887776
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    endsIn: Seeing Viewing Presence
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 84791fb9b08d62035d29420b42729b77f6910d7a18d4546806eda666722b9503
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    endsIn: Seeing Ended
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7095d21c97042572d88df46271617004717213bb7d1632812073faf4f780780f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - View presence resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Stop viewing presence resulting in seeing In Space
+    - Leave resulting in seeing Left
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - End space resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    endsIn: Seeing Lobby while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2c2a5908d7ba494ca2aeeb590fef7b58657c41245d683f9003476e3648aae560
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    endsIn: Seeing Lobby
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f124271fde487d08b38a9502d9838e841845f6abb370451d4e505fd93ec027e4
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Stop viewing presence resulting in seeing In Space
+    - End space resulting in seeing In Space
+    - The connection returns resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    endsIn: Seeing Lobby
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c6f76691ee6951a1280e833139f9d6140f48ea5a59fa7c5dfaf41d9455316200
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - End space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    endsIn: Seeing Ended
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 08c213451ebcff1a7da325e3ac4ec1e0cef08c7329d516fd2c899b460b391f80
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Left while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Left while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Left while hosting an open space
+    - Stop viewing presence resulting in seeing Left while hosting an open space
+    - Leave resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Ended while hosting an open space
+    - Create space resulting in seeing Ended while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    endsIn: Seeing Lobby while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0b03c347c54138c1029b78b21a66291bef49b689346308e1e0007bee28f9fb4d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    endsIn: Seeing In Space while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 602458376770fe4405777e0e2ba80cb19f26b378ec7baea7388887146cd5e130
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Step out resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    endsIn: Seeing In Space while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: dffaf6d0308011a9ea2367f09aa36511802eb1374247aaa55b50e12d117e62d9
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Step out resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    endsIn: Seeing Lobby
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8f28050a616f9354054e127c85b77190045452f35c994ae9b71b30410b8f19e1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Leave resulting in seeing Left
+    - View presence resulting in seeing Left
+    - Stop viewing presence resulting in seeing Left
+    - Step out resulting in seeing Left
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    endsIn: Seeing In Space while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f50c4e25685e4a40a4da2f8ccca5a65f55ecb8081485933bd8a2445cff2e2620
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Stop viewing presence resulting in seeing Lobby while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    endsIn: Seeing Lobby while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c3363e1b553d3132f08943b708601a36e98c963c2a29d8ccfd8aeefd70a50318
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Stop viewing presence resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - End space resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Join resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    endsIn: Seeing Viewing Presence while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7ad0a3ad5d2eb0dee3eacfaebcb721dd2288d9328a16d216952bd28d5ce51cb9
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Step out resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    endsIn: Seeing In Space while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 59e33934660ade89db2b9c739ebde686344fdfc09478ce7afe8baed276306d0f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Stop viewing presence resulting in seeing Lobby while hosting an open space
+    - End space resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Leave resulting in seeing Left
+    - Stop viewing presence resulting in seeing Left
+    - Step out resulting in seeing Left
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    endsIn: Seeing In Space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 85bdea74aa19d724b1d18a67eed5f34388a7c0256b3a4ec6f751c2a5d86b83dd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Leave resulting in seeing Left
+    endsIn: Seeing Left
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 82c047fe95f7b865af72160aadcb8434f745cdfb1d165aa0da4b33b52dc3e7d1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Step out resulting in seeing Lobby
+    - Return to space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - End space resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Create space resulting in seeing Lobby while hosting an open space
+    - Leave resulting in seeing Lobby while hosting an open space
+    endsIn: Seeing Lobby while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2ba2c1d2050b633bc11c4bdb0b5d2e5da3d4f2c4b21c94cf95c6c308047fa399
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Leave resulting in seeing In Space
+    - The connection returns resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    endsIn: Seeing Lobby
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 305131587ae4a5034185c8a6dad8bc2f94a77e6a1c7e3a77932d1d28aeff5882
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Stop viewing presence resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Stop viewing presence resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Return to space resulting in seeing Ended
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    endsIn: Seeing Lobby
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 415f7fec7d0d6db266c7311d0755140150b683ccadc77d38485115a8c8d595f4
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing Lobby
+    - End space resulting in seeing Lobby
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    endsIn: Seeing In Space while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3c4b18826fcbf80e4120bebfc0cb0f7660893ee94b831497384432986f96e7b5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Join resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Go back to lobby resulting in seeing Viewing Presence while hosting an open space
+    - Create space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Join resulting in seeing Viewing Presence while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Return to space resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Go back to lobby resulting in seeing Lobby while hosting an open space
+    - Join resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    endsIn: Seeing Viewing Presence while hosting an open space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8e273c3f72a75b686c42cbbe3750be4fc907a16dceb1bce687f99f2966b77586
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - View presence resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - View presence resulting in seeing Lobby
+    - Stop viewing presence resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing In Space while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - View presence resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Stop viewing presence resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing Viewing Presence while hosting an open space
+    - Leave resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Leave resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Create space resulting in seeing Lobby
+    - Leave resulting in seeing Lobby
+    - Create space resulting in seeing In Space while hosting an open space
+    - Go back to lobby resulting in seeing In Space while hosting an open space
+    - View presence resulting in seeing Viewing Presence while hosting an open space
+    - Stop viewing presence resulting in seeing In Space while hosting an open space
+    - Create space resulting in seeing In Space while hosting an open space
+    - Step out resulting in seeing Lobby while hosting an open space
+    - Return to space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing In Space while hosting an open space
+    - End space resulting in seeing Ended
+    - Go back to lobby resulting in seeing Ended
+    - Create space resulting in seeing Ended
+    - Step out resulting in seeing Ended
+    - Go back to lobby resulting in seeing Lobby
+    - Join resulting in seeing In Space
+    - Return to space resulting in seeing In Space
+    - View presence resulting in seeing Viewing Presence
+    - Stop viewing presence resulting in seeing In Space
+    endsIn: Seeing In Space
+    quintTrace:
+      model: specs/spaces/space-hosting.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3236174f4f5be8cf89f20579aed1f81cad04d56bc8f61059402c836b1e48f80c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

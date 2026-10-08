@@ -1,0 +1,302 @@
+id: chess-puzzle-ingest
+initial: Viewing Add puzzles to an environment
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Add puzzles to an environment:
+    meta:
+      description: The person is at the place where add puzzles to an environment.
+      snapshot: the-person-is-at-the-place-where-add-puzzles-to-an-environment
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:2
+    'on':
+      Alice adds puzzles to this environment when Alice is signed in and on the team for this environment:
+        target: Alice sees that this environment is adding puzzles — 1
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:8
+          condition:
+          - Alice is signed in and on the team for this environment
+          example: A person on the team starts adding puzzles
+      Alice tries to add puzzles to this environment when Alice is signed in and not on the team for this environment:
+        target: Alice is told only the team can add puzzles — 2
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:13
+          condition:
+          - Alice is signed in and not on the team for this environment
+          example: A person outside the team cannot add puzzles
+      ? Alice adds puzzles to this environment when Alice is on the team for this environment and this environment
+        is ready to add puzzles
+      : target: Alice sees that this environment is adding puzzles — 3
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:21
+          condition:
+          - Alice is on the team for this environment
+          - this environment is ready to add puzzles
+          example: A ready environment starts adding puzzles
+      ? Alice tries to add puzzles to this environment when Alice is on the team for this environment and this environment
+        is adding puzzles
+      : target: Alice is told this environment is already adding puzzles — 4
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:27
+          condition:
+          - Alice is on the team for this environment
+          - this environment is adding puzzles
+          example: Another addition is refused while one is in progress
+      ? Alice adds puzzles to this environment when Alice is on the team for this environment and this environment
+        finished adding puzzles
+      : target: Alice sees that this environment is adding puzzles — 5
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:34
+          condition:
+          - Alice is on the team for this environment
+          - this environment finished adding puzzles
+          example: A team can start again after it finished adding puzzles
+      ? Alice adds puzzles to this environment when Alice is on the team for this environment and this environment
+        failed to add puzzles
+      : target: Alice sees that this environment is adding puzzles — 6
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:40
+          condition:
+          - Alice is on the team for this environment
+          - this environment failed to add puzzles
+          example: A team can start again after it failed to add puzzles
+      Alice adds puzzles to this environment when Alice is on the team for this environment:
+        target: this environment's puzzle pool holds the added puzzles — 7
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:48
+          condition:
+          - Alice is on the team for this environment
+          example: Adding puzzles changes this environment's puzzle pool
+      ? Alice adds puzzles to this environment when Alice is on the team for this environment and another environment
+        has its own puzzle pool
+      : target: the other environment's puzzle pool is still unchanged — 8
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:53
+          condition:
+          - Alice is on the team for this environment
+          - another environment has its own puzzle pool
+          example: Adding puzzles leaves another environment unchanged
+      this environment finishes adding puzzles:
+        target: Alice sees how many puzzles were added — 9
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:61
+          condition:
+          - Alice is on the team for this environment
+          - this environment is adding puzzles
+          example: A finished addition reports what entered the puzzle pool
+      this environment fails to add puzzles:
+        target: Alice is told adding puzzles failed and why — 10
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:68
+          condition:
+          - Alice is on the team for this environment
+          - this environment is adding puzzles
+          example: A failed addition leaves the earlier puzzle pool available
+      Alice's device comes back online:
+        target: Alice sees how many puzzles were added — 11
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:75
+          condition:
+          - Alice is on the team for this environment
+          - adding puzzles finished while Alice was offline
+          example: A finished addition appears when the connection returns
+      Alice plays through every puzzle the feed offers:
+        target: none of the broken puzzles was served to Alice — 12
+        meta:
+          source:
+          - specs/chess/puzzle-ingest.feature:85
+          condition:
+          - the team has added seven puzzles, five of them broken
+          - Alice is a guest
+          - Alice is playing puzzles in their space
+          example: Broken puzzles the team added are never served
+  Alice sees that this environment is adding puzzles — 1:
+    meta:
+      description: The person observes that alice sees that this environment is adding puzzles.
+      snapshot: the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles
+      recognize: []
+      checks:
+      - Alice sees that this environment is adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told only the team can add puzzles — 2:
+    meta:
+      description: The person observes that alice is told only the team can add puzzles.
+      snapshot: the-person-observes-that-alice-is-told-only-the-team-can-add-puzzles
+      recognize: []
+      checks:
+      - Alice is told only the team can add puzzles
+      - this environment is not adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees that this environment is adding puzzles — 3:
+    meta:
+      description: The person observes that alice sees that this environment is adding puzzles.
+      snapshot: the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles
+      recognize: []
+      checks:
+      - Alice sees that this environment is adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told this environment is already adding puzzles — 4:
+    meta:
+      description: The person observes that alice is told this environment is already adding puzzles.
+      snapshot: the-person-observes-that-alice-is-told-this-environment-is-already-adding-puzzles
+      recognize: []
+      checks:
+      - Alice is told this environment is already adding puzzles
+      - this environment is still adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees that this environment is adding puzzles — 5:
+    meta:
+      description: The person observes that alice sees that this environment is adding puzzles.
+      snapshot: the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles
+      recognize: []
+      checks:
+      - Alice sees that this environment is adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:34
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees that this environment is adding puzzles — 6:
+    meta:
+      description: The person observes that alice sees that this environment is adding puzzles.
+      snapshot: the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles
+      recognize: []
+      checks:
+      - Alice sees that this environment is adding puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:40
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  this environment's puzzle pool holds the added puzzles — 7:
+    meta:
+      description: The person observes that this environment's puzzle pool holds the added puzzles.
+      snapshot: the-person-observes-that-this-environment-s-puzzle-pool-holds-the-added-puzzles
+      recognize: []
+      checks:
+      - this environment's puzzle pool holds the added puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:48
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the other environment's puzzle pool is still unchanged — 8:
+    meta:
+      description: The person observes that the other environment's puzzle pool is still unchanged.
+      snapshot: the-person-observes-that-the-other-environment-s-puzzle-pool-is-still-unchanged
+      recognize: []
+      checks:
+      - the other environment's puzzle pool is still unchanged
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:53
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees how many puzzles were added — 9:
+    meta:
+      description: The person observes that alice sees how many puzzles were added.
+      snapshot: the-person-observes-that-alice-sees-how-many-puzzles-were-added
+      recognize: []
+      checks:
+      - Alice sees how many puzzles were added
+      - Alice sees how many puzzles were broken
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:61
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told adding puzzles failed and why — 10:
+    meta:
+      description: The person observes that alice is told adding puzzles failed and why.
+      snapshot: the-person-observes-that-alice-is-told-adding-puzzles-failed-and-why
+      recognize: []
+      checks:
+      - Alice is told adding puzzles failed and why
+      - a solver can still play from the earlier puzzle pool
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:68
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees how many puzzles were added — 11:
+    meta:
+      description: The person observes that alice sees how many puzzles were added.
+      snapshot: the-person-observes-that-alice-sees-how-many-puzzles-were-added
+      recognize: []
+      checks:
+      - Alice sees how many puzzles were added
+      - Alice sees how many puzzles were broken
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:75
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  none of the broken puzzles was served to Alice — 12:
+    meta:
+      description: The person observes that none of the broken puzzles was served to Alice.
+      snapshot: the-person-observes-that-none-of-the-broken-puzzles-was-served-to-alice
+      recognize: []
+      checks:
+      - none of the broken puzzles was served to Alice
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:85
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Addresses that lead nowhere" as s0
+  state "Alice is told there is nothing at that address — 1" as s1
+  state "Alice is on Spaces — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice opens an address the app does not have
+  s0 --> s2: Alice takes the way back to Spaces
+  s1 --> [*]
+  s2 --> [*]

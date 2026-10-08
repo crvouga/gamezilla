@@ -1,0 +1,154 @@
+journeys:
+  A solver shares a puzzle link to the puzzle they are solving:
+    description: A solver shares a puzzle link to the puzzle they are solving
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice has a puzzle link to the puzzle on their board — 1
+    checks:
+    - Alice has a puzzle link to the puzzle on their board
+    gherkin:
+    - specs/chess/puzzle-link.feature:13 — A solver shares a puzzle link to the puzzle they are solving
+    exampleRow: []
+  A solver shares a puzzle link to a puzzle they have finished:
+    description: A solver shares a puzzle link to a puzzle they have finished
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    events:
+    - Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      solved the puzzle
+    endsIn: Alice has a puzzle link to the puzzle on their board — 2
+    checks:
+    - Alice has a puzzle link to the puzzle on their board
+    gherkin:
+    - specs/chess/puzzle-link.feature:17 — A solver shares a puzzle link to a puzzle they have finished
+    exampleRow: []
+  Sharing a puzzle link again shares the same puzzle link:
+    description: Sharing a puzzle link again shares the same puzzle link
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has shared a puzzle link to the puzzle on their board
+    events:
+    - Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      shared a puzzle link to the puzzle on their board
+    endsIn: Alice has the same puzzle link as before — 3
+    checks:
+    - Alice has the same puzzle link as before
+    gherkin:
+    - specs/chess/puzzle-link.feature:22 — Sharing a puzzle link again shares the same puzzle link
+    exampleRow: []
+  Opening a puzzle link to an unplayed puzzle starts a rated attempt:
+    description: Opening a puzzle link to an unplayed puzzle starts a rated attempt
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is signed in
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed
+      in
+    endsIn: Bob has the hook-mate puzzle on their board — 4
+    checks:
+    - Bob has the hook-mate puzzle on their board
+    - Bob's attempt is rated
+    gherkin:
+    - specs/chess/puzzle-link.feature:33 — Opening a puzzle link to an unplayed puzzle starts a rated attempt
+    exampleRow: []
+  Opening a puzzle link to a puzzle already played is unrated:
+    description: Opening a puzzle link to a puzzle already played is unrated
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is signed in
+    - Bob has solved the hook-mate puzzle
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed
+      in and Bob has solved the hook-mate puzzle
+    endsIn: Bob has the hook-mate puzzle on their board — 5
+    checks:
+    - Bob has the hook-mate puzzle on their board
+    - Bob is told the attempt is unrated
+    gherkin:
+    - specs/chess/puzzle-link.feature:38 — Opening a puzzle link to a puzzle already played is unrated
+    exampleRow: []
+  Opening a puzzle link while offline tells the person puzzles need a connection:
+    description: Opening a puzzle link while offline tells the person puzzles need a connection
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is signed in
+    - Bob is offline
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed
+      in and Bob is offline
+    endsIn: Bob is told puzzles need a connection within 15 seconds — 6
+    checks:
+    - Bob is told puzzles need a connection within 15 seconds
+    gherkin:
+    - specs/chess/puzzle-link.feature:44 — Opening a puzzle link while offline tells the person puzzles need a connection
+    exampleRow: []
+  Opening a retired puzzle's link tells the person it is no longer available:
+    description: Opening a retired puzzle's link tells the person it is no longer available
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - the puzzle has since been retired
+    - Bob is signed in
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and the puzzle has
+      since been retired and Bob is signed in
+    endsIn: Bob is told the puzzle is no longer available — 7
+    checks:
+    - Bob is told the puzzle is no longer available
+    gherkin:
+    - specs/chess/puzzle-link.feature:52 — Opening a retired puzzle's link tells the person it is no longer available
+    exampleRow: []
+  A guest's puzzle link uses one of today's puzzle starts:
+    description: A guest's puzzle link uses one of today's puzzle starts
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is a guest who has played 19 puzzles today
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+      who has played 19 puzzles today
+    endsIn: Bob has the hook-mate puzzle on their board — 8
+    checks:
+    - Bob has the hook-mate puzzle on their board
+    - Bob can read that 0 rated puzzles remain today
+    gherkin:
+    - specs/chess/puzzle-link.feature:64 — A guest's puzzle link uses one of today's puzzle starts
+    exampleRow: []
+  Opening the same puzzle link again uses no further puzzle start:
+    description: Opening the same puzzle link again uses no further puzzle start
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is a guest who has played 18 puzzles today
+    - Bob has opened Alice's puzzle link
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+      who has played 18 puzzles today and Bob has opened Alice's puzzle link
+    endsIn: Bob is still asked to find the next move — 9
+    checks:
+    - Bob is still asked to find the next move
+    - Bob can read that 1 rated puzzles remain today
+    gherkin:
+    - specs/chess/puzzle-link.feature:70 — Opening the same puzzle link again uses no further puzzle start
+    exampleRow: []
+  A guest past the daily puzzle limit cannot open a puzzle link to an unplayed puzzle and is asked to sign in:
+    description: A guest past the daily puzzle limit cannot open a puzzle link to an unplayed puzzle and is asked
+      to sign in
+    startingConditions:
+    - Alice has shared a puzzle link to the hook-mate puzzle
+    - Bob is a guest who has finished today's last allowed puzzle
+    - Bob has never played the hook-mate puzzle
+    events:
+    - Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+      who has finished today's last allowed puzzle and Bob has never played the hook-mate puzzle
+    endsIn: Bob is told no new puzzle can start because today's allowance is used within 15 seconds — 10
+    checks:
+    - Bob is told no new puzzle can start because today's allowance is used within 15 seconds
+    - Bob is asked to sign in
+    gherkin:
+    - specs/chess/puzzle-link.feature:77 — A guest past the daily puzzle limit cannot open a puzzle link to an unplayed
+      puzzle and is asked to sign in
+    exampleRow: []

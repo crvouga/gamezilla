@@ -1,0 +1,26 @@
+journeys:
+  A signed-in person starts with free access:
+    description: A signed-in person starts with free access
+    startingConditions:
+    - Alice is signed in with Google
+    events:
+    - Alice views the billing plans
+    endsIn: Alice has free access — 1
+    checks:
+    - Alice has free access
+    gherkin:
+    - specs/billing/subscribe.feature:9 — A signed-in person starts with free access
+    exampleRow: []
+  Subscribing gives paid access with a monthly trial:
+    description: Subscribing gives paid access with a monthly trial
+    startingConditions:
+    - Alice is signed in with Google
+    events:
+    - Alice subscribes to Plus
+    endsIn: Alice has paid access — 2
+    checks:
+    - Alice has paid access
+    - Alice's membership is trialing on the monthly plan
+    gherkin:
+    - specs/billing/subscribe.feature:14 — Subscribing gives paid access with a monthly trial
+    exampleRow: []

@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Keeping sign-in methods straight" as s0
+  state "Alice's sign-in methods are Google and Apple — 1" as s1
+  state "Alice is told the account already has Google — 2" as s2
+  state "Alice is told that Apple account belongs to another account — 3" as s3
+  state "Alice's sign-in methods are Google and Apple — 4" as s4
+  state "Alice is told connecting failed — 5" as s5
+  state "Alice's sign-in methods are Google — 6" as s6
+  state "Alice's other device is signed into a different account — 7" as s7
+  state "Alice is told the last sign-in method cannot be removed — 8" as s8
+  [*] --> s0
+  s0 --> s1: Alice connects Apple when Alice is signed in with their Google account
+  s0 --> s2: Alice tries to connect a second Google account
+  s0 --> s3: Alice tries to connect Dave's Apple account
+  s0 --> s4: Alice connects Apple when Alice is signed in with their Google account and Alice's device has lost its connection and Alice's device is back online
+  s0 --> s5: Alice tries to connect Apple
+  s0 --> s6: Alice removes Apple from their account
+  s0 --> s7: Alice signs in with Apple on another device
+  s0 --> s8: Alice tries to remove Google from their account
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

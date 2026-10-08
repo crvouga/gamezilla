@@ -1,0 +1,1851 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7488f0cc1f95c5b284175c76566284e44dcd68a47fb421383aaf10ef4f111bad
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    endsIn: Owning the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4a03170ad4fcc5dca5de1fee8b980e7f9b5c733ce305ea1dc3c20afd4a94af4d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b7253f68931b11b515ef3728c67938bad0bc669d0dd83094c539a399df10ba43
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6aa5a8422c91035f9441b5a02df206acc9c6d629f61ca0a87083c29553bc4137
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9103266a4655b6fc2bd043e8b3c763872861384bb0751ee7d7c551fbbca62691
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f74cb37062d20d50b6a5d79e1996bae31f5930c0aa076690a8ec6d47998babd8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    endsIn: Owning the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3f1c343f44b7002656d3d231ee4634497954e1b7d3b02dbbc5692c95b7835e38
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e9489ea78e67d52ba1b8972ae51ee2671d874a4fb12c1c06e0a4bf31b1d94c38
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b122c51caf5dee5d2abe7a26362baa897da5d380680c3973eac64eb2cdb45a37
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0d1ce05f0ff8e63cf820a7c4631472b0b0b046504dc2b0d985bc089569a93982
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0d4c65f9175a989a06223aa49461440a6a1dc6e5aa4d0749eb4983430187b57a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    endsIn: Viewing another person’s room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0c14e99de623af3919696c3d9c96107c3b4c6ede5f4a9028747ee460bf6b4b19
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6ea503c3cb5728473bf9d07ea111bf10fdccbbd78fe412f8f49ec9ba52712c97
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1fdb733283e83c1ea2fce5f467bbaa908a27ae9e2c7370d920c33e80a03bcf59
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 741ccfe5dfe60de7fec3b127f9c01ec7091845fafdba0f53057285d953eee93f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ecc93a1c0aedccd79c24236e72775caea84021b250ccb84f9f9582ad6fab8605
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 574df1e4ee30662f14b5cd4f794e59bf624e6ce2467dbb51dc04733f6a720cd2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 84aa8e7f9520ab8c3627b508dddc951218c685d64bf2733a8132aa77d762093c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    - Add one resulting in owning the room
+    - Turn away resulting in owning the room
+    - Claim resulting in owning the room
+    - Claim resulting in owning the room
+    - Turn away resulting in owning the room
+    - Add one resulting in owning the room
+    endsIn: Owning the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4c600828c4cc6635f44c1a188cd284dbe9cd5c4a0ac9346cd1b405af3aa99b47
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    endsIn: Viewing another person’s room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b633d562a06f08bc35339a91934b9d0f698e5ff69283f370db8c3a947db3026a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7c274c394b3de59c25f568eb2ab3955f5733153d59c88595851c640b77c3940a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Turn away resulting in turned away from the room
+    - Claim resulting in turned away from the room
+    - Add one resulting in turned away from the room
+    endsIn: Turned away from the room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e958a244fad48920fd25152513a47fb81364be5d6ba630fd600935a63b6e85aa
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    endsIn: Viewing another person’s room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3932b8bd41003b52a56fa019eda5ae4f6d86c6b511a1bc6dfb283d046a14ef33
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing an unowned room
+    - Add one resulting in viewing an unowned room
+    - Turn away resulting in viewing an unowned room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Claim resulting in viewing another person’s room
+    - Add one resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    - Turn away resulting in viewing another person’s room
+    endsIn: Viewing another person’s room
+    quintTrace:
+      model: specs/room/ownership.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9bf58c9adb800e7d492a635a11e46aa991770998c61a89964a9094ad6300544a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

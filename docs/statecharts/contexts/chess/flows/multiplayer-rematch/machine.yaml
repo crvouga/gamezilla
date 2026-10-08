@@ -1,0 +1,321 @@
+id: chess-multiplayer-rematch
+initial: Viewing A multiplayer rematch after the game
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-matchmaking-client/src/use-multiplayer-data.ts
+  - libs/chess-matchmaking-client/src/use-multiplayer-controls.ts
+  - libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
+  - libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+  - libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing A multiplayer rematch after the game:
+    meta:
+      description: The person is at the place where a multiplayer rematch after the game.
+      snapshot: the-person-is-at-the-place-where-a-multiplayer-rematch-after-the-game
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:2
+    'on':
+      Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over:
+        target: Alice is offered a multiplayer rematch — 1
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:9
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          example: Bob offers Alice a multiplayer rematch after their game is over
+      Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob was aborted:
+        target: Bob is told an aborted multiplayer game has no multiplayer rematch — 2
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:14
+          condition:
+          - Alice's 5+0 multiplayer game with Bob was aborted
+          example: An aborted game has no multiplayer rematch
+      Bob offers a multiplayer rematch when Alice has an unfinished multiplayer game with Bob:
+        target: Bob is told the multiplayer game is not over yet — 3
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:19
+          condition:
+          - Alice has an unfinished multiplayer game with Bob
+          example: A multiplayer rematch cannot be offered while the game is unfinished
+      ? Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice has since
+        started an unfinished multiplayer game with Carol
+      : target: Bob is told Alice is already playing another multiplayer game — 4
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:24
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Alice has since started an unfinished multiplayer game with Carol
+          example: A multiplayer rematch is refused once the other person plays another game
+      ? Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob is looking for
+        a 5+0 chess opponent
+      : target: Bob is told he is already looking for a chess opponent — 5
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:30
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob is looking for a 5+0 chess opponent
+          example: A person looking for a chess opponent cannot offer a multiplayer rematch
+      ? Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice is looking
+        for a 5+0 chess opponent
+      : target: Bob is told Alice is already looking for a chess opponent — 6
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:36
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Alice is looking for a 5+0 chess opponent
+          example: A multiplayer rematch is refused once the other person is looking for a chess opponent
+      ? Alice accepts the multiplayer rematch when Alice was White and Bob was Black in their finished 5+0 multiplayer
+        game and Bob has offered Alice a multiplayer rematch
+      : target: Alice is Black and Bob is White in their new multiplayer game — 7
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:44
+          condition:
+          - Alice was White and Bob was Black in their finished 5+0 multiplayer game
+          - Bob has offered Alice a multiplayer rematch
+          example: Accepting a multiplayer rematch swaps the colours and keeps 5+0
+      Alice offers a multiplayer rematch:
+        target: Alice is Black and Bob is White in their new multiplayer game — 8
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:51
+          condition:
+          - Alice was White and Bob was Black in their finished 5+0 multiplayer game
+          - Bob has offered Alice a multiplayer rematch
+          example: Offering a multiplayer rematch back accepts the waiting offer
+      Bob accepts the multiplayer rematch:
+        target: Bob is told only Alice may answer his multiplayer rematch offer — 9
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:57
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob has offered Alice a multiplayer rematch
+          example: Bob cannot accept his own multiplayer rematch offer
+      Alice declines the multiplayer rematch:
+        target: neither person is offered a multiplayer rematch — 10
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:68
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob has offered Alice a multiplayer rematch
+          example: Alice declines Bob's multiplayer rematch offer
+      Bob declines the multiplayer rematch:
+        target: Bob is told only Alice may answer his multiplayer rematch offer — 11
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:73
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob has offered Alice a multiplayer rematch
+          example: Bob cannot decline his own multiplayer rematch offer
+      Bob finds a new opponent:
+        target: neither person is offered a multiplayer rematch — 12
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:79
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob has offered Alice a multiplayer rematch
+          example: Finding a new opponent ends a waiting multiplayer rematch offer
+      ? Alice accepts the multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob's multiplayer
+        rematch offer ended when he found a new opponent
+      : target: Alice is told the multiplayer rematch offer has ended — 13
+        meta:
+          source:
+          - specs/chess/multiplayer-rematch.feature:85
+          condition:
+          - Alice's 5+0 multiplayer game with Bob is over
+          - Bob's multiplayer rematch offer ended when he found a new opponent
+          example: An ended multiplayer rematch offer can no longer be accepted
+  Alice is offered a multiplayer rematch — 1:
+    meta:
+      description: The person observes that alice is offered a multiplayer rematch.
+      snapshot: the-person-observes-that-alice-is-offered-a-multiplayer-rematch
+      recognize: []
+      checks:
+      - Alice is offered a multiplayer rematch
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told an aborted multiplayer game has no multiplayer rematch — 2:
+    meta:
+      description: The person observes that bob is told an aborted multiplayer game has no multiplayer rematch.
+      snapshot: the-person-observes-that-bob-is-told-an-aborted-multiplayer-game-has-no-multiplayer-r
+      recognize: []
+      checks:
+      - Bob is told an aborted multiplayer game has no multiplayer rematch
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told the multiplayer game is not over yet — 3:
+    meta:
+      description: The person observes that bob is told the multiplayer game is not over yet.
+      snapshot: the-person-observes-that-bob-is-told-the-multiplayer-game-is-not-over-yet
+      recognize: []
+      checks:
+      - Bob is told the multiplayer game is not over yet
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:19
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told Alice is already playing another multiplayer game — 4:
+    meta:
+      description: The person observes that bob is told Alice is already playing another multiplayer game.
+      snapshot: the-person-observes-that-bob-is-told-alice-is-already-playing-another-multiplayer-gam
+      recognize: []
+      checks:
+      - Bob is told Alice is already playing another multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:24
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told he is already looking for a chess opponent — 5:
+    meta:
+      description: The person observes that bob is told he is already looking for a chess opponent.
+      snapshot: the-person-observes-that-bob-is-told-he-is-already-looking-for-a-chess-opponent
+      recognize: []
+      checks:
+      - Bob is told he is already looking for a chess opponent
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told Alice is already looking for a chess opponent — 6:
+    meta:
+      description: The person observes that bob is told Alice is already looking for a chess opponent.
+      snapshot: the-person-observes-that-bob-is-told-alice-is-already-looking-for-a-chess-opponent
+      recognize: []
+      checks:
+      - Bob is told Alice is already looking for a chess opponent
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:36
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is Black and Bob is White in their new multiplayer game — 7:
+    meta:
+      description: The person observes that alice is Black and Bob is White in their new multiplayer game.
+      snapshot: the-person-observes-that-alice-is-black-and-bob-is-white-in-their-new-multiplayer-gam
+      recognize: []
+      checks:
+      - Alice is Black and Bob is White in their new multiplayer game
+      - both people see their multiplayer game is played at 5+0
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:44
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is Black and Bob is White in their new multiplayer game — 8:
+    meta:
+      description: The person observes that alice is Black and Bob is White in their new multiplayer game.
+      snapshot: the-person-observes-that-alice-is-black-and-bob-is-white-in-their-new-multiplayer-gam
+      recognize: []
+      checks:
+      - Alice is Black and Bob is White in their new multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:51
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told only Alice may answer his multiplayer rematch offer — 9:
+    meta:
+      description: The person observes that bob is told only Alice may answer his multiplayer rematch offer.
+      snapshot: the-person-observes-that-bob-is-told-only-alice-may-answer-his-multiplayer-rematch-of
+      recognize: []
+      checks:
+      - Bob is told only Alice may answer his multiplayer rematch offer
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:57
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  neither person is offered a multiplayer rematch — 10:
+    meta:
+      description: The person observes that neither person is offered a multiplayer rematch.
+      snapshot: the-person-observes-that-neither-person-is-offered-a-multiplayer-rematch
+      recognize: []
+      checks:
+      - neither person is offered a multiplayer rematch
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:68
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told only Alice may answer his multiplayer rematch offer — 11:
+    meta:
+      description: The person observes that bob is told only Alice may answer his multiplayer rematch offer.
+      snapshot: the-person-observes-that-bob-is-told-only-alice-may-answer-his-multiplayer-rematch-of
+      recognize: []
+      checks:
+      - Bob is told only Alice may answer his multiplayer rematch offer
+      - Alice is still offered a multiplayer rematch
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:73
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  neither person is offered a multiplayer rematch — 12:
+    meta:
+      description: The person observes that neither person is offered a multiplayer rematch.
+      snapshot: the-person-observes-that-neither-person-is-offered-a-multiplayer-rematch
+      recognize: []
+      checks:
+      - neither person is offered a multiplayer rematch
+      - Bob is looking for a 5+0 chess opponent
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:79
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told the multiplayer rematch offer has ended — 13:
+    meta:
+      description: The person observes that alice is told the multiplayer rematch offer has ended.
+      snapshot: the-person-observes-that-alice-is-told-the-multiplayer-rematch-offer-has-ended
+      recognize: []
+      checks:
+      - Alice is told the multiplayer rematch offer has ended
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/multiplayer-rematch.feature:85
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

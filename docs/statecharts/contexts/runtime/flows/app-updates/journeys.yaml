@@ -1,0 +1,27 @@
+journeys:
+  A person on an outdated app is asked to update the app:
+    description: A person on an outdated app is asked to update the app
+    startingConditions:
+    - Alice's app became outdated while Alice was offline
+    events:
+    - the connection comes back
+    endsIn: Alice is asked to update the app within 15 seconds — 1
+    checks:
+    - Alice is asked to update the app within 15 seconds
+    gherkin:
+    - specs/runtime/app-updates.feature:9 — A person on an outdated app is asked to update the app
+    exampleRow: []
+  What was done on an outdated app is still there after updating:
+    description: What was done on an outdated app is still there after updating
+    startingConditions:
+    - Alice is signed in
+    - Alice's username is @alice_before
+    - Alice's app is older than the product accepts
+    events:
+    - Alice updates the app
+    endsIn: Alice's profile shows @alice_before — 2
+    checks:
+    - Alice's profile shows @alice_before
+    gherkin:
+    - specs/runtime/app-updates.feature:14 — What was done on an outdated app is still there after updating
+    exampleRow: []

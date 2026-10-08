@@ -1,0 +1,14 @@
+journeys:
+  The host picks chess and everyone in the space is taken to it:
+    description: The host picks chess and everyone in the space is taken to it
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    events:
+    - Alice picks chess for the space
+    endsIn: Bob is taken to chess within 15 seconds — 1
+    checks:
+    - Bob is taken to chess within 15 seconds
+    gherkin:
+    - specs/chess/space-host-select-game.feature:9 — The host picks chess and everyone in the space is taken to
+      it
+    exampleRow: []

@@ -1,0 +1,26 @@
+stateDiagram-v2
+  state "Viewing Leave a shared space and rejoin it" as s0
+  state "Alice sees the note 'Tickets' saying 'gate 4' — 1" as s1
+  state "Bob still sees the note 'Hotel' saying 'Main St' — 2" as s2
+  state "Bob sees the note 'Tickets' saying 'gate 4' — 3" as s3
+  state "Bob does not see the note 'Tickets' — 4" as s4
+  state "The person remains at the described place until the next choice — 5 step 1" as s5
+  state "Bob does not see the note 'Tickets' — 5 step 2" as s6
+  state "Bob still sees the note 'Hotel' saying 'Main St' — 6" as s7
+  state "Bob still sees the note 'Hotel' saying 'Main St' — 7" as s8
+  [*] --> s0
+  s0 --> s1: Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob has left the shared space 'Trip'
+  s0 --> s2: Bob leaves the shared space 'Trip'
+  s0 --> s3: Bob joins the shared space 'Trip'
+  s0 --> s4: Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob has left the shared space 'Trip' and Bob's app cannot send
+  s0 --> s5: the shared space 'Trip' ends
+  s0 --> s7: Bob opens the shared space 'Work', which they are not in
+  s0 --> s8: Bob closes the shared space 'Work' and their app catches up
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> s6: Alice writes the note 'Tickets' saying 'gate 4'
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

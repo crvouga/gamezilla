@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Another person's profile" as s0
+  state "Alice is shown Bob's profile — 1" as s1
+  state "Bob is shown Alice's profile — 2" as s2
+  state "Alice can cancel the request to Bob — 3" as s3
+  state "Bob is offered to accept Alice's request within 15 seconds — 4" as s4
+  state "Bob sees Alice as a friend — 5" as s5
+  state "Bob can ask Alice again within 5 seconds — 6" as s6
+  [*] --> s0
+  s0 --> s1: Alice looks up Bob
+  s0 --> s2: Bob views Alice's request
+  s0 --> s3: Alice sends Bob a friend request from Bob's profile
+  s0 --> s4: Bob looks up Alice
+  s0 --> s5: Bob accepts Alice's request from Alice's profile
+  s0 --> s6: Bob declines Alice's request from Alice's profile
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

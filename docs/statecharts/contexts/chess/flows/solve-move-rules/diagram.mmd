@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Who may move, and when" as s0
+  state "Alice is still asked to find the next move — 1" as s1
+  state "Alice's board is unchanged — 2" as s2
+  state "Alice cannot move pieces — 3" as s3
+  state "Alice cannot move pieces — 4" as s4
+  state "Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1 — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice tries to move the opponent's piece g8-f8
+  s0 --> s2: Alice tries the illegal move a1-a8
+  s0 --> s3: Alice plays a wrong move
+  s0 --> s4: Alice solves the puzzle
+  s0 --> s5: Alice picks up the rook on a1
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

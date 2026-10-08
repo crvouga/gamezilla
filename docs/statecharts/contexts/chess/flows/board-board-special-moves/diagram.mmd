@@ -1,0 +1,78 @@
+stateDiagram-v2
+  state "Viewing Complete special chess moves" as s0
+  state "Alice sees White castled kingside with the king on g1 and rook on f1 — 1" as s1
+  state "Alice sees White castled queenside with the king on c1 and rook on d1 — 2" as s2
+  state "Alice sees Black castled kingside with the king on g8 and rook on f8 — 3" as s3
+  state "Alice sees Black castled queenside with the king on c8 and rook on d8 — 4" as s4
+  state "Alice sees White castled kingside with the king on g1 and rook on f1 — 5" as s5
+  state "Alice sees Black castled queenside with the king on c8 and rook on d8 — 6" as s6
+  state "Alice cannot castle kingside across check — 7" as s7
+  state "Alice sees White castled kingside with the king on g1 and rook on f1 — 8" as s8
+  state "Alice sees White castled queenside with the king on c1 and rook on d1 — 9" as s9
+  state "Alice sees White castled kingside with the king on g1 and rook on f1 — 10" as s10
+  state "Alice sees a White pawn on d6 — 11" as s11
+  state "Alice cannot capture en passant after its opportunity has expired — 12" as s12
+  state "Alice sees a White pawn on d6 — 13" as s13
+  state "Alice is offered queen, rook, bishop and knight as the promotion choice — 14" as s14
+  state "Alice sees a White queen on a8 — 15" as s15
+  state "Alice sees a White rook on a8 — 16" as s16
+  state "Alice sees a White bishop on a8 — 17" as s17
+  state "Alice sees a White knight on a8 — 18" as s18
+  state "Alice sees a Black knight on a1 — 19" as s19
+  state "Alice sees the White pawn remaining on a7 — 20" as s20
+  state "Alice sees the White pawn remaining on a7 — 21" as s21
+  state "Alice is offered queen, rook, bishop and knight as the promotion choice — 22" as s22
+  state "Alice sees a White rook on h2 — 23" as s23
+  state "Alice cannot move the rook on h1 until the promotion choice is decided or cancelled — 24" as s24
+  state "Alice sees a White queen on a8 — 25" as s25
+  [*] --> s0
+  s0 --> s1: Alice moves the piece from e1 to g1 when Alice has a chessboard ready for White kingside castling
+  s0 --> s2: Alice moves the piece from e1 to c1
+  s0 --> s3: Alice moves the piece from e8 to g8
+  s0 --> s4: Alice moves the piece from e8 to c8
+  s0 --> s5: Alice drags the piece from e1 to h1
+  s0 --> s6: Alice drags the piece from e8 to a8
+  s0 --> s7: Alice moves the piece from e1 to g1 when Alice has a chessboard where White's kingside castling crosses check
+  s0 --> s8: Alice drags the piece from e1 to g1
+  s0 --> s9: Alice drags the piece from e1 to c1
+  s0 --> s10: Alice moves the piece from e1 to g1 when Alice has a silent chessboard ready for White kingside castling
+  s0 --> s11: Alice moves the piece from e5 to d6 when Alice has a chessboard ready for White to capture en passant from e5 to d6
+  s0 --> s12: Alice moves the piece from e5 to d6 when Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired
+  s0 --> s13: Alice moves the piece from e5 to d6 when Alice has a silent chessboard ready for White to capture en passant from e5 to d6
+  s0 --> s14: Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8
+  s0 --> s15: Alice chooses the promotion to a queen
+  s0 --> s16: Alice chooses the promotion to a rook
+  s0 --> s17: Alice chooses the promotion to a bishop
+  s0 --> s18: Alice chooses the promotion to a knight when Alice has a pending White promotion from a7 to a8
+  s0 --> s19: Alice chooses the promotion to a knight when Alice has a chessboard facing Black with a pending Black capture-promotion from b2 to a1
+  s0 --> s20: Alice cancels the promotion
+  s0 --> s21: Alice cancels the promotion with Escape
+  s0 --> s22: Alice moves the piece from a7 to a8 when Alice has cancelled White's promotion from a7 to a8
+  s0 --> s23: Alice moves the piece from h1 to h2 when Alice has a chessboard ready for White's promotion from a7 to a8
+  s0 --> s24: Alice moves the piece from h1 to h2 when Alice has a pending White promotion from a7 to a8
+  s0 --> s25: Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]
+  s17 --> [*]
+  s18 --> [*]
+  s19 --> [*]
+  s20 --> [*]
+  s21 --> [*]
+  s22 --> [*]
+  s23 --> [*]
+  s24 --> [*]
+  s25 --> [*]

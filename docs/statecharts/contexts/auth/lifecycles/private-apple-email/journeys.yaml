@@ -1,0 +1,750 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6f87015b6ca397b07d565557a70b8e9a76d540930541e7f30c7153ad2c4fa4b6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    endsIn: Signed in with Apple with a private address and forwarding stopped
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 926dcfc0cb0fe68ca984d974a1412c5432c23327ad728ea5d1f10c87c94a43b7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 17aa0c033f3ee639d69d58abd79b79e1caea7bb66cd03791d2e9afe286c69707
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 12ac6fe9718d55f839a9e7846e561c54d76c942b9131a5662dcfe8fe6c38bf40
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d17d7bbb08407d3d3e7c3e1e1fb879c938ef31d0b4ce614a0a075d248073a5a6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a01d236abbe01ccc369c6768c594a3fbad68b662ef5fefdf6eb12abe8c505b17
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 925e5a88f86969caa7e6733cce37ab08575e0cb49c505a518820520048d505a5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    endsIn: Signed in with Apple with a private address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6faeb012ad2c045acd7a763007dbcd568e447bcf0fe601624d5cdae178d13621
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    endsIn: Signed in with Apple with a private address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2e0040c2840c3d69428c38e0da7db0c81711c17a87edf2f93316bde53a1a2a6a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9d3c869aba5227eeb1103d298ab6f4c3acee6adc9f94129ab86e1e04df580c73
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9d5e637dbd1eac502b37de7356ba3d66530974088843b0021bf2bf473bab8ea5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    endsIn: Signed in with Apple with a private address and forwarding stopped
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b84ef85922ce5efe28e33ffa16dbaa22067596994c1e3fd976874ea8937d06cd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    endsIn: Signed in with Apple with a private address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a313dd03f7c06786ace290fa691097644b5c159ddc8e87deef6e8d88bcb38db2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 98613de1e24da7b5a5cc2cca86ab953cd2d87bf0f05b9867968d53f43940720e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a9e59081d88a36634ac93d158332bbc7b9aea23148c01af41ef3eac52c71910a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6671f156bf80e24d8e3db1bbf397e9bc84c2e25bb693572c320fa27a2a496880
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Forward mail again resulting in signed in with Apple with a private address
+    - Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+    - Forward mail again resulting in signed in with Apple with a private address
+    endsIn: Signed in with Apple with a private address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fbc8ab12d87d6d86c1dccea2ee728ea6cf8d53f30b7f644af4e0c7e9992c47af
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0e38c6058a875d65b8172227f8e7de6a5ddf5c13dbe5a36c66919dfed933cf3d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d5ba6282625e19406a60b5282a6fbe22f03f7f5b3fce305110a854000c080272
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 95dbff9d0f7189a69c1634ac9e107bf52aeda4fefb4fc5a682807f8aeb2c9026
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4d8fef21099f0f62ae6d19416f912c2e0cb955da67bdf71c4442a755eacd2128
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c2cb629f3bef5a8cd4e40701cf82ec94c876c6ce89fb6fb225d6031b5e274396
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8ef7e3078b7a63b28b6361e13bdd68d384963bf053e233ef455734940bc8b829
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing Apple sign-in with an ordinary address
+    - Sign in with apple resulting in signed in with Apple with an ordinary address
+    endsIn: Signed in with Apple with an ordinary address
+    quintTrace:
+      model: specs/auth/private-apple-email.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bebaae7a2888a8228ff24d1ad24836233548065f4dfe1c92c4dc3f8290390f7d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

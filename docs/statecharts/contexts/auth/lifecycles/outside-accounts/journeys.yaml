@@ -1,0 +1,2737 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1a5c3157c3e248d2ba66d8ba24e76c1aa4d9b99ab25a673eaf01b19d32fafb51
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2ce99b81cd1647a27cbd7d47fcbe9e3d64eeab9a410d50054e770e271e99bd6c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Keep separate resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Keep separate resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7c8acf34bfbb4216550953e3df0420947d884a0e985430d3853996e971bf608f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Delete apple account resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c94389201661fb5c796b2e87422134fb7671edca7f9fdef01cb635a737c6295e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign out everywhere resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Stop using sign in with apple resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a4fb8c780d699ce1baf8456bd419ecd29c3a653bac6850c92cc0114419284133
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Delete apple account resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Confirm matching account resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Confirm matching account resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Keep separate resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1a5dd14c6327cd355b2400e99462b193f7fddcad061d2aa018b339ec202c564f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b3f0489c6a112eeb0c041a22efaa397398a912c5c461c485b1153d9b2d1378d6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Keep separate resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d3c2f3249e57a20d6d6e33c91e055e92daee78152d1714cc5d9a02bbe0ceabc
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Confirm matching account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d3c96fd5abfa2e8c8c23f7791511803d887d5cadb55aff443b8a832b099ebaa2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Confirm matching account resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Confirm matching account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3168d7309f3ba319581d72784fd7e124f3b7db6de16fd710c4913abdfc222ba2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bd5af102b3db26e8eec6ae20e156f6b23f74ecb4d925e4c3c91aa7356914ee6e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Stop using sign in with apple resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Keep separate resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign out everywhere resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3ed909a4dd4c16ea838a05f1cfd7ac17a5a7f5a401fac613ff4ea741285c77ec
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Confirm matching account resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e6619d27adee7e2e944aeab5f239c8cfc9decc2b7903b896879ee675849b450a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Chance to confirm lapses resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Confirm matching account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ff60eb33ee9af74f4508db68d2f312d09991938c5071b352cb6c401c016a63d4
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Keep separate resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6522177083d757fae9c47b0de19e7c1b755d1a20ce4c663ae9b8b6c8f558a939
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d7b6e0702002072cf24100bc74f5a2bca727c047bf5c4320855965583c388fc6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4d1fbbe48e58cdca8e239083407935859ef2ef7db22bdd5bc71faadd8d7b7159
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Confirm matching account resulting in confirming a matching account
+    endsIn: Confirming a matching account
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 40885ab59587080f01a4b7e2d268958a6b103657e5449e3ce5642257c54c9593
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign in resulting in confirming a matching account
+    - Stop using sign in with apple resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Stop using sign in with apple resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Delete apple account resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Steal sign in resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Trouble starts resulting in confirming a matching account
+    - Lose connection resulting in confirming a matching account
+    - Sign out resulting in confirming a matching account
+    - Chance to confirm lapses resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Trouble ends resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Steal sign in resulting in confirming a matching account
+    - Sign in resulting in confirming a matching account
+    - Connection returns resulting in confirming a matching account
+    - Confirm matching account resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 16fecd4a29ebc3b5dc861780ed5618284a326292d172307dacdedb272ba080cd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign out everywhere resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign out resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Delete apple account resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Delete apple account resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Sign out resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4d044ba62eeb1786c562c6b37ef833b6331cf715d5e59ba4c8857ed311246a19
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Keep separate resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 98fbc2dc8e07b27acf6269907edc2ff6a3988c892b64f54dafa8b2d3f2771a4c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 875ec0f61730f841666f989c7940f8f5e55c0673dc93293bf7b398151d768343
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Remove sign in method resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Chance to confirm lapses resulting in choosing a sign-in method
+    - Confirm matching account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Connect sign in method resulting in choosing a sign-in method
+    - Sign out everywhere resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 32749fc88ed672366211fd0ff12c92c9d173c15e33fd71f776a1d39aec03baf5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Trouble starts resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Trouble ends resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Stop using sign in with apple resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Delete apple account resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Sign in resulting in signed in on this device
+    - Lose connection resulting in signed in on this device
+    - Connection returns resulting in signed in on this device
+    - Sign in resulting in signed in on this device
+    - Remove sign in method resulting in signed in on this device
+    - Steal sign in resulting in signed in on this device
+    - Connect sign in method resulting in signed in on this device
+    - Sign ins lapse resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Lose connection resulting in choosing a sign-in method
+    - Trouble starts resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Connection returns resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Trouble ends resulting in choosing a sign-in method
+    - Steal sign in resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    - Sign in resulting in choosing a sign-in method
+    - Sign out resulting in choosing a sign-in method
+    endsIn: Choosing a sign-in method
+    quintTrace:
+      model: specs/auth/outside-accounts.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0fd2abeaf8040e37ba56dfef0479a9c649056d50d5b5153f646d599b5fc947ae
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

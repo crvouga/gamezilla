@@ -1,0 +1,157 @@
+id: matchmaking-waiting-for-a-match
+initial: Viewing Waiting for a match
+meta:
+  context: Matchmaking
+  kind: flow
+  owner: Matchmaking owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Waiting for a match:
+    meta:
+      description: The person is at the place where waiting for a match.
+      snapshot: the-person-is-at-the-place-where-waiting-for-a-match
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:2
+    'on':
+      Alice waits for a match with a rating of 1500 when Alice's wait shows her name and rating:
+        target: Alice is waiting — 1
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:10
+          condition: []
+          example: Alice's wait shows her name and rating
+      Alice waits for a match with a rating of 1500 when Alice has been matched with Bob:
+        target: Alice is waiting — 2
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:15
+          condition:
+          - Alice has been matched with Bob
+          example: Once matched, Alice can wait for a match again
+      ? Alice waits for a match with a rating of 1500 when Alice is waiting with a rating of 1000, accepting anyone
+        within 200 points
+      : target: Alice is told she is already waiting — 3
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:21
+          condition:
+          - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+          example: Alice cannot wait a second time while she is waiting
+      Alice stops waiting when Alice is waiting for a match:
+        target: Alice sees she stopped waiting — 4
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:29
+          condition:
+          - Alice is waiting for a match
+          example: Alice stops waiting and is no longer waiting
+      Alice stops waiting when Alice has been matched with Bob:
+        target: Alice is told there was nothing to stop — 5
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:35
+          condition:
+          - Alice has been matched with Bob
+          example: Alice cannot stop waiting once she is matched with Bob
+      Alice stops waiting when Alice has stopped waiting:
+        target: Alice is told there was nothing to stop — 6
+        meta:
+          source:
+          - specs/matchmaking/waiting-for-a-match.feature:41
+          condition:
+          - Alice has stopped waiting
+          example: Alice has nothing to stop once she has stopped waiting
+  Alice is waiting — 1:
+    meta:
+      description: The person observes that alice is waiting.
+      snapshot: the-person-observes-that-alice-is-waiting
+      recognize: []
+      checks:
+      - Alice is waiting
+      - Alice's wait shows her name and a rating of 1500
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:10
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is waiting — 2:
+    meta:
+      description: The person observes that alice is waiting.
+      snapshot: the-person-observes-that-alice-is-waiting
+      recognize: []
+      checks:
+      - Alice is waiting
+      - Alice's wait shows her name and a rating of 1500
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told she is already waiting — 3:
+    meta:
+      description: The person observes that alice is told she is already waiting.
+      snapshot: the-person-observes-that-alice-is-told-she-is-already-waiting
+      recognize: []
+      checks:
+      - Alice is told she is already waiting
+      - Alice's wait shows her name and a rating of 1000
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees she stopped waiting — 4:
+    meta:
+      description: The person observes that alice sees she stopped waiting.
+      snapshot: the-person-observes-that-alice-sees-she-stopped-waiting
+      recognize: []
+      checks:
+      - Alice sees she stopped waiting
+      - Alice is not waiting for a match
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told there was nothing to stop — 5:
+    meta:
+      description: The person observes that alice is told there was nothing to stop.
+      snapshot: the-person-observes-that-alice-is-told-there-was-nothing-to-stop
+      recognize: []
+      checks:
+      - Alice is told there was nothing to stop
+      - Alice is matched with Bob
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:35
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told there was nothing to stop — 6:
+    meta:
+      description: The person observes that alice is told there was nothing to stop.
+      snapshot: the-person-observes-that-alice-is-told-there-was-nothing-to-stop
+      recognize: []
+      checks:
+      - Alice is told there was nothing to stop
+      - Alice is not waiting for a match
+      events: []
+      confidence: assumed
+      source:
+      - specs/matchmaking/waiting-for-a-match.feature:41
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

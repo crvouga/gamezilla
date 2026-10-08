@@ -1,0 +1,65 @@
+journeys:
+  Signing in while Google is having trouble keeps Alice signed out:
+    description: Signing in while Google is having trouble keeps Alice signed out
+    startingConditions:
+    - Google is having trouble
+    events:
+    - Alice tries to sign in with Google
+    endsIn: Alice is told signing in with Google failed — 1
+    checks:
+    - Alice is told signing in with Google failed
+    - Alice is signed out
+    gherkin:
+    - specs/auth/provider-trouble.feature:9 — Signing in while Google is having trouble keeps Alice signed out
+    exampleRow: []
+  Signing in while Apple is having trouble keeps Dave signed out:
+    description: Signing in while Apple is having trouble keeps Dave signed out
+    startingConditions:
+    - Apple is having trouble
+    events:
+    - Dave tries to sign in with Apple
+    endsIn: Dave is told signing in with Apple failed — 2
+    checks:
+    - Dave is told signing in with Apple failed
+    - Dave is signed out
+    gherkin:
+    - specs/auth/provider-trouble.feature:15 — Signing in while Apple is having trouble keeps Dave signed out
+    exampleRow: []
+  Trouble at Google does not stop Alice signing in with Apple:
+    description: Trouble at Google does not stop Alice signing in with Apple
+    startingConditions:
+    - Google is having trouble
+    events:
+    - Alice signs in with their Apple account
+    endsIn: Alice is signed into a new account — 3
+    checks:
+    - Alice is signed into a new account
+    gherkin:
+    - specs/auth/provider-trouble.feature:21 — Trouble at Google does not stop Alice signing in with Apple
+    exampleRow: []
+  Once Google recovers, Alice can sign in:
+    description: Once Google recovers, Alice can sign in
+    startingConditions:
+    - Alice tried to sign in with Google while it was having trouble
+    - Google has recovered
+    events:
+    - Alice signs in with their Google account
+    endsIn: Alice is signed into a new account — 4
+    checks:
+    - Alice is signed into a new account
+    gherkin:
+    - specs/auth/provider-trouble.feature:29 — Once Google recovers, Alice can sign in
+    exampleRow: []
+  Once Apple recovers, Dave can sign in:
+    description: Once Apple recovers, Dave can sign in
+    startingConditions:
+    - Dave tried to sign in with Apple while it was having trouble
+    - Apple has recovered
+    events:
+    - Dave signs in with their Apple account
+    endsIn: Dave is signed into a new account — 5
+    checks:
+    - Dave is signed into a new account
+    gherkin:
+    - specs/auth/provider-trouble.feature:35 — Once Apple recovers, Dave can sign in
+    exampleRow: []

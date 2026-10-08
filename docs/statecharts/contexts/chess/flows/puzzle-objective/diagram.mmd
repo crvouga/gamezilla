@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Chess truth decides a solution" as s0
+  state "Alice's puzzle is solved within 20 seconds — 1" as s1
+  state "Alice's puzzle is solved within 20 seconds — 2" as s2
+  state "Alice is told the move was wrong — 3" as s3
+  state "Alice's board is unchanged — 4" as s4
+  state "Alice's game log records that puzzle as solved — 5" as s5
+  state "Alice's stats show 1 played, 1 solved, and 100% accuracy — 6" as s6
+  [*] --> s0
+  s0 --> s1: Alice plays the move a7-a8
+  s0 --> s2: Alice plays the move b7-b8
+  s0 --> s3: Alice plays the move a7-a6
+  s0 --> s4: Alice tries the illegal move a1-a8
+  s0 --> s5: the connection comes back when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered the alternate checkmate offline
+  s0 --> s6: the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered different valid checkmates on both devices offline
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

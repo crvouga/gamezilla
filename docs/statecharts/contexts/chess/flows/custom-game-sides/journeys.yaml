@@ -1,0 +1,133 @@
+journeys:
+  A bot replaces an open place:
+    description: A bot replaces an open place
+    startingConditions:
+    - Alice has a configuring Custom Game
+    events:
+    - Alice assigns a bot to Black in the Custom Game when Alice has a configuring Custom Game
+    endsIn: Black is a bot in the Custom Game — 1
+    checks:
+    - Black is a bot in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-sides.feature:7 — A bot replaces an open place
+    exampleRow: []
+  Starting freezes the participants:
+    description: Starting freezes the participants
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice assigns a bot to Black in the Custom Game when Alice has an active Custom Game between Alice as White
+      and Bob as Black
+    endsIn: Alice is told the Custom Game has already started — 2
+    checks:
+    - Alice is told the Custom Game has already started
+    gherkin:
+    - specs/chess/custom-game-sides.feature:12 — Starting freezes the participants
+    exampleRow: []
+  The creator takes Black instead of White:
+    description: The creator takes Black instead of White
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - White in the Custom Game is an open place
+    events:
+    - Alice takes Black in the Custom Game when Alice has a configuring Custom Game and White in the Custom Game
+      is an open place
+    endsIn: Black is Alice in the Custom Game — 3
+    checks:
+    - Black is Alice in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-sides.feature:19 — The creator takes Black instead of White
+    exampleRow: []
+  The creator cannot take both sides:
+    description: The creator cannot take both sides
+    startingConditions:
+    - Alice has a configuring Custom Game
+    events:
+    - Alice takes Black in the Custom Game when Alice has a configuring Custom Game
+    endsIn: Alice is told a person cannot take both sides — 4
+    checks:
+    - Alice is told a person cannot take both sides
+    gherkin:
+    - specs/chess/custom-game-sides.feature:25 — The creator cannot take both sides
+    exampleRow: []
+  Two bots start under a watching creator:
+    description: Two bots start under a watching creator
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - White and Black in the Custom Game are bots
+    events:
+    - Alice starts the Custom Game
+    endsIn: Alice is watching the Custom Game — 5
+    checks:
+    - Alice is watching the Custom Game
+    - White and Black are bots in the active Custom Game
+    gherkin:
+    - specs/chess/custom-game-sides.feature:32 — Two bots start under a watching creator
+    exampleRow: []
+  Watching does not grant control of a bot:
+    description: Watching does not grant control of a bot
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - White and Black in the Custom Game are bots
+    - The Custom Game has started
+    events:
+    - Alice plays e2-e4 in the Custom Game
+    endsIn: Alice is told only the participant to move may play — 6
+    checks:
+    - Alice is told only the participant to move may play
+    gherkin:
+    - specs/chess/custom-game-sides.feature:39 — Watching does not grant control of a bot
+    exampleRow: []
+  The creator swaps accepted people:
+    description: The creator swaps accepted people
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    - Alice and Bob are ready for the Custom Game
+    events:
+    - Alice swaps White and Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob
+      as Black and Alice and Bob are ready for the Custom Game
+    endsIn: White is Bob and Black is Alice in the Custom Game — 7
+    checks:
+    - White is Bob and Black is Alice in the Custom Game
+    - Neither person is ready for the Custom Game
+    gherkin:
+    - specs/chess/custom-game-sides.feature:48 — The creator swaps accepted people
+    exampleRow: []
+  Active sides cannot swap:
+    description: Active sides cannot swap
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice swaps White and Black in the Custom Game when Alice has an active Custom Game between Alice as White
+      and Bob as Black
+    endsIn: Alice is told the Custom Game has already started — 8
+    checks:
+    - Alice is told the Custom Game has already started
+    gherkin:
+    - specs/chess/custom-game-sides.feature:55 — Active sides cannot swap
+    exampleRow: []
+  The creator closes an unoccupied side:
+    description: The creator closes an unoccupied side
+    startingConditions:
+    - Alice has a configuring Custom Game
+    events:
+    - Alice closes Black in the Custom Game
+    endsIn: Black is closed in the Custom Game — 9
+    checks:
+    - Black is closed in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-sides.feature:62 — The creator closes an unoccupied side
+    exampleRow: []
+  A closed side refuses another person:
+    description: A closed side refuses another person
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Black in the Custom Game is closed
+    events:
+    - Bob claims Black in the Custom Game
+    endsIn: Bob is told that side is not an open place — 10
+    checks:
+    - Bob is told that side is not an open place
+    gherkin:
+    - specs/chess/custom-game-sides.feature:67 — A closed side refuses another person
+    exampleRow: []

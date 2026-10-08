@@ -1,0 +1,246 @@
+{
+  "id": "chess-multiplayer-time-controls",
+  "initial": "Viewing Choose a time control for multiplayer chess",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-matchmaking-client/src/use-multiplayer-controls.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-controls.tsx",
+      "libs/chess-puzzle-client/src/use-puzzle-player-controls.ts",
+      "libs/chess-matchmaking-client/src/use-multiplayer-data.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-waiting.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Choose a time control for multiplayer chess": {
+      "meta": {
+        "description": "The person is at the place where choose a time control for multiplayer chess.",
+        "snapshot": "the-person-is-at-the-place-where-choose-a-time-control-for-multiplayer-chess",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:2"]
+      },
+      "on": {
+        "Alice finds a chess opponent for 5+0": {
+          "target": "Alice is looking for a 5+0 chess opponent — 1",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:8"],
+            "condition": ["Alice has a free account and a connection"],
+            "example": "A person looks for a chess opponent at the time control they chose"
+          }
+        },
+        "Alice finds a chess opponent for 4+0": {
+          "target": "Alice is told 4+0 is not an offered time control — 2",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:13"],
+            "condition": ["Alice has a free account and a connection"],
+            "example": "A time control that is not offered is refused"
+          }
+        },
+        "Alice finds a chess opponent for 3+2": {
+          "target": "Alice is told she is already looking for a chess opponent — 3",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:19"],
+            "condition": ["Alice is looking for a 5+0 chess opponent"],
+            "example": "A person already looking cannot start a second search"
+          }
+        },
+        "matchmaking pairs people up when Alice and Bob are looking for 5+0 chess opponents": {
+          "target": "Alice and Bob have the same multiplayer game — 4",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:27"],
+            "condition": ["Alice and Bob are looking for 5+0 chess opponents"],
+            "example": "Two people looking for 5+0 get a 5+0 multiplayer game"
+          }
+        },
+        "matchmaking pairs people up when Alice is looking for a 5+0 chess opponent and Bob is looking for a 3+2 chess opponent": {
+          "target": "Alice and Bob are still looking for other chess opponents — 5",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:33"],
+            "condition": [
+              "Alice is looking for a 5+0 chess opponent",
+              "Bob is looking for a 3+2 chess opponent"
+            ],
+            "example": "A 5+0 search is never matched with a 3+2 search"
+          }
+        },
+        "Alice finds a new opponent when Alice's 5+0 multiplayer game with Bob is over": {
+          "target": "Alice is looking for a 5+0 chess opponent — 6",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:41"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob is over"],
+            "example": "A new opponent search keeps the time control of a game that is over"
+          }
+        },
+        "Bob finds a new opponent": {
+          "target": "Bob is looking for a 3+2 chess opponent — 7",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:46"],
+            "condition": ["Alice's 3+2 multiplayer game with Bob was aborted"],
+            "example": "A new opponent search keeps an aborted game's time control"
+          }
+        },
+        "Alice finds a new opponent when Alice's 5+0 multiplayer game with Bob is over and Alice is looking for a 3+2 chess opponent": {
+          "target": "Alice is told she is already looking for a chess opponent — 8",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:51"],
+            "condition": [
+              "Alice's 5+0 multiplayer game with Bob is over",
+              "Alice is looking for a 3+2 chess opponent"
+            ],
+            "example": "A person already looking cannot find a new opponent as well"
+          }
+        },
+        "Alice finds a new opponent when Alice has an unfinished multiplayer game with Bob": {
+          "target": "Alice is told to finish her multiplayer game first — 9",
+          "meta": {
+            "source": ["specs/chess/multiplayer-time-controls.feature:58"],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
+            "example": "A new opponent cannot be found during an unfinished game"
+          }
+        }
+      }
+    },
+    "Alice is looking for a 5+0 chess opponent — 1": {
+      "meta": {
+        "description": "The person observes that alice is looking for a 5+0 chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-looking-for-a-5-0-chess-opponent",
+        "recognize": [],
+        "checks": ["Alice is looking for a 5+0 chess opponent"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told 4+0 is not an offered time control — 2": {
+      "meta": {
+        "description": "The person observes that alice is told 4+0 is not an offered time control.",
+        "snapshot": "the-person-observes-that-alice-is-told-4-0-is-not-an-offered-time-control",
+        "recognize": [],
+        "checks": [
+          "Alice is told 4+0 is not an offered time control",
+          "Alice is not looking for a chess opponent"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:13"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told she is already looking for a chess opponent — 3": {
+      "meta": {
+        "description": "The person observes that alice is told she is already looking for a chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-told-she-is-already-looking-for-a-chess-opponent",
+        "recognize": [],
+        "checks": [
+          "Alice is told she is already looking for a chess opponent",
+          "Alice is still looking for a 5+0 chess opponent"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:19"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob have the same multiplayer game — 4": {
+      "meta": {
+        "description": "The person observes that alice and Bob have the same multiplayer game.",
+        "snapshot": "the-person-observes-that-alice-and-bob-have-the-same-multiplayer-game",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob have the same multiplayer game",
+          "both people see their multiplayer game is played at 5+0"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:27"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are still looking for other chess opponents — 5": {
+      "meta": {
+        "description": "The person observes that alice and Bob are still looking for other chess opponents.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-still-looking-for-other-chess-opponents",
+        "recognize": [],
+        "checks": ["Alice and Bob are still looking for other chess opponents"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:33"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is looking for a 5+0 chess opponent — 6": {
+      "meta": {
+        "description": "The person observes that alice is looking for a 5+0 chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-looking-for-a-5-0-chess-opponent",
+        "recognize": [],
+        "checks": ["Alice is looking for a 5+0 chess opponent"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:41"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is looking for a 3+2 chess opponent — 7": {
+      "meta": {
+        "description": "The person observes that bob is looking for a 3+2 chess opponent.",
+        "snapshot": "the-person-observes-that-bob-is-looking-for-a-3-2-chess-opponent",
+        "recognize": [],
+        "checks": ["Bob is looking for a 3+2 chess opponent"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:46"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told she is already looking for a chess opponent — 8": {
+      "meta": {
+        "description": "The person observes that alice is told she is already looking for a chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-told-she-is-already-looking-for-a-chess-opponent",
+        "recognize": [],
+        "checks": [
+          "Alice is told she is already looking for a chess opponent",
+          "Alice is still looking for a 3+2 chess opponent"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:51"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told to finish her multiplayer game first — 9": {
+      "meta": {
+        "description": "The person observes that alice is told to finish her multiplayer game first.",
+        "snapshot": "the-person-observes-that-alice-is-told-to-finish-her-multiplayer-game-first",
+        "recognize": [],
+        "checks": [
+          "Alice is told to finish her multiplayer game first",
+          "Alice keeps her multiplayer game with Bob"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-time-controls.feature:58"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

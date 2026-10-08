@@ -1,0 +1,55 @@
+stateDiagram-v2
+  state "Viewing the lobby" as s0
+  state "Creating a space" as s1
+  state "Told creation failed" as s2
+  state "Invited to Plus for more spaces" as s3
+  state "Told a connection is needed" as s4
+  state "Joining the linked space" as s5
+  state "Viewing an unknown space link" as s6
+  state "Hosting the open space" as s7
+  state "Joined to the open space" as s8
+  state "Sharing the space link" as s9
+  state "Reviewing a space rename" as s10
+  state "Told the name is refused" as s11
+  state "Confirming the space ending" as s12
+  state "Ending the space" as s13
+  state "Told ending failed" as s14
+  state "Confirming leaving the space" as s15
+  state "Viewing the ended space" as s16
+  state "Hosting with last known space offline" as s17
+  [*] --> s0
+  s0 --> s1: Creates a space below the hosting limit
+  s0 --> s3: Requests another space at the hosting limit
+  s0 --> s4: Creates or joins while offline
+  s0 --> s5: Opens a link to an open space
+  s0 --> s6: Opens a link to a space that never existed
+  s1 --> s7: Space creation succeeds
+  s1 --> s2: Space creation fails
+  s2 --> s1: Tries creating again
+  s3 --> s0: PaidAccessStarted
+  s4 --> s0: Connection returns
+  s5 --> s8: Joining succeeds
+  s5 --> s16: SpaceEnded
+  s6 --> s0: Returns to Spaces
+  s7 --> s9: Opens sharing
+  s7 --> s10: Renames the space
+  s7 --> s12: Chooses to end the space
+  s7 --> s17: Loses the connection
+  s7 --> s16: AccountDeletionConfirmed
+  s8 --> s15: Chooses to leave
+  s8 --> s16: SpaceEnded
+  s9 --> s7: Closes sharing
+  s10 --> s7: Saves an allowed name
+  s10 --> s11: Saves a refused name
+  s10 --> s7: Cancels renaming
+  s11 --> s10: Edits the name again
+  s12 --> s7: Cancels ending
+  s12 --> s13: Confirms ending
+  s13 --> s16: Space ending succeeds
+  s13 --> s14: Space ending fails
+  s14 --> s13: Tries ending again
+  s15 --> s8: Cancels leaving
+  s15 --> s0: Leaving succeeds
+  s16 --> s0: Returns to Spaces
+  s17 --> s7: Connection returns and the space is open
+  s17 --> s16: SpaceEnded

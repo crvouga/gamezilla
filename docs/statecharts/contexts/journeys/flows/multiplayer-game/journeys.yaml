@@ -1,0 +1,42 @@
+journeys:
+  Two accounts are matched and can finish their multiplayer game:
+    description: Two accounts are matched and can finish their multiplayer game
+    startingConditions:
+    - Alice and Bob have accounts on fresh devices
+    - Alice is finding a 5+0 multiplayer chess opponent
+    events:
+    - Bob starts finding a 5+0 multiplayer chess opponent
+    - White and Black open with e4 and e5 in multiplayer chess
+    - Bob resigns multiplayer chess
+    endsIn: both people see Alice won the multiplayer game — 1 step 3
+    checks:
+    - both people see Alice won the multiplayer game
+    gherkin:
+    - specs/journeys/multiplayer-game.feature:8 — Two accounts are matched and can finish their multiplayer game
+    exampleRow: []
+  Returning after time away opens the accepted multiplayer game:
+    description: Returning after time away opens the accepted multiplayer game
+    startingConditions:
+    - Alice and Bob have accounts and an unfinished multiplayer chess game
+    - Alice's device went offline before Bob resigned
+    events:
+    - Alice opens multiplayer chess with a connection again
+    endsIn: Alice sees the accepted multiplayer result — 2
+    checks:
+    - Alice sees the accepted multiplayer result
+    gherkin:
+    - specs/journeys/multiplayer-game.feature:17 — Returning after time away opens the accepted multiplayer game
+    exampleRow: []
+  A guest reaches the account invitation without starting a search:
+    description: A guest reaches the account invitation without starting a search
+    startingConditions:
+    - Alice is a guest on a fresh device
+    events:
+    - Alice starts finding a 5+0 multiplayer chess opponent
+    endsIn: Alice is invited to sign in — 3
+    checks:
+    - Alice is invited to sign in
+    - Alice has no multiplayer chess game
+    gherkin:
+    - specs/journeys/multiplayer-game.feature:23 — A guest reaches the account invitation without starting a search
+    exampleRow: []

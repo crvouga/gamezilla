@@ -1,0 +1,30 @@
+journeys:
+  Accepting a request makes them friends on both sides:
+    description: Accepting a request makes them friends on both sides
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    events:
+    - Bob accepts Alice's friend request
+    endsIn: Bob's friends list shows Alice — 1
+    checks:
+    - Bob's friends list shows Alice
+    - Alice's friends list shows Bob within 15 seconds
+    gherkin:
+    - specs/friends/friend-request-accept.feature:13 — Accepting a request makes them friends on both sides
+    exampleRow: []
+  The notice of an acceptance leads to the new friend:
+    description: The notice of an acceptance leads to the new friend
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    - Bob has accepted Alice's friend request
+    events:
+    - Alice opens the notice that Bob accepted
+    endsIn: Alice is shown Bob's profile — 2
+    checks:
+    - Alice is shown Bob's profile
+    - Alice sees Bob as a friend
+    gherkin:
+    - specs/friends/friend-request-accept.feature:18 — The notice of an acceptance leads to the new friend
+    exampleRow: []

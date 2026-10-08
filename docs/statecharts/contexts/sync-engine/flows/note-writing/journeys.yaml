@@ -1,0 +1,107 @@
+journeys:
+  A new note shows at once on its writer's device:
+    description: A new note shows at once on its writer's device
+    startingConditions: []
+    events:
+    - Alice writes the note 'Groceries' saying 'milk' when A new note shows at once on its writer's device
+    endsIn: Alice sees the note "Groceries" at once — 1
+    checks:
+    - Alice sees the note "Groceries" at once
+    gherkin:
+    - specs/sync-engine/note-writing.feature:9 — A new note shows at once on its writer's device
+    exampleRow: []
+  A note keeps its title and body after the app reopens:
+    description: A note keeps its title and body after the app reopens
+    startingConditions:
+    - Alice has written the note "Groceries" saying "milk"
+    events:
+    - Alice's app closes and reopens
+    endsIn: Alice sees the note "Groceries" saying "milk" — 2
+    checks:
+    - Alice sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/note-writing.feature:13 — A note keeps its title and body after the app reopens
+    exampleRow: []
+  A note one person writes reaches the other people in the shared space:
+    description: A note one person writes reaches the other people in the shared space
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    events:
+    - Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip'
+    endsIn: Bob sees the note "Groceries" saying "milk" — 3
+    checks:
+    - Bob sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/note-writing.feature:20 — A note one person writes reaches the other people in the shared
+      space
+    exampleRow: []
+  A change to 100 notes at once reaches everyone:
+    description: A change to 100 notes at once reaches everyone
+    startingConditions:
+    - Alice has written 100 notes that have reached Bob
+    events:
+    - Alice changes all 100 notes at once to say 'done'
+    endsIn: Bob sees all 100 notes saying "done" — 4
+    checks:
+    - Bob sees all 100 notes saying "done"
+    gherkin:
+    - specs/sync-engine/note-writing.feature:27 — A change to 100 notes at once reaches everyone
+    exampleRow: []
+  A change to 64 notes at once reaches someone whose app cannot send:
+    description: A change to 64 notes at once reaches someone whose app cannot send
+    startingConditions:
+    - Alice has written 64 notes that have reached Bob
+    - Bob's app cannot send
+    events:
+    - Alice changes all 64 notes at once to say 'done'
+    endsIn: Bob sees all 64 notes saying "done" — 5
+    checks:
+    - Bob sees all 64 notes saying "done"
+    gherkin:
+    - specs/sync-engine/note-writing.feature:32 — A change to 64 notes at once reaches someone whose app cannot
+      send
+    exampleRow: []
+  A change to 65 notes at once reaches everyone, each note once:
+    description: A change to 65 notes at once reaches everyone, each note once
+    startingConditions:
+    - Alice has written 65 notes that have reached Bob
+    events:
+    - Alice changes all 65 notes at once to say 'done'
+    endsIn: Bob sees all 65 notes saying "done" — 6
+    checks:
+    - Bob sees all 65 notes saying "done"
+    - Bob sees exactly 65 notes
+    gherkin:
+    - specs/sync-engine/note-writing.feature:38 — A change to 65 notes at once reaches everyone, each note once
+    exampleRow: []
+  A garbled live update never shows a note without its text:
+    description: A garbled live update never shows a note without its text
+    startingConditions:
+    - Alice and Bob have slow connections
+    - live updates have stopped for a while and started again
+    - the next live update to Bob will arrive garbled
+    events:
+    - Alice writes the note 'Groceries' saying 'milk' when Alice and Bob have slow connections and live updates
+      have stopped for a while and started again and the next live update to Bob will arrive garbled
+    endsIn: Bob never sees the note "Groceries" without its text — 7
+    checks:
+    - Bob never sees the note "Groceries" without its text
+    - Bob sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/note-writing.feature:47 — A garbled live update never shows a note without its text
+    exampleRow: []
+  However live updates are lost, repeated and delayed, nobody sees a note go back to what it said before:
+    description: However live updates are lost, repeated and delayed, nobody sees a note go back to what it said
+      before
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - live updates to Alice and Bob are lost, repeated and delayed at random
+    events:
+    - Alice and Bob keep writing notes
+    endsIn: neither Alice nor Bob ever sees a note go back to what it said before — 8
+    checks:
+    - neither Alice nor Bob ever sees a note go back to what it said before
+    gherkin:
+    - specs/sync-engine/note-writing.feature:57 — However live updates are lost, repeated and delayed, nobody sees
+      a note go back to what it said before
+    exampleRow: []

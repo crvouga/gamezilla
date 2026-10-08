@@ -1,0 +1,12 @@
+journeys:
+  Main outcome:
+    description: Wrong move, retry, solve and continue
+    events:
+    - Opens puzzles with an available start
+    - The next puzzle becomes ready
+    - Plays a legal wrong move
+    - Retries the same puzzle
+    - Solves the puzzle
+    - Moves on within the daily allowance
+    - The next puzzle becomes ready
+    endsIn: Solving the current puzzle

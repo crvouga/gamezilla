@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing Connection restore" as s0
+  state "Alice has a signed-in account — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice signs in with Google
+  s1 --> [*]

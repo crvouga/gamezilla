@@ -1,0 +1,875 @@
+{
+  "id": "gamezilla-atlas",
+  "type": "parallel",
+  "meta": {
+    "context": "Product context map",
+    "kind": "flow",
+    "owner": "Product owners (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [
+      "SignedIn",
+      "SignedOut",
+      "UsernameChanged",
+      "AccountDeletionConfirmed",
+      "PaidAccessStarted",
+      "PaidAccessEnded",
+      "SpaceOpened",
+      "PersonJoined",
+      "PersonLeft",
+      "SpaceEnded",
+      "BecameFriends",
+      "FriendshipEnded",
+      "MatchFormed"
+    ],
+    "product": "Gamezilla",
+    "description": "A local-first multiplayer game platform where people host spaces and play chess with friends.",
+    "source": ["README.md:1", "specs/README.md:1092"],
+    "relationships": [
+      {
+        "event": "SignedIn",
+        "upstream": "profile",
+        "downstream": [
+          "billing",
+          "spaces",
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "auth"
+        ],
+        "confidence": "assumed",
+        "source": "specs/profile/events.qnt"
+      },
+      {
+        "event": "SignedOut",
+        "upstream": "profile",
+        "downstream": [
+          "billing",
+          "spaces",
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "auth"
+        ],
+        "confidence": "assumed",
+        "source": "specs/profile/events.qnt"
+      },
+      {
+        "event": "UsernameChanged",
+        "upstream": "profile",
+        "downstream": ["spaces", "friends", "chess", "runtime", "journeys"],
+        "confidence": "assumed",
+        "source": "specs/profile/events.qnt"
+      },
+      {
+        "event": "AccountDeletionConfirmed",
+        "upstream": "profile",
+        "downstream": [
+          "billing",
+          "spaces",
+          "friends",
+          "chess",
+          "runtime",
+          "auth"
+        ],
+        "confidence": "assumed",
+        "source": "specs/profile/events.qnt"
+      },
+      {
+        "event": "PaidAccessStarted",
+        "upstream": "billing",
+        "downstream": ["spaces", "chess", "journeys"],
+        "confidence": "assumed",
+        "source": "specs/billing/events.qnt"
+      },
+      {
+        "event": "PaidAccessEnded",
+        "upstream": "billing",
+        "downstream": ["spaces", "chess", "journeys"],
+        "confidence": "assumed",
+        "source": "specs/billing/events.qnt"
+      },
+      {
+        "event": "SpaceOpened",
+        "upstream": "spaces",
+        "downstream": [
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/spaces/events.qnt"
+      },
+      {
+        "event": "PersonJoined",
+        "upstream": "spaces",
+        "downstream": [
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/spaces/events.qnt"
+      },
+      {
+        "event": "PersonLeft",
+        "upstream": "spaces",
+        "downstream": [
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/spaces/events.qnt"
+      },
+      {
+        "event": "SpaceEnded",
+        "upstream": "spaces",
+        "downstream": [
+          "friends",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/spaces/events.qnt"
+      },
+      {
+        "event": "BecameFriends",
+        "upstream": "friends",
+        "downstream": [
+          "spaces",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/friends/events.qnt"
+      },
+      {
+        "event": "FriendshipEnded",
+        "upstream": "friends",
+        "downstream": [
+          "spaces",
+          "chess",
+          "runtime",
+          "journeys",
+          "developer-tools"
+        ],
+        "confidence": "assumed",
+        "source": "specs/friends/events.qnt"
+      },
+      {
+        "event": "MatchFormed",
+        "upstream": "matchmaking",
+        "downstream": ["chess"],
+        "confidence": "assumed",
+        "source": "specs/matchmaking/events.qnt"
+      }
+    ]
+  },
+  "states": {
+    "profile": {
+      "meta": {
+        "description": "The Identity context owns its declared outcomes.",
+        "snapshot": "the-identity-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Identity owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "billing": {
+      "meta": {
+        "description": "The Billing context owns its declared outcomes.",
+        "snapshot": "the-billing-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Billing owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "billing",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "billing",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "billing",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "spaces": {
+      "meta": {
+        "description": "The Spaces context owns its declared outcomes.",
+        "snapshot": "the-spaces-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Spaces owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "UsernameChanged": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessStarted": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessEnded": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "BecameFriends": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "FriendshipEnded": {
+          "target": "spaces",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "friends": {
+      "meta": {
+        "description": "The Friends context owns its declared outcomes.",
+        "snapshot": "the-friends-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Friends owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "UsernameChanged": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceOpened": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonJoined": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonLeft": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceEnded": {
+          "target": "friends",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "chess": {
+      "meta": {
+        "description": "The Chess context owns its declared outcomes.",
+        "snapshot": "the-chess-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Chess owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "UsernameChanged": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessStarted": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessEnded": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceOpened": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonJoined": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonLeft": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceEnded": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "BecameFriends": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "FriendshipEnded": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "MatchFormed": {
+          "target": "chess",
+          "meta": {
+            "source": ["specs/matchmaking/events.qnt"],
+            "upstream": "matchmaking",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "auth": {
+      "meta": {
+        "description": "The Auth context owns its declared outcomes.",
+        "snapshot": "the-auth-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Auth owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "auth",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "auth",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "auth",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "room": {
+      "meta": {
+        "description": "The Room context owns its declared outcomes.",
+        "snapshot": "the-room-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Room owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "matchmaking": {
+      "meta": {
+        "description": "The Matchmaking context owns its declared outcomes.",
+        "snapshot": "the-matchmaking-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Matchmaking owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "sync-engine": {
+      "meta": {
+        "description": "The Sync engine context owns its declared outcomes.",
+        "snapshot": "the-sync-engine-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Sync engine owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "db-indexes": {
+      "meta": {
+        "description": "The Database indexing context owns its declared outcomes.",
+        "snapshot": "the-database-indexing-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Database indexing owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "runtime": {
+      "meta": {
+        "description": "The App context owns its declared outcomes.",
+        "snapshot": "the-app-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "App owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "UsernameChanged": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceOpened": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonJoined": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonLeft": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceEnded": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "BecameFriends": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "FriendshipEnded": {
+          "target": "runtime",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "developer-tools": {
+      "meta": {
+        "description": "The Developer tools context owns its declared outcomes.",
+        "snapshot": "the-developer-tools-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Developer tools owner (not named in specs)"
+      },
+      "on": {
+        "SpaceOpened": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonJoined": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonLeft": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceEnded": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "BecameFriends": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "FriendshipEnded": {
+          "target": "developer-tools",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    },
+    "feedback": {
+      "meta": {
+        "description": "The Product feedback context owns its declared outcomes.",
+        "snapshot": "the-product-feedback-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Product feedback owner (not named in specs)",
+        "intentionalDeadEnd": "This context has no documented incoming published event; it still runs its own charts independently."
+      },
+      "on": {}
+    },
+    "journeys": {
+      "meta": {
+        "description": "The Journeys context owns its declared outcomes.",
+        "snapshot": "the-journeys-context-owns-its-declared-outcomes",
+        "recognize": [],
+        "checks": ["Other contexts learn only its published facts."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1092"],
+        "owner": "Journeys owner (not named in specs)"
+      },
+      "on": {
+        "SignedIn": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SignedOut": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "UsernameChanged": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/profile/events.qnt"],
+            "upstream": "profile",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessStarted": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PaidAccessEnded": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/billing/events.qnt"],
+            "upstream": "billing",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceOpened": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonJoined": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "PersonLeft": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "SpaceEnded": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/spaces/events.qnt"],
+            "upstream": "spaces",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "BecameFriends": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        },
+        "FriendshipEnded": {
+          "target": "journeys",
+          "meta": {
+            "source": ["specs/friends/events.qnt"],
+            "upstream": "friends",
+            "reaction": "The context receives this fact; its affected charts define the visible reaction."
+          }
+        }
+      }
+    }
+  }
+}

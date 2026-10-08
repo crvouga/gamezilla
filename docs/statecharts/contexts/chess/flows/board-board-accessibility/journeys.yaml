@@ -1,0 +1,440 @@
+journeys:
+  A selected piece communicates its destinations:
+    description: A selected piece communicates its destinations
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the piece on e2 when Alice has an interactive chessboard
+    endsIn: Alice can identify the White pawn on e2 without sound — 1
+    checks:
+    - Alice can identify the White pawn on e2 without sound
+    - Alice can identify e2 as selected without sound
+    - Alice can identify e4 as a legal destination without sound
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:10 — A selected piece communicates its destinations
+    exampleRow: []
+  Empty squares communicate their identity:
+    description: Empty squares communicate their identity
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the piece on g1
+    endsIn: Alice can identify e4 as empty without sound — 2
+    checks:
+    - Alice can identify e4 as empty without sound
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:17 — Empty squares communicate their identity
+    exampleRow: []
+  A legal keyboard move offers one move:
+    description: A legal keyboard move offers one move
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice moves the piece from e2 to e4 with the keyboard
+    endsIn: Alice sees a White pawn on e4 — 3
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:24 — A legal keyboard move offers one move
+    exampleRow: []
+  An illegal keyboard destination does not move the piece:
+    description: An illegal keyboard destination does not move the piece
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice moves the piece from e2 to e5 with the keyboard
+    endsIn: Alice cannot move White's pawn from e2 to the illegal destination e5 — 4
+    checks:
+    - Alice cannot move White's pawn from e2 to the illegal destination e5
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:30 — An illegal keyboard destination does not move the piece
+    exampleRow: []
+  A White-facing chessboard follows each arrow direction:
+    description: A White-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square up when Alice has a chessboard facing White with the keyboard on e4
+    endsIn: Alice's keyboard is on e5 — 5
+    checks:
+    - Alice's keyboard is on e5
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:39 — A White-facing chessboard follows each arrow direction
+    exampleRow:
+    - '29'
+  A White-facing chessboard follows each arrow direction (example 6):
+    description: A White-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square down when Alice has a chessboard facing White with the keyboard on e4
+    endsIn: Alice's keyboard is on e3 — 6
+    checks:
+    - Alice's keyboard is on e3
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:39 — A White-facing chessboard follows each arrow direction
+    exampleRow:
+    - '30'
+  A White-facing chessboard follows each arrow direction (example 7):
+    description: A White-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square left when Alice has a chessboard facing White with the keyboard on e4
+    endsIn: Alice's keyboard is on d4 — 7
+    checks:
+    - Alice's keyboard is on d4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:39 — A White-facing chessboard follows each arrow direction
+    exampleRow:
+    - '31'
+  A White-facing chessboard follows each arrow direction (example 8):
+    description: A White-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square right when Alice has a chessboard facing White with the keyboard on e4
+    endsIn: Alice's keyboard is on f4 — 8
+    checks:
+    - Alice's keyboard is on f4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:39 — A White-facing chessboard follows each arrow direction
+    exampleRow:
+    - '32'
+  A Black-facing chessboard follows each arrow direction:
+    description: A Black-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square up when Alice has a chessboard facing Black with the keyboard on e4
+    endsIn: Alice's keyboard is on e3 — 9
+    checks:
+    - Alice's keyboard is on e3
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:52 — A Black-facing chessboard follows each arrow direction
+    exampleRow:
+    - '40'
+  A Black-facing chessboard follows each arrow direction (example 10):
+    description: A Black-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square down when Alice has a chessboard facing Black with the keyboard on e4
+    endsIn: Alice's keyboard is on e5 — 10
+    checks:
+    - Alice's keyboard is on e5
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:52 — A Black-facing chessboard follows each arrow direction
+    exampleRow:
+    - '41'
+  A Black-facing chessboard follows each arrow direction (example 11):
+    description: A Black-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square left when Alice has a chessboard facing Black with the keyboard on e4
+    endsIn: Alice's keyboard is on f4 — 11
+    checks:
+    - Alice's keyboard is on f4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:52 — A Black-facing chessboard follows each arrow direction
+    exampleRow:
+    - '42'
+  A Black-facing chessboard follows each arrow direction (example 12):
+    description: A Black-facing chessboard follows each arrow direction
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e4
+    events:
+    - Alice moves the keyboard one square right when Alice has a chessboard facing Black with the keyboard on e4
+    endsIn: Alice's keyboard is on d4 — 12
+    checks:
+    - Alice's keyboard is on d4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:52 — A Black-facing chessboard follows each arrow direction
+    exampleRow:
+    - '43'
+  White-facing arrow movement stops at every edge:
+    description: White-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e8
+    events:
+    - Alice moves the keyboard one square up when Alice has a chessboard facing White with the keyboard on e8
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 13
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on e8
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:65 — White-facing arrow movement stops at every edge
+    exampleRow:
+    - '51'
+  White-facing arrow movement stops at every edge (example 14):
+    description: White-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e1
+    events:
+    - Alice moves the keyboard one square down when Alice has a chessboard facing White with the keyboard on e1
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 14
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on e1
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:65 — White-facing arrow movement stops at every edge
+    exampleRow:
+    - '52'
+  White-facing arrow movement stops at every edge (example 15):
+    description: White-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on a4
+    events:
+    - Alice moves the keyboard one square left when Alice has a chessboard facing White with the keyboard on a4
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 15
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on a4
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:65 — White-facing arrow movement stops at every edge
+    exampleRow:
+    - '53'
+  White-facing arrow movement stops at every edge (example 16):
+    description: White-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on h4
+    events:
+    - Alice moves the keyboard one square right when Alice has a chessboard facing White with the keyboard on h4
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 16
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on h4
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:65 — White-facing arrow movement stops at every edge
+    exampleRow:
+    - '54'
+  Black-facing arrow movement stops at every edge:
+    description: Black-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e1
+    events:
+    - Alice moves the keyboard one square up when Alice has a chessboard facing Black with the keyboard on e1
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 17
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on e1
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:78 — Black-facing arrow movement stops at every edge
+    exampleRow:
+    - '62'
+  Black-facing arrow movement stops at every edge (example 18):
+    description: Black-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on e8
+    events:
+    - Alice moves the keyboard one square down when Alice has a chessboard facing Black with the keyboard on e8
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 18
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on e8
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:78 — Black-facing arrow movement stops at every edge
+    exampleRow:
+    - '63'
+  Black-facing arrow movement stops at every edge (example 19):
+    description: Black-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on h4
+    events:
+    - Alice moves the keyboard one square left when Alice has a chessboard facing Black with the keyboard on h4
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 19
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on h4
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:78 — Black-facing arrow movement stops at every edge
+    exampleRow:
+    - '64'
+  Black-facing arrow movement stops at every edge (example 20):
+    description: Black-facing arrow movement stops at every edge
+    startingConditions:
+    - Alice has a chessboard facing Black with the keyboard on a4
+    events:
+    - Alice moves the keyboard one square right when Alice has a chessboard facing Black with the keyboard on a4
+    endsIn: Alice cannot move the keyboard beyond the chessboard's edge — 20
+    checks:
+    - Alice cannot move the keyboard beyond the chessboard's edge
+    - Alice's keyboard is on a4
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:78 — Black-facing arrow movement stops at every edge
+    exampleRow:
+    - '65'
+  Either choice key selects a movable piece:
+    description: Either choice key selects a movable piece
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Space when Alice has a chessboard facing White with the keyboard
+      on e2
+    endsIn: Alice has e2 selected — 21
+    checks:
+    - Alice has e2 selected
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:93 — Either choice key selects a movable piece
+    exampleRow:
+    - '74'
+  Either choice key selects a movable piece (example 22):
+    description: Either choice key selects a movable piece
+    startingConditions:
+    - Alice has a chessboard facing White with the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Enter when Alice has a chessboard facing White with the keyboard
+      on e2
+    endsIn: Alice has e2 selected — 22
+    checks:
+    - Alice has e2 selected
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:93 — Either choice key selects a movable piece
+    exampleRow:
+    - '75'
+  Either choice key on the selected source deselects it:
+    description: Either choice key on the selected source deselects it
+    startingConditions:
+    - Alice has e2 selected with the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Space when Alice has e2 selected with the keyboard on e2
+    endsIn: Alice sees no selection or legal destinations — 23
+    checks:
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:104 — Either choice key on the selected source deselects it
+    exampleRow:
+    - '83'
+  Either choice key on the selected source deselects it (example 24):
+    description: Either choice key on the selected source deselects it
+    startingConditions:
+    - Alice has e2 selected with the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Enter when Alice has e2 selected with the keyboard on e2
+    endsIn: Alice sees no selection or legal destinations — 24
+    checks:
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:104 — Either choice key on the selected source deselects it
+    exampleRow:
+    - '84'
+  Space on a legal destination completes the selected move:
+    description: Space on a legal destination completes the selected move
+    startingConditions:
+    - Alice has e2 selected with the keyboard on e4
+    events:
+    - Alice chooses the keyboard's square with Space when Alice has e2 selected with the keyboard on e4
+    endsIn: Alice sees a White pawn on e4 — 25
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:115 — Space on a legal destination completes the selected move
+    exampleRow: []
+  Disabled interactivity refuses either choice key:
+    description: Disabled interactivity refuses either choice key
+    startingConditions:
+    - Alice has a chessboard with interactivity disabled and the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Space when Alice has a chessboard with interactivity disabled and
+      the keyboard on e2
+    endsIn: Alice cannot select a piece while interactivity is disabled — 26
+    checks:
+    - Alice cannot select a piece while interactivity is disabled
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:122 — Disabled interactivity refuses either choice key
+    exampleRow:
+    - '99'
+  Disabled interactivity refuses either choice key (example 27):
+    description: Disabled interactivity refuses either choice key
+    startingConditions:
+    - Alice has a chessboard with interactivity disabled and the keyboard on e2
+    events:
+    - Alice chooses the keyboard's square with Enter when Alice has a chessboard with interactivity disabled and
+      the keyboard on e2
+    endsIn: Alice cannot select a piece while interactivity is disabled — 27
+    checks:
+    - Alice cannot select a piece while interactivity is disabled
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:122 — Disabled interactivity refuses either choice key
+    exampleRow:
+    - '100'
+  Enter completes a knight move in either orientation:
+    description: Enter completes a knight move in either orientation
+    startingConditions:
+    - Alice has g1 selected with the keyboard on f3 on a chessboard facing White
+    events:
+    - Alice chooses the keyboard's square with Enter when Alice has g1 selected with the keyboard on f3 on a chessboard
+      facing White
+    endsIn: Alice sees a White knight on f3 — 28
+    checks:
+    - Alice sees a White knight on f3
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:134 — Enter completes a knight move in either orientation
+    exampleRow:
+    - '109'
+  Enter completes a knight move in either orientation (example 29):
+    description: Enter completes a knight move in either orientation
+    startingConditions:
+    - Alice has g1 selected with the keyboard on f3 on a chessboard facing Black
+    events:
+    - Alice chooses the keyboard's square with Enter when Alice has g1 selected with the keyboard on f3 on a chessboard
+      facing Black
+    endsIn: Alice sees a White knight on f3 — 29
+    checks:
+    - Alice sees a White knight on f3
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:134 — Enter completes a knight move in either orientation
+    exampleRow:
+    - '110'
+  Choosing a piece gives its source the keyboard:
+    description: Choosing a piece gives its source the keyboard
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the piece on e2 when Alice has an interactive chessboard
+    endsIn: Alice can identify the White pawn on e2 without sound — 1
+    checks:
+    - Alice's keyboard is on e2
+    - Alice has e2 selected
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:149 — Choosing a piece gives its source the keyboard
+    exampleRow: []
+  Choosing an empty square gives it the keyboard:
+    description: Choosing an empty square gives it the keyboard
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the empty square e4
+    endsIn: Alice's keyboard is on e4 — 31
+    checks:
+    - Alice's keyboard is on e4
+    - Alice sees no selection or legal destinations
+    gherkin:
+    - specs/chess-board/board-accessibility.feature:155 — Choosing an empty square gives it the keyboard
+    exampleRow: []

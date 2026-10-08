@@ -1,0 +1,160 @@
+id: billing-deleted-account-payments
+initial: Viewing Stop charging a deleted account
+meta:
+  context: Billing
+  kind: flow
+  owner: Billing owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Stop charging a deleted account:
+    meta:
+      description: The person is at the place where stop charging a deleted account.
+      snapshot: the-person-is-at-the-place-where-stop-charging-a-deleted-account
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:2
+    'on':
+      Alice confirms account deletion:
+        target: Alice's membership cannot renew because the account was deleted — 1
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:8
+          condition:
+          - Alice has subscribed to Plus
+          - Alice has a recently proven account
+          example: Deletion cancels future membership charges
+      Alice views the account deletion outcome:
+        target: Alice is told cancellation is still being completed — 2
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:15
+          condition:
+          - Alice's account deletion has been confirmed
+          - the payment provider has not yet confirmed cancellation
+          example: An unfinished cancellation cannot be called complete
+      Alice's payment provider takes another membership payment:
+        target: that payment is refunded in full because account deletion had already been confirmed — 3
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:22
+          condition:
+          - Alice's account deletion has been confirmed
+          example: A charge after confirmed deletion is refunded
+      the team reviews that payment record for accounting:
+        target: the team can see its minimum payment evidence — 4
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:29
+          condition:
+          - Alice's account deletion has completed
+          - Alice made a membership payment less than 7 years ago
+          example: Minimum payment evidence remains available for accounting
+      Alice signs in with Google:
+        target: Alice has free access — 5
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:35
+          condition:
+          - Alice's account deletion has completed
+          - Alice's payment record is still retained for accounting
+          example: A payment record cannot restore paid access
+      the team reviews payment records due for erasure:
+        target: that payment record cannot remain because its retention period has expired — 6
+        meta:
+          source:
+          - specs/billing/deleted-account-payments.feature:42
+          condition:
+          - Alice's payment record is 7 years old
+          - no specific legal preservation obligation applies to it
+          example: Ordinary payment retention expires after seven years
+  Alice's membership cannot renew because the account was deleted — 1:
+    meta:
+      description: The person observes that alice's membership cannot renew because the account was deleted.
+      snapshot: the-person-observes-that-alice-s-membership-cannot-renew-because-the-account-was-dele
+      recognize: []
+      checks:
+      - Alice's membership cannot renew because the account was deleted
+      - Alice no longer has paid access
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told cancellation is still being completed — 2:
+    meta:
+      description: The person observes that alice is told cancellation is still being completed.
+      snapshot: the-person-observes-that-alice-is-told-cancellation-is-still-being-completed
+      recognize: []
+      checks:
+      - Alice is told cancellation is still being completed
+      - Alice is not told the membership cancellation has completed
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  that payment is refunded in full because account deletion had already been confirmed — 3:
+    meta:
+      description: The person observes that that payment is refunded in full because account deletion had already
+        been confirmed.
+      snapshot: the-person-observes-that-that-payment-is-refunded-in-full-because-account-deletion-ha
+      recognize: []
+      checks:
+      - that payment is refunded in full because account deletion had already been confirmed
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:22
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the team can see its minimum payment evidence — 4:
+    meta:
+      description: The person observes that the team can see its minimum payment evidence.
+      snapshot: the-person-observes-that-the-team-can-see-its-minimum-payment-evidence
+      recognize: []
+      checks:
+      - the team can see its minimum payment evidence
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has free access — 5:
+    meta:
+      description: The person observes that alice has free access.
+      snapshot: the-person-observes-that-alice-has-free-access
+      recognize: []
+      checks:
+      - Alice has free access
+      - Alice's payment record cannot restore the deleted account's membership
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:35
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  that payment record cannot remain because its retention period has expired — 6:
+    meta:
+      description: The person observes that that payment record cannot remain because its retention period has expired.
+      snapshot: the-person-observes-that-that-payment-record-cannot-remain-because-its-retention-peri
+      recognize: []
+      checks:
+      - that payment record cannot remain because its retention period has expired
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:42
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

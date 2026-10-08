@@ -1,0 +1,36 @@
+stateDiagram-v2
+  state "Viewing The Custom Game clock" as s0
+  state "The Custom Game has 180 minutes with 60 seconds increment — 1" as s1
+  state "Alice is told the time choice is outside the Custom Game limits — 2" as s2
+  state "Alice is told the time choice is outside the Custom Game limits — 3" as s3
+  state "Alice is told the time choice is outside the Custom Game limits — 4" as s4
+  state "Alice is told the time choice is outside the Custom Game limits — 5" as s5
+  state "White has 57 seconds and Black has 60 seconds in the Custom Game — 6" as s6
+  state "Bob is told only the participant to move may play — 7" as s7
+  state "Bob wins the Custom Game on time — 8" as s8
+  state "Alice is told the Custom Game has finished — 9" as s9
+  state "The Custom Game is unrated and untimed — 10" as s10
+  state "Alice is told the Custom Game has already started — 11" as s11
+  [*] --> s0
+  s0 --> s1: Alice chooses 180 minutes with 60 seconds increment for the Custom Game
+  s0 --> s2: Alice chooses 0 minutes with 0 seconds increment for the Custom Game
+  s0 --> s3: Alice chooses 181 minutes with 0 seconds increment for the Custom Game
+  s0 --> s4: Alice chooses 1 minutes with -1 seconds increment for the Custom Game
+  s0 --> s5: Alice chooses 1 minutes with 61 seconds increment for the Custom Game
+  s0 --> s6: Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game with 1 minute and 2 seconds increment and 5 seconds have passed in the Custom Game
+  s0 --> s7: Bob plays e7-e5 in the Custom Game
+  s0 --> s8: 60 seconds pass
+  s0 --> s9: Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game with 1 minute and 0 seconds increment and White's time has run out in the Custom Game
+  s0 --> s10: Alice chooses an untimed Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and The Custom Game has a timed choice
+  s0 --> s11: Alice chooses an untimed Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]

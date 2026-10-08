@@ -1,0 +1,918 @@
+{
+  "id": "chess-board-board-options-part-1",
+  "initial": "Viewing Choose the chessboard's appearance",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/chess-board-root-client/src/create-chess-board-model.ts",
+      "pkgs/chess-board-root-client/src/chess-board.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-view.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-user-shapes.ts",
+      "pkgs/chess-board-root-client/src/chess-board-squares.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.",
+    "childCharts": [
+      "../board-board-options-part-2/machine.yaml",
+      "../board-board-options/machine.yaml"
+    ]
+  },
+  "states": {
+    "Viewing Choose the chessboard's appearance": {
+      "meta": {
+        "description": "The person is at the place where choose the chessboard's appearance.",
+        "snapshot": "the-person-is-at-the-place-where-choose-the-chessboard-s-appearance",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:2"]
+      },
+      "on": {
+        "Alice's activity narrows the available space when Alice has a chessboard without a fixed width": {
+          "target": "Alice's chessboard fills the available width — 1",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:8"],
+            "condition": ["Alice has a chessboard without a fixed width"],
+            "example": "Available space determines width when no fixed width is chosen"
+          }
+        },
+        "Alice's activity narrows the available space when Alice has a chessboard with the activity's fixed width": {
+          "target": "Alice's chessboard still has the activity's fixed width — 2",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:14"],
+            "condition": [
+              "Alice has a chessboard with the activity's fixed width"
+            ],
+            "example": "A fixed width takes precedence over changing available space"
+          }
+        },
+        "Alice's activity chooses a fixed width": {
+          "target": "Alice's chessboard has the activity's fixed width — 3",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:20"],
+            "condition": ["Alice has a chessboard without a fixed width"],
+            "example": "Choosing a fixed width takes effect on an existing chessboard"
+          }
+        },
+        "Alice's activity removes the fixed width when Alice has a chessboard with the activity's fixed width": {
+          "target": "Alice's chessboard fills the available width — 4",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:26"],
+            "condition": [
+              "Alice has a chessboard with the activity's fixed width"
+            ],
+            "example": "Removing a fixed width restores the available width"
+          }
+        },
+        "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 196 pixels wide": {
+          "target": "Alice sees a White pawn on e4 — 5",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:32"],
+            "condition": [
+              "Alice has an interactive chessboard 196 pixels wide"
+            ],
+            "example": "The smallest supported width offers a legal move"
+          }
+        },
+        "Alice begins dragging the piece on e2 when Alice has an interactive chessboard 196 pixels wide": {
+          "target": "Alice holds the piece from e2 — 6",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:38"],
+            "condition": [
+              "Alice has an interactive chessboard 196 pixels wide"
+            ],
+            "example": "A supported width permits holding a piece before its destination is chosen"
+          }
+        },
+        "Alice begins dragging the piece on d2": {
+          "target": "Alice holds the piece from d2 — 7",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:45"],
+            "condition": ["Alice has selected the piece on e2"],
+            "example": "Holding another piece clears the earlier selection before a move"
+          }
+        },
+        "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 16384 pixels wide": {
+          "target": "Alice sees a White pawn on e4 — 8",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:53"],
+            "condition": [
+              "Alice has an interactive chessboard 16384 pixels wide"
+            ],
+            "example": "The largest supported width offers a legal move"
+          }
+        },
+        "Alice moves the piece from e2 to e4 when Alice has a chessboard 195 pixels wide": {
+          "target": "Alice cannot move a piece while the chessboard is a preview — 9",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:60"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
+            "example": "A narrow preview refuses a move while retaining the position"
+          }
+        },
+        "Alice moves the piece from e2 to e4 with the keyboard": {
+          "target": "Alice cannot move a piece while the chessboard is a preview — 10",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:68"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
+            "example": "A narrow preview also refuses keyboard moves"
+          }
+        },
+        "Alice selects the piece on e2 when Alice has a chessboard 195 pixels wide": {
+          "target": "Alice cannot select a piece while the chessboard is a preview — 11",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:75"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
+            "example": "A preview refuses selecting a piece"
+          }
+        },
+        "Alice begins dragging the piece on e2 when Alice has a chessboard 195 pixels wide": {
+          "target": "Alice cannot hold a piece while the chessboard is a preview — 12",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:82"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
+            "example": "A preview refuses holding a piece"
+          }
+        },
+        "Alice moves the piece from e2 to e4 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
+          "target": "Alice cannot move a piece while interactivity is disabled — 13",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:89"],
+            "condition": [
+              "Alice has a chessboard 196 pixels wide with interactivity disabled"
+            ],
+            "example": "Activity-disabled input still refuses a move at a supported width"
+          }
+        },
+        "Alice selects the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
+          "target": "Alice cannot select a piece while interactivity is disabled — 14",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:96"],
+            "condition": [
+              "Alice has a chessboard 196 pixels wide with interactivity disabled"
+            ],
+            "example": "Activity-disabled input refuses selection at a supported width"
+          }
+        },
+        "Alice begins dragging the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
+          "target": "Alice cannot hold a piece while interactivity is disabled — 15",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:103"],
+            "condition": [
+              "Alice has a chessboard 196 pixels wide with interactivity disabled"
+            ],
+            "example": "Activity-disabled input refuses holding at a supported width"
+          }
+        },
+        "Alice moves the piece from a7 to a8": {
+          "target": "Alice cannot move a piece while the chessboard is a preview — 16",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:111"],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8",
+              "Alice has a chessboard 195 pixels wide"
+            ],
+            "example": "A preview cannot begin a promotion choice"
+          }
+        },
+        "Alice moves the piece from e2 to e4 when Alice has a chessboard 16385 pixels wide": {
+          "target": "Alice cannot move a piece while the chessboard is a preview — 17",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:121"],
+            "condition": ["Alice has a chessboard 16385 pixels wide"],
+            "example": "A width beyond the supported range remains a preview"
+          }
+        },
+        "Alice's activity chooses a fixed width of 195 pixels": {
+          "target": "Alice cannot move a piece while the chessboard is a preview — 18",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:128"],
+            "condition": [
+              "Alice has selected the piece on e2 with a fixed width and enough available space to move"
+            ],
+            "example": "A fixed preview width wins over wider available space"
+          }
+        },
+        "Alice's activity removes the fixed width when Alice has a chessboard with a fixed width of 195 pixels and enough available space to move": {
+          "target": "Alice's chessboard fills the available width — 19",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:136"],
+            "condition": [
+              "Alice has a chessboard with a fixed width of 195 pixels and enough available space to move"
+            ],
+            "example": "Removing a fixed preview width restores playable available space"
+          }
+        },
+        "Alice resizes the chessboard": {
+          "target": "Alice is still offered queen, rook, bishop and knight as the promotion choice — 20",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:143"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Resizing within the supported range preserves a pending promotion"
+          }
+        },
+        "Alice's activity narrows the chessboard to 195 pixels wide when Alice has selected the piece on e2": {
+          "target": "Alice sees no selection or legal destinations — 21",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:151"],
+            "condition": ["Alice has selected the piece on e2"],
+            "example": "Resizing into a preview abandons selection"
+          }
+        },
+        "Alice's activity narrows the chessboard to 195 pixels wide when Alice is dragging the piece on e2": {
+          "target": "Alice no longer holds a piece — 22",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:158"],
+            "condition": ["Alice is dragging the piece on e2"],
+            "example": "Resizing into a preview puts down a held piece"
+          }
+        },
+        "Alice's activity narrows the chessboard to 195 pixels wide when Alice has a pending White promotion from a7 to a8": {
+          "target": "Alice is not offered a promotion choice — 23",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:166"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Resizing into a preview abandons a pending promotion"
+          }
+        },
+        "Alice's activity widens the chessboard to 196 pixels wide": {
+          "target": "Alice can select the piece on e2 — 24",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:173"],
+            "condition": [
+              "Alice has a chessboard 195 pixels wide after its selection was abandoned"
+            ],
+            "example": "Returning to a supported width permits a fresh choice"
+          }
+        },
+        "Alice's activity removes the fixed width when Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available and Alice's activity now has 320 pixels available": {
+          "target": "Alice sees a square chessboard 320 pixels wide — 25",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:181"],
+            "condition": [
+              "Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available",
+              "Alice's activity now has 320 pixels available"
+            ],
+            "example": "Removing a fixed width preserves promotion when the available space is now playable"
+          }
+        },
+        "Alice's board settings show coordinates when Alice has a chessboard with coordinates hidden": {
+          "target": "Alice sees coordinates for all eight files and all eight ranks — 26",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:192"],
+            "condition": ["Alice has a chessboard with coordinates hidden"],
+            "example": "Shown coordinates name all eight files and ranks"
+          }
+        },
+        "Alice's board settings show coordinates when Alice has a chessboard facing Black with coordinates hidden": {
+          "target": "Alice sees coordinates for all eight files and all eight ranks — 27",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:198"],
+            "condition": [
+              "Alice has a chessboard facing Black with coordinates hidden"
+            ],
+            "example": "A Black-facing chessboard shows all eight files and ranks"
+          }
+        },
+        "Alice changes the orientation": {
+          "target": "Alice still sees no coordinates — 28",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:205"],
+            "condition": ["Alice has a chessboard with coordinates hidden"],
+            "example": "Hidden coordinates stay hidden when orientation changes"
+          }
+        },
+        "Alice's board settings hide coordinates": {
+          "target": "Alice sees no coordinates — 29",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:212"],
+            "condition": ["Alice is dragging the piece on e2"],
+            "example": "Hiding coordinates preserves a held piece"
+          }
+        },
+        "Alice's board settings hide legal destination marks when Alice has selected the piece on e2": {
+          "target": "Alice still has e2 selected — 30",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:220"],
+            "condition": ["Alice has selected the piece on e2"],
+            "example": "Hidden legal marks preserve the meaning of a selection"
+          }
+        },
+        "Alice's board settings show legal destination marks": {
+          "target": "Alice has e2 selected — 31",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:227"],
+            "condition": [
+              "Alice has selected the piece on e2 with legal destination marks hidden"
+            ],
+            "example": "Showing legal marks restores the selected piece's destinations"
+          }
+        },
+        "Alice's board settings hide legal destination marks when Alice has a pending White promotion from a7 to a8": {
+          "target": "Alice is still offered queen, rook, bishop and knight as the promotion choice — 32",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:233"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Hiding legal marks preserves a pending promotion choice"
+          }
+        },
+        "Alice's board settings hide last move marks": {
+          "target": "Alice cannot see last move marks while they are hidden — 33",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:241"],
+            "condition": [
+              "Alice has a chessboard after White's move from e2 to e4"
+            ],
+            "example": "Hiding the last move keeps its piece at the destination"
+          }
+        },
+        "Alice's board settings show last move marks": {
+          "target": "Alice sees e2 and e4 marked as the last move — 34",
+          "meta": {
+            "source": ["specs/chess-board/board-options.feature:247"],
+            "condition": [
+              "Alice has a chessboard after White's move from e2 to e4 with last move marks hidden"
+            ],
+            "example": "Showing the last move restores its source and destination marks"
+          }
+        }
+      }
+    },
+    "Alice's chessboard fills the available width — 1": {
+      "meta": {
+        "description": "The person observes that alice's chessboard fills the available width.",
+        "snapshot": "the-person-observes-that-alice-s-chessboard-fills-the-available-width",
+        "recognize": [],
+        "checks": [
+          "Alice's chessboard fills the available width",
+          "Alice's chessboard has equal width and height"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's chessboard still has the activity's fixed width — 2": {
+      "meta": {
+        "description": "The person observes that alice's chessboard still has the activity's fixed width.",
+        "snapshot": "the-person-observes-that-alice-s-chessboard-still-has-the-activity-s-fixed-width",
+        "recognize": [],
+        "checks": [
+          "Alice's chessboard still has the activity's fixed width",
+          "Alice's chessboard has equal width and height"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's chessboard has the activity's fixed width — 3": {
+      "meta": {
+        "description": "The person observes that alice's chessboard has the activity's fixed width.",
+        "snapshot": "the-person-observes-that-alice-s-chessboard-has-the-activity-s-fixed-width",
+        "recognize": [],
+        "checks": [
+          "Alice's chessboard has the activity's fixed width",
+          "Alice's chessboard has equal width and height"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:20"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's chessboard fills the available width — 4": {
+      "meta": {
+        "description": "The person observes that alice's chessboard fills the available width.",
+        "snapshot": "the-person-observes-that-alice-s-chessboard-fills-the-available-width",
+        "recognize": [],
+        "checks": [
+          "Alice's chessboard fills the available width",
+          "Alice's chessboard has equal width and height"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:26"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White pawn on e4 — 5": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on e4",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:32"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice holds the piece from e2 — 6": {
+      "meta": {
+        "description": "The person observes that alice holds the piece from e2.",
+        "snapshot": "the-person-observes-that-alice-holds-the-piece-from-e2",
+        "recognize": [],
+        "checks": [
+          "Alice holds the piece from e2",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:38"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice holds the piece from d2 — 7": {
+      "meta": {
+        "description": "The person observes that alice holds the piece from d2.",
+        "snapshot": "the-person-observes-that-alice-holds-the-piece-from-d2",
+        "recognize": [],
+        "checks": [
+          "Alice holds the piece from d2",
+          "Alice sees no selection",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:45"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White pawn on e4 — 8": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on e4",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:53"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while the chessboard is a preview — 9": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while the chessboard is a preview",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:60"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while the chessboard is a preview — 10": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while the chessboard is a preview",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:68"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot select a piece while the chessboard is a preview — 11": {
+      "meta": {
+        "description": "The person observes that alice cannot select a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-select-a-piece-while-the-chessboard-is-a-previe",
+        "recognize": [],
+        "checks": [
+          "Alice cannot select a piece while the chessboard is a preview",
+          "Alice sees no selection or legal destinations",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:75"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hold a piece while the chessboard is a preview — 12": {
+      "meta": {
+        "description": "The person observes that alice cannot hold a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-hold-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hold a piece while the chessboard is a preview",
+          "Alice no longer holds a piece",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:82"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while interactivity is disabled — 13": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while interactivity is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-interactivity-is-disabled",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while interactivity is disabled",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:89"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot select a piece while interactivity is disabled — 14": {
+      "meta": {
+        "description": "The person observes that alice cannot select a piece while interactivity is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-select-a-piece-while-interactivity-is-disabled",
+        "recognize": [],
+        "checks": [
+          "Alice cannot select a piece while interactivity is disabled",
+          "Alice sees no selection or legal destinations",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:96"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hold a piece while interactivity is disabled — 15": {
+      "meta": {
+        "description": "The person observes that alice cannot hold a piece while interactivity is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-hold-a-piece-while-interactivity-is-disabled",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hold a piece while interactivity is disabled",
+          "Alice no longer holds a piece",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:103"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while the chessboard is a preview — 16": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while the chessboard is a preview",
+          "Alice is not offered a promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:111"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while the chessboard is a preview — 17": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while the chessboard is a preview",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:121"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece while the chessboard is a preview — 18": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece while the chessboard is a preview.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-while-the-chessboard-is-a-preview",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece while the chessboard is a preview",
+          "Alice sees no selection or legal destinations",
+          "Alice's chessboard has the activity's fixed width",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:128"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's chessboard fills the available width — 19": {
+      "meta": {
+        "description": "The person observes that alice's chessboard fills the available width.",
+        "snapshot": "the-person-observes-that-alice-s-chessboard-fills-the-available-width",
+        "recognize": [],
+        "checks": [
+          "Alice's chessboard fills the available width",
+          "Alice can select the piece on e2",
+          "Alice sees no selection or legal destinations"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:136"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is still offered queen, rook, bishop and knight as the promotion choice — 20": {
+      "meta": {
+        "description": "The person observes that alice is still offered queen, rook, bishop and knight as the promotion choice.",
+        "snapshot": "the-person-observes-that-alice-is-still-offered-queen-rook-bishop-and-knight-as-the-p",
+        "recognize": [],
+        "checks": [
+          "Alice is still offered queen, rook, bishop and knight as the promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:143"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees no selection or legal destinations — 21": {
+      "meta": {
+        "description": "The person observes that alice sees no selection or legal destinations.",
+        "snapshot": "the-person-observes-that-alice-sees-no-selection-or-legal-destinations",
+        "recognize": [],
+        "checks": [
+          "Alice sees no selection or legal destinations",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:151"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice no longer holds a piece — 22": {
+      "meta": {
+        "description": "The person observes that alice no longer holds a piece.",
+        "snapshot": "the-person-observes-that-alice-no-longer-holds-a-piece",
+        "recognize": [],
+        "checks": [
+          "Alice no longer holds a piece",
+          "Alice sees the White pawn remaining on e2",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:158"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered a promotion choice — 23": {
+      "meta": {
+        "description": "The person observes that alice is not offered a promotion choice.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-a-promotion-choice",
+        "recognize": [],
+        "checks": [
+          "Alice is not offered a promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:166"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice can select the piece on e2 — 24": {
+      "meta": {
+        "description": "The person observes that alice can select the piece on e2.",
+        "snapshot": "the-person-observes-that-alice-can-select-the-piece-on-e2",
+        "recognize": [],
+        "checks": [
+          "Alice can select the piece on e2",
+          "Alice sees no selection or legal destinations",
+          "Alice sees the White pawn remaining on e2"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:173"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a square chessboard 320 pixels wide — 25": {
+      "meta": {
+        "description": "The person observes that alice sees a square chessboard 320 pixels wide.",
+        "snapshot": "the-person-observes-that-alice-sees-a-square-chessboard-320-pixels-wide",
+        "recognize": [],
+        "checks": [
+          "Alice sees a square chessboard 320 pixels wide",
+          "Alice is still offered queen, rook, bishop and knight as the promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:181"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees coordinates for all eight files and all eight ranks — 26": {
+      "meta": {
+        "description": "The person observes that alice sees coordinates for all eight files and all eight ranks.",
+        "snapshot": "the-person-observes-that-alice-sees-coordinates-for-all-eight-files-and-all-eight-ran",
+        "recognize": [],
+        "checks": [
+          "Alice sees coordinates for all eight files and all eight ranks",
+          "Alice sees the White pawn remaining on e2"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:192"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees coordinates for all eight files and all eight ranks — 27": {
+      "meta": {
+        "description": "The person observes that alice sees coordinates for all eight files and all eight ranks.",
+        "snapshot": "the-person-observes-that-alice-sees-coordinates-for-all-eight-files-and-all-eight-ran",
+        "recognize": [],
+        "checks": [
+          "Alice sees coordinates for all eight files and all eight ranks",
+          "Alice's chessboard faces Black",
+          "Alice sees the White pawn remaining on e2"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:198"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice still sees no coordinates — 28": {
+      "meta": {
+        "description": "The person observes that alice still sees no coordinates.",
+        "snapshot": "the-person-observes-that-alice-still-sees-no-coordinates",
+        "recognize": [],
+        "checks": [
+          "Alice still sees no coordinates",
+          "Alice's chessboard faces Black",
+          "Alice sees the White pawn remaining on e2"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:205"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees no coordinates — 29": {
+      "meta": {
+        "description": "The person observes that alice sees no coordinates.",
+        "snapshot": "the-person-observes-that-alice-sees-no-coordinates",
+        "recognize": [],
+        "checks": [
+          "Alice sees no coordinates",
+          "Alice still holds the piece from e2"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:212"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice still has e2 selected — 30": {
+      "meta": {
+        "description": "The person observes that alice still has e2 selected.",
+        "snapshot": "the-person-observes-that-alice-still-has-e2-selected",
+        "recognize": [],
+        "checks": [
+          "Alice still has e2 selected",
+          "Alice cannot see legal destination marks while they are hidden",
+          "Alice can identify e4 as a legal destination without sound"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:220"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has e2 selected — 31": {
+      "meta": {
+        "description": "The person observes that alice has e2 selected.",
+        "snapshot": "the-person-observes-that-alice-has-e2-selected",
+        "recognize": [],
+        "checks": [
+          "Alice has e2 selected",
+          "Alice sees only e3 and e4 as legal destinations"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:227"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is still offered queen, rook, bishop and knight as the promotion choice — 32": {
+      "meta": {
+        "description": "The person observes that alice is still offered queen, rook, bishop and knight as the promotion choice.",
+        "snapshot": "the-person-observes-that-alice-is-still-offered-queen-rook-bishop-and-knight-as-the-p",
+        "recognize": [],
+        "checks": [
+          "Alice is still offered queen, rook, bishop and knight as the promotion choice",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:233"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot see last move marks while they are hidden — 33": {
+      "meta": {
+        "description": "The person observes that alice cannot see last move marks while they are hidden.",
+        "snapshot": "the-person-observes-that-alice-cannot-see-last-move-marks-while-they-are-hidden",
+        "recognize": [],
+        "checks": [
+          "Alice cannot see last move marks while they are hidden",
+          "Alice sees a White pawn on e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:241"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees e2 and e4 marked as the last move — 34": {
+      "meta": {
+        "description": "The person observes that alice sees e2 and e4 marked as the last move.",
+        "snapshot": "the-person-observes-that-alice-sees-e2-and-e4-marked-as-the-last-move",
+        "recognize": [],
+        "checks": [
+          "Alice sees e2 and e4 marked as the last move",
+          "Alice sees a White pawn on e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-options.feature:247"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

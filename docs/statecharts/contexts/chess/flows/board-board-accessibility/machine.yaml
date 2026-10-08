@@ -1,0 +1,704 @@
+id: chess-board-board-accessibility
+initial: Viewing Understand the chessboard without sound
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  - pkgs/chess-board-root-client/src/chess-board-view.tsx
+  - pkgs/chess-board-root-client/src/chess-board-user-shapes.ts
+  - pkgs/chess-board-root-client/src/chess-board-squares.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Understand the chessboard without sound:
+    meta:
+      description: The person is at the place where understand the chessboard without sound.
+      snapshot: the-person-is-at-the-place-where-understand-the-chessboard-without-sound
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:2
+    'on':
+      Alice selects the piece on e2 when Alice has an interactive chessboard:
+        target: Alice can identify the White pawn on e2 without sound — 1
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:10
+          condition:
+          - Alice has an interactive chessboard
+          example: A selected piece communicates its destinations
+      Alice selects the piece on g1:
+        target: Alice can identify e4 as empty without sound — 2
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:17
+          condition:
+          - Alice has an interactive chessboard
+          example: Empty squares communicate their identity
+      Alice moves the piece from e2 to e4 with the keyboard:
+        target: Alice sees a White pawn on e4 — 3
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:24
+          condition:
+          - Alice has an interactive chessboard
+          example: A legal keyboard move offers one move
+      Alice moves the piece from e2 to e5 with the keyboard:
+        target: Alice cannot move White's pawn from e2 to the illegal destination e5 — 4
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:30
+          condition:
+          - Alice has an interactive chessboard
+          example: An illegal keyboard destination does not move the piece
+      Alice moves the keyboard one square up when Alice has a chessboard facing White with the keyboard on e4:
+        target: Alice's keyboard is on e5 — 5
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:39
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e4
+          example: A White-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square down when Alice has a chessboard facing White with the keyboard on e4:
+        target: Alice's keyboard is on e3 — 6
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:39
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e4
+          example: A White-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square left when Alice has a chessboard facing White with the keyboard on e4:
+        target: Alice's keyboard is on d4 — 7
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:39
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e4
+          example: A White-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square right when Alice has a chessboard facing White with the keyboard on e4:
+        target: Alice's keyboard is on f4 — 8
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:39
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e4
+          example: A White-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square up when Alice has a chessboard facing Black with the keyboard on e4:
+        target: Alice's keyboard is on e3 — 9
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:52
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e4
+          example: A Black-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square down when Alice has a chessboard facing Black with the keyboard on e4:
+        target: Alice's keyboard is on e5 — 10
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:52
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e4
+          example: A Black-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square left when Alice has a chessboard facing Black with the keyboard on e4:
+        target: Alice's keyboard is on f4 — 11
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:52
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e4
+          example: A Black-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square right when Alice has a chessboard facing Black with the keyboard on e4:
+        target: Alice's keyboard is on d4 — 12
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:52
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e4
+          example: A Black-facing chessboard follows each arrow direction
+      Alice moves the keyboard one square up when Alice has a chessboard facing White with the keyboard on e8:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 13
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:65
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e8
+          example: White-facing arrow movement stops at every edge
+      Alice moves the keyboard one square down when Alice has a chessboard facing White with the keyboard on e1:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 14
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:65
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e1
+          example: White-facing arrow movement stops at every edge
+      Alice moves the keyboard one square left when Alice has a chessboard facing White with the keyboard on a4:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 15
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:65
+          condition:
+          - Alice has a chessboard facing White with the keyboard on a4
+          example: White-facing arrow movement stops at every edge
+      Alice moves the keyboard one square right when Alice has a chessboard facing White with the keyboard on h4:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 16
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:65
+          condition:
+          - Alice has a chessboard facing White with the keyboard on h4
+          example: White-facing arrow movement stops at every edge
+      Alice moves the keyboard one square up when Alice has a chessboard facing Black with the keyboard on e1:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 17
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:78
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e1
+          example: Black-facing arrow movement stops at every edge
+      Alice moves the keyboard one square down when Alice has a chessboard facing Black with the keyboard on e8:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 18
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:78
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on e8
+          example: Black-facing arrow movement stops at every edge
+      Alice moves the keyboard one square left when Alice has a chessboard facing Black with the keyboard on h4:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 19
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:78
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on h4
+          example: Black-facing arrow movement stops at every edge
+      Alice moves the keyboard one square right when Alice has a chessboard facing Black with the keyboard on a4:
+        target: Alice cannot move the keyboard beyond the chessboard's edge — 20
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:78
+          condition:
+          - Alice has a chessboard facing Black with the keyboard on a4
+          example: Black-facing arrow movement stops at every edge
+      Alice chooses the keyboard's square with Space when Alice has a chessboard facing White with the keyboard on e2:
+        target: Alice has e2 selected — 21
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:93
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e2
+          example: Either choice key selects a movable piece
+      Alice chooses the keyboard's square with Enter when Alice has a chessboard facing White with the keyboard on e2:
+        target: Alice has e2 selected — 22
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:93
+          condition:
+          - Alice has a chessboard facing White with the keyboard on e2
+          example: Either choice key selects a movable piece
+      Alice chooses the keyboard's square with Space when Alice has e2 selected with the keyboard on e2:
+        target: Alice sees no selection or legal destinations — 23
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:104
+          condition:
+          - Alice has e2 selected with the keyboard on e2
+          example: Either choice key on the selected source deselects it
+      Alice chooses the keyboard's square with Enter when Alice has e2 selected with the keyboard on e2:
+        target: Alice sees no selection or legal destinations — 24
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:104
+          condition:
+          - Alice has e2 selected with the keyboard on e2
+          example: Either choice key on the selected source deselects it
+      Alice chooses the keyboard's square with Space when Alice has e2 selected with the keyboard on e4:
+        target: Alice sees a White pawn on e4 — 25
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:115
+          condition:
+          - Alice has e2 selected with the keyboard on e4
+          example: Space on a legal destination completes the selected move
+      ? Alice chooses the keyboard's square with Space when Alice has a chessboard with interactivity disabled and
+        the keyboard on e2
+      : target: Alice cannot select a piece while interactivity is disabled — 26
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:122
+          condition:
+          - Alice has a chessboard with interactivity disabled and the keyboard on e2
+          example: Disabled interactivity refuses either choice key
+      ? Alice chooses the keyboard's square with Enter when Alice has a chessboard with interactivity disabled and
+        the keyboard on e2
+      : target: Alice cannot select a piece while interactivity is disabled — 27
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:122
+          condition:
+          - Alice has a chessboard with interactivity disabled and the keyboard on e2
+          example: Disabled interactivity refuses either choice key
+      ? Alice chooses the keyboard's square with Enter when Alice has g1 selected with the keyboard on f3 on a chessboard
+        facing White
+      : target: Alice sees a White knight on f3 — 28
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:134
+          condition:
+          - Alice has g1 selected with the keyboard on f3 on a chessboard facing White
+          example: Enter completes a knight move in either orientation
+      ? Alice chooses the keyboard's square with Enter when Alice has g1 selected with the keyboard on f3 on a chessboard
+        facing Black
+      : target: Alice sees a White knight on f3 — 29
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:134
+          condition:
+          - Alice has g1 selected with the keyboard on f3 on a chessboard facing Black
+          example: Enter completes a knight move in either orientation
+      Alice selects the empty square e4:
+        target: Alice's keyboard is on e4 — 31
+        meta:
+          source:
+          - specs/chess-board/board-accessibility.feature:155
+          condition:
+          - Alice has an interactive chessboard
+          example: Choosing an empty square gives it the keyboard
+  Alice can identify the White pawn on e2 without sound — 1:
+    meta:
+      description: The person observes that alice can identify the White pawn on e2 without sound.
+      snapshot: the-person-observes-that-alice-can-identify-the-white-pawn-on-e2-without-sound
+      recognize: []
+      checks:
+      - Alice can identify the White pawn on e2 without sound
+      - Alice can identify e2 as selected without sound
+      - Alice can identify e4 as a legal destination without sound
+      - Alice's keyboard is on e2
+      - Alice has e2 selected
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:10
+      - specs/chess-board/board-accessibility.feature:149
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+    'on': {}
+  Alice can identify e4 as empty without sound — 2:
+    meta:
+      description: The person observes that alice can identify e4 as empty without sound.
+      snapshot: the-person-observes-that-alice-can-identify-e4-as-empty-without-sound
+      recognize: []
+      checks:
+      - Alice can identify e4 as empty without sound
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e4 — 3:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:24
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move White's pawn from e2 to the illegal destination e5 — 4:
+    meta:
+      description: The person observes that alice cannot move White's pawn from e2 to the illegal destination e5.
+      snapshot: the-person-observes-that-alice-cannot-move-white-s-pawn-from-e2-to-the-illegal-destin
+      recognize: []
+      checks:
+      - Alice cannot move White's pawn from e2 to the illegal destination e5
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on e5 — 5:
+    meta:
+      description: The person observes that alice's keyboard is on e5.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-e5
+      recognize: []
+      checks:
+      - Alice's keyboard is on e5
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on e3 — 6:
+    meta:
+      description: The person observes that alice's keyboard is on e3.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-e3
+      recognize: []
+      checks:
+      - Alice's keyboard is on e3
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on d4 — 7:
+    meta:
+      description: The person observes that alice's keyboard is on d4.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-d4
+      recognize: []
+      checks:
+      - Alice's keyboard is on d4
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on f4 — 8:
+    meta:
+      description: The person observes that alice's keyboard is on f4.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-f4
+      recognize: []
+      checks:
+      - Alice's keyboard is on f4
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on e3 — 9:
+    meta:
+      description: The person observes that alice's keyboard is on e3.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-e3
+      recognize: []
+      checks:
+      - Alice's keyboard is on e3
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on e5 — 10:
+    meta:
+      description: The person observes that alice's keyboard is on e5.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-e5
+      recognize: []
+      checks:
+      - Alice's keyboard is on e5
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on f4 — 11:
+    meta:
+      description: The person observes that alice's keyboard is on f4.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-f4
+      recognize: []
+      checks:
+      - Alice's keyboard is on f4
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on d4 — 12:
+    meta:
+      description: The person observes that alice's keyboard is on d4.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-d4
+      recognize: []
+      checks:
+      - Alice's keyboard is on d4
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 13:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on e8
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:65
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 14:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on e1
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:65
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 15:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on a4
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:65
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 16:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on h4
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:65
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 17:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on e1
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 18:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on e8
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 19:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on h4
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the keyboard beyond the chessboard's edge — 20:
+    meta:
+      description: The person observes that alice cannot move the keyboard beyond the chessboard's edge.
+      snapshot: the-person-observes-that-alice-cannot-move-the-keyboard-beyond-the-chessboard-s-edge
+      recognize: []
+      checks:
+      - Alice cannot move the keyboard beyond the chessboard's edge
+      - Alice's keyboard is on a4
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has e2 selected — 21:
+    meta:
+      description: The person observes that alice has e2 selected.
+      snapshot: the-person-observes-that-alice-has-e2-selected
+      recognize: []
+      checks:
+      - Alice has e2 selected
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:93
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has e2 selected — 22:
+    meta:
+      description: The person observes that alice has e2 selected.
+      snapshot: the-person-observes-that-alice-has-e2-selected
+      recognize: []
+      checks:
+      - Alice has e2 selected
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:93
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no selection or legal destinations — 23:
+    meta:
+      description: The person observes that alice sees no selection or legal destinations.
+      snapshot: the-person-observes-that-alice-sees-no-selection-or-legal-destinations
+      recognize: []
+      checks:
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:104
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no selection or legal destinations — 24:
+    meta:
+      description: The person observes that alice sees no selection or legal destinations.
+      snapshot: the-person-observes-that-alice-sees-no-selection-or-legal-destinations
+      recognize: []
+      checks:
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:104
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e4 — 25:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:115
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot select a piece while interactivity is disabled — 26:
+    meta:
+      description: The person observes that alice cannot select a piece while interactivity is disabled.
+      snapshot: the-person-observes-that-alice-cannot-select-a-piece-while-interactivity-is-disabled
+      recognize: []
+      checks:
+      - Alice cannot select a piece while interactivity is disabled
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:122
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot select a piece while interactivity is disabled — 27:
+    meta:
+      description: The person observes that alice cannot select a piece while interactivity is disabled.
+      snapshot: the-person-observes-that-alice-cannot-select-a-piece-while-interactivity-is-disabled
+      recognize: []
+      checks:
+      - Alice cannot select a piece while interactivity is disabled
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:122
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White knight on f3 — 28:
+    meta:
+      description: The person observes that alice sees a White knight on f3.
+      snapshot: the-person-observes-that-alice-sees-a-white-knight-on-f3
+      recognize: []
+      checks:
+      - Alice sees a White knight on f3
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:134
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White knight on f3 — 29:
+    meta:
+      description: The person observes that alice sees a White knight on f3.
+      snapshot: the-person-observes-that-alice-sees-a-white-knight-on-f3
+      recognize: []
+      checks:
+      - Alice sees a White knight on f3
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:134
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's keyboard is on e4 — 31:
+    meta:
+      description: The person observes that alice's keyboard is on e4.
+      snapshot: the-person-observes-that-alice-s-keyboard-is-on-e4
+      recognize: []
+      checks:
+      - Alice's keyboard is on e4
+      - Alice sees no selection or legal destinations
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:155
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

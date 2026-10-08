@@ -1,0 +1,49 @@
+journeys:
+  A solved puzzle is logged as solved with its own rating and rating change:
+    description: A solved puzzle is logged as solved with its own rating and rating change
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice's game log records that puzzle as solved — 1
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's game log shows that puzzle's own rating and its rating change
+    gherkin:
+    - specs/chess/puzzle-stats.feature:14 — A solved puzzle is logged as solved with its own rating and rating change
+    exampleRow: []
+  A puzzle with a wrong move is logged as failed with its own rating and rating change:
+    description: A puzzle with a wrong move is logged as failed with its own rating and rating change
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice plays a wrong move
+    endsIn: Alice's game log records that puzzle as failed — 2
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's game log shows that puzzle's own rating and its rating change
+    gherkin:
+    - specs/chess/puzzle-stats.feature:19 — A puzzle with a wrong move is logged as failed with its own rating and
+      rating change
+    exampleRow: []
+  A repeat of a played puzzle is logged as unrated instead of a rating change:
+    description: A repeat of a played puzzle is logged as unrated instead of a rating change
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - the puzzle pool holds just three puzzles
+    - Alice has solved 3 puzzles in a row
+    - Alice's feed has come round to a puzzle they already played
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and the puzzle
+      pool holds just three puzzles and Alice has solved 3 puzzles in a row and Alice's feed has come round to a
+      puzzle they already played
+    endsIn: Alice's game log shows the repeat as unrated — 3
+    checks:
+    - Alice's game log shows the repeat as unrated
+    gherkin:
+    - specs/chess/puzzle-stats.feature:24 — A repeat of a played puzzle is logged as unrated instead of a rating
+      change
+    exampleRow: []

@@ -1,0 +1,93 @@
+journeys:
+  A block with someone else does not stop an invitation:
+    description: A block with someone else does not stop an invitation
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob is in Alice's space
+    - Alice has blocked Carol
+    events:
+    - Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's
+      space and Alice has blocked Carol
+    endsIn: Black is reserved for Bob in the Custom Game — 1
+    checks:
+    - Black is reserved for Bob in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:11 — A block with someone else does not stop an invitation
+    exampleRow: []
+  The creator cannot invite someone she blocked:
+    description: The creator cannot invite someone she blocked
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob is in Alice's space
+    - Alice has blocked Bob
+    events:
+    - Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's
+      space and Alice has blocked Bob
+    endsIn: Alice is told Bob cannot be invited — 2
+    checks:
+    - Alice is told Bob cannot be invited
+    - Black is an open place in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:16 — The creator cannot invite someone she blocked
+    exampleRow: []
+  The creator is not told that the person she invites blocked her:
+    description: The creator is not told that the person she invites blocked her
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob is in Alice's space
+    - Bob has blocked Alice
+    events:
+    - Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's
+      space and Bob has blocked Alice
+    endsIn: Alice is told Bob cannot be invited — 3
+    checks:
+    - Alice is told Bob cannot be invited
+    - Black is an open place in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:22 — The creator is not told that the person she invites blocked
+      her
+    exampleRow: []
+  A block with someone else does not stop a claim:
+    description: A block with someone else does not stop a claim
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob is in Alice's space
+    - Bob has blocked Carol
+    events:
+    - Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and
+      Bob has blocked Carol
+    endsIn: Black is Bob in the Custom Game — 4
+    checks:
+    - Black is Bob in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:34 — A block with someone else does not stop a claim
+    exampleRow: []
+  A blocked person cannot claim the open place:
+    description: A blocked person cannot claim the open place
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - Bob is in Alice's space
+    - Alice has blocked Bob
+    events:
+    - Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and
+      Alice has blocked Bob
+    endsIn: Bob is told that side is not available to him — 5
+    checks:
+    - Bob is told that side is not available to him
+    - Bob is not told Alice blocked him
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:39 — A blocked person cannot claim the open place
+    exampleRow: []
+  Blocking the other participant keeps the active game:
+    description: Blocking the other participant keeps the active game
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice blocks Bob
+    endsIn: The Custom Game remains active — 6
+    checks:
+    - The Custom Game remains active
+    - Neither person has won the Custom Game
+    gherkin:
+    - specs/chess/custom-game-blocking.feature:48 — Blocking the other participant keeps the active game
+    exampleRow: []

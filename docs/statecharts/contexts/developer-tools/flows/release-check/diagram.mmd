@@ -1,0 +1,30 @@
+stateDiagram-v2
+  state "Viewing Decide whether an edition is ready for release" as s0
+  state "the release check passes for this version of the app — 1" as s1
+  state "the release check fails because a required obligation failed — 2" as s2
+  state "the release check fails because the obligation lacks a current automated pass — 3" as s3
+  state "the release check fails because the obligation lacks a current automated pass — 4" as s4
+  state "the release check fails because the obligation lacks a current automated pass — 5" as s5
+  state "the release check fails because the obligation lacks a current automated pass — 6" as s6
+  state "the release check fails because the obligation lacks a current automated pass — 7" as s7
+  state "the release check fails because the obligation lacks a current automated pass — 8" as s8
+  state "the release check fails because the evidence belongs to an earlier version — 10" as s9
+  [*] --> s0
+  s0 --> s1: the team runs the release check for this version of the app when every required obligation has a current automated pass for this version of the app
+  s0 --> s2: the team runs the release check for this version of the app when a required obligation has failed for this version of the app
+  s0 --> s3: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is unknown
+  s0 --> s4: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is missing
+  s0 --> s5: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is skipped
+  s0 --> s6: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is not run
+  s0 --> s7: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is stale
+  s0 --> s8: the team runs the release check for this version of the app when a required obligation's evidence for this version of the app is manual
+  s0 --> s9: the team runs the release check for the current version of the app
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]

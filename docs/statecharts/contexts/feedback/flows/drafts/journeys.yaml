@@ -1,0 +1,80 @@
+journeys:
+  Returning to the wizard restores unfinished writing:
+    description: Returning to the wizard restores unfinished writing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team returns to the wizard after closing it
+    endsIn: the draft is titled "Board movement" saying "Keep the last move visible" — 1
+    checks:
+    - the draft is titled "Board movement" saying "Keep the last move visible"
+    gherkin:
+    - specs/feedback/drafts.feature:9 — Returning to the wizard restores unfinished writing
+    exampleRow: []
+  Returning to the app restores unfinished writing:
+    description: Returning to the app restores unfinished writing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team's app reopens after closing when the team has a draft titled 'Board movement' saying 'Keep the last
+      move visible'
+    endsIn: the draft is titled "Board movement" saying "Keep the last move visible" — 2
+    checks:
+    - the draft is titled "Board movement" saying "Keep the last move visible"
+    gherkin:
+    - specs/feedback/drafts.feature:17 — Returning to the app restores unfinished writing
+    exampleRow: []
+  Starting another draft keeps earlier writing:
+    description: Starting another draft keeps earlier writing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team starts new feedback
+    endsIn: the team can find the draft "Board movement" in feedback management — 3
+    checks:
+    - the team can find the draft "Board movement" in feedback management
+    gherkin:
+    - specs/feedback/drafts.feature:25 — Starting another draft keeps earlier writing
+    exampleRow: []
+  Failed sending explains that the draft is kept:
+    description: Failed sending explains that the draft is kept
+    startingConditions:
+    - the team cannot send feedback
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team sends the feedback when the team cannot send feedback and the team has a draft titled 'Board movement'
+      saying 'Keep the last move visible'
+    endsIn: the team is told the draft is kept until feedback can be sent — 4
+    checks:
+    - the team is told the draft is kept until feedback can be sent
+    - the draft is titled "Board movement" saying "Keep the last move visible"
+    gherkin:
+    - specs/feedback/drafts.feature:34 — Failed sending explains that the draft is kept
+    exampleRow: []
+  Failed sending preserves the author's writing:
+    description: Failed sending preserves the author's writing
+    startingConditions:
+    - the team cannot send feedback
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team sends the feedback when the team cannot send feedback and the team has a draft titled 'Board movement'
+      saying 'Keep the last move visible'
+    endsIn: the team is told the draft is kept until feedback can be sent — 4
+    checks:
+    - the draft is titled "Board movement" saying "Keep the last move visible"
+    - the team can copy the feedback to keep for later
+    gherkin:
+    - specs/feedback/drafts.feature:41 — Failed sending preserves the author's writing
+    exampleRow: []
+  Returning to the app restores a reproduction ready to review:
+    description: Returning to the app restores a reproduction ready to review
+    startingConditions:
+    - the team has stopped a reproduction recording
+    events:
+    - the team's app reopens after closing when the team has stopped a reproduction recording
+    endsIn: the team can review the recording before sending feedback — 6
+    checks:
+    - the team can review the recording before sending feedback
+    gherkin:
+    - specs/feedback/drafts.feature:51 — Returning to the app restores a reproduction ready to review
+    exampleRow: []

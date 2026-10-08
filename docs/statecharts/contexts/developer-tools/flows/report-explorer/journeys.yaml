@@ -1,0 +1,104 @@
+journeys:
+  A spec with evidence offers its test report:
+    description: A spec with evidence offers its test report
+    startingConditions:
+    - a version of the app has specs with completed test reports
+    events:
+    - the team explores that version's specs when a version of the app has specs with completed test reports
+    endsIn: the team can read each spec and open its test reports — 1
+    checks:
+    - the team can read each spec and open its test reports
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:9 — A spec with evidence offers its test report
+    exampleRow: []
+  A spec without evidence explains what is missing:
+    description: A spec without evidence explains what is missing
+    startingConditions:
+    - a version of the app has a spec without a completed test report
+    events:
+    - the team explores that version's specs when a version of the app has a spec without a completed test report
+    endsIn: the team can read that spec — 2
+    checks:
+    - the team can read that spec
+    - the team is told it has no completed test report
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:15 — A spec without evidence explains what is missing
+    exampleRow: []
+  A completed UI quality check appears alongside earlier evidence:
+    description: A completed UI quality check appears alongside earlier evidence
+    startingConditions:
+    - a version of the app has completed test reports and a newly completed UI quality check
+    events:
+    - the team explores that version's report parts when a version of the app has completed test reports and a newly
+      completed UI quality check
+    endsIn: the team sees both the test reports and the UI quality check — 3
+    checks:
+    - the team sees both the test reports and the UI quality check
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:23 — A completed UI quality check appears alongside earlier
+      evidence
+    exampleRow: []
+  Another version's report part supplies no evidence for this version:
+    description: Another version's report part supplies no evidence for this version
+    startingConditions:
+    - a performance check belongs only to a later version of the app
+    events:
+    - the team explores the earlier version's report parts
+    endsIn: the team is told the earlier version has no completed performance check — 4
+    checks:
+    - the team is told the earlier version has no completed performance check
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:28 — Another version's report part supplies no evidence for
+      this version
+    exampleRow: []
+  A completed performance check shows its measured outcome:
+    description: A completed performance check shows its measured outcome
+    startingConditions:
+    - a version of the app has a completed performance check
+    events:
+    - the team explores that version's report parts when a version of the app has a completed performance check
+    endsIn: the team sees the performance check's measured outcome — 5
+    checks:
+    - the team sees the performance check's measured outcome
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:35 — A completed performance check shows its measured outcome
+    exampleRow: []
+  An unperformed UI quality check never supplies passing evidence:
+    description: An unperformed UI quality check never supplies passing evidence
+    startingConditions:
+    - a version of the app has no completed UI quality check
+    events:
+    - the team explores that version's report parts when a version of the app has no completed UI quality check
+    endsIn: the team is told the UI quality check has not been completed — 6
+    checks:
+    - the team is told the UI quality check has not been completed
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:40 — An unperformed UI quality check never supplies passing
+      evidence
+    exampleRow: []
+  Unavailable test reports show an explanation:
+    description: Unavailable test reports show an explanation
+    startingConditions:
+    - the team's test reports are unavailable
+    events:
+    - the team investigates which test reports are available
+    endsIn: the team is told why the test reports are unavailable — 7
+    checks:
+    - the team is told why the test reports are unavailable
+    - the team is offered another attempt
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:48 — Unavailable test reports show an explanation
+    exampleRow: []
+  Another attempt restores the test reports when they become available:
+    description: Another attempt restores the test reports when they become available
+    startingConditions:
+    - the team's unavailable test reports have become available
+    events:
+    - the team asks to open the test reports again
+    endsIn: the team sees the available test reports — 8
+    checks:
+    - the team sees the available test reports
+    gherkin:
+    - specs/developer-tools/report-explorer.feature:54 — Another attempt restores the test reports when they become
+      available
+    exampleRow: []

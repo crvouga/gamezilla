@@ -1,0 +1,1818 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8b901349778f021bf86b45825478a62c82523b790b8c52f49d0d2cab903863f3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Retire puzzle resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    endsIn: Practicing the linked puzzle
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 28e77c860a8b242fbf3c291798e029987c620184d0dd85a01340fd46a6e43f50
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Retire puzzle resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    endsIn: Practicing the linked puzzle
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 98e14f992163d4f6fad88de80a659997d776d2aa54edbbbed20facca4cc40e5b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 5f9a4055b1fc3fa2720023434b75e09980df94f74cb53994e94168104edf4fcd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8770ddbaad89225940fc2c12fca6806b825461ce31d1f589b875c4b865df458c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 01d99f8f2bf0621858991bf758261065e8a8725ab42a9a94b109c9fa5a68f58e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 70ae1a568800b5bd765bcae49577939c8daf9e7b34abdcecc8d828564326189b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Retire puzzle resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    endsIn: Practicing the linked puzzle
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 73947f1b93b92b3aef3e9683bf1df493cb7f973059ff2a109b8389bd4ac98a0f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 32d1b3841b82951f23705eb3c9a2824125506ab8b507a52224a59cd55c4aed34
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b1371dffd0d91865a2053679a4b024c6f282a080fda669f08374d1927351f236
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 40edac76cdd4583625bc584aa6f96959df9647d2c1385744e50daadb47e71b67
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8b838c302d3a7f95e69e4bd2c8afeee0f49a2007c97e1a2481171fc696092d43
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6786412d1849b0a827011915c5a8cb785c045506ce8dbfc1aad86b4610e2acd2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Retire puzzle resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4cd966c813bd64e1bb9cfd8a4d710b8ea155cdc3846fefffcb7b74d0d376ddb6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a8b48ca869ebb3f934bffb35d0ef09892232723299f0ae188ed1789f31feb66a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6b2962813d32b080775546dd95474199461d6f1f7e629539b649d0efc95a30e7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Retire puzzle resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    - Connection returns resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Share puzzle link resulting in practicing the linked puzzle
+    - Open puzzle link resulting in practicing the linked puzzle
+    endsIn: Practicing the linked puzzle
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1688f9c27d4b26a2c97b7f3b8e9991ef3f89a28011c3065e94bb0d64773a8f27
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f5da41e8f57be94e6615a8b67fbecaf6d9a12b8e81936e72030744779d583eeb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c6b4f5d86bcc2beb42d788a4cde8d8eb86c88e1728e92d67f72a93f52fdd1cee
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ab4329621435c6b6a0cb495dfbbf2543b3457b76075c44af38e061ff80432fcb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e41a861e019591dee6896244e633efe59d50e5fe6e06ff25280c852a2141bee1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Connection returns resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Retire puzzle resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    endsIn: Told the puzzle link is puzzle no longer available
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 26f602755eb288c276d5018d0108f208d529421157375c2b58a0eef88dacfdba
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Retire puzzle resulting in viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Connection returns resulting in told the puzzle link is puzzle no longer available
+    - Share puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzle no longer available
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Open puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Share puzzle link resulting in told the puzzle link is puzzles need a connection
+    - Connection returns resulting in told the puzzle link is puzzles need a connection
+    endsIn: Told the puzzle link is puzzles need a connection
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: aedec7a28b6f5de75d176ebad452379e607d0e77520d1064c7a7353829220396
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a puzzle link to share
+    - Share puzzle link resulting in viewing a puzzle link to share
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Retire puzzle resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    - Open puzzle link resulting in playing the linked puzzle rated
+    - Connection returns resulting in playing the linked puzzle rated
+    - Share puzzle link resulting in playing the linked puzzle rated
+    endsIn: Playing the linked puzzle rated
+    quintTrace:
+      model: specs/chess/puzzle-link.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0accdbd60eff57ca0f78915ff8c649e6d7471119b9e118062b80fca91a58dcee
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

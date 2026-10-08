@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing Join a space from its link" as s0
+  state "Bob is in the space — 1" as s1
+  [*] --> s0
+  s0 --> s1: Bob joins the space from the link
+  s1 --> [*]
