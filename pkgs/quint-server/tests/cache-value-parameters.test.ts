@@ -27,6 +27,7 @@ test('cached value parameters preserve sum constructors and local shadowing', ()
     writeFileSync(path, source);
     expect(typecheck(path)).toEqual({ ok: true });
     const cached = cacheValueParameters(source);
+    expect(cached).toContain('pure val view: View = cached_input_');
     expect(cacheValueParameters(cached)).toBe(cached);
     writeFileSync(path, cached);
     expect(typecheck(path)).toEqual({ ok: true });
@@ -42,7 +43,7 @@ test('cached verification retains imported rules and refutes the same violating 
     writeFileSync(
       join(dir, 'rules.qnt'),
       `module rules {
-      pure def advance(view: { count: int }): int = view.count + 1
+      pure def advance(view: { count: int }): int = view.count + (view.count - view.count) + 1
     }`
     );
     writeFileSync(
