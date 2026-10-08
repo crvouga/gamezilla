@@ -20,7 +20,14 @@ export function reportPersister(cache: ReportCache): Persister {
     restoreClient: async () => {
       const raw = await cache.get(CACHE_KEY);
       if (raw === null) return undefined;
-      return JSON.parse(raw) as Awaited<ReturnType<Persister['restoreClient']>>;
+      try {
+        return JSON.parse(raw) as Awaited<
+          ReturnType<Persister['restoreClient']>
+        >;
+      } catch {
+        await cache.remove(CACHE_KEY);
+        return undefined;
+      }
     },
     removeClient: () => cache.remove(CACHE_KEY),
   };
@@ -42,7 +49,7 @@ export function attachReportCache(
     queryClient: client,
     persister: reportPersister(cache),
     maxAge: WEEK,
-    buster: 'reports-v1',
+    buster: 'reports-v2',
     dehydrateOptions: { shouldDehydrateQuery: keepQuery },
   });
 }

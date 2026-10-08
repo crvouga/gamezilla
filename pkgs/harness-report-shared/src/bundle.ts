@@ -4,6 +4,7 @@ import {
   writeUtf8,
 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import { eachLimitedStream } from './completion-order';
 
 export const BUNDLE_BYTES = 4 * 1024 * 1024;
 type Location = { blob: string; offset: number; size: number };
@@ -15,6 +16,10 @@ export type BundleEntry = {
   key: string;
   bytes: Uint8Array;
   contentType: string;
+};
+type BundleWrites = {
+  prefix: string;
+  pending: Map<string, Promise<void>>;
 };
 
 export function bundleIndexKey(sha: string, source: string): string {
@@ -37,14 +42,21 @@ async function flush(
   store: ObjectStore,
   entries: readonly BundleEntry[],
   index: BundleIndex,
-  blobPrefix: string
+  writes: BundleWrites
 ): Promise<void> {
   const bytes = new Uint8Array(
     entries.reduce((size, entry) => size + entry.bytes.length, 0)
   );
+  const locations: Location[] = [];
   let offset = 0;
   for (const entry of entries) {
     bytes.set(entry.bytes, offset);
+    const location = { blob: '', offset, size: entry.bytes.length };
+    (index[entry.key] ??= {
+      contentType: entry.contentType,
+      parts: [],
+    }).parts.push(location);
+    locations.push(location);
     offset += entry.bytes.length;
   }
   const compressed = await transform(bytes, false);
@@ -55,31 +67,32 @@ async function flush(
   const hash = Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, '0')
   ).join('');
-  const blob = `${blobPrefix}${hash}.gz`;
+  const blob = `${writes.prefix}${hash}.gz`;
+  for (const location of locations) location.blob = blob;
   // Identical chunks and reruns reuse the same bytes: HEAD is Class B;
   // writing the same content again would still incur a Class A operation.
-  if (!(await store.head(blob)))
-    await store.put(blob, compressed, 'application/gzip');
-  offset = 0;
-  for (const entry of entries) {
-    (index[entry.key] ??= {
-      contentType: entry.contentType,
-      parts: [],
-    }).parts.push({ blob, offset, size: entry.bytes.length });
-    offset += entry.bytes.length;
+  let upload = writes.pending.get(blob);
+  if (upload === undefined) {
+    upload = uploadBlob(store, blob, compressed);
+    writes.pending.set(blob, upload);
   }
+  await upload;
 }
 
-/** Bounded compressed chunks, with one small index published last. */
-export async function publishBundle(
+async function uploadBlob(
   store: ObjectStore,
-  key: string,
-  entries: AsyncIterable<BundleEntry>
+  blob: string,
+  bytes: Uint8Array
 ): Promise<void> {
-  const index: BundleIndex = {};
+  if (!(await store.head(blob)))
+    await store.put(blob, bytes, 'application/gzip');
+}
+
+async function* chunks(
+  entries: AsyncIterable<BundleEntry>
+): AsyncGenerator<readonly BundleEntry[]> {
   let pending: BundleEntry[] = [];
   let size = 0;
-  const blobPrefix = `${key.slice(0, key.indexOf('/bundles/'))}/blobs/`;
   for await (const entry of entries) {
     for (let offset = 0; offset < Math.max(1, entry.bytes.length); ) {
       const bytes = entry.bytes.slice(offset, offset + BUNDLE_BYTES - size);
@@ -87,13 +100,29 @@ export async function publishBundle(
       size += bytes.length;
       offset += Math.max(1, bytes.length);
       if (size === BUNDLE_BYTES) {
-        await flush(store, pending, index, blobPrefix);
+        yield pending;
         pending = [];
         size = 0;
       }
     }
   }
-  if (pending.length > 0) await flush(store, pending, index, blobPrefix);
+  if (pending.length > 0) yield pending;
+}
+
+/** Four bounded compressed chunks in flight, with one small index published last. */
+export async function publishBundle(
+  store: ObjectStore,
+  key: string,
+  entries: AsyncIterable<BundleEntry>
+): Promise<void> {
+  const index: BundleIndex = {};
+  const writes: BundleWrites = {
+    prefix: `${key.slice(0, key.indexOf('/bundles/'))}/blobs/`,
+    pending: new Map(),
+  };
+  await eachLimitedStream(chunks(entries), 4, (chunk) =>
+    flush(store, chunk, index, writes)
+  );
   await writeUtf8(store, key, JSON.stringify(index), 'application/json');
 }
 

@@ -26,6 +26,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/search-client/src',
   'libs/spaces-client/src',
   'pkgs/chess-board-root-client/src',
+  'pkgs/harness-report-client/src',
   'pkgs/ui-root-client/src',
   'pkgs/ui-devtools-client/src',
 ] as const;

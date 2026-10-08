@@ -1,4 +1,8 @@
+import { useLingui } from '@lingui/solid/macro';
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
+import { Button } from '@pkgs/ui-root-client/button';
+import { DocumentPanel } from '@pkgs/ui-root-client/document-panel';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { Show } from 'solid-js';
 
 /** Failure summary pinned above the stage, with a jump to the failed frame. */
@@ -8,35 +12,36 @@ export function FailBanner(props: {
   failure: FlatFrame | null;
   onJump: (frame: FlatFrame) => void;
 }) {
+  const { t } = useLingui();
   const headline = () => (props.error ?? '').split('\n')[0] ?? '';
   return (
     <Show when={props.error || props.errorStack}>
-      <div class="sr-fail" role="alert">
-        <div class="sr-fail-row">
-          <span class="sr-dot failed" />
-          <span class="msg">{headline() || 'Test failed'}</span>
-          <Show when={props.failure}>
-            {(f) => (
-              <button
-                type="button"
-                class="sr-navbtn"
-                title="Jump to failure (N)"
-                onClick={() => props.onJump(f())}
-              >
-                Jump to failure
-              </button>
+      <Notice tone="error">
+        <div class="box gap-3" role="alert">
+          <div class="box flex-row flex-wrap items-center gap-3">
+            <span class="text textLabel">{headline() || t`Test failed`}</span>
+            <Show when={props.failure}>
+              {(failure) => (
+                <Button
+                  title={t`Jump to failure`}
+                  intent="danger"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => props.onJump(failure())}
+                />
+              )}
+            </Show>
+          </div>
+          <Show when={props.errorStack}>
+            {(stack) => (
+              <details>
+                <summary class="text textCaption clickableTint">{t`Stack trace`}</summary>
+                <DocumentPanel content={stack()} title={t`Recorded failure`} />
+              </details>
             )}
           </Show>
         </div>
-        <Show when={props.errorStack}>
-          {(stack) => (
-            <details>
-              <summary>Stack trace</summary>
-              <pre>{stack()}</pre>
-            </details>
-          )}
-        </Show>
-      </div>
+      </Notice>
     </Show>
   );
 }

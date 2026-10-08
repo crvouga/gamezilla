@@ -32,7 +32,16 @@ test('shell transfers use the workflow token for both listing and downloading', 
       return { downloadPath: '/transfers' };
     },
   };
-  await downloadEvidence('check-evidence-', '/transfers', findBy, client);
+  await downloadEvidence({
+    prefix: 'check-evidence-',
+    directory: '/transfers',
+    findBy,
+    client,
+    consumer: {
+      consume: async () => {},
+      release: async () => {},
+    },
+  });
   expect(downloaded).toEqual([11]);
   const workflow = Bun.YAML.parse(
     readFileSync(
@@ -42,6 +51,77 @@ test('shell transfers use the workflow token for both listing and downloading', 
   ) as { env: Record<string, string> };
   expect(workflow.env['GH_TOKEN']).toBe('${{ github.token }}');
 });
+
+// regression: reports-ci-aggregation-disk
+test('the 32-shard evidence set is consumed before the next archive is downloaded', async () => {
+  await boundedTransfer(Array.from({ length: 32 }, () => 0));
+});
+
+test('bounded transfers preserve independent artifacts after consumption failures', async () => {
+  await assertProperty(
+    'evidence-transfer-bounded-storage',
+    fc.asyncProperty(
+      fc.array(fc.constantFrom(0, 1, 2), { minLength: 1, maxLength: 80 }),
+      boundedTransfer
+    )
+  );
+});
+
+async function boundedTransfer(fails: number[]): Promise<void> {
+  let resident = 0;
+  let peak = 0;
+  let current = 0;
+  const attempted: number[] = [];
+  const client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'> = {
+    listArtifacts: async () => ({
+      artifacts: fails.map((_, id) => ({
+        id,
+        name: `check-evidence-${id}`,
+        size: 1,
+      })),
+    }),
+    downloadArtifact: async (id) => {
+      current = id;
+      attempted.push(id);
+      peak = Math.max(peak, ++resident);
+      if (fails[id] === 2) throw new Error(`partial download: ${id}`);
+      return { downloadPath: '/transfers' };
+    },
+  };
+  let verdict: unknown;
+  try {
+    await downloadEvidence({
+      prefix: 'check-evidence-',
+      directory: '/transfers',
+      findBy: artifactSource({
+        GH_TOKEN: 'token',
+        GITHUB_REPOSITORY: 'owner/repo',
+        GITHUB_RUN_ID: '1',
+      }),
+      client,
+      consumer: {
+        consume: async () => {
+          await Promise.resolve();
+          if (fails[current] === 1) throw new Error(String(current));
+        },
+        release: async () => {
+          resident--;
+        },
+      },
+    });
+  } catch (error) {
+    verdict = error;
+  }
+  expect(attempted).toEqual(fails.map((_, id) => id));
+  expect(peak).toBe(1);
+  expect(resident).toBe(0);
+  if (fails.some(Boolean)) {
+    expect(verdict).toBeInstanceOf(AggregateError);
+    expect((verdict as AggregateError).errors).toHaveLength(
+      fails.filter(Boolean).length
+    );
+  } else expect(verdict).toBeUndefined();
+}
 
 test('artifact source preserves the exact repository and run', () => {
   assertProperty(

@@ -1,82 +1,63 @@
+import { useLingui } from '@lingui/solid/macro';
 import {
   showAside,
   showPress,
   viewMode,
   zoomMode,
 } from '@pkgs/harness-report-shared/hash';
-import { For, Show } from 'solid-js';
+import { Checkbox } from '@pkgs/ui-root-client/checkbox';
+import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
+import { Show } from 'solid-js';
 import type { ReportNav } from './use-report-nav';
 
-const ZOOMS = ['fit', '50', '75', '100'] as const;
-
-/** View controls only; navigation lives in the scrubber transport. */
 export function Toolbar(props: {
   nav: ReportNav;
   ui: boolean;
   hasData: boolean;
 }) {
+  const { t } = useLingui();
   const route = () => props.nav.route();
   return (
     <Show when={props.ui}>
-      <div class="sr-toolbar">
-        <div class="sr-seg" role="group" aria-label="Clients">
-          <button
-            type="button"
-            classList={{ on: viewMode(route()) === 'multi' }}
-            title="All clients (M)"
-            onClick={() => props.nav.setParam('view', '')}
-          >
-            All clients
-          </button>
-          <button
-            type="button"
-            classList={{ on: viewMode(route()) === 'single' }}
-            title="Focused client only (M)"
-            onClick={() => props.nav.setParam('view', 'single')}
-          >
-            Focused
-          </button>
-        </div>
-        <div class="sr-seg" role="group" aria-label="Zoom">
-          <For each={[...ZOOMS]}>
-            {(z) => (
-              <button
-                type="button"
-                classList={{ on: zoomMode(route()) === z }}
-                title="Zoom (F)"
-                onClick={() => props.nav.setParam('zoom', z === 'fit' ? '' : z)}
-              >
-                {z === 'fit' ? 'Fit' : `${z}%`}
-              </button>
-            )}
-          </For>
-        </div>
-        <span class="grow" />
-        <button
-          type="button"
-          class="sr-navbtn"
-          classList={{ on: showPress(route()) }}
-          aria-pressed={showPress(route())}
-          title="Highlight the pressed element (P)"
-          onClick={() =>
-            props.nav.setParam('press', showPress(route()) ? '0' : '')
+      <div class="box flex-row flex-wrap items-center gap-3 px-3 py-2 bg-surface border-b border-border">
+        <SegmentedControl
+          aria-label={t`Clients`}
+          segments={[
+            { key: 'multi', label: t`All clients` },
+            { key: 'single', label: t`Focused` },
+          ]}
+          selected={viewMode(route())}
+          onSelect={(mode) =>
+            props.nav.setParam('view', mode === 'multi' ? '' : mode)
           }
-        >
-          Highlight press
-        </button>
+        />
+        <SegmentedControl
+          aria-label={t`Zoom`}
+          segments={['fit', '50', '75', '100'].map((key) => ({
+            key,
+            label: key === 'fit' ? t`Fit` : `${key}%`,
+          }))}
+          selected={zoomMode(route())}
+          onSelect={(zoom) =>
+            props.nav.setParam('zoom', zoom === 'fit' ? '' : zoom)
+          }
+        />
+        <Checkbox
+          checked={showPress(route())}
+          label={t`Highlight press`}
+          onToggle={(checked) =>
+            props.nav.setParam('press', checked ? '' : '0')
+          }
+        />
         <Show when={props.hasData}>
-          <button
-            type="button"
-            class="sr-navbtn"
-            classList={{ on: showAside(route()) }}
-            aria-pressed={showAside(route())}
-            title="Show state snapshots (A)"
-            onClick={() =>
-              props.nav.setParam('aside', showAside(route()) ? '0' : '')
-            }
-          >
-            State
-          </button>
+          <Checkbox
+            checked={showAside(route())}
+            label={t`State`}
+            onToggle={(checked) => {
+              props.nav.setParam('aside', checked ? '' : '0');
+              props.nav.setParam('inspect', checked ? 'state' : '');
+            }}
+          />
         </Show>
       </div>
     </Show>

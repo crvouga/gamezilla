@@ -1,31 +1,20 @@
-import { fileLabel, fmtMs } from '@pkgs/harness-report-shared/format';
+import { useLingui } from '@lingui/solid/macro';
 import {
   frameFilesNear,
-  frameHasUi,
-  isUi,
-  neighborFailure,
   selectedFrame,
-  selectedNode,
   testFrames,
 } from '@pkgs/harness-report-shared/frames';
-import { showAside, viewMode } from '@pkgs/harness-report-shared/hash';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
-import { FailBanner } from './fail-banner';
-import { FrameCaption } from './frame-caption';
-import { PerformancePanel } from './performance-panel';
-import { PhoneStage } from './phone-stage';
 import type { TestLoad } from './report-context';
 import { useReport } from './report-context';
-import { ScenarioScript } from './scenario-script';
-import { Scrubber } from './scrubber';
-import { SnapshotsAside } from './snapshots-aside';
-import { StepTree } from './step-tree';
+import { TestInspection } from './test-inspection';
 import { TestNav } from './test-nav';
-import { Toolbar } from './toolbar';
 import type { ReportNav } from './use-report-nav';
 
 /** Opens the timeline at once. Frame files stream into the phones as they arrive. */
 export function TestView(props: { nav: ReportNav }) {
+  const { t } = useLingui();
   const report = useReport();
   const testId = createMemo(() => {
     const r = props.nav.route();
@@ -47,16 +36,16 @@ export function TestView(props: { nav: ReportNav }) {
     return l.kind === 'error' ? l.message : null;
   });
   return (
-    <Switch fallback={<div class="sr-note">{`Waiting for ${testId()}…`}</div>}>
+    <Switch fallback={<Notice>{t`Waiting for ${testId()}…`}</Notice>}>
       <Match when={known()}>
         <LoadedTestView nav={props.nav} testId={testId()} />
       </Match>
       <Match when={load().kind === 'missing'}>
-        <div class="sr-note">{`Unknown test: ${testId()}`}</div>
+        <Notice>{t`Unknown test: ${testId()}`}</Notice>
       </Match>
       <Match when={failure()}>
         {(message) => (
-          <div class="sr-note">{`Could not load ${testId()}: ${message()}`}</div>
+          <Notice tone="error">{t`Could not load ${testId()}: ${message()}`}</Notice>
         )}
       </Match>
     </Switch>
@@ -64,6 +53,7 @@ export function TestView(props: { nav: ReportNav }) {
 }
 
 function LoadedTestView(props: { nav: ReportNav; testId: string }) {
+  const { t } = useLingui();
   const report = useReport();
   const testId = () => props.testId;
   const test = createMemo(
@@ -75,14 +65,6 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
     return t ? testFrames(t) : [];
   });
   const sel = createMemo(() => selectedFrame(frames(), props.nav.route()));
-  const hasUi = createMemo(() => frameHasUi(sel()));
-  const asideBlobs = createMemo(
-    () => sel()?.frame.snapshots.filter((b) => !isUi(b)) ?? []
-  );
-  const firstFailure = createMemo(() => neighborFailure(frames(), -1, 1));
-  const showSnapshots = createMemo(
-    () => hasUi() && showAside(props.nav.route()) && asideBlobs().length > 0
-  );
   createEffect(() => {
     const selected = sel();
     const ensure = report.loader?.ensureBlob;
@@ -95,91 +77,19 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
   return (
     <Show
       when={test()}
-      fallback={<div class="sr-empty">{`Unknown test: ${testId()}`}</div>}
+      fallback={<Notice>{t`Unknown test: ${testId()}`}</Notice>}
     >
-      {(t) => {
-        const m = () => t().report.meta;
-        return (
-          <div class="sr-test">
-            <TestNav nav={props.nav} testId={testId()} />
-            <ScenarioScript
-              steps={t().report.steps}
-              frames={frames()}
-              selected={sel()}
-              onSelect={(frame) => props.nav.goFrame(frame)}
-            />
-            <div class="sr-detail">
-              <div class="sr-side">
-                <div class="sr-testhead">
-                  <h2>
-                    <span class={`sr-dot ${m().status}`} />
-                    {m().title}
-                  </h2>
-                  <div class="sr-kv">
-                    <span class="mono">{fileLabel(m().sourceFile)}</span>
-                    <span class="mono">{m().testId}</span>
-                    <span>{`seed ${m().seed}`}</span>
-                    <span>{`${m().system} · ${m().runtime}`}</span>
-                    <span>{fmtMs(m().durationMs)}</span>
-                    <Show when={m().sourceFile}>
-                      {(sf) => (
-                        <span class="mono">
-                          {sf()}
-                          {m().sourceLine ? `:${m().sourceLine}` : ''}
-                        </span>
-                      )}
-                    </Show>
-                  </div>
-                </div>
-                <StepTree
-                  test={t()}
-                  frames={frames()}
-                  selected={sel()}
-                  onSelect={(f) => props.nav.goFrame(f)}
-                />
-                <PerformancePanel
-                  report={t().report}
-                  frames={frames()}
-                  onSelect={(frame) => props.nav.goFrame(frame)}
-                />
-              </div>
-              <div class="sr-main">
-                <div class="sr-viewer">
-                  <FailBanner
-                    error={m().error}
-                    errorStack={m().errorStack}
-                    failure={firstFailure()}
-                    onJump={(f) => props.nav.goFrame(f)}
-                  />
-                  <Toolbar
-                    nav={props.nav}
-                    ui={frames().length > 0}
-                    hasData={asideBlobs().length > 0}
-                  />
-                  <FrameCaption test={t()} frames={frames()} selected={sel()} />
-                  <div class="sr-stage-wrap">
-                    <PhoneStage
-                      test={t()}
-                      selected={sel()}
-                      nav={props.nav}
-                      mode={viewMode(props.nav.route())}
-                      node={selectedNode(sel(), props.nav.route(), t())}
-                    />
-                    <Show when={showSnapshots()}>
-                      <SnapshotsAside test={t()} blobs={asideBlobs()} />
-                    </Show>
-                  </div>
-                  <Scrubber
-                    frames={frames()}
-                    selected={sel()}
-                    nav={props.nav}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      }}
+      {(test) => (
+        <div class="sr-test box flex-1 min-h-0 min-w-0 gap-3">
+          <TestNav nav={props.nav} testId={testId()} />
+          <TestInspection
+            test={test()}
+            frames={frames()}
+            selected={sel()}
+            nav={props.nav}
+          />
+        </div>
+      )}
     </Show>
   );
 }

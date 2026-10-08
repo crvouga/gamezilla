@@ -1,3 +1,4 @@
+import RangeControlExample from './range-control.example';
 /**
  * Explorer entries: Data Display / Feedback / Disclosure / Overlay.
  * Split from `registry-entries-core.ts` to keep each file under the size cap.
@@ -13,12 +14,17 @@ import ChipExample from './chip.example';
 import CollapsibleExample from './collapsible.example';
 import CommandPaletteExample from './command-palette.example';
 import DismissibleBannerExample from './dismissible-top-banner.example';
+import DocumentPanelExample from './document-panel.example';
 import EmptyStateExample from './empty-state.example';
 import ErrorStateExample from './error-state.example';
+import ExplorerWorkspaceExample from './explorer-workspace.example';
+import FilterBarExample from './filter-bar.example';
 import GameArenaExample from './game-arena.example';
+import InspectionWorkspaceExample from './inspection-workspace.example';
 import ListExample from './list.example';
 import LoadingStateExample from './loading-state.example';
 import MenuRowExample from './menu-row.example';
+import MetricStripExample from './metric-strip.example';
 import ModalExample from './modal.example';
 import MutationModalExample from './mutation-modal.example';
 import NoticeExample from './notice.example';
@@ -39,6 +45,22 @@ const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
+  entry('range-control', 'RangeControl', DATA_DISPLAY, RangeControlExample),
+  entry('document-panel', 'DocumentPanel', DATA_DISPLAY, DocumentPanelExample),
+  entry(
+    'explorer-workspace',
+    'ExplorerWorkspace',
+    DATA_DISPLAY,
+    ExplorerWorkspaceExample
+  ),
+  entry('filter-bar', 'FilterBar', DATA_DISPLAY, FilterBarExample),
+  entry(
+    'inspection-workspace',
+    'InspectionWorkspace',
+    DATA_DISPLAY,
+    InspectionWorkspaceExample
+  ),
+  entry('metric-strip', 'MetricStrip', DATA_DISPLAY, MetricStripExample),
   entry(
     'pagination-controls',
     'PaginationControls',

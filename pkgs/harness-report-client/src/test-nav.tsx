@@ -1,5 +1,7 @@
+import { useLingui } from '@lingui/solid/macro';
 import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import { Button } from '@pkgs/ui-root-client/button';
 import { createMemo, Show } from 'solid-js';
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
@@ -15,6 +17,7 @@ function neighbor(
 
 /** Previous and next test inside this report, keeping the catalog filters. */
 export function TestNav(props: { nav: ReportNav; testId: string }) {
+  const { t } = useLingui();
   const report = useReport();
   const tests = () => report.data.tests;
   const index = createMemo(() =>
@@ -35,43 +38,46 @@ export function TestNav(props: { nav: ReportNav; testId: string }) {
     });
 
   return (
-    <nav class="sr-testnav" aria-label="Tests">
-      <button type="button" class="sr-navbtn" onClick={backToTests}>
-        Tests
-      </button>
-      <button
-        type="button"
-        class="sr-navbtn"
+    <nav
+      class="box flex-row flex-wrap items-center gap-2 px-3 py-2 bg-surface border-b border-border"
+      aria-label={t`Tests`}
+    >
+      <Button
+        title={t`Tests`}
+        variant="ghost"
+        intent="neutral"
+        size="sm"
+        onClick={backToTests}
+      />
+      <Button
+        title={t`Previous test`}
+        variant="outline"
+        intent="neutral"
+        size="sm"
         disabled={prev() === null}
-        title={prev()?.report.meta.title ?? 'No previous test'}
         onClick={() => {
           const id = prev()?.report.meta.testId;
           if (id) go(id);
         }}
-      >
-        <span class="arrow">←</span>
-        <span class="title">{prev()?.report.meta.title ?? 'Previous'}</span>
-      </button>
-      <span class="count">
-        {index() < 0
-          ? '—'
-          : `${String(index() + 1)} / ${String(tests().length)}`}
+      />
+      <span class="text textCaption textNumeral">
+        {index() < 0 ? '—' : `${index() + 1} / ${tests().length}`}
       </span>
-      <button
-        type="button"
-        class="sr-navbtn"
+      <Button
+        title={t`Next test`}
+        variant="outline"
+        intent="neutral"
+        size="sm"
         disabled={next() === null}
-        title={next()?.report.meta.title ?? 'No next test'}
         onClick={() => {
           const id = next()?.report.meta.testId;
           if (id) go(id);
         }}
-      >
-        <span class="title">{next()?.report.meta.title ?? 'Next'}</span>
-        <span class="arrow">→</span>
-      </button>
+      />
       <Show when={index() >= 0}>
-        <span class="current">{tests()[index()]?.report.meta.title}</span>
+        <span class="text textLabel flex-1 min-w-0 truncate">
+          {tests()[index()]?.report.meta.title}
+        </span>
       </Show>
     </nav>
   );

@@ -1,0 +1,4 @@
+{
+  "summary": "Inventory publication could assign current or ignored specification files to an earlier commit hash.",
+  "regressionTest": "libs/harness/tests/committed-specs.test.ts"
+}

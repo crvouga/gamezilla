@@ -10,6 +10,7 @@ import type {
   RunReport,
   RunReportMeta,
 } from '@pkgs/harness-root-shared/report-types';
+import type { ReportPartOutput, WorkspaceVersion } from './explorer-types';
 
 /** `running` until the run that publishes the commit closes it. */
 export type CommitState = 'running' | 'complete';
@@ -28,6 +29,8 @@ export type CommitRecord = {
 
 /** `commits/<sha>/sources/<source>.json`: one package bucket's tests. */
 export type SourceRecord = {
+  /** Producer measurements travel with reusable source content. */
+  readonly evidence?: readonly ReportPartOutput[];
   readonly source: string;
   /** Repo-relative package dir (`libs/chess`). */
   readonly packageDir: string;
@@ -43,6 +46,9 @@ export type CommitPage = {
   readonly commits: readonly CommitRecord[];
   /** Pass back as `?cursor=` for the next, older page; null on the last. */
   readonly cursor: string | null;
+  readonly workspace?: WorkspaceVersion;
+  readonly notice?: string;
+  readonly evidenceVersions?: readonly string[];
 };
 
 /** `GET …/:sha/events`: the commit, then each source as it is read. */

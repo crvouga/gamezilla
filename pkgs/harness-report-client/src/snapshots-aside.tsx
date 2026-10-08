@@ -4,6 +4,7 @@ import {
 } from '@pkgs/harness-report-shared/format';
 import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import type { ReportSnapshotBlob } from '@pkgs/harness-root-shared/report-types';
+import { DocumentPanel } from '@pkgs/ui-root-client/document-panel';
 import { For } from 'solid-js';
 
 /** Raw text of the frame's non-UI snapshots, beside the phones. */
@@ -12,13 +13,13 @@ export function SnapshotsAside(props: {
   blobs: ReportSnapshotBlob[];
 }) {
   return (
-    <div class="sr-aside">
+    <div class="box gap-3 min-w-0">
       <For each={props.blobs}>
         {(blob) => (
-          <>
-            <h3>{blobHeading(blob)}</h3>
-            <pre>{formatBlobBody(props.test, blob)}</pre>
-          </>
+          <DocumentPanel
+            title={blobHeading(blob)}
+            content={formatBlobBody(props.test, blob)}
+          />
         )}
       </For>
     </div>

@@ -2,14 +2,20 @@
 /**
  * `/reports` and `/reports/<sha>`: every commit's spec report, streamed from
  * this deployment's API (`/api/reports`, which reads the one reports store
- * every environment shares). The localhost stack reads it from its API. A
- * Vite server still aimed at the wrangler preview origin reads it from the
- * page origin, because that server does not start wrangler.
+ * every environment shares). Local Vite and stack servers also expose the
+ * committed checkout specs and collected evidence at the page origin.
  * Imported at startup and mounted independently of product chrome.
  */
 
 import { getServerBaseUrl } from '@libs/app-root-shared/api-url';
+import { i18n } from '@libs/app-root-shared/i18n';
+import { I18nProvider } from '@lingui/solid';
+import { ClockProvider } from '@pkgs/clock-client/solid';
+import { browserReportNavigation } from '@pkgs/harness-report-client/browser-navigation';
 import { RemoteReportsApp } from '@pkgs/harness-report-client/remote-reports-app';
+import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
 
 import { reportsApiBase } from './reports-api-base';
@@ -34,15 +40,26 @@ export function ReportsScreen(): JSX.Element {
     setSha(next);
   };
   return (
-    <div class="fixed inset-0">
-      <RemoteReportsApp
-        http={env.http}
-        timers={env.timers}
-        cache={env.cache}
-        apiBase={apiBase}
-        sha={sha()}
-        onOpen={open}
-      />
+    <div class="fixed inset-0 box">
+      <I18nProvider i18n={i18n}>
+        <ClockProvider clock={env.clock} timers={env.timers}>
+          <ThemeProvider colorScheme="system">
+            <OverlayPortalProvider>
+              <SurfaceStackProvider>
+                <RemoteReportsApp
+                  navigation={browserReportNavigation()}
+                  http={env.http}
+                  timers={env.timers}
+                  cache={env.cache}
+                  apiBase={apiBase}
+                  sha={sha()}
+                  onOpen={open}
+                />
+              </SurfaceStackProvider>
+            </OverlayPortalProvider>
+          </ThemeProvider>
+        </ClockProvider>
+      </I18nProvider>
     </div>
   );
 }

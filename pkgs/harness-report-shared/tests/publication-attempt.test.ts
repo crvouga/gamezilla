@@ -56,7 +56,7 @@ test('a late close and failed upload from an earlier attempt cannot overwrite th
   await closeCommit(store, { sha: SHA, publicationId: 'run:2', endedAtMs: 30 });
   expect(await readCommit(store, SHA)).toMatchObject({
     state: 'complete',
-    status: 'passed',
+    status: 'skipped',
     endedAtMs: 30,
   });
 });

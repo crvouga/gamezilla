@@ -12,7 +12,6 @@
  * Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1 on any
  * failure.
  */
-import { spawnSync } from 'node:child_process';
 import {
   appendFileSync,
   existsSync,
@@ -209,13 +208,6 @@ function readEvidence(): {
   planned: string[];
   shards: ShardResult[];
 } {
-  const transfers = join(DIRECTORY, 'transfers');
-  if (existsSync(transfers))
-    for (const name of readdirSync(transfers).filter((file) =>
-      /^evidence-\d+\.tar$/.test(file)
-    ))
-      if (spawnSync('tar', ['-xf', join(transfers, name), '-C', ROOT]).status)
-        throw new Error(`Cannot extract ${name}`);
   const payload = join(DIRECTORY, 'plan.payload');
   if (existsSync(payload)) restorePlan(readFileSync(payload, 'utf8'));
   const planPath = join(DIRECTORY, 'plan.json');

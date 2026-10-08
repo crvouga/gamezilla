@@ -1,0 +1,4 @@
+{
+  "summary": "A shared-store outage hid older independently recorded local versions from the catalog. Keep the local version list when published reports are unavailable.",
+  "regressionTest": "libs/app-root-server/tests/reports-explorer.test.ts"
+}

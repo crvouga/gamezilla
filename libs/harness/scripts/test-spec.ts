@@ -57,6 +57,7 @@ import { parseJunit } from '@pkgs/harness-root-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
+import { completedOrigin, reportOrigin } from './report-origin';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf, specUnits } from './spec-parts';
@@ -322,6 +323,7 @@ const BUCKET = cli.part === undefined ? 'all' : `part-${cli.part.index}`;
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report', BUCKET);
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec', BUCKET);
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
+const ORIGIN = reportOrigin(REPO_ROOT);
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
 
@@ -387,6 +389,10 @@ finishReport(result.status ?? 1);
 process.exit(result.status ?? 1);
 
 function finishReport(status: number): void {
+  writeFileSync(
+    join(REPORT_DIR, 'origin.json'),
+    JSON.stringify(completedOrigin(ORIGIN, reportOrigin(REPO_ROOT)))
+  );
   writeFileSync(
     join(REPORT_DIR, REPORT_COMPLETION),
     JSON.stringify({ status })

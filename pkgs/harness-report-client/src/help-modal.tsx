@@ -1,4 +1,17 @@
-import { onMount } from 'solid-js';
+import { useLingui } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { ModalBackdrop } from '@pkgs/ui-root-client/modal-backdrop';
+import { ModalContent } from '@pkgs/ui-root-client/modal-content';
+import {
+  ModalButton,
+  ModalFooter,
+  ModalHeader,
+} from '@pkgs/ui-root-client/modal-parts';
+import { ModalRoot } from '@pkgs/ui-root-client/modal-root';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { For } from 'solid-js';
 
 const SHORTCUTS: ReadonlyArray<readonly [string, string]> = [
   ['⌘ K / Ctrl K', 'Open command palette'],
@@ -18,49 +31,33 @@ const SHORTCUTS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 export function HelpModal(props: { onClose: () => void }) {
-  let closeButton: HTMLButtonElement | undefined;
-  onMount(() => closeButton?.focus());
+  const { t } = useLingui();
   return (
-    <div
-      class="sr-help"
-      role="presentation"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) props.onClose();
-      }}
-    >
-      <section
-        class="sr-help-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="sr-help-title"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            e.preventDefault();
-            props.onClose();
-          }
-        }}
-      >
-        <div class="sr-help-head">
-          <h3 id="sr-help-title">Keyboard shortcuts</h3>
-          <button
-            ref={closeButton}
-            type="button"
-            class="sr-navbtn"
-            aria-label="Close keyboard shortcuts"
-            onClick={() => props.onClose()}
-          >
-            Close
-          </button>
-        </div>
-        <dl>
-          {SHORTCUTS.map(([key, description]) => (
-            <>
-              <dt>{key}</dt>
-              <dd>{description}</dd>
-            </>
-          ))}
-        </dl>
-      </section>
-    </div>
+    <ModalRoot visible onRequestClose={props.onClose}>
+      <ModalBackdrop onClick={props.onClose}>
+        <ModalContent size="medium">
+          <ModalHeader title={t`Keyboard shortcuts`} />
+          <ScrollView>
+            <MenuSection>
+              <For each={SHORTCUTS}>
+                {([key, description]) => (
+                  <MenuRow
+                    title={description}
+                    trailing={<Badge label={key} intent="neutral" />}
+                  />
+                )}
+              </For>
+            </MenuSection>
+          </ScrollView>
+          <ModalFooter>
+            <ModalButton
+              label={t`Close`}
+              variant="cancel"
+              onClick={props.onClose}
+            />
+          </ModalFooter>
+        </ModalContent>
+      </ModalBackdrop>
+    </ModalRoot>
   );
 }

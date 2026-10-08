@@ -14,14 +14,13 @@ import {
 } from '@pkgs/harness-report-shared/hash';
 import type { ReportData } from '@pkgs/harness-report-shared/types';
 import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import { CommandPalette as DesignCommandPalette } from '@pkgs/ui-root-client/command-palette';
 import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  onMount,
-  Show,
-} from 'solid-js';
+  CommandRegistryProvider,
+  useCommandRegistry,
+} from '@pkgs/ui-root-client/command-registry-context';
+import { useRegisterCommands } from '@pkgs/ui-root-client/register-command';
+import { createEffect, createMemo } from 'solid-js';
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
 
@@ -223,124 +222,30 @@ function buildCommands(ctx: CommandContext): Command[] {
   return commands;
 }
 
-function CommandList(props: {
-  commands: Command[];
-  activeIndex: () => number;
-  setActiveIndex: (value: number) => void;
-  runActive: () => void;
+function RegisteredPalette(props: {
+  nav: ReportNav;
+  commands: () => Command[];
 }) {
-  return (
-    <div class="sr-palette-list" role="listbox" aria-label="Commands">
-      <Show
-        when={props.commands.length > 0}
-        fallback={<div class="sr-palette-empty">No matching commands</div>}
-      >
-        <For each={props.commands}>
-          {(command, index) => (
-            <button
-              type="button"
-              class="sr-command"
-              classList={{ active: index() === props.activeIndex() }}
-              role="option"
-              aria-selected={index() === props.activeIndex()}
-              onMouseEnter={() => props.setActiveIndex(index())}
-              onClick={props.runActive}
-            >
-              <span>{command.label}</span>
-              <kbd>{command.hint}</kbd>
-            </button>
-          )}
-        </For>
-      </Show>
-    </div>
+  const registry = useCommandRegistry();
+  useRegisterCommands(() =>
+    props.commands().map((command) => ({
+      id: command.id,
+      title: command.label,
+      subtitle: command.hint,
+      keywords: command.keywords.split(' '),
+      run: () => {
+        props.nav.closePalette();
+        command.run();
+      },
+    }))
   );
-}
-
-function PaletteDialog(props: { nav: ReportNav; commands: () => Command[] }) {
-  let inputEl: HTMLInputElement | undefined;
-  onMount(() => inputEl?.focus());
-  const [query, setQuery] = createSignal('');
-  const [activeIndex, setActiveIndex] = createSignal(0);
-  const filtered = createMemo(() => {
-    const needle = query().trim().toLowerCase();
-    return needle
-      ? props
-          .commands()
-          .filter((command) =>
-            `${command.label} ${command.hint} ${command.keywords}`
-              .toLowerCase()
-              .includes(needle)
-          )
-      : props.commands();
+  createEffect(() => {
+    if (props.nav.showPalette()) registry.open();
   });
   createEffect(() => {
-    filtered();
-    setActiveIndex(0);
+    if (!registry.isOpen()) props.nav.closePalette();
   });
-  const runActive = () => {
-    const command = filtered()[activeIndex()];
-    if (!command) return;
-    props.nav.closePalette();
-    setQuery('');
-    command.run();
-  };
-
-  return (
-    <section
-      class="sr-palette"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="sr-palette-title"
-      onKeyDown={(e) => {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          setActiveIndex((index) => Math.min(index + 1, filtered().length - 1));
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          setActiveIndex((index) => Math.max(index - 1, 0));
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          runActive();
-        }
-      }}
-    >
-      <div class="sr-palette-head">
-        <div>
-          <h2 id="sr-palette-title">Command palette</h2>
-          <p>Navigate the report without reaching for the mouse.</p>
-        </div>
-        <kbd>Esc</kbd>
-      </div>
-      <input
-        ref={inputEl}
-        class="sr-palette-input"
-        type="search"
-        autofocus
-        value={query()}
-        placeholder="Search commands or tests…"
-        aria-label="Search commands"
-        onInput={(e) => setQuery(e.currentTarget.value)}
-      />
-      <CommandList
-        commands={filtered()}
-        activeIndex={activeIndex}
-        setActiveIndex={setActiveIndex}
-        runActive={runActive}
-      />
-      <div class="sr-palette-footer">
-        <span>
-          <kbd>↑</kbd>
-          <kbd>↓</kbd> move
-        </span>
-        <span>
-          <kbd>Enter</kbd> run
-        </span>
-        <span>
-          <kbd>⌘ K</kbd> toggle
-        </span>
-      </div>
-    </section>
-  );
+  return <DesignCommandPalette />;
 }
 
 export function CommandPalette(props: { nav: ReportNav }) {
@@ -370,16 +275,8 @@ export function CommandPalette(props: { nav: ReportNav }) {
     })
   );
   return (
-    <Show when={props.nav.showPalette()}>
-      <div
-        class="sr-palette-backdrop"
-        role="presentation"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) props.nav.closePalette();
-        }}
-      >
-        <PaletteDialog nav={props.nav} commands={commands} />
-      </div>
-    </Show>
+    <CommandRegistryProvider enableDefaultShortcuts={false}>
+      <RegisteredPalette nav={props.nav} commands={commands} />
+    </CommandRegistryProvider>
   );
 }

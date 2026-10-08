@@ -6,6 +6,7 @@
  * the query document.
  */
 
+import type { ExplorerData } from '@pkgs/harness-report-shared/explorer-types';
 import type {
   CommitPage,
   SourceRecord,
@@ -53,7 +54,7 @@ export function reportQueryClient(): QueryClient {
       queries: {
         staleTime: 5 * MINUTE,
         gcTime: DAY,
-        retry: 1,
+        retry: false,
         refetchOnWindowFocus: false,
       },
     },
@@ -62,6 +63,8 @@ export function reportQueryClient(): QueryClient {
 
 export const reportQueryKey = {
   commits: ['reports', 'commits'] as const,
+  explorer: (sha: string) => ['reports', 'explorer', sha] as const,
+  spec: (sha: string, path: string) => ['reports', 'spec', sha, path] as const,
   sources: (sha: string) => ['reports', 'sources', sha] as const,
   css: (sha: string) => ['reports', 'css', sha] as const,
   test: (sha: string, source: string, testId: string) =>
@@ -71,6 +74,8 @@ export const reportQueryKey = {
 };
 
 export type ReportFetcher = {
+  explorer(sha: string): Promise<ExplorerData>;
+  spec(sha: string, path: string): Promise<string | null>;
   commits(cursor: string | null): Promise<CommitPage>;
   sources(sha: string): Promise<readonly SourceRecord[]>;
   frameCss(sha: string): Promise<string>;
@@ -212,6 +217,29 @@ export function createHttpReportFetcher(
 ): ReportFetcher {
   const { http, apiBase, client } = args;
   return {
+    explorer: (sha) =>
+      client.fetchQuery({
+        queryKey: reportQueryKey.explorer(sha),
+        staleTime: 0,
+        queryFn: async () =>
+          readJson<ExplorerData>(
+            await http.fetch(apiUrl(apiBase, `/${sha}/explorer`))
+          ),
+      }),
+    spec: (sha, path) =>
+      client.fetchQuery({
+        queryKey: reportQueryKey.spec(sha, path),
+        queryFn: async () => {
+          const response = await http.fetch(
+            apiUrl(apiBase, `/${sha}/spec?path=${encodeURIComponent(path)}`)
+          );
+          if (response.status === 404) return null;
+          if (response.status === 503) throw new ReportsUnavailable();
+          if (!response.ok)
+            throw new Error(`Reports API answered ${response.status}`);
+          return response.text();
+        },
+      }),
     commits: (cursor) =>
       client.fetchQuery({
         queryKey: [...reportQueryKey.commits, cursor ?? ''],

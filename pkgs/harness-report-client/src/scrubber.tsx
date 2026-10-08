@@ -1,5 +1,14 @@
+import { useLingui } from '@lingui/solid/macro';
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
-import { createMemo, For, onCleanup } from 'solid-js';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@pkgs/ui-root-client/icons';
+import { RangeControl } from '@pkgs/ui-root-client/range-control';
+import { createMemo, For, onCleanup, Show } from 'solid-js';
 import type { ReportNav } from './use-report-nav';
 
 type Marker = {
@@ -47,6 +56,7 @@ function ScrubTrack(props: {
   selected: FlatFrame | null;
   nav: ReportNav;
 }) {
+  const { t } = useLingui();
   let pendingIndex: number | null = null;
   let rafId: number | null = null;
   const idx = () => (props.selected ? props.selected.index : -1);
@@ -69,25 +79,23 @@ function ScrubTrack(props: {
   });
 
   return (
-    <input
-      class="sr-scrub-input"
-      type="range"
-      min="1"
+    <RangeControl
+      label={t`Frame scrubber`}
+      min={1}
       max={Math.max(1, props.frames.length)}
       value={Math.max(1, idx() + 1)}
       disabled={props.frames.length === 0}
-      aria-label="Frame scrubber"
-      aria-valuetext={
+      valueText={
         props.selected
-          ? `Frame ${idx() + 1} of ${props.frames.length}`
-          : 'No frames'
+          ? t`Frame ${idx() + 1} of ${props.frames.length}`
+          : t`No frames`
       }
-      data-scrub-track=""
-      onInput={(e) => {
+      dataSet={{ 'scrub-track': '' }}
+      onInput={(value) => {
         props.nav.stopPlay();
-        schedule(Number.parseInt(e.currentTarget.value, 10) - 1);
+        schedule(value - 1);
       }}
-      onChange={() => {
+      onCommit={() => {
         flush();
         props.nav.commitHash();
       }}
@@ -100,45 +108,36 @@ export function Scrubber(props: {
   selected: FlatFrame | null;
   nav: ReportNav;
 }) {
+  const { t } = useLingui();
   const idx = createMemo(() => (props.selected ? props.selected.index : -1));
-  const pct = createMemo(() => pctOf(idx(), props.frames.length));
 
   return (
-    <div class="sr-scrubber">
-      <button
-        type="button"
-        class="sr-navbtn"
-        aria-label="Previous frame"
-        title="Previous frame (←)"
+    <div class="box flex-row items-center gap-2 px-3 py-2 bg-surface border-t border-border">
+      <IconButton
+        label={t`Previous frame`}
         disabled={idx() <= 0}
-        data-scrub-prev=""
+        dataSet={{ 'scrub-prev': '' }}
         onClick={() => props.nav.stepFrame(-1)}
       >
-        ◂
-      </button>
-      <button
-        type="button"
-        class="sr-navbtn sr-play"
-        aria-label={props.nav.playing() ? 'Pause playback' : 'Play frames'}
-        title="Play / pause (Space)"
+        <ChevronLeftIcon />
+      </IconButton>
+      <IconButton
+        label={props.nav.playing() ? t`Pause playback` : t`Play frames`}
         onClick={() => props.nav.togglePlay()}
       >
-        {props.nav.playing() ? '❚❚' : '▶'}
-      </button>
-      <button
-        type="button"
-        class="sr-navbtn"
-        aria-label="Next frame"
-        title="Next frame (→)"
+        <Show when={props.nav.playing()} fallback={<PlayIcon />}>
+          <PauseIcon />
+        </Show>
+      </IconButton>
+      <IconButton
+        label={t`Next frame`}
         disabled={idx() < 0 || idx() >= props.frames.length - 1}
-        data-scrub-next=""
+        dataSet={{ 'scrub-next': '' }}
         onClick={() => props.nav.stepFrame(1)}
       >
-        ▸
-      </button>
-      <div class="sr-scrub-wrap">
-        <div class="sr-scrub-rail" />
-        <div class="sr-scrub-fill" style={{ width: `${pct()}%` }} />
+        <ChevronRightIcon />
+      </IconButton>
+      <div class="box flex-1 relative min-w-0">
         <ScrubTrack
           frames={props.frames}
           selected={props.selected}

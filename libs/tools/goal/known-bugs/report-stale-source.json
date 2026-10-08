@@ -1,0 +1,4 @@
+{
+  "summary": "A cached source could suppress an authoritative streamed outcome for the same producer after a rerun.",
+  "regressionTest": "pkgs/harness-report-client/tests/reliability.test.ts"
+}

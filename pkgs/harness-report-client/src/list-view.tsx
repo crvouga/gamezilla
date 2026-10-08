@@ -7,7 +7,7 @@ import type {
 } from '@pkgs/harness-report-shared/catalog';
 import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import { testCatalogEntity } from '@pkgs/harness-report-shared/test-catalog-entity';
-import { createMemo } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 import { EntityBrowser } from './entity-browser';
 import { PerformanceOverview } from './performance-overview';
 import { useReport } from './report-context';
@@ -48,7 +48,7 @@ function queryOf(params: Readonly<Record<string, string>>): CatalogQuery {
   };
 }
 
-export function ListView(props: { nav: ReportNav }) {
+export function ListView(props: { nav: ReportNav; performance?: boolean }) {
   const report = useReport();
   const query = createMemo(() => queryOf(props.nav.route().params));
   const entities = createMemo(() => report.data.tests.map(testCatalogEntity));
@@ -57,6 +57,8 @@ export function ListView(props: { nav: ReportNav }) {
       {
         view: 'list',
         params: {
+          ...catalogParams(props.nav.route().params),
+          tab: 'tests',
           q: next.q,
           status: next.status === 'all' ? '' : next.status,
           group: next.group === 'package' ? '' : next.group,
@@ -69,16 +71,18 @@ export function ListView(props: { nav: ReportNav }) {
   };
   return (
     <>
-      <PerformanceOverview
-        tests={report.data.tests}
-        onOpen={(id) =>
-          props.nav.navigate({
-            view: 'test',
-            testId: id,
-            params: catalogParams(props.nav.route().params),
-          })
-        }
-      />
+      <Show when={props.performance !== false}>
+        <PerformanceOverview
+          tests={report.data.tests}
+          onOpen={(id) =>
+            props.nav.navigate({
+              view: 'test',
+              testId: id,
+              params: catalogParams(props.nav.route().params),
+            })
+          }
+        />
+      </Show>
       <EntityBrowser
         entities={entities()}
         query={query()}

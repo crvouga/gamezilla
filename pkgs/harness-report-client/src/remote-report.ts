@@ -55,6 +55,7 @@ export type RemoteReport = {
   readonly data: ReportData;
   readonly commit: Accessor<CommitRecord | null>;
   readonly phase: Accessor<RemoteReportPhase>;
+  readonly sources: Accessor<readonly SourceRecord[]>;
   readonly frameCss: Accessor<string | undefined>;
   readonly loader: ReportTestLoader;
   readonly dispose: () => void;
@@ -86,7 +87,7 @@ function worstStatus(tests: readonly HtmlReportTest[]): ReportTestStatus {
   if (statuses.length > 0 && statuses.every((s) => s === 'skipped')) {
     return 'skipped';
   }
-  return 'passed';
+  return statuses.length === 0 ? 'skipped' : 'passed';
 }
 
 function stubTest(source: string, meta: RunReportMeta): StreamedTest {
@@ -127,12 +128,15 @@ type Ctx = {
   readonly store: Store;
   readonly setStore: SetStoreFunction<Store>;
   readonly setCommit: (commit: CommitRecord | null) => void;
+  readonly commit: Accessor<CommitRecord | null>;
   readonly phase: Accessor<RemoteReportPhase>;
   readonly setPhase: (phase: RemoteReportPhase) => void;
   readonly frameCss: Accessor<string | undefined>;
   readonly setFrameCss: (css: string) => void;
   /** Sources already in the store; sent as `?have=` on reconnect. */
   readonly sources: Set<string>;
+  readonly records: Map<string, SourceRecord>;
+  readonly addRecord: (record: SourceRecord) => void;
   /** Frame files already being fetched, so a scrub does not refetch. */
   readonly inflight: Set<string>;
   readonly controller: AbortController;
@@ -148,24 +152,49 @@ function disposed(ctx: Ctx): boolean {
   return ctx.controller.signal.aborted;
 }
 
-function addSource(ctx: Ctx, record: SourceRecord): void {
-  if (ctx.sources.has(record.source)) return;
-  ctx.sources.add(record.source);
+function addSource(ctx: Ctx, record: SourceRecord, authoritative = true): void {
+  if (!authoritative && ctx.sources.has(record.source)) return;
+  if (authoritative) ctx.sources.add(record.source);
+  if (JSON.stringify(ctx.records.get(record.source)) === JSON.stringify(record))
+    return;
+  ctx.records.set(record.source, record);
+  ctx.addRecord(record);
+  for (const test of ctx.store.data.tests) {
+    if (splitViewerTestId(test.report.meta.testId)?.source === record.source)
+      ctx.setStore('loads', test.report.meta.testId, undefined!);
+  }
   ctx.setStore(
     'data',
     produce((data) => {
+      data.tests = data.tests.filter(
+        (test) =>
+          splitViewerTestId(test.report.meta.testId)?.source !== record.source
+      );
       for (const meta of record.tests) {
         data.tests.push(stubTest(record.source, meta));
       }
-      data.status = worstStatus(data.tests);
+      data.status = streamedStatus(ctx, data.tests);
       data.updatedAtMs = Math.max(data.updatedAtMs, record.updatedAtMs);
     })
   );
 }
 
+function streamedStatus(
+  ctx: Ctx,
+  tests: readonly HtmlReportTest[]
+): ReportTestStatus {
+  if (
+    ctx.commit()?.status === 'failed' ||
+    [...ctx.records.values()].some((record) => record.status === 'failed')
+  )
+    return 'failed';
+  return worstStatus(tests);
+}
+
 function onCommitEvent(ctx: Ctx, event: CommitEvent): void {
   if (event.type === 'commit') {
     ctx.setCommit(event.commit);
+    ctx.setStore('data', 'status', streamedStatus(ctx, ctx.store.data.tests));
     ctx.setStore('data', 'runId', reportLabel(ctx.args.sha, event.commit));
     if (event.commit?.endedAtMs != null) {
       ctx.setStore('data', 'updatedAtMs', event.commit.endedAtMs);
@@ -203,11 +232,23 @@ async function followCommit(ctx: Ctx): Promise<void> {
     // A stream cut short (no `end`) is a failure: back off, then resume.
     if (!ended) {
       ctx.setPhase('error');
-      await new Promise<void>((resolve) => {
-        ctx.args.timers.setTimeout(resolve, RETRY_MS);
-      });
+      await waitForReconnect(ctx);
     }
   }
+}
+
+function waitForReconnect(ctx: Ctx): Promise<void> {
+  return new Promise((resolve) => {
+    const signal = ctx.controller.signal;
+    const finish = () => {
+      ctx.args.timers.clearTimeout(timer);
+      signal.removeEventListener('abort', finish);
+      resolve();
+    };
+    const timer = ctx.args.timers.setTimeout(finish, RETRY_MS);
+    signal.addEventListener('abort', finish, { once: true });
+    if (signal.aborted) finish();
+  });
 }
 
 function testIndex(ctx: Ctx, id: string): number {
@@ -303,14 +344,19 @@ function testLoader(ctx: Ctx): ReportTestLoader {
 /** Sources and the snapshot stylesheet, from the query cache when it has them. */
 async function loadCached(ctx: Ctx): Promise<void> {
   try {
-    const [sources, css] = await Promise.all([
+    const [sources, css] = await Promise.allSettled([
       ctx.args.fetcher.sources(ctx.args.sha),
       ctx.args.fetcher.frameCss(ctx.args.sha),
     ]);
     if (disposed(ctx)) return;
-    for (const source of sources) addSource(ctx, source);
-    ctx.setFrameCss(css);
-    if (sources.length > 0 && ctx.phase() === 'connecting')
+    if (sources.status === 'fulfilled')
+      for (const source of sources.value) addSource(ctx, source, false);
+    ctx.setFrameCss(css.status === 'fulfilled' ? css.value : '');
+    if (
+      sources.status === 'fulfilled' &&
+      sources.value.length > 0 &&
+      ctx.phase() === 'connecting'
+    )
       ctx.setPhase('live');
   } catch {
     if (!disposed(ctx) && ctx.frameCss() === undefined) ctx.setFrameCss('');
@@ -326,13 +372,14 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     data: {
       title: 'Spec report',
       runId: reportLabel(args.sha, null),
-      status: 'passed',
+      status: 'skipped',
       updatedAtMs: 0,
       tests: [],
     },
     loads: {},
   });
   const [commit, setCommit] = createSignal<CommitRecord | null>(null);
+  const [records, setRecords] = createSignal<readonly SourceRecord[]>([]);
   const [phase, setPhase] = createSignal<RemoteReportPhase>('connecting');
   const [frameCss, setFrameCss] = createSignal<string | undefined>();
   const ctx: Ctx = {
@@ -340,11 +387,18 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     store,
     setStore,
     setCommit,
+    commit,
     phase,
     setPhase,
     frameCss,
     setFrameCss,
     sources: new Set(),
+    records: new Map(),
+    addRecord: (record) =>
+      setRecords((previous) => [
+        ...previous.filter((source) => source.source !== record.source),
+        record,
+      ]),
     inflight: new Set(),
     controller: new AbortController(),
   };
@@ -354,6 +408,7 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     data: store.data,
     commit,
     phase,
+    sources: records,
     frameCss,
     loader: testLoader(ctx),
     dispose: () => ctx.controller.abort(),
