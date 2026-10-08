@@ -1,0 +1,4 @@
+{
+  "summary": "The exact custom-game model, _inductive candidate, default encoding and original 240000 ms deadline timed out when verification cached value parameters before native induction. Native induction now receives the original source and proves initialization, preservation and every safety implication in 203929 ms. Bounded checks and supported array-encoded proofs retain the equivalent caching optimization. The original model binding remains the gate input; no bound, candidate, invariant or deadline is changed.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game.binding.ts"
+}

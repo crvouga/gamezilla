@@ -83,7 +83,11 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   const elapsed = wallStopwatch();
   const prepared = {
     ...options,
-    specPath: cachedVerifyInput(options.specPath, options.outDir),
+    specPath:
+      options.inductiveInvariant === undefined ||
+      options.encoding === 'fun-arrays'
+        ? cachedVerifyInput(options.specPath, options.outDir)
+        : options.specPath,
   };
   const runPhase = async (
     phase: VerifyPhase

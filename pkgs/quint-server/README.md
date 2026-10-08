@@ -15,10 +15,15 @@ Apalache's array map encoding. It checks invariants after translating each
 state's full transition choice to reduce solver work, preserving the bound and
 invariant obligations. Other models retain Apalache's default settings.
 
+Bounded checks and array-encoded proofs cache repeated value parameters in
+equivalent typed local bindings while preserving the model's source text and
+imports. Native induction uses the original source, avoiding extra compiler
+work in its candidate proof.
+
 An inductive binding may opt into `separateInduction: true`. Initialization
 is proved once, then every alternative of `step` is checked from the full
 candidate in a fresh solver, retaining its enclosing draws and guards. At
-most four cases run concurrently within the same total deadline. Preservation
+most two cases run concurrently within the same total deadline. Preservation
 checks successor states; any safety property not already a named conjunct
 of the candidate still receives an implication check. The default retains
 Quint's native induction phases in one server.
