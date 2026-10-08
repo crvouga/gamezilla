@@ -292,7 +292,6 @@
         "@libs/account-privacy-shared": "workspace:*",
         "@libs/app-root-server": "workspace:*",
         "@libs/harness": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
       },
