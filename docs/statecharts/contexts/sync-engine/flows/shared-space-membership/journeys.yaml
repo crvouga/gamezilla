@@ -1,0 +1,111 @@
+journeys:
+  New notes stop reaching someone who left the shared space:
+    description: New notes stop reaching someone who left the shared space
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Bob has left the shared space "Trip"
+    events:
+    - Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob
+      has left the shared space 'Trip'
+    endsIn: Alice sees the note "Tickets" saying "gate 4" — 1
+    checks:
+    - Alice sees the note "Tickets" saying "gate 4"
+    - Bob does not see the note "Tickets"
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:14 — New notes stop reaching someone who left the shared
+      space
+    exampleRow: []
+  Notes someone already had stay after they leave the shared space:
+    description: Notes someone already had stay after they leave the shared space
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice has written the note "Hotel" saying "Main St"
+    - the note "Hotel" has reached Bob
+    events:
+    - Bob leaves the shared space 'Trip'
+    endsIn: Bob still sees the note "Hotel" saying "Main St" — 2
+    checks:
+    - Bob still sees the note "Hotel" saying "Main St"
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:20 — Notes someone already had stay after they leave the
+      shared space
+    exampleRow: []
+  Rejoining a shared space brings the notes missed while away:
+    description: Rejoining a shared space brings the notes missed while away
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Bob has left the shared space "Trip"
+    - Alice has written the note "Tickets" saying "gate 4"
+    events:
+    - Bob joins the shared space 'Trip'
+    endsIn: Bob sees the note "Tickets" saying "gate 4" — 3
+    checks:
+    - Bob sees the note "Tickets" saying "gate 4"
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:26 — Rejoining a shared space brings the notes missed while
+      away
+    exampleRow: []
+  After leaving, new notes stop reaching someone whose app cannot send, without their app reconnecting:
+    description: After leaving, new notes stop reaching someone whose app cannot send, without their app reconnecting
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Bob has left the shared space "Trip"
+    - Bob's app cannot send
+    events:
+    - Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob
+      has left the shared space 'Trip' and Bob's app cannot send
+    endsIn: Bob does not see the note "Tickets" — 4
+    checks:
+    - Bob does not see the note "Tickets"
+    - Bob's app is still connected
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:32 — After leaving, new notes stop reaching someone whose
+      app cannot send, without their app reconnecting
+    exampleRow: []
+  A shared space that ends stops its notes reaching someone, without their app reconnecting:
+    description: A shared space that ends stops its notes reaching someone, without their app reconnecting
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Bob's app cannot send
+    events:
+    - the shared space 'Trip' ends
+    - Alice writes the note 'Tickets' saying 'gate 4'
+    endsIn: Bob does not see the note "Tickets" — 5 step 2
+    checks:
+    - Bob does not see the note "Tickets"
+    - Bob's app is still connected
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:39 — A shared space that ends stops its notes reaching someone,
+      without their app reconnecting
+    exampleRow: []
+  Opening a shared space someone is not in keeps the notes they have:
+    description: Opening a shared space someone is not in keeps the notes they have
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice has written the note "Hotel" saying "Main St"
+    - the note "Hotel" has reached Bob
+    events:
+    - Bob opens the shared space 'Work', which they are not in
+    endsIn: Bob still sees the note "Hotel" saying "Main St" — 6
+    checks:
+    - Bob still sees the note "Hotel" saying "Main St"
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:46 — Opening a shared space someone is not in keeps the
+      notes they have
+    exampleRow: []
+  Closing a shared space someone is not in and catching up keeps the notes they have:
+    description: Closing a shared space someone is not in and catching up keeps the notes they have
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice has written the note "Hotel" saying "Main St"
+    - the note "Hotel" has reached Bob
+    - Bob has opened the shared space "Work", which they are not in
+    events:
+    - Bob closes the shared space 'Work' and their app catches up
+    endsIn: Bob still sees the note "Hotel" saying "Main St" — 7
+    checks:
+    - Bob still sees the note "Hotel" saying "Main St"
+    gherkin:
+    - specs/sync-engine/shared-space-membership.feature:52 — Closing a shared space someone is not in and catching
+      up keeps the notes they have
+    exampleRow: []

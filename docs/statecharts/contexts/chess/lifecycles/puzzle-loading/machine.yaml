@@ -1,0 +1,697 @@
+id: chess-puzzle-loading-lifecycle
+initial: Opening puzzle loading
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess/puzzle-loading.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening puzzle loading:
+    meta:
+      description: The person is opening the puzzle loading view.
+      snapshot: the-person-is-opening-the-puzzle-loading-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+    'on':
+      Opens with ready to add puzzles:
+        target: Ready to add puzzles
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-loading_11.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-loading.qnt:24
+  Ready to add puzzles:
+    meta:
+      description: The person is ready to add puzzles.
+      snapshot: the-person-is-ready-to-add-puzzles
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: ready
+        online: true
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Lose connection resulting in ready to add puzzles with the last known result offline:
+        target: Ready to add puzzles with the last known result offline
+        meta:
+          action: loseConnection
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:80
+      Add puzzles resulting in told adding puzzles is not allowed:
+        target: Told adding puzzles is not allowed
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Add puzzles resulting in waiting for puzzles to be added:
+        target: Waiting for puzzles to be added
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+  Ready to add puzzles with the last known result offline:
+    meta:
+      description: The person is ready to add puzzles with the last known result offline.
+      snapshot: the-person-is-ready-to-add-puzzles-with-the-last-known-result-offline
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: ready
+        online: false
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Come back online resulting in ready to add puzzles:
+        target: Ready to add puzzles
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+      Add puzzles resulting in ready to add puzzles with the last known result offline:
+        target: Ready to add puzzles with the last known result offline
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_14.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+  Told adding puzzles is not allowed:
+    meta:
+      description: The person is told adding puzzles is not allowed.
+      snapshot: the-person-is-told-adding-puzzles-is-not-allowed
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: refused
+        online: true
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Lose connection resulting in told adding puzzles is not allowed with the last known result offline:
+        target: Told adding puzzles is not allowed with the last known result offline
+        meta:
+          action: loseConnection
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:80
+      Add puzzles resulting in told adding puzzles is not allowed:
+        target: Told adding puzzles is not allowed
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Add puzzles resulting in waiting for puzzles to be added:
+        target: Waiting for puzzles to be added
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+  Told adding puzzles is not allowed with the last known result offline:
+    meta:
+      description: The person is told adding puzzles is not allowed with the last known result offline.
+      snapshot: the-person-is-told-adding-puzzles-is-not-allowed-with-the-last-known-result-offline
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: refused
+        online: false
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Add puzzles resulting in told adding puzzles is not allowed with the last known result offline:
+        target: Told adding puzzles is not allowed with the last known result offline
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Come back online resulting in told adding puzzles is not allowed:
+        target: Told adding puzzles is not allowed
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_0.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+  Waiting for puzzles to be added:
+    meta:
+      description: The person is waiting for puzzles to be added.
+      snapshot: the-person-is-waiting-for-puzzles-to-be-added
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: adding
+        online: true
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Finish adding puzzles resulting in seeing accepted and broken puzzle counts:
+        target: Seeing accepted and broken puzzle counts
+        meta:
+          action: finishAddingPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:58
+      Lose connection resulting in waiting for puzzles to be added with the last known result offline:
+        target: Waiting for puzzles to be added with the last known result offline
+        meta:
+          action: loseConnection
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 12
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:80
+      Add puzzles resulting in told adding puzzles is not allowed:
+        target: Told adding puzzles is not allowed
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 14
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Fail adding puzzles resulting in told adding puzzles failed:
+        target: Told adding puzzles failed
+        meta:
+          action: failAddingPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:70
+  Seeing accepted and broken puzzle counts:
+    meta:
+      description: The person is seeing accepted and broken puzzle counts.
+      snapshot: the-person-is-seeing-accepted-and-broken-puzzle-counts
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: finished
+        online: true
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Lose connection resulting in seeing accepted and broken puzzle counts with the last known result offline:
+        target: Seeing accepted and broken puzzle counts with the last known result offline
+        meta:
+          action: loseConnection
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:80
+      Add puzzles resulting in waiting for puzzles to be added:
+        target: Waiting for puzzles to be added
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 11
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+  Seeing accepted and broken puzzle counts with the last known result offline:
+    meta:
+      description: The person is seeing accepted and broken puzzle counts with the last known result offline.
+      snapshot: the-person-is-seeing-accepted-and-broken-puzzle-counts-with-the-last-known-result-off
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: finished
+        online: false
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Add puzzles resulting in seeing accepted and broken puzzle counts with the last known result offline:
+        target: Seeing accepted and broken puzzle counts with the last known result offline
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Come back online resulting in seeing accepted and broken puzzle counts:
+        target: Seeing accepted and broken puzzle counts
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+  Waiting for puzzles to be added with the last known result offline:
+    meta:
+      description: The person is waiting for puzzles to be added with the last known result offline.
+      snapshot: the-person-is-waiting-for-puzzles-to-be-added-with-the-last-known-result-offline
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: adding
+        online: false
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Come back online resulting in waiting for puzzles to be added:
+        target: Waiting for puzzles to be added
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 13
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+      Fail adding puzzles resulting in waiting for puzzles to be added with the last known result offline:
+        target: Waiting for puzzles to be added with the last known result offline
+        meta:
+          action: failAddingPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 27
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:70
+      Add puzzles resulting in waiting for puzzles to be added with the last known result offline:
+        target: Waiting for puzzles to be added with the last known result offline
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 28
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Come back online resulting in told adding puzzles failed:
+        target: Told adding puzzles failed
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+      Finish adding puzzles resulting in waiting for puzzles to be added with the last known result offline:
+        target: Waiting for puzzles to be added with the last known result offline
+        meta:
+          action: finishAddingPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 37
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:58
+      Come back online resulting in seeing accepted and broken puzzle counts:
+        target: Seeing accepted and broken puzzle counts
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 39
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87
+  Told adding puzzles failed:
+    meta:
+      description: The person is told adding puzzles failed.
+      snapshot: the-person-is-told-adding-puzzles-failed
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: failed
+        online: true
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Lose connection resulting in told adding puzzles failed with the last known result offline:
+        target: Told adding puzzles failed with the last known result offline
+        meta:
+          action: loseConnection
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:80
+      Add puzzles resulting in waiting for puzzles to be added:
+        target: Waiting for puzzles to be added
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+  Told adding puzzles failed with the last known result offline:
+    meta:
+      description: The person is told adding puzzles failed with the last known result offline.
+      snapshot: the-person-is-told-adding-puzzles-failed-with-the-last-known-result-offline
+      recognize: []
+      checks:
+      - The team sees only the recognized stages of adding puzzles.
+      - Finishing can grow the puzzle pool; refusal and failure never shrink it.
+      - Whenever the device has a connection, it shows the environment's result.
+      - A person outside the team never starts adding puzzles.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-loading.qnt
+      quintPredicates:
+      - puzzleLoading.status: failed
+        online: false
+      invariants:
+      - invPuzzleLoadingStatus
+      - invPuzzlePoolPreserved
+      - invConnectedPuzzleLoadingIsCurrent
+      - invOnlyTeamAddsPuzzles
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Add puzzles resulting in told adding puzzles failed with the last known result offline:
+        target: Told adding puzzles failed with the last known result offline
+        meta:
+          action: addPuzzles
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 18
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:38
+      Come back online resulting in told adding puzzles failed:
+        target: Told adding puzzles failed
+        meta:
+          action: comeBackOnline
+          witness:
+            trace: chess--puzzle-loading_21.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              permitted:
+                tag: None
+                value:
+                  '#tup': []
+          source:
+          - specs/chess/puzzle-loading.qnt:87

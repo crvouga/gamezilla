@@ -1,0 +1,11 @@
+stateDiagram-v2
+  state "Writing feedback" as s0
+  state "Sending feedback" as s1
+  state "Feedback kept" as s2
+  state "Told sending failed" as s3
+  [*] --> s0
+  s0 --> s1: Sends nonblank feedback
+  s1 --> s2: Reporting saves the feedback
+  s1 --> s3: Reporting fails
+  s2 --> s0: Starts another draft
+  s3 --> s1: Sends the preserved writing again

@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Opening board board promotion" as s0
+  state "Playing before promotion" as s1
+  state "Choosing a promotion piece" as s2
+  state "Seeing a promoted queen" as s3
+  state "Seeing a promoted knight" as s4
+  state "Seeing a promoted bishop" as s5
+  state "Seeing a promoted rook" as s6
+  [*] --> s0
+  s0 --> s1: Opens with playing before promotion
+  s1 --> s1: Replace promotion position resulting in playing before promotion
+  s1 --> s1: Try other promotion move resulting in playing before promotion
+  s1 --> s1: Request promotion resulting in playing before promotion
+  s1 --> s1: Configure promotion input resulting in playing before promotion
+  s1 --> s1: Cancel promotion resulting in playing before promotion
+  s1 --> s1: Configure automatic queen resulting in playing before promotion
+  s1 --> s2: Request promotion resulting in choosing a promotion piece
+  s1 --> s3: Request promotion resulting in seeing a promoted queen
+  s2 --> s2: Try other promotion move resulting in choosing a promotion piece
+  s2 --> s1: Cancel promotion resulting in playing before promotion
+  s2 --> s1: Configure promotion input resulting in playing before promotion
+  s2 --> s1: Replace promotion position resulting in playing before promotion
+  s2 --> s2: Request promotion resulting in choosing a promotion piece
+  s2 --> s2: Configure automatic queen resulting in choosing a promotion piece
+  s2 --> s2: Configure promotion input resulting in choosing a promotion piece
+  s2 --> s4: Choose promotion resulting in seeing a promoted knight
+  s2 --> s5: Choose promotion resulting in seeing a promoted bishop
+  s2 --> s2: Replace promotion position resulting in choosing a promotion piece
+  s2 --> s6: Choose promotion resulting in seeing a promoted rook
+  s3 --> s3: Request promotion resulting in seeing a promoted queen
+  s3 --> s1: Replace promotion position resulting in playing before promotion
+  s3 --> s3: Configure automatic queen resulting in seeing a promoted queen
+  s3 --> s3: Configure promotion input resulting in seeing a promoted queen
+  s3 --> s3: Cancel promotion resulting in seeing a promoted queen
+  s3 --> s3: Try other promotion move resulting in seeing a promoted queen
+  s4 --> s4: Request promotion resulting in seeing a promoted knight
+  s4 --> s4: Cancel promotion resulting in seeing a promoted knight
+  s4 --> s4: Configure promotion input resulting in seeing a promoted knight
+  s4 --> s4: Try other promotion move resulting in seeing a promoted knight
+  s4 --> s1: Replace promotion position resulting in playing before promotion
+  s5 --> s5: Request promotion resulting in seeing a promoted bishop
+  s5 --> s5: Configure promotion input resulting in seeing a promoted bishop
+  s5 --> s5: Cancel promotion resulting in seeing a promoted bishop
+  s5 --> s1: Replace promotion position resulting in playing before promotion
+  s5 --> s5: Configure automatic queen resulting in seeing a promoted bishop
+  s6 --> s6: Request promotion resulting in seeing a promoted rook
+  s6 --> s6: Try other promotion move resulting in seeing a promoted rook
+  s6 --> s6: Cancel promotion resulting in seeing a promoted rook
+  s6 --> s6: Configure automatic queen resulting in seeing a promoted rook
+  s6 --> s6: Configure promotion input resulting in seeing a promoted rook
+  s6 --> s1: Replace promotion position resulting in playing before promotion

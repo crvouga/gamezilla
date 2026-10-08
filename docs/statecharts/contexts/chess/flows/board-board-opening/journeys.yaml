@@ -1,0 +1,103 @@
+journeys:
+  Either orientation starts with the normal opening:
+    description: Either orientation starts with the normal opening
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing White when Alice's activity has no chessboard yet
+    endsIn: Alice sees the position before White's first move — 1
+    checks:
+    - Alice sees the position before White's first move
+    - Alice sees White to move
+    - Alice's chessboard faces White
+    gherkin:
+    - specs/chess-board/board-opening.feature:9 — Either orientation starts with the normal opening
+    exampleRow:
+    - '6'
+  Either orientation starts with the normal opening (example 2):
+    description: Either orientation starts with the normal opening
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing Black when Alice's activity has no chessboard yet
+    endsIn: Alice sees the position before White's first move — 2
+    checks:
+    - Alice sees the position before White's first move
+    - Alice sees White to move
+    - Alice's chessboard faces Black
+    gherkin:
+    - specs/chess-board/board-opening.feature:9 — Either orientation starts with the normal opening
+    exampleRow:
+    - '7'
+  A fresh chessboard has no selection or annotations:
+    description: A fresh chessboard has no selection or annotations
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing White when Alice's activity has no chessboard yet
+    endsIn: Alice sees the position before White's first move — 1
+    checks:
+    - Alice sees no selection or legal destinations
+    - Alice sees no last move marked
+    - Alice sees no personal annotations
+    - Alice sees no activity annotations
+    gherkin:
+    - specs/chess-board/board-opening.feature:21 — A fresh chessboard has no selection or annotations
+    exampleRow: []
+  The first keyboard square follows orientation:
+    description: The first keyboard square follows orientation
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing White when Alice's activity has no chessboard yet
+    endsIn: Alice sees the position before White's first move — 1
+    checks:
+    - Alice's first keyboard square is a1
+    gherkin:
+    - specs/chess-board/board-opening.feature:31 — The first keyboard square follows orientation
+    exampleRow:
+    - '22'
+  The first keyboard square follows orientation (example 5):
+    description: The first keyboard square follows orientation
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing Black when Alice's activity has no chessboard yet
+    endsIn: Alice sees the position before White's first move — 2
+    checks:
+    - Alice's first keyboard square is h8
+    gherkin:
+    - specs/chess-board/board-opening.feature:31 — The first keyboard square follows orientation
+    exampleRow:
+    - '23'
+  Opening preserves the keyboard on another activity's control:
+    description: Opening preserves the keyboard on another activity's control
+    startingConditions:
+    - Alice's keyboard is on another activity's control
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard facing White when Alice's keyboard is on another activity's control and
+      Alice's activity has no chessboard yet
+    endsIn: Alice cannot have her keyboard taken from the other activity's control by opening the chessboard — 6
+    checks:
+    - Alice cannot have her keyboard taken from the other activity's control by opening the chessboard
+    gherkin:
+    - specs/chess-board/board-opening.feature:41 — Opening preserves the keyboard on another activity's control
+    exampleRow: []
+  Reopening the original position forgets an unconfirmed move and selection:
+    description: Reopening the original position forgets an unconfirmed move and selection
+    startingConditions:
+    - Alice's activity has closed its chessboard after the unconfirmed move from e2 to e4 with e7 selected
+    events:
+    - Alice's activity starts a chessboard facing White when Alice's activity has closed its chessboard after the
+      unconfirmed move from e2 to e4 with e7 selected
+    endsIn: Alice sees the position before White's first move — 7
+    checks:
+    - Alice sees the position before White's first move
+    - Alice sees no selection or legal destinations
+    - Alice sees no last move marked
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-opening.feature:50 — Reopening the original position forgets an unconfirmed move and
+      selection
+    exampleRow: []

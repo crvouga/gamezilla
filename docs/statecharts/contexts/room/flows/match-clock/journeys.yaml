@@ -1,0 +1,184 @@
+journeys:
+  Starting a match gives each player their time with White to move:
+    description: Starting a match gives each player their time with White to move
+    startingConditions:
+    - White and Black are in the room
+    events:
+    - White starts a match with 10 seconds for White and 8 seconds for Black
+    endsIn: White is to move — 1
+    checks:
+    - White is to move
+    - White has 10 seconds left and Black has 8 seconds left
+    gherkin:
+    - specs/room/match-clock.feature:10 — Starting a match gives each player their time with White to move
+    exampleRow: []
+  A match that is playing cannot be started again:
+    description: A match that is playing cannot be started again
+    startingConditions:
+    - White and Black have started a match with 10 seconds for White and 10 seconds for Black
+    - 3 seconds have passed
+    events:
+    - Black starts a match with 20 seconds for White and 20 seconds for Black
+    endsIn: the match is still playing with White to move — 2
+    checks:
+    - the match is still playing with White to move
+    - White has 7 seconds left and Black has 10 seconds left
+    gherkin:
+    - specs/room/match-clock.feature:16 — A match that is playing cannot be started again
+    exampleRow: []
+  A match that is over cannot be started again:
+    description: A match that is over cannot be started again
+    startingConditions:
+    - White and Black have started a match with 4 seconds for White and 4 seconds for Black
+    - 5 seconds have passed
+    events:
+    - White starts a match with 10 seconds for White and 10 seconds for Black
+    endsIn: White and Black still see Black win on time — 3
+    checks:
+    - White and Black still see Black win on time
+    gherkin:
+    - specs/room/match-clock.feature:23 — A match that is over cannot be started again
+    exampleRow: []
+  White loses on time when White's time runs out:
+    description: White loses on time when White's time runs out
+    startingConditions:
+    - White and Black have started a match with 5 seconds for White and 8 seconds for Black
+    events:
+    - 6 seconds pass
+    endsIn: White and Black both see Black win on time — 4
+    checks:
+    - White and Black both see Black win on time
+    gherkin:
+    - specs/room/match-clock.feature:31 — White loses on time when White's time runs out
+    exampleRow: []
+  The match plays on while the player to move has time left:
+    description: The match plays on while the player to move has time left
+    startingConditions:
+    - White and Black have started a match with 5 seconds for White and 8 seconds for Black
+    events:
+    - 4 seconds pass when White and Black have started a match with 5 seconds for White and 8 seconds for Black
+    endsIn: the match is still playing with White to move — 5
+    checks:
+    - the match is still playing with White to move
+    - White has 1 second left and Black has 8 seconds left
+    gherkin:
+    - specs/room/match-clock.feature:36 — The match plays on while the player to move has time left
+    exampleRow: []
+  Black loses on time when Black's own time runs out:
+    description: Black loses on time when Black's own time runs out
+    startingConditions:
+    - White and Black have started a match with 10 seconds for White and 10 seconds for Black
+    - White has moved after 3 seconds
+    events:
+    - 11 seconds pass
+    endsIn: White and Black both see White win on time — 6
+    checks:
+    - White and Black both see White win on time
+    gherkin:
+    - specs/room/match-clock.feature:42 — Black loses on time when Black's own time runs out
+    exampleRow: []
+  White's time stands still while Black is to move:
+    description: White's time stands still while Black is to move
+    startingConditions:
+    - White and Black have started a match with 10 seconds for White and 10 seconds for Black
+    - White has moved after 3 seconds
+    events:
+    - 4 seconds pass when White and Black have started a match with 10 seconds for White and 10 seconds for Black
+      and White has moved after 3 seconds
+    endsIn: White has 7 seconds left and Black has 6 seconds left — 7
+    checks:
+    - White has 7 seconds left and Black has 6 seconds left
+    gherkin:
+    - specs/room/match-clock.feature:51 — White's time stands still while Black is to move
+    exampleRow: []
+  A move keeps the mover's time left and passes the clock to the opponent:
+    description: A move keeps the mover's time left and passes the clock to the opponent
+    startingConditions:
+    - White and Black have started a match with 10 seconds for White and 10 seconds for Black
+    - 3 seconds have passed
+    events:
+    - White moves when White and Black have started a match with 10 seconds for White and 10 seconds for Black and
+      3 seconds have passed
+    endsIn: Black is to move — 8
+    checks:
+    - Black is to move
+    - White has 7 seconds left and Black has 10 seconds left
+    gherkin:
+    - specs/room/match-clock.feature:59 — A move keeps the mover's time left and passes the clock to the opponent
+    exampleRow: []
+  Black cannot move while White is to move:
+    description: Black cannot move while White is to move
+    startingConditions:
+    - White and Black have started a match with 10 seconds for White and 10 seconds for Black
+    events:
+    - Black moves
+    endsIn: the match is still playing with White to move — 9
+    checks:
+    - the match is still playing with White to move
+    gherkin:
+    - specs/room/match-clock.feature:66 — Black cannot move while White is to move
+    exampleRow: []
+  Nobody can move before the match starts:
+    description: Nobody can move before the match starts
+    startingConditions:
+    - White and Black are in the room
+    events:
+    - White moves when White and Black are in the room
+    endsIn: the match has still not started — 10
+    checks:
+    - the match has still not started
+    gherkin:
+    - specs/room/match-clock.feature:71 — Nobody can move before the match starts
+    exampleRow: []
+  A move after the mover has run out of time is too late:
+    description: A move after the mover has run out of time is too late
+    startingConditions:
+    - White and Black have started a match with 4 seconds for White and 4 seconds for Black
+    - White's phone has been offline for 5 seconds
+    events:
+    - White moves when White and Black have started a match with 4 seconds for White and 4 seconds for Black and
+      White's phone has been offline for 5 seconds
+    endsIn: White is told the move came too late — 11
+    checks:
+    - White is told the move came too late
+    gherkin:
+    - specs/room/match-clock.feature:76 — A move after the mover has run out of time is too late
+    exampleRow: []
+  White sees the result once back online after running out of time:
+    description: White sees the result once back online after running out of time
+    startingConditions:
+    - White and Black have started a match with 4 seconds for White and 4 seconds for Black
+    - White's phone has been offline for 5 seconds
+    events:
+    - White's phone comes back online
+    endsIn: White and Black both see Black win on time — 12
+    checks:
+    - White and Black both see Black win on time
+    gherkin:
+    - specs/room/match-clock.feature:85 — White sees the result once back online after running out of time
+    exampleRow: []
+  A claim before the opponent's time has run out changes nothing:
+    description: A claim before the opponent's time has run out changes nothing
+    startingConditions:
+    - White and Black have started a match with 8 seconds for White and 8 seconds for Black
+    events:
+    - Black claims White has run out of time
+    endsIn: the match is still playing with White to move — 13
+    checks:
+    - the match is still playing with White to move
+    gherkin:
+    - specs/room/match-clock.feature:93 — A claim before the opponent's time has run out changes nothing
+    exampleRow: []
+  The match is still won on time after an early claim:
+    description: The match is still won on time after an early claim
+    startingConditions:
+    - White and Black have started a match with 8 seconds for White and 8 seconds for Black
+    - Black has claimed White has run out of time
+    events:
+    - 9 seconds pass
+    endsIn: White and Black both see Black win on time — 14
+    checks:
+    - White and Black both see Black win on time
+    gherkin:
+    - specs/room/match-clock.feature:98 — The match is still won on time after an early claim
+    exampleRow: []

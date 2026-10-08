@@ -1,0 +1,34 @@
+journeys:
+  A note whose save is never confirmed shows exactly once for everyone:
+    description: A note whose save is never confirmed shows exactly once for everyone
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app will not hear back about its next save
+    events:
+    - Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip' and Alice's
+      app will not hear back about its next save
+    endsIn: Alice sees the note "Groceries" once — 1
+    checks:
+    - Alice sees the note "Groceries" once
+    - Bob sees the note "Groceries" once
+    gherkin:
+    - specs/sync-engine/notes-saved-once.feature:12 — A note whose save is never confirmed shows exactly once for
+      everyone
+    exampleRow: []
+  A note whose save is never confirmed shows once even after a crash:
+    description: A note whose save is never confirmed shows once even after a crash
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app will not hear back about its next save
+    events:
+    - Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip' and Alice's
+      app will not hear back about its next save
+    - Alice's app crashes and reopens
+    endsIn: Alice sees the note "Groceries" once — 2 step 2
+    checks:
+    - Alice sees the note "Groceries" once
+    - Bob sees the note "Groceries" once
+    gherkin:
+    - specs/sync-engine/notes-saved-once.feature:17 — A note whose save is never confirmed shows once even after
+      a crash
+    exampleRow: []

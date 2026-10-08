@@ -1,0 +1,8 @@
+stateDiagram-v2
+  state "Viewing Notes count once" as s0
+  state "Alice sees the note 'Groceries' once — 1" as s1
+  state "Alice sees the note 'Groceries' once — 2 step 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip' and Alice's app will not hear back about its next save
+  s1 --> s2: Alice's app crashes and reopens
+  s2 --> [*]

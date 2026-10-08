@@ -1,0 +1,46 @@
+journeys:
+  What happens in a space can reach everyone in it:
+    description: What happens in a space can reach everyone in it
+    startingConditions: []
+    events:
+    - Opens the described view when What happens in a space can reach everyone in it
+    endsIn: what happens in a space can reach everyone in it — 1
+    checks:
+    - what happens in a space can reach everyone in it
+    gherkin:
+    - specs/spaces/live-updates.feature:10 — What happens in a space can reach everyone in it
+    exampleRow: []
+  The app can pass on what happens in a space:
+    description: The app can pass on what happens in a space
+    startingConditions: []
+    events:
+    - Opens the described view when The app can pass on what happens in a space
+    endsIn: the app can pass on what happens in a space — 2
+    checks:
+    - the app can pass on what happens in a space
+    gherkin:
+    - specs/spaces/live-updates.feature:13 — The app can pass on what happens in a space
+    exampleRow: []
+  People's apps follow this environment's spaces:
+    description: People's apps follow this environment's spaces
+    startingConditions: []
+    events:
+    - Opens the described view when People's apps follow this environment's spaces
+    endsIn: people's apps follow what happens in this environment's spaces — 3
+    checks:
+    - people's apps follow what happens in this environment's spaces
+    gherkin:
+    - specs/spaces/live-updates.feature:16 — People's apps follow this environment's spaces
+    exampleRow: []
+  Nobody can listen in on spaces with a well-known password:
+    description: Nobody can listen in on spaces with a well-known password
+    startingConditions: []
+    events:
+    - Opens the described view when Nobody can listen in on spaces with a well-known password
+    endsIn: nobody can listen in on spaces or disturb them with the default password — 4
+    checks:
+    - nobody can listen in on spaces or disturb them with the default password
+    - nobody can listen in on spaces or disturb them with a publicly known password
+    gherkin:
+    - specs/spaces/live-updates.feature:19 — Nobody can listen in on spaces with a well-known password
+    exampleRow: []

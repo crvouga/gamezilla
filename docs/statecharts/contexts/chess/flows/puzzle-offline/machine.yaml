@@ -1,0 +1,76 @@
+id: chess-puzzle-offline
+initial: Viewing Puzzles offline
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Puzzles offline:
+    meta:
+      description: The person is at the place where puzzles offline.
+      snapshot: the-person-is-at-the-place-where-puzzles-offline
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-offline.feature:2
+    'on':
+      Alice opens puzzles in their space:
+        target: Alice is told puzzles need a connection within 15 seconds — 1
+        meta:
+          source:
+          - specs/chess/puzzle-offline.feature:12
+          condition:
+          - Alice is signed in
+          - Alice went offline before any puzzles reached their device
+          example: Offline with no puzzles on the device, Alice is told puzzles need a connection
+      the connection comes back:
+        target: Alice has a puzzle on the board within 30 seconds — 2
+        meta:
+          source:
+          - specs/chess/puzzle-offline.feature:18
+          condition:
+          - Alice is signed in
+          - Alice went offline before any puzzles reached their device
+          - Alice has opened puzzles in their space
+          example: Coming back online brings a puzzle to an empty offline feed
+  Alice is told puzzles need a connection within 15 seconds — 1:
+    meta:
+      description: The person observes that alice is told puzzles need a connection within 15 seconds.
+      snapshot: the-person-observes-that-alice-is-told-puzzles-need-a-connection-within-15-seconds
+      recognize: []
+      checks:
+      - Alice is told puzzles need a connection within 15 seconds
+      - Alice has no puzzle on the board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-offline.feature:12
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has a puzzle on the board within 30 seconds — 2:
+    meta:
+      description: The person observes that alice has a puzzle on the board within 30 seconds.
+      snapshot: the-person-observes-that-alice-has-a-puzzle-on-the-board-within-30-seconds
+      recognize: []
+      checks:
+      - Alice has a puzzle on the board within 30 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-offline.feature:18
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Viewing Username rules" as s0
+  state "Alice's username change is refused with 'Username is too short' — 1" as s1
+  state "Alice's username change is refused with 'Username is too long' — 2" as s2
+  state "Alice's username change is refused with 'Username can only use letters, numbers, and _' — 3" as s3
+  state "Alice's username change is refused with 'That username is not allowed' — 4" as s4
+  state "Alice's username change is refused with 'That username is not allowed' — 5" as s5
+  state "Alice's profile shows @scunthorpe_fan — 6" as s6
+  state "Alice's username change is refused with 'Username was changed recently' — 7" as s7
+  state "Alice's username change is refused with 'You're offline' — 8" as s8
+  state "Alice's profile shows @chess_fan_7 — 9" as s9
+  state "Alice's profile shows @alice_one — 10" as s10
+  state "Bob's username change is refused with 'Username is taken' — 11" as s11
+  state "Alice's profile shows a stand-in name — 12" as s12
+  state "Alice's profile shows @chess_cheater — 13" as s13
+  state "Alice's profile shows @alice_one — 14" as s14
+  state "Alice's username change is refused with 'That username is not allowed' — 15" as s15
+  state "Alice's profile shows a stand-in name — 16" as s16
+  [*] --> s0
+  s0 --> s1: Alice tries to use username 'ab'
+  s0 --> s2: Alice tries to use username 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  s0 --> s3: Alice tries to use username 'no spaces!'
+  s0 --> s4: Alice tries to use username 'sh1thead_99'
+  s0 --> s5: Alice tries to use username 'official_support'
+  s0 --> s6: Alice tries to use username 'scunthorpe_fan'
+  s0 --> s7: Alice tries to use username 'alice_two' when Alice has just renamed themselves to @alice_one
+  s0 --> s8: Alice tries to use username 'alice_two' when Alice's username is @alice_one and Alice is offline
+  s0 --> s9: Alice tries to use username 'Chess_Fan_7'
+  s0 --> s10: Alice starts renaming themselves to @never_saved and leaves without saving
+  s0 --> s11: Bob tries to use username 'QUEEN_GAMBIT'
+  s0 --> s12: the team stops allowing the username @chess_cheater when Alice's username is @chess_cheater
+  s0 --> s13: the team starts allowing the username @chess_cheater again
+  s0 --> s14: Alice renames themselves to @alice_one
+  s0 --> s15: Alice tries to use username 'chess_cheater'
+  s0 --> s16: the team stops allowing the username @chess_cheater when Alice's username is @chess_cheater and Alice is offline
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]

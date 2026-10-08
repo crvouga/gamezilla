@@ -1,0 +1,57 @@
+{
+  "id": "billing-membership-interval-switch",
+  "initial": "Viewing Switch Plus plans",
+  "meta": {
+    "context": "Billing",
+    "kind": "flow",
+    "owner": "Billing owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": ["libs/billing-client/src/use-my-membership-row.ts"],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Switch Plus plans": {
+      "meta": {
+        "description": "The person is at the place where switch Plus plans.",
+        "snapshot": "the-person-is-at-the-place-where-switch-plus-plans",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/billing/membership-interval-switch.feature:2"]
+      },
+      "on": {
+        "Alice switches the membership to the yearly plan in the billing portal": {
+          "target": "Alice's membership is active on the yearly plan — 1",
+          "meta": {
+            "source": ["specs/billing/membership-interval-switch.feature:12"],
+            "condition": [
+              "Alice has subscribed to Plus",
+              "Alice's free trial has ended"
+            ],
+            "example": "Switching to yearly after the trial starts a paid year right away"
+          }
+        }
+      }
+    },
+    "Alice's membership is active on the yearly plan — 1": {
+      "meta": {
+        "description": "The person observes that alice's membership is active on the yearly plan.",
+        "snapshot": "the-person-observes-that-alice-s-membership-is-active-on-the-yearly-plan",
+        "recognize": [],
+        "checks": [
+          "Alice's membership is active on the yearly plan",
+          "Alice's renewal date moves later"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/billing/membership-interval-switch.feature:12"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

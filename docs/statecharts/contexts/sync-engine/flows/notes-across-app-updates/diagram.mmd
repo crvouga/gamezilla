@@ -1,0 +1,30 @@
+stateDiagram-v2
+  state "Viewing Notes across app updates" as s0
+  state "The person remains at the described place until the next choice — 1 step 1" as s1
+  state "Alice sees the note 'Groceries' saying 'milk' — 1 step 2" as s2
+  state "Alice sees the note 'Groceries' saying 'milk' — 2" as s3
+  state "Alice sees the note 'Groceries' saying 'milk' — 3" as s4
+  state "The person remains at the described place until the next choice — 4 step 1" as s5
+  state "Alice sees the note 'Groceries' coloured green — 4 step 2" as s6
+  state "The person remains at the described place until the next choice — 5 step 1" as s7
+  state "Alice sees the note 'Groceries' tagged 'shopping' — 5 step 2" as s8
+  state "Alice sees the note 'Groceries' coloured green — 6" as s9
+  state "Alice sees the note 'Groceries' saying 'eggs' — 7" as s10
+  [*] --> s0
+  s0 --> s1: Alice's app updates to a version that fetches every note again
+  s0 --> s3: Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to a version that gives notes a colour and Alice has written the note 'Groceries' saying 'milk'
+  s0 --> s4: Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to a version that tags notes and Alice has written the note 'Groceries' saying 'milk'
+  s0 --> s5: Alice's app goes back to the earlier version when Alice's app has updated to a version that gives notes a colour and Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the colour green
+  s0 --> s7: Alice's app goes back to the earlier version when Alice's app has updated to a version that tags notes and Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the tag 'shopping'
+  s0 --> s9: Alice's app updates to a version that gives notes a colour
+  s0 --> s10: Bob writes the note 'Groceries' saying 'eggs'
+  s1 --> s2: Alice's app comes back online
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> s6: Alice's app updates to the version that gives notes a colour once more
+  s6 --> [*]
+  s7 --> s8: Alice's app updates to the version that tags notes once more
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

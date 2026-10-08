@@ -1,0 +1,15 @@
+journeys:
+  A Plus member whose payment failed keeps paid access while offline:
+    description: A Plus member whose payment failed keeps paid access while offline
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's payment has failed
+    events:
+    - Alice loses the connection
+    endsIn: Alice has paid access — 1
+    checks:
+    - Alice has paid access
+    gherkin:
+    - specs/billing/billing-offline-grace.feature:9 — A Plus member whose payment failed keeps paid access while
+      offline
+    exampleRow: []

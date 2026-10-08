@@ -1,0 +1,139 @@
+id: profile-sign-in
+initial: Viewing Sign in and out
+meta:
+  context: Identity
+  kind: flow
+  owner: Identity owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Sign in and out:
+    meta:
+      description: The person is at the place where sign in and out.
+      snapshot: the-person-is-at-the-place-where-sign-in-and-out
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:2
+    'on':
+      ? Alice signs in with Google when Alice is a guest and Alice's username is @alice_guest and Alice has saved
+        an avatar with seed 'harbor' and style 'Bottts'
+      : target: Alice's profile shows @alice_guest — 1
+        meta:
+          source:
+          - specs/profile/sign-in.feature:10
+          condition:
+          - Alice is a guest
+          - Alice's username is @alice_guest
+          - Alice has saved an avatar with seed "harbor" and style "Bottts"
+          example: A guest keeps their profile when signing in
+      Alice signs out:
+        target: Alice is signed out — 2
+        meta:
+          source:
+          - specs/profile/sign-in.feature:18
+          condition:
+          - Alice is signed in with Google
+          example: Signing out signs this device out
+      ? Alice signs in with Google when Alice is signed in with Google and Alice's username is @alice_account and
+        Alice has signed out
+      : target: Alice's profile shows @alice_account — 3
+        meta:
+          source:
+          - specs/profile/sign-in.feature:23
+          condition:
+          - Alice is signed in with Google
+          - Alice's username is @alice_account
+          - Alice has signed out
+          example: Signing back in brings back the account's profile
+      Alice's account opens on another device:
+        target: Alice's other device shows @alice_laptop — 4
+        meta:
+          source:
+          - specs/profile/sign-in.feature:30
+          condition:
+          - Alice is signed in
+          - Alice's username is @alice_laptop
+          example: A new device shows the account's current username
+      Alice renames themselves to @alice_second on their other device:
+        target: Alice's profile shows @alice_second within 15 seconds — 5
+        meta:
+          source:
+          - specs/profile/sign-in.feature:36
+          condition:
+          - Alice is signed in
+          - Alice is also signed in on another device
+          example: A username change on one device reaches the other
+  Alice's profile shows @alice_guest — 1:
+    meta:
+      description: The person observes that alice's profile shows @alice_guest.
+      snapshot: the-person-observes-that-alice-s-profile-shows-alice-guest
+      recognize: []
+      checks:
+      - Alice's profile shows @alice_guest
+      - Alice's saved avatar has seed "harbor"
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:10
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is signed out — 2:
+    meta:
+      description: The person observes that alice is signed out.
+      snapshot: the-person-observes-that-alice-is-signed-out
+      recognize: []
+      checks:
+      - Alice is signed out
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:18
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's profile shows @alice_account — 3:
+    meta:
+      description: The person observes that alice's profile shows @alice_account.
+      snapshot: the-person-observes-that-alice-s-profile-shows-alice-account
+      recognize: []
+      checks:
+      - Alice's profile shows @alice_account
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:23
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's other device shows @alice_laptop — 4:
+    meta:
+      description: The person observes that alice's other device shows @alice_laptop.
+      snapshot: the-person-observes-that-alice-s-other-device-shows-alice-laptop
+      recognize: []
+      checks:
+      - Alice's other device shows @alice_laptop
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's profile shows @alice_second within 15 seconds — 5:
+    meta:
+      description: The person observes that alice's profile shows @alice_second within 15 seconds.
+      snapshot: the-person-observes-that-alice-s-profile-shows-alice-second-within-15-seconds
+      recognize: []
+      checks:
+      - Alice's profile shows @alice_second within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/profile/sign-in.feature:36
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

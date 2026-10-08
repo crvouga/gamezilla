@@ -1,0 +1,44 @@
+journeys:
+  Returning before time runs out keeps only the time left:
+    description: Returning before time runs out keeps only the time left
+    startingConditions:
+    - White and Black started a match as the room became unavailable
+    - 2 seconds have passed
+    events:
+    - the room is available again when White and Black started a match as the room became unavailable and 2 seconds
+      have passed
+    endsIn: White has 2 seconds left and Black has 4 seconds left — 1
+    checks:
+    - White has 2 seconds left and Black has 4 seconds left
+    gherkin:
+    - specs/room/match-recovery.feature:9 — Returning before time runs out keeps only the time left
+    exampleRow: []
+  A start its maker did not hear back about still runs out of time:
+    description: A start its maker did not hear back about still runs out of time
+    startingConditions:
+    - White and Black started a match as the room became unavailable
+    - 4 seconds have passed
+    events:
+    - the room is available again when White and Black started a match as the room became unavailable and 4 seconds
+      have passed
+    endsIn: White and Black both see Black win on time — 2
+    checks:
+    - White and Black both see Black win on time
+    gherkin:
+    - specs/room/match-recovery.feature:15 — A start its maker did not hear back about still runs out of time
+    exampleRow: []
+  An interrupted move cannot stop the next player's clock:
+    description: An interrupted move cannot stop the next player's clock
+    startingConditions:
+    - White and Black have started a match with 4 seconds for White and 4 seconds for Black
+    - White has moved as the room became unavailable
+    - 4 seconds have passed
+    events:
+    - the room is available again when White and Black have started a match with 4 seconds for White and 4 seconds
+      for Black and White has moved as the room became unavailable and 4 seconds have passed
+    endsIn: White and Black both see White win on time — 3
+    checks:
+    - White and Black both see White win on time
+    gherkin:
+    - specs/room/match-recovery.feature:21 — An interrupted move cannot stop the next player's clock
+    exampleRow: []

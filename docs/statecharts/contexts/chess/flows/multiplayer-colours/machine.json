@@ -1,0 +1,115 @@
+{
+  "id": "chess-multiplayer-colours",
+  "initial": "Viewing Fair colours in multiplayer chess",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-matchmaking-client/src/use-multiplayer-data.ts",
+      "libs/chess-matchmaking-client/src/use-multiplayer-controls.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-waiting.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-screen.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-ratings.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Fair colours in multiplayer chess": {
+      "meta": {
+        "description": "The person is at the place where fair colours in multiplayer chess.",
+        "snapshot": "the-person-is-at-the-place-where-fair-colours-in-multiplayer-chess",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-colours.feature:2"]
+      },
+      "on": {
+        "a matchmaking match is formed for Alice and Bob when Alice played White and Bob played Black in their only multiplayer games and Alice and Bob are looking for 5+0 chess opponents": {
+          "target": "Alice is Black and Bob is White in their new multiplayer game — 1",
+          "meta": {
+            "source": ["specs/chess/multiplayer-colours.feature:9"],
+            "condition": [
+              "Alice played White and Bob played Black in their only multiplayer games",
+              "Alice and Bob are looking for 5+0 chess opponents"
+            ],
+            "example": "The person who played White last time plays Black"
+          }
+        },
+        "a matchmaking match is formed for Alice and Bob when Alice played White in her only multiplayer game and Bob has played none and Alice began looking for a 5+0 chess opponent before Bob did": {
+          "target": "Alice is Black and Bob is White in their new multiplayer game — 2",
+          "meta": {
+            "source": ["specs/chess/multiplayer-colours.feature:15"],
+            "condition": [
+              "Alice played White in her only multiplayer game and Bob has played none",
+              "Alice began looking for a 5+0 chess opponent before Bob did"
+            ],
+            "example": "Looking for a chess opponent first does not earn White"
+          }
+        },
+        "a matchmaking match is formed for Alice and Bob when Alice and Bob each played White in their only multiplayer game and Alice and Bob are looking for 5+0 chess opponents": {
+          "target": "one is White and the other is Black — 3",
+          "meta": {
+            "source": ["specs/chess/multiplayer-colours.feature:24"],
+            "condition": [
+              "Alice and Bob each played White in their only multiplayer game",
+              "Alice and Bob are looking for 5+0 chess opponents"
+            ],
+            "example": "Two people who each played White once get opposite colours"
+          }
+        }
+      }
+    },
+    "Alice is Black and Bob is White in their new multiplayer game — 1": {
+      "meta": {
+        "description": "The person observes that alice is Black and Bob is White in their new multiplayer game.",
+        "snapshot": "the-person-observes-that-alice-is-black-and-bob-is-white-in-their-new-multiplayer-gam",
+        "recognize": [],
+        "checks": [
+          "Alice is Black and Bob is White in their new multiplayer game"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-colours.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is Black and Bob is White in their new multiplayer game — 2": {
+      "meta": {
+        "description": "The person observes that alice is Black and Bob is White in their new multiplayer game.",
+        "snapshot": "the-person-observes-that-alice-is-black-and-bob-is-white-in-their-new-multiplayer-gam",
+        "recognize": [],
+        "checks": [
+          "Alice is Black and Bob is White in their new multiplayer game"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-colours.feature:15"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "one is White and the other is Black — 3": {
+      "meta": {
+        "description": "The person observes that one is White and the other is Black.",
+        "snapshot": "the-person-observes-that-one-is-white-and-the-other-is-black",
+        "recognize": [],
+        "checks": [
+          "one is White and the other is Black",
+          "White has the first multiplayer turn"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-colours.feature:24"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,127 @@
+id: friends-friend-request-decline-cancel
+initial: Viewing Friend request declined or cancelled
+meta:
+  context: Friends
+  kind: flow
+  owner: Friends owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/friends-client/src/use-decline-friend-request.ts
+  - libs/friends-client/src/use-cancel-friend-request.ts
+  - libs/friends-client/src/use-send-friend-request.ts
+  - libs/friends-client/src/use-friend-request-ids.ts
+  - libs/friends-client/src/use-accept-friend-request.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Friend request declined or cancelled:
+    meta:
+      description: The person is at the place where friend request declined or cancelled.
+      snapshot: the-person-is-at-the-place-where-friend-request-declined-or-cancelled
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-request-decline-cancel.feature:2
+    'on':
+      Bob declines Alice's friend request:
+        target: Bob's inbox does not show a friend request from Alice — 1
+        meta:
+          source:
+          - specs/friends/friend-request-decline-cancel.feature:13
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          example: Bob declines and neither is a friend
+      ? Alice asks Bob again when Alice and Bob are signed in and Alice has sent Bob a friend request and Bob has
+        declined Alice's friend request
+      : target: Alice's request to Bob is refused with "Try again later" — 2
+        meta:
+          source:
+          - specs/friends/friend-request-decline-cancel.feature:20
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          - Bob has declined Alice's friend request
+          example: Asking again straight after a decline is refused with a reason
+      Alice cancels the friend request to Bob:
+        target: Alice's search offers to ask Bob — 3
+        meta:
+          source:
+          - specs/friends/friend-request-decline-cancel.feature:29
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          example: Alice cancels and the request is gone from Bob's inbox
+      ? Alice asks Bob again when Alice and Bob are signed in and Alice has sent Bob a friend request and Alice
+        has cancelled the friend request to Bob
+      : target: Bob's inbox shows a friend request from Alice within 15 seconds — 4
+        meta:
+          source:
+          - specs/friends/friend-request-decline-cancel.feature:34
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          - Alice has cancelled the friend request to Bob
+          example: Cancelling lets the asker ask again
+  Bob's inbox does not show a friend request from Alice — 1:
+    meta:
+      description: The person observes that bob's inbox does not show a friend request from Alice.
+      snapshot: the-person-observes-that-bob-s-inbox-does-not-show-a-friend-request-from-alice
+      recognize: []
+      checks:
+      - Bob's inbox does not show a friend request from Alice
+      - Bob's friends list does not show Alice
+      - Alice's search offers to ask Bob again within 15 seconds
+      - Alice's friends list does not show Bob
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-request-decline-cancel.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's request to Bob is refused with "Try again later" — 2:
+    meta:
+      description: The person observes that alice's request to Bob is refused with "Try again later".
+      snapshot: the-person-observes-that-alice-s-request-to-bob-is-refused-with-try-again-later
+      recognize: []
+      checks:
+      - Alice's request to Bob is refused with "Try again later"
+      - Bob's inbox does not show a friend request from Alice
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-request-decline-cancel.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's search offers to ask Bob — 3:
+    meta:
+      description: The person observes that alice's search offers to ask Bob.
+      snapshot: the-person-observes-that-alice-s-search-offers-to-ask-bob
+      recognize: []
+      checks:
+      - Alice's search offers to ask Bob
+      - Bob's inbox stops showing the friend request from Alice within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-request-decline-cancel.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob's inbox shows a friend request from Alice within 15 seconds — 4:
+    meta:
+      description: The person observes that bob's inbox shows a friend request from Alice within 15 seconds.
+      snapshot: the-person-observes-that-bob-s-inbox-shows-a-friend-request-from-alice-within-15-seco
+      recognize: []
+      checks:
+      - Bob's inbox shows a friend request from Alice within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-request-decline-cancel.feature:34
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

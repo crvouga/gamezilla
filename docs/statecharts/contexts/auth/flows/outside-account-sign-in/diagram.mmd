@@ -1,0 +1,42 @@
+stateDiagram-v2
+  state "Choosing a sign-in method" as s0
+  state "Told a connection is needed" as s1
+  state "At Google or Apple" as s2
+  state "Confirming a matching account" as s3
+  state "Told matching proof expired" as s4
+  state "Told provider sign-in failed" as s5
+  state "Told account proof does not match" as s6
+  state "Signed in to the chosen account" as s7
+  state "Guest profile kept" as s8
+  state "Choosing sign-in methods to connect" as s9
+  state "Told the method cannot be connected" as s10
+  state "Confirming method removal" as s11
+  state "Told the last method must remain" as s12
+  [*] --> s0
+  s0 --> s2: Chooses an available provider online
+  s0 --> s1: Chooses a provider offline
+  s1 --> s0: Connection returns
+  s2 --> s7: Provider identifies an existing account
+  s2 --> s7: Provider identifies a new verified address match without an Apple relay
+  s2 --> s3: Provider identifies an address match needing account proof
+  s2 --> s7: Provider identifies a new account without a match
+  s2 --> s5: Provider has trouble
+  s2 --> s8: Abandons provider sign-in
+  s3 --> s7: Proves the matching account
+  s3 --> s7: Keeps the accounts separate
+  s3 --> s6: Proves a different account
+  s3 --> s4: The ten-minute chance to confirm expires
+  s4 --> s0: Starts sign-in again
+  s5 --> s2: Tries provider sign-in again
+  s6 --> s3: Tries proving the matching account again
+  s7 --> s9: Opens connected sign-in methods
+  s7 --> s0: The thirty-day sign-in expires
+  s7 --> s0: SignedOut
+  s8 --> s0: Starts signing in again
+  s9 --> s7: Connects an available method of a different provider
+  s9 --> s10: Connects a method already owned elsewhere or of the same provider
+  s9 --> s11: Removes a method while another remains
+  s9 --> s12: Removes the only method
+  s10 --> s9: Returns to connected methods
+  s11 --> s9: Confirms removal
+  s12 --> s9: Returns to connected methods

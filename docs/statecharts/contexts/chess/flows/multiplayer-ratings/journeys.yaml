@@ -1,0 +1,130 @@
+journeys:
+  A blitz rating loses its "?" once it settles:
+    description: A blitz rating loses its "?" once it settles
+    startingConditions:
+    - Alice's blitz rating is one rated multiplayer game from settling
+    - Alice is White and Bob is Black in a 3+2 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice's blitz rating is one rated multiplayer game from settling and Alice
+      is White and Bob is Black in a 3+2 multiplayer game after e4 and e5
+    endsIn: Alice sees her blitz rating without the "?" — 1
+    checks:
+    - Alice sees her blitz rating without the "?"
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:9 — A blitz rating loses its "?" once it settles
+    exampleRow: []
+  A new account's blitz rating still shows the "?" after one multiplayer result:
+    description: A new account's blitz rating still shows the "?" after one multiplayer result
+    startingConditions:
+    - Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and
+      e5
+    endsIn: Alice's blitz rating is still shown with the "?" — 2
+    checks:
+    - Alice's blitz rating is still shown with the "?"
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:15 — A new account's blitz rating still shows the "?" after one multiplayer
+      result
+    exampleRow: []
+  A multiplayer win between two new accounts raises one rating as much as it lowers the other:
+    description: A multiplayer win between two new accounts raises one rating as much as it lowers the other
+    startingConditions:
+    - Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and
+      e5
+    endsIn: Alice's blitz rating is still shown with the "?" — 2
+    checks:
+    - Alice sees her blitz rating rise above 1500
+    - Bob sees his blitz rating fall below 1500 by the same amount
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:25 — A multiplayer win between two new accounts raises one rating
+      as much as it lowers the other
+    exampleRow: []
+  A game drawn by agreement between two new accounts leaves both at 1500:
+    description: A game drawn by agreement between two new accounts leaves both at 1500
+    startingConditions:
+    - Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
+    - Alice has offered Bob a multiplayer draw
+    events:
+    - Bob accepts the multiplayer draw
+    endsIn: Alice's blitz rating is still 1500 — 4
+    checks:
+    - Alice's blitz rating is still 1500
+    - Bob's blitz rating is still 1500
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:30 — A game drawn by agreement between two new accounts leaves both
+      at 1500
+    exampleRow: []
+  Resigning again counts the rated multiplayer game only once:
+    description: Resigning again counts the rated multiplayer game only once
+    startingConditions:
+    - Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
+    - Bob resigned multiplayer chess and Alice won
+    events:
+    - Bob resigns multiplayer chess again
+    endsIn: Alice still has 1 rated multiplayer game at blitz — 5
+    checks:
+    - Alice still has 1 rated multiplayer game at blitz
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:36 — Resigning again counts the rated multiplayer game only once
+    exampleRow: []
+  A rapid game moves the rapid rating and leaves blitz alone:
+    description: A rapid game moves the rapid rating and leaves blitz alone
+    startingConditions:
+    - Alice and Bob have new accounts and a 10+5 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice and Bob have new accounts and a 10+5 multiplayer game after e4 and
+      e5
+    endsIn: Alice sees her rapid rating rise above 1500 — 6
+    checks:
+    - Alice sees her rapid rating rise above 1500
+    - Alice's blitz rating is still 1500
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:43 — A rapid game moves the rapid rating and leaves blitz alone
+    exampleRow: []
+  A blitz multiplayer result cannot move a rapid rating:
+    description: A blitz multiplayer result cannot move a rapid rating
+    startingConditions:
+    - Alice has a rapid rating of 1700
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice has a rapid rating of 1700 and Alice is White and Bob is Black in
+      a 5+0 multiplayer game after e4 and e5
+    endsIn: Alice's rapid rating is still 1700 — 7
+    checks:
+    - Alice's rapid rating is still 1700
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:49 — A blitz multiplayer result cannot move a rapid rating
+    exampleRow: []
+  Close blitz ratings get two 3+0 searches matched:
+    description: Close blitz ratings get two 3+0 searches matched
+    startingConditions:
+    - Alice has a blitz rating of 1800 and a rapid rating of 1200
+    - Bob has a blitz rating of 1820
+    - Alice and Bob are looking for 3+0 chess opponents
+    events:
+    - matchmaking pairs people up when Alice has a blitz rating of 1800 and a rapid rating of 1200 and Bob has a
+      blitz rating of 1820 and Alice and Bob are looking for 3+0 chess opponents
+    endsIn: Alice and Bob have the same multiplayer game — 8
+    checks:
+    - Alice and Bob have the same multiplayer game
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:57 — Close blitz ratings get two 3+0 searches matched
+    exampleRow: []
+  Close rapid ratings alone do not get two 3+0 searches matched:
+    description: Close rapid ratings alone do not get two 3+0 searches matched
+    startingConditions:
+    - Alice has a blitz rating of 1200 and a rapid rating of 1800
+    - Bob has a blitz rating of 1820
+    - Alice and Bob are looking for 3+0 chess opponents
+    events:
+    - matchmaking pairs people up when Alice has a blitz rating of 1200 and a rapid rating of 1800 and Bob has a
+      blitz rating of 1820 and Alice and Bob are looking for 3+0 chess opponents
+    endsIn: Alice and Bob are still looking for other chess opponents — 9
+    checks:
+    - Alice and Bob are still looking for other chess opponents
+    gherkin:
+    - specs/chess/multiplayer-ratings.feature:64 — Close rapid ratings alone do not get two 3+0 searches matched
+    exampleRow: []

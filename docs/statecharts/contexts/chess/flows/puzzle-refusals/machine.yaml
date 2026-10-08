@@ -1,0 +1,699 @@
+id: chess-puzzle-refusals
+initial: Viewing Puzzle actions respect the position and result
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Puzzle actions respect the position and result:
+    meta:
+      description: The person is at the place where puzzle actions respect the position and result.
+      snapshot: the-person-is-at-the-place-where-puzzle-actions-respect-the-position-and-result
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:2
+    'on':
+      ? Alice tries another move after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by solving it cleanly
+      : target: Alice's action is refused because the puzzle is over — 1
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:14
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by solving it cleanly
+          example: A further move cannot change a finished puzzle
+      ? Alice tries another move after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by showing the solution
+      : target: Alice's action is refused because the puzzle is over — 2
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:14
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by showing the solution
+          example: A further move cannot change a finished puzzle
+      ? Alice tries another move after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by skipping it
+      : target: Alice's action is refused because the puzzle is over — 3
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:14
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by skipping it
+          example: A further move cannot change a finished puzzle
+      ? Alice tries to take a hint after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by solving it cleanly
+      : target: Alice's action is refused because the puzzle is over — 4
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:27
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by solving it cleanly
+          example: A hint cannot change a finished puzzle
+      ? Alice tries to take a hint after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by showing the solution
+      : target: Alice's action is refused because the puzzle is over — 5
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:27
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by showing the solution
+          example: A hint cannot change a finished puzzle
+      ? Alice tries to take a hint after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by skipping it
+      : target: Alice's action is refused because the puzzle is over — 6
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:27
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by skipping it
+          example: A hint cannot change a finished puzzle
+      ? Alice tries to skip after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by solving it cleanly
+      : target: Alice's action is refused because the puzzle is over — 7
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:39
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by solving it cleanly
+          example: Skipping cannot replace a finished result
+      ? Alice tries to skip after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by showing the solution
+      : target: Alice's action is refused because the puzzle is over — 8
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:39
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by showing the solution
+          example: Skipping cannot replace a finished result
+      ? Alice tries to skip after finishing when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has finished this puzzle by skipping it
+      : target: Alice's action is refused because the puzzle is over — 9
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:39
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by skipping it
+          example: Skipping cannot replace a finished result
+      ? Alice tries to show the solution after finishing when Alice is signed in and Alice is solving the four-move
+        mate-in-two puzzle and Alice has finished this puzzle by solving it cleanly
+      : target: Alice's action is refused because the puzzle is over — 10
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:51
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by solving it cleanly
+          example: Showing the solution cannot replace a finished result
+      ? Alice tries to show the solution after finishing when Alice is signed in and Alice is solving the four-move
+        mate-in-two puzzle and Alice has finished this puzzle by showing the solution
+      : target: Alice's action is refused because the puzzle is over — 11
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:51
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by showing the solution
+          example: Showing the solution cannot replace a finished result
+      ? Alice tries to show the solution after finishing when Alice is signed in and Alice is solving the four-move
+        mate-in-two puzzle and Alice has finished this puzzle by skipping it
+      : target: Alice's action is refused because the puzzle is over — 12
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:51
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has finished this puzzle by skipping it
+          example: Showing the solution cannot replace a finished result
+      ? Alice asks for a hint when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and
+        Alice has played g6-g5
+      : target: Alice's hint highlights the piece to move — 13
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:65
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          example: The current position accepts a hint
+      Alice tries a move from that earlier position:
+        target: Alice's action is refused because they are reviewing an earlier position — 14
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:71
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice is reviewing an earlier position in the puzzle
+          example: An earlier position cannot accept another move
+      Alice tries a hint from that earlier position:
+        target: Alice's action is refused because they are reviewing an earlier position — 15
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:80
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice is reviewing an earlier position in the puzzle
+          example: An earlier position cannot offer a hint for the opponent's move
+      Alice tries to show the solution from that earlier position:
+        target: Alice's action is refused because they are reviewing an earlier position — 16
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:88
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice is reviewing an earlier position in the puzzle
+          example: An earlier position cannot start showing the solution
+      ? Alice asks for a hint when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and
+        Alice has played a wrong move and retried
+      : target: Alice's hint highlights the piece to move — 17
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:97
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played a wrong move and retried
+          example: Retrying allows another hint
+      Alice tries to take a hint before retrying:
+        target: Alice's action is refused because a retry is needed — 18
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:103
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played a wrong move
+          example: A wrong move cannot bypass the retry
+      Alice tries another move before retrying:
+        target: Alice's action is refused because a retry is needed — 19
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:109
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played a wrong move
+          example: Another move cannot bypass the retry
+      Alice asks for another hint:
+        target: Alice's hint shows the solution move — 20
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:117
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has taken a hint
+          example: The second hint shows the solution move
+      Alice tries to see the solution move before a hint:
+        target: Alice's action is refused because the first hint is needed — 21
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:123
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          example: The first hint cannot be bypassed
+      Alice asks for a hint when Alice is signed in and Alice is solving the four-move mate-in-two puzzle:
+        target: Alice's hint highlights the piece to move — 22
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:130
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          example: A first hint is available before any help
+      ? Alice tries the first hint again when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has taken a hint
+      : target: Alice's action is refused because the first hint is already taken — 23
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:135
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has taken a hint
+          example: Repeating the first hint is refused
+      ? Alice tries the first hint again when Alice is signed in and Alice is solving the four-move mate-in-two
+        puzzle and Alice has seen the solution move
+      : target: Alice's action is refused because the first hint is already taken — 24
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:142
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has seen the solution move
+          example: A first hint cannot replace the solution move
+      Alice steps back one move in the puzzle:
+        target: Alice's board is at move 2 of the line within 20 seconds — 25
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:150
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice has played a wrong move and retried
+          example: Retrying a wrong move allows reviewing earlier correct moves
+      ? Alice tries to review an earlier puzzle position when Alice is signed in and Alice is solving the four-move
+        mate-in-two puzzle and Alice has played g6-g5 and Alice has played a wrong move
+      : target: Alice's action is refused because a retry is needed — 26
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:156
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice has played a wrong move
+          example: A wrong move cannot start reviewing before a retry
+      ? Alice tries to review an earlier puzzle position when Alice is signed in and Alice is solving the four-move
+        mate-in-two puzzle and Alice has played g6-g5 and Alice has skipped the puzzle
+      : target: Alice's action is refused because the puzzle was skipped — 27
+        meta:
+          source:
+          - specs/chess/puzzle-refusals.feature:163
+          condition:
+          - Alice is signed in
+          - Alice is solving the four-move mate-in-two puzzle
+          - Alice has played g6-g5
+          - Alice has skipped the puzzle
+          example: A skipped puzzle cannot start reviewing before a retry
+  Alice's action is refused because the puzzle is over — 1:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains solved
+      - Alice's game log records that puzzle as solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 2:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains revealed
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 3:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains skipped
+      - Alice's game log records that puzzle as abandoned
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 4:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 5:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains revealed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 6:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's puzzle remains skipped
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 7:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 8:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 9:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as abandoned
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 10:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:51
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 11:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as failed
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:51
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle is over — 12:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle is over.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-is-over
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle is over
+      - Alice's game log records that puzzle as abandoned
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:51
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint highlights the piece to move — 13:
+    meta:
+      description: The person observes that alice's hint highlights the piece to move.
+      snapshot: the-person-observes-that-alice-s-hint-highlights-the-piece-to-move
+      recognize: []
+      checks:
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:65
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because they are reviewing an earlier position — 14:
+    meta:
+      description: The person observes that alice's action is refused because they are reviewing an earlier position.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-they-are-reviewing-an-earl
+      recognize: []
+      checks:
+      - Alice's action is refused because they are reviewing an earlier position
+      - Alice's board is at move 2 of the line within 20 seconds
+      - Alice's assistant explains that they are reviewing an earlier position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:71
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because they are reviewing an earlier position — 15:
+    meta:
+      description: The person observes that alice's action is refused because they are reviewing an earlier position.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-they-are-reviewing-an-earl
+      recognize: []
+      checks:
+      - Alice's action is refused because they are reviewing an earlier position
+      - Alice's assistant explains that they are reviewing an earlier position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:80
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because they are reviewing an earlier position — 16:
+    meta:
+      description: The person observes that alice's action is refused because they are reviewing an earlier position.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-they-are-reviewing-an-earl
+      recognize: []
+      checks:
+      - Alice's action is refused because they are reviewing an earlier position
+      - Alice's assistant explains that they are reviewing an earlier position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:88
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint highlights the piece to move — 17:
+    meta:
+      description: The person observes that alice's hint highlights the piece to move.
+      snapshot: the-person-observes-that-alice-s-hint-highlights-the-piece-to-move
+      recognize: []
+      checks:
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:97
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because a retry is needed — 18:
+    meta:
+      description: The person observes that alice's action is refused because a retry is needed.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-a-retry-is-needed
+      recognize: []
+      checks:
+      - Alice's action is refused because a retry is needed
+      - Alice's puzzle remains wrong
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:103
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because a retry is needed — 19:
+    meta:
+      description: The person observes that alice's action is refused because a retry is needed.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-a-retry-is-needed
+      recognize: []
+      checks:
+      - Alice's action is refused because a retry is needed
+      - Alice's puzzle remains wrong
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:109
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint shows the solution move — 20:
+    meta:
+      description: The person observes that alice's hint shows the solution move.
+      snapshot: the-person-observes-that-alice-s-hint-shows-the-solution-move
+      recognize: []
+      checks:
+      - Alice's hint shows the solution move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:117
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the first hint is needed — 21:
+    meta:
+      description: The person observes that alice's action is refused because the first hint is needed.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-first-hint-is-needed
+      recognize: []
+      checks:
+      - Alice's action is refused because the first hint is needed
+      - Alice is still asked to find the next move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:123
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint highlights the piece to move — 22:
+    meta:
+      description: The person observes that alice's hint highlights the piece to move.
+      snapshot: the-person-observes-that-alice-s-hint-highlights-the-piece-to-move
+      recognize: []
+      checks:
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:130
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the first hint is already taken — 23:
+    meta:
+      description: The person observes that alice's action is refused because the first hint is already taken.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-first-hint-is-already-
+      recognize: []
+      checks:
+      - Alice's action is refused because the first hint is already taken
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:135
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the first hint is already taken — 24:
+    meta:
+      description: The person observes that alice's action is refused because the first hint is already taken.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-first-hint-is-already-
+      recognize: []
+      checks:
+      - Alice's action is refused because the first hint is already taken
+      - Alice's hint shows the solution move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:142
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's board is at move 2 of the line within 20 seconds — 25:
+    meta:
+      description: The person observes that alice's board is at move 2 of the line within 20 seconds.
+      snapshot: the-person-observes-that-alice-s-board-is-at-move-2-of-the-line-within-20-seconds
+      recognize: []
+      checks:
+      - Alice's board is at move 2 of the line within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:150
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because a retry is needed — 26:
+    meta:
+      description: The person observes that alice's action is refused because a retry is needed.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-a-retry-is-needed
+      recognize: []
+      checks:
+      - Alice's action is refused because a retry is needed
+      - Alice's puzzle remains wrong
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:156
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's action is refused because the puzzle was skipped — 27:
+    meta:
+      description: The person observes that alice's action is refused because the puzzle was skipped.
+      snapshot: the-person-observes-that-alice-s-action-is-refused-because-the-puzzle-was-skipped
+      recognize: []
+      checks:
+      - Alice's action is refused because the puzzle was skipped
+      - Alice's puzzle remains skipped
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-refusals.feature:163
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

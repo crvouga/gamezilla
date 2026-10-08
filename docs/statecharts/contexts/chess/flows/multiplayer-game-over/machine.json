@@ -1,0 +1,232 @@
+{
+  "id": "chess-multiplayer-game-over",
+  "initial": "Viewing A multiplayer game stays as it ended",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-matchmaking-client/src/use-multiplayer-data.ts",
+      "libs/chess-matchmaking-client/src/use-multiplayer-controls.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-waiting.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-screen.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-ratings.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing A multiplayer game stays as it ended": {
+      "meta": {
+        "description": "The person is at the place where a multiplayer game stays as it ended.",
+        "snapshot": "the-person-is-at-the-place-where-a-multiplayer-game-stays-as-it-ended",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:2"]
+      },
+      "on": {
+        "Alice opens multiplayer chess on another device": {
+          "target": "Alice sees the multiplayer game is drawn by agreement — 1",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:9"],
+            "condition": [
+              "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
+            ],
+            "example": "A game drawn by agreement keeps its board and moves on another device"
+          }
+        },
+        "Alice plays g1 to f3 as a multiplayer move": {
+          "target": "Alice is told the multiplayer game is over — 2",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:15"],
+            "condition": [
+              "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
+            ],
+            "example": "No move is accepted after a draw by agreement"
+          }
+        },
+        "Alice plays e2 to e4 as a multiplayer move": {
+          "target": "Alice is told the multiplayer game is over — 3",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:21"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
+            "example": "No move is accepted in an aborted game"
+          }
+        },
+        "Alice finds a new opponent": {
+          "target": "Alice is looking for a 5+0 chess opponent — 4",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:29"],
+            "condition": [
+              "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
+            ],
+            "example": "A person can find a new opponent after a draw by agreement"
+          }
+        },
+        "Alice opens multiplayer chess when Bob resigned multiplayer chess and Alice won": {
+          "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 5",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:34"],
+            "condition": ["Bob resigned multiplayer chess and Alice won"],
+            "example": "A won game offers no resigning, aborting or draw offer"
+          }
+        },
+        "Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5": {
+          "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 6",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:39"],
+            "condition": [
+              "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
+            ],
+            "example": "A game drawn by agreement offers no resigning, aborting or draw offer"
+          }
+        },
+        "Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was aborted": {
+          "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 7",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:44"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
+            "example": "An aborted game offers no resigning, aborting or draw offer"
+          }
+        },
+        "Alice opens multiplayer chess when Alice has a free account and has never played a multiplayer game": {
+          "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 8",
+          "meta": {
+            "source": ["specs/chess/multiplayer-game-over.feature:49"],
+            "condition": [
+              "Alice has a free account and has never played a multiplayer game"
+            ],
+            "example": "A person who has never played has no multiplayer game to act on"
+          }
+        }
+      }
+    },
+    "Alice sees the multiplayer game is drawn by agreement — 1": {
+      "meta": {
+        "description": "The person observes that alice sees the multiplayer game is drawn by agreement.",
+        "snapshot": "the-person-observes-that-alice-sees-the-multiplayer-game-is-drawn-by-agreement",
+        "recognize": [],
+        "checks": [
+          "Alice sees the multiplayer game is drawn by agreement",
+          "Alice sees the multiplayer move list \"1. e4 e5\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the multiplayer game is over — 2": {
+      "meta": {
+        "description": "The person observes that alice is told the multiplayer game is over.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-multiplayer-game-is-over",
+        "recognize": [],
+        "checks": [
+          "Alice is told the multiplayer game is over",
+          "both people still see the multiplayer move list \"1. e4 e5\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:15"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the multiplayer game is over — 3": {
+      "meta": {
+        "description": "The person observes that alice is told the multiplayer game is over.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-multiplayer-game-is-over",
+        "recognize": [],
+        "checks": [
+          "Alice is told the multiplayer game is over",
+          "both people still see the multiplayer game was aborted"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:21"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is looking for a 5+0 chess opponent — 4": {
+      "meta": {
+        "description": "The person observes that alice is looking for a 5+0 chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-looking-for-a-5-0-chess-opponent",
+        "recognize": [],
+        "checks": ["Alice is looking for a 5+0 chess opponent"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:29"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 5": {
+      "meta": {
+        "description": "The person observes that alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw.",
+        "snapshot": "the-person-observes-that-alice-cannot-resign-multiplayer-chess-abort-the-multiplayer-",
+        "recognize": [],
+        "checks": [
+          "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:34"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 6": {
+      "meta": {
+        "description": "The person observes that alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw.",
+        "snapshot": "the-person-observes-that-alice-cannot-resign-multiplayer-chess-abort-the-multiplayer-",
+        "recognize": [],
+        "checks": [
+          "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:39"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 7": {
+      "meta": {
+        "description": "The person observes that alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw.",
+        "snapshot": "the-person-observes-that-alice-cannot-resign-multiplayer-chess-abort-the-multiplayer-",
+        "recognize": [],
+        "checks": [
+          "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:44"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 8": {
+      "meta": {
+        "description": "The person observes that alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw.",
+        "snapshot": "the-person-observes-that-alice-cannot-resign-multiplayer-chess-abort-the-multiplayer-",
+        "recognize": [],
+        "checks": [
+          "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw",
+          "Alice cannot find a new opponent or offer a multiplayer rematch"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-game-over.feature:49"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

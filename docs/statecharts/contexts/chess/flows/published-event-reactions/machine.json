@@ -1,0 +1,429 @@
+{
+  "id": "chess-published-event-reactions",
+  "initial": "Viewing Chess with current information",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [
+      "SignedIn",
+      "SignedOut",
+      "UsernameChanged",
+      "AccountDeletionConfirmed",
+      "PaidAccessStarted",
+      "PaidAccessEnded",
+      "SpaceOpened",
+      "PersonJoined",
+      "PersonLeft",
+      "SpaceEnded",
+      "BecameFriends",
+      "FriendshipEnded",
+      "MatchFormed"
+    ],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "scope": "Boundary contract reception; per-screen interruption outcomes remain owner review questions."
+  },
+  "states": {
+    "Viewing Chess with current information": {
+      "meta": {
+        "description": "The person is using a Chess surface.",
+        "snapshot": "the-person-is-using-a-chess-surface",
+        "recognize": [],
+        "checks": ["The person is using a Chess surface."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1100"]
+      },
+      "on": {
+        "SignedIn": {
+          "target": "Seeing account-bound choices become available only where the current permission decision allows them",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "SignedOut": {
+          "target": "Seeing account-only choices are denied and the person sees the current identity",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "UsernameChanged": {
+          "target": "Seeing the person’s current name replaces their earlier name on affected public surfaces",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "Seeing the deleted account cannot be used or shown; retained legal records confer no access",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PaidAccessStarted": {
+          "target": "Seeing the next permission decision recognizes paid access",
+          "meta": {
+            "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PaidAccessEnded": {
+          "target": "Seeing the next permission decision recognizes free limits; an already started puzzle may finish",
+          "meta": {
+            "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "SpaceOpened": {
+          "target": "Seeing an open space becomes visible only to people entitled to find it",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PersonJoined": {
+          "target": "Seeing current presence changes for people who can view that space",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "PersonLeft": {
+          "target": "Seeing the person no longer appears as present in that space",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "SpaceEnded": {
+          "target": "Seeing the ended space is removed from live choices and an open participant view shows it ended",
+          "meta": {
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "BecameFriends": {
+          "target": "Seeing the new friendship appears and may make a friend’s open space discoverable",
+          "meta": {
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "FriendshipEnded": {
+          "target": "Seeing the relationship and any friend-derived discoverability are recomputed",
+          "meta": {
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "MatchFormed": {
+          "target": "Seeing the same complete match gives its participants one private multiplayer game",
+          "meta": {
+            "source": ["specs/matchmaking/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing account-bound choices become available only where the current permission decision allows them": {
+      "meta": {
+        "description": "The person sees that account-bound choices become available only where the current permission decision allows them.",
+        "snapshot": "the-person-sees-that-account-bound-choices-become-available-only-where-the-current-pe",
+        "recognize": [],
+        "checks": [
+          "Account-bound choices become available only where the current permission decision allows them."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing account-only choices are denied and the person sees the current identity": {
+      "meta": {
+        "description": "The person sees that account-only choices are denied and the person sees the current identity.",
+        "snapshot": "the-person-sees-that-account-only-choices-are-denied-and-the-person-sees-the-current-",
+        "recognize": [],
+        "checks": [
+          "Account-only choices are denied and the person sees the current identity."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the person’s current name replaces their earlier name on affected public surfaces": {
+      "meta": {
+        "description": "The person sees that the person’s current name replaces their earlier name on affected public surfaces.",
+        "snapshot": "the-person-sees-that-the-person-s-current-name-replaces-their-earlier-name-on-affecte",
+        "recognize": [],
+        "checks": [
+          "The person’s current name replaces their earlier name on affected public surfaces."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the deleted account cannot be used or shown; retained legal records confer no access": {
+      "meta": {
+        "description": "The person sees that the deleted account cannot be used or shown; retained legal records confer no access.",
+        "snapshot": "the-person-sees-that-the-deleted-account-cannot-be-used-or-shown-retained-legal-recor",
+        "recognize": [],
+        "checks": [
+          "The deleted account cannot be used or shown; retained legal records confer no access."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the next permission decision recognizes paid access": {
+      "meta": {
+        "description": "The person sees that the next permission decision recognizes paid access.",
+        "snapshot": "the-person-sees-that-the-next-permission-decision-recognizes-paid-access",
+        "recognize": [],
+        "checks": ["The next permission decision recognizes paid access."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the next permission decision recognizes free limits; an already started puzzle may finish": {
+      "meta": {
+        "description": "The person sees that the next permission decision recognizes free limits; an already started puzzle may finish.",
+        "snapshot": "the-person-sees-that-the-next-permission-decision-recognizes-free-limits-an-already-s",
+        "recognize": [],
+        "checks": [
+          "The next permission decision recognizes free limits; an already started puzzle may finish."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing an open space becomes visible only to people entitled to find it": {
+      "meta": {
+        "description": "The person sees that an open space becomes visible only to people entitled to find it.",
+        "snapshot": "the-person-sees-that-an-open-space-becomes-visible-only-to-people-entitled-to-find-it",
+        "recognize": [],
+        "checks": [
+          "An open space becomes visible only to people entitled to find it."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing current presence changes for people who can view that space": {
+      "meta": {
+        "description": "The person sees that current presence changes for people who can view that space.",
+        "snapshot": "the-person-sees-that-current-presence-changes-for-people-who-can-view-that-space",
+        "recognize": [],
+        "checks": [
+          "Current presence changes for people who can view that space."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the person no longer appears as present in that space": {
+      "meta": {
+        "description": "The person sees that the person no longer appears as present in that space.",
+        "snapshot": "the-person-sees-that-the-person-no-longer-appears-as-present-in-that-space",
+        "recognize": [],
+        "checks": ["The person no longer appears as present in that space."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the ended space is removed from live choices and an open participant view shows it ended": {
+      "meta": {
+        "description": "The person sees that the ended space is removed from live choices and an open participant view shows it ended.",
+        "snapshot": "the-person-sees-that-the-ended-space-is-removed-from-live-choices-and-an-open-partici",
+        "recognize": [],
+        "checks": [
+          "The ended space is removed from live choices and an open participant view shows it ended."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the new friendship appears and may make a friend’s open space discoverable": {
+      "meta": {
+        "description": "The person sees that the new friendship appears and may make a friend’s open space discoverable.",
+        "snapshot": "the-person-sees-that-the-new-friendship-appears-and-may-make-a-friend-s-open-space-di",
+        "recognize": [],
+        "checks": [
+          "The new friendship appears and may make a friend’s open space discoverable."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the relationship and any friend-derived discoverability are recomputed": {
+      "meta": {
+        "description": "The person sees that the relationship and any friend-derived discoverability are recomputed.",
+        "snapshot": "the-person-sees-that-the-relationship-and-any-friend-derived-discoverability-are-reco",
+        "recognize": [],
+        "checks": [
+          "The relationship and any friend-derived discoverability are recomputed."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the same complete match gives its participants one private multiplayer game": {
+      "meta": {
+        "description": "The person sees that the same complete match gives its participants one private multiplayer game.",
+        "snapshot": "the-person-sees-that-the-same-complete-match-gives-its-participants-one-private-multi",
+        "recognize": [],
+        "checks": [
+          "The same complete match gives its participants one private multiplayer game."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Chess with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    }
+  }
+}

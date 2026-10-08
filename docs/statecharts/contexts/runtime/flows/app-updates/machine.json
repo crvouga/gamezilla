@@ -1,0 +1,84 @@
+{
+  "id": "runtime-app-updates",
+  "initial": "Viewing An app too old for the product",
+  "meta": {
+    "context": "App",
+    "kind": "flow",
+    "owner": "App owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/ui-testing-solid-dom-client/src/multi-app-solid-dom-session.ts",
+      "pkgs/ui-testing-solid-dom-client/src/mount-solid-app.ts",
+      "pkgs/ui-root-client/src/app-router.tsx",
+      "pkgs/ui-root-client/src/app-logo.tsx",
+      "pkgs/ui-root-client/src/app-logo.example.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing An app too old for the product": {
+      "meta": {
+        "description": "The person is at the place where an app too old for the product.",
+        "snapshot": "the-person-is-at-the-place-where-an-app-too-old-for-the-product",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-updates.feature:2"]
+      },
+      "on": {
+        "the connection comes back": {
+          "target": "Alice is asked to update the app within 15 seconds — 1",
+          "meta": {
+            "source": ["specs/runtime/app-updates.feature:9"],
+            "condition": [
+              "Alice's app became outdated while Alice was offline"
+            ],
+            "example": "A person on an outdated app is asked to update the app"
+          }
+        },
+        "Alice updates the app": {
+          "target": "Alice's profile shows @alice_before — 2",
+          "meta": {
+            "source": ["specs/runtime/app-updates.feature:14"],
+            "condition": [
+              "Alice is signed in",
+              "Alice's username is @alice_before",
+              "Alice's app is older than the product accepts"
+            ],
+            "example": "What was done on an outdated app is still there after updating"
+          }
+        }
+      }
+    },
+    "Alice is asked to update the app within 15 seconds — 1": {
+      "meta": {
+        "description": "The person observes that alice is asked to update the app within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-is-asked-to-update-the-app-within-15-seconds",
+        "recognize": [],
+        "checks": ["Alice is asked to update the app within 15 seconds"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-updates.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's profile shows @alice_before — 2": {
+      "meta": {
+        "description": "The person observes that alice's profile shows @alice_before.",
+        "snapshot": "the-person-observes-that-alice-s-profile-shows-alice-before",
+        "recognize": [],
+        "checks": ["Alice's profile shows @alice_before"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-updates.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

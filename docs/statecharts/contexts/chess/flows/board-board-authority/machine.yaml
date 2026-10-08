@@ -1,0 +1,580 @@
+id: chess-board-board-authority
+initial: Viewing Change chessboard settings safely
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  - pkgs/chess-board-root-client/src/chess-board-view.tsx
+  - pkgs/chess-board-root-client/src/chess-board-user-shapes.ts
+  - pkgs/chess-board-root-client/src/chess-board-squares.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Change chessboard settings safely:
+    meta:
+      description: The person is at the place where change chessboard settings safely.
+      snapshot: the-person-is-at-the-place-where-change-chessboard-settings-safely
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:2
+    'on':
+      Alice moves the piece from e2 to e4 when Alice has an interactive chessboard:
+        target: Alice sees a White pawn on e4 — 1
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:8
+          condition:
+          - Alice has an interactive chessboard
+          example: An enabled chessboard accepts a legal move
+      Alice's board settings disable interactivity when Alice is dragging the piece on e2:
+        target: Alice no longer holds a piece — 2
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:15
+          condition:
+          - Alice is dragging the piece on e2
+          example: Disabling interactivity puts a held piece back
+      Alice moves the piece from e2 to e4 when Alice has a chessboard with interactivity disabled:
+        target: Alice cannot move a piece while interactivity is disabled — 3
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:22
+          condition:
+          - Alice has a chessboard with interactivity disabled
+          example: A disabled chessboard refuses a move
+      Alice's board settings disable interactivity when Alice has a pending White promotion from a7 to a8:
+        target: Alice sees the White pawn remaining on a7 — 4
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:29
+          condition:
+          - Alice has a pending White promotion from a7 to a8
+          example: Disabling interactivity abandons a pending promotion choice
+      Alice's board settings enable interactivity:
+        target: Alice can request promotion from a7 to a8 — 5
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:36
+          condition:
+          - Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled
+          example: Re-enabling interactivity allows a future promotion request
+      Alice's activity replaces the position when Alice is dragging the piece on e2:
+        target: Alice no longer holds a piece — 6
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:45
+          condition:
+          - Alice is dragging the piece on e2
+          example: A replacement position puts a held piece back
+      Alice's activity supplies the same position again:
+        target: Alice still has e2 selected — 7
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:53
+          condition:
+          - Alice has selected the piece on e2
+          example: Replacing the same position preserves selection
+      Alice's activity replaces the position when Alice has a pending White promotion from a7 to a8:
+        target: Alice sees the replacement position — 8
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:59
+          condition:
+          - Alice has a pending White promotion from a7 to a8
+          example: A replacement position abandons a pending promotion choice
+      Alice's activity replaces the position when Alice has a chessboard after White's move from e2 to e4 with e7 selected:
+        target: Alice sees the replacement position — 9
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:66
+          condition:
+          - Alice has a chessboard after White's move from e2 to e4 with e7 selected
+          example: An unrelated position clears the old move and selection
+      ? Alice's activity replaces the position when Alice has a chessboard after White checkmated Black by moving
+        the queen from g6 to g7
+      : target: Alice sees the replacement position — 10
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:75
+          condition:
+          - Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7
+          example: An unrelated position clears the earlier move announcement
+      Alice changes the orientation:
+        target: Alice no longer holds a piece — 11
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:84
+          condition:
+          - Alice is dragging the piece on e2
+          example: Turning a held chessboard puts the piece back
+      Alice resizes the chessboard when Alice has selected the piece on e2:
+        target: Alice still has e2 selected — 12
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:94
+          condition:
+          - Alice has selected the piece on e2
+          example: A resized chessboard keeps its selected piece
+      Alice resizes the chessboard when Alice is dragging the piece on e2:
+        target: Alice no longer holds a piece — 13
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:100
+          condition:
+          - Alice is dragging the piece on e2
+          example: Resizing while holding a piece cancels the drag
+      Alice cancels the drag when Alice is dragging the piece on e2:
+        target: Alice no longer holds a piece — 14
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:110
+          condition:
+          - Alice is dragging the piece on e2
+          example: Cancelling a held piece returns it to its square
+      Alice switches away from the chessboard's activity:
+        target: Alice no longer holds a piece — 15
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:118
+          condition:
+          - Alice is dragging the piece on e2
+          example: Switching away from the activity cancels a held piece
+      Alice cancels the drag when Alice has an interactive chessboard:
+        target: Alice sees the White pawn remaining on e2 — 16
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:125
+          condition:
+          - Alice has an interactive chessboard
+          example: Cancelling without a held piece preserves the position
+      Alice's activity confirms the offered position:
+        target: Alice sees a White pawn on e4 — 17
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:133
+          condition:
+          - Alice has a chessboard after offering White's move from e2 to e4
+          example: Confirmation preserves the offered move without offering it twice
+      Alice's activity refuses the offered move:
+        target: Alice sees White's offered move refused — 18
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:141
+          condition:
+          - Alice has a chessboard after offering White's move from e2 to e4
+          example: Refusal restores the earlier position without sound
+      Alice's activity supplies Black's reply from e7 to e5:
+        target: Alice sees a Black pawn on e5 — 19
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:152
+          condition:
+          - Alice has a chessboard after offering White's move from e2 to e4
+          example: An immediate opponent reply has one move highlight and sound
+      Alice's activity supplies an unusable position:
+        target: Alice still sees the position before White's first move — 20
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:159
+          condition:
+          - Alice has an interactive chessboard
+          example: An unusable supplied position keeps the last good position
+      Alice's activity starts a chessboard with an unusable position:
+        target: Alice sees the position before White's first move — 21
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:166
+          condition:
+          - Alice's activity has no chessboard yet
+          example: An unusable initial position starts normal chess
+      ? Alice's board settings enable automatic queen promotion when Alice has a chessboard ready for White's promotion
+        from a7 to a8
+      : target: Alice can request promotion from a7 to a8 automatically to a queen — 22
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:174
+          condition:
+          - Alice has a chessboard ready for White's promotion from a7 to a8
+          example: Enabling automatic queen promotion applies to the next new request
+      Alice's board settings disable automatic queen promotion:
+        target: Alice can request promotion from a7 to a8 with an explicit promotion choice — 23
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:180
+          condition:
+          - Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled
+          example: Disabling automatic queen promotion restores the next explicit choice
+      Alice's board settings enable automatic queen promotion when Alice has a pending White promotion from a7 to a8:
+        target: Alice is still offered queen, rook, bishop and knight as the promotion choice — 24
+        meta:
+          source:
+          - specs/chess-board/board-authority.feature:186
+          condition:
+          - Alice has a pending White promotion from a7 to a8
+          example: Enabling automatic queen promotion preserves a pending explicit choice
+  Alice sees a White pawn on e4 — 1:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 2:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move a piece while interactivity is disabled — 3:
+    meta:
+      description: The person observes that alice cannot move a piece while interactivity is disabled.
+      snapshot: the-person-observes-that-alice-cannot-move-a-piece-while-interactivity-is-disabled
+      recognize: []
+      checks:
+      - Alice cannot move a piece while interactivity is disabled
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:22
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on a7 — 4:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on a7.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-a7
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on a7
+      - Alice is not offered a promotion choice
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can request promotion from a7 to a8 — 5:
+    meta:
+      description: The person observes that alice can request promotion from a7 to a8.
+      snapshot: the-person-observes-that-alice-can-request-promotion-from-a7-to-a8
+      recognize: []
+      checks:
+      - Alice can request promotion from a7 to a8
+      - Alice sees the White pawn remaining on a7
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:36
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 6:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the replacement position
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:45
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice still has e2 selected — 7:
+    meta:
+      description: The person observes that alice still has e2 selected.
+      snapshot: the-person-observes-that-alice-still-has-e2-selected
+      recognize: []
+      checks:
+      - Alice still has e2 selected
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:53
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the replacement position — 8:
+    meta:
+      description: The person observes that alice sees the replacement position.
+      snapshot: the-person-observes-that-alice-sees-the-replacement-position
+      recognize: []
+      checks:
+      - Alice sees the replacement position
+      - Alice is not offered a promotion choice
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:59
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the replacement position — 9:
+    meta:
+      description: The person observes that alice sees the replacement position.
+      snapshot: the-person-observes-that-alice-sees-the-replacement-position
+      recognize: []
+      checks:
+      - Alice sees the replacement position
+      - Alice sees no selection or legal destinations
+      - Alice sees no last move marked
+      - Alice hears no chessboard sounds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:66
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the replacement position — 10:
+    meta:
+      description: The person observes that alice sees the replacement position.
+      snapshot: the-person-observes-that-alice-sees-the-replacement-position
+      recognize: []
+      checks:
+      - Alice sees the replacement position
+      - Alice has no move announcement from the previous position
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:75
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 11:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the White pawn remaining on e2
+      - Alice's chessboard faces Black
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:84
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice still has e2 selected — 12:
+    meta:
+      description: The person observes that alice still has e2 selected.
+      snapshot: the-person-observes-that-alice-still-has-e2-selected
+      recognize: []
+      checks:
+      - Alice still has e2 selected
+      - Alice sees the White pawn remaining on e2
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:94
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 13:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:100
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 14:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:110
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice no longer holds a piece — 15:
+    meta:
+      description: The person observes that alice no longer holds a piece.
+      snapshot: the-person-observes-that-alice-no-longer-holds-a-piece
+      recognize: []
+      checks:
+      - Alice no longer holds a piece
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:118
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on e2 — 16:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on e2.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-e2
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:125
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e4 — 17:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice sees e2 and e4 marked as the last move
+      - Alice hears no chessboard sounds
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:133
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees White's offered move refused — 18:
+    meta:
+      description: The person observes that alice sees White's offered move refused.
+      snapshot: the-person-observes-that-alice-sees-white-s-offered-move-refused
+      recognize: []
+      checks:
+      - Alice sees White's offered move refused
+      - Alice sees the White pawn remaining on e2
+      - Alice hears no chessboard sounds
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:141
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a Black pawn on e5 — 19:
+    meta:
+      description: The person observes that alice sees a Black pawn on e5.
+      snapshot: the-person-observes-that-alice-sees-a-black-pawn-on-e5
+      recognize: []
+      checks:
+      - Alice sees a Black pawn on e5
+      - Alice sees e7 and e5 marked as the last move
+      - Alice hears one move sound
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:152
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice still sees the position before White's first move — 20:
+    meta:
+      description: The person observes that alice still sees the position before White's first move.
+      snapshot: the-person-observes-that-alice-still-sees-the-position-before-white-s-first-move
+      recognize: []
+      checks:
+      - Alice still sees the position before White's first move
+      - Alice hears no chessboard sounds
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:159
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the position before White's first move — 21:
+    meta:
+      description: The person observes that alice sees the position before White's first move.
+      snapshot: the-person-observes-that-alice-sees-the-position-before-white-s-first-move
+      recognize: []
+      checks:
+      - Alice sees the position before White's first move
+      - Alice sees White to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:166
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can request promotion from a7 to a8 automatically to a queen — 22:
+    meta:
+      description: The person observes that alice can request promotion from a7 to a8 automatically to a queen.
+      snapshot: the-person-observes-that-alice-can-request-promotion-from-a7-to-a8-automatically-to-a
+      recognize: []
+      checks:
+      - Alice can request promotion from a7 to a8 automatically to a queen
+      - Alice sees the White pawn remaining on a7
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:174
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can request promotion from a7 to a8 with an explicit promotion choice — 23:
+    meta:
+      description: The person observes that alice can request promotion from a7 to a8 with an explicit promotion
+        choice.
+      snapshot: the-person-observes-that-alice-can-request-promotion-from-a7-to-a8-with-an-explicit-p
+      recognize: []
+      checks:
+      - Alice can request promotion from a7 to a8 with an explicit promotion choice
+      - Alice sees the White pawn remaining on a7
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:180
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is still offered queen, rook, bishop and knight as the promotion choice — 24:
+    meta:
+      description: The person observes that alice is still offered queen, rook, bishop and knight as the promotion
+        choice.
+      snapshot: the-person-observes-that-alice-is-still-offered-queen-rook-bishop-and-knight-as-the-p
+      recognize: []
+      checks:
+      - Alice is still offered queen, rook, bishop and knight as the promotion choice
+      - Alice cannot complete the move until the pending promotion choice is decided
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:186
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

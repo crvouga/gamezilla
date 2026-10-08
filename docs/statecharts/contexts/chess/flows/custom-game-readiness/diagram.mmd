@@ -1,0 +1,42 @@
+stateDiagram-v2
+  state "Viewing Become ready and start" as s0
+  state "The Custom Game is startable — 1" as s1
+  state "Carol is told only a participant may become ready — 2" as s2
+  state "Neither person is ready for the Custom Game — 3" as s3
+  state "Alice is told every person must be ready — 4" as s4
+  state "The Custom Game is active with White to move — 5" as s5
+  state "Alice is told both sides need participants — 6" as s6
+  state "Alice is told both sides need participants — 7" as s7
+  state "Bob is told only the creator starts the Custom Game — 8" as s8
+  state "The Custom Game remains active with no new game — 9" as s9
+  state "Alice is told the Custom Game has finished — 10" as s10
+  state "Alice is told the Custom Game was cancelled — 11" as s11
+  state "The Custom Game remains active with no new game — 12" as s12
+  state "Alice is told the Custom Game choices have changed — 13" as s13
+  [*] --> s0
+  s0 --> s1: Bob becomes ready for the Custom Game
+  s0 --> s2: Carol becomes ready for the Custom Game
+  s0 --> s3: Alice chooses 5 minutes with 2 seconds increment for the Custom Game
+  s0 --> s4: Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game and Bob is no longer ready for the Custom Game
+  s0 --> s5: Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game
+  s0 --> s6: Alice starts the Custom Game when Alice has a configuring Custom Game and Alice is ready for the Custom Game
+  s0 --> s7: Alice starts the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob and Alice is ready for the Custom Game
+  s0 --> s8: Bob starts the Custom Game
+  s0 --> s9: Alice starts the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s10: Alice starts the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+  s0 --> s11: Alice starts the Custom Game when Alice has a cancelled Custom Game
+  s0 --> s12: Alice starts the Custom Game twice at the same time
+  s0 --> s13: Alice starts the Custom Game with the earlier choices
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]

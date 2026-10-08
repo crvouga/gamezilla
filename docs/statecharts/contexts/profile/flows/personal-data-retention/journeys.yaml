@@ -1,0 +1,65 @@
+journeys:
+  The team completes ordinary erasure by the promised deadline:
+    description: The team completes ordinary erasure by the promised deadline
+    startingConditions:
+    - Alice confirmed account deletion 29 days ago
+    events:
+    - 1 day passes
+    endsIn: the team has erased Alice's ordinary personal data — 1
+    checks:
+    - the team has erased Alice's ordinary personal data
+    - only disclosed retention exceptions can remain
+    gherkin:
+    - specs/profile/personal-data-retention.feature:8 — The team completes ordinary erasure by the promised deadline
+    exampleRow: []
+  Deleted personal data cannot reappear in the product:
+    description: Deleted personal data cannot reappear in the product
+    startingConditions:
+    - Alice's account deletion has been confirmed
+    events:
+    - Bob looks for Alice's profile
+    endsIn: Bob cannot find the deleted profile because Alice deleted the account — 2
+    checks:
+    - Bob cannot find the deleted profile because Alice deleted the account
+    gherkin:
+    - specs/profile/personal-data-retention.feature:14 — Deleted personal data cannot reappear in the product
+    exampleRow: []
+  The person can see why an exception lasts:
+    description: The person can see why an exception lasts
+    startingConditions:
+    - Alice is reviewing account deletion
+    events:
+    - Alice opens the retention explanation
+    endsIn: Alice sees the minimum payment records kept for accounting and disputes — 3
+    checks:
+    - Alice sees the minimum payment records kept for accounting and disputes
+    - Alice sees any specific legal preservation obligation and its end condition
+    gherkin:
+    - specs/profile/personal-data-retention.feature:21 — The person can see why an exception lasts
+    exampleRow: []
+  An exception cannot retain ordinary account use:
+    description: An exception cannot retain ordinary account use
+    startingConditions:
+    - Alice's deleted account has personal data retained for a specific legal preservation obligation
+    events:
+    - the team reviews that retained personal data
+    endsIn: the team cannot use it to restore a profile or promote the product to Alice — 4
+    checks:
+    - the team cannot use it to restore a profile or promote the product to Alice
+    gherkin:
+    - specs/profile/personal-data-retention.feature:27 — An exception cannot retain ordinary account use
+    exampleRow: []
+  Returning after a long absence keeps an active account's progress:
+    description: Returning after a long absence keeps an active account's progress
+    startingConditions:
+    - Alice has an account with personal data and has not asked for account deletion
+    - Alice has not used the app for 2 years
+    events:
+    - Alice signs in with Google
+    endsIn: Alice has the same account and retained personal data — 5
+    checks:
+    - Alice has the same account and retained personal data
+    gherkin:
+    - specs/profile/personal-data-retention.feature:35 — Returning after a long absence keeps an active account's
+      progress
+    exampleRow: []

@@ -1,0 +1,119 @@
+{
+  "id": "auth-published-event-reactions",
+  "initial": "Viewing Auth with current information",
+  "meta": {
+    "context": "Auth",
+    "kind": "flow",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": ["SignedIn", "SignedOut", "AccountDeletionConfirmed"],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "scope": "Boundary contract reception; per-screen interruption outcomes remain owner review questions."
+  },
+  "states": {
+    "Viewing Auth with current information": {
+      "meta": {
+        "description": "The person is using a Auth surface.",
+        "snapshot": "the-person-is-using-a-auth-surface",
+        "recognize": [],
+        "checks": ["The person is using a Auth surface."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/README.md:1100"]
+      },
+      "on": {
+        "SignedIn": {
+          "target": "Seeing account-bound choices become available only where the current permission decision allows them",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "SignedOut": {
+          "target": "Seeing account-only choices are denied and the person sees the current identity",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "Seeing the deleted account cannot be used or shown; retained legal records confer no access",
+          "meta": {
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing account-bound choices become available only where the current permission decision allows them": {
+      "meta": {
+        "description": "The person sees that account-bound choices become available only where the current permission decision allows them.",
+        "snapshot": "the-person-sees-that-account-bound-choices-become-available-only-where-the-current-pe",
+        "recognize": [],
+        "checks": [
+          "Account-bound choices become available only where the current permission decision allows them."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Auth with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing account-only choices are denied and the person sees the current identity": {
+      "meta": {
+        "description": "The person sees that account-only choices are denied and the person sees the current identity.",
+        "snapshot": "the-person-sees-that-account-only-choices-are-denied-and-the-person-sees-the-current-",
+        "recognize": [],
+        "checks": [
+          "Account-only choices are denied and the person sees the current identity."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Auth with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Seeing the deleted account cannot be used or shown; retained legal records confer no access": {
+      "meta": {
+        "description": "The person sees that the deleted account cannot be used or shown; retained legal records confer no access.",
+        "snapshot": "the-person-sees-that-the-deleted-account-cannot-be-used-or-shown-retained-legal-recor",
+        "recognize": [],
+        "checks": [
+          "The deleted account cannot be used or shown; retained legal records confer no access."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
+        "question": "interaction-review"
+      },
+      "on": {
+        "Continues using this context": {
+          "target": "Viewing Auth with current information",
+          "meta": {
+            "source": ["specs/README.md:1092"],
+            "confidence": "assumed"
+          }
+        }
+      }
+    }
+  }
+}

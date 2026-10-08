@@ -1,0 +1,898 @@
+{
+  "id": "spaces-hosting-and-joining",
+  "initial": "Viewing the lobby",
+  "meta": {
+    "context": "Spaces",
+    "kind": "flow",
+    "owner": "Spaces owner (not named in specs)",
+    "tier": "critical",
+    "emits": ["SpaceOpened", "PersonJoined", "PersonLeft", "SpaceEnded"],
+    "reactsTo": ["PaidAccessStarted", "SpaceEnded", "AccountDeletionConfirmed"],
+    "reviewStatus": "draft; owner approval and execution adapters pending"
+  },
+  "states": {
+    "Viewing the lobby": {
+      "meta": {
+        "description": "The lobby lists spaces the person hosts, joined or can find through friends.",
+        "snapshot": "the-lobby-lists-spaces-the-person-hosts-joined-or-can-find-through-friends",
+        "recognize": ["[data-testid=\"spaces-list-ready\"]"],
+        "checks": [
+          "The lobby lists spaces the person hosts, joined or can find through friends."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Creates a space below the hosting limit": {
+          "target": "Creating a space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Requests another space at the hosting limit": {
+          "target": "Invited to Plus for more spaces",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Creates or joins while offline": {
+          "target": "Told a connection is needed",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Opens a link to an open space": {
+          "target": "Joining the linked space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Opens a link to a space that never existed": {
+          "target": "Viewing an unknown space link",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Creating a space": {
+      "meta": {
+        "description": "The create control shows that a space is being created.",
+        "snapshot": "the-create-control-shows-that-a-space-is-being-created",
+        "recognize": [],
+        "checks": ["The create control shows that a space is being created."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Space creation succeeds": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Space creation fails": {
+          "target": "Told creation failed",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told creation failed": {
+      "meta": {
+        "description": "The person sees a creation error and can try again.",
+        "snapshot": "the-person-sees-a-creation-error-and-can-try-again",
+        "recognize": [],
+        "checks": ["The person sees a creation error and can try again."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Tries creating again": {
+          "target": "Creating a space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Invited to Plus for more spaces": {
+      "meta": {
+        "description": "The permission surface explains the hosting limit.",
+        "snapshot": "the-permission-surface-explains-the-hosting-limit",
+        "recognize": ["[data-testid=\"spaces-hosting-limit\"]"],
+        "checks": ["The permission surface explains the hosting limit."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "PaidAccessStarted": {
+          "target": "Viewing the lobby",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told a connection is needed": {
+      "meta": {
+        "description": "The person sees that creating or joining needs a connection.",
+        "snapshot": "the-person-sees-that-creating-or-joining-needs-a-connection",
+        "recognize": ["[data-testid=\"spaces-need-connection\"]"],
+        "checks": [
+          "The person sees that creating or joining needs a connection."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Connection returns": {
+          "target": "Viewing the lobby",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Joining the linked space": {
+      "meta": {
+        "description": "The join control is busy while the open space is joined.",
+        "snapshot": "the-join-control-is-busy-while-the-open-space-is-joined",
+        "recognize": [],
+        "checks": ["The join control is busy while the open space is joined."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Joining succeeds": {
+          "target": "Joined to the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an unknown space link": {
+      "meta": {
+        "description": "The link says the space does not exist and offers Spaces.",
+        "snapshot": "the-link-says-the-space-does-not-exist-and-offers-spaces",
+        "recognize": ["[data-testid=\"space-not-found\"]"],
+        "checks": ["The link says the space does not exist and offers Spaces."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Returns to Spaces": {
+          "target": "Viewing the lobby",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Hosting the open space": {
+      "meta": {
+        "description": "The host sees game choices and controls to rename, share, end or leave.",
+        "snapshot": "the-host-sees-game-choices-and-controls-to-rename-share-end-or-leave",
+        "recognize": [],
+        "checks": [
+          "The host sees game choices and controls to rename, share, end or leave."
+        ],
+        "events": ["SpaceOpened"],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ],
+        "eventScope": "These facts accompany the successful domain transition into this outcome; merely reopening this view does not republish them."
+      },
+      "on": {
+        "Opens sharing": {
+          "target": "Sharing the space link",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Renames the space": {
+          "target": "Reviewing a space rename",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Chooses to end the space": {
+          "target": "Confirming the space ending",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Loses the connection": {
+          "target": "Hosting with last known space offline",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "AccountDeletionConfirmed": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Joined to the open space": {
+      "meta": {
+        "description": "The guest sees the host’s game and current people.",
+        "snapshot": "the-guest-sees-the-host-s-game-and-current-people",
+        "recognize": [],
+        "checks": ["The guest sees the host’s game and current people."],
+        "events": ["PersonJoined"],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ],
+        "eventScope": "These facts accompany the successful domain transition into this outcome; merely reopening this view does not republish them."
+      },
+      "on": {
+        "Chooses to leave": {
+          "target": "Confirming leaving the space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Sharing the space link": {
+      "meta": {
+        "description": "The person sees the space link and can copy or share it.",
+        "snapshot": "the-person-sees-the-space-link-and-can-copy-or-share-it",
+        "recognize": [],
+        "checks": ["The person sees the space link and can copy or share it."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Closes sharing": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Reviewing a space rename": {
+      "meta": {
+        "description": "The host edits the name and can save or cancel.",
+        "snapshot": "the-host-edits-the-name-and-can-save-or-cancel",
+        "recognize": [],
+        "checks": ["The host edits the name and can save or cancel."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Saves an allowed name": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Saves a refused name": {
+          "target": "Told the name is refused",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Cancels renaming": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told the name is refused": {
+      "meta": {
+        "description": "The name is refused with its reason and the saved name stays.",
+        "snapshot": "the-name-is-refused-with-its-reason-and-the-saved-name-stays",
+        "recognize": [],
+        "checks": [
+          "The name is refused with its reason and the saved name stays."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Edits the name again": {
+          "target": "Reviewing a space rename",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Confirming the space ending": {
+      "meta": {
+        "description": "The host can confirm or cancel ending the space.",
+        "snapshot": "the-host-can-confirm-or-cancel-ending-the-space",
+        "recognize": [],
+        "checks": ["The host can confirm or cancel ending the space."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Cancels ending": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Confirms ending": {
+          "target": "Ending the space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Ending the space": {
+      "meta": {
+        "description": "The confirmation shows that ending is in progress.",
+        "snapshot": "the-confirmation-shows-that-ending-is-in-progress",
+        "recognize": [],
+        "checks": ["The confirmation shows that ending is in progress."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Space ending succeeds": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Space ending fails": {
+          "target": "Told ending failed",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told ending failed": {
+      "meta": {
+        "description": "The host sees a retryable error and the confirmed outcome is not claimed.",
+        "snapshot": "the-host-sees-a-retryable-error-and-the-confirmed-outcome-is-not-claimed",
+        "recognize": [],
+        "checks": [
+          "The host sees a retryable error and the confirmed outcome is not claimed."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Tries ending again": {
+          "target": "Ending the space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Confirming leaving the space": {
+      "meta": {
+        "description": "The person sees a leave confirmation and can cancel.",
+        "snapshot": "the-person-sees-a-leave-confirmation-and-can-cancel",
+        "recognize": [],
+        "checks": ["The person sees a leave confirmation and can cancel."],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Cancels leaving": {
+          "target": "Joined to the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "Leaving succeeds": {
+          "target": "Viewing the lobby",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing the ended space": {
+      "meta": {
+        "description": "The space says it ended for everyone.",
+        "snapshot": "the-space-says-it-ended-for-everyone",
+        "recognize": ["[data-testid=\"space-ended\"]"],
+        "checks": ["The space says it ended for everyone."],
+        "events": ["SpaceEnded"],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ],
+        "eventScope": "These facts accompany the successful domain transition into this outcome; merely reopening this view does not republish them."
+      },
+      "on": {
+        "Returns to Spaces": {
+          "target": "Viewing the lobby",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Hosting with last known space offline": {
+      "meta": {
+        "description": "The host remains host while offline; presence is no longer claimed as current.",
+        "snapshot": "the-person-remains-joined-while-presence-is-no-longer-claimed-as-current",
+        "recognize": [],
+        "checks": [
+          "The person remains joined while presence is no longer claimed as current."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/spaces-client/src/spaces-screen.tsx",
+          "libs/spaces-client/src/space-detail-screen.tsx",
+          "libs/spaces-client/src/space-ended-screen.tsx",
+          "libs/spaces-client/src/rename-space-modal.tsx",
+          "specs/spaces/space-host-leaves.feature",
+          "specs/spaces/space-host-limit.feature",
+          "specs/spaces/space-links.feature"
+        ]
+      },
+      "on": {
+        "Connection returns and the space is open": {
+          "target": "Hosting the open space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/spaces-client/src/spaces-screen.tsx",
+              "libs/spaces-client/src/space-detail-screen.tsx",
+              "libs/spaces-client/src/space-ended-screen.tsx",
+              "libs/spaces-client/src/rename-space-modal.tsx",
+              "specs/spaces/space-host-leaves.feature",
+              "specs/spaces/space-host-limit.feature",
+              "specs/spaces/space-links.feature"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

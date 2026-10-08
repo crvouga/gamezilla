@@ -1,0 +1,54 @@
+stateDiagram-v2
+  state "Viewing Play the same multiplayer board together" as s0
+  state "both multiplayer boards show the white pawn on e4 — 1" as s1
+  state "Bob is told it is not his multiplayer turn — 2" as s2
+  state "Alice is told that multiplayer move is illegal — 3" as s3
+  state "both multiplayer boards show one move — 4" as s4
+  state "Alice is told her multiplayer board has changed — 5" as s5
+  state "both people see Alice won the multiplayer game — 6" as s6
+  state "both people still see Alice won the multiplayer game — 7" as s7
+  state "both people see Bob won the multiplayer game by checkmate — 8" as s8
+  state "Alice is told the multiplayer game is over — 9" as s9
+  state "both people see the multiplayer move list '1  e4 e5 2  Nf3' — 10" as s10
+  state "Bob is told that multiplayer move is illegal — 11" as s11
+  state "Alice sees she won the multiplayer game — 12" as s12
+  state "both people see the multiplayer game is drawn by stalemate — 13" as s13
+  state "both people see the multiplayer game is drawn by repetition — 14" as s14
+  state "the multiplayer game is still unfinished — 15" as s15
+  state "both people see the multiplayer game is drawn by insufficient mating material — 16" as s16
+  state "both people see the multiplayer game is drawn by fifty moves — 17" as s17
+  [*] --> s0
+  s0 --> s1: Alice plays e2 to e4 as a multiplayer move when Alice is White and Bob is Black in a new multiplayer game
+  s0 --> s2: Bob plays e7 to e5 as a multiplayer move
+  s0 --> s3: Alice plays e2 to e5 as a multiplayer move
+  s0 --> s4: Alice repeats that multiplayer move
+  s0 --> s5: Alice plays d2 to d4 for her earlier multiplayer position
+  s0 --> s6: Bob resigns multiplayer chess
+  s0 --> s7: Bob resigns multiplayer chess again
+  s0 --> s8: Bob plays d8 to h4 as a multiplayer move
+  s0 --> s9: Alice plays e2 to e4 as a multiplayer move when Bob resigned multiplayer chess and Alice won
+  s0 --> s10: Alice plays g1 to f3 as a multiplayer move
+  s0 --> s11: Bob plays e7 to e4 as a multiplayer move
+  s0 --> s12: Alice opens multiplayer chess on another device
+  s0 --> s13: the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from stalemate
+  s0 --> s14: the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from its third appearance
+  s0 --> s15: the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from its second appearance
+  s0 --> s16: the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from insufficient mating material
+  s0 --> s17: the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from fifty moves without a pawn move or capture
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]
+  s17 --> [*]

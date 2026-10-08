@@ -1,0 +1,191 @@
+{
+  "id": "feedback-recording",
+  "initial": "Viewing Record a reproduction before giving feedback",
+  "meta": {
+    "context": "Product feedback",
+    "kind": "flow",
+    "owner": "Product feedback owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/feedback-client/src/recording.ts",
+      "pkgs/feedback-client/src/recording-types.ts",
+      "pkgs/feedback-client/src/interaction-recording.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Record a reproduction before giving feedback": {
+      "meta": {
+        "description": "The person is at the place where record a reproduction before giving feedback.",
+        "snapshot": "the-person-is-at-the-place-where-record-a-reproduction-before-giving-feedback",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:2"]
+      },
+      "on": {
+        "the team opens Support when the team's app is working": {
+          "target": "no recording has started — 1",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:9"],
+            "condition": ["the team's app is working"],
+            "example": "Support keeps the person's activity unrecorded"
+          }
+        },
+        "the team stops recording": {
+          "target": "the team can review the recording before sending feedback — 2",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:17"],
+            "condition": ["the team is recording a reproduction"],
+            "example": "Stopping a reproduction makes the recording available to review"
+          }
+        },
+        "the team sends the feedback when the team has stopped a reproduction recording and the team has described a bug saying 'Hint stays loading' expecting 'The hint appears' reproducing 'Open a puzzle and ask for a hint'": {
+          "target": "the local feedback includes the recording and its reproduction steps — 3",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:22"],
+            "condition": [
+              "the team has stopped a reproduction recording",
+              "the team has described a bug saying \"Hint stays loading\" expecting \"The hint appears\" reproducing \"Open a puzzle and ask for a hint\""
+            ],
+            "example": "Recorded reproduction steps accompany the feedback"
+          }
+        },
+        "the team discards the recording": {
+          "target": "the feedback has no recording — 4",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:30"],
+            "condition": ["the team has stopped a reproduction recording"],
+            "example": "Discarding a recording removes it from the feedback"
+          }
+        },
+        "the team opens Support when the team has stopped a reproduction recording": {
+          "target": "the team can review the recording before sending feedback — 5",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:35"],
+            "condition": ["the team has stopped a reproduction recording"],
+            "example": "Keeping a recording keeps it available to review"
+          }
+        },
+        "the team records a reproduction": {
+          "target": "the reproduction steps are recorded — 6",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:42"],
+            "condition": ["the team's device cannot record video"],
+            "example": "A device without video still records reproduction steps"
+          }
+        },
+        "the team sends the feedback when the team has described a bug saying 'Hint stays loading' expecting 'The hint appears' reproducing 'Open a puzzle and ask for a hint'": {
+          "target": "the team can read the local feedback — 7",
+          "meta": {
+            "source": ["specs/feedback/recording.feature:48"],
+            "condition": [
+              "the team has described a bug saying \"Hint stays loading\" expecting \"The hint appears\" reproducing \"Open a puzzle and ask for a hint\""
+            ],
+            "example": "A person can send a bug without recording it"
+          }
+        }
+      }
+    },
+    "no recording has started — 1": {
+      "meta": {
+        "description": "The person observes that no recording has started.",
+        "snapshot": "the-person-observes-that-no-recording-has-started",
+        "recognize": [],
+        "checks": ["no recording has started"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the team can review the recording before sending feedback — 2": {
+      "meta": {
+        "description": "The person observes that the team can review the recording before sending feedback.",
+        "snapshot": "the-person-observes-that-the-team-can-review-the-recording-before-sending-feedback",
+        "recognize": [],
+        "checks": ["the team can review the recording before sending feedback"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:17"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the local feedback includes the recording and its reproduction steps — 3": {
+      "meta": {
+        "description": "The person observes that the local feedback includes the recording and its reproduction steps.",
+        "snapshot": "the-person-observes-that-the-local-feedback-includes-the-recording-and-its-reproducti",
+        "recognize": [],
+        "checks": [
+          "the local feedback includes the recording and its reproduction steps"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:22"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the feedback has no recording — 4": {
+      "meta": {
+        "description": "The person observes that the feedback has no recording.",
+        "snapshot": "the-person-observes-that-the-feedback-has-no-recording",
+        "recognize": [],
+        "checks": ["the feedback has no recording"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:30"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the team can review the recording before sending feedback — 5": {
+      "meta": {
+        "description": "The person observes that the team can review the recording before sending feedback.",
+        "snapshot": "the-person-observes-that-the-team-can-review-the-recording-before-sending-feedback",
+        "recognize": [],
+        "checks": ["the team can review the recording before sending feedback"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:35"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the reproduction steps are recorded — 6": {
+      "meta": {
+        "description": "The person observes that the reproduction steps are recorded.",
+        "snapshot": "the-person-observes-that-the-reproduction-steps-are-recorded",
+        "recognize": [],
+        "checks": [
+          "the reproduction steps are recorded",
+          "the team is told video is unavailable"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:42"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the team can read the local feedback — 7": {
+      "meta": {
+        "description": "The person observes that the team can read the local feedback.",
+        "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
+        "recognize": [],
+        "checks": ["the team can read the local feedback"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/recording.feature:48"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,1648 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 32f1216fd777cea0cbdac95eddee4f0e6d5ff311f4fe05ba09b86fe49f8e148a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    endsIn: Seeing black wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 09c0091f619c8faf46fda8c9917e11fd03929cd78d1423fd375fe46e45fb8dc8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 88223be401013e6424b78773f7beefc04d53a0ad88a6db7ad04bbc3e831ac7ff
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    endsIn: Seeing black wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b014cc9420c53178c90aecc852d18da0369d9033c6ca6c43b3fcf8c5a725acf8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    endsIn: Seeing white wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8b3fa01f6eac371af781a015aa0c72e5342d4afa93fd52a5f7fbb6d7b29ea167
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fb310561cf97b6abc6cd4aecf3712350dd1d6de4cbd55b96796cd51b7ff2bbc1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 992f3222c63c6e184fd5106f92cfa0a25dec82a0e57651ba293863af3d29fd91
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b36e9a78cb26daea5dbe860e81ed4d85090a6f56aac8022e01d562b0f92f287c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    endsIn: Seeing white wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1e1b38b0786b1180e65bb486c17c2968dc44cc4571fdc07615ce30ab63a05410
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e0e82da0ffde4c5bebf033323fddfc03e85931a4da4dddce9c070596d5fc213a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3b0c5242554ea64678ab5fcb5ab8df89ff71c0e9c943375e26e0d3816ee726bd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 45320eb4a2480712f732e0f4ce12c01ddc5059ebc32cb69671960fc1f836adda
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3c6c76d1ae4d511ea1eae36f7ae46261376cb6bb2425e8407b8e5d4a03a77aae
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    endsIn: Seeing black wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1d6615f4c59cd2cc9f037fb0514d1684b16f3da64196b80830b7bd396df2939d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    endsIn: Seeing white wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8318a68e312bc67b3af22397afa46355934c6f5d95b3433a77621418631b292c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Custom time passes resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    endsIn: Seeing black wins on time
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7be80e2e975aa49e01c85701c905d746561ddaa4385e9d3b829cc71e8c15622e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Claim win resulting in seeing white wins by resignation
+    - Play custom move resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Resign custom game resulting in seeing white wins by resignation
+    - Cancel custom game resulting in seeing white wins by resignation
+    - Custom time passes resulting in seeing white wins by resignation
+    endsIn: Seeing white wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bf052d12714d5ac86d487d2af813c0025044998d59b2cabe8a1d29b0a4e32706
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 59a28ead682785cf5482e8d9ad9527413c6edbca14597f948b785a18fdce9ab3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    endsIn: Seeing black wins on time
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fbf61adc115d6e317cd1de1195f759757f9e4276d3ad49ef0fd43397a5bcb135
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Claim win resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Cancel custom game resulting in seeing black wins by resignation
+    - Play custom move resulting in seeing black wins by resignation
+    - Resign custom game resulting in seeing black wins by resignation
+    - Custom time passes resulting in seeing black wins by resignation
+    endsIn: Seeing black wins by resignation
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 97b03ec9938c5a350ceb4a77bf4c294ad3277f46356f379ba580a995672725db
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 5f22bfdd3b4ccd919361cc3f4bc5ce391ff29588193c2ec217ec6be52a64a01c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Resign custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e6d51529fee6ca00deb88fe6f29d36849c32c06d51a7c6e58796b85deac26829
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Cancel custom game resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    - Claim win resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Resign custom game resulting in seeing black wins on time
+    - Play custom move resulting in seeing black wins on time
+    - Custom time passes resulting in seeing black wins on time
+    endsIn: Seeing black wins on time
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3d5fa645e0377e9988c9406ce1c872de4d31e06605eddf3ce4891f633cb17b10
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Claim win resulting in playing a Custom Game
+    - Custom time passes resulting in playing a Custom Game
+    - Play custom move resulting in playing a Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Resign custom game resulting in seeing a cancelled Custom Game
+    - Cancel custom game resulting in seeing a cancelled Custom Game
+    - Custom time passes resulting in seeing a cancelled Custom Game
+    - Claim win resulting in seeing a cancelled Custom Game
+    - Play custom move resulting in seeing a cancelled Custom Game
+    endsIn: Seeing a cancelled Custom Game
+    quintTrace:
+      model: specs/chess/custom-game-play.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b060bbcfe4791bb2814a8836e794feb2a754f14d0901fae3a2868251a185768f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

@@ -1,0 +1,41 @@
+journeys:
+  A host returns to their open space from the lobby:
+    description: A host returns to their open space from the lobby
+    startingConditions:
+    - Alice is signed in
+    - Alice is hosting a space
+    - Alice has gone back to the lobby
+    events:
+    - Alice returns to their space
+    endsIn: Alice is in the space — 1
+    checks:
+    - Alice is in the space
+    gherkin:
+    - specs/spaces/space-lifecycle.feature:8 — A host returns to their open space from the lobby
+    exampleRow: []
+  A friend who steps out stops showing as present:
+    description: A friend who steps out stops showing as present
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    events:
+    - Bob goes back to the lobby
+    endsIn: Alice sees 1 person in the space within 20 seconds — 2
+    checks:
+    - Alice sees 1 person in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-lifecycle.feature:19 — A friend who steps out stops showing as present
+    exampleRow: []
+  Returning after stepping out shows the friend once:
+    description: Returning after stepping out shows the friend once
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Bob has gone back to the lobby
+    events:
+    - Bob joins Alice's space from the lobby
+    endsIn: Alice sees 2 people in the space within 20 seconds — 3
+    checks:
+    - Alice sees 2 people in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-lifecycle.feature:24 — Returning after stepping out shows the friend once
+    exampleRow: []

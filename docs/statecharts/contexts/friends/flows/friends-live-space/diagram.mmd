@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Friends in an open space" as s0
+  state "Bob's friends list shows Alice as live within 15 seconds — 1" as s1
+  state "Bob is in the space — 2" as s2
+  state "Bob's friends list stops showing Alice as live within 15 seconds — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice creates a space
+  s0 --> s2: Bob joins Alice's space from their friends list
+  s0 --> s3: Alice ends the space
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

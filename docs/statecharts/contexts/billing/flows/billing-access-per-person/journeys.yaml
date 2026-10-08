@@ -1,0 +1,28 @@
+journeys:
+  A guest is asked to sign in before subscribing:
+    description: A guest is asked to sign in before subscribing
+    startingConditions:
+    - Bob is a guest
+    events:
+    - Bob views the billing plans
+    endsIn: Bob has free access — 1
+    checks:
+    - Bob has free access
+    - Bob is asked to sign in before subscribing
+    gherkin:
+    - specs/billing/billing-access-per-person.feature:9 — A guest is asked to sign in before subscribing
+    exampleRow: []
+  Alice's membership does not carry over to Bob on her device:
+    description: Alice's membership does not carry over to Bob on her device
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice has signed out
+    events:
+    - Bob signs in with Google on Alice's device
+    endsIn: Bob has free access on Alice's device — 2
+    checks:
+    - Bob has free access on Alice's device
+    gherkin:
+    - specs/billing/billing-access-per-person.feature:15 — Alice's membership does not carry over to Bob on her
+      device
+    exampleRow: []

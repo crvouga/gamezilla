@@ -1,0 +1,66 @@
+journeys:
+  Promoting asks White which piece:
+    description: Promoting asks White which piece
+    startingConditions:
+    - Alice has an active Custom Game one move before White promotes on e8
+    events:
+    - Alice plays e7-e8 in the Custom Game
+    endsIn: Alice is asked which piece White promotes to on e8 — 1
+    checks:
+    - Alice is asked which piece White promotes to on e8
+    gherkin:
+    - specs/chess/custom-game-chess-rules.feature:11 — Promoting asks White which piece
+    exampleRow: []
+  Underpromotion to a knight is played as chosen:
+    description: Underpromotion to a knight is played as chosen
+    startingConditions:
+    - Alice has an active Custom Game one move before White promotes on e8
+    events:
+    - Alice plays e7-e8 and promotes to a knight in the Custom Game
+    endsIn: The Custom Game move list shows e8=N — 2
+    checks:
+    - The Custom Game move list shows e8=N
+    - Black is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-chess-rules.feature:15 — Underpromotion to a knight is played as chosen
+    exampleRow: []
+  White castles kingside:
+    description: White castles kingside
+    startingConditions:
+    - Alice has an active Custom Game one move before White castles kingside
+    events:
+    - Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game one move before White castles kingside
+    endsIn: The Custom Game move list shows O-O — 3
+    checks:
+    - The Custom Game move list shows O-O
+    - Black is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-chess-rules.feature:22 — White castles kingside
+    exampleRow: []
+  White captures en passant:
+    description: White captures en passant
+    startingConditions:
+    - Alice has an active Custom Game one move before White captures en passant on d6
+    events:
+    - Alice plays e5-d6 in the Custom Game
+    endsIn: The Custom Game move list shows exd6 — 4
+    checks:
+    - The Custom Game move list shows exd6
+    - Black is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-chess-rules.feature:28 — White captures en passant
+    exampleRow: []
+  Castling through check is refused:
+    description: Castling through check is refused
+    startingConditions:
+    - Alice has an active Custom Game where White's king would castle through check
+    events:
+    - Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game where White's king would castle
+      through check
+    endsIn: Alice is told the move is illegal — 5
+    checks:
+    - Alice is told the move is illegal
+    - White is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-chess-rules.feature:34 — Castling through check is refused
+    exampleRow: []

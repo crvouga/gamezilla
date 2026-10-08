@@ -1,0 +1,23 @@
+journeys:
+  Trial to canceled membership and expired grace:
+    description: A person starts Plus, cancels future renewal, and eventually returns to free access.
+    events:
+    - Chooses Plus with an account and an available provider
+    - Provider opens checkout
+    - Provider confirms the seven-day trial
+    - Trial ends with a successful payment
+    - Chooses to manage membership
+    - Provider opens the membership portal
+    - Provider reports cancellation at period end
+    - The billing period ends
+    - Seven-day grace expires
+    endsIn: Viewing free access
+  Checkout failure and recovery:
+    description: A failed request can be retried without claiming a successful payment.
+    events:
+    - Chooses Plus with an account and an available provider
+    - Provider refuses checkout
+    - Tries checkout again
+    - Provider opens checkout
+    - Provider confirms the seven-day trial
+    endsIn: Viewing free trial

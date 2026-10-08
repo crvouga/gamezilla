@@ -1,0 +1,127 @@
+journeys:
+  A note written offline still reaches others after an update that fetches every note again:
+    description: A note written offline still reaches others after an update that fetches every note again
+    startingConditions:
+    - Bob has written the note "Hotel" saying "Main St"
+    - Alice's app is offline
+    - Alice has written the note "Groceries" saying "milk"
+    events:
+    - Alice's app updates to a version that fetches every note again
+    - Alice's app comes back online
+    endsIn: Alice sees the note "Groceries" saying "milk" — 1 step 2
+    checks:
+    - Alice sees the note "Groceries" saying "milk"
+    - Alice sees the note "Hotel" saying "Main St"
+    - Bob sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:9 — A note written offline still reaches others after an
+      update that fetches every note again
+    exampleRow: []
+  After going back from a version that gives notes a colour, the app still has its notes and stays connected:
+    description: After going back from a version that <adds>, the app still has its notes and stays connected
+    startingConditions:
+    - Alice and Bob use the app
+    - Alice's app has updated to a version that gives notes a colour
+    - Alice has written the note "Groceries" saying "milk"
+    events:
+    - Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to
+      a version that gives notes a colour and Alice has written the note 'Groceries' saying 'milk'
+    endsIn: Alice sees the note "Groceries" saying "milk" — 2
+    checks:
+    - Alice sees the note "Groceries" saying "milk"
+    - Alice's app is still connected
+    - Bob sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:21 — After going back from a version that <adds>, the app
+      still has its notes and stays connected
+    exampleRow:
+    - '18'
+  After going back from a version that tags notes, the app still has its notes and stays connected:
+    description: After going back from a version that <adds>, the app still has its notes and stays connected
+    startingConditions:
+    - Alice and Bob use the app
+    - Alice's app has updated to a version that tags notes
+    - Alice has written the note "Groceries" saying "milk"
+    events:
+    - Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to
+      a version that tags notes and Alice has written the note 'Groceries' saying 'milk'
+    endsIn: Alice sees the note "Groceries" saying "milk" — 3
+    checks:
+    - Alice sees the note "Groceries" saying "milk"
+    - Alice's app is still connected
+    - Bob sees the note "Groceries" saying "milk"
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:21 — After going back from a version that <adds>, the app
+      still has its notes and stays connected
+    exampleRow:
+    - '19'
+  Going back to the earlier version keeps the colour a newer version gave a note:
+    description: Going back to the earlier version keeps the <detail> a newer version gave a note
+    startingConditions:
+    - Alice's app has updated to a version that gives notes a colour
+    - Alice has written the note "Groceries" saying "milk"
+    - Alice has given the note "Groceries" the colour green
+    events:
+    - Alice's app goes back to the earlier version when Alice's app has updated to a version that gives notes a
+      colour and Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the
+      colour green
+    - Alice's app updates to the version that gives notes a colour once more
+    endsIn: Alice sees the note "Groceries" coloured green — 4 step 2
+    checks:
+    - Alice sees the note "Groceries" coloured green
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:37 — Going back to the earlier version keeps the <detail>
+      a newer version gave a note
+    exampleRow:
+    - '30'
+  Going back to the earlier version keeps the tag a newer version gave a note:
+    description: Going back to the earlier version keeps the <detail> a newer version gave a note
+    startingConditions:
+    - Alice's app has updated to a version that tags notes
+    - Alice has written the note "Groceries" saying "milk"
+    - Alice has given the note "Groceries" the tag "shopping"
+    events:
+    - Alice's app goes back to the earlier version when Alice's app has updated to a version that tags notes and
+      Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the tag 'shopping'
+    - Alice's app updates to the version that tags notes once more
+    endsIn: Alice sees the note "Groceries" tagged "shopping" — 5 step 2
+    checks:
+    - Alice sees the note "Groceries" tagged "shopping"
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:37 — Going back to the earlier version keeps the <detail>
+      a newer version gave a note
+    exampleRow:
+    - '31'
+  A colour the team gives a note reaches Alice once her app updates to the version with colours:
+    description: A colour the team gives a note reaches Alice once her app updates to the version with colours
+    startingConditions:
+    - Alice's app is on a version without colours
+    - Alice has written the note "Groceries" saying "milk"
+    - the team has given the note "Groceries" the colour green
+    events:
+    - Alice's app updates to a version that gives notes a colour
+    endsIn: Alice sees the note "Groceries" coloured green — 6
+    checks:
+    - Alice sees the note "Groceries" coloured green
+    - Alice's app is still connected
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:51 — A colour the team gives a note reaches Alice once
+      her app updates to the version with colours
+    exampleRow: []
+  An edit from an earlier version keeps the colour a newer version gave the note:
+    description: An edit from an earlier version keeps the colour a newer version gave the note
+    startingConditions:
+    - Alice's app has updated to a version that gives notes a colour
+    - Bob's app is still on the earlier version
+    - Alice has written the note "Groceries" saying "milk"
+    - Alice has given the note "Groceries" the colour green
+    events:
+    - Bob writes the note 'Groceries' saying 'eggs'
+    endsIn: Alice sees the note "Groceries" saying "eggs" — 7
+    checks:
+    - Alice sees the note "Groceries" saying "eggs"
+    - Alice sees the note "Groceries" coloured green
+    gherkin:
+    - specs/sync-engine/notes-across-app-updates.feature:59 — An edit from an earlier version keeps the colour a
+      newer version gave the note
+    exampleRow: []

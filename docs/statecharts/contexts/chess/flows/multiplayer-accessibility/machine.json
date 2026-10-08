@@ -1,0 +1,320 @@
+{
+  "id": "chess-multiplayer-accessibility",
+  "initial": "Viewing Play multiplayer chess without a mouse or sight",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-matchmaking-client/src/use-multiplayer-data.ts",
+      "libs/chess-matchmaking-client/src/use-multiplayer-controls.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-waiting.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-screen.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-ratings.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Play multiplayer chess without a mouse or sight": {
+      "meta": {
+        "description": "The person is at the place where play multiplayer chess without a mouse or sight.",
+        "snapshot": "the-person-is-at-the-place-where-play-multiplayer-chess-without-a-mouse-or-sight",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:2"]
+      },
+      "on": {
+        "Alice finds a chess opponent for 5+0 with the keyboard": {
+          "target": "Alice is looking for a chess opponent — 1",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:9"],
+            "condition": [
+              "Alice has an account and is using the keyboard alone"
+            ],
+            "example": "A person using the keyboard can seek a chess opponent"
+          }
+        },
+        "Alice plays g1 to f3 as a multiplayer move with the keyboard": {
+          "target": "Bob has the multiplayer turn — 2",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:14"],
+            "condition": [
+              "Alice is White after e4 and e5 in a 5+0 multiplayer game and is using the keyboard alone"
+            ],
+            "example": "A person using the keyboard can move a piece and resign"
+          }
+        },
+        "Alice aborts the multiplayer game with the keyboard": {
+          "target": "both people see the multiplayer game was aborted — 3",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:20"],
+            "condition": [
+              "Alice is White in a new multiplayer game and is using the keyboard alone"
+            ],
+            "example": "A person using the keyboard can abort a new game"
+          }
+        },
+        "Alice offers a multiplayer draw with the keyboard": {
+          "target": "Bob is offered a multiplayer draw — 4",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:25"],
+            "condition": [
+              "Alice is White in a new multiplayer game and is using the keyboard alone"
+            ],
+            "example": "A person using the keyboard can offer a multiplayer draw"
+          }
+        },
+        "Alice offers a multiplayer rematch with the keyboard": {
+          "target": "Bob is offered a multiplayer rematch — 5",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:30"],
+            "condition": [
+              "Alice is using the keyboard alone after her 5+0 multiplayer game with Bob is over"
+            ],
+            "example": "A person using the keyboard can offer a multiplayer rematch"
+          }
+        },
+        "a matchmaking match is formed for Alice and Bob": {
+          "target": "Alice hears she was matched with Bob, his blitz rating, the time control and her colour — 6",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:38"],
+            "condition": [
+              "Alice is listening to the app while looking for a 3+2 chess opponent"
+            ],
+            "example": "A listener hears who they were matched with"
+          }
+        },
+        "Alice opens multiplayer chess when Alice is White in a new multiplayer game and is listening to the app": {
+          "target": "Alice hears she is White and has the multiplayer turn — 7",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:43"],
+            "condition": [
+              "Alice is White in a new multiplayer game and is listening to the app"
+            ],
+            "example": "A listener hears their side and the person whose turn it is"
+          }
+        },
+        "Alice opens multiplayer chess when Alice is listening to her unfinished multiplayer game with Bob": {
+          "target": "Alice hears the time left on both multiplayer clocks — 8",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:49"],
+            "condition": [
+              "Alice is listening to her unfinished multiplayer game with Bob"
+            ],
+            "example": "A listener hears the time left on both multiplayer clocks"
+          }
+        },
+        "Bob offers a multiplayer draw": {
+          "target": "Alice hears Bob offered her a multiplayer draw — 9",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:54"],
+            "condition": [
+              "Alice is listening to her unfinished multiplayer game with Bob"
+            ],
+            "example": "A listener hears a multiplayer draw offer"
+          }
+        },
+        "Bob aborts the multiplayer game": {
+          "target": "Alice hears the multiplayer game was aborted — 10",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:59"],
+            "condition": [
+              "Alice is White in a new multiplayer game and is listening to the app"
+            ],
+            "example": "A listener hears that the game was aborted"
+          }
+        },
+        "Bob offers a multiplayer rematch": {
+          "target": "Alice hears Bob offered her a multiplayer rematch — 11",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:64"],
+            "condition": [
+              "Alice is listening to the app after her 5+0 multiplayer game with Bob is over"
+            ],
+            "example": "A listener hears a multiplayer rematch offer"
+          }
+        },
+        "Bob resigns multiplayer chess": {
+          "target": "Alice hears she won the multiplayer game — 12",
+          "meta": {
+            "source": ["specs/chess/multiplayer-accessibility.feature:69"],
+            "condition": [
+              "Alice is listening to her 5+0 multiplayer game with Bob after e4 and e5"
+            ],
+            "example": "A listener hears an accepted multiplayer result"
+          }
+        }
+      }
+    },
+    "Alice is looking for a chess opponent — 1": {
+      "meta": {
+        "description": "The person observes that alice is looking for a chess opponent.",
+        "snapshot": "the-person-observes-that-alice-is-looking-for-a-chess-opponent",
+        "recognize": [],
+        "checks": ["Alice is looking for a chess opponent"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob has the multiplayer turn — 2": {
+      "meta": {
+        "description": "The person observes that bob has the multiplayer turn.",
+        "snapshot": "the-person-observes-that-bob-has-the-multiplayer-turn",
+        "recognize": [],
+        "checks": [
+          "Bob has the multiplayer turn",
+          "Alice can resign multiplayer chess with the keyboard"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "both people see the multiplayer game was aborted — 3": {
+      "meta": {
+        "description": "The person observes that both people see the multiplayer game was aborted.",
+        "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-was-aborted",
+        "recognize": [],
+        "checks": ["both people see the multiplayer game was aborted"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:20"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is offered a multiplayer draw — 4": {
+      "meta": {
+        "description": "The person observes that bob is offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-bob-is-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": ["Bob is offered a multiplayer draw"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:25"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is offered a multiplayer rematch — 5": {
+      "meta": {
+        "description": "The person observes that bob is offered a multiplayer rematch.",
+        "snapshot": "the-person-observes-that-bob-is-offered-a-multiplayer-rematch",
+        "recognize": [],
+        "checks": ["Bob is offered a multiplayer rematch"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:30"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears she was matched with Bob, his blitz rating, the time control and her colour — 6": {
+      "meta": {
+        "description": "The person observes that alice hears she was matched with Bob, his blitz rating, the time control and her colour.",
+        "snapshot": "the-person-observes-that-alice-hears-she-was-matched-with-bob-his-blitz-rating-the-ti",
+        "recognize": [],
+        "checks": [
+          "Alice hears she was matched with Bob, his blitz rating, the time control and her colour"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:38"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears she is White and has the multiplayer turn — 7": {
+      "meta": {
+        "description": "The person observes that alice hears she is White and has the multiplayer turn.",
+        "snapshot": "the-person-observes-that-alice-hears-she-is-white-and-has-the-multiplayer-turn",
+        "recognize": [],
+        "checks": [
+          "Alice hears she is White and has the multiplayer turn",
+          "Alice hears what every multiplayer control does"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:43"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the time left on both multiplayer clocks — 8": {
+      "meta": {
+        "description": "The person observes that alice hears the time left on both multiplayer clocks.",
+        "snapshot": "the-person-observes-that-alice-hears-the-time-left-on-both-multiplayer-clocks",
+        "recognize": [],
+        "checks": ["Alice hears the time left on both multiplayer clocks"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:49"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears Bob offered her a multiplayer draw — 9": {
+      "meta": {
+        "description": "The person observes that alice hears Bob offered her a multiplayer draw.",
+        "snapshot": "the-person-observes-that-alice-hears-bob-offered-her-a-multiplayer-draw",
+        "recognize": [],
+        "checks": ["Alice hears Bob offered her a multiplayer draw"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:54"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the multiplayer game was aborted — 10": {
+      "meta": {
+        "description": "The person observes that alice hears the multiplayer game was aborted.",
+        "snapshot": "the-person-observes-that-alice-hears-the-multiplayer-game-was-aborted",
+        "recognize": [],
+        "checks": ["Alice hears the multiplayer game was aborted"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:59"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears Bob offered her a multiplayer rematch — 11": {
+      "meta": {
+        "description": "The person observes that alice hears Bob offered her a multiplayer rematch.",
+        "snapshot": "the-person-observes-that-alice-hears-bob-offered-her-a-multiplayer-rematch",
+        "recognize": [],
+        "checks": ["Alice hears Bob offered her a multiplayer rematch"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:64"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears she won the multiplayer game — 12": {
+      "meta": {
+        "description": "The person observes that alice hears she won the multiplayer game.",
+        "snapshot": "the-person-observes-that-alice-hears-she-won-the-multiplayer-game",
+        "recognize": [],
+        "checks": ["Alice hears she won the multiplayer game"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/multiplayer-accessibility.feature:69"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

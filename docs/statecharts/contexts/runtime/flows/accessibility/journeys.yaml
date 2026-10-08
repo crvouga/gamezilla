@@ -1,0 +1,89 @@
+journeys:
+  Someone listening hears what every control on the tabs does:
+    description: Someone listening hears what every control on the tabs does
+    startingConditions:
+    - Alice is listening to the app
+    events:
+    - Alice opens the app
+    endsIn: Alice hears what every control on the tabs does — 1
+    checks:
+    - Alice hears what every control on the tabs does
+    gherkin:
+    - specs/runtime/accessibility.feature:13 — Someone listening hears what every control on the tabs does
+    exampleRow: []
+  Someone listening hears what every control in Settings does:
+    description: Someone listening hears what every control in Settings does
+    startingConditions:
+    - Alice is listening to the app
+    events:
+    - Alice opens Settings when Alice is listening to the app
+    endsIn: Alice hears what every control in Settings does — 2
+    checks:
+    - Alice hears what every control in Settings does
+    gherkin:
+    - specs/runtime/accessibility.feature:17 — Someone listening hears what every control in Settings does
+    exampleRow: []
+  Someone listening hears their avatar described:
+    description: Someone listening hears their avatar described
+    startingConditions:
+    - Alice is listening to the app
+    events:
+    - Alice opens the Profile tab
+    endsIn: Alice hears the picture on their profile described as their avatar — 3
+    checks:
+    - Alice hears the picture on their profile described as their avatar
+    gherkin:
+    - specs/runtime/accessibility.feature:24 — Someone listening hears their avatar described
+    exampleRow: []
+  A person using the keyboard alone goes to another tab:
+    description: A person using the keyboard alone goes to another tab
+    startingConditions:
+    - Alice is using the keyboard alone
+    events:
+    - Alice opens the Notifications tab
+    endsIn: Alice is on Notifications — 4
+    checks:
+    - Alice is on Notifications
+    gherkin:
+    - specs/runtime/accessibility.feature:35 — A person using the keyboard alone goes to another tab
+    exampleRow: []
+  The keyboard reaches every control on the tabs once, in the order they are shown:
+    description: The keyboard reaches every control on the tabs once, in the order they are shown
+    startingConditions:
+    - Alice is using the keyboard alone
+    events:
+    - Alice moves the keyboard through the tabs
+    endsIn: Alice's keyboard reaches every control on the tabs once, in the order they are shown — 5
+    checks:
+    - Alice's keyboard reaches every control on the tabs once, in the order they are shown
+    gherkin:
+    - specs/runtime/accessibility.feature:39 — The keyboard reaches every control on the tabs once, in the order
+      they are shown
+    exampleRow: []
+  Opening Settings brings the keyboard into Settings:
+    description: Opening Settings brings the keyboard into Settings
+    startingConditions:
+    - Alice is using the keyboard alone
+    events:
+    - Alice opens Settings when Alice is using the keyboard alone
+    endsIn: Alice is on Settings — 6
+    checks:
+    - Alice is on Settings
+    - Alice's keyboard is in Settings
+    gherkin:
+    - specs/runtime/accessibility.feature:49 — Opening Settings brings the keyboard into Settings
+    exampleRow: []
+  Coming back from Settings puts the keyboard back where it was:
+    description: Coming back from Settings puts the keyboard back where it was
+    startingConditions:
+    - Alice is using the keyboard alone
+    - Alice has opened Settings from Spaces
+    events:
+    - Alice comes back from Settings
+    endsIn: Alice is on Spaces — 7
+    checks:
+    - Alice is on Spaces
+    - Alice's keyboard is back where it was before Alice opened Settings
+    gherkin:
+    - specs/runtime/accessibility.feature:54 — Coming back from Settings puts the keyboard back where it was
+    exampleRow: []

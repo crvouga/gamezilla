@@ -1,0 +1,2737 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 049186cd2d9cba4ba44e6935686aaf82e87672ea367dc7158da1f8c72a0c7115
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d8500e584eabc0db81a818c72a06fa1d4f9d64e9cf7b2cb11cb76cc6c3fadbe6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6e47418880297e845940de0bfd0dd7aaff750bbb7015e98010a7f406bd78da4d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    endsIn: Seeing no note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 5f503be7a6ebe21b4951c6df8749209fe729edb5fb83424d5ca62b19c5ff1b6b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    endsIn: Seeing no note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8134c831716b91ac52d9a492df3053df0132b84195a3861fb4f26d94bae65a61
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 75957d97466b4fdc74dd880db5bd46934ea2d24617d82e4cc465da77d02f50be
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d0d05062834ae9d223245d2642fad3bca4733f25cf3a21baa3a1c24c120973f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e26becaf0dd96d60b670167ce32fa2c953ba6ec82a785ecfce5676d97b042031
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7ffa44aa54c6bd61b512301e1aea821349916092d15afc3ec75b0935e6b30d97
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8c0316e9bedea2844d020080bdea0447178fc2000358fdbaf3bbf1c26f4efad3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7ccb6bfebb47bd5ae398df8567b179be5d03b9fbbb3a06d17f52836506eb45c7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8dfa4d0e697f9093df31c14e45c84a390991e715e4349f3884fa83e672792459
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cf196c73986c7768c378b7b5b7d960c65002fe51429f61c1e8fe24d895ec36eb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 865656a79c4d612c4a4cc55faa36be4b56b94e8fcc7e4eabe775155bfb845907
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3295149ce39b97619499d605dd810b5aa281bc1ccba34395f821bfe326c62c43
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Hear back resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    endsIn: Seeing no note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3824f886a530e6e2dcc26b34bb88081c18b4db3d403c0e8f2f13fa6ed1ff80e1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2896d7dfe6efbdc446bd62040e615c7417d804c8188d0b78dc95ffd941a00dd2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: deb36645de7f15e3b9553a0e6cf1a0b9b600e4ae941e60bc03429c27b6f2f5de
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 62314b73b71f351b942cf3db5cbdef4f5da9c030102fbee2a77b1f5aa5ec8f3c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a9e1426e5b6ea932fc33ce03fd7d98871657492e2d933681a0f4eeed16b0ef19
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 25aea975a5578e7bcaa5d246c7971577e7f396ec42e92648233b241d8ca8e45f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Write unheard resulting in seeing no note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go online resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Go offline resulting in seeing no note
+    endsIn: Seeing no note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e1d37f2c06be8b207e0facd85b3777eedb36322bc23f2e5b8840d8bb14a05a96
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6793383b7aae070b200b57ff72e3367708a35bf8640e799f8b28bfce2bc4dc53
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in seeing no note
+    - Go offline resulting in seeing no note
+    - Write unheard resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Hear back resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    - Go offline resulting in reading a saved note
+    - Go online resulting in reading a saved note
+    endsIn: Reading a saved note
+    quintTrace:
+      model: specs/sync-engine/note-refusal-recovery.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 287bff84f6e0c3e90b2f4a5562668a232fe0136d17ddfe3039ac4f5ece63552c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

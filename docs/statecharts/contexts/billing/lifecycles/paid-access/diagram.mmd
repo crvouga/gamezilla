@@ -1,0 +1,206 @@
+stateDiagram-v2
+  state "Opening paid access" as s0
+  state "Viewing free access online with incomplete membership" as s1
+  state "Viewing free access offline with incomplete membership" as s2
+  state "Viewing paid access online with delinquent membership" as s3
+  state "Viewing paid access online with active membership" as s4
+  state "Viewing paid access online with trialing membership" as s5
+  state "Viewing paid access offline with delinquent membership" as s6
+  state "Viewing paid access offline with trialing membership" as s7
+  state "Viewing paid access online with ended membership" as s8
+  state "Viewing paid access offline with active membership" as s9
+  state "Viewing free access online with delinquent membership" as s10
+  state "Viewing free access offline with delinquent membership" as s11
+  state "Viewing free access online with ended membership" as s12
+  state "Viewing free access online with unreadable membership" as s13
+  state "Viewing free access offline with unreadable membership" as s14
+  state "Viewing free access offline with ended membership" as s15
+  state "Viewing free access offline with trialing membership" as s16
+  state "Viewing free access offline with active membership" as s17
+  state "Viewing paid access offline with ended membership" as s18
+  [*] --> s0
+  s0 --> s1: Opens with viewing free access online with incomplete membership
+  s1 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s1 --> s1: Another day passes resulting in viewing free access online with incomplete membership
+  s1 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s1 --> s1: The membership is confirmed online resulting in viewing free access online with incomplete membership
+  s1 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s1 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s1 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s1 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s1 --> s13: The provider reports a membership change resulting in viewing free access online with unreadable membership
+  s1 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s1 --> s12: The provider reports a membership change resulting in viewing free access online with ended membership
+  s1 --> s8: The provider reports a membership change resulting in viewing paid access online with ended membership
+  s1 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s1 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s1 --> s15: Loses the connection resulting in viewing free access offline with ended membership
+  s2 --> s2: The provider reports a membership change resulting in viewing free access offline with incomplete membership
+  s2 --> s3: The connection returns resulting in viewing paid access online with delinquent membership
+  s2 --> s1: The connection returns resulting in viewing free access online with incomplete membership
+  s2 --> s2: Another day passes resulting in viewing free access offline with incomplete membership
+  s2 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s2 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s2 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s2 --> s13: The connection returns resulting in viewing free access online with unreadable membership
+  s2 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s2 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s3 --> s3: The membership is confirmed online resulting in viewing paid access online with delinquent membership
+  s3 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s3 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s3 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s3 --> s3: Another day passes resulting in viewing paid access online with delinquent membership
+  s3 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s3 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s3 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s3 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s4 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s4 --> s4: Another day passes resulting in viewing paid access online with active membership
+  s4 --> s4: The membership is confirmed online resulting in viewing paid access online with active membership
+  s4 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s4 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s4 --> s8: The provider reports a membership change resulting in viewing paid access online with ended membership
+  s4 --> s12: The provider reports a membership change resulting in viewing free access online with ended membership
+  s4 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s4 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s4 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s4 --> s16: Loses the connection resulting in viewing free access offline with trialing membership
+  s4 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s4 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s4 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s4 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s4 --> s17: Loses the connection resulting in viewing free access offline with active membership
+  s4 --> s13: The provider reports a membership change resulting in viewing free access online with unreadable membership
+  s4 --> s15: Loses the connection resulting in viewing free access offline with ended membership
+  s5 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s5 --> s5: Another day passes resulting in viewing paid access online with trialing membership
+  s5 --> s5: The membership is confirmed online resulting in viewing paid access online with trialing membership
+  s5 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s5 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s5 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s5 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s5 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s5 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s5 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s5 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s5 --> s14: Loses the connection resulting in viewing free access offline with unreadable membership
+  s5 --> s12: The provider reports a membership change resulting in viewing free access online with ended membership
+  s5 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s5 --> s15: Loses the connection resulting in viewing free access offline with ended membership
+  s5 --> s16: Loses the connection resulting in viewing free access offline with trialing membership
+  s6 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s6 --> s6: The provider reports a membership change resulting in viewing paid access offline with delinquent membership
+  s6 --> s13: The connection returns resulting in viewing free access online with unreadable membership
+  s6 --> s11: Another day passes resulting in viewing free access offline with delinquent membership
+  s6 --> s6: Another day passes resulting in viewing paid access offline with delinquent membership
+  s6 --> s1: The connection returns resulting in viewing free access online with incomplete membership
+  s6 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s6 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s6 --> s3: The connection returns resulting in viewing paid access online with delinquent membership
+  s6 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s7 --> s7: Another day passes resulting in viewing paid access offline with trialing membership
+  s7 --> s7: The provider reports a membership change resulting in viewing paid access offline with trialing membership
+  s7 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s7 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s7 --> s3: The connection returns resulting in viewing paid access online with delinquent membership
+  s7 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s7 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s7 --> s16: Another day passes resulting in viewing free access offline with trialing membership
+  s7 --> s1: The connection returns resulting in viewing free access online with incomplete membership
+  s7 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s8 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s8 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s8 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s8 --> s8: The membership is confirmed online resulting in viewing paid access online with ended membership
+  s8 --> s8: The provider reports a membership change resulting in viewing paid access online with ended membership
+  s8 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s8 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s8 --> s8: Another day passes resulting in viewing paid access online with ended membership
+  s8 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s8 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s8 --> s18: Loses the connection resulting in viewing paid access offline with ended membership
+  s8 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s8 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s9 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s9 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s9 --> s9: Another day passes resulting in viewing paid access offline with active membership
+  s9 --> s9: The provider reports a membership change resulting in viewing paid access offline with active membership
+  s9 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s9 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s9 --> s1: The connection returns resulting in viewing free access online with incomplete membership
+  s9 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s9 --> s17: Another day passes resulting in viewing free access offline with active membership
+  s9 --> s13: The connection returns resulting in viewing free access online with unreadable membership
+  s10 --> s10: The membership is confirmed online resulting in viewing free access online with delinquent membership
+  s10 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s10 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s10 --> s10: Another day passes resulting in viewing free access online with delinquent membership
+  s10 --> s12: The provider reports a membership change resulting in viewing free access online with ended membership
+  s10 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s10 --> s13: The provider reports a membership change resulting in viewing free access online with unreadable membership
+  s10 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s10 --> s7: Loses the connection resulting in viewing paid access offline with trialing membership
+  s10 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s10 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s10 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s10 --> s15: Loses the connection resulting in viewing free access offline with ended membership
+  s10 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s10 --> s16: Loses the connection resulting in viewing free access offline with trialing membership
+  s11 --> s11: Another day passes resulting in viewing free access offline with delinquent membership
+  s11 --> s11: The provider reports a membership change resulting in viewing free access offline with delinquent membership
+  s11 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s11 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s11 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s11 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s11 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s11 --> s13: The connection returns resulting in viewing free access online with unreadable membership
+  s12 --> s12: Another day passes resulting in viewing free access online with ended membership
+  s12 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s12 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s12 --> s12: The membership is confirmed online resulting in viewing free access online with ended membership
+  s12 --> s15: Loses the connection resulting in viewing free access offline with ended membership
+  s12 --> s14: Loses the connection resulting in viewing free access offline with unreadable membership
+  s12 --> s13: The provider reports a membership change resulting in viewing free access online with unreadable membership
+  s12 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s12 --> s12: The provider reports a membership change resulting in viewing free access online with ended membership
+  s12 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s12 --> s10: The provider reports a membership change resulting in viewing free access online with delinquent membership
+  s12 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s12 --> s8: The provider reports a membership change resulting in viewing paid access online with ended membership
+  s12 --> s3: The provider reports a membership change resulting in viewing paid access online with delinquent membership
+  s13 --> s6: Loses the connection resulting in viewing paid access offline with delinquent membership
+  s13 --> s13: The membership is confirmed online resulting in viewing free access online with unreadable membership
+  s13 --> s14: Loses the connection resulting in viewing free access offline with unreadable membership
+  s13 --> s13: The provider reports a membership change resulting in viewing free access online with unreadable membership
+  s13 --> s5: The provider reports a membership change resulting in viewing paid access online with trialing membership
+  s13 --> s13: Another day passes resulting in viewing free access online with unreadable membership
+  s13 --> s2: Loses the connection resulting in viewing free access offline with incomplete membership
+  s13 --> s1: The provider reports a membership change resulting in viewing free access online with incomplete membership
+  s13 --> s11: Loses the connection resulting in viewing free access offline with delinquent membership
+  s13 --> s9: Loses the connection resulting in viewing paid access offline with active membership
+  s13 --> s4: The provider reports a membership change resulting in viewing paid access online with active membership
+  s14 --> s14: Another day passes resulting in viewing free access offline with unreadable membership
+  s14 --> s14: The provider reports a membership change resulting in viewing free access offline with unreadable membership
+  s14 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s14 --> s13: The connection returns resulting in viewing free access online with unreadable membership
+  s14 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s15 --> s15: The provider reports a membership change resulting in viewing free access offline with ended membership
+  s15 --> s15: Another day passes resulting in viewing free access offline with ended membership
+  s15 --> s12: The connection returns resulting in viewing free access online with ended membership
+  s15 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s15 --> s1: The connection returns resulting in viewing free access online with incomplete membership
+  s15 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s15 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s16 --> s16: The provider reports a membership change resulting in viewing free access offline with trialing membership
+  s16 --> s16: Another day passes resulting in viewing free access offline with trialing membership
+  s16 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s16 --> s5: The connection returns resulting in viewing paid access online with trialing membership
+  s16 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s17 --> s4: The connection returns resulting in viewing paid access online with active membership
+  s17 --> s17: Another day passes resulting in viewing free access offline with active membership
+  s17 --> s17: The provider reports a membership change resulting in viewing free access offline with active membership
+  s17 --> s10: The connection returns resulting in viewing free access online with delinquent membership
+  s18 --> s18: Another day passes resulting in viewing paid access offline with ended membership
+  s18 --> s8: The connection returns resulting in viewing paid access online with ended membership
+  s18 --> s18: The provider reports a membership change resulting in viewing paid access offline with ended membership
+  s18 --> s4: The connection returns resulting in viewing paid access online with active membership

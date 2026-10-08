@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Profile changes reach other people" as s0
+  state "Alice sees @robert_1 appear in their friends list within 15 seconds — 1" as s1
+  state "Alice's search shows @robert_1 — 2" as s2
+  state "Alice's search shows nobody — 3" as s3
+  state "Alice's friends list shows Bob under a stand-in name within 15 seconds — 4" as s4
+  state "Alice cannot find Bob by @chess_cheater — 5" as s5
+  [*] --> s0
+  s0 --> s1: Bob renames themselves to @robert_1
+  s0 --> s2: Alice searches for 'robert_1'
+  s0 --> s3: Alice searches for 'bob'
+  s0 --> s4: the team stops allowing the username @chess_cheater
+  s0 --> s5: Alice searches for 'chess_cheater'
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

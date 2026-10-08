@@ -1,0 +1,39 @@
+stateDiagram-v2
+  state "Viewing Offer a multiplayer draw" as s0
+  state "Bob is offered a multiplayer draw — 1" as s1
+  state "Bob is still offered a multiplayer draw — 2" as s2
+  state "Alice is told the multiplayer game is over — 3" as s3
+  state "both people see the multiplayer game is drawn by agreement — 4" as s4
+  state "both people see the multiplayer game is drawn by agreement — 5" as s5
+  state "Alice is told only Bob may answer her multiplayer draw offer — 6" as s6
+  state "Bob is told no multiplayer draw offer is waiting — 7" as s7
+  state "neither person is offered a multiplayer draw — 8" as s8
+  state "Alice is told only Bob may answer her multiplayer draw offer — 9" as s9
+  state "Bob is told no multiplayer draw offer is waiting — 10" as s10
+  state "neither person is offered a multiplayer draw — 11" as s11
+  state "Bob is still offered a multiplayer draw — 12" as s12
+  [*] --> s0
+  s0 --> s1: Alice offers a multiplayer draw when Alice is White and Bob is Black in a new multiplayer game
+  s0 --> s2: Alice offers a multiplayer draw when Alice has offered Bob a multiplayer draw
+  s0 --> s3: Alice offers a multiplayer draw when Bob resigned multiplayer chess and Alice won
+  s0 --> s4: Bob accepts the multiplayer draw when Alice has offered Bob a multiplayer draw
+  s0 --> s5: Bob offers a multiplayer draw
+  s0 --> s6: Alice accepts the multiplayer draw
+  s0 --> s7: Bob accepts the multiplayer draw when Alice is White and Bob is Black in a new multiplayer game
+  s0 --> s8: Bob declines the multiplayer draw when Alice has offered Bob a multiplayer draw
+  s0 --> s9: Alice declines the multiplayer draw
+  s0 --> s10: Bob declines the multiplayer draw when Alice is White and Bob is Black in a new multiplayer game
+  s0 --> s11: Bob plays e7 to e5 as a multiplayer move
+  s0 --> s12: Alice plays e2 to e4 as a multiplayer move
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]

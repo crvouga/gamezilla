@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing An expired card" as s0
+  state "Alice's membership is delinquent — 1" as s1
+  state "Alice's membership is active — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice's billing period ends
+  s0 --> s2: Alice pays with a new card in the billing portal
+  s1 --> [*]
+  s2 --> [*]

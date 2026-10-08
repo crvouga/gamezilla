@@ -1,0 +1,73 @@
+journeys:
+  Black's board faces Black when the game starts:
+    description: Black's board faces Black when the game starts
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    - Alice and Bob are ready for the Custom Game
+    events:
+    - Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice
+      and Bob are ready for the Custom Game
+    endsIn: Bob's board faces Black — 1
+    checks:
+    - Bob's board faces Black
+    - Alice's board faces White
+    gherkin:
+    - specs/chess/custom-game-board.feature:8 — Black's board faces Black when the game starts
+    exampleRow: []
+  A watcher's board faces White:
+    description: A watcher's board faces White
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    - Alice and Bob are ready for the Custom Game
+    - Carol is in Alice's space
+    events:
+    - Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice
+      and Bob are ready for the Custom Game and Carol is in Alice's space
+    endsIn: Carol's board faces White — 2
+    checks:
+    - Carol's board faces White
+    gherkin:
+    - specs/chess/custom-game-board.feature:15 — A watcher's board faces White
+    exampleRow: []
+  A creator watching two bots sees the board facing White:
+    description: A creator watching two bots sees the board facing White
+    startingConditions:
+    - Alice has a configuring Custom Game
+    - White and Black in the Custom Game are bots
+    events:
+    - Alice starts the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game
+      are bots
+    endsIn: Alice's board faces White — 3
+    checks:
+    - Alice's board faces White
+    gherkin:
+    - specs/chess/custom-game-board.feature:22 — A creator watching two bots sees the board facing White
+    exampleRow: []
+  Swapping sides turns both people's boards:
+    description: Swapping sides turns both people's boards
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice swaps White and Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob
+      as Black
+    endsIn: Alice's board faces Black — 4
+    checks:
+    - Alice's board faces Black
+    - Bob's board faces White
+    gherkin:
+    - specs/chess/custom-game-board.feature:30 — Swapping sides turns both people's boards
+    exampleRow: []
+  A refused swap after start leaves each board facing the same side:
+    description: A refused swap after start leaves each board facing the same side
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice swaps White and Black in the Custom Game when Alice has an active Custom Game between Alice as White
+      and Bob as Black
+    endsIn: Alice is told the Custom Game has already started — 5
+    checks:
+    - Alice is told the Custom Game has already started
+    - Bob's board faces Black
+    gherkin:
+    - specs/chess/custom-game-board.feature:36 — A refused swap after start leaves each board facing the same side
+    exampleRow: []

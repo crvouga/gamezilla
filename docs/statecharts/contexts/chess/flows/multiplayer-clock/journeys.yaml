@@ -1,0 +1,137 @@
+journeys:
+  Waiting for White's first move costs nobody any time:
+    description: Waiting for White's first move costs nobody any time
+    startingConditions:
+    - Alice is White and Bob is Black in a new 1+0 multiplayer game
+    events:
+    - 20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new 1+0 multiplayer game
+    endsIn: both people still see 60 seconds on White's multiplayer clock and 60 seconds on Black's — 1
+    checks:
+    - both people still see 60 seconds on White's multiplayer clock and 60 seconds on Black's
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:9 — Waiting for White's first move costs nobody any time
+    exampleRow: []
+  White's multiplayer clock runs once both people have moved:
+    description: White's multiplayer clock runs once both people have moved
+    startingConditions:
+    - Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
+    events:
+    - 20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after
+      e4 and e5
+    endsIn: both people see 40 seconds on White's multiplayer clock and 60 seconds on Black's — 2
+    checks:
+    - both people see 40 seconds on White's multiplayer clock and 60 seconds on Black's
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:14 — White's multiplayer clock runs once both people have moved
+    exampleRow: []
+  White's legal move adds the increment to White:
+    description: White's legal move adds the increment to White
+    startingConditions:
+    - Alice is White and Bob is Black in a 2+1 multiplayer game after e4 and e5
+    - 5 seconds have passed in multiplayer chess
+    events:
+    - Alice plays g1 to f3 as a multiplayer move when Alice is White and Bob is Black in a 2+1 multiplayer game
+      after e4 and e5 and 5 seconds have passed in multiplayer chess
+    endsIn: both people see 116 seconds on White's multiplayer clock and 120 seconds on Black's — 3
+    checks:
+    - both people see 116 seconds on White's multiplayer clock and 120 seconds on Black's
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:24 — White's legal move adds the increment to White
+    exampleRow: []
+  A move out of turn earns no increment:
+    description: A move out of turn earns no increment
+    startingConditions:
+    - Alice is White and Bob is Black in a 2+1 multiplayer game after e4 and e5
+    events:
+    - Bob plays d7 to d5 as a multiplayer move
+    endsIn: Bob is told it is not his multiplayer turn — 4
+    checks:
+    - Bob is told it is not his multiplayer turn
+    - both people still see 120 seconds on White's multiplayer clock and 120 seconds on Black's
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:29 — A move out of turn earns no increment
+    exampleRow: []
+  White runs out of time and loses the multiplayer game:
+    description: White runs out of time and loses the multiplayer game
+    startingConditions:
+    - Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
+    events:
+    - 60 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after
+      e4 and e5
+    endsIn: both people see Bob won the multiplayer game because White ran out of time — 5
+    checks:
+    - both people see Bob won the multiplayer game because White ran out of time
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:39 — White runs out of time and loses the multiplayer game
+    exampleRow: []
+  A move at the moment White runs out of time is refused:
+    description: A move at the moment White runs out of time is refused
+    startingConditions:
+    - Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
+    - White's multiplayer clock has run out
+    events:
+    - Alice plays g1 to f3 as a multiplayer move when Alice is White and Bob is Black in a 1+0 multiplayer game
+      after e4 and e5 and White's multiplayer clock has run out
+    endsIn: Alice is told the multiplayer game is over — 6
+    checks:
+    - Alice is told the multiplayer game is over
+    - both people see Bob won the multiplayer game because White ran out of time
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:43 — A move at the moment White runs out of time is refused
+    exampleRow: []
+  Running out of time against a bare king ends in a multiplayer draw:
+    description: Running out of time against a bare king ends in a multiplayer draw
+    startingConditions:
+    - Bob has only his king left as Black in his 1+0 multiplayer game with Alice
+    - Alice has 1 second left on White's multiplayer clock on her turn
+    events:
+    - 1 second passes in multiplayer chess when Bob has only his king left as Black in his 1+0 multiplayer game
+      with Alice and Alice has 1 second left on White's multiplayer clock on her turn
+    endsIn: both people see the multiplayer game is drawn by White running out of time against a bare king — 7
+    checks:
+    - both people see the multiplayer game is drawn by White running out of time against a bare king
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:51 — Running out of time against a bare king ends in a multiplayer draw
+    exampleRow: []
+  Running out of time against a king and knight still loses:
+    description: Running out of time against a king and knight still loses
+    startingConditions:
+    - Bob has only his king and a knight left as Black in his 1+0 multiplayer game with Alice
+    - Alice has 1 second left on White's multiplayer clock on her turn
+    events:
+    - 1 second passes in multiplayer chess when Bob has only his king and a knight left as Black in his 1+0 multiplayer
+      game with Alice and Alice has 1 second left on White's multiplayer clock on her turn
+    endsIn: the multiplayer game is still won by Bob because White ran out of time — 8
+    checks:
+    - the multiplayer game is still won by Bob because White ran out of time
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:57 — Running out of time against a king and knight still loses
+    exampleRow: []
+  Being offline on one's turn can still run out of time:
+    description: Being offline on one's turn can still run out of time
+    startingConditions:
+    - Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
+    - Alice's phone is offline
+    events:
+    - 60 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after
+      e4 and e5 and Alice's phone is offline
+    endsIn: Bob sees he won the multiplayer game because White ran out of time — 9
+    checks:
+    - Bob sees he won the multiplayer game because White ran out of time
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:69 — Being offline on one's turn can still run out of time
+    exampleRow: []
+  Being offline with time left does not end the game:
+    description: Being offline with time left does not end the game
+    startingConditions:
+    - Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
+    - Alice's phone is offline
+    events:
+    - 20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after
+      e4 and e5 and Alice's phone is offline
+    endsIn: the multiplayer game is still unfinished — 10
+    checks:
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-clock.feature:73 — Being offline with time left does not end the game
+    exampleRow: []

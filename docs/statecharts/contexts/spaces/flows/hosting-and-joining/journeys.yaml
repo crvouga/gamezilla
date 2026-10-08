@@ -1,0 +1,11 @@
+journeys:
+  Main outcome:
+    description: Host a space and confirm its end
+    events:
+    - Creates a space below the hosting limit
+    - Space creation succeeds
+    - Chooses to end the space
+    - Confirms ending
+    - Space ending succeeds
+    - Returns to Spaces
+    endsIn: Viewing the lobby

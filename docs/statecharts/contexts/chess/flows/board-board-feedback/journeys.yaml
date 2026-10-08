@@ -1,0 +1,108 @@
+journeys:
+  An arrow without a chosen color uses the activity's primary green:
+    description: An arrow without a chosen color uses the activity's primary green
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies an arrow from e2 to e4 with its default appearance
+    endsIn: Alice sees a green solid arrow from e2 to e4 — 1
+    checks:
+    - Alice sees a green solid arrow from e2 to e4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-feedback.feature:9 — An arrow without a chosen color uses the activity's primary green
+    exampleRow: []
+  Chosen colors and dashed lines retain their appearance:
+    description: Chosen colors and dashed lines retain their appearance
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies an arrow from e2 to e4 with danger appearance
+    endsIn: Alice sees a red solid arrow from e2 to e4 — 2
+    checks:
+    - Alice sees a red solid arrow from e2 to e4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-feedback.feature:15 — Chosen colors and dashed lines retain their appearance
+    exampleRow:
+    - '10'
+  Chosen colors and dashed lines retain their appearance (example 3):
+    description: Chosen colors and dashed lines retain their appearance
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies an arrow from e2 to e4 with bright green appearance
+    endsIn: Alice sees a bright green solid arrow from e2 to e4 — 3
+    checks:
+    - Alice sees a bright green solid arrow from e2 to e4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-feedback.feature:15 — Chosen colors and dashed lines retain their appearance
+    exampleRow:
+    - '11'
+  Chosen colors and dashed lines retain their appearance (example 4):
+    description: Chosen colors and dashed lines retain their appearance
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies an arrow from e2 to e4 with bright green dashed appearance
+    endsIn: Alice sees a bright green dashed arrow from e2 to e4 — 4
+    checks:
+    - Alice sees a bright green dashed arrow from e2 to e4
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-feedback.feature:15 — Chosen colors and dashed lines retain their appearance
+    exampleRow:
+    - '12'
+  Usual feedback marks keep their symbols, colors and upper-right placement:
+    description: Usual feedback marks keep their symbols, colors and upper-right placement
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies the usual feedback badges
+    endsIn: Alice sees a green tick at the upper-right of e4 — 5
+    checks:
+    - Alice sees a green tick at the upper-right of e4
+    - Alice sees a red cross at the upper-right of d5
+    - Alice sees two blue exclamation marks at the upper-right of f3
+    gherkin:
+    - specs/chess-board/board-feedback.feature:30 — Usual feedback marks keep their symbols, colors and upper-right
+      placement
+    exampleRow: []
+  The activity may place a feedback mark in the center:
+    description: The activity may place a feedback mark in the center
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies a centered tick on e4
+    endsIn: Alice sees a green tick at the center of e4 — 6
+    checks:
+    - Alice sees a green tick at the center of e4
+    gherkin:
+    - specs/chess-board/board-feedback.feature:37 — The activity may place a feedback mark in the center
+    exampleRow: []
+  The activity may choose another feedback color:
+    description: The activity may choose another feedback color
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies a gold tick on e4
+    endsIn: Alice sees a gold tick at the upper-right of e4 — 7
+    checks:
+    - Alice sees a gold tick at the upper-right of e4
+    gherkin:
+    - specs/chess-board/board-feedback.feature:42 — The activity may choose another feedback color
+    exampleRow: []
+  A centered feedback mark stays on e4 when the board turns:
+    description: A centered feedback mark stays on e4 when the board turns
+    startingConditions:
+    - Alice has a centered green tick on e4
+    events:
+    - Alice changes the orientation
+    endsIn: Alice sees a green tick at the center of e4 — 8
+    checks:
+    - Alice sees a green tick at the center of e4
+    - Alice's chessboard faces Black
+    gherkin:
+    - specs/chess-board/board-feedback.feature:50 — A centered feedback mark stays on e4 when the board turns
+    exampleRow: []

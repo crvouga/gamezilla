@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Notes arrive quickly" as s0
+  state "Bob sees the note 'Groceries' within a quarter of a second — 1" as s1
+  state "at least 19 of the 20 notes reach Bob within a fifth of a second each — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice writes the note 'Groceries' saying 'milk'
+  s0 --> s2: Alice writes 20 notes one after another
+  s1 --> [*]
+  s2 --> [*]

@@ -1,0 +1,652 @@
+{
+  "id": "room-tally-lifecycle",
+  "initial": "Opening tally",
+  "meta": {
+    "context": "Room",
+    "kind": "lifecycle",
+    "owner": "Room owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/room/tally.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening tally": {
+      "meta": {
+        "description": "The person is opening the tally view.",
+        "snapshot": "the-person-is-opening-the-tally-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/room/tally.qnt"]
+      },
+      "on": {
+        "Opens with viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "room--tally_17.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/room/tally.qnt:84"]
+          }
+        }
+      }
+    },
+    "Viewing a zero tally": {
+      "meta": {
+        "description": "The person is viewing a zero tally.",
+        "snapshot": "the-person-is-viewing-a-zero-tally",
+        "recognize": [],
+        "checks": [
+          "Everyone whose phone reaches the room sees the tally everyone has.",
+          "Only a phone that cannot reach the room has changes waiting on it.",
+          "The tally plus what still waits on phones is every change anyone made: no change is lost or counted twice.",
+          "An open app shows the tally it last showed. A closed app shows nothing."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/room/tally.qnt"],
+        "quintPredicates": [
+          {
+            "tally == 0": true
+          }
+        ],
+        "invariants": [
+          "invReachingPhonesAgree",
+          "invWaitingOnlyWhenApart",
+          "invNothingLost",
+          "invOpenAppShowsWhatItLastShowed"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Resend resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "_resend",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:201"]
+          }
+        },
+        "Go offline resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "goOffline",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:140"]
+          }
+        },
+        "Take one resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "takeOne",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:121"]
+          }
+        },
+        "Come back online resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "comeBackOnline",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:145"]
+          }
+        },
+        "Room restarts resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "_roomRestarts",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:179"]
+          }
+        },
+        "Reopen app resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:158"]
+          }
+        },
+        "Close unexpectedly resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "closeUnexpectedly",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:152"]
+          }
+        },
+        "Add one resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "addOne",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:119"]
+          }
+        },
+        "Add one resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "addOne",
+            "witness": {
+              "trace": "room--tally_13.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:119"]
+          }
+        },
+        "Network recovers resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "_networkRecovers",
+            "witness": {
+              "trace": "room--tally_13.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:171"]
+          }
+        },
+        "Take one resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "takeOne",
+            "witness": {
+              "trace": "room--tally_7.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:121"]
+          }
+        },
+        "Reopen app resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "room--tally_7.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:158"]
+          }
+        },
+        "App closes as change lands resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "_appClosesAsChangeLands",
+            "witness": {
+              "trace": "room--tally_6.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:240"]
+          }
+        }
+      }
+    },
+    "Viewing a nonzero tally": {
+      "meta": {
+        "description": "The person is viewing a nonzero tally.",
+        "snapshot": "the-person-is-viewing-a-nonzero-tally",
+        "recognize": [],
+        "checks": [
+          "Everyone whose phone reaches the room sees the tally everyone has.",
+          "Only a phone that cannot reach the room has changes waiting on it.",
+          "The tally plus what still waits on phones is every change anyone made: no change is lost or counted twice.",
+          "An open app shows the tally it last showed. A closed app shows nothing."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/room/tally.qnt"],
+        "quintPredicates": [
+          {
+            "tally == 0": false
+          }
+        ],
+        "invariants": [
+          "invReachingPhonesAgree",
+          "invWaitingOnlyWhenApart",
+          "invNothingLost",
+          "invOpenAppShowsWhatItLastShowed"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Take one resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "takeOne",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:121"]
+          }
+        },
+        "Close unexpectedly resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "closeUnexpectedly",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:152"]
+          }
+        },
+        "Reopen app resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:158"]
+          }
+        },
+        "App closes as change lands resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "_appClosesAsChangeLands",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:240"]
+          }
+        },
+        "Take one resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "takeOne",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:121"]
+          }
+        },
+        "Add one resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "addOne",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:119"]
+          }
+        },
+        "Go offline resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "goOffline",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:140"]
+          }
+        },
+        "Come back online resulting in viewing a nonzero tally": {
+          "target": "Viewing a nonzero tally",
+          "meta": {
+            "action": "comeBackOnline",
+            "witness": {
+              "trace": "room--tally_12.itf.json",
+              "step": 94,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:145"]
+          }
+        },
+        "Resend resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "_resend",
+            "witness": {
+              "trace": "room--tally_7.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:201"]
+          }
+        },
+        "Reopen app resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "room--tally_0.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:158"]
+          }
+        },
+        "Add one resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "addOne",
+            "witness": {
+              "trace": "room--tally_15.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x1"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:119"]
+          }
+        },
+        "Network recovers resulting in viewing a zero tally": {
+          "target": "Viewing a zero tally",
+          "meta": {
+            "action": "_networkRecovers",
+            "witness": {
+              "trace": "room--tally_22.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "change": {
+                  "tag": "Some",
+                  "value": "x2"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/room/tally.qnt:171"]
+          }
+        }
+      }
+    }
+  }
+}

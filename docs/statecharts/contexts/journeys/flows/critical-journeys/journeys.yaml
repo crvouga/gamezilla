@@ -1,0 +1,113 @@
+journeys:
+  The app opens past its opening screen onto the tabs:
+    description: The app opens past its opening screen onto the tabs
+    startingConditions: []
+    events:
+    - a person opens the app on a fresh device
+    endsIn: the app gets past its opening screen onto the tabs — 1
+    checks:
+    - the app gets past its opening screen onto the tabs
+    gherkin:
+    - specs/journeys/critical-journeys.feature:10 — The app opens past its opening screen onto the tabs
+    exampleRow: []
+  Signing in with Google hands the person to Google with the way back:
+    description: Signing in with Google hands the person to Google with the way back
+    startingConditions:
+    - a person opens the app on a fresh device
+    events:
+    - they start signing in with Google
+    endsIn: Google is asked to sign them in and send them back to the app — 2
+    checks:
+    - Google is asked to sign them in and send them back to the app
+    gherkin:
+    - specs/journeys/critical-journeys.feature:14 — Signing in with Google hands the person to Google with the way
+      back
+    exampleRow: []
+  A signed-in person can sign out:
+    description: A signed-in person can sign out
+    startingConditions:
+    - a person is signed in on a fresh device
+    events:
+    - they sign out of their account
+    endsIn: their account offers to sign in again — 3
+    checks:
+    - their account offers to sign in again
+    gherkin:
+    - specs/journeys/critical-journeys.feature:19 — A signed-in person can sign out
+    exampleRow: []
+  A person hosts a space and ends it:
+    description: A person hosts a space and ends it
+    startingConditions:
+    - a person is signed in on a fresh device
+    events:
+    - they host a space
+    - they end the space
+    endsIn: the space shows it has ended — 4 step 2
+    checks:
+    - the space shows it has ended
+    gherkin:
+    - specs/journeys/critical-journeys.feature:24 — A person hosts a space and ends it
+    exampleRow: []
+  A chess puzzle started in a space is ready to play:
+    description: A chess puzzle started in a space is ready to play
+    startingConditions:
+    - a person is signed in on a fresh device
+    - they are hosting a space
+    events:
+    - they start a chess puzzle in the space
+    endsIn: a puzzle board is laid out and ready to play — 5
+    checks:
+    - a puzzle board is laid out and ready to play
+    gherkin:
+    - specs/journeys/critical-journeys.feature:31 — A chess puzzle started in a space is ready to play
+    exampleRow: []
+  A person changes their avatar and the change is kept:
+    description: A person changes their avatar and the change is kept
+    startingConditions:
+    - a person is signed in on a fresh device
+    events:
+    - they save a new avatar
+    endsIn: editing their avatar again shows the new one — 6
+    checks:
+    - editing their avatar again shows the new one
+    gherkin:
+    - specs/journeys/critical-journeys.feature:37 — A person changes their avatar and the change is kept
+    exampleRow: []
+  Searching for people finishes with an answer:
+    description: Searching for people finishes with an answer
+    startingConditions:
+    - a person is signed in on a fresh device
+    events:
+    - they search for people with a name nobody has
+    endsIn: the search finishes with no results — 7
+    checks:
+    - the search finishes with no results
+    gherkin:
+    - specs/journeys/critical-journeys.feature:42 — Searching for people finishes with an answer
+    exampleRow: []
+  A guest solves a puzzle and the next one is ready:
+    description: A guest solves a puzzle and the next one is ready
+    startingConditions:
+    - a person opens the app on a fresh device
+    - they are hosting a space
+    - they have started a chess puzzle in the space
+    events:
+    - they solve the puzzle
+    endsIn: the next puzzle is ready to play — 8
+    checks:
+    - the next puzzle is ready to play
+    gherkin:
+    - specs/journeys/critical-journeys.feature:47 — A guest solves a puzzle and the next one is ready
+    exampleRow: []
+  A signed-in person can see what Plus offers:
+    description: A signed-in person can see what Plus offers
+    startingConditions:
+    - a person is signed in on a fresh device
+    events:
+    - they look at the billing plans
+    endsIn: Plus is offered at its monthly and yearly prices — 9
+    checks:
+    - Plus is offered at its monthly and yearly prices
+    gherkin:
+    - specs/journeys/critical-journeys.feature:54 — A signed-in person can see what Plus offers
+    exampleRow: []

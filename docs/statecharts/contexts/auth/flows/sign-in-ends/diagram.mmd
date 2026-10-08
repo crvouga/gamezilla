@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Viewing How long a sign-in lasts" as s0
+  state "Dave is still signed in — 1" as s1
+  state "Dave is signed out — 2" as s2
+  state "Bob is signed out — 3" as s3
+  state "Bob's second device is signed out — 4" as s4
+  [*] --> s0
+  s0 --> s1: 29 days pass
+  s0 --> s2: 30 days pass
+  s0 --> s3: Bob signs out everywhere when Bob is signed in with their Google account and Bob is also signed in on a second device
+  s0 --> s4: Bob signs out everywhere when Bob is signed in with their Google account and Bob is also signed in on a second device and Alice is signed in with their Google account
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]

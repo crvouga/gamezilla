@@ -1,0 +1,211 @@
+id: auth-private-apple-email-lifecycle
+initial: Opening private apple email
+meta:
+  context: Auth
+  kind: lifecycle
+  owner: Auth owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/auth/private-apple-email.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening private apple email:
+    meta:
+      description: The person is opening the private apple email view.
+      snapshot: the-person-is-opening-the-private-apple-email-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/auth/private-apple-email.qnt
+    'on':
+      Opens with choosing Apple sign-in with an ordinary address:
+        target: Choosing Apple sign-in with an ordinary address
+        meta:
+          action: init
+          witness:
+            trace: auth--private-apple-email_4.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/auth/private-apple-email.qnt:23
+  Choosing Apple sign-in with an ordinary address:
+    meta:
+      description: The person is choosing Apple sign-in with an ordinary address.
+      snapshot: the-person-is-choosing-apple-sign-in-with-an-ordinary-address
+      recognize: []
+      checks:
+      - 'Bookkeeping: only a private Apple email address can show mail is not forwarded (Apple forwards nothing
+        else, so nothing can break it).'
+      - With no connection, Dave signs in no further time.
+      events: []
+      confidence: assumed
+      source:
+      - specs/auth/private-apple-email.qnt
+      quintPredicates:
+      - _signedIn: false
+        privateAppleEmailAddress: false
+        mailNotForwarded: false
+      invariants:
+      - invForwardingOnlyForPrivateAddresses
+      - invOfflineSignsInNoFurther
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Sign in with apple resulting in signed in with Apple with an ordinary address:
+        target: Signed in with Apple with an ordinary address
+        meta:
+          action: signInWithApple
+          witness:
+            trace: auth--private-apple-email_21.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: false
+          source:
+          - specs/auth/private-apple-email.qnt:34
+      Sign in with apple resulting in signed in with Apple with a private address:
+        target: Signed in with Apple with a private address
+        meta:
+          action: signInWithApple
+          witness:
+            trace: auth--private-apple-email_20.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: true
+          source:
+          - specs/auth/private-apple-email.qnt:34
+  Signed in with Apple with an ordinary address:
+    meta:
+      description: The person is signed in with Apple with an ordinary address.
+      snapshot: the-person-is-signed-in-with-apple-with-an-ordinary-address
+      recognize: []
+      checks:
+      - 'Bookkeeping: only a private Apple email address can show mail is not forwarded (Apple forwards nothing
+        else, so nothing can break it).'
+      - With no connection, Dave signs in no further time.
+      events: []
+      confidence: assumed
+      source:
+      - specs/auth/private-apple-email.qnt
+      quintPredicates:
+      - _signedIn: true
+        privateAppleEmailAddress: false
+        mailNotForwarded: false
+      invariants:
+      - invForwardingOnlyForPrivateAddresses
+      - invOfflineSignsInNoFurther
+      scopeEnd: No outgoing projected action was sampled; this is a review boundary, not a proof that the lifecycle
+        is terminal.
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    type: final
+  Signed in with Apple with a private address:
+    meta:
+      description: The person is signed in with Apple with a private address.
+      snapshot: the-person-is-signed-in-with-apple-with-a-private-address
+      recognize: []
+      checks:
+      - 'Bookkeeping: only a private Apple email address can show mail is not forwarded (Apple forwards nothing
+        else, so nothing can break it).'
+      - With no connection, Dave signs in no further time.
+      events: []
+      confidence: assumed
+      source:
+      - specs/auth/private-apple-email.qnt
+      quintPredicates:
+      - _signedIn: true
+        privateAppleEmailAddress: true
+        mailNotForwarded: false
+      invariants:
+      - invForwardingOnlyForPrivateAddresses
+      - invOfflineSignsInNoFurther
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Forward mail again resulting in signed in with Apple with a private address:
+        target: Signed in with Apple with a private address
+        meta:
+          action: forwardMailAgain
+          witness:
+            trace: auth--private-apple-email_20.itf.json
+            step: 4
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: true
+          source:
+          - specs/auth/private-apple-email.qnt:58
+      Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped:
+        target: Signed in with Apple with a private address and forwarding stopped
+        meta:
+          action: stopForwardingMail
+          witness:
+            trace: auth--private-apple-email_20.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: false
+          source:
+          - specs/auth/private-apple-email.qnt:47
+  Signed in with Apple with a private address and forwarding stopped:
+    meta:
+      description: The person is signed in with Apple with a private address and forwarding stopped.
+      snapshot: the-person-is-signed-in-with-apple-with-a-private-address-and-forwarding-stopped
+      recognize: []
+      checks:
+      - 'Bookkeeping: only a private Apple email address can show mail is not forwarded (Apple forwards nothing
+        else, so nothing can break it).'
+      - With no connection, Dave signs in no further time.
+      events: []
+      confidence: assumed
+      source:
+      - specs/auth/private-apple-email.qnt
+      quintPredicates:
+      - _signedIn: true
+        privateAppleEmailAddress: true
+        mailNotForwarded: true
+      invariants:
+      - invForwardingOnlyForPrivateAddresses
+      - invOfflineSignsInNoFurther
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped:
+        target: Signed in with Apple with a private address and forwarding stopped
+        meta:
+          action: stopForwardingMail
+          witness:
+            trace: auth--private-apple-email_20.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: true
+          source:
+          - specs/auth/private-apple-email.qnt:47
+      Forward mail again resulting in signed in with Apple with a private address:
+        target: Signed in with Apple with a private address
+        meta:
+          action: forwardMailAgain
+          witness:
+            trace: auth--private-apple-email_20.itf.json
+            step: 14
+            seed: 42
+            nondeterministicChoices:
+              hide:
+                tag: Some
+                value: true
+          source:
+          - specs/auth/private-apple-email.qnt:58

@@ -1,0 +1,202 @@
+{
+  "id": "chess-puzzle-objective",
+  "initial": "Viewing Chess truth decides a solution",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-space-role.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-review-board.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Chess truth decides a solution": {
+      "meta": {
+        "description": "The person is at the place where chess truth decides a solution.",
+        "snapshot": "the-person-is-at-the-place-where-chess-truth-decides-a-solution",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:2"]
+      },
+      "on": {
+        "Alice plays the move a7-a8": {
+          "target": "Alice's puzzle is solved within 20 seconds — 1",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:8"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the puzzle with more than one mate on the final move"
+            ],
+            "example": "Either rook delivers a valid checkmate"
+          }
+        },
+        "Alice plays the move b7-b8": {
+          "target": "Alice's puzzle is solved within 20 seconds — 2",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:8"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the puzzle with more than one mate on the final move"
+            ],
+            "example": "Either rook delivers a valid checkmate"
+          }
+        },
+        "Alice plays the move a7-a6": {
+          "target": "Alice is told the move was wrong — 3",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:21"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the puzzle with more than one mate on the final move"
+            ],
+            "example": "A legal move that neither solves nor checkmates is wrong"
+          }
+        },
+        "Alice tries the illegal move a1-a8": {
+          "target": "Alice's board is unchanged — 4",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:27"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "An illegal apparent checkmate cannot solve the puzzle"
+          }
+        },
+        "the connection comes back when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered the alternate checkmate offline": {
+          "target": "Alice's game log records that puzzle as solved — 5",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:37"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the puzzle with more than one mate on the final move",
+              "Alice has delivered the alternate checkmate offline"
+            ],
+            "example": "An alternate checkmate survives the return of the connection"
+          }
+        },
+        "the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered different valid checkmates on both devices offline": {
+          "target": "Alice's stats show 1 played, 1 solved, and 100% accuracy — 6",
+          "meta": {
+            "source": ["specs/chess/puzzle-objective.feature:46"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is also signed in on another device",
+              "Alice is solving the puzzle with more than one mate on the final move",
+              "Alice has delivered different valid checkmates on both devices offline"
+            ],
+            "example": "Two devices completing through different checkmates count one solved puzzle"
+          }
+        }
+      }
+    },
+    "Alice's puzzle is solved within 20 seconds — 1": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds",
+          "Alice's game log records that puzzle as solved",
+          "Alice's stats show 1 played, 1 solved, and 100% accuracy"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 2": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds",
+          "Alice's game log records that puzzle as solved",
+          "Alice's stats show 1 played, 1 solved, and 100% accuracy"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the move was wrong — 3": {
+      "meta": {
+        "description": "The person observes that alice is told the move was wrong.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-move-was-wrong",
+        "recognize": [],
+        "checks": ["Alice is told the move was wrong"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:21"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's board is unchanged — 4": {
+      "meta": {
+        "description": "The person observes that alice's board is unchanged.",
+        "snapshot": "the-person-observes-that-alice-s-board-is-unchanged",
+        "recognize": [],
+        "checks": [
+          "Alice's board is unchanged",
+          "Alice is still asked to find the next move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:27"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's game log records that puzzle as solved — 5": {
+      "meta": {
+        "description": "The person observes that alice's game log records that puzzle as solved.",
+        "snapshot": "the-person-observes-that-alice-s-game-log-records-that-puzzle-as-solved",
+        "recognize": [],
+        "checks": [
+          "Alice's game log records that puzzle as solved",
+          "Alice's stats show 1 played, 1 solved, and 100% accuracy",
+          "Alice's puzzle rating is above 1500"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:37"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's stats show 1 played, 1 solved, and 100% accuracy — 6": {
+      "meta": {
+        "description": "The person observes that alice's stats show 1 played, 1 solved, and 100% accuracy.",
+        "snapshot": "the-person-observes-that-alice-s-stats-show-1-played-1-solved-and-100-accuracy",
+        "recognize": [],
+        "checks": [
+          "Alice's stats show 1 played, 1 solved, and 100% accuracy",
+          "Alice's other device shows 1 played, 1 solved, and 100% accuracy",
+          "both of Alice's devices show the same puzzle rating within 30 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-objective.feature:46"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

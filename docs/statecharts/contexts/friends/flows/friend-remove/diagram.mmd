@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Remove a friend" as s0
+  state "Alice sees Bob as a friend — 1" as s1
+  state "Alice's friends list does not show Bob — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice starts removing Bob but keeps them
+  s0 --> s2: Alice removes Bob
+  s1 --> [*]
+  s2 --> [*]

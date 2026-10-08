@@ -1,0 +1,7 @@
+journeys:
+  Happy path:
+    description: The draft or recording reaches its reviewable result.
+    events:
+    - Sends nonblank feedback
+    - Reporting saves the feedback
+    endsIn: Feedback kept

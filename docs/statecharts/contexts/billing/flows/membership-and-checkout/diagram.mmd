@@ -1,0 +1,52 @@
+stateDiagram-v2
+  state "Viewing billing plans" as s0
+  state "Asked to sign in" as s1
+  state "Told payments are unavailable" as s2
+  state "Opening checkout" as s3
+  state "At payment checkout" as s4
+  state "Told checkout failed" as s5
+  state "Viewing free trial" as s6
+  state "Viewing active membership" as s7
+  state "Opening billing portal" as s8
+  state "At billing portal" as s9
+  state "Told portal failed" as s10
+  state "Viewing scheduled cancellation" as s11
+  state "Viewing declined renewal" as s12
+  state "Viewing ended membership in grace" as s13
+  state "Viewing free access" as s14
+  state "Viewing stale paid access" as s15
+  state "Viewing stale free access" as s16
+  [*] --> s0
+  s0 --> s3: Chooses Plus with an account and an available provider
+  s0 --> s1: Chooses Plus without an account
+  s0 --> s2: Payments are disabled
+  s1 --> s0: SignedIn
+  s2 --> s0: An available provider is configured
+  s3 --> s4: Provider opens checkout
+  s3 --> s5: Provider refuses checkout
+  s4 --> s0: Abandons checkout
+  s4 --> s6: Provider confirms the seven-day trial
+  s5 --> s3: Tries checkout again
+  s6 --> s7: Trial ends with a successful payment
+  s6 --> s12: Trial ends with a declined payment
+  s6 --> s8: Chooses to manage membership
+  s7 --> s8: Chooses to manage membership
+  s7 --> s12: Renewal payment is declined
+  s7 --> s7: Renewal payment succeeds
+  s7 --> s14: Provider confirms a refund
+  s7 --> s15: Loses connection after access confirmation
+  s8 --> s9: Provider opens the membership portal
+  s8 --> s10: Provider refuses the portal
+  s9 --> s11: Provider reports cancellation at period end
+  s9 --> s7: Returns with an unchanged active membership
+  s10 --> s8: Tries the portal again
+  s11 --> s7: Restores renewal before period end
+  s11 --> s13: The billing period ends
+  s12 --> s7: A working card pays the declined renewal
+  s12 --> s13: Provider ends further payment attempts
+  s12 --> s14: Seven-day grace expires
+  s13 --> s14: Seven-day grace expires
+  s14 --> s3: Chooses to subscribe again
+  s15 --> s16: Seven days pass without a new access confirmation
+  s15 --> s7: Returns online with a live membership
+  s16 --> s7: Returns online with a live membership

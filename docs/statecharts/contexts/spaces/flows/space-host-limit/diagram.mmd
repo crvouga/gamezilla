@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Viewing How many spaces a person can host" as s0
+  state "Alice is invited to get Plus to host more spaces — 1" as s1
+  state "Alice is invited to get Plus to host more spaces — 2" as s2
+  state "Alice is in the space — 3" as s3
+  state "Alice is in the space — 4" as s4
+  [*] --> s0
+  s0 --> s1: Alice creates another space when Alice is signed in and Alice is hosting a space
+  s0 --> s2: Alice creates another space when Alice is a guest and Alice is hosting a space
+  s0 --> s3: Alice creates a space
+  s0 --> s4: Alice creates another space when Alice is a Plus member and Alice is hosting a space
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]

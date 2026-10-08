@@ -1,0 +1,30 @@
+stateDiagram-v2
+  state "Viewing Multiplayer chess is played and watched within spaces" as s0
+  state "Alice is looking for a chess opponent — 1" as s1
+  state "Alice is told multiplayer chess needs a space — 2" as s2
+  state "Carol and Dave see the multiplayer pawn on e4 — 3" as s3
+  state "Carol sees the multiplayer pawn on e4 — 4" as s4
+  state "both multiplayer boards show the white pawn on e4 — 5" as s5
+  state "Carol is told only the matched people can move multiplayer pieces — 6" as s6
+  state "Carol is told no multiplayer game is available to her — 7" as s7
+  state "Carol sees Alice won the multiplayer game — 8" as s8
+  state "Carol has no multiplayer board — 9" as s9
+  [*] --> s0
+  s0 --> s1: Alice finds a chess opponent when Alice is signed in and Alice is hosting a space
+  s0 --> s2: Alice finds a chess opponent when Alice has a free account and a connection and Alice is outside a space
+  s0 --> s3: Alice plays e2 to e4 as a multiplayer move when Alice and Bob have a multiplayer game in different spaces and Carol is a guest watching Alice's multiplayer game and Dave is a guest watching Bob's multiplayer game
+  s0 --> s4: Carol joins Alice's space
+  s0 --> s5: Alice plays e2 to e4 as a multiplayer move when Alice and Bob have a multiplayer game in different spaces
+  s0 --> s6: Carol plays e2 to e4 in Alice's multiplayer game
+  s0 --> s7: Carol opens Alice's multiplayer game
+  s0 --> s8: Bob resigns multiplayer chess
+  s0 --> s9: Carol leaves the space
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]

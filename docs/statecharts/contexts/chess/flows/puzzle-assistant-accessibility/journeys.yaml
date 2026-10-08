@@ -1,0 +1,81 @@
+journeys:
+  Muting keeps the current observation readable:
+    description: Muting keeps the current observation readable
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice mutes the Puzzle Assistant
+    endsIn: Alice can read the assistant's current observation — 1
+    checks:
+    - Alice can read the assistant's current observation
+    - Alice cannot hear the assistant speaking
+    - Alice can move pieces
+    gherkin:
+    - specs/chess/puzzle-assistant-accessibility.feature:9 — Muting keeps the current observation readable
+    exampleRow: []
+  Unmuting speaks the current observation again:
+    description: Unmuting speaks the current observation again
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has muted the Puzzle Assistant
+    events:
+    - Alice unmutes the Puzzle Assistant
+    endsIn: Alice can hear the assistant speaking — 2
+    checks:
+    - Alice can hear the assistant speaking
+    - Alice can read the assistant's current observation
+    - Alice can move pieces
+    gherkin:
+    - specs/chess/puzzle-assistant-accessibility.feature:17 — Unmuting speaks the current observation again
+    exampleRow: []
+  Unavailable speech keeps the observation and play available:
+    description: Unavailable speech keeps the observation and play available
+    startingConditions:
+    - Alice is signed in
+    - Alice is hosting a space
+    - Alice's speech is unavailable
+    events:
+    - Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice's speech
+      is unavailable
+    endsIn: Alice's assistant stays readable when speech cannot play — 3
+    checks:
+    - Alice's assistant stays readable when speech cannot play
+    - Alice can move pieces
+    gherkin:
+    - specs/chess/puzzle-assistant-accessibility.feature:26 — Unavailable speech keeps the observation and play
+      available
+    exampleRow: []
+  Reduced motion keeps the observation and play available:
+    description: Reduced motion keeps the observation and play available
+    startingConditions:
+    - Alice is signed in
+    - Alice is hosting a space
+    - Alice prefers reduced motion
+    events:
+    - Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice prefers
+      reduced motion
+    endsIn: Alice's assistant stays readable with reduced motion — 4
+    checks:
+    - Alice's assistant stays readable with reduced motion
+    - Alice can move pieces
+    gherkin:
+    - specs/chess/puzzle-assistant-accessibility.feature:34 — Reduced motion keeps the observation and play available
+    exampleRow: []
+  A solver can make a move while the assistant is speaking:
+    description: A solver can make a move while the assistant is speaking
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    - Alice's assistant is speaking
+    events:
+    - Alice plays the move a7-a8
+    endsIn: Alice's puzzle is solved within 20 seconds — 5
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice's assistant acknowledges checkmate
+    - Alice can read the assistant's current observation
+    gherkin:
+    - specs/chess/puzzle-assistant-accessibility.feature:45 — A solver can make a move while the assistant is speaking
+    exampleRow: []

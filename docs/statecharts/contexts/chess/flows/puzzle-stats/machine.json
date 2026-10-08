@@ -1,0 +1,117 @@
+{
+  "id": "chess-puzzle-stats",
+  "initial": "Viewing Puzzle stats and game log",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-chess-puzzle-feed-pool-stats.ts",
+      "libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx",
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-space-role.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-review-board.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Puzzle stats and game log": {
+      "meta": {
+        "description": "The person is at the place where puzzle stats and game log.",
+        "snapshot": "the-person-is-at-the-place-where-puzzle-stats-and-game-log",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-stats.feature:2"]
+      },
+      "on": {
+        "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space": {
+          "target": "Alice's game log records that puzzle as solved — 1",
+          "meta": {
+            "source": ["specs/chess/puzzle-stats.feature:14"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A solved puzzle is logged as solved with its own rating and rating change"
+          }
+        },
+        "Alice plays a wrong move": {
+          "target": "Alice's game log records that puzzle as failed — 2",
+          "meta": {
+            "source": ["specs/chess/puzzle-stats.feature:19"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A puzzle with a wrong move is logged as failed with its own rating and rating change"
+          }
+        },
+        "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and the puzzle pool holds just three puzzles and Alice has solved 3 puzzles in a row and Alice's feed has come round to a puzzle they already played": {
+          "target": "Alice's game log shows the repeat as unrated — 3",
+          "meta": {
+            "source": ["specs/chess/puzzle-stats.feature:24"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "the puzzle pool holds just three puzzles",
+              "Alice has solved 3 puzzles in a row",
+              "Alice's feed has come round to a puzzle they already played"
+            ],
+            "example": "A repeat of a played puzzle is logged as unrated instead of a rating change"
+          }
+        }
+      }
+    },
+    "Alice's game log records that puzzle as solved — 1": {
+      "meta": {
+        "description": "The person observes that alice's game log records that puzzle as solved.",
+        "snapshot": "the-person-observes-that-alice-s-game-log-records-that-puzzle-as-solved",
+        "recognize": [],
+        "checks": [
+          "Alice's game log records that puzzle as solved",
+          "Alice's game log shows that puzzle's own rating and its rating change"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-stats.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's game log records that puzzle as failed — 2": {
+      "meta": {
+        "description": "The person observes that alice's game log records that puzzle as failed.",
+        "snapshot": "the-person-observes-that-alice-s-game-log-records-that-puzzle-as-failed",
+        "recognize": [],
+        "checks": [
+          "Alice's game log records that puzzle as failed",
+          "Alice's game log shows that puzzle's own rating and its rating change"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-stats.feature:19"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's game log shows the repeat as unrated — 3": {
+      "meta": {
+        "description": "The person observes that alice's game log shows the repeat as unrated.",
+        "snapshot": "the-person-observes-that-alice-s-game-log-shows-the-repeat-as-unrated",
+        "recognize": [],
+        "checks": ["Alice's game log shows the repeat as unrated"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-stats.feature:24"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

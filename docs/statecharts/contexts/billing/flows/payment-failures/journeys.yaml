@@ -1,0 +1,41 @@
+journeys:
+  A failed payment is delinquent but stays paid inside grace:
+    description: A failed payment is delinquent but stays paid inside grace
+    startingConditions:
+    - Alice has subscribed to Plus
+    events:
+    - Alice's payment fails
+    endsIn: Alice's membership is delinquent — 1
+    checks:
+    - Alice's membership is delinquent
+    - Alice has paid access
+    gherkin:
+    - specs/billing/payment-failures.feature:14 — A failed payment is delinquent but stays paid inside grace
+    exampleRow: []
+  A recovered payment makes the membership active again:
+    description: A recovered payment makes the membership active again
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's payment has failed
+    events:
+    - Alice's payment recovers
+    endsIn: Alice's membership is active — 2
+    checks:
+    - Alice's membership is active
+    - Alice has paid access
+    gherkin:
+    - specs/billing/payment-failures.feature:19 — A recovered payment makes the membership active again
+    exampleRow: []
+  A payment the payment provider gives up on ends the membership:
+    description: A payment the payment provider gives up on ends the membership
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's payment has failed
+    events:
+    - the payment provider gives up on Alice's payment
+    endsIn: Alice's membership has ended — 3
+    checks:
+    - Alice's membership has ended
+    gherkin:
+    - specs/billing/payment-failures.feature:25 — A payment the payment provider gives up on ends the membership
+    exampleRow: []

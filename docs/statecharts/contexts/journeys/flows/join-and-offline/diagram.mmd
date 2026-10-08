@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Joining from a link, and opening with no connection" as s0
+  state "the guest is in the space — 1" as s1
+  state "the guest is told the space has ended — 2" as s2
+  state "the app gets past its opening screen onto the tabs — 3" as s3
+  [*] --> s0
+  s0 --> s1: a guest joins the space from the link when a person is hosting a space
+  s0 --> s2: a guest joins the space from the link when a person has ended the space
+  s0 --> s3: the app reopens
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

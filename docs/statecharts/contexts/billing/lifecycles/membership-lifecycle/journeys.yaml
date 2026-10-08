@@ -1,0 +1,2007 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - A working card pays the renewal resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan ending this
+      period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9b18511bc009d5fdb7a1d4eae4b673d233be68915faabda19bcd5fd544667feb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 33b0025dc406a95a5bd623b73ddc0925d7dc4ad986698f346ffed02a4346b5b1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan ending this
+      period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    endsIn: Viewing an ended membership on the yearly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d14831f3d6618a9e70ef1132298175c5c5dfaae9a6b5722d8086bff0840f850f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 304d22c43dc00a866ca9d6f1ef748992e7a16f3eba6e947160ebb7618a71af5e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e436fdf1a8cd4064718adee5c9831f15f5c35aaec2ca0a785819d59de90e04f8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0b19847df98bd2d3b576a6fb70eb1ec09398873b79d7a25184e8fe7052580ef2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Restores membership renewal resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Restores membership renewal resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    endsIn: Viewing an ended membership on the yearly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6de6619c5d74906fad37c27b43ebff3f9d17c541cd477655f0893d5215882ac3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan ending this
+      period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2ade0d7be2f054496a462143c1c591f9bf6f1d0a449a6bd650c30d00dedf4d0d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Restores membership renewal resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    endsIn: Viewing an ended membership on the yearly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e40462d53d3f8e48334580d80970a147ecb25890aab02a972b348c1bd386a5cd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2a60b54fd36a4e02da38f973b54f83bcff97749da9de040419a66516969ee635
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 107b89f33f9409f439915086b12c7eda3cc0f98e25bc3e6b4e52271a4a941baf
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - A working card pays the renewal resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0e28297b229ea5f7dd2aa2bac2d11e7d217e276012c6eac56f0cd735f735a2dd
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3448cd8e3ed3e3b2721fc209865efd57195c137e639aae65806fbd18306b5d90
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Restores membership renewal resulting in viewing an ended membership on the yearly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Changes the membership interval resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the yearly plan
+    - Restores membership renewal resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the yearly plan
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    endsIn: Viewing an ended membership on the yearly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 71f4f7861d617b9d99362538aa87d4a5fcc91faab85015bb04eb0b03fd854257
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e5750cea188f9c6a02be4be7bdb8d6265227eb977c09882a02d8f96995cb046b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e946c4cd70640618089dd37e2efd8cf2c9a92b0e7ba29ffc5dd0c5e0b28dff92
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: aef60b1bfdb740cf59c8dab061058e39d1691f9fd62252e693415160b62daab4
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c8ea9ac6043a9f691ac29c1d1c88bd2588971464c6dd442a852b5bc399d1f9d5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - A working card pays the renewal resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 51c234b7dc198b5f582c4fe3315e37dc1648fd7a69d16534c443d2c058145930
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the yearly plan
+    - A working card pays the renewal resulting in viewing an active membership on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 81e7bb352f7720241751a86f86119c6d8c48a4b70179f5dab6ee4d7896eda9c2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 06c8936d82305403504c40e3743a5412f6286a3ab44f5a05289d44fb85ed8d72
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Restores membership renewal resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - Restores membership renewal resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 68298cc805be8cd2fa9b9020915a16f10e33222659daba5a1950d36dd67a0fbc
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - The billing period ends resulting in viewing an active membership on the yearly plan
+    - Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the yearly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Changes the membership interval resulting in viewing a free trial on the yearly plan
+    - Changes the membership interval resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - Restores membership renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - A working card pays the renewal resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8002420a91a99e32a779673baea34b8c8759d1eef9a0cc0bfb3eca4da658a02f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing free access
+    - Subscribes to Plus resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The renewal payment is declined resulting in viewing a declined renewal on the monthly plan
+    - A working card pays the renewal resulting in viewing an active membership on the monthly plan
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period
+    - Changes the membership interval resulting in viewing an active membership on the monthly plan ending this
+      period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing a free trial on the monthly plan
+    - The billing period ends resulting in viewing an active membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - Changes the membership interval resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - The provider ends payment attempts resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The billing period ends resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    - Ends membership immediately resulting in viewing an ended membership on the monthly plan
+    - Subscribes to Plus again resulting in viewing an ended membership on the monthly plan
+    - Cancels the pending choice resulting in viewing an ended membership on the monthly plan
+    - The renewal payment is declined resulting in viewing an ended membership on the monthly plan
+    endsIn: Viewing an ended membership on the monthly plan
+    quintTrace:
+      model: specs/billing/membership-lifecycle.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cf3a9fcec9b0e1d869b8a95eac76128edb0362652bf9a14c735ee3a1807f9148
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

@@ -1,0 +1,114 @@
+{
+  "id": "sync-engine-note-deleting",
+  "initial": "Viewing Delete a note",
+  "meta": {
+    "context": "Sync engine",
+    "kind": "flow",
+    "owner": "Sync engine owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Delete a note": {
+      "meta": {
+        "description": "The person is at the place where delete a note.",
+        "snapshot": "the-person-is-at-the-place-where-delete-a-note",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/note-deleting.feature:2"]
+      },
+      "on": {
+        "Alice deletes the note 'Groceries'": {
+          "target": "Alice does not see the note \"Groceries\" — 1",
+          "meta": {
+            "source": ["specs/sync-engine/note-deleting.feature:12"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice has written the note \"Groceries\" saying \"milk\"",
+              "the note \"Groceries\" has reached Bob"
+            ],
+            "example": "A note deleted by the person who wrote it disappears for everyone"
+          }
+        },
+        "Bob deletes the note 'Groceries'": {
+          "target": "Bob does not see the note \"Groceries\" — 2",
+          "meta": {
+            "source": ["specs/sync-engine/note-deleting.feature:19"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice has written the note \"Groceries\" saying \"milk\"",
+              "Bob has written the note \"Groceries\" saying \"eggs\""
+            ],
+            "example": "Whoever last wrote a note owns it and may delete it"
+          }
+        },
+        "Alice writes the note 'Groceries' saying 'eggs'": {
+          "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 3",
+          "meta": {
+            "source": ["specs/sync-engine/note-deleting.feature:28"],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice has written the note \"Groceries\" saying \"milk\"",
+              "Alice has deleted the note \"Groceries\""
+            ],
+            "example": "A deleted note written again comes back for everyone with the new text"
+          }
+        }
+      }
+    },
+    "Alice does not see the note \"Groceries\" — 1": {
+      "meta": {
+        "description": "The person observes that alice does not see the note \"Groceries\".",
+        "snapshot": "the-person-observes-that-alice-does-not-see-the-note-groceries",
+        "recognize": [],
+        "checks": [
+          "Alice does not see the note \"Groceries\"",
+          "Bob does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/note-deleting.feature:12"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob does not see the note \"Groceries\" — 2": {
+      "meta": {
+        "description": "The person observes that bob does not see the note \"Groceries\".",
+        "snapshot": "the-person-observes-that-bob-does-not-see-the-note-groceries",
+        "recognize": [],
+        "checks": [
+          "Bob does not see the note \"Groceries\"",
+          "Alice does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/note-deleting.feature:19"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the note \"Groceries\" saying \"eggs\" — 3": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" saying \"eggs\".",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-saying-eggs",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" saying \"eggs\"",
+          "Bob sees the note \"Groceries\" saying \"eggs\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/note-deleting.feature:28"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

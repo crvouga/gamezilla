@@ -1,0 +1,75 @@
+id: friends-friend-remove
+initial: Viewing Remove a friend
+meta:
+  context: Friends
+  kind: flow
+  owner: Friends owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/friends-client/src/use-remove-friend.ts
+  - libs/friends-client/src/use-send-friend-request.ts
+  - libs/friends-client/src/use-friend-user-overflow-menu.tsx
+  - libs/friends-client/src/use-friend-requests.ts
+  - libs/friends-client/src/use-friend-request-ids.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Remove a friend:
+    meta:
+      description: The person is at the place where remove a friend.
+      snapshot: the-person-is-at-the-place-where-remove-a-friend
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-remove.feature:2
+    'on':
+      Alice starts removing Bob but keeps them:
+        target: Alice sees Bob as a friend — 1
+        meta:
+          source:
+          - specs/friends/friend-remove.feature:12
+          condition:
+          - Alice and Bob are friends
+          example: Changing your mind at the confirmation keeps the friendship
+      Alice removes Bob:
+        target: Alice's friends list does not show Bob — 2
+        meta:
+          source:
+          - specs/friends/friend-remove.feature:16
+          condition:
+          - Alice and Bob are friends
+          example: Removing a friend ends the friendship for both
+  Alice sees Bob as a friend — 1:
+    meta:
+      description: The person observes that alice sees Bob as a friend.
+      snapshot: the-person-observes-that-alice-sees-bob-as-a-friend
+      recognize: []
+      checks:
+      - Alice sees Bob as a friend
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-remove.feature:12
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's friends list does not show Bob — 2:
+    meta:
+      description: The person observes that alice's friends list does not show Bob.
+      snapshot: the-person-observes-that-alice-s-friends-list-does-not-show-bob
+      recognize: []
+      checks:
+      - Alice's friends list does not show Bob
+      - Bob's friends list stops showing Alice within 15 seconds
+      - Alice's friend count is 0
+      - Bob's friend count is 0
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-remove.feature:16
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

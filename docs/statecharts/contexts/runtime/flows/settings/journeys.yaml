@@ -1,0 +1,36 @@
+journeys:
+  A chosen dark theme is kept after the app closes:
+    description: A chosen dark theme is kept after the app closes
+    startingConditions:
+    - Alice has chosen the dark theme
+    events:
+    - Alice closes and reopens the app when Alice has chosen the dark theme
+    endsIn: Alice's app is dark — 1
+    checks:
+    - Alice's app is dark
+    gherkin:
+    - specs/runtime/settings.feature:9 — A chosen dark theme is kept after the app closes
+    exampleRow: []
+  Turned-off sounds stay off after the app closes:
+    description: Turned-off sounds stay off after the app closes
+    startingConditions:
+    - Alice has turned sounds off
+    events:
+    - Alice closes and reopens the app when Alice has turned sounds off
+    endsIn: Alice's sounds are off — 2
+    checks:
+    - Alice's sounds are off
+    gherkin:
+    - specs/runtime/settings.feature:14 — Turned-off sounds stay off after the app closes
+    exampleRow: []
+  A person can see which version of the app they have:
+    description: A person can see which version of the app they have
+    startingConditions: []
+    events:
+    - Alice opens About in Settings
+    endsIn: Alice is shown the version of the app they have — 3
+    checks:
+    - Alice is shown the version of the app they have
+    gherkin:
+    - specs/runtime/settings.feature:19 — A person can see which version of the app they have
+    exampleRow: []

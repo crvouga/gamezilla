@@ -1,0 +1,56 @@
+journeys:
+  A stolen sign-in gets into the same account:
+    description: A stolen sign-in gets into the same account
+    startingConditions:
+    - Alice is signed in with their Google account
+    events:
+    - Eve steals Alice's sign-in
+    endsIn: Eve is signed into Alice's account — 1
+    checks:
+    - Eve is signed into Alice's account
+    gherkin:
+    - specs/auth/stolen-sign-ins.feature:12 — A stolen sign-in gets into the same account
+    exampleRow: []
+  Signing out shuts out a stolen sign-in:
+    description: Signing out shuts out a stolen sign-in
+    startingConditions:
+    - Alice is signed in with their Google account
+    - Eve has stolen Alice's sign-in
+    events:
+    - Alice signs out when Alice is signed in with their Google account and Eve has stolen Alice's sign-in
+    endsIn: Eve is signed out — 2
+    checks:
+    - Eve is signed out
+    gherkin:
+    - specs/auth/stolen-sign-ins.feature:16 — Signing out shuts out a stolen sign-in
+    exampleRow: []
+  Connecting a sign-in method shuts out a stolen sign-in:
+    description: Connecting a sign-in method shuts out a stolen sign-in
+    startingConditions:
+    - Alice is signed in with their Google account
+    - Eve has stolen Alice's sign-in
+    events:
+    - Alice connects Apple
+    endsIn: Eve is signed out — 3
+    checks:
+    - Eve is signed out
+    - Alice is signed into the same account
+    gherkin:
+    - specs/auth/stolen-sign-ins.feature:21 — Connecting a sign-in method shuts out a stolen sign-in
+    exampleRow: []
+  Signing out offline forgets the sign-in only on that device:
+    description: Signing out offline forgets the sign-in only on that device
+    startingConditions:
+    - Alice is signed in with their Google account
+    - Eve has stolen Alice's sign-in
+    - Alice's device has lost its connection
+    events:
+    - Alice signs out when Alice is signed in with their Google account and Eve has stolen Alice's sign-in and Alice's
+      device has lost its connection
+    endsIn: Alice is signed out — 4
+    checks:
+    - Alice is signed out
+    - Eve is still signed into Alice's account
+    gherkin:
+    - specs/auth/stolen-sign-ins.feature:27 — Signing out offline forgets the sign-in only on that device
+    exampleRow: []

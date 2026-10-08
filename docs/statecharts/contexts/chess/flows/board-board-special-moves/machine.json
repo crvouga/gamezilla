@@ -1,0 +1,710 @@
+{
+  "id": "chess-board-board-special-moves",
+  "initial": "Viewing Complete special chess moves",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/chess-board-root-client/src/create-chess-board-model.ts",
+      "pkgs/chess-board-root-client/src/chess-board.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-view.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-user-shapes.ts",
+      "pkgs/chess-board-root-client/src/chess-board-squares.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Complete special chess moves": {
+      "meta": {
+        "description": "The person is at the place where complete special chess moves.",
+        "snapshot": "the-person-is-at-the-place-where-complete-special-chess-moves",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:2"]
+      },
+      "on": {
+        "Alice moves the piece from e1 to g1 when Alice has a chessboard ready for White kingside castling": {
+          "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 1",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
+            "condition": [
+              "Alice has a chessboard ready for White kingside castling"
+            ],
+            "example": "Each castling direction completes both pieces for either side"
+          }
+        },
+        "Alice moves the piece from e1 to c1": {
+          "target": "Alice sees White castled queenside with the king on c1 and rook on d1 — 2",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
+            "condition": [
+              "Alice has a chessboard ready for White queenside castling"
+            ],
+            "example": "Each castling direction completes both pieces for either side"
+          }
+        },
+        "Alice moves the piece from e8 to g8": {
+          "target": "Alice sees Black castled kingside with the king on g8 and rook on f8 — 3",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
+            "condition": [
+              "Alice has a chessboard ready for Black kingside castling"
+            ],
+            "example": "Each castling direction completes both pieces for either side"
+          }
+        },
+        "Alice moves the piece from e8 to c8": {
+          "target": "Alice sees Black castled queenside with the king on c8 and rook on d8 — 4",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
+            "condition": [
+              "Alice has a chessboard ready for Black queenside castling"
+            ],
+            "example": "Each castling direction completes both pieces for either side"
+          }
+        },
+        "Alice drags the piece from e1 to h1": {
+          "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 5",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:23"],
+            "condition": [
+              "Alice has a chessboard ready for White kingside castling"
+            ],
+            "example": "Dropping the king on its own rook completes castling"
+          }
+        },
+        "Alice drags the piece from e8 to a8": {
+          "target": "Alice sees Black castled queenside with the king on c8 and rook on d8 — 6",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:23"],
+            "condition": [
+              "Alice has a chessboard ready for Black queenside castling"
+            ],
+            "example": "Dropping the king on its own rook completes castling"
+          }
+        },
+        "Alice moves the piece from e1 to g1 when Alice has a chessboard where White's kingside castling crosses check": {
+          "target": "Alice cannot castle kingside across check — 7",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:34"],
+            "condition": [
+              "Alice has a chessboard where White's kingside castling crosses check"
+            ],
+            "example": "Castling across check keeps both pieces in place"
+          }
+        },
+        "Alice drags the piece from e1 to g1": {
+          "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 8",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:43"],
+            "condition": [
+              "Alice has a chessboard ready for White kingside castling"
+            ],
+            "example": "Dragging the king to its castling destination completes both White pieces"
+          }
+        },
+        "Alice drags the piece from e1 to c1": {
+          "target": "Alice sees White castled queenside with the king on c1 and rook on d1 — 9",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:43"],
+            "condition": [
+              "Alice has a chessboard ready for White queenside castling"
+            ],
+            "example": "Dragging the king to its castling destination completes both White pieces"
+          }
+        },
+        "Alice moves the piece from e1 to g1 when Alice has a silent chessboard ready for White kingside castling": {
+          "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 10",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:56"],
+            "condition": [
+              "Alice has a silent chessboard ready for White kingside castling"
+            ],
+            "example": "Silent castling completes both pieces without sound"
+          }
+        },
+        "Alice moves the piece from e5 to d6 when Alice has a chessboard ready for White to capture en passant from e5 to d6": {
+          "target": "Alice sees a White pawn on d6 — 11",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:64"],
+            "condition": [
+              "Alice has a chessboard ready for White to capture en passant from e5 to d6"
+            ],
+            "example": "An en passant capture removes the pawn from its own square"
+          }
+        },
+        "Alice moves the piece from e5 to d6 when Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired": {
+          "target": "Alice cannot capture en passant after its opportunity has expired — 12",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:73"],
+            "condition": [
+              "Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired"
+            ],
+            "example": "An expired en passant opportunity cannot remove either pawn"
+          }
+        },
+        "Alice moves the piece from e5 to d6 when Alice has a silent chessboard ready for White to capture en passant from e5 to d6": {
+          "target": "Alice sees a White pawn on d6 — 13",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:82"],
+            "condition": [
+              "Alice has a silent chessboard ready for White to capture en passant from e5 to d6"
+            ],
+            "example": "Silent en passant removes the passed pawn without sound"
+          }
+        },
+        "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8": {
+          "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 14",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:91"],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8"
+            ],
+            "example": "A last-rank pawn asks for its replacement before offering a move"
+          }
+        },
+        "Alice chooses the promotion to a queen": {
+          "target": "Alice sees a White queen on a8 — 15",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Each promotion choice completes exactly one promoted move"
+          }
+        },
+        "Alice chooses the promotion to a rook": {
+          "target": "Alice sees a White rook on a8 — 16",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Each promotion choice completes exactly one promoted move"
+          }
+        },
+        "Alice chooses the promotion to a bishop": {
+          "target": "Alice sees a White bishop on a8 — 17",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Each promotion choice completes exactly one promoted move"
+          }
+        },
+        "Alice chooses the promotion to a knight when Alice has a pending White promotion from a7 to a8": {
+          "target": "Alice sees a White knight on a8 — 18",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Each promotion choice completes exactly one promoted move"
+          }
+        },
+        "Alice chooses the promotion to a knight when Alice has a chessboard facing Black with a pending Black capture-promotion from b2 to a1": {
+          "target": "Alice sees a Black knight on a1 — 19",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:112"],
+            "condition": [
+              "Alice has a chessboard facing Black with a pending Black capture-promotion from b2 to a1"
+            ],
+            "example": "Black's capture-promotion respects the Black orientation"
+          }
+        },
+        "Alice cancels the promotion": {
+          "target": "Alice sees the White pawn remaining on a7 — 20",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:121"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Cancelling promotion keeps the pawn at its source"
+          }
+        },
+        "Alice cancels the promotion with Escape": {
+          "target": "Alice sees the White pawn remaining on a7 — 21",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:128"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Escape abandons promotion without offering a move"
+          }
+        },
+        "Alice moves the piece from a7 to a8 when Alice has cancelled White's promotion from a7 to a8": {
+          "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 22",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:135"],
+            "condition": [
+              "Alice has cancelled White's promotion from a7 to a8"
+            ],
+            "example": "A cancelled promotion can be requested again"
+          }
+        },
+        "Alice moves the piece from h1 to h2 when Alice has a chessboard ready for White's promotion from a7 to a8": {
+          "target": "Alice sees a White rook on h2 — 23",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:142"],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8"
+            ],
+            "example": "Another piece can move before promotion has been requested"
+          }
+        },
+        "Alice moves the piece from h1 to h2 when Alice has a pending White promotion from a7 to a8": {
+          "target": "Alice cannot move the rook on h1 until the promotion choice is decided or cancelled — 24",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:150"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
+            "example": "Another piece cannot move while the promotion choice waits"
+          }
+        },
+        "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled": {
+          "target": "Alice sees a White queen on a8 — 25",
+          "meta": {
+            "source": ["specs/chess-board/board-special-moves.feature:158"],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled"
+            ],
+            "example": "Automatic queen promotion completes a pawn's move immediately"
+          }
+        }
+      }
+    },
+    "Alice sees White castled kingside with the king on g1 and rook on f1 — 1": {
+      "meta": {
+        "description": "The person observes that alice sees White castled kingside with the king on g1 and rook on f1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-kingside-with-the-king-on-g1-and-ro",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled kingside with the king on g1 and rook on f1",
+          "Alice is told White castled kingside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees White castled queenside with the king on c1 and rook on d1 — 2": {
+      "meta": {
+        "description": "The person observes that alice sees White castled queenside with the king on c1 and rook on d1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-queenside-with-the-king-on-c1-and-r",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled queenside with the king on c1 and rook on d1",
+          "Alice is told White castled queenside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees Black castled kingside with the king on g8 and rook on f8 — 3": {
+      "meta": {
+        "description": "The person observes that alice sees Black castled kingside with the king on g8 and rook on f8.",
+        "snapshot": "the-person-observes-that-alice-sees-black-castled-kingside-with-the-king-on-g8-and-ro",
+        "recognize": [],
+        "checks": [
+          "Alice sees Black castled kingside with the king on g8 and rook on f8",
+          "Alice is told Black castled kingside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees Black castled queenside with the king on c8 and rook on d8 — 4": {
+      "meta": {
+        "description": "The person observes that alice sees Black castled queenside with the king on c8 and rook on d8.",
+        "snapshot": "the-person-observes-that-alice-sees-black-castled-queenside-with-the-king-on-c8-and-r",
+        "recognize": [],
+        "checks": [
+          "Alice sees Black castled queenside with the king on c8 and rook on d8",
+          "Alice is told Black castled queenside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees White castled kingside with the king on g1 and rook on f1 — 5": {
+      "meta": {
+        "description": "The person observes that alice sees White castled kingside with the king on g1 and rook on f1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-kingside-with-the-king-on-g1-and-ro",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled kingside with the king on g1 and rook on f1",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:23"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees Black castled queenside with the king on c8 and rook on d8 — 6": {
+      "meta": {
+        "description": "The person observes that alice sees Black castled queenside with the king on c8 and rook on d8.",
+        "snapshot": "the-person-observes-that-alice-sees-black-castled-queenside-with-the-king-on-c8-and-r",
+        "recognize": [],
+        "checks": [
+          "Alice sees Black castled queenside with the king on c8 and rook on d8",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:23"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot castle kingside across check — 7": {
+      "meta": {
+        "description": "The person observes that alice cannot castle kingside across check.",
+        "snapshot": "the-person-observes-that-alice-cannot-castle-kingside-across-check",
+        "recognize": [],
+        "checks": [
+          "Alice cannot castle kingside across check",
+          "Alice sees the White king remaining on e1",
+          "Alice sees the White rook remaining on h1",
+          "Alice hears no castle sound",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:34"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees White castled kingside with the king on g1 and rook on f1 — 8": {
+      "meta": {
+        "description": "The person observes that alice sees White castled kingside with the king on g1 and rook on f1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-kingside-with-the-king-on-g1-and-ro",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled kingside with the king on g1 and rook on f1",
+          "Alice is told White castled kingside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:43"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees White castled queenside with the king on c1 and rook on d1 — 9": {
+      "meta": {
+        "description": "The person observes that alice sees White castled queenside with the king on c1 and rook on d1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-queenside-with-the-king-on-c1-and-r",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled queenside with the king on c1 and rook on d1",
+          "Alice is told White castled queenside",
+          "Alice hears one castle sound",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:43"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees White castled kingside with the king on g1 and rook on f1 — 10": {
+      "meta": {
+        "description": "The person observes that alice sees White castled kingside with the king on g1 and rook on f1.",
+        "snapshot": "the-person-observes-that-alice-sees-white-castled-kingside-with-the-king-on-g1-and-ro",
+        "recognize": [],
+        "checks": [
+          "Alice sees White castled kingside with the king on g1 and rook on f1",
+          "Alice hears no chessboard sounds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:56"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White pawn on d6 — 11": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on d6.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-d6",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on d6",
+          "Alice sees no Black pawn on d5",
+          "Alice sees e5 and d6 marked as the last move",
+          "Alice hears one capture sound",
+          "Alice's activity receives one capture move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:64"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot capture en passant after its opportunity has expired — 12": {
+      "meta": {
+        "description": "The person observes that alice cannot capture en passant after its opportunity has expired.",
+        "snapshot": "the-person-observes-that-alice-cannot-capture-en-passant-after-its-opportunity-has-ex",
+        "recognize": [],
+        "checks": [
+          "Alice cannot capture en passant after its opportunity has expired",
+          "Alice sees the White pawn remaining on e5",
+          "Alice sees the Black pawn remaining on d5",
+          "Alice hears no capture sound",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:73"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White pawn on d6 — 13": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on d6.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-d6",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on d6",
+          "Alice sees no Black pawn on d5",
+          "Alice hears no chessboard sounds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:82"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is offered queen, rook, bishop and knight as the promotion choice — 14": {
+      "meta": {
+        "description": "The person observes that alice is offered queen, rook, bishop and knight as the promotion choice.",
+        "snapshot": "the-person-observes-that-alice-is-offered-queen-rook-bishop-and-knight-as-the-promoti",
+        "recognize": [],
+        "checks": [
+          "Alice is offered queen, rook, bishop and knight as the promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:91"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White queen on a8 — 15": {
+      "meta": {
+        "description": "The person observes that alice sees a White queen on a8.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-queen-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White queen on a8",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move promoting to a queen"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White rook on a8 — 16": {
+      "meta": {
+        "description": "The person observes that alice sees a White rook on a8.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-rook-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White rook on a8",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move promoting to a rook"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White bishop on a8 — 17": {
+      "meta": {
+        "description": "The person observes that alice sees a White bishop on a8.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-bishop-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White bishop on a8",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move promoting to a bishop"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White knight on a8 — 18": {
+      "meta": {
+        "description": "The person observes that alice sees a White knight on a8.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-knight-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White knight on a8",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move promoting to a knight"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a Black knight on a1 — 19": {
+      "meta": {
+        "description": "The person observes that alice sees a Black knight on a1.",
+        "snapshot": "the-person-observes-that-alice-sees-a-black-knight-on-a1",
+        "recognize": [],
+        "checks": [
+          "Alice sees a Black knight on a1",
+          "Alice sees no captured piece after the animation",
+          "Alice's chessboard faces Black",
+          "Alice hears one capture sound followed by one promotion sound",
+          "Alice's activity receives one move promoting to a knight"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:112"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the White pawn remaining on a7 — 20": {
+      "meta": {
+        "description": "The person observes that alice sees the White pawn remaining on a7.",
+        "snapshot": "the-person-observes-that-alice-sees-the-white-pawn-remaining-on-a7",
+        "recognize": [],
+        "checks": [
+          "Alice sees the White pawn remaining on a7",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:121"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the White pawn remaining on a7 — 21": {
+      "meta": {
+        "description": "The person observes that alice sees the White pawn remaining on a7.",
+        "snapshot": "the-person-observes-that-alice-sees-the-white-pawn-remaining-on-a7",
+        "recognize": [],
+        "checks": [
+          "Alice sees the White pawn remaining on a7",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:128"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is offered queen, rook, bishop and knight as the promotion choice — 22": {
+      "meta": {
+        "description": "The person observes that alice is offered queen, rook, bishop and knight as the promotion choice.",
+        "snapshot": "the-person-observes-that-alice-is-offered-queen-rook-bishop-and-knight-as-the-promoti",
+        "recognize": [],
+        "checks": [
+          "Alice is offered queen, rook, bishop and knight as the promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:135"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White rook on h2 — 23": {
+      "meta": {
+        "description": "The person observes that alice sees a White rook on h2.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-rook-on-h2",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White rook on h2",
+          "Alice sees the White pawn remaining on a7",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:142"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move the rook on h1 until the promotion choice is decided or cancelled — 24": {
+      "meta": {
+        "description": "The person observes that alice cannot move the rook on h1 until the promotion choice is decided or cancelled.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-the-rook-on-h1-until-the-promotion-choice-",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move the rook on h1 until the promotion choice is decided or cancelled",
+          "Alice sees the White rook remaining on h1",
+          "Alice is still offered queen, rook, bishop and knight as the promotion choice",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:150"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White queen on a8 — 25": {
+      "meta": {
+        "description": "The person observes that alice sees a White queen on a8.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-queen-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White queen on a8",
+          "Alice is not offered a promotion choice",
+          "Alice's activity receives one move promoting to a queen"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-special-moves.feature:158"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,2737 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    endsIn: Choosing a promotion piece
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d10f29b2b002c00d91780104d4aefe13ee7534b0a526f808307bd0f724528e70
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c7a088292a4267dc59bc1a5201f59c6be53ca6bade19310cd2051f26e0efa469
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Request promotion resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 844e2787036144b5bd2cf84c37ee13ed00bc7a9febf3d284880532f5868bd5f4
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Request promotion resulting in choosing a promotion piece
+    - Configure automatic queen resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Configure promotion input resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted knight
+    - Request promotion resulting in seeing a promoted knight
+    - Cancel promotion resulting in seeing a promoted knight
+    - Request promotion resulting in seeing a promoted knight
+    - Request promotion resulting in seeing a promoted knight
+    - Configure promotion input resulting in seeing a promoted knight
+    - Configure promotion input resulting in seeing a promoted knight
+    - Try other promotion move resulting in seeing a promoted knight
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d9c663da2d95ef15d6d2d98b7944da00eb4d9ca42ff93f58dd5748e1f6995c3a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: abb4698ef7a91081ae875fa091b9d74cf37c702e9a07c8521f87f8a53b178b8f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 009359c80389893d5ba1b5d79b2da78a7cef9f51129809dbb7a6c504e360e50a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Request promotion resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted bishop
+    - Request promotion resulting in seeing a promoted bishop
+    - Request promotion resulting in seeing a promoted bishop
+    - Configure promotion input resulting in seeing a promoted bishop
+    - Cancel promotion resulting in seeing a promoted bishop
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 204e40adf51d3608b2324841449bcec6fec9ef58bbce9705e8129d84123b672a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a9334b26c351db853501b5fc0d953729174fc4840c7e46ad541d28273f529ba7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Configure promotion input resulting in choosing a promotion piece
+    - Replace promotion position resulting in choosing a promotion piece
+    - Configure promotion input resulting in choosing a promotion piece
+    - Request promotion resulting in choosing a promotion piece
+    - Configure automatic queen resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted bishop
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Cancel promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Cancel promotion resulting in seeing a promoted queen
+    - Try other promotion move resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 03a9911f3ff75440fc08b11db1bd0dece557a9c92e82f393c49e62b647f6074f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure automatic queen resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted knight
+    - Configure promotion input resulting in seeing a promoted knight
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fd29eb6a114dc83431e549438729f1cbf4574f3917470d9fd2e205b3c98d3702
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted bishop
+    - Request promotion resulting in seeing a promoted bishop
+    - Request promotion resulting in seeing a promoted bishop
+    - Cancel promotion resulting in seeing a promoted bishop
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 714dd5a1f14d8e4b5498aeef208ebe4efbe1aaeca06f5a10db3b4512e1d68e76
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    endsIn: Seeing a promoted queen
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 89738a40605059dbc27c34bfd8990b644013a4de73288c08cab808021e607877
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Try other promotion move resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Request promotion resulting in seeing a promoted queen
+    - Cancel promotion resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Cancel promotion resulting in seeing a promoted queen
+    - Try other promotion move resulting in seeing a promoted queen
+    - Cancel promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in choosing a promotion piece
+    - Configure automatic queen resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e095da760eea4be6439b19a176f8d05c1bf27af7f16ae31531276b1589beb1d9
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 64eb6e678185b1730c5553e1aded8c089fba919480130d1e77a64f0d114afb8e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 364e3941c04b6cec55bbf37a927e7ab2bb5e2be2f62e85f6f56cf518963c87e1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: db38c95a05cdc9468676da604beaf4615607039cc41ce7cb302b517427b941d1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1551acb96b6caa1747670b537d079613f3db88312a7465db2282ef93074c972f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted rook
+    - Request promotion resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Cancel promotion resulting in seeing a promoted rook
+    - Configure automatic queen resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Cancel promotion resulting in seeing a promoted rook
+    - Configure promotion input resulting in seeing a promoted rook
+    - Configure automatic queen resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Cancel promotion resulting in seeing a promoted rook
+    - Configure automatic queen resulting in seeing a promoted rook
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: dbaa731617701398c73a158780c36e99c6ec679bb1db25c19becd875b0614652
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fff70b7b742a3b3e4d795cc1fca401b003142135d08e5adf96015d4bd453691e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in seeing a promoted queen
+    - Configure promotion input resulting in seeing a promoted queen
+    - Configure automatic queen resulting in seeing a promoted queen
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d2d0abb5fc9d04fd4fc55984dec45fc4f1311acff3d90caa5da639e79521f716
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted bishop
+    - Configure automatic queen resulting in seeing a promoted bishop
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3b83c13214182eaf64256ad0acc7d26483ff64af10ec5301d95e0d20ca4402ad
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Request promotion resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Choose promotion resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Configure promotion input resulting in seeing a promoted rook
+    - Configure promotion input resulting in seeing a promoted rook
+    - Try other promotion move resulting in seeing a promoted rook
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f2c0ffb9a5c8cf4e21314155ca4f0ccfbbe5dbd1886cb54adc708a25084f025b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Request promotion resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Try other promotion move resulting in choosing a promotion piece
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1f392da034379d032a691c5607ad95c23e4b64d8a0ed3ca3e5a1d232d2733abf
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing before promotion
+    - Request promotion resulting in choosing a promotion piece
+    - Configure promotion input resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Configure automatic queen resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Request promotion resulting in playing before promotion
+    - Try other promotion move resulting in playing before promotion
+    - Replace promotion position resulting in playing before promotion
+    - Cancel promotion resulting in playing before promotion
+    - Configure promotion input resulting in playing before promotion
+    endsIn: Playing before promotion
+    quintTrace:
+      model: specs/chess-board/board-promotion.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ee54bbac3cbcb5dfa9ee38424c5af5ce225b705f3df1329cfd699bf04a85db52
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

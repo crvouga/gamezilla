@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing The host leaving ends the space" as s0
+  state "Bob sees the space has ended within 15 seconds — 1" as s1
+  state "Alice is in the space — 2" as s2
+  state "Alice is in the space — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice leaves the space
+  s0 --> s2: the connection comes back
+  s0 --> s3: Alice returns to their space
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

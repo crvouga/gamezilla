@@ -1,0 +1,52 @@
+stateDiagram-v2
+  state "Choosing chess play" as s0
+  state "Waiting for a puzzle" as s1
+  state "Solving the current puzzle" as s2
+  state "Told the move is wrong" as s3
+  state "Seeing the first hint" as s4
+  state "Seeing the second hint" as s5
+  state "Reviewing an earlier position" as s6
+  state "Seeing a solved puzzle" as s7
+  state "Seeing a skipped puzzle" as s8
+  state "Seeing the full solution" as s9
+  state "Told today’s allowance is used" as s10
+  state "Told a connection is needed" as s11
+  state "Viewing a stale watched board" as s12
+  state "Watching the current board" as s13
+  state "Viewing the ended space" as s14
+  [*] --> s0
+  s0 --> s1: Opens puzzles with an available start
+  s0 --> s11: Opens puzzles offline before any puzzle reached the device
+  s0 --> s2: Returns to an unfinished puzzle already on the device
+  s0 --> s13: Joins to watch a host’s current puzzle
+  s1 --> s2: The next puzzle becomes ready
+  s2 --> s3: Plays a legal wrong move
+  s2 --> s2: Plays an illegal move
+  s2 --> s7: Solves the puzzle
+  s2 --> s8: Skips the puzzle
+  s2 --> s9: Shows the complete solution
+  s2 --> s4: Asks for the first hint
+  s2 --> s6: Reviews an earlier reached position
+  s2 --> s0: Leaves for the chess choices
+  s2 --> s14: SpaceEnded
+  s3 --> s2: Retries the same puzzle
+  s4 --> s5: Asks for the second hint
+  s4 --> s2: Plays the correct continuation
+  s5 --> s2: Plays the correct continuation
+  s6 --> s2: Returns to the current position
+  s7 --> s2: Retries for practice
+  s7 --> s1: Moves on within the daily allowance
+  s7 --> s10: Requests a new rated puzzle beyond twenty guest starts today
+  s8 --> s2: Retries for practice
+  s8 --> s1: Moves on within the daily allowance
+  s9 --> s2: Retries for practice
+  s9 --> s1: Moves on within the daily allowance
+  s10 --> s1: SignedIn
+  s10 --> s1: The next UTC day begins
+  s11 --> s0: Connection returns
+  s12 --> s13: Connection returns while the space remains open
+  s12 --> s14: SpaceEnded
+  s13 --> s12: The watcher loses the connection
+  s13 --> s14: SpaceEnded
+  s14 --> [*]
+  s0 --> s0: SpaceOpened

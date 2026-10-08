@@ -1,0 +1,4440 @@
+{
+  "id": "profile-username-changes-lifecycle",
+  "initial": "Opening username changes",
+  "meta": {
+    "context": "Identity",
+    "kind": "lifecycle",
+    "owner": "Identity owner (not named in specs)",
+    "tier": "critical",
+    "emits": ["UsernameChanged"],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/profile/username-changes.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
+    "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
+  },
+  "states": {
+    "Opening username changes": {
+      "meta": {
+        "description": "The person is opening the username changes view.",
+        "snapshot": "the-person-is-opening-the-username-changes-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"]
+      },
+      "on": {
+        "Opens with seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "profile--username-changes_10.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/profile/username-changes.qnt:116"]
+          }
+        }
+      }
+    },
+    "Seeing No Username Change with the saved username": {
+      "meta": {
+        "description": "The person is seeing No Username Change with the saved username.",
+        "snapshot": "the-person-is-seeing-no-username-change-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["NoUsernameChange", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Lose connection resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Connection returns resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Rename resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Start allowing resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_20.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_1.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Username Saved with the saved username": {
+      "meta": {
+        "description": "The person is seeing Username Saved with the saved username.",
+        "snapshot": "the-person-is-seeing-username-saved-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["UsernameSaved", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Lose connection resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 40,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 93,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Connection returns resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 34,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 40,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Changed Recently with the saved username": {
+          "target": "Seeing Changed Recently with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_19.itf.json",
+              "step": 75,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_22.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Username Taken with the saved username": {
+      "meta": {
+        "description": "The person is seeing Username Taken with the saved username.",
+        "snapshot": "the-person-is-seeing-username-taken-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["UsernameTaken", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Lose connection resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Connection returns resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 95,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_8.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_4.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_18.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_22.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Refused Offline with the saved username": {
+      "meta": {
+        "description": "The person is seeing Refused Offline with the saved username.",
+        "snapshot": "the-person-is-seeing-refused-offline-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["RefusedOffline", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Start allowing resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Stop allowing resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Connection returns resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 58,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Lose connection resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Changed Recently with the saved username": {
+          "target": "Seeing Changed Recently with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_21.itf.json",
+              "step": 75,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_18.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_17.itf.json",
+              "step": 83,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Refused Offline with a stand-in name": {
+      "meta": {
+        "description": "The person is seeing Refused Offline with a stand-in name.",
+        "snapshot": "the-person-is-seeing-refused-offline-with-a-stand-in-name",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["RefusedOffline", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": true
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename twice resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Connection returns resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Stop allowing resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Lose connection resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 47,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Start allowing resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_22.itf.json",
+              "step": 81,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_11.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        }
+      }
+    },
+    "Seeing Not Allowed with a stand-in name": {
+      "meta": {
+        "description": "The person is seeing Not Allowed with a stand-in name.",
+        "snapshot": "the-person-is-seeing-not-allowed-with-a-stand-in-name",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["NotAllowed", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": true
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename twice resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Start allowing resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 49,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Lose connection resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Start allowing resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Connection returns resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_12.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_22.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_23.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Username Taken with a stand-in name": {
+      "meta": {
+        "description": "The person is seeing Username Taken with a stand-in name.",
+        "snapshot": "the-person-is-seeing-username-taken-with-a-stand-in-name",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["UsernameTaken", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": true
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 58,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Connection returns resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Lose connection resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 76,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_3.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing No Username Change with a stand-in name": {
+      "meta": {
+        "description": "The person is seeing No Username Change with a stand-in name.",
+        "snapshot": "the-person-is-seeing-no-username-change-with-a-stand-in-name",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["NoUsernameChange", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": true
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Start allowing resulting in seeing No Username Change with the saved username": {
+          "target": "Seeing No Username Change with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename twice resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Connection returns resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Stop allowing resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Lose connection resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Start allowing resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename resulting in seeing No Username Change with a stand-in name": {
+          "target": "Seeing No Username Change with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_21.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_18.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_22.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_16.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_17.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        }
+      }
+    },
+    "Seeing Not Allowed with the saved username": {
+      "meta": {
+        "description": "The person is seeing Not Allowed with the saved username.",
+        "snapshot": "the-person-is-seeing-not-allowed-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["NotAllowed", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Lose connection resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Connection returns resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Start allowing resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Stop allowing resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 66,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_2.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with the saved username": {
+          "target": "Seeing Not Allowed with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Stop allowing resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_15.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_9.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_8.itf.json",
+              "step": 76,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with the saved username": {
+          "target": "Seeing Username Taken with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_4.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Username Saved with a stand-in name": {
+      "meta": {
+        "description": "The person is seeing Username Saved with a stand-in name.",
+        "snapshot": "the-person-is-seeing-username-saved-with-a-stand-in-name",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["UsernameSaved", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": true
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Connection returns resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:208"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Lose connection resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename resulting in seeing Refused Offline with a stand-in name": {
+          "target": "Seeing Refused Offline with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_14.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Start allowing resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "startAllowing",
+            "witness": {
+              "trace": "profile--username-changes_21.itf.json",
+              "step": 86,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:180"]
+          }
+        },
+        "Rename resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_20.itf.json",
+              "step": 95,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Stop allowing resulting in seeing Username Saved with a stand-in name": {
+          "target": "Seeing Username Saved with a stand-in name",
+          "meta": {
+            "action": "stopAllowing",
+            "witness": {
+              "trace": "profile--username-changes_4.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:163"]
+          }
+        },
+        "Rename twice resulting in seeing Username Taken with a stand-in name": {
+          "target": "Seeing Username Taken with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_4.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_19.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "Ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "rename",
+            "witness": {
+              "trace": "profile--username-changes_19.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "official_support"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:128"]
+          }
+        },
+        "Rename twice resulting in seeing Not Allowed with a stand-in name": {
+          "target": "Seeing Not Allowed with a stand-in name",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_23.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "Ann"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    },
+    "Seeing Changed Recently with the saved username": {
+      "meta": {
+        "description": "The person is seeing Changed Recently with the saved username.",
+        "snapshot": "the-person-is-seeing-changed-recently-with-the-saved-username",
+        "recognize": [],
+        "checks": [
+          "No two people ever hold the same username.",
+          "Each person's own device shows the name everyone else sees.",
+          "Everyone sees a person's username unless it is no longer allowed, and then their stand-in name: the username itself is kept.",
+          "Nobody ever sees a username that is not allowed.",
+          "A username the rules always refuse is never saved.",
+          "Saved usernames are lowercase.",
+          "Offline, a person keeps the username they had when the connection went. A save then shows \"You're offline\", or the earlier result still stands."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/profile/username-changes.qnt"],
+        "quintPredicates": [
+          {
+            "lastUsernameChange.get(\"alice\")": ["ChangedRecently", []],
+            "shownName.get(\"alice\") != username.get(\"alice\")": false
+          }
+        ],
+        "invariants": [
+          "invNamesAreUnique",
+          "invDeviceShowsUsername",
+          "invShownNameIsUsernameOrStandIn",
+          "invNotAllowedNeverShown",
+          "invAlwaysRefusedNeverSaved",
+          "invStoredLowercase",
+          "invOfflineKeepsUsername"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Rename twice resulting in seeing Changed Recently with the saved username": {
+          "target": "Seeing Changed Recently with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_21.itf.json",
+              "step": 76,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Rename twice resulting in seeing Username Saved with the saved username": {
+          "target": "Seeing Username Saved with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_21.itf.json",
+              "step": 78,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "bea"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        },
+        "Lose connection resulting in seeing Changed Recently with the saved username": {
+          "target": "Seeing Changed Recently with the saved username",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--username-changes_19.itf.json",
+              "step": 77,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "bea"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:196"]
+          }
+        },
+        "Rename twice resulting in seeing Refused Offline with the saved username": {
+          "target": "Seeing Refused Offline with the saved username",
+          "meta": {
+            "action": "renameTwice",
+            "witness": {
+              "trace": "profile--username-changes_19.itf.json",
+              "step": 78,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "name": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "retyped": {
+                  "tag": "Some",
+                  "value": "ann"
+                },
+                "typed": {
+                  "tag": "Some",
+                  "value": "official_support"
+                }
+              }
+            },
+            "source": ["specs/profile/username-changes.qnt:144"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,586 @@
+{
+  "id": "chess-puzzle-feed",
+  "initial": "Viewing Customize the puzzle feed",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-chess-puzzle-feed-subscription.ts",
+      "libs/chess-puzzle-client/src/use-chess-puzzle-feed-pool-stats.ts",
+      "libs/chess-puzzle-client/src/use-chess-puzzle-feed-config.ts",
+      "libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx",
+      "libs/chess-puzzle-client/src/chess-puzzle-feed-provider.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Customize the puzzle feed": {
+      "meta": {
+        "description": "The person is at the place where customize the puzzle feed.",
+        "snapshot": "the-person-is-at-the-place-where-customize-the-puzzle-feed",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:2"]
+      },
+      "on": {
+        "Alice opens puzzles in their space": {
+          "target": "Alice's feed history shows \"Unseen\" — 1",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:13"],
+            "condition": ["Alice is signed in", "Alice is hosting a space"],
+            "example": "A new solver's feed serves unseen puzzles at their seed rating"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen 'Any' for the unsaved feed history": {
+          "target": "Alice's feed history shows \"Any\" — 2",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:19"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen \"Any\" for the unsaved feed history"
+            ],
+            "example": "A saved history filter shows on the feed"
+          }
+        },
+        "Alice raises the feed rating offset by 2 steps": {
+          "target": "Alice's feed rating offset is 100 — 3",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:26"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice is editing the feed settings"
+            ],
+            "example": "Raising the rating offset previews the new target before saving"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 1 step": {
+          "target": "Alice's feed targets a custom 1550 — 4",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:33"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen an unsaved custom feed target raised by 1 step"
+            ],
+            "example": "A custom target replaces the automatic one"
+          }
+        },
+        "Alice starts editing the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has saved a custom feed target raised by 1 step": {
+          "target": "Alice's unsaved feed settings preview a target of 1550 — 5",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:39"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has saved a custom feed target raised by 1 step"
+            ],
+            "example": "Reopening the feed settings keeps the custom target"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 2 steps": {
+          "target": "Alice's feed targets a custom 1600 — 7",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:51"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen an unsaved custom feed target raised by 2 steps"
+            ],
+            "example": "A custom target changes the rating window the puzzle is chosen from"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen unsaved auto-advance after one second": {
+          "target": "Alice's saved feed advances after one second — 8",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:62"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen unsaved auto-advance after one second"
+            ],
+            "example": "Saving keeps a previewed auto-advance choice"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has raised the unsaved feed rating offset by 2 steps": {
+          "target": "Alice's feed targets 1600 automatically — 9",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:69"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has raised the unsaved feed rating offset by 2 steps"
+            ],
+            "example": "A saved rating offset moves the feed's target"
+          }
+        },
+        "Alice closes the feed settings without saving": {
+          "target": "Alice's feed targets 1500 automatically — 10",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:78"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has raised the unsaved feed rating offset by 2 steps"
+            ],
+            "example": "Closing without saving discards the previewed offset"
+          }
+        },
+        "Alice reopens the app on the puzzle": {
+          "target": "Alice's feed targets 1500 automatically — 11",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:86"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has raised the unsaved feed rating offset by 2 steps"
+            ],
+            "example": "Reopening the app discards an unfinished feed edit"
+          }
+        },
+        "Alice raises the feed rating offset by 8 steps": {
+          "target": "Alice's feed rating offset is 400 — 12",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:100"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice is editing the feed settings"
+            ],
+            "example": "Raising the rating offset to +400 previews a target 400 above the rating"
+          }
+        },
+        "Alice raises the feed rating offset by 1 step": {
+          "target": "Alice cannot raise the feed rating offset past 400 — 13",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:106"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has raised the unsaved feed rating offset by 8 steps"
+            ],
+            "example": "Raising the rating offset past +400 is refused"
+          }
+        },
+        "Alice lowers the feed rating offset by 1 step": {
+          "target": "Alice cannot lower the feed rating offset past -400 — 14",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:112"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has lowered the unsaved feed rating offset by 8 steps"
+            ],
+            "example": "Lowering the rating offset past −400 is refused"
+          }
+        },
+        "Alice raises the custom feed target by 1 step when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 29 steps": {
+          "target": "Alice's unsaved feed settings preview a target of 3000 — 15",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:118"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen an unsaved custom feed target raised by 29 steps"
+            ],
+            "example": "Raising a custom feed target to 3000 is allowed"
+          }
+        },
+        "Alice raises the custom feed target by 1 step when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 30 steps": {
+          "target": "Alice cannot raise the custom feed target past 3000 — 16",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:123"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen an unsaved custom feed target raised by 30 steps"
+            ],
+            "example": "Raising a custom feed target past 3000 is refused"
+          }
+        },
+        "Alice lowers the custom feed target by 1 step": {
+          "target": "Alice cannot lower the custom feed target past 400 — 17",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:129"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has chosen an unsaved custom feed target lowered by 22 steps"
+            ],
+            "example": "Lowering a custom feed target past 400 is refused"
+          }
+        },
+        "Alice limits the feed to the 'fork' theme": {
+          "target": "Alice is served a puzzle with the \"fork\" theme — 18",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:142"],
+            "condition": [
+              "Alice is signed in",
+              "the puzzle pool holds puzzles with and without the \"fork\" theme",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "Choosing a theme serves a puzzle with that theme"
+          }
+        },
+        "Alice moves on to the next puzzle": {
+          "target": "Alice is not offered a puzzle without the \"fork\" theme — 19",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:146"],
+            "condition": [
+              "Alice is signed in",
+              "the puzzle pool holds puzzles with and without the \"fork\" theme",
+              "Alice is playing puzzles in their space",
+              "Alice has limited the feed to the \"fork\" theme",
+              "Alice has skipped the puzzle"
+            ],
+            "example": "A puzzle without the chosen theme is not offered"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles and failed 1 and Alice has chosen 'Failed' for the unsaved feed history": {
+          "target": "Alice is solving the puzzle they failed — 20",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:158"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has solved 2 puzzles and failed 1",
+              "Alice has chosen \"Failed\" for the unsaved feed history"
+            ],
+            "example": "\"Failed\" brings back a failed puzzle, unrated"
+          }
+        },
+        "Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles in a row and Alice has chosen 'Failed' for the unsaved feed history": {
+          "target": "Alice is told the feed is empty because they have no failed attempts — 21",
+          "meta": {
+            "source": ["specs/chess/puzzle-feed.feature:165"],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has solved 2 puzzles in a row",
+              "Alice has chosen \"Failed\" for the unsaved feed history"
+            ],
+            "example": "\"Failed\" with no failed attempt leaves the feed empty and says why"
+          }
+        }
+      }
+    },
+    "Alice's feed history shows \"Unseen\" — 1": {
+      "meta": {
+        "description": "The person observes that alice's feed history shows \"Unseen\".",
+        "snapshot": "the-person-observes-that-alice-s-feed-history-shows-unseen",
+        "recognize": [],
+        "checks": [
+          "Alice's feed history shows \"Unseen\"",
+          "Alice's feed targets 1500 automatically"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:13"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed history shows \"Any\" — 2": {
+      "meta": {
+        "description": "The person observes that alice's feed history shows \"Any\".",
+        "snapshot": "the-person-observes-that-alice-s-feed-history-shows-any",
+        "recognize": [],
+        "checks": [
+          "Alice's feed history shows \"Any\"",
+          "Alice has a puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:19"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed rating offset is 100 — 3": {
+      "meta": {
+        "description": "The person observes that alice's feed rating offset is 100.",
+        "snapshot": "the-person-observes-that-alice-s-feed-rating-offset-is-100",
+        "recognize": [],
+        "checks": [
+          "Alice's feed rating offset is 100",
+          "Alice's unsaved feed settings preview a target of 1600"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:26"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed targets a custom 1550 — 4": {
+      "meta": {
+        "description": "The person observes that alice's feed targets a custom 1550.",
+        "snapshot": "the-person-observes-that-alice-s-feed-targets-a-custom-1550",
+        "recognize": [],
+        "checks": ["Alice's feed targets a custom 1550"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:33"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's unsaved feed settings preview a target of 1550 — 5": {
+      "meta": {
+        "description": "The person observes that alice's unsaved feed settings preview a target of 1550.",
+        "snapshot": "the-person-observes-that-alice-s-unsaved-feed-settings-preview-a-target-of-1550",
+        "recognize": [],
+        "checks": [
+          "Alice's unsaved feed settings preview a target of 1550",
+          "Alice's feed settings show a pool of at least one matching puzzle"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-feed.feature:39",
+          "specs/chess/puzzle-feed.feature:45"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice's feed targets a custom 1600 — 7": {
+      "meta": {
+        "description": "The person observes that alice's feed targets a custom 1600.",
+        "snapshot": "the-person-observes-that-alice-s-feed-targets-a-custom-1600",
+        "recognize": [],
+        "checks": [
+          "Alice's feed targets a custom 1600",
+          "Alice is served a puzzle rated between 1400 and 1800",
+          "Alice is solving a different puzzle than the one before"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:51"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's saved feed advances after one second — 8": {
+      "meta": {
+        "description": "The person observes that alice's saved feed advances after one second.",
+        "snapshot": "the-person-observes-that-alice-s-saved-feed-advances-after-one-second",
+        "recognize": [],
+        "checks": ["Alice's saved feed advances after one second"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:62"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed targets 1600 automatically — 9": {
+      "meta": {
+        "description": "The person observes that alice's feed targets 1600 automatically.",
+        "snapshot": "the-person-observes-that-alice-s-feed-targets-1600-automatically",
+        "recognize": [],
+        "checks": [
+          "Alice's feed targets 1600 automatically",
+          "Alice has a puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:69"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed targets 1500 automatically — 10": {
+      "meta": {
+        "description": "The person observes that alice's feed targets 1500 automatically.",
+        "snapshot": "the-person-observes-that-alice-s-feed-targets-1500-automatically",
+        "recognize": [],
+        "checks": [
+          "Alice's feed targets 1500 automatically",
+          "Alice's unsaved choices cannot replace saved feed choices without saving"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:78"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed targets 1500 automatically — 11": {
+      "meta": {
+        "description": "The person observes that alice's feed targets 1500 automatically.",
+        "snapshot": "the-person-observes-that-alice-s-feed-targets-1500-automatically",
+        "recognize": [],
+        "checks": [
+          "Alice's feed targets 1500 automatically",
+          "Alice's unsaved choices cannot replace saved feed choices without saving"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:86"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's feed rating offset is 400 — 12": {
+      "meta": {
+        "description": "The person observes that alice's feed rating offset is 400.",
+        "snapshot": "the-person-observes-that-alice-s-feed-rating-offset-is-400",
+        "recognize": [],
+        "checks": [
+          "Alice's feed rating offset is 400",
+          "Alice's unsaved feed settings preview a target of 1900"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:100"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot raise the feed rating offset past 400 — 13": {
+      "meta": {
+        "description": "The person observes that alice cannot raise the feed rating offset past 400.",
+        "snapshot": "the-person-observes-that-alice-cannot-raise-the-feed-rating-offset-past-400",
+        "recognize": [],
+        "checks": [
+          "Alice cannot raise the feed rating offset past 400",
+          "Alice's unsaved feed settings preview a target of 1900"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:106"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot lower the feed rating offset past -400 — 14": {
+      "meta": {
+        "description": "The person observes that alice cannot lower the feed rating offset past -400.",
+        "snapshot": "the-person-observes-that-alice-cannot-lower-the-feed-rating-offset-past-400",
+        "recognize": [],
+        "checks": [
+          "Alice cannot lower the feed rating offset past -400",
+          "Alice's unsaved feed settings preview a target of 1100"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:112"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's unsaved feed settings preview a target of 3000 — 15": {
+      "meta": {
+        "description": "The person observes that alice's unsaved feed settings preview a target of 3000.",
+        "snapshot": "the-person-observes-that-alice-s-unsaved-feed-settings-preview-a-target-of-3000",
+        "recognize": [],
+        "checks": ["Alice's unsaved feed settings preview a target of 3000"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:118"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot raise the custom feed target past 3000 — 16": {
+      "meta": {
+        "description": "The person observes that alice cannot raise the custom feed target past 3000.",
+        "snapshot": "the-person-observes-that-alice-cannot-raise-the-custom-feed-target-past-3000",
+        "recognize": [],
+        "checks": [
+          "Alice cannot raise the custom feed target past 3000",
+          "Alice's unsaved feed settings preview a target of 3000"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:123"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot lower the custom feed target past 400 — 17": {
+      "meta": {
+        "description": "The person observes that alice cannot lower the custom feed target past 400.",
+        "snapshot": "the-person-observes-that-alice-cannot-lower-the-custom-feed-target-past-400",
+        "recognize": [],
+        "checks": [
+          "Alice cannot lower the custom feed target past 400",
+          "Alice's unsaved feed settings preview a target of 400"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:129"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is served a puzzle with the \"fork\" theme — 18": {
+      "meta": {
+        "description": "The person observes that alice is served a puzzle with the \"fork\" theme.",
+        "snapshot": "the-person-observes-that-alice-is-served-a-puzzle-with-the-fork-theme",
+        "recognize": [],
+        "checks": ["Alice is served a puzzle with the \"fork\" theme"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:142"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered a puzzle without the \"fork\" theme — 19": {
+      "meta": {
+        "description": "The person observes that alice is not offered a puzzle without the \"fork\" theme.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-a-puzzle-without-the-fork-theme",
+        "recognize": [],
+        "checks": ["Alice is not offered a puzzle without the \"fork\" theme"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:146"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is solving the puzzle they failed — 20": {
+      "meta": {
+        "description": "The person observes that alice is solving the puzzle they failed.",
+        "snapshot": "the-person-observes-that-alice-is-solving-the-puzzle-they-failed",
+        "recognize": [],
+        "checks": [
+          "Alice is solving the puzzle they failed",
+          "Alice is told the attempt is unrated"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:158"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the feed is empty because they have no failed attempts — 21": {
+      "meta": {
+        "description": "The person observes that alice is told the feed is empty because they have no failed attempts.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-feed-is-empty-because-they-have-no-failed-",
+        "recognize": [],
+        "checks": [
+          "Alice is told the feed is empty because they have no failed attempts",
+          "Alice has no puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/puzzle-feed.feature:165"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

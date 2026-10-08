@@ -1,0 +1,145 @@
+journeys:
+  A waiting phone keeps its last known wait when it goes offline:
+    description: A waiting phone keeps its last known wait when it goes offline
+    startingConditions:
+    - Alice is waiting with a range of 5 points
+    events:
+    - Alice's phone goes offline
+    endsIn: Alice's phone shows her last known wait — 1
+    checks:
+    - Alice's phone shows her last known wait
+    - Alice's phone shows her last known range
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:10 — A waiting phone keeps its last known wait when it goes
+      offline
+    exampleRow: []
+  Alice can wait once her phone is back online:
+    description: Alice can wait once her phone is back online
+    startingConditions:
+    - Alice's phone is offline
+    events:
+    - Alice's phone comes back online when Alice's phone is offline
+    endsIn: Alice can wait for a match — 2
+    checks:
+    - Alice can wait for a match
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:18 — Alice can wait once her phone is back online
+    exampleRow: []
+  Asking while offline does not start a wait later:
+    description: Asking while offline does not start a wait later
+    startingConditions:
+    - Alice's phone is offline
+    events:
+    - Alice waits for a match with a rating of 1500
+    endsIn: Alice is told matchmaking needs a connection — 3
+    checks:
+    - Alice is told matchmaking needs a connection
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:23 — Asking while offline does not start a wait later
+    exampleRow: []
+  Stopping while offline does not claim the wait has stopped:
+    description: Stopping while offline does not claim the wait has stopped
+    startingConditions:
+    - Alice is waiting for a match
+    - Alice's phone is offline
+    events:
+    - Alice stops waiting
+    endsIn: Alice is told matchmaking needs a connection — 4
+    checks:
+    - Alice is told matchmaking needs a connection
+    - Alice's phone shows her last known wait
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:29 — Stopping while offline does not claim the wait has stopped
+    exampleRow: []
+  Changing a range while offline does not claim the change counted:
+    description: Changing a range while offline does not claim the change counted
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 5 points
+    - Alice's phone is offline
+    events:
+    - Alice widens her range to 200 points
+    endsIn: Alice is told matchmaking needs a connection — 5
+    checks:
+    - Alice is told matchmaking needs a connection
+    - Alice's phone shows her last known range
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:36 — Changing a range while offline does not claim the change
+      counted
+    exampleRow: []
+  Alice finds her unchanged wait when her phone returns:
+    description: Alice finds her unchanged wait when her phone returns
+    startingConditions:
+    - Alice is waiting for a match
+    - Alice's phone is offline
+    events:
+    - Alice's phone comes back online when Alice is waiting for a match and Alice's phone is offline
+    endsIn: Alice has the same wait — 6
+    checks:
+    - Alice has the same wait
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:46 — Alice finds her unchanged wait when her phone returns
+    exampleRow: []
+  Alice can be matched while her phone is offline:
+    description: Alice can be matched while her phone is offline
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    - Alice's phone is offline
+    events:
+    - matchmaking pairs people up
+    endsIn: Bob is matched with Alice — 7
+    checks:
+    - Bob is matched with Alice
+    - Alice's phone shows her last known wait
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:52 — Alice can be matched while her phone is offline
+    exampleRow: []
+  Alice's phone finds the match made while she was away:
+    description: Alice's phone finds the match made while she was away
+    startingConditions:
+    - Alice's phone was offline when she was matched with Bob
+    events:
+    - Alice's phone comes back online when Alice's phone was offline when she was matched with Bob
+    endsIn: Alice and Bob are matched with each other — 8
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:63 — Alice's phone finds the match made while she was away
+    exampleRow: []
+  Alice's phone finds the stop made on another device:
+    description: Alice's phone finds the stop made on another device
+    startingConditions:
+    - Alice's phone was offline when she stopped waiting on another device
+    events:
+    - Alice's phone comes back online when Alice's phone was offline when she stopped waiting on another device
+    endsIn: Alice is not waiting for a match — 9
+    checks:
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:68 — Alice's phone finds the stop made on another device
+    exampleRow: []
+  An offline request does not begin a wait on return:
+    description: An offline request does not begin a wait on return
+    startingConditions:
+    - Alice asked for a match while her phone was offline
+    events:
+    - Alice's phone comes back online when Alice asked for a match while her phone was offline
+    endsIn: Alice is not waiting for a match — 10
+    checks:
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:73 — An offline request does not begin a wait on return
+    exampleRow: []
+  An offline stop does not stop an accepted wait on return:
+    description: An offline stop does not stop an accepted wait on return
+    startingConditions:
+    - Alice asked to stop waiting while her phone was offline
+    events:
+    - Alice's phone comes back online when Alice asked to stop waiting while her phone was offline
+    endsIn: Alice has the same wait — 11
+    checks:
+    - Alice has the same wait
+    gherkin:
+    - specs/matchmaking/waits-after-time-away.feature:78 — An offline stop does not stop an accepted wait on return
+    exampleRow: []

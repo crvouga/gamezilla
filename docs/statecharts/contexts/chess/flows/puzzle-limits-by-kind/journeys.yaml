@@ -1,0 +1,77 @@
+journeys:
+  Someone who is signed in and is past twenty puzzles in a day is never shown a limit:
+    description: Someone who <kind> and is past twenty puzzles in a day is never shown a limit
+    startingConditions:
+    - Alice is signed in
+    - Alice has played 25 puzzles today
+    events:
+    - Alice moves on to the next puzzle when Alice is signed in and Alice has played 25 puzzles today
+    endsIn: Alice has a puzzle on the board — 1
+    checks:
+    - Alice has a puzzle on the board
+    - Alice is not shown the puzzle limit
+    gherkin:
+    - specs/chess/puzzle-limits-by-kind.feature:12 — Someone who <kind> and is past twenty puzzles in a day is never
+      shown a limit
+    exampleRow:
+    - '6'
+  Someone who has subscribed to Plus and is past twenty puzzles in a day is never shown a limit:
+    description: Someone who <kind> and is past twenty puzzles in a day is never shown a limit
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice has played 25 puzzles today
+    events:
+    - Alice moves on to the next puzzle when Alice has subscribed to Plus and Alice has played 25 puzzles today
+    endsIn: Alice has a puzzle on the board — 2
+    checks:
+    - Alice has a puzzle on the board
+    - Alice is not shown the puzzle limit
+    gherkin:
+    - specs/chess/puzzle-limits-by-kind.feature:12 — Someone who <kind> and is past twenty puzzles in a day is never
+      shown a limit
+    exampleRow:
+    - '7'
+  A guest at the limit still gets no new puzzle while offline:
+    description: A guest at the limit still gets no new puzzle while offline
+    startingConditions:
+    - Alice is a guest who has finished today's last allowed puzzle
+    - Alice is offline
+    events:
+    - Alice asks for another puzzle when Alice is a guest who has finished today's last allowed puzzle and Alice
+      is offline
+    endsIn: Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 3
+    checks:
+    - Alice is told no new puzzle can start because today's allowance is used within 15 seconds
+    - Alice has no puzzle on the board
+    gherkin:
+    - specs/chess/puzzle-limits-by-kind.feature:24 — A guest at the limit still gets no new puzzle while offline
+    exampleRow: []
+  Puzzles a guest plays offline count toward the day's limit:
+    description: Puzzles a guest plays offline count toward the day's limit
+    startingConditions:
+    - Alice is a guest who has played 19 puzzles today
+    - Alice is offline
+    - Alice has solved the twentieth puzzle of the day
+    events:
+    - Alice asks for another puzzle when Alice is a guest who has played 19 puzzles today and Alice is offline and
+      Alice has solved the twentieth puzzle of the day
+    endsIn: Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 4
+    checks:
+    - Alice is told no new puzzle can start because today's allowance is used within 15 seconds
+    gherkin:
+    - specs/chess/puzzle-limits-by-kind.feature:31 — Puzzles a guest plays offline count toward the day's limit
+    exampleRow: []
+  A new day brings a guest a fresh allowance:
+    description: A new day brings a guest a fresh allowance
+    startingConditions:
+    - Alice is a guest who has been shown today's puzzle limit
+    - the next day has begun
+    events:
+    - Alice goes back to the puzzles
+    endsIn: Alice has a puzzle on the board within 30 seconds — 5
+    checks:
+    - Alice has a puzzle on the board within 30 seconds
+    - Alice is not shown the puzzle limit
+    gherkin:
+    - specs/chess/puzzle-limits-by-kind.feature:38 — A new day brings a guest a fresh allowance
+    exampleRow: []

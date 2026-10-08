@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Explore the app through its specs and automated evidence" as s0
+  state "the team can read each spec and open its test reports — 1" as s1
+  state "the team can read that spec — 2" as s2
+  state "the team sees both the test reports and the UI quality check — 3" as s3
+  state "the team is told the earlier version has no completed performance check — 4" as s4
+  state "the team sees the performance check's measured outcome — 5" as s5
+  state "the team is told the UI quality check has not been completed — 6" as s6
+  state "the team is told why the test reports are unavailable — 7" as s7
+  state "the team sees the available test reports — 8" as s8
+  [*] --> s0
+  s0 --> s1: the team explores that version's specs when a version of the app has specs with completed test reports
+  s0 --> s2: the team explores that version's specs when a version of the app has a spec without a completed test report
+  s0 --> s3: the team explores that version's report parts when a version of the app has completed test reports and a newly completed UI quality check
+  s0 --> s4: the team explores the earlier version's report parts
+  s0 --> s5: the team explores that version's report parts when a version of the app has a completed performance check
+  s0 --> s6: the team explores that version's report parts when a version of the app has no completed UI quality check
+  s0 --> s7: the team investigates which test reports are available
+  s0 --> s8: the team asks to open the test reports again
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

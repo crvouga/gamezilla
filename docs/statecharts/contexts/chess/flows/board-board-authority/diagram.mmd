@@ -1,0 +1,75 @@
+stateDiagram-v2
+  state "Viewing Change chessboard settings safely" as s0
+  state "Alice sees a White pawn on e4 — 1" as s1
+  state "Alice no longer holds a piece — 2" as s2
+  state "Alice cannot move a piece while interactivity is disabled — 3" as s3
+  state "Alice sees the White pawn remaining on a7 — 4" as s4
+  state "Alice can request promotion from a7 to a8 — 5" as s5
+  state "Alice no longer holds a piece — 6" as s6
+  state "Alice still has e2 selected — 7" as s7
+  state "Alice sees the replacement position — 8" as s8
+  state "Alice sees the replacement position — 9" as s9
+  state "Alice sees the replacement position — 10" as s10
+  state "Alice no longer holds a piece — 11" as s11
+  state "Alice still has e2 selected — 12" as s12
+  state "Alice no longer holds a piece — 13" as s13
+  state "Alice no longer holds a piece — 14" as s14
+  state "Alice no longer holds a piece — 15" as s15
+  state "Alice sees the White pawn remaining on e2 — 16" as s16
+  state "Alice sees a White pawn on e4 — 17" as s17
+  state "Alice sees White's offered move refused — 18" as s18
+  state "Alice sees a Black pawn on e5 — 19" as s19
+  state "Alice still sees the position before White's first move — 20" as s20
+  state "Alice sees the position before White's first move — 21" as s21
+  state "Alice can request promotion from a7 to a8 automatically to a queen — 22" as s22
+  state "Alice can request promotion from a7 to a8 with an explicit promotion choice — 23" as s23
+  state "Alice is still offered queen, rook, bishop and knight as the promotion choice — 24" as s24
+  [*] --> s0
+  s0 --> s1: Alice moves the piece from e2 to e4 when Alice has an interactive chessboard
+  s0 --> s2: Alice's board settings disable interactivity when Alice is dragging the piece on e2
+  s0 --> s3: Alice moves the piece from e2 to e4 when Alice has a chessboard with interactivity disabled
+  s0 --> s4: Alice's board settings disable interactivity when Alice has a pending White promotion from a7 to a8
+  s0 --> s5: Alice's board settings enable interactivity
+  s0 --> s6: Alice's activity replaces the position when Alice is dragging the piece on e2
+  s0 --> s7: Alice's activity supplies the same position again
+  s0 --> s8: Alice's activity replaces the position when Alice has a pending White promotion from a7 to a8
+  s0 --> s9: Alice's activity replaces the position when Alice has a chessboard after White's move from e2 to e4 with e7 selected
+  s0 --> s10: Alice's activity replaces the position when Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7
+  s0 --> s11: Alice changes the orientation
+  s0 --> s12: Alice resizes the chessboard when Alice has selected the piece on e2
+  s0 --> s13: Alice resizes the chessboard when Alice is dragging the piece on e2
+  s0 --> s14: Alice cancels the drag when Alice is dragging the piece on e2
+  s0 --> s15: Alice switches away from the chessboard's activity
+  s0 --> s16: Alice cancels the drag when Alice has an interactive chessboard
+  s0 --> s17: Alice's activity confirms the offered position
+  s0 --> s18: Alice's activity refuses the offered move
+  s0 --> s19: Alice's activity supplies Black's reply from e7 to e5
+  s0 --> s20: Alice's activity supplies an unusable position
+  s0 --> s21: Alice's activity starts a chessboard with an unusable position
+  s0 --> s22: Alice's board settings enable automatic queen promotion when Alice has a chessboard ready for White's promotion from a7 to a8
+  s0 --> s23: Alice's board settings disable automatic queen promotion
+  s0 --> s24: Alice's board settings enable automatic queen promotion when Alice has a pending White promotion from a7 to a8
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]
+  s17 --> [*]
+  s18 --> [*]
+  s19 --> [*]
+  s20 --> [*]
+  s21 --> [*]
+  s22 --> [*]
+  s23 --> [*]
+  s24 --> [*]

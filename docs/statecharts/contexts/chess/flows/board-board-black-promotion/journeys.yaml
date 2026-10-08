@@ -1,0 +1,445 @@
+journeys:
+  A Black quiet move or capture waits for choice in either orientation:
+    description: A Black quiet move or capture waits for choice in either orientation
+    startingConditions:
+    - Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1
+    events:
+    - Alice moves the piece from a2 to a1 when Alice has a chessboard facing White with Black's pawn on a2 ready
+      to promote and White's knight on b1
+    endsIn: Alice is offered queen, rook, bishop and knight as the promotion choice — 1
+    checks:
+    - Alice is offered queen, rook, bishop and knight as the promotion choice
+    - Alice sees the Black pawn remaining on a2
+    - Alice sees the White knight remaining on b1
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:11 — A Black quiet move or capture waits for choice in either
+      orientation
+    exampleRow:
+    - '7'
+  A Black quiet move or capture waits for choice in either orientation (example 2):
+    description: A Black quiet move or capture waits for choice in either orientation
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1
+    events:
+    - Alice moves the piece from a2 to a1 when Alice has a chessboard facing Black with Black's pawn on a2 ready
+      to promote and White's knight on b1
+    endsIn: Alice is offered queen, rook, bishop and knight as the promotion choice — 2
+    checks:
+    - Alice is offered queen, rook, bishop and knight as the promotion choice
+    - Alice sees the Black pawn remaining on a2
+    - Alice sees the White knight remaining on b1
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:11 — A Black quiet move or capture waits for choice in either
+      orientation
+    exampleRow:
+    - '8'
+  A Black quiet move or capture waits for choice in either orientation (example 3):
+    description: A Black quiet move or capture waits for choice in either orientation
+    startingConditions:
+    - Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1
+    events:
+    - Alice moves the piece from a2 to b1 when Alice has a chessboard facing White with Black's pawn on a2 ready
+      to promote and White's knight on b1
+    endsIn: Alice is offered queen, rook, bishop and knight as the promotion choice — 3
+    checks:
+    - Alice is offered queen, rook, bishop and knight as the promotion choice
+    - Alice sees the Black pawn remaining on a2
+    - Alice sees the White knight remaining on b1
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:11 — A Black quiet move or capture waits for choice in either
+      orientation
+    exampleRow:
+    - '9'
+  A Black quiet move or capture waits for choice in either orientation (example 4):
+    description: A Black quiet move or capture waits for choice in either orientation
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1
+    events:
+    - Alice moves the piece from a2 to b1 when Alice has a chessboard facing Black with Black's pawn on a2 ready
+      to promote and White's knight on b1
+    endsIn: Alice is offered queen, rook, bishop and knight as the promotion choice — 4
+    checks:
+    - Alice is offered queen, rook, bishop and knight as the promotion choice
+    - Alice sees the Black pawn remaining on a2
+    - Alice sees the White knight remaining on b1
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:11 — A Black quiet move or capture waits for choice in either
+      orientation
+    exampleRow:
+    - '10'
+  Disabled Black promotion cannot offer a choice:
+    description: Disabled Black promotion cannot offer a choice
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and interactivity disabled
+    events:
+    - Alice moves the piece from a2 to a1 when Alice has a chessboard facing Black with Black's pawn on a2 ready
+      to promote and interactivity disabled
+    endsIn: Alice cannot request promotion while interactivity is disabled — 5
+    checks:
+    - Alice cannot request promotion while interactivity is disabled
+    - Alice is not offered a promotion choice
+    - Alice sees the Black pawn remaining on a2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:26 — Disabled Black promotion cannot offer a choice
+    exampleRow: []
+  Every Black quiet choice completes on a White-facing board:
+    description: Every Black quiet choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a queen when Alice has a chessboard facing White with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black queen on a1 — 6
+    checks:
+    - Alice sees a Black queen on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one move promoting to a queen
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:37 — Every Black quiet choice completes on a White-facing
+      board
+    exampleRow:
+    - '28'
+  Every Black quiet choice completes on a White-facing board (example 7):
+    description: Every Black quiet choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a rook when Alice has a chessboard facing White with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black rook on a1 — 7
+    checks:
+    - Alice sees a Black rook on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one move promoting to a rook
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:37 — Every Black quiet choice completes on a White-facing
+      board
+    exampleRow:
+    - '29'
+  Every Black quiet choice completes on a White-facing board (example 8):
+    description: Every Black quiet choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing White with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black bishop on a1 — 8
+    checks:
+    - Alice sees a Black bishop on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one move promoting to a bishop
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:37 — Every Black quiet choice completes on a White-facing
+      board
+    exampleRow:
+    - '30'
+  Every Black quiet choice completes on a White-facing board (example 9):
+    description: Every Black quiet choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing White with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black knight on a1 — 9
+    checks:
+    - Alice sees a Black knight on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one move promoting to a knight
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:37 — Every Black quiet choice completes on a White-facing
+      board
+    exampleRow:
+    - '31'
+  Every Black quiet choice completes on a Black-facing board:
+    description: Every Black quiet choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a queen when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black queen on a1 — 10
+    checks:
+    - Alice sees a Black queen on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one move promoting to a queen
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:52 — Every Black quiet choice completes on a Black-facing
+      board
+    exampleRow:
+    - '41'
+  Every Black quiet choice completes on a Black-facing board (example 11):
+    description: Every Black quiet choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a rook when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black rook on a1 — 11
+    checks:
+    - Alice sees a Black rook on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one move promoting to a rook
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:52 — Every Black quiet choice completes on a Black-facing
+      board
+    exampleRow:
+    - '42'
+  Every Black quiet choice completes on a Black-facing board (example 12):
+    description: Every Black quiet choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black bishop on a1 — 12
+    checks:
+    - Alice sees a Black bishop on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one move promoting to a bishop
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:52 — Every Black quiet choice completes on a Black-facing
+      board
+    exampleRow:
+    - '43'
+  Every Black quiet choice completes on a Black-facing board (example 13):
+    description: Every Black quiet choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black knight on a1 — 13
+    checks:
+    - Alice sees a Black knight on a1
+    - Alice sees the White knight remaining on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one move promoting to a knight
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:52 — Every Black quiet choice completes on a Black-facing
+      board
+    exampleRow:
+    - '44'
+  Every Black capture choice completes on a White-facing board:
+    description: Every Black capture choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a queen when Alice has a chessboard facing White with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black queen on b1 — 14
+    checks:
+    - Alice sees a Black queen on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one capture move promoting to a queen
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:70 — Every Black capture choice completes on a White-facing
+      board
+    exampleRow:
+    - '55'
+  Every Black capture choice completes on a White-facing board (example 15):
+    description: Every Black capture choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a rook when Alice has a chessboard facing White with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black rook on b1 — 15
+    checks:
+    - Alice sees a Black rook on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one capture move promoting to a rook
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:70 — Every Black capture choice completes on a White-facing
+      board
+    exampleRow:
+    - '56'
+  Every Black capture choice completes on a White-facing board (example 16):
+    description: Every Black capture choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing White with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black bishop on b1 — 16
+    checks:
+    - Alice sees a Black bishop on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one capture move promoting to a bishop
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:70 — Every Black capture choice completes on a White-facing
+      board
+    exampleRow:
+    - '57'
+  Every Black capture choice completes on a White-facing board (example 17):
+    description: Every Black capture choice completes on a White-facing board
+    startingConditions:
+    - Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing White with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black knight on b1 — 17
+    checks:
+    - Alice sees a Black knight on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces White
+    - Alice's activity receives one capture move promoting to a knight
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:70 — Every Black capture choice completes on a White-facing
+      board
+    exampleRow:
+    - '58'
+  Every Black capture choice completes on a Black-facing board:
+    description: Every Black capture choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a queen when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black queen on b1 — 18
+    checks:
+    - Alice sees a Black queen on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one capture move promoting to a queen
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:85 — Every Black capture choice completes on a Black-facing
+      board
+    exampleRow:
+    - '68'
+  Every Black capture choice completes on a Black-facing board (example 19):
+    description: Every Black capture choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a rook when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black rook on b1 — 19
+    checks:
+    - Alice sees a Black rook on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one capture move promoting to a rook
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:85 — Every Black capture choice completes on a Black-facing
+      board
+    exampleRow:
+    - '69'
+  Every Black capture choice completes on a Black-facing board (example 20):
+    description: Every Black capture choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black bishop on b1 — 20
+    checks:
+    - Alice sees a Black bishop on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one capture move promoting to a bishop
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:85 — Every Black capture choice completes on a Black-facing
+      board
+    exampleRow:
+    - '70'
+  Every Black capture choice completes on a Black-facing board (example 21):
+    description: Every Black capture choice completes on a Black-facing board
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black knight on b1 — 21
+    checks:
+    - Alice sees a Black knight on b1
+    - Alice sees no White knight on b1
+    - Alice's chessboard faces Black
+    - Alice's activity receives one capture move promoting to a knight
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:85 — Every Black capture choice completes on a Black-facing
+      board
+    exampleRow:
+    - '71'
+  Capturing the last opposing piece into dead material announces a draw:
+    description: Capturing the last opposing piece into dead material announces a draw
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black bishop on b1 — 20
+    checks:
+    - Alice's move announcement identifies a drawn position
+    - Alice hears one end sound after capture and promotion feedback
+    - Alice's activity receives one capture move promoting to a bishop
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:103 — Capturing the last opposing piece into dead material
+      announces a draw
+    exampleRow:
+    - '81'
+  Capturing the last opposing piece into dead material announces a draw (example 23):
+    description: Capturing the last opposing piece into dead material announces a draw
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's capture-promotion
+      from a2 to b1 pending against White's knight
+    endsIn: Alice sees a Black knight on b1 — 21
+    checks:
+    - Alice's move announcement identifies a drawn position
+    - Alice hears one end sound after capture and promotion feedback
+    - Alice's activity receives one capture move promoting to a knight
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:103 — Capturing the last opposing piece into dead material
+      announces a draw
+    exampleRow:
+    - '82'
+  Keeping the opposing knight does not announce a dead-position draw:
+    description: Keeping the opposing knight does not announce a dead-position draw
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black bishop on a1 — 12
+    checks:
+    - Alice is not told a dead-position draw because the position still permits checkmate
+    - Alice hears no end sound
+    - Alice sees the White knight remaining on b1
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:115 — Keeping the opposing knight does not announce a dead-position
+      draw
+    exampleRow:
+    - '92'
+  Keeping the opposing knight does not announce a dead-position draw (example 25):
+    description: Keeping the opposing knight does not announce a dead-position draw
+    startingConditions:
+    - Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1
+    events:
+    - Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's promotion from
+      a2 to a1 pending and White's knight on b1
+    endsIn: Alice sees a Black knight on a1 — 13
+    checks:
+    - Alice is not told a dead-position draw because the position still permits checkmate
+    - Alice hears no end sound
+    - Alice sees the White knight remaining on b1
+    gherkin:
+    - specs/chess-board/board-black-promotion.feature:115 — Keeping the opposing knight does not announce a dead-position
+      draw
+    exampleRow:
+    - '93'

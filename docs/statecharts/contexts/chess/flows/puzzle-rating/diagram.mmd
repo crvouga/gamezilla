@@ -1,0 +1,45 @@
+stateDiagram-v2
+  state "Viewing Puzzle rating" as s0
+  state "Alice's stats show their rating without the '?' — 1" as s1
+  state "Alice's puzzle rating is above 1500 — 2" as s2
+  state "both of Alice's devices show the same puzzle rating within 30 seconds — 3" as s3
+  state "Alice's puzzle rating is still unchanged by the repeat because that puzzle is already rated — 4" as s4
+  state "Alice's other device shows the same puzzle rating within 30 seconds — 5" as s5
+  state "Alice's puzzle rating is above Bob's — 6" as s6
+  state "Alice's puzzle rating is below Bob's — 7" as s7
+  state "Alice's puzzle rating is above Bob's — 8" as s8
+  state "Alice's puzzle rating is above 400 — 9" as s9
+  state "Alice's puzzle rating cannot go below 400 — 10" as s10
+  state "Alice's puzzle rating is below 3000 — 11" as s11
+  state "Alice's puzzle rating cannot go above 3000 — 12" as s12
+  state "Alice's puzzle rating is below 1500 — 13" as s13
+  state "Alice's puzzle rating is below Bob's — 14" as s14
+  [*] --> s0
+  s0 --> s1: Alice solves the puzzle when Alice is signed in and Alice's puzzle rating is one rated puzzle from settling and Alice is playing puzzles in their space
+  s0 --> s2: Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice is offline
+  s0 --> s3: the connection comes back
+  s0 --> s4: Alice solves the puzzle when the puzzle pool holds just three puzzles and Alice is signed in and Alice is playing puzzles in their space and Alice has solved 3 puzzles in a row and Alice's feed has come round to a puzzle they already played
+  s0 --> s5: Alice's account opens on another device
+  s0 --> s6: Alice solves the puzzle when Alice and Bob are signed in and Alice's puzzle rating has settled at 1500 and Bob's puzzle rating has settled at 1500 and Bob has solved a puzzle rated 1300 and Alice is solving a puzzle rated 1700
+  s0 --> s7: Alice plays a wrong move when Alice and Bob are signed in and Alice's puzzle rating has settled at 1500 and Bob's puzzle rating has settled at 1500 and Bob has played a wrong move on a puzzle rated 1700 and Alice is solving a puzzle rated 1300
+  s0 --> s8: Alice solves the puzzle when Alice is a new solver with a provisional 1500 puzzle rating and Bob's puzzle rating has settled at 1500 and Bob has solved the hook-mate puzzle and Alice is solving the hook-mate puzzle
+  s0 --> s9: Alice solves the puzzle when Alice is signed in and Alice's puzzle rating has settled at 400 and Alice is playing puzzles in their space
+  s0 --> s10: Alice plays a wrong move when Alice is signed in and Alice's puzzle rating has settled at 400 and Alice is playing puzzles in their space
+  s0 --> s11: Alice plays a wrong move when Alice is signed in and Alice's puzzle rating has settled at 3000 and Alice is playing puzzles in their space
+  s0 --> s12: Alice solves the puzzle when Alice is signed in and Alice's puzzle rating has settled at 3000 and Alice is playing puzzles in their space
+  s0 --> s13: Alice plays a wrong move when Alice and Bob are signed in and Alice is solving the hook-mate puzzle and Bob is solving the hook-mate puzzle and Bob has taken a hint and Bob has solved the puzzle
+  s0 --> s14: Alice solves the puzzle when Alice and Bob are signed in and Bob has solved the hook-mate puzzle and Alice is solving the hook-mate puzzle and Alice has taken a hint
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]

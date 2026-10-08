@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Custom Games follow the space's access" as s0
+  state "Carol sees the active Custom Game with White to move — 1" as s1
+  state "Carol cannot see the Custom Game — 2" as s2
+  state "Black is Carol in the Custom Game — 3" as s3
+  state "Carol is told they are not in the space — 4" as s4
+  state "Black is a bot in the Custom Game — 5" as s5
+  state "Carol is told only the creator configures the Custom Game — 6" as s6
+  [*] --> s0
+  s0 --> s1: Carol watches the Custom Game
+  s0 --> s2: Carol tries to watch the Custom Game
+  s0 --> s3: Carol claims Black in the Custom Game when Alice has a configuring Custom Game and Carol has joined Alice's space from the link
+  s0 --> s4: Carol claims Black in the Custom Game when Alice has a configuring Custom Game and Carol is outside Alice's space
+  s0 --> s5: Alice assigns a bot to Black in the Custom Game
+  s0 --> s6: Carol assigns a bot to Black in the Custom Game
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

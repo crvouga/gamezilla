@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing The puzzle limit holds everywhere, and only for guests" as s0
+  state "Alice has a puzzle on the board — 1" as s1
+  state "Alice has a puzzle on the board — 2" as s2
+  state "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 3" as s3
+  state "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 4" as s4
+  state "Alice has a puzzle on the board within 30 seconds — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice moves on to the next puzzle when Alice is signed in and Alice has played 25 puzzles today
+  s0 --> s2: Alice moves on to the next puzzle when Alice has subscribed to Plus and Alice has played 25 puzzles today
+  s0 --> s3: Alice asks for another puzzle when Alice is a guest who has finished today's last allowed puzzle and Alice is offline
+  s0 --> s4: Alice asks for another puzzle when Alice is a guest who has played 19 puzzles today and Alice is offline and Alice has solved the twentieth puzzle of the day
+  s0 --> s5: Alice goes back to the puzzles
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

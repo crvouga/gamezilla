@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Friend requests reach the inbox" as s0
+  state "Bob's inbox shows a friend request from Alice within 15 seconds — 1" as s1
+  state "Alice is asked to sign in within 5 seconds — 2" as s2
+  state "Bob's inbox shows a friend request from Alice's stand-in name within 15 seconds — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice sends Bob a friend request from Bob's profile
+  s0 --> s2: Alice opens their inbox
+  s0 --> s3: the team stops allowing the username @chess_cheater
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

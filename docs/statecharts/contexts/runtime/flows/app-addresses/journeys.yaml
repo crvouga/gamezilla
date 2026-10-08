@@ -1,0 +1,25 @@
+journeys:
+  An address the app does not have says so and offers the way back:
+    description: An address the app does not have says so and offers the way back
+    startingConditions: []
+    events:
+    - Alice opens an address the app does not have
+    endsIn: Alice is told there is nothing at that address — 1
+    checks:
+    - Alice is told there is nothing at that address
+    - Alice is offered the way back to Spaces
+    gherkin:
+    - specs/runtime/app-addresses.feature:9 — An address the app does not have says so and offers the way back
+    exampleRow: []
+  The way back from an address that leads nowhere reaches Spaces:
+    description: The way back from an address that leads nowhere reaches Spaces
+    startingConditions:
+    - Alice has opened an address the app does not have
+    events:
+    - Alice takes the way back to Spaces
+    endsIn: Alice is on Spaces — 2
+    checks:
+    - Alice is on Spaces
+    gherkin:
+    - specs/runtime/app-addresses.feature:14 — The way back from an address that leads nowhere reaches Spaces
+    exampleRow: []

@@ -1,0 +1,42 @@
+journeys:
+  A guest's first Apple sign-in gives them an account that signs in with Apple:
+    description: A guest's first Apple sign-in gives them an account that signs in with Apple
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice signs in with Apple
+    endsIn: Alice has a signed-in account — 1
+    checks:
+    - Alice has a signed-in account
+    - Alice's sign-in methods are Apple
+    gherkin:
+    - specs/profile/apple-sign-in.feature:9 — A guest's first Apple sign-in gives them an account that signs in
+      with Apple
+    exampleRow: []
+  Apple sign-in at the same address as Google opens the same account:
+    description: Apple sign-in at the same address as Google opens the same account
+    startingConditions:
+    - Alice is signed in with Google
+    - Alice has signed out
+    events:
+    - Alice signs in with Apple using the same address
+    endsIn: Alice is signed into the same account — 2
+    checks:
+    - Alice is signed into the same account
+    - Alice's sign-in methods are Google and Apple
+    gherkin:
+    - specs/profile/apple-sign-in.feature:15 — Apple sign-in at the same address as Google opens the same account
+    exampleRow: []
+  Apple sign-in with a hidden address opens a separate account:
+    description: Apple sign-in with a hidden address opens a separate account
+    startingConditions:
+    - Alice is signed in with Google
+    - Alice has signed out
+    events:
+    - Alice signs in with Apple and hides their address
+    endsIn: Alice is signed into a different account — 3
+    checks:
+    - Alice is signed into a different account
+    gherkin:
+    - specs/profile/apple-sign-in.feature:22 — Apple sign-in with a hidden address opens a separate account
+    exampleRow: []

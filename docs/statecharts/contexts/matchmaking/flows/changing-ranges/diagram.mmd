@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Range changes affect only their intended wait" as s0
+  state "Alice sees her change counted — 1" as s1
+  state "Alice and Bob are still waiting — 2" as s2
+  state "Alice accepts anyone within 200 points — 3" as s3
+  state "Alice is told that earlier change already counted — 4" as s4
+  state "Alice sees her change counted — 5" as s5
+  state "Alice is told her earlier wait has ended — 6" as s6
+  state "Alice accepts anyone within 400 points — 7" as s7
+  state "Alice cannot be matched with someone 401 points away — 8" as s8
+  [*] --> s0
+  s0 --> s1: Alice narrows her range to 5 points
+  s0 --> s2: matchmaking pairs people up
+  s0 --> s3: Alice repeats that range change
+  s0 --> s4: Alice repeats her earlier wide range change
+  s0 --> s5: Alice widens her range to 200 points
+  s0 --> s6: Alice widens the range of her earlier wait to 200 points
+  s0 --> s7: Alice changes her range to a growing range when Alice is waiting with a range of 5 points and has waited 35 seconds
+  s0 --> s8: Alice changes her range to a growing range when Alice is waiting with a range of 5 points and has waited 60 seconds
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

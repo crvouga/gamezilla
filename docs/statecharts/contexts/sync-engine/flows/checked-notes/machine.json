@@ -1,0 +1,155 @@
+{
+  "id": "sync-engine-checked-notes",
+  "initial": "Viewing Checked notes",
+  "meta": {
+    "context": "Sync engine",
+    "kind": "flow",
+    "owner": "Sync engine owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Checked notes": {
+      "meta": {
+        "description": "The person is at the place where checked notes.",
+        "snapshot": "the-person-is-at-the-place-where-checked-notes",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:2"]
+      },
+      "on": {
+        "Alice writes the checked note 'Groceries' saying 'milk' when A checked note shows at once and is saving": {
+          "target": "Alice sees the note \"Groceries\" at once — 1",
+          "meta": {
+            "source": ["specs/sync-engine/checked-notes.feature:10"],
+            "condition": [],
+            "example": "A checked note shows at once and is saving"
+          }
+        },
+        "Alice writes the checked note 'Groceries' saying 'milk' when A checked note is saved once it is kept for everyone": {
+          "target": "Alice's app says the note \"Groceries\" is saved — 2",
+          "meta": {
+            "source": ["specs/sync-engine/checked-notes.feature:16"],
+            "condition": [],
+            "example": "A checked note is saved once it is kept for everyone"
+          }
+        },
+        "Alice writes the checked note 'Groceries' saying 'refused' when Alice and Bob have slow connections and Alice has written the checked note 'Groceries' saying 'milk' and the note 'Groceries' has reached Bob and Alice's app will not hear back about its next save": {
+          "target": "Bob never sees the note \"Groceries\" saying \"refused\" — 3",
+          "meta": {
+            "source": ["specs/sync-engine/checked-notes.feature:24"],
+            "condition": [
+              "Alice and Bob have slow connections",
+              "Alice has written the checked note \"Groceries\" saying \"milk\"",
+              "the note \"Groceries\" has reached Bob",
+              "Alice's app will not hear back about its next save"
+            ],
+            "example": "Refused writing never replaces another person's shared note"
+          }
+        },
+        "Alice writes the checked note 'Groceries' saying 'refused' when A checked note that breaks the rule is refused": {
+          "target": "Alice's app says the note \"Groceries\" was refused — 4",
+          "meta": {
+            "source": ["specs/sync-engine/checked-notes.feature:33"],
+            "condition": [],
+            "example": "A checked note that breaks the rule is refused"
+          }
+        },
+        "Alice writes the checked note 'Groceries' saying 'refused' when Alice has written the checked note 'Groceries' saying 'milk'": {
+          "target": "the moment Alice's app says the note \"Groceries\" was refused, it shows the note saying \"milk\" — 5",
+          "meta": {
+            "source": ["specs/sync-engine/checked-notes.feature:40"],
+            "condition": [
+              "Alice has written the checked note \"Groceries\" saying \"milk\""
+            ],
+            "example": "By the time a refusal is reported, the note already says what it said before"
+          }
+        }
+      }
+    },
+    "Alice sees the note \"Groceries\" at once — 1": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" at once.",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-at-once",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" at once",
+          "Alice's app says the note \"Groceries\" is still saving"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:10"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's app says the note \"Groceries\" is saved — 2": {
+      "meta": {
+        "description": "The person observes that alice's app says the note \"Groceries\" is saved.",
+        "snapshot": "the-person-observes-that-alice-s-app-says-the-note-groceries-is-saved",
+        "recognize": [],
+        "checks": [
+          "Alice's app says the note \"Groceries\" is saved",
+          "the note \"Groceries\" is kept for everyone saying \"milk\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:16"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob never sees the note \"Groceries\" saying \"refused\" — 3": {
+      "meta": {
+        "description": "The person observes that bob never sees the note \"Groceries\" saying \"refused\".",
+        "snapshot": "the-person-observes-that-bob-never-sees-the-note-groceries-saying-refused",
+        "recognize": [],
+        "checks": ["Bob never sees the note \"Groceries\" saying \"refused\""],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:24"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's app says the note \"Groceries\" was refused — 4": {
+      "meta": {
+        "description": "The person observes that alice's app says the note \"Groceries\" was refused.",
+        "snapshot": "the-person-observes-that-alice-s-app-says-the-note-groceries-was-refused",
+        "recognize": [],
+        "checks": [
+          "Alice's app says the note \"Groceries\" was refused",
+          "Alice does not see the note \"Groceries\"",
+          "the note \"Groceries\" is not kept for everyone"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:33"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the moment Alice's app says the note \"Groceries\" was refused, it shows the note saying \"milk\" — 5": {
+      "meta": {
+        "description": "The person observes that the moment Alice's app says the note \"Groceries\" was refused, it shows the note saying \"milk\".",
+        "snapshot": "the-person-observes-that-the-moment-alice-s-app-says-the-note-groceries-was-refused-i",
+        "recognize": [],
+        "checks": [
+          "the moment Alice's app says the note \"Groceries\" was refused, it shows the note saying \"milk\"",
+          "the note \"Groceries\" is kept for everyone saying \"milk\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/sync-engine/checked-notes.feature:40"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

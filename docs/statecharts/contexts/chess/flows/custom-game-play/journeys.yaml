@@ -1,0 +1,181 @@
+journeys:
+  White plays a legal opening move:
+    description: White plays a legal opening move
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as
+      Black
+    endsIn: Black is to move in the Custom Game — 1
+    checks:
+    - Black is to move in the Custom Game
+    - The Custom Game move list shows e4
+    gherkin:
+    - specs/chess/custom-game-play.feature:7 — White plays a legal opening move
+    exampleRow: []
+  Black cannot move first:
+    description: Black cannot move first
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob plays e7-e5 in the Custom Game
+    endsIn: Bob is told only the participant to move may play — 2
+    checks:
+    - Bob is told only the participant to move may play
+    gherkin:
+    - specs/chess/custom-game-play.feature:13 — Black cannot move first
+    exampleRow: []
+  An illegal move leaves the board unchanged:
+    description: An illegal move leaves the board unchanged
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice plays e2-e5 in the Custom Game
+    endsIn: Alice is told the move is illegal — 3
+    checks:
+    - Alice is told the move is illegal
+    - White is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-play.feature:18 — An illegal move leaves the board unchanged
+    exampleRow: []
+  No move is allowed before start:
+    description: No move is allowed before start
+    startingConditions:
+    - Alice has a Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice plays e2-e4 in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+    endsIn: Alice is told the Custom Game has not started — 4
+    checks:
+    - Alice is told the Custom Game has not started
+    gherkin:
+    - specs/chess/custom-game-play.feature:24 — No move is allowed before start
+    exampleRow: []
+  A completed game refuses further moves:
+    description: A completed game refuses further moves
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice plays e2-e4 in the Custom Game when Alice has a completed Custom Game between Alice as White and Bob
+      as Black
+    endsIn: Alice is told the Custom Game has finished — 5
+    checks:
+    - Alice is told the Custom Game has finished
+    gherkin:
+    - specs/chess/custom-game-play.feature:29 — A completed game refuses further moves
+    exampleRow: []
+  A cancelled game refuses further moves:
+    description: A cancelled game refuses further moves
+    startingConditions:
+    - Alice has a cancelled Custom Game
+    events:
+    - Alice plays e2-e4 in the Custom Game when Alice has a cancelled Custom Game
+    endsIn: Alice is told the Custom Game was cancelled — 6
+    checks:
+    - Alice is told the Custom Game was cancelled
+    gherkin:
+    - specs/chess/custom-game-play.feature:34 — A cancelled game refuses further moves
+    exampleRow: []
+  A bot answers a person's opening move:
+    description: A bot answers a person's opening move
+    startingConditions:
+    - Alice has an active Custom Game against a bot as Black
+    events:
+    - Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game against a bot as Black
+    endsIn: A legal Black bot move follows within 5 seconds — 7
+    checks:
+    - A legal Black bot move follows within 5 seconds
+    - White is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-play.feature:41 — A bot answers a person's opening move
+    exampleRow: []
+  A bot cannot continue a cancelled game:
+    description: A bot cannot continue a cancelled game
+    startingConditions:
+    - Alice has an active Custom Game against a bot as Black
+    - Alice has cancelled the Custom Game
+    events:
+    - 5 seconds pass
+    endsIn: The Custom Game move list is unchanged — 8
+    checks:
+    - The Custom Game move list is unchanged
+    - The Custom Game is cancelled with no winner
+    gherkin:
+    - specs/chess/custom-game-play.feature:47 — A bot cannot continue a cancelled game
+    exampleRow: []
+  The mating move awards Black the game:
+    description: The mating move awards Black the game
+    startingConditions:
+    - Alice has an active Custom Game one move before Black's checkmate
+    events:
+    - Bob plays d8-h4 in the Custom Game
+    endsIn: Bob wins the Custom Game by checkmate — 9
+    checks:
+    - Bob wins the Custom Game by checkmate
+    gherkin:
+    - specs/chess/custom-game-play.feature:56 — The mating move awards Black the game
+    exampleRow: []
+  Resigning cannot replace checkmate:
+    description: Resigning cannot replace checkmate
+    startingConditions:
+    - Alice has a Custom Game completed by Black's checkmate
+    events:
+    - Alice resigns the Custom Game
+    endsIn: Alice is told the Custom Game has finished — 10
+    checks:
+    - Alice is told the Custom Game has finished
+    - Bob wins the Custom Game by checkmate
+    gherkin:
+    - specs/chess/custom-game-play.feature:61 — Resigning cannot replace checkmate
+    exampleRow: []
+  Accepting a draw ends the game without a winner:
+    description: Accepting a draw ends the game without a winner
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has offered a draw in the Custom Game
+    events:
+    - Bob accepts the draw in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 11
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-play.feature:69 — Accepting a draw ends the game without a winner
+    exampleRow: []
+  A watcher cannot accept a draw:
+    description: A watcher cannot accept a draw
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has offered a draw in the Custom Game
+    - Carol is in Alice's space
+    events:
+    - Carol accepts the draw in the Custom Game
+    endsIn: Carol is told only the other participant may accept a draw — 12
+    checks:
+    - Carol is told only the other participant may accept a draw
+    gherkin:
+    - specs/chess/custom-game-play.feature:75 — A watcher cannot accept a draw
+    exampleRow: []
+  A person reviews a finished game:
+    description: A person reviews a finished game
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice reviews move 0 of the Custom Game
+    endsIn: Alice sees the Custom Game starting board — 13
+    checks:
+    - Alice sees the Custom Game starting board
+    - The Custom Game keeps its completed outcome
+    gherkin:
+    - specs/chess/custom-game-play.feature:84 — A person reviews a finished game
+    exampleRow: []
+  Review cannot select a move that never happened:
+    description: Review cannot select a move that never happened
+    startingConditions:
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice reviews move 99 of the Custom Game
+    endsIn: Alice is told that move is not in the Custom Game — 14
+    checks:
+    - Alice is told that move is not in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-play.feature:90 — Review cannot select a move that never happened
+    exampleRow: []

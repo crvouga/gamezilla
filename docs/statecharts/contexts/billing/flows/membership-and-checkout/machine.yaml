@@ -1,0 +1,692 @@
+id: billing-membership-and-checkout
+initial: Viewing billing plans
+meta:
+  context: Billing
+  kind: flow
+  owner: Billing owner (not named in specs)
+  tier: critical
+  emits:
+  - PaidAccessStarted
+  - PaidAccessEnded
+  reactsTo:
+  - SignedIn
+  reviewStatus: draft; owner approval and execution adapters pending
+states:
+  Viewing billing plans:
+    meta:
+      description: The person sees the monthly and yearly Plus offer.
+      snapshot: the-person-sees-the-monthly-and-yearly-plus-offer
+      recognize:
+      - '[data-testid="billing-screen"]'
+      checks:
+      - Only a permitted checkout is offered.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Chooses Plus with an account and an available provider:
+        target: Opening checkout
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Chooses Plus without an account:
+        target: Asked to sign in
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Payments are disabled:
+        target: Told payments are unavailable
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Asked to sign in:
+    meta:
+      description: The person sees the account requirement and can start signing in.
+      snapshot: the-person-sees-the-account-requirement-and-can-start-signing-in
+      recognize: []
+      checks:
+      - No checkout starts before permission allows it.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      SignedIn:
+        target: Viewing billing plans
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Told payments are unavailable:
+    meta:
+      description: The person sees that payments are unavailable in this environment.
+      snapshot: the-person-sees-that-payments-are-unavailable-in-this-environment
+      recognize: []
+      checks:
+      - No payment or portal is offered without a provider.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      An available provider is configured:
+        target: Viewing billing plans
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Opening checkout:
+    meta:
+      description: The checkout control is busy while the payment provider prepares checkout.
+      snapshot: the-checkout-control-is-busy-while-the-payment-provider-prepares-checkout
+      recognize: []
+      checks:
+      - Repeated presses do not start another checkout.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Provider opens checkout:
+        target: At payment checkout
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Provider refuses checkout:
+        target: Told checkout failed
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  At payment checkout:
+    meta:
+      description: The person sees the provider checkout and can complete or abandon it.
+      snapshot: the-person-sees-the-provider-checkout-and-can-complete-or-abandon-it
+      recognize: []
+      checks:
+      - The provider receives the selected offer.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Abandons checkout:
+        target: Viewing billing plans
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Provider confirms the seven-day trial:
+        target: Viewing free trial
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Told checkout failed:
+    meta:
+      description: The person sees the checkout failure and can try again.
+      snapshot: the-person-sees-the-checkout-failure-and-can-try-again
+      recognize: []
+      checks:
+      - No membership is claimed from a failed request.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Tries checkout again:
+        target: Opening checkout
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing free trial:
+    meta:
+      description: The person sees the free trial and when it ends.
+      snapshot: the-person-sees-the-free-trial-and-when-it-ends
+      recognize: []
+      checks:
+      - The trial has paid access.
+      events:
+      - PaidAccessStarted
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+      eventScope: These facts accompany the successful domain transition into this outcome; merely reopening this
+        view does not republish them.
+    'on':
+      Trial ends with a successful payment:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Trial ends with a declined payment:
+        target: Viewing declined renewal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Chooses to manage membership:
+        target: Opening billing portal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing active membership:
+    meta:
+      description: The person sees their active membership and its next period end.
+      snapshot: the-person-sees-their-active-membership-and-its-next-period-end
+      recognize: []
+      checks:
+      - A live membership cannot start a second checkout.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Chooses to manage membership:
+        target: Opening billing portal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Renewal payment is declined:
+        target: Viewing declined renewal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Renewal payment succeeds:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Provider confirms a refund:
+        target: Viewing free access
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Loses connection after access confirmation:
+        target: Viewing stale paid access
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Opening billing portal:
+    meta:
+      description: The manage control is busy while the provider prepares the billing portal.
+      snapshot: the-manage-control-is-busy-while-the-provider-prepares-the-billing-portal
+      recognize: []
+      checks:
+      - The portal belongs to the governing membership provider.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Provider opens the membership portal:
+        target: At billing portal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Provider refuses the portal:
+        target: Told portal failed
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  At billing portal:
+    meta:
+      description: The person manages their membership at its original provider.
+      snapshot: the-person-manages-their-membership-at-its-original-provider
+      recognize: []
+      checks:
+      - A provider switch does not move an existing membership.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Provider reports cancellation at period end:
+        target: Viewing scheduled cancellation
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Returns with an unchanged active membership:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Told portal failed:
+    meta:
+      description: The person sees a failed portal request and can try again.
+      snapshot: the-person-sees-a-failed-portal-request-and-can-try-again
+      recognize: []
+      checks:
+      - The existing membership is unchanged.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Tries the portal again:
+        target: Opening billing portal
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing scheduled cancellation:
+    meta:
+      description: The person sees that renewal is stopped and access lasts through the stated period and grace.
+      snapshot: the-person-sees-that-renewal-is-stopped-and-access-lasts-through-the-stated-period-an
+      recognize: []
+      checks:
+      - Cancellation is reversible before the period ends.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Restores renewal before period end:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      The billing period ends:
+        target: Viewing ended membership in grace
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing declined renewal:
+    meta:
+      description: The person sees a declined renewal and its grace deadline.
+      snapshot: the-person-sees-a-declined-renewal-and-its-grace-deadline
+      recognize: []
+      checks:
+      - A failed renewal is never shown as paid successfully.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      A working card pays the declined renewal:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Provider ends further payment attempts:
+        target: Viewing ended membership in grace
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Seven-day grace expires:
+        target: Viewing free access
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing ended membership in grace:
+    meta:
+      description: The person sees that membership ended while paid access remains within grace.
+      snapshot: the-person-sees-that-membership-ended-while-paid-access-remains-within-grace
+      recognize: []
+      checks:
+      - Resubscription is permitted after the live membership ends.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+      conflicts:
+      - SPEC_CONFLICTS.md#billing-grace-model
+    'on':
+      Seven-day grace expires:
+        target: Viewing free access
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing free access:
+    meta:
+      description: The person sees free access after grace or a refund.
+      snapshot: the-person-sees-free-access-after-grace-or-a-refund
+      recognize: []
+      checks:
+      - A refund has no grace; ordinary ending has seven days.
+      events:
+      - PaidAccessEnded
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+      eventScope: These facts accompany the successful domain transition into this outcome; merely reopening this
+        view does not republish them.
+    'on':
+      Chooses to subscribe again:
+        target: Opening checkout
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing stale paid access:
+    meta:
+      description: The offline person sees paid access last confirmed within seven days.
+      snapshot: the-offline-person-sees-paid-access-last-confirmed-within-seven-days
+      recognize: []
+      checks:
+      - The confirmation age limits offline access.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Seven days pass without a new access confirmation:
+        target: Viewing stale free access
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+      Returns online with a live membership:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature
+  Viewing stale free access:
+    meta:
+      description: The offline person sees free access after seven days without confirmation.
+      snapshot: the-offline-person-sees-free-access-after-seven-days-without-confirmation
+      recognize: []
+      checks:
+      - Going offline cannot preserve paid access indefinitely.
+      events: []
+      confidence: assumed
+      source:
+      - libs/billing-client/src/billing-screen.tsx
+      - libs/billing-client/src/billing-view-model.ts
+      - libs/billing-server/src/billing-checkout-route.ts
+      - libs/billing-server/src/billing-portal-route.ts
+      - specs/billing/subscribe.feature
+      - specs/billing/grace-ends.feature
+      - specs/billing/refunds.feature
+    'on':
+      Returns online with a live membership:
+        target: Viewing active membership
+        meta:
+          source:
+          - libs/billing-client/src/billing-screen.tsx
+          - libs/billing-client/src/billing-view-model.ts
+          - libs/billing-server/src/billing-checkout-route.ts
+          - libs/billing-server/src/billing-portal-route.ts
+          - specs/billing/subscribe.feature
+          - specs/billing/grace-ends.feature
+          - specs/billing/refunds.feature

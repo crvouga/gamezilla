@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Friends need a connection" as s0
+  state "Alice is told search needs a connection within 15 seconds — 1" as s1
+  state "Alice is told friend requests need a connection within 15 seconds — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice searches for 'bob'
+  s0 --> s2: Alice sends Bob a friend request from Bob's profile
+  s1 --> [*]
+  s2 --> [*]

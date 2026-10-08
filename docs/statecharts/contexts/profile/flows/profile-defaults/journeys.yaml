@@ -1,0 +1,14 @@
+journeys:
+  Every newcomer gets a username and avatar of their own:
+    description: Every newcomer gets a username and avatar of their own
+    startingConditions:
+    - Alice and Bob are on fresh devices
+    events:
+    - Alice and Bob open the app
+    endsIn: Alice and Bob have different usernames — 1
+    checks:
+    - Alice and Bob have different usernames
+    - Alice already has an avatar
+    gherkin:
+    - specs/profile/profile-defaults.feature:9 — Every newcomer gets a username and avatar of their own
+    exampleRow: []

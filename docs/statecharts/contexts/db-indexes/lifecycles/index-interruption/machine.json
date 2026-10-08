@@ -1,0 +1,445 @@
+{
+  "id": "db-indexes-index-interruption-lifecycle",
+  "initial": "Opening index interruption",
+  "meta": {
+    "context": "Database indexing",
+    "kind": "lifecycle",
+    "owner": "Database indexing owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/db-indexes/index-interruption.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening index interruption": {
+      "meta": {
+        "description": "The person is opening the index interruption view.",
+        "snapshot": "the-person-is-opening-the-index-interruption-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"]
+      },
+      "on": {
+        "Opens with waiting for an index": {
+          "target": "Waiting for an index",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "db-indexes--index-interruption_17.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:14"]
+          }
+        }
+      }
+    },
+    "Waiting for an index": {
+      "meta": {
+        "description": "The person is waiting for an index.",
+        "snapshot": "the-person-is-waiting-for-an-index",
+        "recognize": [],
+        "checks": ["Waiting for an index is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "absent",
+            "completed": false,
+            "unfinished": false,
+            "deferred": false,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Attempt resulting in seeing unfinished absent index work": {
+          "target": "Seeing unfinished absent index work",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_1.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "before"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        },
+        "Recover resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "recover",
+            "witness": {
+              "trace": "db-indexes--index-interruption_0.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "failed"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
+          }
+        },
+        "Attempt resulting in seeing unfinished invalid index work": {
+          "target": "Seeing unfinished invalid index work",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_18.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "invalid"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        },
+        "Attempt resulting in seeing unfinished valid index work": {
+          "target": "Seeing unfinished valid index work",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_15.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "after"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        },
+        "Attempt resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_10.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "success"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        },
+        "Attempt resulting in seeing failed maintenance": {
+          "target": "Seeing failed maintenance",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_9.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "failed"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        },
+        "Attempt resulting in seeing deferred maintenance": {
+          "target": "Seeing deferred maintenance",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_17.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "deferred"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        }
+      }
+    },
+    "Seeing unfinished absent index work": {
+      "meta": {
+        "description": "The person is seeing unfinished absent index work.",
+        "snapshot": "the-person-is-seeing-unfinished-absent-index-work",
+        "recognize": [],
+        "checks": ["Seeing unfinished absent index work is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "absent",
+            "completed": false,
+            "unfinished": true,
+            "deferred": false,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Recover resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "recover",
+            "witness": {
+              "trace": "db-indexes--index-interruption_1.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "deferred"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
+          }
+        }
+      }
+    },
+    "Seeing completed maintenance": {
+      "meta": {
+        "description": "The person is seeing completed maintenance.",
+        "snapshot": "the-person-is-seeing-completed-maintenance",
+        "recognize": [],
+        "checks": ["Seeing completed maintenance is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "valid",
+            "completed": true,
+            "unfinished": false,
+            "deferred": false,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Repeat resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "repeat",
+            "witness": {
+              "trace": "db-indexes--index-interruption_1.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "after"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:40"]
+          }
+        }
+      }
+    },
+    "Seeing unfinished invalid index work": {
+      "meta": {
+        "description": "The person is seeing unfinished invalid index work.",
+        "snapshot": "the-person-is-seeing-unfinished-invalid-index-work",
+        "recognize": [],
+        "checks": ["Seeing unfinished invalid index work is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "invalid",
+            "completed": false,
+            "unfinished": true,
+            "deferred": false,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Recover resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "recover",
+            "witness": {
+              "trace": "db-indexes--index-interruption_18.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "after"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
+          }
+        }
+      }
+    },
+    "Seeing unfinished valid index work": {
+      "meta": {
+        "description": "The person is seeing unfinished valid index work.",
+        "snapshot": "the-person-is-seeing-unfinished-valid-index-work",
+        "recognize": [],
+        "checks": ["Seeing unfinished valid index work is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "valid",
+            "completed": false,
+            "unfinished": true,
+            "deferred": false,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Recover resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "recover",
+            "witness": {
+              "trace": "db-indexes--index-interruption_15.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "invalid"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
+          }
+        }
+      }
+    },
+    "Seeing failed maintenance": {
+      "meta": {
+        "description": "The person is seeing failed maintenance.",
+        "snapshot": "the-person-is-seeing-failed-maintenance",
+        "recognize": [],
+        "checks": ["Seeing failed maintenance is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "absent",
+            "completed": false,
+            "unfinished": false,
+            "deferred": false,
+            "failed": true
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Recover resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "recover",
+            "witness": {
+              "trace": "db-indexes--index-interruption_9.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "after"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
+          }
+        }
+      }
+    },
+    "Seeing deferred maintenance": {
+      "meta": {
+        "description": "The person is seeing deferred maintenance.",
+        "snapshot": "the-person-is-seeing-deferred-maintenance",
+        "recognize": [],
+        "checks": ["Seeing deferred maintenance is shown accurately."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/db-indexes/index-interruption.qnt"],
+        "quintPredicates": [
+          {
+            "state": "absent",
+            "completed": false,
+            "unfinished": false,
+            "deferred": true,
+            "failed": false
+          }
+        ],
+        "invariants": [],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Attempt resulting in seeing completed maintenance": {
+          "target": "Seeing completed maintenance",
+          "meta": {
+            "action": "attempt",
+            "witness": {
+              "trace": "db-indexes--index-interruption_17.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "outcome": {
+                  "tag": "Some",
+                  "value": "success"
+                }
+              }
+            },
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+journeys:
+  An offline person cannot defer a move:
+    description: An offline person cannot defer a move
+    startingConditions:
+    - Alice has a new multiplayer game and her phone is offline
+    events:
+    - Alice plays e2 to e4 as a multiplayer move
+    endsIn: Alice is told multiplayer moves need a connection — 1
+    checks:
+    - Alice is told multiplayer moves need a connection
+    - Alice's phone keeps its last known multiplayer board
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:8 — An offline person cannot defer a move
+    exampleRow: []
+  Returning after Bob's multiplayer move shows the accepted board:
+    description: Returning after Bob's multiplayer move shows the accepted board
+    startingConditions:
+    - Alice's phone was offline when Bob's multiplayer move e7 to e5 was accepted
+    events:
+    - Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob's multiplayer
+      move e7 to e5 was accepted
+    endsIn: Alice and Bob see the same multiplayer board with two moves — 2
+    checks:
+    - Alice and Bob see the same multiplayer board with two moves
+    - Alice has the multiplayer turn
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:14 — Returning after Bob's multiplayer move shows the
+      accepted board
+    exampleRow: []
+  Returning after Bob resigns shows the accepted multiplayer result:
+    description: Returning after Bob resigns shows the accepted multiplayer result
+    startingConditions:
+    - Alice's phone was offline when Bob resigned multiplayer chess
+    events:
+    - Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob resigned multiplayer
+      chess
+    endsIn: Alice sees she won the multiplayer game — 3
+    checks:
+    - Alice sees she won the multiplayer game
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:20 — Returning after Bob resigns shows the accepted multiplayer
+      result
+    exampleRow: []
+  Disconnecting does not give up the game:
+    description: Disconnecting does not give up the game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice's phone loses its multiplayer connection
+    endsIn: Alice and Bob keep the unfinished multiplayer game — 4
+    checks:
+    - Alice and Bob keep the unfinished multiplayer game
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:25 — Disconnecting does not give up the game
+    exampleRow: []
+  A matched person opens their board:
+    description: A matched person opens their board
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice opens multiplayer chess
+    endsIn: Alice sees her multiplayer board and Bob's name — 5
+    checks:
+    - Alice sees her multiplayer board and Bob's name
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:32 — A matched person opens their board
+    exampleRow: []
+  Another person cannot open the game:
+    description: Another person cannot open the game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Carol opens Alice's multiplayer game
+    endsIn: Carol is told no multiplayer game is available to her — 6
+    checks:
+    - Carol is told no multiplayer game is available to her
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:37 — Another person cannot open the game
+    exampleRow: []
+  Another person cannot move in the game:
+    description: Another person cannot move in the game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Carol plays e2 to e4 in Alice's multiplayer game
+    endsIn: Carol is told no multiplayer game is available to her — 7
+    checks:
+    - Carol is told no multiplayer game is available to her
+    - Alice and Bob keep the same multiplayer board
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:42 — Another person cannot move in the game
+    exampleRow: []
+  Deleting an account removes its opponent search:
+    description: Deleting an account removes its opponent search
+    startingConditions:
+    - Alice is looking for a chess opponent
+    events:
+    - Alice confirms account deletion when Alice is looking for a chess opponent
+    endsIn: Alice is not looking for a chess opponent — 8
+    checks:
+    - Alice is not looking for a chess opponent
+    - Bob cannot be matched with Alice's deleted account
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:50 — Deleting an account removes its opponent search
+    exampleRow: []
+  Deleting an account before both first moves aborts the game:
+    description: Deleting an account before both first moves aborts the game
+    startingConditions:
+    - Alice is White and Bob is Black in a new 5+0 multiplayer game
+    events:
+    - Alice confirms account deletion when Alice is White and Bob is Black in a new 5+0 multiplayer game
+    endsIn: Bob sees the multiplayer game was aborted — 9
+    checks:
+    - Bob sees the multiplayer game was aborted
+    - neither person's blitz rating has moved
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:56 — Deleting an account before both first moves aborts
+      the game
+    exampleRow: []
+  Deleting an account preserves the other person's multiplayer result:
+    description: Deleting an account preserves the other person's multiplayer result
+    startingConditions:
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    events:
+    - Alice confirms account deletion when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and
+      e5
+    endsIn: Bob sees he won the multiplayer game — 10
+    checks:
+    - Bob sees he won the multiplayer game
+    - Bob is not shown Alice's deleted personal details
+    gherkin:
+    - specs/chess/multiplayer-recovery-and-privacy.feature:62 — Deleting an account preserves the other person's
+      multiplayer result
+    exampleRow: []

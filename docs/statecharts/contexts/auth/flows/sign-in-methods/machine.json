@@ -1,0 +1,230 @@
+{
+  "id": "auth-sign-in-methods",
+  "initial": "Viewing Keeping sign-in methods straight",
+  "meta": {
+    "context": "Auth",
+    "kind": "flow",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/auth-client/src/sign-in-methods-section.tsx",
+      "libs/auth-client/src/use-sign-out.ts",
+      "libs/auth-client/src/use-sign-out-confirmation.tsx",
+      "libs/auth-client/src/use-sign-in.ts",
+      "libs/auth-client/src/use-sign-in-modal-lifecycle.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Keeping sign-in methods straight": {
+      "meta": {
+        "description": "The person is at the place where keeping sign-in methods straight.",
+        "snapshot": "the-person-is-at-the-place-where-keeping-sign-in-methods-straight",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:2"]
+      },
+      "on": {
+        "Alice connects Apple when Alice is signed in with their Google account": {
+          "target": "Alice's sign-in methods are Google and Apple — 1",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:9"],
+            "condition": ["Alice is signed in with their Google account"],
+            "example": "Alice connects Apple to their account"
+          }
+        },
+        "Alice tries to connect a second Google account": {
+          "target": "Alice is told the account already has Google — 2",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:14"],
+            "condition": ["Alice is signed in with their Google account"],
+            "example": "A second Google account cannot be connected"
+          }
+        },
+        "Alice tries to connect Dave's Apple account": {
+          "target": "Alice is told that Apple account belongs to another account — 3",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:20"],
+            "condition": [
+              "Dave has opened their sign-in methods on a shared device",
+              "Dave has signed out on that device",
+              "Alice has signed in with Google on that device"
+            ],
+            "example": "Connecting on a device Dave used never reaches Dave's account"
+          }
+        },
+        "Alice connects Apple when Alice is signed in with their Google account and Alice's device has lost its connection and Alice's device is back online": {
+          "target": "Alice's sign-in methods are Google and Apple — 4",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:34"],
+            "condition": [
+              "Alice is signed in with their Google account",
+              "Alice's device has lost its connection",
+              "Alice's device is back online"
+            ],
+            "example": "Alice connects Apple once their device is back online"
+          }
+        },
+        "Alice tries to connect Apple": {
+          "target": "Alice is told connecting failed — 5",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:39"],
+            "condition": [
+              "Alice is signed in with their Google account",
+              "Alice's device has lost its connection"
+            ],
+            "example": "Connecting Apple offline changes no sign-in method"
+          }
+        },
+        "Alice removes Apple from their account": {
+          "target": "Alice's sign-in methods are Google — 6",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:46"],
+            "condition": ["Alice has connected Apple to their account"],
+            "example": "Alice removes Apple from their account"
+          }
+        },
+        "Alice signs in with Apple on another device": {
+          "target": "Alice's other device is signed into a different account — 7",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:51"],
+            "condition": [
+              "Alice has connected Apple to their account",
+              "Alice has removed Apple from their account"
+            ],
+            "example": "A removed Apple account signs into a new account"
+          }
+        },
+        "Alice tries to remove Google from their account": {
+          "target": "Alice is told the last sign-in method cannot be removed — 8",
+          "meta": {
+            "source": ["specs/auth/sign-in-methods.feature:57"],
+            "condition": ["Alice is signed in with their Google account"],
+            "example": "Alice cannot remove their last sign-in method"
+          }
+        }
+      }
+    },
+    "Alice's sign-in methods are Google and Apple — 1": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are Google and Apple.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-google-and-apple",
+        "recognize": [],
+        "checks": ["Alice's sign-in methods are Google and Apple"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the account already has Google — 2": {
+      "meta": {
+        "description": "The person observes that alice is told the account already has Google.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-account-already-has-google",
+        "recognize": [],
+        "checks": [
+          "Alice is told the account already has Google",
+          "Alice's sign-in methods are still Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told that Apple account belongs to another account — 3": {
+      "meta": {
+        "description": "The person observes that alice is told that Apple account belongs to another account.",
+        "snapshot": "the-person-observes-that-alice-is-told-that-apple-account-belongs-to-another-account",
+        "recognize": [],
+        "checks": [
+          "Alice is told that Apple account belongs to another account",
+          "Alice is still signed into their own account"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:20"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sign-in methods are Google and Apple — 4": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are Google and Apple.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-google-and-apple",
+        "recognize": [],
+        "checks": ["Alice's sign-in methods are Google and Apple"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:34"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told connecting failed — 5": {
+      "meta": {
+        "description": "The person observes that alice is told connecting failed.",
+        "snapshot": "the-person-observes-that-alice-is-told-connecting-failed",
+        "recognize": [],
+        "checks": [
+          "Alice is told connecting failed",
+          "Alice's sign-in methods are still Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:39"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sign-in methods are Google — 6": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are Google.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-google",
+        "recognize": [],
+        "checks": ["Alice's sign-in methods are Google"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:46"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's other device is signed into a different account — 7": {
+      "meta": {
+        "description": "The person observes that alice's other device is signed into a different account.",
+        "snapshot": "the-person-observes-that-alice-s-other-device-is-signed-into-a-different-account",
+        "recognize": [],
+        "checks": ["Alice's other device is signed into a different account"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:51"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the last sign-in method cannot be removed — 8": {
+      "meta": {
+        "description": "The person observes that alice is told the last sign-in method cannot be removed.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-last-sign-in-method-cannot-be-removed",
+        "recognize": [],
+        "checks": [
+          "Alice is told the last sign-in method cannot be removed",
+          "Alice's sign-in methods are still Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/auth/sign-in-methods.feature:57"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

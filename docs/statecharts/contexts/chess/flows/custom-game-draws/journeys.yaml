@@ -1,0 +1,138 @@
+journeys:
+  White offers Black a draw:
+    description: White offers Black a draw
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob
+      as Black
+    endsIn: Bob is offered a draw in the Custom Game — 1
+    checks:
+    - Bob is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:7 — White offers Black a draw
+    exampleRow: []
+  A draw cannot be offered to a bot:
+    description: A draw cannot be offered to a bot
+    startingConditions:
+    - Alice has an active Custom Game against a bot as Black
+    events:
+    - Alice offers a draw in the Custom Game when Alice has an active Custom Game against a bot as Black
+    endsIn: Alice is told draw agreement needs two people — 2
+    checks:
+    - Alice is told draw agreement needs two people
+    gherkin:
+    - specs/chess/custom-game-draws.feature:12 — A draw cannot be offered to a bot
+    exampleRow: []
+  Black declines White's offer:
+    description: Black declines White's offer
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has offered a draw in the Custom Game
+    events:
+    - Bob declines the draw in the Custom Game
+    endsIn: The Custom Game remains active — 3
+    checks:
+    - The Custom Game remains active
+    - Neither person is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:19 — Black declines White's offer
+    exampleRow: []
+  White cannot decline for Black:
+    description: White cannot decline for Black
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has offered a draw in the Custom Game
+    events:
+    - Alice declines the draw in the Custom Game
+    endsIn: Alice is told only the other participant may decline a draw — 4
+    checks:
+    - Alice is told only the other participant may decline a draw
+    gherkin:
+    - specs/chess/custom-game-draws.feature:26 — White cannot decline for Black
+    exampleRow: []
+  Offering again before moving is refused:
+    description: Offering again before moving is refused
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Bob has declined Alice's draw offer in the Custom Game
+    events:
+    - Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob
+      as Black and Bob has declined Alice's draw offer in the Custom Game
+    endsIn: Alice is told she may offer a draw again after her next move — 5
+    checks:
+    - Alice is told she may offer a draw again after her next move
+    - Neither person is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:34 — Offering again before moving is refused
+    exampleRow: []
+  Offering again after moving reaches the other participant:
+    description: Offering again after moving reaches the other participant
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Bob has declined Alice's draw offer in the Custom Game
+    - Alice has since played e2-e4 in the Custom Game
+    events:
+    - Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob
+      as Black and Bob has declined Alice's draw offer in the Custom Game and Alice has since played e2-e4 in the
+      Custom Game
+    endsIn: Bob is offered a draw in the Custom Game — 6
+    checks:
+    - Bob is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:41 — Offering again after moving reaches the other participant
+    exampleRow: []
+  Black's reply clears White's offer:
+    description: Black's reply clears White's offer
+    startingConditions:
+    - Alice has an active Custom Game after White's e4
+    - Alice has offered a draw in the Custom Game
+    events:
+    - Bob plays e7-e5 in the Custom Game when Alice has an active Custom Game after White's e4 and Alice has offered
+      a draw in the Custom Game
+    endsIn: Neither person is offered a draw in the Custom Game — 7
+    checks:
+    - Neither person is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:50 — Black's reply clears White's offer
+    exampleRow: []
+  An illegal move cannot clear an offer:
+    description: An illegal move cannot clear an offer
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Alice has offered a draw in the Custom Game
+    events:
+    - Bob plays e7-e5 in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as
+      Black and Alice has offered a draw in the Custom Game
+    endsIn: Bob is told only the participant to move may play — 8
+    checks:
+    - Bob is told only the participant to move may play
+    - Bob is offered a draw in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:56 — An illegal move cannot clear an offer
+    exampleRow: []
+  The third repetition ends the game:
+    description: The third repetition ends the game
+    startingConditions:
+    - Alice has a Custom Game one move before the third repetition
+    events:
+    - Bob plays f6-g8 in the Custom Game when Alice has a Custom Game one move before the third repetition
+    endsIn: The Custom Game is completed as a draw — 9
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-draws.feature:66 — The third repetition ends the game
+    exampleRow: []
+  A second repetition leaves the game active:
+    description: A second repetition leaves the game active
+    startingConditions:
+    - Alice has a Custom Game one move before the second repetition
+    events:
+    - Bob plays f6-g8 in the Custom Game when Alice has a Custom Game one move before the second repetition
+    endsIn: The Custom Game remains active — 10
+    checks:
+    - The Custom Game remains active
+    - Neither person has won the Custom Game
+    gherkin:
+    - specs/chess/custom-game-draws.feature:71 — A second repetition leaves the game active
+    exampleRow: []

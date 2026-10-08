@@ -1,0 +1,195 @@
+journeys:
+  Retrying removes the wrong-move diagnosis:
+    description: Retrying removes the wrong-move diagnosis
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      played a wrong move
+    endsIn: Alice's assistant encourages another look at the current position — 1
+    checks:
+    - Alice's assistant encourages another look at the current position
+    - Alice's assistant cannot present the old wrong-move diagnosis
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:9 — Retrying removes the wrong-move diagnosis
+    exampleRow: []
+  Moving on removes the old puzzle's success commentary:
+    description: Moving on removes the old puzzle's success commentary
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    events:
+    - Alice moves on to the next puzzle
+    endsIn: Alice's assistant introduces the current puzzle — 2
+    checks:
+    - Alice's assistant introduces the current puzzle
+    - Alice's assistant cannot present the old success commentary
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:17 — Moving on removes the old puzzle's success commentary
+    exampleRow: []
+  Leaving the puzzle stops its speech:
+    description: Leaving the puzzle stops its speech
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice's assistant is speaking
+    events:
+    - Alice leaves the puzzle for the chess choices
+    endsIn: Alice cannot hear the old puzzle's assistant speaking — 3
+    checks:
+    - Alice cannot hear the old puzzle's assistant speaking
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:25 — Leaving the puzzle stops its speech
+    exampleRow: []
+  Returning keeps commentary about the current board:
+    description: Returning keeps commentary about the current board
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice is offline
+    - Alice has solved the puzzle
+    events:
+    - the connection comes back
+    endsIn: Alice's assistant acknowledges the current solved puzzle — 4
+    checks:
+    - Alice's assistant acknowledges the current solved puzzle
+    - Alice's assistant cannot call the move wrong
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:32 — Returning keeps commentary about the current board
+    exampleRow: []
+  An earlier position receives review guidance:
+    description: An earlier position receives review guidance
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    - Alice has shown the solution
+    events:
+    - Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the two-rook clearance
+      puzzle and Alice has shown the solution
+    endsIn: Alice's assistant explains that they are reviewing an earlier position — 5
+    checks:
+    - Alice's assistant explains that they are reviewing an earlier position
+    - Alice's assistant cannot diagnose a move from another position
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:43 — An earlier position receives review guidance
+    exampleRow: []
+  Returning to the current move restores current guidance:
+    description: Returning to the current move restores current guidance
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    - Alice has shown the solution
+    - Alice is reviewing an earlier position in the puzzle
+    events:
+    - Alice returns to the current puzzle move when Alice is signed in and Alice is solving the two-rook clearance
+      puzzle and Alice has shown the solution and Alice is reviewing an earlier position in the puzzle
+    endsIn: Alice's assistant explains that the solution is shown — 6
+    checks:
+    - Alice's assistant explains that the solution is shown
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:51 — Returning to the current move restores current guidance
+    exampleRow: []
+  Reviewing an earlier position cannot reopen a finished puzzle on return:
+    description: Reviewing an earlier position cannot reopen a finished puzzle on return
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    - Alice is reviewing an earlier position in the puzzle
+    - Alice has left the puzzle for the chess choices
+    events:
+    - Alice goes back to the puzzles
+    endsIn: Alice is solving a different puzzle than the one before — 7
+    checks:
+    - Alice is solving a different puzzle than the one before
+    - Alice is not offered the puzzle that is over
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:60 — Reviewing an earlier position cannot reopen a finished puzzle
+      on return
+    exampleRow: []
+  Returning to the solved position restores checkmate guidance:
+    description: Returning to the solved position restores checkmate guidance
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    - Alice has solved the puzzle
+    - Alice is reviewing an earlier position in the puzzle
+    events:
+    - Alice returns to the current puzzle move when Alice is signed in and Alice is solving the puzzle with more
+      than one mate on the final move and Alice has solved the puzzle and Alice is reviewing an earlier position
+      in the puzzle
+    endsIn: Alice's assistant acknowledges checkmate — 8
+    checks:
+    - Alice's assistant acknowledges checkmate
+    - Alice's assistant cannot call the move wrong
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:71 — Returning to the solved position restores checkmate guidance
+    exampleRow: []
+  A correct intermediate move receives encouragement:
+    description: A correct intermediate move receives encouragement
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice plays the move a1-a5
+    endsIn: Alice's assistant acknowledges a correct continuation — 9
+    checks:
+    - Alice's assistant acknowledges a correct continuation
+    - Alice's assistant cannot diagnose a move from another position
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:83 — A correct intermediate move receives encouragement
+    exampleRow: []
+  Retrying a wrong continuation retains the correct moves already played:
+    description: Retrying a wrong continuation retains the correct moves already played
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the four-move mate-in-two puzzle
+    - Alice has played g6-g5
+    - Alice has played a wrong move
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and
+      Alice has played g6-g5 and Alice has played a wrong move
+    endsIn: Alice's board is at move 3 of the line within 20 seconds — 10
+    checks:
+    - Alice's board is at move 3 of the line within 20 seconds
+    - Alice's assistant acknowledges a correct continuation
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:90 — Retrying a wrong continuation retains the correct moves
+      already played
+    exampleRow: []
+  Stepping back after checkmate retains the solved result:
+    description: Stepping back after checkmate retains the solved result
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    - Alice has solved the puzzle
+    events:
+    - Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the puzzle with more
+      than one mate on the final move and Alice has solved the puzzle
+    endsIn: Alice's puzzle remains solved — 11
+    checks:
+    - Alice's puzzle remains solved
+    - Alice's assistant explains that they are reviewing an earlier position
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:102 — Stepping back after checkmate retains the solved result
+    exampleRow: []
+  Stepping forward to the current position restores continuation guidance:
+    description: Stepping forward to the current position restores continuation guidance
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the four-move mate-in-two puzzle
+    - Alice has played g6-g5
+    - Alice is reviewing an earlier position in the puzzle
+    events:
+    - Alice steps forward one move in the puzzle
+    endsIn: Alice's board is at move 3 of the line within 20 seconds — 12
+    checks:
+    - Alice's board is at move 3 of the line within 20 seconds
+    - Alice's assistant acknowledges a correct continuation
+    gherkin:
+    - specs/chess/puzzle-assistant-context.feature:110 — Stepping forward to the current position restores continuation
+      guidance
+    exampleRow: []

@@ -1,0 +1,4559 @@
+id: billing-paid-access-lifecycle
+initial: Opening paid access
+meta:
+  context: Billing
+  kind: lifecycle
+  owner: Billing owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/system/membership-machine.qnt
+  abstraction: Context-owned visible projection of a whole-product interpretation model; context-partition and hidden-data
+    review remain required.
+states:
+  Opening paid access:
+    meta:
+      description: The person is opening the paid access view.
+      snapshot: the-person-is-opening-the-paid-access-view
+      recognize: []
+      checks:
+      - The person is opening the paid access view.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+    'on':
+      Opens with viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: init
+          source:
+          - specs/system/membership-machine.qnt:12
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 0
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: None
+                value:
+                  '#tup': []
+              provider:
+                tag: None
+                value:
+                  '#tup': []
+              status:
+                tag: None
+                value:
+                  '#tup': []
+  Viewing free access online with incomplete membership:
+    meta:
+      description: The person is viewing free access online with incomplete membership.
+      snapshot: the-person-is-viewing-free-access-online-with-incomplete-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: incomplete
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: true
+        billingGoverning(selected state,0).status: incomplete
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Another day passes resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 47
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 95
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The membership is confirmed online resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 78
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 27
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_14.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_16.itf.json
+            step: 48
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_19.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 61
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+  Viewing free access offline with incomplete membership:
+    meta:
+      description: The person is viewing free access offline with incomplete membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-incomplete-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: incomplete
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: false
+        billingGoverning(selected state,0).status: incomplete
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: false
+      - online: false
+        billingGoverning(selected state,0).status: incomplete
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+    'on':
+      The provider reports a membership change resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Another day passes resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 89
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 31
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 41
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 12
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+  Viewing paid access online with delinquent membership:
+    meta:
+      description: The person is viewing paid access online with delinquent membership.
+      snapshot: the-person-is-viewing-paid-access-online-with-delinquent-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: delinquent
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      The membership is confirmed online resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 31
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Another day passes resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 18
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 33
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_19.itf.json
+            step: 28
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+  Viewing paid access online with active membership:
+    meta:
+      description: The person is viewing paid access online with active membership.
+      snapshot: the-person-is-viewing-paid-access-online-with-active-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: active
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: true
+      - online: true
+        billingGoverning(selected state,0).status: active
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 33
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      Another day passes resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 82
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The membership is confirmed online resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 68
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 89
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 90
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 27
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 100
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 39
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 62
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 92
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 74
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 27
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing free access offline with active membership:
+        target: Viewing free access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 48
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_2.itf.json
+            step: 65
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 98
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+  Viewing paid access online with trialing membership:
+    meta:
+      description: The person is viewing paid access online with trialing membership.
+      snapshot: the-person-is-viewing-paid-access-online-with-trialing-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+      - online: true
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: true
+    'on':
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 7
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Another day passes resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The membership is confirmed online resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 42
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 11
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 98
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 64
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 55
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 36
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 44
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing free access offline with unreadable membership:
+        target: Viewing free access offline with unreadable membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 61
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 41
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 55
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 40
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+  Viewing paid access offline with delinquent membership:
+    meta:
+      description: The person is viewing paid access offline with delinquent membership.
+      snapshot: the-person-is-viewing-paid-access-offline-with-delinquent-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: delinquent
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 21
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 19
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_10.itf.json
+            step: 38
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Another day passes resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_10.itf.json
+            step: 40
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Another day passes resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 20
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_14.itf.json
+            step: 31
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_19.itf.json
+            step: 19
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 28
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 35
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+  Viewing paid access offline with trialing membership:
+    meta:
+      description: The person is viewing paid access offline with trialing membership.
+      snapshot: the-person-is-viewing-paid-access-offline-with-trialing-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+      - online: false
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: true
+    'on':
+      Another day passes resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 58
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 57
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_17.itf.json
+            step: 31
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 54
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The connection returns resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 24
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_3.itf.json
+            step: 85
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Another day passes resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 59
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 50
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+  Viewing paid access online with ended membership:
+    meta:
+      description: The person is viewing paid access online with ended membership.
+      snapshot: the-person-is-viewing-paid-access-online-with-ended-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: ended
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 28
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The membership is confirmed online resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 14
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_10.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_16.itf.json
+            step: 49
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Another day passes resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 17
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 37
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      Loses the connection resulting in viewing paid access offline with ended membership:
+        target: Viewing paid access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 18
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_19.itf.json
+            step: 20
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 11
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+  Viewing paid access offline with active membership:
+    meta:
+      description: The person is viewing paid access offline with active membership.
+      snapshot: the-person-is-viewing-paid-access-offline-with-active-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: active
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+      - online: false
+        billingGoverning(selected state,0).status: active
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: true
+    'on':
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 88
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Another day passes resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 93
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 96
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 58
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 97
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 92
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      Another day passes resulting in viewing free access offline with active membership:
+        target: Viewing free access offline with active membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_16.itf.json
+            step: 92
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 33
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+  Viewing free access online with delinquent membership:
+    meta:
+      description: The person is viewing free access online with delinquent membership.
+      snapshot: the-person-is-viewing-free-access-online-with-delinquent-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: delinquent
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+    'on':
+      The membership is confirmed online resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 100
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 60
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 96
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      Another day passes resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 100
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_2.itf.json
+            step: 72
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 64
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_2.itf.json
+            step: 34
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 94
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing paid access offline with trialing membership:
+        target: Viewing paid access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_3.itf.json
+            step: 79
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 91
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 66
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 67
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_19.itf.json
+            step: 8
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 53
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+  Viewing free access offline with delinquent membership:
+    meta:
+      description: The person is viewing free access offline with delinquent membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-delinquent-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: delinquent
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: false
+        billingGoverning(selected state,0).status: delinquent
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+    'on':
+      Another day passes resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 98
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 97
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 58
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 75
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 95
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 55
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+  Viewing free access online with ended membership:
+    meta:
+      description: The person is viewing free access online with ended membership.
+      snapshot: the-person-is-viewing-free-access-online-with-ended-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: ended
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+    'on':
+      Another day passes resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 13
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_0.itf.json
+            step: 77
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 41
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The membership is confirmed online resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 96
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 47
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Loses the connection resulting in viewing free access offline with unreadable membership:
+        target: Viewing free access offline with unreadable membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_12.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 42
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 91
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 97
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 59
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 42
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_4.itf.json
+            step: 36
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The provider reports a membership change resulting in viewing paid access online with delinquent membership:
+        target: Viewing paid access online with delinquent membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 14
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+  Viewing free access online with unreadable membership:
+    meta:
+      description: The person is viewing free access online with unreadable membership.
+      snapshot: the-person-is-viewing-free-access-online-with-unreadable-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: true
+        billingGoverning(selected state,0).status: unreadable
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: true
+        billingGoverning(selected state,0).status: unreadable
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      Loses the connection resulting in viewing paid access offline with delinquent membership:
+        target: Viewing paid access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_10.itf.json
+            step: 39
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The membership is confirmed online resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: confirm
+          source:
+          - specs/system/membership-machine.qnt:20
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 34
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      Loses the connection resulting in viewing free access offline with unreadable membership:
+        target: Viewing free access offline with unreadable membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_12.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 57
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      Another day passes resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 31
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      Loses the connection resulting in viewing free access offline with incomplete membership:
+        target: Viewing free access offline with incomplete membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_2.itf.json
+            step: 66
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: incomplete
+      Loses the connection resulting in viewing free access offline with delinquent membership:
+        target: Viewing free access offline with delinquent membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 54
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      Loses the connection resulting in viewing paid access offline with active membership:
+        target: Viewing paid access offline with active membership
+        meta:
+          action: disconnect
+          source:
+          - specs/system/membership-machine.qnt:18
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 32
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The provider reports a membership change resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_8.itf.json
+            step: 35
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+  Viewing free access offline with unreadable membership:
+    meta:
+      description: The person is viewing free access offline with unreadable membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-unreadable-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: unreadable
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: false
+        billingGoverning(selected state,0).status: unreadable
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: false
+      - online: false
+        billingGoverning(selected state,0).status: unreadable
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+    'on':
+      Another day passes resulting in viewing free access offline with unreadable membership:
+        target: Viewing free access offline with unreadable membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_21.itf.json
+            step: 57
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      The provider reports a membership change resulting in viewing free access offline with unreadable membership:
+        target: Viewing free access offline with unreadable membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 62
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_12.itf.json
+            step: 53
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing free access online with unreadable membership:
+        target: Viewing free access online with unreadable membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_12.itf.json
+            step: 64
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_23.itf.json
+            step: 63
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: delinquent
+  Viewing free access offline with ended membership:
+    meta:
+      description: The person is viewing free access offline with ended membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-ended-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: ended
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: true
+        period grace has expired: true
+      - online: false
+        billingGoverning(selected state,0).status: ended
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+    'on':
+      The provider reports a membership change resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      Another day passes resulting in viewing free access offline with ended membership:
+        target: Viewing free access offline with ended membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 62
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with ended membership:
+        target: Viewing free access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_10.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with incomplete membership:
+        target: Viewing free access online with incomplete membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_5.itf.json
+            step: 63
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 69
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 53
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: unreadable
+  Viewing free access offline with trialing membership:
+    meta:
+      description: The person is viewing free access offline with trialing membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-trialing-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+      - online: false
+        billingGoverning(selected state,0).status: trialing
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: false
+    'on':
+      The provider reports a membership change resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 65
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: active
+      Another day passes resulting in viewing free access offline with trialing membership:
+        target: Viewing free access offline with trialing membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 66
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_9.itf.json
+            step: 67
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing paid access online with trialing membership:
+        target: Viewing paid access online with trialing membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_22.itf.json
+            step: 74
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: ended
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_6.itf.json
+            step: 57
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: ended
+  Viewing free access offline with active membership:
+    meta:
+      description: The person is viewing free access offline with active membership.
+      snapshot: the-person-is-viewing-free-access-offline-with-active-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: active
+        billingPaid(selected state,0,now,confirmation): false
+        confirmation is current: false
+        period grace has expired: true
+    'on':
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: delinquent
+      Another day passes resulting in viewing free access offline with active membership:
+        target: Viewing free access offline with active membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 49
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: trialing
+      The provider reports a membership change resulting in viewing free access offline with active membership:
+        target: Viewing free access offline with active membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 50
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '-1'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: active
+      The connection returns resulting in viewing free access online with delinquent membership:
+        target: Viewing free access online with delinquent membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_7.itf.json
+            step: 44
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+  Viewing paid access offline with ended membership:
+    meta:
+      description: The person is viewing paid access offline with ended membership.
+      snapshot: the-person-is-viewing-paid-access-offline-with-ended-membership
+      recognize: []
+      checks:
+      - Paid access follows the governing membership and seven-day grace; a refunded membership has no grace, and
+        offline confirmation can become too old.
+      events: []
+      confidence: assumed
+      source:
+      - specs/system/membership-machine.qnt
+      - specs/system/membership.qnt
+      invariants:
+      - invSafety
+      quintPredicates:
+      - online: false
+        billingGoverning(selected state,0).status: ended
+        billingPaid(selected state,0,now,confirmation): true
+        confirmation is current: true
+        period grace has expired: false
+    'on':
+      Another day passes resulting in viewing paid access offline with ended membership:
+        target: Viewing paid access offline with ended membership
+        meta:
+          action: tick
+          source:
+          - specs/system/membership-machine.qnt:17
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 24
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '4'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              status:
+                tag: Some
+                value: trialing
+      The connection returns resulting in viewing paid access online with ended membership:
+        target: Viewing paid access online with ended membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_18.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '0'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The provider reports a membership change resulting in viewing paid access offline with ended membership:
+        target: Viewing paid access offline with ended membership
+        meta:
+          action: change
+          source:
+          - specs/system/membership-machine.qnt:13
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: unreadable
+      The connection returns resulting in viewing paid access online with active membership:
+        target: Viewing paid access online with active membership
+        meta:
+          action: reconnect
+          source:
+          - specs/system/membership-machine.qnt:19
+          witness:
+            trace: system--membership-machine_20.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              period:
+                tag: Some
+                value:
+                  '#bigint': '2'
+              provider:
+                tag: Some
+                value:
+                  '#bigint': '1'
+              status:
+                tag: Some
+                value: incomplete

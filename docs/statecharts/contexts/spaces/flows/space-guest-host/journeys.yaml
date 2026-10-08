@@ -1,0 +1,26 @@
+journeys:
+  A guest creates a space and hosts it:
+    description: A guest creates a space and hosts it
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice creates a space
+    endsIn: Alice is in the space — 1
+    checks:
+    - Alice is in the space
+    gherkin:
+    - specs/spaces/space-guest-host.feature:8 — A guest creates a space and hosts it
+    exampleRow: []
+  A guest host can end their own space:
+    description: A guest host can end their own space
+    startingConditions:
+    - Alice is a guest
+    - Alice is hosting a space
+    events:
+    - Alice ends the space
+    endsIn: Alice is not in a space — 2
+    checks:
+    - Alice is not in a space
+    gherkin:
+    - specs/spaces/space-guest-host.feature:13 — A guest host can end their own space
+    exampleRow: []

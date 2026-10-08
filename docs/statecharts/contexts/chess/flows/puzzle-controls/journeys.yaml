@@ -1,0 +1,198 @@
+journeys:
+  A first hint highlights the piece to move:
+    description: A first hint highlights the piece to move
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice asks for a hint
+    endsIn: Alice's hint highlights the piece to move — 1
+    checks:
+    - Alice's hint highlights the piece to move
+    gherkin:
+    - specs/chess/puzzle-controls.feature:13 — A first hint highlights the piece to move
+    exampleRow: []
+  A second hint shows the solution move:
+    description: A second hint shows the solution move
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has taken a hint
+    events:
+    - Alice asks for another hint
+    endsIn: Alice's hint shows the solution move — 2
+    checks:
+    - Alice's hint shows the solution move
+    gherkin:
+    - specs/chess/puzzle-controls.feature:17 — A second hint shows the solution move
+    exampleRow: []
+  A puzzle can still be solved after both hints:
+    description: A puzzle can still be solved after both hints
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has taken two hints
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      taken two hints
+    endsIn: Alice's puzzle is solved — 3
+    checks:
+    - Alice's puzzle is solved
+    gherkin:
+    - specs/chess/puzzle-controls.feature:22 — A puzzle can still be solved after both hints
+    exampleRow: []
+  A puzzle without a wrong move or a result offers no retry:
+    description: A puzzle without a wrong move or a result offers no retry
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice tries to retry before a wrong move or result
+    endsIn: Alice is not offered to retry — 4
+    checks:
+    - Alice is not offered to retry
+    - Alice is still asked to find the next move
+    gherkin:
+    - specs/chess/puzzle-controls.feature:29 — A puzzle without a wrong move or a result offers no retry
+    exampleRow: []
+  Retrying after a wrong move lets Alice carry on solving:
+    description: Retrying after a wrong move lets Alice carry on solving
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      played a wrong move
+    endsIn: Alice is still asked to find the next move — 5
+    checks:
+    - Alice is still asked to find the next move
+    gherkin:
+    - specs/chess/puzzle-controls.feature:34 — Retrying after a wrong move lets Alice carry on solving
+    exampleRow: []
+  A puzzle solved after a retry is still logged as failed:
+    description: A puzzle solved after a retry is still logged as failed
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move and retried
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      played a wrong move and retried
+    endsIn: Alice's puzzle is solved — 6
+    checks:
+    - Alice's puzzle is solved
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-controls.feature:39 — A puzzle solved after a retry is still logged as failed
+    exampleRow: []
+  Retrying a solved puzzle keeps the solved outcome:
+    description: Retrying a solved puzzle keeps the solved outcome
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      solved the puzzle
+    endsIn: Alice is asked to find the next move — 7
+    checks:
+    - Alice is asked to find the next move
+    - Alice's game log records that puzzle as solved
+    gherkin:
+    - specs/chess/puzzle-controls.feature:46 — Retrying a solved puzzle keeps the solved outcome
+    exampleRow: []
+  Retrying a shown solution keeps the failed outcome:
+    description: Retrying a shown solution keeps the failed outcome
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has shown the solution
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      shown the solution
+    endsIn: Alice is asked to find the next move — 8
+    checks:
+    - Alice is asked to find the next move
+    - Alice's game log records that puzzle as failed
+    gherkin:
+    - specs/chess/puzzle-controls.feature:52 — Retrying a shown solution keeps the failed outcome
+    exampleRow: []
+  Retrying a skipped puzzle keeps the abandoned outcome:
+    description: Retrying a skipped puzzle keeps the abandoned outcome
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has skipped the puzzle
+    events:
+    - Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      skipped the puzzle
+    endsIn: Alice is asked to find the next move — 9
+    checks:
+    - Alice is asked to find the next move
+    - Alice's game log records that puzzle as abandoned
+    gherkin:
+    - specs/chess/puzzle-controls.feature:58 — Retrying a skipped puzzle keeps the abandoned outcome
+    exampleRow: []
+  Showing the line after a hint finishes without an extra move:
+    description: Showing the line after a hint finishes without an extra move
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has taken a hint
+    events:
+    - Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      taken a hint
+    endsIn: Alice's puzzle remains revealed — 10
+    checks:
+    - Alice's puzzle remains revealed
+    - Alice's game log records that puzzle as failed
+    gherkin:
+    - specs/chess/puzzle-controls.feature:68 — Showing the line after a hint finishes without an extra move
+    exampleRow: []
+  Showing the solution after a wrong move still counts one failed puzzle:
+    description: Showing the solution after a wrong move still counts one failed puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      played a wrong move
+    endsIn: Alice's game log records that puzzle as failed — 11
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-controls.feature:74 — Showing the solution after a wrong move still counts one failed puzzle
+    exampleRow: []
+  Showing the solution of a clean attempt fails it:
+    description: Showing the solution of a clean attempt fails it
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice shows the solution when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice's game log records that puzzle as failed — 12
+    checks:
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-controls.feature:80 — Showing the solution of a clean attempt fails it
+    exampleRow: []
+  A wrong move followed by a skip remains failed:
+    description: A wrong move followed by a skip remains failed
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice skips the puzzle
+    endsIn: Alice's puzzle remains skipped — 13
+    checks:
+    - Alice's puzzle remains skipped
+    - Alice's game log records that puzzle as failed
+    gherkin:
+    - specs/chess/puzzle-controls.feature:88 — A wrong move followed by a skip remains failed
+    exampleRow: []

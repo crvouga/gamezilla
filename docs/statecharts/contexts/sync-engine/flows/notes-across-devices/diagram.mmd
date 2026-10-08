@@ -1,0 +1,8 @@
+stateDiagram-v2
+  state "Viewing Notes across devices" as s0
+  state "The person remains at the described place until the next choice — 1 step 1" as s1
+  state "Alice's phone shows the notes 'Groceries' and 'Chores' — 1 step 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice writes the note 'Chores' on their tablet
+  s1 --> s2: Alice's tablet comes back online
+  s2 --> [*]

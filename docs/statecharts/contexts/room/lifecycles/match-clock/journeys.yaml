@@ -1,0 +1,2080 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4e75cd9aee771c7230272ccaa47c96c2420d04e1d551edd02a3805494985cb01
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: de156fbc94805565748ade6362070e81a51db98f14114295ba49bb6a77bb8c99
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: dc58c6105d3faa3c0d7d5fac9dfa67502e0eee9e7c82e6e9a1e4f859d0ccad8c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9fd7748b5a5dce12991b4fb34c4a09f29a2fa48eea1581c95deb80fe16b98ec7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cb41013d306562d25b0c90392251a186d6712e890514320ad2b7a6a0bbec5889
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Move resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 26b84957c8a1e893d70adc3f66e08c58af7d48e6664e4dfa930d7ac32adf4f08
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 017b180cf4caae9780fe3dc21b97a3eb3e8f0132dbf415c30ca3b8462849d1f6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ee4cf6eb159e343e82467ccdcf7a6fd45a24dfae5266ec2adc3d1820bdba3629
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Move resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cdb2bec85f109347c8296bd843b8227aea41a36e850f5fc3f0f31e6bc89453b2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a97ad77c209967c60615b22445e0f3718f78616bdef0a254d876fddf4c2f3cd3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 94e028c9681d183ac94da620a1a0497abcb75fc0fe1f305094355dde9d9cdd92
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 51f167e5379750c7ec1215cafef93e94027b8116931a3ea51390a51c47231800
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 671047235c28c3ced577a85fbfb2ed946f1237ee86cca51041e74584ddf63c3f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cd8f1f414389361e37db50c9af69ef3de9c8236eb66ea584e46f48ea1bd16283
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 97263775489b3f5873df561b4e957da01a69110f5a6aae0576ef5c1d57225ceb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 461717e64f169947ab8841f7f097598ed1e45b5bb4cb1849b4bf10a17dd547df
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ed8d0e763959483c1a3efe33731a157f6556944cc2da1b597286eb3331ed4833
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ec37e46d2ac7ceb222ecca6f074575b686d73b212fa87d04cf3ced049e297d08
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 18bd65f4c69384cab27863fc055f30dbd41f7ebdfd3952c697c3faddfabe0239
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9f668b8e528c090bfcbbccae1c879e187f8744a67f6c247690c7164481be5416
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Time passes resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 022b32c32aa37a83a9a2a47d79fb8eebde57497c00ec0423dfc7f096fabbf19d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Start match resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Claim out of time resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6189392f11d4761740550a7952028bdd23e7642f19975a7ad528ca8be5c37401
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Move resulting in seeing not started match
+    - Claim out of time resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Move resulting in seeing over match won by black
+    - Start match resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Time passes resulting in seeing over match won by black
+    - Claim out of time resulting in seeing over match won by black
+    endsIn: Seeing over match won by black
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a27744a553e2870ff484cab49d3c76862acef2cc2d855ded809d66f910bd8e9b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing not started match
+    - Move resulting in seeing not started match
+    - Time passes resulting in seeing not started match
+    - Start match resulting in seeing playing match
+    - Time passes resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Move resulting in seeing playing match
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Claim out of time resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Time passes resulting in seeing over match won by white
+    - Move resulting in seeing over match won by white
+    - Start match resulting in seeing over match won by white
+    endsIn: Seeing over match won by white
+    quintTrace:
+      model: specs/room/match-clock.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7fc149a0095313726b88f1b726000f72840a3b841750e1be26efa15d093fc74e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

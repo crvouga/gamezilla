@@ -1,0 +1,80 @@
+id: chess-puzzle-stats-summary
+initial: Viewing Rating, puzzles solved, and accuracy
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-chess-puzzle-feed-pool-stats.ts
+  - libs/chess-puzzle-client/src/chess-puzzle-summary-card.tsx
+  - libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Rating, puzzles solved, and accuracy:
+    meta:
+      description: The person is at the place where rating, puzzles solved, and accuracy.
+      snapshot: the-person-is-at-the-place-where-rating-puzzles-solved-and-accuracy
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-stats-summary.feature:2
+    'on':
+      Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space:
+        target: Alice's stats show a rating of "1500?" — 1
+        meta:
+          source:
+          - specs/chess/puzzle-stats-summary.feature:11
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          example: Before any puzzle, the stats show the seed rating, provisional, and nothing played
+      ? Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space and Alice has
+        solved 2 puzzles and failed 1
+      : target: Alice's stats show 3 played, 2 solved, and 67% accuracy — 2
+        meta:
+          source:
+          - specs/chess/puzzle-stats-summary.feature:18
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has solved 2 puzzles and failed 1
+          example: Two solves and one failure show as 3 played, 2 solved, 67% accuracy
+  Alice's stats show a rating of "1500?" — 1:
+    meta:
+      description: The person observes that alice's stats show a rating of "1500?".
+      snapshot: the-person-observes-that-alice-s-stats-show-a-rating-of-1500
+      recognize: []
+      checks:
+      - Alice's stats show a rating of "1500?"
+      - Alice's stats show 0 played, 0 solved, and 0% accuracy
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-stats-summary.feature:11
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's stats show 3 played, 2 solved, and 67% accuracy — 2:
+    meta:
+      description: The person observes that alice's stats show 3 played, 2 solved, and 67% accuracy.
+      snapshot: the-person-observes-that-alice-s-stats-show-3-played-2-solved-and-67-accuracy
+      recognize: []
+      checks:
+      - Alice's stats show 3 played, 2 solved, and 67% accuracy
+      - Alice's stats show their rating after each of those 3 puzzles
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-stats-summary.feature:18
+      - specs/chess/puzzle-stats-summary.feature:25
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+    'on': {}

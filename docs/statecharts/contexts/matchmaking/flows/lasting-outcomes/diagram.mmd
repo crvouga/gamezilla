@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Accepted waits keep their outcomes" as s0
+  state "Alice is waiting — 1" as s1
+  state "Alice and Bob are still waiting — 2" as s2
+  state "one matchmaking match is formed for Alice and Bob — 3" as s3
+  state "Alice and Bob keep the same match — 4" as s4
+  state "Alice is waiting — 5" as s5
+  state "Alice is told she is unavailable for a match — 6" as s6
+  [*] --> s0
+  s0 --> s1: a day passes when Alice is waiting with a range of 5 points
+  s0 --> s2: a day passes when Alice and Bob are waiting with ratings 100 points apart and both accept nobody more than 5 points away
+  s0 --> s3: matchmaking pairs people up
+  s0 --> s4: a day passes when Alice and Bob are matched with each other
+  s0 --> s5: Alice waits for a match with a rating of 1000 when Alice is available for a match
+  s0 --> s6: Alice waits for a match with a rating of 1000 when Alice is unavailable for a match
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

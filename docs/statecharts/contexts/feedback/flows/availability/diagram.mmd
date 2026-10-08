@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Report trouble even when the app is unusable" as s0
+  state "the team can read the local feedback — 1" as s1
+  state "the team can read the local feedback — 2" as s2
+  state "the team can read the local feedback — 3" as s3
+  state "the team can read the local feedback — 4" as s4
+  state "the team can read the local feedback — 5" as s5
+  state "the team can read the local feedback — 6" as s6
+  state "the team can read the local feedback — 7" as s7
+  state "the team can read the local feedback — 8" as s8
+  state "the team can read the local feedback — 9" as s9
+  state "the team can copy the feedback to keep for later — 10" as s10
+  [*] --> s0
+  s0 --> s1: the team submits feedback titled 'Chess board freezes' saying 'The board stopped after a move'
+  s0 --> s2: the team submits feedback titled 'Opening never finishes' saying 'The opening screen stays visible'
+  s0 --> s3: the team submits feedback titled 'Board disappeared' saying 'The app crashed during a game'
+  s0 --> s4: the team submits feedback titled 'Settings cannot open' saying 'Choosing Settings leaves a blank screen'
+  s0 --> s5: the team submits feedback titled 'Sign in stops' saying 'Signing in never finishes'
+  s0 --> s6: the team submits feedback titled 'Board disappeared' saying 'The app went blank'
+  s0 --> s7: the team submits feedback titled 'App stopped responding' saying 'Nothing happens after a move'
+  s0 --> s8: the team submits feedback titled 'Offline board freezes' saying 'The board stopped while offline'
+  s0 --> s9: the team's app closes
+  s0 --> s10: the team submits feedback titled 'Board froze' saying 'Stopped after a move'
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

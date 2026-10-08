@@ -1,0 +1,168 @@
+id: friends-friend-profile
+initial: Viewing Another person's profile
+meta:
+  context: Friends
+  kind: flow
+  owner: Friends owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/friends-client/src/use-send-friend-request.ts
+  - libs/friends-client/src/use-remove-friend.ts
+  - libs/friends-client/src/use-friend-user-overflow-menu.tsx
+  - libs/friends-client/src/use-friend-requests.ts
+  - libs/friends-client/src/use-friend-request-ids.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Another person's profile:
+    meta:
+      description: The person is at the place where another person's profile.
+      snapshot: the-person-is-at-the-place-where-another-person-s-profile
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:2
+    'on':
+      Alice looks up Bob:
+        target: Alice is shown Bob's profile — 1
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:13
+          condition:
+          - Alice and Bob are signed in
+          example: Looking someone up opens their profile
+      Bob views Alice's request:
+        target: Bob is shown Alice's profile — 2
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:17
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          example: A request opens the asker's profile
+      Alice sends Bob a friend request from Bob's profile:
+        target: Alice can cancel the request to Bob — 3
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:25
+          condition:
+          - Alice and Bob are signed in
+          - Alice is viewing Bob's profile
+          example: Asking from a profile gives the asker a request to cancel
+      Bob looks up Alice:
+        target: Bob is offered to accept Alice's request within 15 seconds — 4
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:30
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          example: The person asked can accept from the asker's profile
+      Bob accepts Alice's request from Alice's profile:
+        target: Bob sees Alice as a friend — 5
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:35
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          - Bob is viewing Alice's profile
+          example: Accepting from a profile makes them friends and both counts say so
+      Bob declines Alice's request from Alice's profile:
+        target: Bob can ask Alice again within 5 seconds — 6
+        meta:
+          source:
+          - specs/friends/friend-profile.feature:44
+          condition:
+          - Alice and Bob are signed in
+          - Alice has sent Bob a friend request
+          - Bob has opened Alice's profile from their request
+          example: Declining from the asker's profile ends the request
+  Alice is shown Bob's profile — 1:
+    meta:
+      description: The person observes that alice is shown Bob's profile.
+      snapshot: the-person-observes-that-alice-is-shown-bob-s-profile
+      recognize: []
+      checks:
+      - Alice is shown Bob's profile
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is shown Alice's profile — 2:
+    meta:
+      description: The person observes that bob is shown Alice's profile.
+      snapshot: the-person-observes-that-bob-is-shown-alice-s-profile
+      recognize: []
+      checks:
+      - Bob is shown Alice's profile
+      - Bob is offered to accept Alice's request
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can cancel the request to Bob — 3:
+    meta:
+      description: The person observes that alice can cancel the request to Bob.
+      snapshot: the-person-observes-that-alice-can-cancel-the-request-to-bob
+      recognize: []
+      checks:
+      - Alice can cancel the request to Bob
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:25
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is offered to accept Alice's request within 15 seconds — 4:
+    meta:
+      description: The person observes that bob is offered to accept Alice's request within 15 seconds.
+      snapshot: the-person-observes-that-bob-is-offered-to-accept-alice-s-request-within-15-seconds
+      recognize: []
+      checks:
+      - Bob is offered to accept Alice's request within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees Alice as a friend — 5:
+    meta:
+      description: The person observes that bob sees Alice as a friend.
+      snapshot: the-person-observes-that-bob-sees-alice-as-a-friend
+      recognize: []
+      checks:
+      - Bob sees Alice as a friend
+      - Alice's friends list shows Bob within 15 seconds
+      - Alice's friend count is 1
+      - Bob's friend count is 1
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:35
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob can ask Alice again within 5 seconds — 6:
+    meta:
+      description: The person observes that bob can ask Alice again within 5 seconds.
+      snapshot: the-person-observes-that-bob-can-ask-alice-again-within-5-seconds
+      recognize: []
+      checks:
+      - Bob can ask Alice again within 5 seconds
+      - Bob's inbox does not show a friend request from Alice
+      events: []
+      confidence: assumed
+      source:
+      - specs/friends/friend-profile.feature:44
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

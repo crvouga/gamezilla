@@ -1,0 +1,105 @@
+stateDiagram-v2
+  state "Viewing Choose the chessboard's appearance" as s0
+  state "Alice's chessboard fills the available width — 1" as s1
+  state "Alice's chessboard still has the activity's fixed width — 2" as s2
+  state "Alice's chessboard has the activity's fixed width — 3" as s3
+  state "Alice's chessboard fills the available width — 4" as s4
+  state "Alice sees a White pawn on e4 — 5" as s5
+  state "Alice holds the piece from e2 — 6" as s6
+  state "Alice holds the piece from d2 — 7" as s7
+  state "Alice sees a White pawn on e4 — 8" as s8
+  state "Alice cannot move a piece while the chessboard is a preview — 9" as s9
+  state "Alice cannot move a piece while the chessboard is a preview — 10" as s10
+  state "Alice cannot select a piece while the chessboard is a preview — 11" as s11
+  state "Alice cannot hold a piece while the chessboard is a preview — 12" as s12
+  state "Alice cannot move a piece while interactivity is disabled — 13" as s13
+  state "Alice cannot select a piece while interactivity is disabled — 14" as s14
+  state "Alice cannot hold a piece while interactivity is disabled — 15" as s15
+  state "Alice cannot move a piece while the chessboard is a preview — 16" as s16
+  state "Alice cannot move a piece while the chessboard is a preview — 17" as s17
+  state "Alice cannot move a piece while the chessboard is a preview — 18" as s18
+  state "Alice's chessboard fills the available width — 19" as s19
+  state "Alice is still offered queen, rook, bishop and knight as the promotion choice — 20" as s20
+  state "Alice sees no selection or legal destinations — 21" as s21
+  state "Alice no longer holds a piece — 22" as s22
+  state "Alice is not offered a promotion choice — 23" as s23
+  state "Alice can select the piece on e2 — 24" as s24
+  state "Alice sees a square chessboard 320 pixels wide — 25" as s25
+  state "Alice sees coordinates for all eight files and all eight ranks — 26" as s26
+  state "Alice sees coordinates for all eight files and all eight ranks — 27" as s27
+  state "Alice still sees no coordinates — 28" as s28
+  state "Alice sees no coordinates — 29" as s29
+  state "Alice still has e2 selected — 30" as s30
+  state "Alice has e2 selected — 31" as s31
+  state "Alice is still offered queen, rook, bishop and knight as the promotion choice — 32" as s32
+  state "Alice cannot see last move marks while they are hidden — 33" as s33
+  state "Alice sees e2 and e4 marked as the last move — 34" as s34
+  [*] --> s0
+  s0 --> s1: Alice's activity narrows the available space when Alice has a chessboard without a fixed width
+  s0 --> s2: Alice's activity narrows the available space when Alice has a chessboard with the activity's fixed width
+  s0 --> s3: Alice's activity chooses a fixed width
+  s0 --> s4: Alice's activity removes the fixed width when Alice has a chessboard with the activity's fixed width
+  s0 --> s5: Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 196 pixels wide
+  s0 --> s6: Alice begins dragging the piece on e2 when Alice has an interactive chessboard 196 pixels wide
+  s0 --> s7: Alice begins dragging the piece on d2
+  s0 --> s8: Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 16384 pixels wide
+  s0 --> s9: Alice moves the piece from e2 to e4 when Alice has a chessboard 195 pixels wide
+  s0 --> s10: Alice moves the piece from e2 to e4 with the keyboard
+  s0 --> s11: Alice selects the piece on e2 when Alice has a chessboard 195 pixels wide
+  s0 --> s12: Alice begins dragging the piece on e2 when Alice has a chessboard 195 pixels wide
+  s0 --> s13: Alice moves the piece from e2 to e4 when Alice has a chessboard 196 pixels wide with interactivity disabled
+  s0 --> s14: Alice selects the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled
+  s0 --> s15: Alice begins dragging the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled
+  s0 --> s16: Alice moves the piece from a7 to a8
+  s0 --> s17: Alice moves the piece from e2 to e4 when Alice has a chessboard 16385 pixels wide
+  s0 --> s18: Alice's activity chooses a fixed width of 195 pixels
+  s0 --> s19: Alice's activity removes the fixed width when Alice has a chessboard with a fixed width of 195 pixels and enough available space to move
+  s0 --> s20: Alice resizes the chessboard
+  s0 --> s21: Alice's activity narrows the chessboard to 195 pixels wide when Alice has selected the piece on e2
+  s0 --> s22: Alice's activity narrows the chessboard to 195 pixels wide when Alice is dragging the piece on e2
+  s0 --> s23: Alice's activity narrows the chessboard to 195 pixels wide when Alice has a pending White promotion from a7 to a8
+  s0 --> s24: Alice's activity widens the chessboard to 196 pixels wide
+  s0 --> s25: Alice's activity removes the fixed width when Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available and Alice's activity now has 320 pixels available
+  s0 --> s26: Alice's board settings show coordinates when Alice has a chessboard with coordinates hidden
+  s0 --> s27: Alice's board settings show coordinates when Alice has a chessboard facing Black with coordinates hidden
+  s0 --> s28: Alice changes the orientation
+  s0 --> s29: Alice's board settings hide coordinates
+  s0 --> s30: Alice's board settings hide legal destination marks when Alice has selected the piece on e2
+  s0 --> s31: Alice's board settings show legal destination marks
+  s0 --> s32: Alice's board settings hide legal destination marks when Alice has a pending White promotion from a7 to a8
+  s0 --> s33: Alice's board settings hide last move marks
+  s0 --> s34: Alice's board settings show last move marks
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]
+  s17 --> [*]
+  s18 --> [*]
+  s19 --> [*]
+  s20 --> [*]
+  s21 --> [*]
+  s22 --> [*]
+  s23 --> [*]
+  s24 --> [*]
+  s25 --> [*]
+  s26 --> [*]
+  s27 --> [*]
+  s28 --> [*]
+  s29 --> [*]
+  s30 --> [*]
+  s31 --> [*]
+  s32 --> [*]
+  s33 --> [*]
+  s34 --> [*]

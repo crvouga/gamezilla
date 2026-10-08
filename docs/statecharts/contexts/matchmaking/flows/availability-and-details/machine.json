@@ -1,0 +1,255 @@
+{
+  "id": "matchmaking-availability-and-details",
+  "initial": "Viewing Available people and private waiting details",
+  "meta": {
+    "context": "Matchmaking",
+    "kind": "flow",
+    "owner": "Matchmaking owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Available people and private waiting details": {
+      "meta": {
+        "description": "The person is at the place where available people and private waiting details.",
+        "snapshot": "the-person-is-at-the-place-where-available-people-and-private-waiting-details",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:2"]
+      },
+      "on": {
+        "Alice becomes unavailable for a match when Alice is waiting for a match": {
+          "target": "Alice is not waiting for a match — 1",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:9"],
+            "condition": ["Alice is waiting for a match"],
+            "example": "Alice's wait ends when she becomes unavailable for a match"
+          }
+        },
+        "matchmaking pairs people up when Alice was waiting but is unavailable for a match and Bob is waiting for a match": {
+          "target": "Bob is still waiting — 2",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:14"],
+            "condition": [
+              "Alice was waiting but is unavailable for a match",
+              "Bob is waiting for a match"
+            ],
+            "example": "Alice cannot be matched after becoming unavailable"
+          }
+        },
+        "Alice becomes unavailable for a match when Alice has been matched with Bob": {
+          "target": "Alice and Bob keep the same match — 3",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:21"],
+            "condition": ["Alice has been matched with Bob"],
+            "example": "Becoming unavailable after pairing cannot erase a match"
+          }
+        },
+        "Alice waits for a match with a rating of 1500 when Alice's earlier wait ended when she became unavailable and Alice is available for a match again": {
+          "target": "Alice is waiting — 4",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:29"],
+            "condition": [
+              "Alice's earlier wait ended when she became unavailable",
+              "Alice is available for a match again"
+            ],
+            "example": "Alice can ask for a new match after becoming available again"
+          }
+        },
+        "Alice becomes available for a match again": {
+          "target": "Alice is not waiting for a match — 5",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:35"],
+            "condition": [
+              "Alice's earlier wait ended when she became unavailable"
+            ],
+            "example": "Becoming available does not restart Alice's ended wait"
+          }
+        },
+        "Alice waits for a match with a rating of 1500 when Alice sees her own waiting details": {
+          "target": "Alice's wait shows her name and a rating of 1500 — 6",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:42"],
+            "condition": [],
+            "example": "Alice sees her own waiting details"
+          }
+        },
+        "Bob asks to see Alice's wait": {
+          "target": "Bob is told no wait is available to him — 7",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:46"],
+            "condition": ["Alice is waiting for a match"],
+            "example": "Bob cannot see Alice's private wait"
+          }
+        },
+        "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points": {
+          "target": "Alice and Bob are matched with each other — 8",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:51"],
+            "condition": [
+              "Alice is waiting with a rating of 1000, accepting anyone within 200 points",
+              "Bob is waiting with a rating of 1050, accepting anyone within 200 points"
+            ],
+            "example": "A matched person sees who they are matched with"
+          }
+        },
+        "matchmaking pairs people up when Alice and Bob are waiting in the same matching pool within each other's ranges": {
+          "target": "Alice and Bob are matched with each other — 9",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:59"],
+            "condition": [
+              "Alice and Bob are waiting in the same matching pool within each other's ranges"
+            ],
+            "example": "People waiting in the same matching pool can be matched"
+          }
+        },
+        "matchmaking pairs people up when Alice and Bob are waiting in different matching pools within each other's ranges": {
+          "target": "Alice and Bob are still waiting — 10",
+          "meta": {
+            "source": ["specs/matchmaking/availability-and-details.feature:64"],
+            "condition": [
+              "Alice and Bob are waiting in different matching pools within each other's ranges"
+            ],
+            "example": "People in different matching pools cannot be matched"
+          }
+        }
+      }
+    },
+    "Alice is not waiting for a match — 1": {
+      "meta": {
+        "description": "The person observes that alice is not waiting for a match.",
+        "snapshot": "the-person-observes-that-alice-is-not-waiting-for-a-match",
+        "recognize": [],
+        "checks": ["Alice is not waiting for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is still waiting — 2": {
+      "meta": {
+        "description": "The person observes that bob is still waiting.",
+        "snapshot": "the-person-observes-that-bob-is-still-waiting",
+        "recognize": [],
+        "checks": ["Bob is still waiting", "Alice is not waiting for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob keep the same match — 3": {
+      "meta": {
+        "description": "The person observes that alice and Bob keep the same match.",
+        "snapshot": "the-person-observes-that-alice-and-bob-keep-the-same-match",
+        "recognize": [],
+        "checks": ["Alice and Bob keep the same match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:21"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is waiting — 4": {
+      "meta": {
+        "description": "The person observes that alice is waiting.",
+        "snapshot": "the-person-observes-that-alice-is-waiting",
+        "recognize": [],
+        "checks": ["Alice is waiting"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:29"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not waiting for a match — 5": {
+      "meta": {
+        "description": "The person observes that alice is not waiting for a match.",
+        "snapshot": "the-person-observes-that-alice-is-not-waiting-for-a-match",
+        "recognize": [],
+        "checks": ["Alice is not waiting for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:35"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's wait shows her name and a rating of 1500 — 6": {
+      "meta": {
+        "description": "The person observes that alice's wait shows her name and a rating of 1500.",
+        "snapshot": "the-person-observes-that-alice-s-wait-shows-her-name-and-a-rating-of-1500",
+        "recognize": [],
+        "checks": ["Alice's wait shows her name and a rating of 1500"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:42"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is told no wait is available to him — 7": {
+      "meta": {
+        "description": "The person observes that bob is told no wait is available to him.",
+        "snapshot": "the-person-observes-that-bob-is-told-no-wait-is-available-to-him",
+        "recognize": [],
+        "checks": ["Bob is told no wait is available to him"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:46"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are matched with each other — 8": {
+      "meta": {
+        "description": "The person observes that alice and Bob are matched with each other.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
+        "recognize": [],
+        "checks": ["Alice and Bob are matched with each other"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:51"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are matched with each other — 9": {
+      "meta": {
+        "description": "The person observes that alice and Bob are matched with each other.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
+        "recognize": [],
+        "checks": ["Alice and Bob are matched with each other"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:59"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are still waiting — 10": {
+      "meta": {
+        "description": "The person observes that alice and Bob are still waiting.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
+        "recognize": [],
+        "checks": ["Alice and Bob are still waiting"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/availability-and-details.feature:64"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

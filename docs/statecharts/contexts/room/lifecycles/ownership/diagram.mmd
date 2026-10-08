@@ -1,0 +1,22 @@
+stateDiagram-v2
+  state "Opening ownership" as s0
+  state "Viewing an unowned room" as s1
+  state "Viewing another person’s room" as s2
+  state "Turned away from the room" as s3
+  state "Owning the room" as s4
+  [*] --> s0
+  s0 --> s1: Opens with viewing an unowned room
+  s1 --> s2: Claim resulting in viewing another person’s room
+  s1 --> s1: Add one resulting in viewing an unowned room
+  s1 --> s1: Turn away resulting in viewing an unowned room
+  s1 --> s4: Claim resulting in owning the room
+  s2 --> s2: Claim resulting in viewing another person’s room
+  s2 --> s2: Add one resulting in viewing another person’s room
+  s2 --> s2: Turn away resulting in viewing another person’s room
+  s2 --> s3: Turn away resulting in turned away from the room
+  s3 --> s3: Turn away resulting in turned away from the room
+  s3 --> s3: Claim resulting in turned away from the room
+  s3 --> s3: Add one resulting in turned away from the room
+  s4 --> s4: Claim resulting in owning the room
+  s4 --> s4: Turn away resulting in owning the room
+  s4 --> s4: Add one resulting in owning the room

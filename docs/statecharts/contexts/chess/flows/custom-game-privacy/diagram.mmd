@@ -1,0 +1,24 @@
+stateDiagram-v2
+  state "Viewing Custom Games respect account deletion and personal-data export" as s0
+  state "The Custom Game is cancelled with no winner — 1" as s1
+  state "Alice cannot see the deleted account's Custom Game — 2" as s2
+  state "Black is an open place in the Custom Game — 3" as s3
+  state "Alice wins the Custom Game by resignation — 4" as s4
+  state "The Custom Game remains active — 5" as s5
+  state "Alice's personal-data export includes the Custom Game choices moves and outcome — 6" as s6
+  state "Carol's personal-data export cannot include Alice's Custom Game — 7" as s7
+  [*] --> s0
+  s0 --> s1: Alice confirms account deletion
+  s0 --> s2: Alice signs in with Google
+  s0 --> s3: Bob confirms account deletion when Bob has a recently proven account and Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob
+  s0 --> s4: Bob confirms account deletion when Bob has a recently proven account and Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s5: Carol confirms account deletion
+  s0 --> s6: Alice's personal-data export becomes ready
+  s0 --> s7: Carol's personal-data export becomes ready
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]

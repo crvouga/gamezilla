@@ -1,0 +1,297 @@
+{
+  "id": "matchmaking-waits-after-time-away",
+  "initial": "Viewing Waiting with a connection and returning later",
+  "meta": {
+    "context": "Matchmaking",
+    "kind": "flow",
+    "owner": "Matchmaking owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Waiting with a connection and returning later": {
+      "meta": {
+        "description": "The person is at the place where waiting with a connection and returning later.",
+        "snapshot": "the-person-is-at-the-place-where-waiting-with-a-connection-and-returning-later",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:2"]
+      },
+      "on": {
+        "Alice's phone goes offline": {
+          "target": "Alice's phone shows her last known wait — 1",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:10"],
+            "condition": ["Alice is waiting with a range of 5 points"],
+            "example": "A waiting phone keeps its last known wait when it goes offline"
+          }
+        },
+        "Alice's phone comes back online when Alice's phone is offline": {
+          "target": "Alice can wait for a match — 2",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:18"],
+            "condition": ["Alice's phone is offline"],
+            "example": "Alice can wait once her phone is back online"
+          }
+        },
+        "Alice waits for a match with a rating of 1500": {
+          "target": "Alice is told matchmaking needs a connection — 3",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:23"],
+            "condition": ["Alice's phone is offline"],
+            "example": "Asking while offline does not start a wait later"
+          }
+        },
+        "Alice stops waiting": {
+          "target": "Alice is told matchmaking needs a connection — 4",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:29"],
+            "condition": [
+              "Alice is waiting for a match",
+              "Alice's phone is offline"
+            ],
+            "example": "Stopping while offline does not claim the wait has stopped"
+          }
+        },
+        "Alice widens her range to 200 points": {
+          "target": "Alice is told matchmaking needs a connection — 5",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:36"],
+            "condition": [
+              "Alice is waiting with a rating of 1000, accepting anyone within 5 points",
+              "Alice's phone is offline"
+            ],
+            "example": "Changing a range while offline does not claim the change counted"
+          }
+        },
+        "Alice's phone comes back online when Alice is waiting for a match and Alice's phone is offline": {
+          "target": "Alice has the same wait — 6",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:46"],
+            "condition": [
+              "Alice is waiting for a match",
+              "Alice's phone is offline"
+            ],
+            "example": "Alice finds her unchanged wait when her phone returns"
+          }
+        },
+        "matchmaking pairs people up": {
+          "target": "Bob is matched with Alice — 7",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:52"],
+            "condition": [
+              "Alice is waiting with a rating of 1000, accepting anyone within 200 points",
+              "Bob is waiting with a rating of 1050, accepting anyone within 200 points",
+              "Alice's phone is offline"
+            ],
+            "example": "Alice can be matched while her phone is offline"
+          }
+        },
+        "Alice's phone comes back online when Alice's phone was offline when she was matched with Bob": {
+          "target": "Alice and Bob are matched with each other — 8",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:63"],
+            "condition": [
+              "Alice's phone was offline when she was matched with Bob"
+            ],
+            "example": "Alice's phone finds the match made while she was away"
+          }
+        },
+        "Alice's phone comes back online when Alice's phone was offline when she stopped waiting on another device": {
+          "target": "Alice is not waiting for a match — 9",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:68"],
+            "condition": [
+              "Alice's phone was offline when she stopped waiting on another device"
+            ],
+            "example": "Alice's phone finds the stop made on another device"
+          }
+        },
+        "Alice's phone comes back online when Alice asked for a match while her phone was offline": {
+          "target": "Alice is not waiting for a match — 10",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:73"],
+            "condition": [
+              "Alice asked for a match while her phone was offline"
+            ],
+            "example": "An offline request does not begin a wait on return"
+          }
+        },
+        "Alice's phone comes back online when Alice asked to stop waiting while her phone was offline": {
+          "target": "Alice has the same wait — 11",
+          "meta": {
+            "source": ["specs/matchmaking/waits-after-time-away.feature:78"],
+            "condition": [
+              "Alice asked to stop waiting while her phone was offline"
+            ],
+            "example": "An offline stop does not stop an accepted wait on return"
+          }
+        }
+      }
+    },
+    "Alice's phone shows her last known wait — 1": {
+      "meta": {
+        "description": "The person observes that alice's phone shows her last known wait.",
+        "snapshot": "the-person-observes-that-alice-s-phone-shows-her-last-known-wait",
+        "recognize": [],
+        "checks": [
+          "Alice's phone shows her last known wait",
+          "Alice's phone shows her last known range"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:10"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice can wait for a match — 2": {
+      "meta": {
+        "description": "The person observes that alice can wait for a match.",
+        "snapshot": "the-person-observes-that-alice-can-wait-for-a-match",
+        "recognize": [],
+        "checks": ["Alice can wait for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:18"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told matchmaking needs a connection — 3": {
+      "meta": {
+        "description": "The person observes that alice is told matchmaking needs a connection.",
+        "snapshot": "the-person-observes-that-alice-is-told-matchmaking-needs-a-connection",
+        "recognize": [],
+        "checks": [
+          "Alice is told matchmaking needs a connection",
+          "Alice is not waiting for a match"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:23"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told matchmaking needs a connection — 4": {
+      "meta": {
+        "description": "The person observes that alice is told matchmaking needs a connection.",
+        "snapshot": "the-person-observes-that-alice-is-told-matchmaking-needs-a-connection",
+        "recognize": [],
+        "checks": [
+          "Alice is told matchmaking needs a connection",
+          "Alice's phone shows her last known wait"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:29"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told matchmaking needs a connection — 5": {
+      "meta": {
+        "description": "The person observes that alice is told matchmaking needs a connection.",
+        "snapshot": "the-person-observes-that-alice-is-told-matchmaking-needs-a-connection",
+        "recognize": [],
+        "checks": [
+          "Alice is told matchmaking needs a connection",
+          "Alice's phone shows her last known range"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:36"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has the same wait — 6": {
+      "meta": {
+        "description": "The person observes that alice has the same wait.",
+        "snapshot": "the-person-observes-that-alice-has-the-same-wait",
+        "recognize": [],
+        "checks": ["Alice has the same wait"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:46"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is matched with Alice — 7": {
+      "meta": {
+        "description": "The person observes that bob is matched with Alice.",
+        "snapshot": "the-person-observes-that-bob-is-matched-with-alice",
+        "recognize": [],
+        "checks": [
+          "Bob is matched with Alice",
+          "Alice's phone shows her last known wait"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:52"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are matched with each other — 8": {
+      "meta": {
+        "description": "The person observes that alice and Bob are matched with each other.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
+        "recognize": [],
+        "checks": ["Alice and Bob are matched with each other"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:63"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not waiting for a match — 9": {
+      "meta": {
+        "description": "The person observes that alice is not waiting for a match.",
+        "snapshot": "the-person-observes-that-alice-is-not-waiting-for-a-match",
+        "recognize": [],
+        "checks": ["Alice is not waiting for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:68"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not waiting for a match — 10": {
+      "meta": {
+        "description": "The person observes that alice is not waiting for a match.",
+        "snapshot": "the-person-observes-that-alice-is-not-waiting-for-a-match",
+        "recognize": [],
+        "checks": ["Alice is not waiting for a match"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:73"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has the same wait — 11": {
+      "meta": {
+        "description": "The person observes that alice has the same wait.",
+        "snapshot": "the-person-observes-that-alice-has-the-same-wait",
+        "recognize": [],
+        "checks": ["Alice has the same wait"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/matchmaking/waits-after-time-away.feature:78"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

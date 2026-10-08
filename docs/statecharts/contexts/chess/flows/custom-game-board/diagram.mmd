@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing The Custom Game board faces the player's side" as s0
+  state "Bob's board faces Black — 1" as s1
+  state "Carol's board faces White — 2" as s2
+  state "Alice's board faces White — 3" as s3
+  state "Alice's board faces Black — 4" as s4
+  state "Alice is told the Custom Game has already started — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game
+  s0 --> s2: Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game and Carol is in Alice's space
+  s0 --> s3: Alice starts the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game are bots
+  s0 --> s4: Alice swaps White and Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s5: Alice swaps White and Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

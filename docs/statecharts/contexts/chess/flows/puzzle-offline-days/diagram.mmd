@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Days of puzzles without a connection" as s0
+  state "Alice has a puzzle on the board — 1" as s1
+  state "Alice's stats show 30 played, 30 solved, and 100% accuracy — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice moves on to the next puzzle
+  s0 --> s2: the connection comes back
+  s1 --> [*]
+  s2 --> [*]

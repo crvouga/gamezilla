@@ -1,0 +1,95 @@
+id: spaces-space-friend-join
+initial: Viewing A friend joins from the lobby
+meta:
+  context: Spaces
+  kind: flow
+  owner: Spaces owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/spaces-client/src/use-space-join-snapshot.ts
+  - libs/spaces-client/src/use-space-join-access-flags.ts
+  - libs/spaces-client/src/use-join-space.ts
+  - libs/spaces-client/src/use-friend-live-space-id.ts
+  - libs/spaces-client/src/space-join-prompt.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing A friend joins from the lobby:
+    meta:
+      description: The person is at the place where a friend joins from the lobby.
+      snapshot: the-person-is-at-the-place-where-a-friend-joins-from-the-lobby
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-friend-join.feature:2
+    'on':
+      Alice creates a space:
+        target: Bob's lobby lists Alice's space — 1
+        meta:
+          source:
+          - specs/spaces/space-friend-join.feature:11
+          condition:
+          - Alice and Bob are friends
+          example: A friend's lobby lists a space as soon as it is created
+      Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice is hosting a space:
+        target: Bob is in the space — 2
+        meta:
+          source:
+          - specs/spaces/space-friend-join.feature:15
+          condition:
+          - Alice and Bob are friends
+          - Alice is hosting a space
+          example: A friend joins an open space from the lobby
+      Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice has hosted a space and ended it:
+        target: Bob is not offered to join — 3
+        meta:
+          source:
+          - specs/spaces/space-friend-join.feature:21
+          condition:
+          - Alice and Bob are friends
+          - Alice has hosted a space and ended it
+          example: A friend is not offered a space that has ended
+  Bob's lobby lists Alice's space — 1:
+    meta:
+      description: The person observes that bob's lobby lists Alice's space.
+      snapshot: the-person-observes-that-bob-s-lobby-lists-alice-s-space
+      recognize: []
+      checks:
+      - Bob's lobby lists Alice's space
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-friend-join.feature:11
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is in the space — 2:
+    meta:
+      description: The person observes that bob is in the space.
+      snapshot: the-person-observes-that-bob-is-in-the-space
+      recognize: []
+      checks:
+      - Bob is in the space
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-friend-join.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is not offered to join — 3:
+    meta:
+      description: The person observes that bob is not offered to join.
+      snapshot: the-person-observes-that-bob-is-not-offered-to-join
+      recognize: []
+      checks:
+      - Bob is not offered to join
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-friend-join.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

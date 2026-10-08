@@ -1,0 +1,3021 @@
+{
+  "id": "chess-board-board-lifecycle-lifecycle",
+  "initial": "Opening board board lifecycle",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/chess-board/board-lifecycle.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening board board lifecycle": {
+      "meta": {
+        "description": "The person is opening the board board lifecycle view.",
+        "snapshot": "the-person-is-opening-the-board-board-lifecycle-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"]
+      },
+      "on": {
+        "Opens with viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_0.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:32"]
+          }
+        }
+      }
+    },
+    "Viewing the settled chessboard": {
+      "meta": {
+        "description": "The person is viewing the settled chessboard.",
+        "snapshot": "the-person-is-viewing-the-settled-chessboard",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": true,
+            "board.visible": true,
+            "board.dragging": false,
+            "board.selected": false,
+            "board.transition": false
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Flip board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "flipBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
+          }
+        },
+        "Resize board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "resizeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
+          }
+        },
+        "Switch away resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "switchAway",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
+          }
+        },
+        "Finish animation resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "finishAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
+          }
+        },
+        "Begin drag resulting in holding a chess piece": {
+          "target": "Holding a chess piece",
+          "meta": {
+            "action": "beginDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:41"]
+          }
+        },
+        "Replace position resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "replacePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
+          }
+        },
+        "Cancel drag resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "cancelDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
+          }
+        },
+        "Set visibility resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Select piece resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "selectPiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
+          }
+        },
+        "Supply unusable position resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "supplyUnusablePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
+          }
+        },
+        "Finish earlier animation resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "finishEarlierAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
+          }
+        },
+        "Configure board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        },
+        "Set visibility resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 40,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Close board resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "closeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
+          }
+        },
+        "Move piece resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "movePiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 83,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
+          }
+        },
+        "Move piece resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "movePiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_4.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
+          }
+        },
+        "Receive reply resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "receiveReply",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_4.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
+          }
+        },
+        "Select piece resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "selectPiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_14.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
+          }
+        },
+        "Receive reply resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "receiveReply",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_3.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
+          }
+        }
+      }
+    },
+    "Holding a chess piece": {
+      "meta": {
+        "description": "The person is holding a chess piece.",
+        "snapshot": "the-person-is-holding-a-chess-piece",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": true,
+            "board.visible": true,
+            "board.dragging": true,
+            "board.selected": false,
+            "board.transition": false
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Close board resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "closeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
+          }
+        },
+        "Finish animation resulting in holding a chess piece": {
+          "target": "Holding a chess piece",
+          "meta": {
+            "action": "finishAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
+          }
+        },
+        "Switch away resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "switchAway",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
+          }
+        },
+        "Resize board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "resizeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
+          }
+        },
+        "Move piece resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "movePiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
+          }
+        },
+        "Configure board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_21.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        },
+        "Flip board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "flipBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_19.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
+          }
+        },
+        "Configure board resulting in holding a chess piece": {
+          "target": "Holding a chess piece",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_6.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        },
+        "Cancel drag resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "cancelDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_23.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
+          }
+        }
+      }
+    },
+    "Board closed": {
+      "meta": {
+        "description": "The person is board closed.",
+        "snapshot": "the-person-is-board-closed",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": false,
+            "board.visible": false,
+            "board.dragging": false,
+            "board.selected": false,
+            "board.transition": false
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Start board with unusable position resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "startBoardWithUnusablePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:127"]
+          }
+        },
+        "Start board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "startBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:127"]
+          }
+        },
+        "Finish earlier animation resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "finishEarlierAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_14.itf.json",
+              "step": 73,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
+          }
+        }
+      }
+    },
+    "Seeing a selected chess piece": {
+      "meta": {
+        "description": "The person is seeing a selected chess piece.",
+        "snapshot": "the-person-is-seeing-a-selected-chess-piece",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": true,
+            "board.visible": true,
+            "board.dragging": false,
+            "board.selected": true,
+            "board.transition": false
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Switch away resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "switchAway",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
+          }
+        },
+        "Begin drag resulting in holding a chess piece": {
+          "target": "Holding a chess piece",
+          "meta": {
+            "action": "beginDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:41"]
+          }
+        },
+        "Set visibility resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Close board resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "closeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
+          }
+        },
+        "Finish animation resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "finishAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
+          }
+        },
+        "Select piece resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "selectPiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
+          }
+        },
+        "Move piece resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "movePiece",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_21.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
+          }
+        },
+        "Replace position resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "replacePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_9.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
+          }
+        },
+        "Cancel drag resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "cancelDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_9.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
+          }
+        },
+        "Set visibility resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_7.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Resize board resulting in seeing a selected chess piece": {
+          "target": "Seeing a selected chess piece",
+          "meta": {
+            "action": "resizeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_23.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
+          }
+        }
+      }
+    },
+    "Seeing pieces move": {
+      "meta": {
+        "description": "The person is seeing pieces move.",
+        "snapshot": "the-person-is-seeing-pieces-move",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": true,
+            "board.visible": true,
+            "board.dragging": false,
+            "board.selected": false,
+            "board.transition": true
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Supply unusable position resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "supplyUnusablePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
+          }
+        },
+        "Close board resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "closeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
+          }
+        },
+        "Switch away resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "switchAway",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
+          }
+        },
+        "Cancel drag resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "cancelDrag",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
+          }
+        },
+        "Configure board resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 86,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        },
+        "Replace position resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "replacePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
+          }
+        },
+        "Replace position resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "replacePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
+          }
+        },
+        "Flip board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "flipBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_4.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
+          }
+        },
+        "Finish animation resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "finishAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 73,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
+          }
+        },
+        "Resize board resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "resizeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_14.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
+          }
+        },
+        "Finish earlier animation resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "finishEarlierAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_3.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
+          }
+        },
+        "Set visibility resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_9.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Set visibility resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_7.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Receive reply resulting in seeing pieces move": {
+          "target": "Seeing pieces move",
+          "meta": {
+            "action": "receiveReply",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_23.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
+          }
+        },
+        "Configure board resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_11.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        }
+      }
+    },
+    "Board hidden": {
+      "meta": {
+        "description": "The person is board hidden.",
+        "snapshot": "the-person-is-board-hidden",
+        "recognize": [],
+        "checks": [
+          "The latest position owns displayed pieces, even when older motion finishes.",
+          "One capture remnant belongs only to its valid arriving pawn, including during an immediate reply that preserves that pawn in the latest position.",
+          "Disabling input puts every piece down and clears selection.",
+          "Reduced motion never waits for a moving piece or captured remnant.",
+          "Hidden activities retain a settled position without a held piece.",
+          "A held piece cannot also be selected.",
+          "A closed board has no pieces, gestures or current arrival to observe.",
+          "Orientation remains a choice of the activity while its board is open."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
+        "quintPredicates": [
+          {
+            "board.present": true,
+            "board.visible": false,
+            "board.dragging": false,
+            "board.selected": false,
+            "board.transition": false
+          },
+          {
+            "board.present": true,
+            "board.visible": false,
+            "board.dragging": false,
+            "board.selected": true,
+            "board.transition": false
+          }
+        ],
+        "invariants": [
+          "invDisplayedPosition",
+          "invCaptureRemnant",
+          "invDisabled",
+          "invReducedMotion",
+          "invHidden",
+          "invOneGesture",
+          "invClosed",
+          "invSettings"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Flip board resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "flipBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
+          }
+        },
+        "Switch away resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "switchAway",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
+          }
+        },
+        "Finish animation resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "finishAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
+          }
+        },
+        "Close board resulting in board closed": {
+          "target": "Board closed",
+          "meta": {
+            "action": "closeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
+          }
+        },
+        "Resize board resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "resizeBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
+          }
+        },
+        "Configure board resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "configureBoard",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 77,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
+          }
+        },
+        "Set visibility resulting in viewing the settled chessboard": {
+          "target": "Viewing the settled chessboard",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_5.itf.json",
+              "step": 78,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Supply unusable position resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "supplyUnusablePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_4.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
+          }
+        },
+        "Replace position resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "replacePosition",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_20.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
+          }
+        },
+        "Set visibility resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "setVisibility",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_21.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
+          }
+        },
+        "Finish earlier animation resulting in board hidden": {
+          "target": "Board hidden",
+          "meta": {
+            "action": "finishEarlierAnimation",
+            "witness": {
+              "trace": "chess-board--board-lifecycle_9.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "orientation": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "reduced": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "visible": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
+          }
+        }
+      }
+    }
+  }
+}

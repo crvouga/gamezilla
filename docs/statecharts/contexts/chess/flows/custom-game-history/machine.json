@@ -1,0 +1,184 @@
+{
+  "id": "chess-custom-game-history",
+  "initial": "Viewing Keep and review earlier Custom Games",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-chess-puzzle-history.ts",
+      "libs/chess-puzzle-client/src/chess-rating-history.tsx",
+      "libs/chess-puzzle-client/src/chess-puzzle-move-history.tsx",
+      "libs/chess-puzzle-client/src/chess-puzzle-move-history-ply.tsx",
+      "libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Keep and review earlier Custom Games": {
+      "meta": {
+        "description": "The person is at the place where keep and review earlier Custom Games.",
+        "snapshot": "the-person-is-at-the-place-where-keep-and-review-earlier-custom-games",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:2"]
+      },
+      "on": {
+        "Alice creates a rematch of the Custom Game when Alice has a completed Custom Game after White's e4": {
+          "target": "The earlier Custom Game still shows e4 and its resignation outcome — 1",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:7"],
+            "condition": ["Alice has a completed Custom Game after White's e4"],
+            "example": "A rematch leaves the earlier resignation available to review"
+          }
+        },
+        "Alice creates a Custom Game": {
+          "target": "Alice is told the Custom Game must finish or be cancelled first — 2",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:13"],
+            "condition": ["Alice has an active Custom Game after White's e4"],
+            "example": "A new game cannot overwrite unfinished moves"
+          }
+        },
+        "Alice creates a rematch of the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black and Bob has left Alice's space": {
+          "target": "White is an open place and Black is Alice in the configuring Custom Game — 3",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:21"],
+            "condition": [
+              "Alice has a completed Custom Game between Alice as White and Bob as Black",
+              "Bob has left Alice's space"
+            ],
+            "example": "A departed participant becomes an open place in the rematch"
+          }
+        },
+        "Alice creates a rematch of the Custom Game when Alice has a cancelled Custom Game that invited Bob to Black": {
+          "target": "White is an open place and Black is Alice in the configuring Custom Game — 4",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:27"],
+            "condition": [
+              "Alice has a cancelled Custom Game that invited Bob to Black"
+            ],
+            "example": "A cancelled invitation cannot be inherited as a participant"
+          }
+        },
+        "Carol reviews move 0 of the Custom Game": {
+          "target": "Carol sees the Custom Game starting board — 5",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:35"],
+            "condition": [
+              "Alice has a completed Custom Game between Alice as White and Bob as Black",
+              "Carol is in Alice's space"
+            ],
+            "example": "A watcher reviews the earlier starting board"
+          }
+        },
+        "Carol tries to watch the Custom Game": {
+          "target": "Carol cannot see the Custom Game — 6",
+          "meta": {
+            "source": ["specs/chess/custom-game-history.feature:41"],
+            "condition": [
+              "Alice has a completed Custom Game between Alice as White and Bob as Black",
+              "Carol is outside Alice's space"
+            ],
+            "example": "An outsider cannot review an earlier game"
+          }
+        }
+      }
+    },
+    "The earlier Custom Game still shows e4 and its resignation outcome — 1": {
+      "meta": {
+        "description": "The person observes that the earlier Custom Game still shows e4 and its resignation outcome.",
+        "snapshot": "the-person-observes-that-the-earlier-custom-game-still-shows-e4-and-its-resignation-o",
+        "recognize": [],
+        "checks": [
+          "The earlier Custom Game still shows e4 and its resignation outcome",
+          "The new Custom Game has no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:7"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the Custom Game must finish or be cancelled first — 2": {
+      "meta": {
+        "description": "The person observes that alice is told the Custom Game must finish or be cancelled first.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-must-finish-or-be-cancelled-fi",
+        "recognize": [],
+        "checks": [
+          "Alice is told the Custom Game must finish or be cancelled first",
+          "The Custom Game move list shows e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:13"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "White is an open place and Black is Alice in the configuring Custom Game — 3": {
+      "meta": {
+        "description": "The person observes that white is an open place and Black is Alice in the configuring Custom Game.",
+        "snapshot": "the-person-observes-that-white-is-an-open-place-and-black-is-alice-in-the-configuring",
+        "recognize": [],
+        "checks": [
+          "White is an open place and Black is Alice in the configuring Custom Game"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:21"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "White is an open place and Black is Alice in the configuring Custom Game — 4": {
+      "meta": {
+        "description": "The person observes that white is an open place and Black is Alice in the configuring Custom Game.",
+        "snapshot": "the-person-observes-that-white-is-an-open-place-and-black-is-alice-in-the-configuring",
+        "recognize": [],
+        "checks": [
+          "White is an open place and Black is Alice in the configuring Custom Game",
+          "Neither side offers an invitation"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:27"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Carol sees the Custom Game starting board — 5": {
+      "meta": {
+        "description": "The person observes that carol sees the Custom Game starting board.",
+        "snapshot": "the-person-observes-that-carol-sees-the-custom-game-starting-board",
+        "recognize": [],
+        "checks": ["Carol sees the Custom Game starting board"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:35"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Carol cannot see the Custom Game — 6": {
+      "meta": {
+        "description": "The person observes that carol cannot see the Custom Game.",
+        "snapshot": "the-person-observes-that-carol-cannot-see-the-custom-game",
+        "recognize": [],
+        "checks": ["Carol cannot see the Custom Game"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-history.feature:41"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

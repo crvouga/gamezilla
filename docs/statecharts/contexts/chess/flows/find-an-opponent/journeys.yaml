@@ -1,0 +1,170 @@
+journeys:
+  A free account can find a chess opponent:
+    description: A free account can find a chess opponent
+    startingConditions:
+    - Alice has a free account and a connection
+    events:
+    - Alice finds a chess opponent for 5+0 when Alice has a free account and a connection
+    endsIn: Alice is looking for a chess opponent — 1
+    checks:
+    - Alice is looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:9 — A free account can find a chess opponent
+    exampleRow: []
+  A guest is invited to sign in:
+    description: A guest is invited to sign in
+    startingConditions:
+    - Alice is a guest
+    - Alice is hosting a space
+    events:
+    - Alice finds a chess opponent for 5+0 when Alice is a guest and Alice is hosting a space
+    endsIn: Alice is invited to sign in — 2
+    checks:
+    - Alice is invited to sign in
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:14 — A guest is invited to sign in
+    exampleRow: []
+  An offline account cannot ask for a chess opponent:
+    description: An offline account cannot ask for a chess opponent
+    startingConditions:
+    - Alice has an account without a connection
+    events:
+    - Alice finds a chess opponent for 5+0 when Alice has an account without a connection
+    endsIn: Alice is told finding an opponent needs a connection — 3
+    checks:
+    - Alice is told finding an opponent needs a connection
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:21 — An offline account cannot ask for a chess opponent
+    exampleRow: []
+  A person may find a chess opponent again after their multiplayer game is over:
+    description: A person may find a chess opponent again after their multiplayer game is over
+    startingConditions:
+    - Alice's multiplayer game with Bob is over
+    events:
+    - Alice finds a chess opponent for 5+0 when Alice's multiplayer game with Bob is over
+    endsIn: Alice is looking for a chess opponent — 4
+    checks:
+    - Alice is looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:29 — A person may find a chess opponent again after their multiplayer
+      game is over
+    exampleRow: []
+  Another device cannot seek a second unfinished game:
+    description: Another device cannot seek a second unfinished game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice finds a chess opponent for 5+0 on another device
+    endsIn: Alice is told to finish her multiplayer game first — 5
+    checks:
+    - Alice is told to finish her multiplayer game first
+    - Alice keeps her multiplayer game with Bob
+    gherkin:
+    - specs/chess/find-an-opponent.feature:34 — Another device cannot seek a second unfinished game
+    exampleRow: []
+  A person may find an opponent after their Custom Game is completed:
+    description: A person may find an opponent after their Custom Game is completed
+    startingConditions:
+    - Alice has a free account and a connection
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice finds a chess opponent when Alice has a free account and a connection and Alice has a completed Custom
+      Game between Alice as White and Bob as Black
+    endsIn: Alice is looking for a chess opponent — 6
+    checks:
+    - Alice is looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:45 — A person may find an opponent after their Custom Game is completed
+    exampleRow: []
+  A participant of an active Custom Game cannot find an opponent:
+    description: A participant of an active Custom Game cannot find an opponent
+    startingConditions:
+    - Alice has a free account and a connection
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice finds a chess opponent when Alice has a free account and a connection and Alice has an active Custom
+      Game between Alice as White and Bob as Black
+    endsIn: Alice is told to finish her Custom Game first — 7
+    checks:
+    - Alice is told to finish her Custom Game first
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:50 — A participant of an active Custom Game cannot find an opponent
+    exampleRow: []
+  A matched pair receive opposite sides of the same new game:
+    description: A matched pair receive opposite sides of the same new game
+    startingConditions:
+    - Alice and Bob are looking for 5+0 chess opponents
+    events:
+    - a matchmaking match is formed for Alice and Bob
+    endsIn: Alice and Bob have the same multiplayer game — 8
+    checks:
+    - Alice and Bob have the same multiplayer game
+    - one is White and the other is Black
+    - White has the first multiplayer turn
+    gherkin:
+    - specs/chess/find-an-opponent.feature:59 — A matched pair receive opposite sides of the same new game
+    exampleRow: []
+  Opening an accepted matchmaking match again keeps the same game:
+    description: Opening an accepted matchmaking match again keeps the same game
+    startingConditions:
+    - Alice and Bob have a multiplayer game from a matchmaking match
+    events:
+    - Alice opens multiplayer chess
+    endsIn: Alice and Bob keep the same multiplayer game and board — 9
+    checks:
+    - Alice and Bob keep the same multiplayer game and board
+    gherkin:
+    - specs/chess/find-an-opponent.feature:66 — Opening an accepted matchmaking match again keeps the same game
+    exampleRow: []
+  Another device opens the person's accepted opponent search:
+    description: Another device opens the person's accepted opponent search
+    startingConditions:
+    - Alice is looking for a chess opponent
+    events:
+    - Alice opens multiplayer chess on another device when Alice is looking for a chess opponent
+    endsIn: Alice sees her same opponent search on that device — 10
+    checks:
+    - Alice sees her same opponent search on that device
+    gherkin:
+    - specs/chess/find-an-opponent.feature:74 — Another device opens the person's accepted opponent search
+    exampleRow: []
+  Returning to multiplayer chess does not start a new game:
+    description: Returning to multiplayer chess does not start a new game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice opens multiplayer chess on another device when Alice has an unfinished multiplayer game with Bob
+    endsIn: Alice sees the same multiplayer game and board on that device — 11
+    checks:
+    - Alice sees the same multiplayer game and board on that device
+    gherkin:
+    - specs/chess/find-an-opponent.feature:79 — Returning to multiplayer chess does not start a new game
+    exampleRow: []
+  A waiting person can stop finding a chess opponent:
+    description: A waiting person can stop finding a chess opponent
+    startingConditions:
+    - Alice is looking for a chess opponent
+    events:
+    - Alice stops finding a chess opponent when Alice is looking for a chess opponent
+    endsIn: Alice is not looking for a chess opponent — 12
+    checks:
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/find-an-opponent.feature:86 — A waiting person can stop finding a chess opponent
+    exampleRow: []
+  A person cannot stop a search that already became a game:
+    description: A person cannot stop a search that already became a game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice stops finding a chess opponent when Alice has an unfinished multiplayer game with Bob
+    endsIn: Alice is told she has no opponent search to stop — 13
+    checks:
+    - Alice is told she has no opponent search to stop
+    - Alice keeps her multiplayer game with Bob
+    gherkin:
+    - specs/chess/find-an-opponent.feature:91 — A person cannot stop a search that already became a game
+    exampleRow: []

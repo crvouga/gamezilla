@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Timed matches keep their clocks after interruption" as s0
+  state "White has 2 seconds left and Black has 4 seconds left — 1" as s1
+  state "White and Black both see Black win on time — 2" as s2
+  state "White and Black both see White win on time — 3" as s3
+  [*] --> s0
+  s0 --> s1: the room is available again when White and Black started a match as the room became unavailable and 2 seconds have passed
+  s0 --> s2: the room is available again when White and Black started a match as the room became unavailable and 4 seconds have passed
+  s0 --> s3: the room is available again when White and Black have started a match with 4 seconds for White and 4 seconds for Black and White has moved as the room became unavailable and 4 seconds have passed
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

@@ -1,0 +1,146 @@
+{
+  "id": "feedback-feedback-wizard",
+  "initial": "Viewing Keep the feedback wizard out of the way",
+  "meta": {
+    "context": "Product feedback",
+    "kind": "flow",
+    "owner": "Product feedback owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/feedback-client/src/feedback-wizard.tsx",
+      "pkgs/feedback-client/src/use-feedback-state.ts",
+      "pkgs/feedback-client/src/open-feedback.ts",
+      "pkgs/feedback-client/src/mount-feedback.ts",
+      "pkgs/feedback-client/src/feedback-runtime.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Keep the feedback wizard out of the way": {
+      "meta": {
+        "description": "The person is at the place where keep the feedback wizard out of the way.",
+        "snapshot": "the-person-is-at-the-place-where-keep-the-feedback-wizard-out-of-the-way",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:2"]
+      },
+      "on": {
+        "the team opens feedback from the command palette when the team's app is working": {
+          "target": "the team has one feedback wizard — 1",
+          "meta": {
+            "source": ["specs/feedback/feedback-wizard.feature:9"],
+            "condition": ["the team's app is working"],
+            "example": "Feedback opens through the command palette"
+          }
+        },
+        "the team opens feedback from the command palette when the team has opened the feedback wizard": {
+          "target": "the team has one feedback wizard — 2",
+          "meta": {
+            "source": ["specs/feedback/feedback-wizard.feature:14"],
+            "condition": ["the team has opened the feedback wizard"],
+            "example": "Opening feedback again keeps the same wizard"
+          }
+        },
+        "the team closes the wizard": {
+          "target": "feedback takes no permanent place in the app — 3",
+          "meta": {
+            "source": ["specs/feedback/feedback-wizard.feature:22"],
+            "condition": ["the team has opened the feedback wizard"],
+            "example": "Closing feedback clears the app for other work"
+          }
+        },
+        "the team opens Support": {
+          "target": "the feedback wizard is a full-width sheet — 4",
+          "meta": {
+            "source": ["specs/feedback/feedback-wizard.feature:30"],
+            "condition": ["the team is using the app on a phone"],
+            "example": "A phone opens a full-width feedback sheet"
+          }
+        },
+        "the team moves the feedback widget out of the way": {
+          "target": "the feedback widget has moved — 5",
+          "meta": {
+            "source": ["specs/feedback/feedback-wizard.feature:38"],
+            "condition": [
+              "the team has a draft titled \"Board movement\" saying \"Keep the last move visible\""
+            ],
+            "example": "Moving feedback keeps unfinished writing"
+          }
+        }
+      }
+    },
+    "the team has one feedback wizard — 1": {
+      "meta": {
+        "description": "The person observes that the team has one feedback wizard.",
+        "snapshot": "the-person-observes-that-the-team-has-one-feedback-wizard",
+        "recognize": [],
+        "checks": ["the team has one feedback wizard"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:9"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the team has one feedback wizard — 2": {
+      "meta": {
+        "description": "The person observes that the team has one feedback wizard.",
+        "snapshot": "the-person-observes-that-the-team-has-one-feedback-wizard",
+        "recognize": [],
+        "checks": ["the team has one feedback wizard"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:14"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "feedback takes no permanent place in the app — 3": {
+      "meta": {
+        "description": "The person observes that feedback takes no permanent place in the app.",
+        "snapshot": "the-person-observes-that-feedback-takes-no-permanent-place-in-the-app",
+        "recognize": [],
+        "checks": ["feedback takes no permanent place in the app"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:22"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the feedback wizard is a full-width sheet — 4": {
+      "meta": {
+        "description": "The person observes that the feedback wizard is a full-width sheet.",
+        "snapshot": "the-person-observes-that-the-feedback-wizard-is-a-full-width-sheet",
+        "recognize": [],
+        "checks": ["the feedback wizard is a full-width sheet"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:30"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the feedback widget has moved — 5": {
+      "meta": {
+        "description": "The person observes that the feedback widget has moved.",
+        "snapshot": "the-person-observes-that-the-feedback-widget-has-moved",
+        "recognize": [],
+        "checks": [
+          "the feedback widget has moved",
+          "the draft is titled \"Board movement\" saying \"Keep the last move visible\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/feedback/feedback-wizard.feature:38"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

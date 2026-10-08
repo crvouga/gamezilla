@@ -1,0 +1,3494 @@
+{
+  "id": "runtime-app-platform-lifecycle",
+  "initial": "Opening app platform",
+  "meta": {
+    "context": "App",
+    "kind": "lifecycle",
+    "owner": "App owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/runtime/app-platform.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening app platform": {
+      "meta": {
+        "description": "The person is opening the app platform view.",
+        "snapshot": "the-person-is-opening-the-app-platform-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"]
+      },
+      "on": {
+        "Opens with viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "runtime--app-platform_9.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/runtime/app-platform.qnt:102"]
+          }
+        }
+      }
+    },
+    "Viewing spaces": {
+      "meta": {
+        "description": "The person is viewing spaces.",
+        "snapshot": "the-person-is-viewing-spaces",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["OnTab", "spaces"]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Open resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Host resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Look up resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Open settings resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Open settings resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Look up resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Sign in resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Cut off resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "End resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Reconnect resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 64,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Leave settings resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_11.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        }
+      }
+    },
+    "Viewing Settings": {
+      "meta": {
+        "description": "The person is viewing Settings.",
+        "snapshot": "the-person-is-viewing-settings",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["Settings", []]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "End resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Leave settings resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Open tab resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Cut off resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Open settings resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Reconnect resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Host resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Leave settings resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Sign in resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Leave settings resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_6.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Leave settings resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_6.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Look up resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_7.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Open resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_21.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        }
+      }
+    },
+    "Viewing In Space": {
+      "meta": {
+        "description": "The person is viewing In Space.",
+        "snapshot": "the-person-is-viewing-in-space",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["InSpace", []]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Open tab resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Cut off resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Reconnect resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "End resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "End resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Open settings resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Leave settings resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Sign in resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Look up resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Open resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        }
+      }
+    },
+    "Viewing Ended": {
+      "meta": {
+        "description": "The person is viewing Ended.",
+        "snapshot": "the-person-is-viewing-ended",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["Ended", []]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Look up resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "End resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Open tab resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Cut off resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Open settings resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Leave settings resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Host resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 49,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Sign in resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Reconnect resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Open resulting in viewing Ended": {
+          "target": "Viewing Ended",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_6.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        }
+      }
+    },
+    "Viewing notifications": {
+      "meta": {
+        "description": "The person is viewing notifications.",
+        "snapshot": "the-person-is-viewing-notifications",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["OnTab", "notifications"]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Look up resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Cut off resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_22.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Reconnect resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Open settings resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Host resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Look up resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "End resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Open settings resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 54,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Leave settings resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Sign in resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_10.itf.json",
+              "step": 78,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        }
+      }
+    },
+    "Viewing Search": {
+      "meta": {
+        "description": "The person is viewing Search.",
+        "snapshot": "the-person-is-viewing-search",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["Search", []]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Open tab resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Open resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        },
+        "Reconnect resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Open settings resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Sign in resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Look up resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 76,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Cut off resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 81,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Host resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_6.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "End resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_7.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_11.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Leave settings resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_15.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        }
+      }
+    },
+    "Viewing profile": {
+      "meta": {
+        "description": "The person is viewing profile.",
+        "snapshot": "the-person-is-viewing-profile",
+        "recognize": [],
+        "checks": [
+          "Checking machinery: the app always runs on at least one machine, and never more than MAX_CAPACITY.",
+          "Only people who opened the app have a place, an account or a connection.",
+          "Search shows someone only to a signed-in person, and never themselves.",
+          "Whoever is in a space is hosting it.",
+          "Settings remembers a tab the person actually moves between.",
+          "A search remembers whose name was typed.",
+          "A device is cut off only after the person has opened the app."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/runtime/app-platform.qnt"],
+        "quintPredicates": [
+          {
+            "place.get(\"alice\")": ["OnTab", "profile"]
+          }
+        ],
+        "invariants": [
+          "invCapacityInBounds",
+          "invOnlyOpened",
+          "invSearchShowsOthers",
+          "invInSpaceHosts",
+          "invSettingsRemembersTheTab",
+          "invSearchRemembersWho",
+          "invCutOffOnlyAfterOpening"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Open tab resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Look up resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Host resulting in viewing In Space": {
+          "target": "Viewing In Space",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Open settings resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "Open settings resulting in viewing Settings": {
+          "target": "Viewing Settings",
+          "meta": {
+            "action": "openSettings",
+            "witness": {
+              "trace": "runtime--app-platform_23.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:143"]
+          }
+        },
+        "End resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "end",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:194"]
+          }
+        },
+        "Host resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "host",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:183"]
+          }
+        },
+        "Reconnect resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "runtime--app-platform_16.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:224"]
+          }
+        },
+        "Open tab resulting in viewing notifications": {
+          "target": "Viewing notifications",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Cut off resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "cutOff",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:204"]
+          }
+        },
+        "Open tab resulting in viewing spaces": {
+          "target": "Viewing spaces",
+          "meta": {
+            "action": "openTab",
+            "witness": {
+              "trace": "runtime--app-platform_17.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:137"]
+          }
+        },
+        "Leave settings resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "leaveSettings",
+            "witness": {
+              "trace": "runtime--app-platform_7.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:153"]
+          }
+        },
+        "Look up resulting in viewing Search": {
+          "target": "Viewing Search",
+          "meta": {
+            "action": "lookUp",
+            "witness": {
+              "trace": "runtime--app-platform_0.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "spaces"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:173"]
+          }
+        },
+        "Sign in resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "runtime--app-platform_0.itf.json",
+              "step": 97,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "notifications"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:160"]
+          }
+        },
+        "Open resulting in viewing profile": {
+          "target": "Viewing profile",
+          "meta": {
+            "action": "open",
+            "witness": {
+              "trace": "runtime--app-platform_5.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "part": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "tab": {
+                  "tag": "Some",
+                  "value": "profile"
+                }
+              }
+            },
+            "source": ["specs/runtime/app-platform.qnt:127"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "id": "chess-custom-game-sides",
+  "initial": "Viewing Choose White and Black",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-custom-game-client/src/use-custom-game-screen.ts",
+      "libs/chess-custom-game-client/src/use-custom-game-review.ts",
+      "libs/chess-custom-game-client/src/use-custom-game-command.ts",
+      "libs/chess-custom-game-client/src/custom-game-test.tsx",
+      "libs/chess-custom-game-client/src/custom-game-status.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Choose White and Black": {
+      "meta": {
+        "description": "The person is at the place where choose White and Black.",
+        "snapshot": "the-person-is-at-the-place-where-choose-white-and-black",
+        "recognize": [],
+        "checks": ["The journey’s starting facts are in place."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:2"]
+      },
+      "on": {
+        "Alice assigns a bot to Black in the Custom Game when Alice has a configuring Custom Game": {
+          "target": "Black is a bot in the Custom Game — 1",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:7"],
+            "condition": ["Alice has a configuring Custom Game"],
+            "example": "A bot replaces an open place"
+          }
+        },
+        "Alice assigns a bot to Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
+          "target": "Alice is told the Custom Game has already started — 2",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:12"],
+            "condition": [
+              "Alice has an active Custom Game between Alice as White and Bob as Black"
+            ],
+            "example": "Starting freezes the participants"
+          }
+        },
+        "Alice takes Black in the Custom Game when Alice has a configuring Custom Game and White in the Custom Game is an open place": {
+          "target": "Black is Alice in the Custom Game — 3",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:19"],
+            "condition": [
+              "Alice has a configuring Custom Game",
+              "White in the Custom Game is an open place"
+            ],
+            "example": "The creator takes Black instead of White"
+          }
+        },
+        "Alice takes Black in the Custom Game when Alice has a configuring Custom Game": {
+          "target": "Alice is told a person cannot take both sides — 4",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:25"],
+            "condition": ["Alice has a configuring Custom Game"],
+            "example": "The creator cannot take both sides"
+          }
+        },
+        "Alice starts the Custom Game": {
+          "target": "Alice is watching the Custom Game — 5",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:32"],
+            "condition": [
+              "Alice has a configuring Custom Game",
+              "White and Black in the Custom Game are bots"
+            ],
+            "example": "Two bots start under a watching creator"
+          }
+        },
+        "Alice plays e2-e4 in the Custom Game": {
+          "target": "Alice is told only the participant to move may play — 6",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:39"],
+            "condition": [
+              "Alice has a configuring Custom Game",
+              "White and Black in the Custom Game are bots",
+              "The Custom Game has started"
+            ],
+            "example": "Watching does not grant control of a bot"
+          }
+        },
+        "Alice swaps White and Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game": {
+          "target": "White is Bob and Black is Alice in the Custom Game — 7",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:48"],
+            "condition": [
+              "Alice has a Custom Game between Alice as White and Bob as Black",
+              "Alice and Bob are ready for the Custom Game"
+            ],
+            "example": "The creator swaps accepted people"
+          }
+        },
+        "Alice swaps White and Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
+          "target": "Alice is told the Custom Game has already started — 8",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:55"],
+            "condition": [
+              "Alice has an active Custom Game between Alice as White and Bob as Black"
+            ],
+            "example": "Active sides cannot swap"
+          }
+        },
+        "Alice closes Black in the Custom Game": {
+          "target": "Black is closed in the Custom Game — 9",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:62"],
+            "condition": ["Alice has a configuring Custom Game"],
+            "example": "The creator closes an unoccupied side"
+          }
+        },
+        "Bob claims Black in the Custom Game": {
+          "target": "Bob is told that side is not an open place — 10",
+          "meta": {
+            "source": ["specs/chess/custom-game-sides.feature:67"],
+            "condition": [
+              "Alice has a configuring Custom Game",
+              "Black in the Custom Game is closed"
+            ],
+            "example": "A closed side refuses another person"
+          }
+        }
+      }
+    },
+    "Black is a bot in the Custom Game — 1": {
+      "meta": {
+        "description": "The person observes that black is a bot in the Custom Game.",
+        "snapshot": "the-person-observes-that-black-is-a-bot-in-the-custom-game",
+        "recognize": [],
+        "checks": ["Black is a bot in the Custom Game"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:7"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the Custom Game has already started — 2": {
+      "meta": {
+        "description": "The person observes that alice is told the Custom Game has already started.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-has-already-started",
+        "recognize": [],
+        "checks": ["Alice is told the Custom Game has already started"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:12"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Black is Alice in the Custom Game — 3": {
+      "meta": {
+        "description": "The person observes that black is Alice in the Custom Game.",
+        "snapshot": "the-person-observes-that-black-is-alice-in-the-custom-game",
+        "recognize": [],
+        "checks": ["Black is Alice in the Custom Game"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:19"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told a person cannot take both sides — 4": {
+      "meta": {
+        "description": "The person observes that alice is told a person cannot take both sides.",
+        "snapshot": "the-person-observes-that-alice-is-told-a-person-cannot-take-both-sides",
+        "recognize": [],
+        "checks": ["Alice is told a person cannot take both sides"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:25"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is watching the Custom Game — 5": {
+      "meta": {
+        "description": "The person observes that alice is watching the Custom Game.",
+        "snapshot": "the-person-observes-that-alice-is-watching-the-custom-game",
+        "recognize": [],
+        "checks": [
+          "Alice is watching the Custom Game",
+          "White and Black are bots in the active Custom Game"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:32"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told only the participant to move may play — 6": {
+      "meta": {
+        "description": "The person observes that alice is told only the participant to move may play.",
+        "snapshot": "the-person-observes-that-alice-is-told-only-the-participant-to-move-may-play",
+        "recognize": [],
+        "checks": ["Alice is told only the participant to move may play"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:39"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "White is Bob and Black is Alice in the Custom Game — 7": {
+      "meta": {
+        "description": "The person observes that white is Bob and Black is Alice in the Custom Game.",
+        "snapshot": "the-person-observes-that-white-is-bob-and-black-is-alice-in-the-custom-game",
+        "recognize": [],
+        "checks": [
+          "White is Bob and Black is Alice in the Custom Game",
+          "Neither person is ready for the Custom Game"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:48"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the Custom Game has already started — 8": {
+      "meta": {
+        "description": "The person observes that alice is told the Custom Game has already started.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-has-already-started",
+        "recognize": [],
+        "checks": ["Alice is told the Custom Game has already started"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:55"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Black is closed in the Custom Game — 9": {
+      "meta": {
+        "description": "The person observes that black is closed in the Custom Game.",
+        "snapshot": "the-person-observes-that-black-is-closed-in-the-custom-game",
+        "recognize": [],
+        "checks": ["Black is closed in the Custom Game"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:62"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is told that side is not an open place — 10": {
+      "meta": {
+        "description": "The person observes that bob is told that side is not an open place.",
+        "snapshot": "the-person-observes-that-bob-is-told-that-side-is-not-an-open-place",
+        "recognize": [],
+        "checks": ["Bob is told that side is not an open place"],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-sides.feature:67"],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

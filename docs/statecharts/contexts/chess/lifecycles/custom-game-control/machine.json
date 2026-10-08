@@ -1,0 +1,901 @@
+{
+  "id": "chess-custom-game-control-lifecycle",
+  "initial": "Opening custom game control",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": ["specs/chess/custom-game-control.qnt"],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening custom game control": {
+      "meta": {
+        "description": "The person is opening the custom game control view.",
+        "snapshot": "the-person-is-opening-the-custom-game-control-view",
+        "recognize": [],
+        "checks": ["No final outcome is claimed before the opening result."],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"]
+      },
+      "on": {
+        "Opens with playing a Custom Game": {
+          "target": "Playing a Custom Game",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess--custom-game-control_14.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": ["specs/chess/custom-game-control.qnt:46"]
+          }
+        }
+      }
+    },
+    "Playing a Custom Game": {
+      "meta": {
+        "description": "The person is playing a Custom Game.",
+        "snapshot": "the-person-is-playing-a-custom-game",
+        "recognize": [],
+        "checks": [
+          "A side has just its assigned person or bot, never shared control.",
+          "Every move came from the participant who controlled the preceding turn.",
+          "This allowed chess history alternates turns and includes its mating move.",
+          "Terminal games have a result, and that board and result never change.",
+          "People with a connection see the same game, whether playing or watching.",
+          "Offline people retain their last board while bots and other people play."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"],
+        "quintPredicates": [
+          {
+            "controlledStatus": "active",
+            "result": ""
+          }
+        ],
+        "invariants": [
+          "invControllers",
+          "invOnlyControllerMoves",
+          "invControlledHistory",
+          "invControlledTerminal",
+          "invControlledAgreement",
+          "invControlledOffline"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Resign controlled game resulting in playing a Custom Game": {
+          "target": "Playing a Custom Game",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_3.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Cancel controlled game resulting in seeing a cancelled Custom Game": {
+          "target": "Seeing a cancelled Custom Game",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_3.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Play controlled move resulting in playing a Custom Game": {
+          "target": "Playing a Custom Game",
+          "meta": {
+            "action": "playControlledMove",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:59"]
+          }
+        },
+        "Bot plays resulting in playing a Custom Game": {
+          "target": "Playing a Custom Game",
+          "meta": {
+            "action": "botPlays",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:62"]
+          }
+        },
+        "Cancel controlled game resulting in playing a Custom Game": {
+          "target": "Playing a Custom Game",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Bot plays resulting in seeing black wins by checkmate": {
+          "target": "Seeing black wins by checkmate",
+          "meta": {
+            "action": "botPlays",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:62"]
+          }
+        },
+        "Resign controlled game resulting in seeing white wins by resignation": {
+          "target": "Seeing white wins by resignation",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_8.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Resign controlled game resulting in seeing black wins by resignation": {
+          "target": "Seeing black wins by resignation",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_16.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        }
+      }
+    },
+    "Seeing a cancelled Custom Game": {
+      "meta": {
+        "description": "The person is seeing a cancelled Custom Game.",
+        "snapshot": "the-person-is-seeing-a-cancelled-custom-game",
+        "recognize": [],
+        "checks": [
+          "A side has just its assigned person or bot, never shared control.",
+          "Every move came from the participant who controlled the preceding turn.",
+          "This allowed chess history alternates turns and includes its mating move.",
+          "Terminal games have a result, and that board and result never change.",
+          "People with a connection see the same game, whether playing or watching.",
+          "Offline people retain their last board while bots and other people play."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"],
+        "quintPredicates": [
+          {
+            "controlledStatus": "cancelled",
+            "result": "cancelled"
+          }
+        ],
+        "invariants": [
+          "invControllers",
+          "invOnlyControllerMoves",
+          "invControlledHistory",
+          "invControlledTerminal",
+          "invControlledAgreement",
+          "invControlledOffline"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Resign controlled game resulting in seeing a cancelled Custom Game": {
+          "target": "Seeing a cancelled Custom Game",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_3.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Cancel controlled game resulting in seeing a cancelled Custom Game": {
+          "target": "Seeing a cancelled Custom Game",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_3.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Play controlled move resulting in seeing a cancelled Custom Game": {
+          "target": "Seeing a cancelled Custom Game",
+          "meta": {
+            "action": "playControlledMove",
+            "witness": {
+              "trace": "chess--custom-game-control_3.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:59"]
+          }
+        }
+      }
+    },
+    "Seeing black wins by checkmate": {
+      "meta": {
+        "description": "The person is seeing black wins by checkmate.",
+        "snapshot": "the-person-is-seeing-black-wins-by-checkmate",
+        "recognize": [],
+        "checks": [
+          "A side has just its assigned person or bot, never shared control.",
+          "Every move came from the participant who controlled the preceding turn.",
+          "This allowed chess history alternates turns and includes its mating move.",
+          "Terminal games have a result, and that board and result never change.",
+          "People with a connection see the same game, whether playing or watching.",
+          "Offline people retain their last board while bots and other people play."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"],
+        "quintPredicates": [
+          {
+            "controlledStatus": "completed",
+            "result": "black wins by checkmate"
+          }
+        ],
+        "invariants": [
+          "invControllers",
+          "invOnlyControllerMoves",
+          "invControlledHistory",
+          "invControlledTerminal",
+          "invControlledAgreement",
+          "invControlledOffline"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Resign controlled game resulting in seeing black wins by checkmate": {
+          "target": "Seeing black wins by checkmate",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Cancel controlled game resulting in seeing black wins by checkmate": {
+          "target": "Seeing black wins by checkmate",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Play controlled move resulting in seeing black wins by checkmate": {
+          "target": "Seeing black wins by checkmate",
+          "meta": {
+            "action": "playControlledMove",
+            "witness": {
+              "trace": "chess--custom-game-control_2.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:59"]
+          }
+        }
+      }
+    },
+    "Seeing white wins by resignation": {
+      "meta": {
+        "description": "The person is seeing white wins by resignation.",
+        "snapshot": "the-person-is-seeing-white-wins-by-resignation",
+        "recognize": [],
+        "checks": [
+          "A side has just its assigned person or bot, never shared control.",
+          "Every move came from the participant who controlled the preceding turn.",
+          "This allowed chess history alternates turns and includes its mating move.",
+          "Terminal games have a result, and that board and result never change.",
+          "People with a connection see the same game, whether playing or watching.",
+          "Offline people retain their last board while bots and other people play."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"],
+        "quintPredicates": [
+          {
+            "controlledStatus": "completed",
+            "result": "white wins by resignation"
+          }
+        ],
+        "invariants": [
+          "invControllers",
+          "invOnlyControllerMoves",
+          "invControlledHistory",
+          "invControlledTerminal",
+          "invControlledAgreement",
+          "invControlledOffline"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Resign controlled game resulting in seeing white wins by resignation": {
+          "target": "Seeing white wins by resignation",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_8.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Cancel controlled game resulting in seeing white wins by resignation": {
+          "target": "Seeing white wins by resignation",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_8.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Play controlled move resulting in seeing white wins by resignation": {
+          "target": "Seeing white wins by resignation",
+          "meta": {
+            "action": "playControlledMove",
+            "witness": {
+              "trace": "chess--custom-game-control_8.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:59"]
+          }
+        }
+      }
+    },
+    "Seeing black wins by resignation": {
+      "meta": {
+        "description": "The person is seeing black wins by resignation.",
+        "snapshot": "the-person-is-seeing-black-wins-by-resignation",
+        "recognize": [],
+        "checks": [
+          "A side has just its assigned person or bot, never shared control.",
+          "Every move came from the participant who controlled the preceding turn.",
+          "This allowed chess history alternates turns and includes its mating move.",
+          "Terminal games have a result, and that board and result never change.",
+          "People with a connection see the same game, whether playing or watching.",
+          "Offline people retain their last board while bots and other people play."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": ["specs/chess/custom-game-control.qnt"],
+        "quintPredicates": [
+          {
+            "controlledStatus": "completed",
+            "result": "black wins by resignation"
+          }
+        ],
+        "invariants": [
+          "invControllers",
+          "invOnlyControllerMoves",
+          "invControlledHistory",
+          "invControlledTerminal",
+          "invControlledAgreement",
+          "invControlledOffline"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Cancel controlled game resulting in seeing black wins by resignation": {
+          "target": "Seeing black wins by resignation",
+          "meta": {
+            "action": "cancelControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_16.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:73"]
+          }
+        },
+        "Resign controlled game resulting in seeing black wins by resignation": {
+          "target": "Seeing black wins by resignation",
+          "meta": {
+            "action": "resignControlledGame",
+            "witness": {
+              "trace": "chess--custom-game-control_16.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "white"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:67"]
+          }
+        },
+        "Play controlled move resulting in seeing black wins by resignation": {
+          "target": "Seeing black wins by resignation",
+          "meta": {
+            "action": "playControlledMove",
+            "witness": {
+              "trace": "chess--custom-game-control_16.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "actor": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "blackBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "side": {
+                  "tag": "Some",
+                  "value": "black"
+                },
+                "whiteBot": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                }
+              }
+            },
+            "source": ["specs/chess/custom-game-control.qnt:59"]
+          }
+        }
+      }
+    }
+  }
+}
