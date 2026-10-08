@@ -241,6 +241,47 @@ describe('a streamed report', () => {
     dispose();
   });
 
+  test('a completed timeline never makes the next viewer ready before its timeline arrives', async () => {
+    // regression: report-viewer-shared-loading-state
+    const store = new ObjectStoreImplInMemory();
+    await openRun(store);
+    await publishChess(store);
+    await closeCommit(store, { sha: SHA, endedAtMs: 9_000 });
+    const api = fakeApi(store, createHarnessClock());
+    const first = open(api);
+    let release: (() => void) | undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const second = open({
+      fetch: async (input, init) => {
+        if (String(input).includes('/tests/')) await held;
+        return api.fetch(input, init);
+      },
+    });
+    try {
+      await until(
+        () =>
+          first.report.phase() === 'complete' &&
+          second.report.phase() === 'complete'
+      );
+      first.report.loader.load(TEST_ID);
+      await until(() => first.report.loader.state(TEST_ID).kind === 'ready');
+      second.report.loader.load(TEST_ID);
+      expect(second.report.loader.state(TEST_ID).kind).toBe('loading');
+      expect(second.report.data.tests[0]?.report.steps).toEqual([]);
+      release!();
+      await until(() => second.report.loader.state(TEST_ID).kind === 'ready');
+      expect(second.report.data.tests[0]?.report.steps.length).toBeGreaterThan(
+        0
+      );
+    } finally {
+      release!();
+      first.dispose();
+      second.dispose();
+    }
+  });
+
   test('a running commit fills in as it publishes, and a reconnect never duplicates', async () => {
     const store = new ObjectStoreImplInMemory();
     await openRun(store);

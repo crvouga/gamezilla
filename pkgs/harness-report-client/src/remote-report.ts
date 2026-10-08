@@ -142,7 +142,9 @@ type Ctx = {
   readonly controller: AbortController;
 };
 
-const LOADING: TestLoad = { kind: 'loading', frames: 0, framesTotal: null };
+function loading(): TestLoad {
+  return { kind: 'loading', frames: 0, framesTotal: null };
+}
 
 function reportUrl(ctx: Ctx, path: string): string {
   return `${ctx.args.apiBase}/${ctx.args.sha}${path}`;
@@ -322,7 +324,7 @@ function testLoader(ctx: Ctx): ReportTestLoader {
     load(id) {
       const current = ctx.store.loads[id];
       if (current !== undefined && current.kind !== 'error') return;
-      ctx.setStore('loads', id, LOADING);
+      ctx.setStore('loads', id, loading());
       void loadTest(ctx, id);
     },
     ensureBlob(id, file) {
@@ -334,9 +336,9 @@ function testLoader(ctx: Ctx): ReportTestLoader {
       );
       if (!known) {
         const settled = ctx.phase() === 'complete' || ctx.phase() === 'missing';
-        return settled ? { kind: 'missing' } : LOADING;
+        return settled ? { kind: 'missing' } : loading();
       }
-      return ctx.store.loads[id] ?? LOADING;
+      return ctx.store.loads[id] ?? loading();
     },
   };
 }

@@ -394,6 +394,10 @@ msgstr "All contexts"
 msgid "All outcomes"
 msgstr "All outcomes"
 
+#: pkgs/harness-report-client/src/report-app.tsx
+msgid "All reports"
+msgstr "All reports"
+
 #: pkgs/harness-report-client/src/spec-browser.tsx
 msgid "All specs"
 msgstr "All specs"
@@ -615,6 +619,7 @@ msgstr "Bullet"
 #: libs/auth-client/src/sign-in-link-required.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
+#: pkgs/harness-report-client/src/revision-picker.tsx
 #: pkgs/ui-root-client/src/confirmation-modal.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Cancel"
@@ -645,6 +650,11 @@ msgstr "Cannot edit"
 msgid "Change participant"
 msgstr "Change participant"
 
+#: pkgs/harness-report-client/src/report-app.tsx
+#: pkgs/harness-report-client/src/revision-picker.tsx
+msgid "Change revision"
+msgstr "Change revision"
+
 #: libs/search-client/src/search-screen-view.tsx
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
@@ -667,6 +677,10 @@ msgstr "Chess · Matchmaking"
 #: pkgs/ui-root-client/src/picker.tsx
 msgid "Choose"
 msgstr "Choose"
+
+#: pkgs/harness-report-client/src/commit-list.tsx
+msgid "Choose a commit to explore its specs, test runs, and quality evidence."
+msgstr "Choose a commit to explore its specs, test runs, and quality evidence."
 
 #: libs/chess-custom-game-client/src/custom-game-side-choices.tsx
 msgid "Choose a person"
@@ -761,6 +775,10 @@ msgstr "Close place"
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Closed place"
 msgstr "Closed place"
+
+#: pkgs/harness-report-client/src/commit-list.tsx
+msgid "Code revisions"
+msgstr "Code revisions"
 
 #: pkgs/ui-devtools-client/src/json-view.tsx
 msgid "Collapse all"
@@ -1298,10 +1316,6 @@ msgstr "Every person must be ready before starting."
 msgid "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 msgstr "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Every spec, recorded outcome, and quality check belongs to a version. Choose a commit to investigate its evidence."
-msgstr "Every spec, recorded outcome, and quality check belongs to a version. Choose a commit to investigate its evidence."
-
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 msgid "Everyone can see that the space has ended."
 msgstr "Everyone can see that the space has ended."
@@ -1341,10 +1355,6 @@ msgstr "Explore a spec"
 #: pkgs/harness-report-client/src/report-explorer.tsx
 msgid "Explore evidence"
 msgstr "Explore evidence"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Explore the app"
-msgstr "Explore the app"
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Export requested"

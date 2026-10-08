@@ -1,0 +1,4 @@
+{
+  "summary": "The e14700dd1 report tests view permanently reserved a wide revision rail, crowding tests and replay instead of opening revisions on demand.",
+  "regressionTest": "pkgs/harness-report-client/tests/report-navigation.test.tsx"
+}

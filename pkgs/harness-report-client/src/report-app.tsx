@@ -2,10 +2,12 @@ import { useLingui } from '@lingui/solid/macro';
 import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import type { SourceRecord } from '@pkgs/harness-report-shared/protocol';
 import type { ReportData } from '@pkgs/harness-report-shared/types';
+import { Button } from '@pkgs/ui-root-client/button';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { renderDefaultOverflowMenu } from '@pkgs/ui-root-client/overflow-menu-button';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseBreadcrumb } from '@pkgs/ui-root-client/screen-base-types';
-import { createMemo, Show } from 'solid-js';
+import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { CommandPalette } from './command-palette';
 import type { ExplorerResource } from './explorer-resource';
 import { HelpModal } from './help-modal';
@@ -26,23 +28,71 @@ export type HarnessReportAppProps = {
   frameCss?: string | undefined;
   loader?: ReportTestLoader | undefined;
   pending?: boolean | undefined;
-  home?: { readonly label: string; readonly onOpen: () => void } | undefined;
+  onOpenReports?: () => void;
   explorer?: ExplorerResource;
   sources?: readonly SourceRecord[];
   sha?: string;
   phase?: RemoteReportPhase;
   runUrl?: string | null | undefined;
   onRefresh?: () => void;
+  onChooseRevision?: () => void;
 };
+
+function ReportContent(props: {
+  app: HarnessReportAppProps;
+  nav: ReturnType<typeof useReportNav>;
+  isTest: Accessor<boolean>;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <div class="box flex-1 min-h-0 min-w-0 gap-3">
+      <ReportOutcome
+        phase={props.app.phase}
+        status={props.app.data.status}
+        hasFailingTests={props.app.data.tests.some(
+          (test) => test.report.meta.status === 'failed'
+        )}
+        runUrl={props.app.runUrl}
+      />
+      <Show when={props.app.phase === 'error'}>
+        <Notice tone="error">{t`Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below.`}</Notice>
+      </Show>
+      <Show when={props.app.phase === 'missing'}>
+        <Notice>{t`No test run has been published for this commit. Its specs and independently completed report parts remain available below.`}</Notice>
+      </Show>
+      <Show when={props.app.phase === 'live'}>
+        <Notice>{t`Verification is running. Completed test reports are available as they arrive.`}</Notice>
+      </Show>
+      <Show
+        when={props.isTest()}
+        fallback={
+          <Show
+            when={props.app.explorer}
+            keyed
+            fallback={<ListView nav={props.nav} />}
+          >
+            {(resource) => (
+              <ReportExplorer
+                nav={props.nav}
+                resource={resource}
+                sources={props.app.sources ?? []}
+                sha={props.app.sha ?? ''}
+              />
+            )}
+          </Show>
+        }
+      >
+        <TestView nav={props.nav} />
+      </Show>
+    </div>
+  );
+}
 
 export function HarnessReportApp(props: HarnessReportAppProps) {
   const { t } = useLingui();
   const nav = useReportNav(props.data, props.navigation);
   const isTest = createMemo(() => nav.route().view === 'test');
   const breadcrumbs = (): readonly ScreenBaseBreadcrumb[] => [
-    ...(props.home
-      ? [{ name: props.home.label, onClick: props.home.onOpen }]
-      : []),
     {
       name: props.data.runId,
       ...(isTest()
@@ -57,6 +107,9 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
     },
     ...(isTest() ? [{ name: t`Recorded evidence` }] : []),
   ];
+  const reportContent = (): JSX.Element => (
+    <ReportContent app={props} nav={nav} isTest={isTest} />
+  );
   return (
     <ReportProvider
       data={props.data}
@@ -68,7 +121,33 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
         <ScreenBase
           screenId="report-version"
           breadcrumbs={breadcrumbs()}
+          leading={
+            <Show when={props.onOpenReports} keyed>
+              {(openReports) => (
+                <Button
+                  title={t`All reports`}
+                  variant="ghost"
+                  intent="neutral"
+                  size="sm"
+                  onClick={openReports}
+                  dataSet={{ testid: 'report-all-reports' }}
+                />
+              )}
+            </Show>
+          }
+          renderActionsMenu={renderDefaultOverflowMenu}
           actions={[
+            ...(props.onChooseRevision
+              ? [
+                  {
+                    type: 'secondary' as const,
+                    label: t`Change revision`,
+                    onClick: props.onChooseRevision,
+                    overflow: 'never' as const,
+                    dataSet: { testid: 'report-change-revision' },
+                  },
+                ]
+              : []),
             ...(props.onRefresh
               ? [
                   {
@@ -84,48 +163,7 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
               onClick: () => nav.toggleHelp(),
             },
           ]}
-          content={() => (
-            <div class="box flex-1 min-h-0 min-w-0 gap-3">
-              <ReportOutcome
-                phase={props.phase}
-                status={props.data.status}
-                hasFailingTests={props.data.tests.some(
-                  (test) => test.report.meta.status === 'failed'
-                )}
-                runUrl={props.runUrl}
-              />
-              <Show when={props.phase === 'error'}>
-                <Notice tone="error">{t`Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below.`}</Notice>
-              </Show>
-              <Show when={props.phase === 'missing'}>
-                <Notice>{t`No test run has been published for this commit. Its specs and independently completed report parts remain available below.`}</Notice>
-              </Show>
-              <Show when={props.phase === 'live'}>
-                <Notice>{t`Verification is running. Completed test reports are available as they arrive.`}</Notice>
-              </Show>
-              <Show
-                when={isTest()}
-                fallback={
-                  <Show
-                    when={props.explorer}
-                    keyed
-                    fallback={<ListView nav={nav} />}
-                  >
-                    {(resource) => (
-                      <ReportExplorer
-                        nav={nav}
-                        resource={resource}
-                        sources={props.sources ?? []}
-                        sha={props.sha ?? ''}
-                      />
-                    )}
-                  </Show>
-                }
-              >
-                <TestView nav={nav} />
-              </Show>
-            </div>
-          )}
+          content={reportContent}
         />
         <Show when={nav.showHelp()}>
           <HelpModal onClose={nav.closeHelp} />
