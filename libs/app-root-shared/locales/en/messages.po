@@ -448,7 +448,7 @@ msgstr "Best streak"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: libs/billing-client/src/billing-screen.tsx
+#: libs/billing-client/src/billing-screen-view.tsx
 msgid "Billing"
 msgstr "Billing"
 
@@ -2750,7 +2750,7 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-device-detail-screen.tsx
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
-#: libs/billing-client/src/billing-screen.tsx
+#: libs/billing-client/src/billing-screen-view.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
