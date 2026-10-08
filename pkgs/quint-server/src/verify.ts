@@ -28,6 +28,7 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
+import { cachedVerifyInput } from './cached-verify-input';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
 import { runVerifyPhaseGroup } from './verify-phase-pool';
@@ -80,14 +81,18 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
   const elapsed = wallStopwatch();
+  const prepared = {
+    ...options,
+    specPath: cachedVerifyInput(options.specPath, options.outDir),
+  };
   const runPhase = async (
     phase: VerifyPhase
   ): Promise<VerifyResult | undefined> => {
     const phaseOptions =
       phase.case === undefined
-        ? options
+        ? prepared
         : {
-            ...options,
+            ...prepared,
             outDir: join(options.outDir, `case-${String(phase.case)}`),
           };
     mkdirSync(phaseOptions.outDir, { recursive: true });
