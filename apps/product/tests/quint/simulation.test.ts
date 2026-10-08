@@ -24,6 +24,21 @@ const imports = new Map(
 );
 const imported = new Set([...imports.values()].flat());
 const roots = files.filter((path) => !imported.has(path));
+const EXAMPLE_MODELS = [
+  'adversarial-examples',
+  'recovery',
+  'boundary-assumptions',
+  'notification-machine',
+] as const;
+// `quint run` and `quint test` typecheck their module and its transitive
+// imports and fail on a type error, exactly like `quint typecheck`. A root
+// already simulated or tested is compiled there; typechecking it again only
+// repeats that work, so the standalone typecheck covers the rest.
+const compiledByRun = new Set<string>([
+  ...MODELS.map((model) => `${model.name}.qnt`),
+  ...EXAMPLE_MODELS.map((name) => `${name}.qnt`),
+]);
+const typecheckOnly = roots.filter((file) => !compiledByRun.has(file));
 
 describe('composed product verification abstractions', () => {
   test('every module is reached by a checked root', () => {
@@ -40,7 +55,17 @@ describe('composed product verification abstractions', () => {
     expect(roots).toContain('adversarial-examples.qnt');
   });
 
-  for (const file of roots) {
+  test('every root is compiled exactly once', () => {
+    // regression: github-product-test-repeated-typecheck
+    const compiled = [
+      ...typecheckOnly,
+      ...roots.filter((file) => compiledByRun.has(file)),
+    ].sort();
+    expect(compiled).toEqual([...roots].sort());
+    expect(typecheckOnly.filter((file) => compiledByRun.has(file))).toEqual([]);
+  });
+
+  for (const file of typecheckOnly) {
     test.concurrent(
       `${file}: transitive modules type check`,
       async () => {
@@ -65,12 +90,7 @@ describe('composed product verification abstractions', () => {
     );
   }
 
-  for (const name of [
-    'adversarial-examples',
-    'recovery',
-    'boundary-assumptions',
-    'notification-machine',
-  ]) {
+  for (const name of EXAMPLE_MODELS) {
     test.concurrent(
       `${name}: literal counterexample guards execute`,
       async () => {
