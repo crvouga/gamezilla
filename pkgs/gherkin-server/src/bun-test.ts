@@ -24,9 +24,13 @@ import {
   worldLifecycle,
 } from '@pkgs/gherkin-shared/registry';
 import { tagFilter } from '@pkgs/gherkin-shared/tags';
+import type { RunReportOptions } from '@pkgs/harness-root-shared/report-types';
 import { recordScenario } from './evidence';
+import { createFeatureReporter } from './feature-report';
 
 export type RunFeatureOptions = {
+  /** Reporting ports for worlds without an existing timeline recorder. */
+  readonly report?: RunReportOptions;
   readonly packageName: string;
   /** Feature path as reported (package-relative). */
   readonly featureUri: string;
@@ -99,10 +103,9 @@ type ScenarioRun = {
   readonly scenario: SpecScenario;
 };
 
-/** Runs the scenario; false when a host limit ended it undecided. */
-async function runScenario(run: ScenarioRun): Promise<boolean> {
+function scenarioContext(run: ScenarioRun): ScenarioContext {
   const { options, scenario } = run;
-  const ctx: ScenarioContext = {
+  return {
     packageName: options.packageName,
     featureUri: options.featureUri,
     featureName: run.featureName,
@@ -111,18 +114,51 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
     tags: scenario.tags,
     testId: `${slug(options.featureUri.replace(/^.*\//, '').replace(/\.feature$/, ''))}.${slug(scenario.name)}`,
   };
+}
+
+async function recordStep(
+  context: {
+    world: unknown;
+    lifecycle: ReturnType<typeof worldLifecycle>;
+    reporter: ReturnType<typeof createFeatureReporter>;
+  },
+  match: StepMatch,
+  step: SpecStep
+): Promise<void> {
+  const run = () => runStep(context.world, match, step);
+  if (context.lifecycle.record !== undefined) {
+    await context.lifecycle.record(context.world, step, run);
+  } else if (context.reporter !== null) {
+    await context.reporter.record(
+      {
+        kind: step.keyword.trim(),
+        title: `${step.keyword.trim()} ${step.text}`,
+      },
+      run
+    );
+  } else {
+    await run();
+  }
+}
+
+/** Runs the scenario; false when a host limit ended it undecided. */
+async function runScenario(run: ScenarioRun): Promise<boolean> {
+  const { options, scenario } = run;
+  const ctx = scenarioContext(run);
   const lifecycle = worldLifecycle(ctx);
   const world = await lifecycle.create(ctx);
+  const reporter = createFeatureReporter(
+    ctx,
+    options.report,
+    lifecycle.record !== undefined
+  );
   const outcomes: StepOutcome[] = [];
   try {
     for (const [index, step] of scenario.steps.entries()) {
       const match = matchStep(step.text);
       const callsBefore = lifecycle.calls?.(world).length ?? 0;
       try {
-        const run = () => runStep(world, match, step);
-        await (lifecycle.record === undefined
-          ? run()
-          : lifecycle.record(world, step, run));
+        await recordStep({ world, lifecycle, reporter }, match, step);
         outcomes.push(outcome(step, 'passed'));
       } catch (cause) {
         if (isHostLimit(cause)) {
@@ -162,7 +198,14 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
       }
     }
   } finally {
-    await lifecycle.dispose(world);
+    try {
+      await lifecycle.dispose(world);
+    } catch (cause) {
+      reporter?.markFailed(cause);
+      throw cause;
+    } finally {
+      await reporter?.flush();
+    }
   }
   return true;
 }

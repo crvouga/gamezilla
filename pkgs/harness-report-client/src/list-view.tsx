@@ -9,6 +9,7 @@ import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import { testCatalogEntity } from '@pkgs/harness-report-shared/test-catalog-entity';
 import { createMemo } from 'solid-js';
 import { EntityBrowser } from './entity-browser';
+import { PerformanceOverview } from './performance-overview';
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
 
@@ -67,23 +68,35 @@ export function ListView(props: { nav: ReportNav }) {
     );
   };
   return (
-    <EntityBrowser
-      entities={entities()}
-      query={query()}
-      onQuery={write}
-      onOpen={(id) =>
-        props.nav.navigate({
-          view: 'test',
-          testId: id,
-          params: catalogParams(props.nav.route().params),
-        })
-      }
-      empty={
-        report.data.tests.length === 0
-          ? 'No tests were reported.'
-          : 'No tests match.'
-      }
-      pending={report.pending && report.data.tests.length === 0}
-    />
+    <>
+      <PerformanceOverview
+        tests={report.data.tests}
+        onOpen={(id) =>
+          props.nav.navigate({
+            view: 'test',
+            testId: id,
+            params: catalogParams(props.nav.route().params),
+          })
+        }
+      />
+      <EntityBrowser
+        entities={entities()}
+        query={query()}
+        onQuery={write}
+        onOpen={(id) =>
+          props.nav.navigate({
+            view: 'test',
+            testId: id,
+            params: catalogParams(props.nav.route().params),
+          })
+        }
+        empty={
+          report.data.tests.length === 0
+            ? 'No tests were reported.'
+            : 'No tests match.'
+        }
+        pending={report.pending && report.data.tests.length === 0}
+      />
+    </>
   );
 }

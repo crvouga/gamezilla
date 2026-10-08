@@ -181,6 +181,12 @@ export function positionStatus(fen: string): PositionStatus | null {
   return chess === null ? null : positionStatusOf(chess);
 }
 
+/** SAN already marks legal mating moves; avoid applying every candidate again. */
+export function hasMateInOne(fen: string): boolean {
+  const chess = loadChess(fen);
+  return chess !== null && chess.moves().some((san) => san.endsWith('#'));
+}
+
 /** SAN for a legal UCI move (`Nbd7`, `R1e2`, `e8=Q#`, `O-O`); `null` if illegal. */
 export function sanFromUci(fen: string, uci: string): string | null {
   const result = applyUci(fen, uci);

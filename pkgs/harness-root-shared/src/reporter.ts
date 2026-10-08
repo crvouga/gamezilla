@@ -10,9 +10,17 @@ import {
 } from './format-title';
 import { testReportKey } from './keys';
 import { persistReport } from './persist';
+import {
+  closeStepPerformance,
+  measureStepWork,
+  type OpenStepPerformance,
+  openStepPerformance,
+  summarizePerformance,
+} from './report-performance';
 import type {
   RecordStepMeta,
   ReportFrame,
+  ReportPerformanceOptions,
   ReportSnapshotBlob,
   ReportStep,
   ReportStepHit,
@@ -25,6 +33,7 @@ import type {
 import { mintRunId, sanitizeRunId, sanitizeTestId } from './report-types';
 
 type OpenStep = {
+  readonly performance: OpenStepPerformance | null;
   readonly meta: RecordStepMeta;
   readonly startedAtMs: number;
   readonly frames: ReportFrame[];
@@ -70,6 +79,7 @@ export class RunReporter {
   private readonly snapshots: readonly CatalogSnapshot<unknown>[];
   private readonly surface: unknown;
   private readonly startedAtMs: number;
+  private readonly performance: ReportPerformanceOptions | undefined;
   private readonly steps: ReportStep[] = [];
   private readonly actorIds = new Set<string>();
   private open: OpenStep | null = null;
@@ -87,6 +97,8 @@ export class RunReporter {
     this.seed = init.seed;
     this.store = init.options.store;
     this.now = init.options.now ?? init.sessionNow;
+    this.performance = init.options.performance;
+    openStepPerformance(this.performance);
     this.startedAtMs = this.now();
     this.runId = sanitizeRunId(
       init.options.runId ?? mintRunId(this.startedAtMs)
@@ -130,6 +142,7 @@ export class RunReporter {
   async record(meta: ApplyStepMeta, fn: () => Promise<void>): Promise<void> {
     if (meta.actorId !== undefined) this.actorIds.add(meta.actorId);
     const open: OpenStep = {
+      performance: openStepPerformance(this.performance),
       meta,
       startedAtMs: this.now(),
       frames: [],
@@ -197,7 +210,7 @@ export class RunReporter {
       if (meta.snapshotBefore === true && meta.skipSnapshot !== true) {
         await this.captureOntoOpen(open, meta.hit);
       }
-      await fn();
+      await measureStepWork(open.performance, 'executionMs', fn);
       if (meta.snapshotBefore !== true && meta.skipSnapshot !== true) {
         await this.captureOntoOpen(open);
       }
@@ -224,6 +237,7 @@ export class RunReporter {
     const endedAtMs = this.now();
     const siblings = this.open === null ? this.steps : this.open.steps;
     const stack = errorStack(outcome.cause);
+    const performance = closeStepPerformance(open.performance, open.steps);
     siblings.push({
       index: siblings.length + 1,
       kind: meta.kind,
@@ -232,6 +246,7 @@ export class RunReporter {
       startedAtMs: open.startedAtMs,
       endedAtMs,
       durationMs: Math.max(0, endedAtMs - open.startedAtMs),
+      ...(performance === undefined ? {} : { performance }),
       ...(meta.actorId !== undefined ? { actorId: meta.actorId } : {}),
       ...(meta.selector !== undefined ? { selector: meta.selector } : {}),
       ...(meta.detail !== undefined ? { detail: meta.detail } : {}),
@@ -254,6 +269,14 @@ export class RunReporter {
       startedAtMs: this.startedAtMs,
       endedAtMs,
       durationMs: Math.max(0, endedAtMs - this.startedAtMs),
+      ...(this.performance === undefined
+        ? {}
+        : {
+            performance: summarizePerformance(
+              this.steps,
+              this.performance.slowStepMs
+            ),
+          }),
       status: this.status,
       runId: this.runId,
       testId: this.testId,
@@ -273,6 +296,15 @@ export class RunReporter {
     hit?: ReportStepHit
   ): Promise<void> {
     if (this.snapshots.length === 0) return;
+    await measureStepWork(open.performance, 'snapshotMs', () =>
+      this.captureFrame(open, hit)
+    );
+  }
+
+  private async captureFrame(
+    open: OpenStep,
+    hit?: ReportStepHit
+  ): Promise<void> {
     const capturedAtMs = this.now();
     const { parts, frameHash } = await captureSnapshotParts(
       this.snapshots,

@@ -74,6 +74,29 @@ table, plus the step and frame durations). Other captured blobs stay in the
 aside. The test list and the commit list share one catalog: search, status,
 group and sort, with duration on each row.
 
+## Performance evidence
+
+Spec runs collect elapsed action time with an injected monotonic clock. Product
+worlds keep their nested UI steps and snapshots; Gherkin worlds without a recorder
+receive a measured timeline from the runner. Reports preserve the measurements in
+the existing object-store publication path, including failed steps. Old reports
+show measurements as unavailable, rather than treating missing data as zero.
+
+The catalog's App performance view compares runs without downloading their frames.
+Each test's Performance heatmap ranks steps by own execution time, subtracting
+nested execution and snapshot work to avoid counting children again. Snapshot
+overhead is shown separately. The recorded diagnostic allowance is 50 ms; the
+viewer lets an investigator choose another allowance without changing the report.
+Red cells and explicit Slow labels identify candidates for investigation, and
+selecting a cell opens its recorded moment when one exists. Heatmaps paginate at
+128 cells so large reports do not create an unbounded DOM.
+
+Elapsed action time includes waits and harness work. It is diagnostic data,
+not a portable CPU benchmark, a browser input-to-paint measurement, or a release
+SLO. Virtual time remains separate. Automated correctness checks use deterministic
+work bounds; browser performance contracts remain the evidence for browser paint
+budgets. Passing scenarios only cover the paths and devices they exercised.
+
 ## Entries
 
 | Import | Surface |

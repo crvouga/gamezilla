@@ -12,6 +12,7 @@ import { showAside, viewMode } from '@pkgs/harness-report-shared/hash';
 import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
 import { FailBanner } from './fail-banner';
 import { FrameCaption } from './frame-caption';
+import { PerformancePanel } from './performance-panel';
 import { PhoneStage } from './phone-stage';
 import type { TestLoad } from './report-context';
 import { useReport } from './report-context';
@@ -135,6 +136,11 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
                   frames={frames()}
                   selected={sel()}
                   onSelect={(f) => props.nav.goFrame(f)}
+                />
+                <PerformancePanel
+                  report={t().report}
+                  frames={frames()}
+                  onSelect={(frame) => props.nav.goFrame(frame)}
                 />
               </div>
               <div class="sr-main">

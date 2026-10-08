@@ -245,6 +245,10 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         featureUri,
         stepsEntry: STEPS_ENTRY,
         bridge: gherkinBridge,
+        reportBridge: Bun.resolveSync(
+          '@pkgs/gherkin-server/wall-reports-env',
+          import.meta.dir
+        ),
         slice,
         reportDir: REPORT_DIR,
       })

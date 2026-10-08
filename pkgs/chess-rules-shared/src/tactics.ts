@@ -36,14 +36,15 @@ export function hangingPieces(fen: string): readonly HangingPiece[] {
   const chess = position(fen);
   if (chess === null) return [];
   const found = new Map<string, HangingPiece>();
-  for (const move of chess.moves({ verbose: true })) {
-    if (move.captured === undefined) continue;
-    const after = new Chess(fen);
-    after.move(move);
-    const defended = after
-      .moves({ verbose: true })
-      .some((reply) => reply.to === move.to && reply.captured !== undefined);
-    if (defended) continue;
+  for (const san of chess
+    .moves()
+    .filter((candidate) => candidate.includes('x'))) {
+    const move = chess.move(san);
+    const defended = chess
+      .moves()
+      .some((reply) => reply.includes(`x${move.to}`));
+    chess.undo();
+    if (defended || move.captured === undefined) continue;
     const square = move.isEnPassant()
       ? (`${move.to[0]}${move.from[1]}` as Square)
       : move.to;
@@ -81,9 +82,8 @@ function capturesFrom(
   const attackerTurn = new Chess(fields.join(' '));
   return new Set(
     attackerTurn
-      .moves({ square, verbose: true })
-      .filter((move) => move.captured !== undefined)
-      .map((move) => move.to)
+      .moves({ square })
+      .flatMap((san) => /x([a-h][1-8])/.exec(san)?.[1] ?? [])
   );
 }
 
@@ -112,11 +112,10 @@ export function knightForks(fen: string): readonly KnightFork[] {
   const chess = position(fen);
   if (chess === null) return [];
   const result: KnightFork[] = [];
-  for (const move of chess.moves({ verbose: true })) {
-    if (move.piece !== 'n') continue;
-    const after = new Chess(fen);
-    after.move(move);
-    const targets = forkTargets(after, move.to, move.color);
+  for (const move of chess.moves({ piece: 'n', verbose: true })) {
+    chess.move(move);
+    const targets = forkTargets(chess, move.to, move.color);
+    chess.undo();
     if (targets.length >= 2)
       result.push({ move: move.lan, square: move.to, targets });
   }

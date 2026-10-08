@@ -15,11 +15,15 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
     "@pkgs/conformance-server": "workspace:*",
     "@pkgs/conformance-shared": "workspace:*",
-    "@pkgs/gherkin-shared": "workspace:*"
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/object-store-node-fs-server": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/object-store-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

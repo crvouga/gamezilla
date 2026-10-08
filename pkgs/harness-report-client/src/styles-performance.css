@@ -1,0 +1,91 @@
+@layer components {
+  .sr-performance {
+    padding: 12px;
+    border: 1px solid var(--color-sr-border);
+    background: var(--color-sr-panel);
+    border-radius: 8px;
+  }
+  .sr-performance summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .sr-performance summary .sr-badge {
+    margin-left: 8px;
+  }
+  .sr-performance-overview {
+    margin: 12px;
+  }
+  .sr-performance-note {
+    color: var(--color-sr-muted);
+    font-size: 12px;
+  }
+  .sr-performance-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .sr-performance-controls input {
+    width: 88px;
+    padding: 4px;
+    background: var(--color-sr-bg);
+    border: 1px solid var(--color-sr-border);
+  }
+  .sr-heatmap {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 4px;
+    margin-top: 12px;
+  }
+  .sr-heatmap .sr-heat-cell {
+    border: 1px solid var(--color-sr-border-strong);
+    border-radius: 4px;
+    min-height: 32px;
+    background: var(--color-sr-accent-soft);
+    color: var(--color-sr-text);
+  }
+  .sr-heat-cell[data-heat="warm"] {
+    background: #664f18;
+  }
+  .sr-heat-cell[data-heat="slow"] {
+    background: #8b2835;
+  }
+  .sr-heat-cell[data-heat="unmeasured"] {
+    background: var(--color-sr-panel-3);
+    color: var(--color-sr-muted);
+  }
+  .sr-heatmap .sr-heat-cell:disabled {
+    opacity: 1;
+  }
+  .sr-performance table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  .sr-performance th {
+    text-align: left;
+    color: var(--color-sr-muted);
+  }
+  .sr-performance td,
+  .sr-performance th {
+    padding: 6px;
+    border-bottom: 1px solid var(--color-sr-border);
+    vertical-align: top;
+  }
+  .sr-performance td:not(:first-child) {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .sr-performance td button {
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .sr-slow-flag {
+    color: var(--color-sr-fail);
+  }
+  .sr-performance-hotspots {
+    overflow-x: auto;
+  }
+}
