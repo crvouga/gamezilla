@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
-import { Button } from '@pkgs/ui-root-client/button';
+import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
+import { GameSearchState } from '@pkgs/ui-root-client/game-search-state';
 import type { JSX } from 'solid-js';
 import type { MultiplayerSearchRow } from './use-multiplayer-data';
 import { useOfflineSince } from './use-offline-since';
@@ -8,7 +9,7 @@ import { useOfflineSince } from './use-offline-since';
 /** A waiting search shows its time control and how long it has been looking. */
 export function MultiplayerWaiting(props: {
   readonly search: MultiplayerSearchRow;
-  readonly onStop: () => void;
+  readonly onStop: () => Promise<void>;
 }): JSX.Element {
   const offlineSince = useOfflineSince();
   const seconds = createTimedValue(
@@ -25,19 +26,25 @@ export function MultiplayerWaiting(props: {
         : null
   );
   return (
-    <div class="box gap-2" data-component="MultiplayerWaiting">
-      <p data-testid="multiplayer-waiting">
-        <Trans>
-          Looking for a {props.search.time_control ?? ''} chess opponent for{' '}
-          <span data-testid="multiplayer-waiting-seconds">{seconds()}</span>{' '}
-          seconds.
-        </Trans>
-      </p>
-      <Button
-        title={<Trans>Stop finding an opponent</Trans>}
-        onClick={() => props.onStop()}
-        dataSet={{ testid: 'multiplayer-stop' }}
-      />
-    </div>
+    <GameSearchState
+      title={<Trans>Finding your rival</Trans>}
+      description={
+        <p data-testid="multiplayer-waiting">
+          <Trans>
+            Looking for a {props.search.time_control ?? ''} chess opponent.
+          </Trans>
+        </p>
+      }
+      elapsed={
+        <span data-testid="multiplayer-waiting-seconds">{seconds()}</span>
+      }
+      actions={
+        <GameActionButton
+          title={<Trans>Stop finding an opponent</Trans>}
+          operation={() => props.onStop()}
+          dataSet={{ testid: 'multiplayer-stop' }}
+        />
+      }
+    />
   );
 }

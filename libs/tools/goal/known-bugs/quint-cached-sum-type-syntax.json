@@ -1,0 +1,4 @@
+{
+  "summary": "The cached-parameter transformation serialized sum types with unsupported parentheses and emitted their generated constructors a second time. Preserve the original source and insert only equivalent local value bindings.",
+  "regressionTest": "pkgs/quint-server/tests/cache-value-parameters.test.ts"
+}

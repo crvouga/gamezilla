@@ -1,170 +1,88 @@
 import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
-import { UserUsername } from '@libs/profile-client/user-username';
-import { t } from '@lingui/core/macro';
+import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client/button';
-import { Select } from '@pkgs/ui-root-client/select';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
-import { CustomGameAction } from './custom-game-action';
+import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
+import { GameDisclosure } from '@pkgs/ui-root-client/game-disclosure';
+import { GamePlayerCard } from '@pkgs/ui-root-client/game-player-card';
+import { GameVersus } from '@pkgs/ui-root-client/game-versus';
+import { type JSX, Show } from 'solid-js';
 import { CustomGamePerson } from './custom-game-person';
+import {
+  CustomGameInvitation,
+  CustomGameSideChoices,
+} from './custom-game-side-choices';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 type SideProps = { model: CustomGameScreenModel; side: CustomGameSide };
 
-function CustomGameInvitation(props: SideProps): JSX.Element {
-  const mine = (): boolean =>
-    props.model.current()?.[props.side].person === props.model.myId();
-  return (
-    <div class="box flex-row gap-2 flex-wrap">
-      <Show when={mine()}>
-        <p role="status" data-testid={`chess-custom-${props.side}-invitation`}>
-          <UserUsername
-            profileId={props.model.current()?.creator ?? ''}
-            withAt={false}
-          />{' '}
-          <Show
-            when={props.side === 'white'}
-            fallback={<Trans>invites you to play Black.</Trans>}
-          >
-            <Trans>invites you to play White.</Trans>
-          </Show>
-        </p>
-      </Show>
-      <Show when={mine() && props.model.canJoin()}>
-        <CustomGameAction
-          title={<Trans>Accept</Trans>}
-          testId={`chess-custom-${props.side}-accept`}
-          operation={() =>
-            props.model.choose({ operation: 'accept', side: props.side })
-          }
-        />
-        <CustomGameAction
-          title={<Trans>Decline</Trans>}
-          testId={`chess-custom-${props.side}-decline`}
-          operation={() =>
-            props.model.choose({ operation: 'decline', side: props.side })
-          }
-        />
-      </Show>
-      <Show when={props.model.canInvite()}>
-        <CustomGameAction
-          title={<Trans>Revoke invitation</Trans>}
-          testId={`chess-custom-${props.side}-revoke`}
-          operation={() =>
-            props.model.choose({ operation: 'revoke', side: props.side })
-          }
-        />
-      </Show>
-    </div>
-  );
-}
-
-function CustomGameSideChoices(props: SideProps): JSX.Element {
-  const [person, setPerson] = createSignal('');
-  const invitations = createMemo(() =>
-    props.model.members().map((id) => {
-      const disabled =
-        id === props.model.current()?.white.person ||
-        id === props.model.current()?.black.person;
-      return {
-        value: id,
-        label: <UserUsername profileId={id} withAt={false} />,
-        disabled,
-        // Someone who may be invited, as a person picks them from the list.
-        ...(disabled
-          ? {}
-          : { dataSet: { testid: `chess-custom-${props.side}-invitable` } }),
-      };
-    })
-  );
-  return (
-    <div class="box gap-2">
-      <div class="box flex-row gap-2 flex-wrap">
-        <CustomGameAction
-          title={<Trans>Take this side</Trans>}
-          testId={`chess-custom-${props.side}-take`}
-          operation={() =>
-            props.model.choose({ operation: 'take', side: props.side })
-          }
-        />
-        <Show when={props.model.canBot()}>
-          <CustomGameAction
-            title={<Trans>Bot</Trans>}
-            testId={`chess-custom-${props.side}-bot`}
-            operation={() =>
-              props.model.choose({ operation: 'bot', side: props.side })
-            }
-          />
-        </Show>
-        <CustomGameAction
-          title={<Trans>Open place</Trans>}
-          testId={`chess-custom-${props.side}-open`}
-          operation={() =>
-            props.model.choose({ operation: 'open', side: props.side })
-          }
-        />
-        <CustomGameAction
-          title={<Trans>Close place</Trans>}
-          testId={`chess-custom-${props.side}-close`}
-          operation={() =>
-            props.model.choose({ operation: 'close', side: props.side })
-          }
-        />
-      </div>
-      <Show when={props.model.canInvite()}>
-        <Select
-          label={<Trans>Invite a space member</Trans>}
-          placeholder={t`Choose a person`}
-          options={invitations()}
-          value={person()}
-          onValueChange={(value) => setPerson(String(value))}
-          dataSet={{ testid: `chess-custom-${props.side}-invite-person` }}
-          triggerDataSet={{
-            testid: `chess-custom-${props.side}-invite-choose`,
-          }}
-        />
-        <CustomGameAction
-          title={<Trans>Invite</Trans>}
-          disabled={person() === ''}
-          testId={`chess-custom-${props.side}-invite`}
-          operation={() =>
-            props.model.choose({
-              operation: 'invite',
-              side: props.side,
-              person: person(),
-            })
-          }
-        />
-      </Show>
-    </div>
-  );
-}
-
 export function CustomGameSideCard(props: SideProps): JSX.Element {
-  const [advanced, setAdvanced] = createSignal(false);
   const participant = () => props.model.current()![props.side];
   const configuring = (): boolean =>
     props.model.current()?.status === 'configuring';
-  const controls = (): boolean => configuring() && props.model.canConfigure();
   return (
-    <section
-      class="box gap-3 rounded-lg border p-4"
-      data-component="CustomGameSide"
-      data-testid={`chess-custom-${props.side}`}
-    >
-      <h2 class="textSubtitle">
+    <GamePlayerCard
+      dataSet={{ testid: `chess-custom-${props.side}` }}
+      label={
         <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
           <Trans>White</Trans>
         </Show>
-      </h2>
-      <p class="textBodyBold" data-testid={`chess-custom-${props.side}-person`}>
-        <CustomGamePerson participant={participant()} />
-      </p>
-      <Show when={props.model.current()?.ready.includes(props.side)}>
-        <p>
+      }
+      name={
+        <span data-testid={`chess-custom-${props.side}-person`}>
+          <CustomGamePerson participant={participant()} />
+        </span>
+      }
+      avatar={
+        <Show
+          when={
+            participant().kind === 'person' ||
+            participant().kind === 'invitation'
+          }
+        >
+          <UserProfileAvatar profileId={participant().person} size={48} />
+        </Show>
+      }
+      active={
+        props.model.current()?.status === 'active' &&
+        props.model.current()?.turn === props.side
+      }
+      ready={props.model.current()?.ready.includes(props.side) === true}
+      status={
+        <Show
+          when={props.model.current()?.ready.includes(props.side)}
+          fallback={
+            <Show when={configuring()}>
+              <Trans>Getting ready</Trans>
+            </Show>
+          }
+        >
           <Trans>Ready</Trans>
-        </p>
-      </Show>
+        </Show>
+      }
+    >
+      <CustomGameSideActions {...props} />
+    </GamePlayerCard>
+  );
+}
+
+export function CustomGameSides(props: {
+  model: CustomGameScreenModel;
+}): JSX.Element {
+  return (
+    <GameVersus
+      stackOnSmall={props.model.current()?.status === 'configuring'}
+      first={<CustomGameSideCard model={props.model} side="white" />}
+      second={<CustomGameSideCard model={props.model} side="black" />}
+    />
+  );
+}
+
+function CustomGameSideActions(props: SideProps): JSX.Element {
+  const participant = () => props.model.current()![props.side];
+  const configuring = () => props.model.current()?.status === 'configuring';
+  const controls = () => configuring() && props.model.canConfigure();
+  return (
+    <>
       <Show when={configuring() && participant().kind === 'invitation'}>
         <CustomGameInvitation {...props} />
       </Show>
@@ -175,9 +93,9 @@ export function CustomGameSideCard(props: SideProps): JSX.Element {
           props.model.canJoin()
         }
       >
-        <CustomGameAction
+        <GameActionButton
           title={<Trans>Claim this side</Trans>}
-          testId={`chess-custom-${props.side}-claim`}
+          dataSet={{ testid: `chess-custom-${props.side}-claim` }}
           operation={() =>
             props.model.choose({ operation: 'claim', side: props.side })
           }
@@ -191,37 +109,22 @@ export function CustomGameSideCard(props: SideProps): JSX.Element {
           props.model.canJoin()
         }
       >
-        <CustomGameAction
+        <GameActionButton
           title={<Trans>Release this side</Trans>}
-          testId={`chess-custom-${props.side}-release`}
+          dataSet={{ testid: `chess-custom-${props.side}-release` }}
           operation={() =>
             props.model.choose({ operation: 'release', side: props.side })
           }
         />
       </Show>
       <Show when={controls()}>
-        <Button
+        <GameDisclosure
           title={<Trans>Change participant</Trans>}
-          variant="ghost"
-          onClick={() => setAdvanced(!advanced())}
           dataSet={{ testid: `chess-custom-${props.side}-choices` }}
-        />
-        <Show when={advanced()}>
+        >
           <CustomGameSideChoices {...props} />
-        </Show>
+        </GameDisclosure>
       </Show>
-    </section>
-  );
-}
-
-export function CustomGameSides(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
-  return (
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <For each={['white', 'black'] as const}>
-        {(side) => <CustomGameSideCard model={props.model} side={side} />}
-      </For>
-    </div>
+    </>
   );
 }

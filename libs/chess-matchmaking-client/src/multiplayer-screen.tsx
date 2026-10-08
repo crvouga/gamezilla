@@ -9,11 +9,12 @@ import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { ErrorState } from '@pkgs/ui-root-client/error-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { GameHeader } from '@pkgs/ui-root-client/game-header';
+import { GameLayout, GameScreen } from '@pkgs/ui-root-client/game-screen';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
+import { MultiplayerNotices } from './multiplayer-notices';
 import { MultiplayerRatings } from './multiplayer-ratings';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
@@ -53,58 +54,55 @@ function MultiplayerContent(props: {
           />
         }
       >
-        <Show when={props.controls.denial()}>
-          {(denied) => (
-            <DenialSurface
-              decision={denied()}
-              testId="multiplayer-command-denial"
-            />
-          )}
-        </Show>
-        <Show when={props.controls.error()}>
-          {(error) => (
-            <ErrorState
-              variant="compact"
-              title={<Trans>Multiplayer command refused</Trans>}
-              body={error()}
-              dataSet={{ testid: 'multiplayer-error' }}
-            />
-          )}
-        </Show>
-        <Show when={!sync.status().online}>
-          <p role="status" data-testid="multiplayer-offline">
-            <Trans>
-              Multiplayer commands need a connection. Your accepted game stays
-              here.
-            </Trans>
-          </p>
-        </Show>
-        <Show when={props.data.game()}>
-          {(game) => (
-            <MultiplayerBoard
-              game={game()}
-              myId={props.data.myId()}
-              connected={sync.status().online}
-              moving={props.controls.moving()}
-              syncKey={props.controls.boardSync()}
-              onMove={props.controls.play}
-            />
-          )}
-        </Show>
-        <Show
-          when={
-            props.data.game() === null &&
-            props.data.search() === null &&
-            !props.data.loading() &&
-            props.data.hostId() !== props.data.myId()
+        <MultiplayerNotices
+          controls={props.controls}
+          online={sync.status().online}
+        />
+        <GameLayout
+          aside={
+            <>
+              <Show when={props.data.game()}>
+                <MultiplayerControls
+                  data={props.data}
+                  controls={props.controls}
+                />
+              </Show>
+              <MultiplayerRatings ratings={props.data.ratings()} />
+            </>
           }
         >
-          <p role="status" data-testid="multiplayer-unavailable">
-            <Trans>No multiplayer game is available to you.</Trans>
-          </p>
-        </Show>
-        <MultiplayerControls data={props.data} controls={props.controls} />
-        <MultiplayerRatings ratings={props.data.ratings()} />
+          <Show
+            when={props.data.game()}
+            fallback={
+              <MultiplayerControls
+                data={props.data}
+                controls={props.controls}
+              />
+            }
+          >
+            {(game) => (
+              <MultiplayerBoard
+                game={game()}
+                myId={props.data.myId()}
+                connected={sync.status().online}
+                moving={props.controls.moving()}
+                syncKey={props.controls.boardSync()}
+                onMove={props.controls.play}
+              />
+            )}
+          </Show>
+          <Show
+            when={
+              props.data.game() === null &&
+              props.data.search() === null &&
+              !props.data.loading()
+            }
+          >
+            <p role="status" data-testid="multiplayer-unavailable">
+              <Trans>No multiplayer game is available to you.</Trans>
+            </p>
+          </Show>
+        </GameLayout>
       </Show>
     </div>
   );
@@ -121,12 +119,26 @@ export default function MultiplayerScreen(): JSX.Element {
           dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))
         }
       />
-      <ScreenBase
+      <GameScreen
         screenId="chess-multiplayer"
-        scroll
-        breadcrumbs={[]}
-        content={() => <MultiplayerContent data={data} controls={controls} />}
-      />
+        breadcrumbs={[
+          {
+            name: <Trans>Chess</Trans>,
+            onClick: () =>
+              dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root })),
+          },
+          { name: <Trans>Matchmaking</Trans> },
+        ]}
+      >
+        <GameHeader
+          eyebrow={<Trans>Chess · Matchmaking</Trans>}
+          title={<Trans>Your next great game</Trans>}
+          description={
+            <Trans>A new rival. A fresh board. Pick your pace and play.</Trans>
+          }
+        />
+        <MultiplayerContent data={data} controls={controls} />
+      </GameScreen>
     </>
   );
 }

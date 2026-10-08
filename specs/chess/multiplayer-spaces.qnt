@@ -2,7 +2,8 @@
 // join either space to watch, leave it, and return to the accepted board.
 // An offline guest keeps the last accepted board and cannot move. Returning
 // online shows the current accepted board and result.
-// The short opening is e2 to e4 followed by e7 to e5. Either host may resign.
+// The short opening is e2 to e4 followed by e7 to e5. After both first moves,
+// either host may resign. Before both first moves, resignation changes nothing.
 module multiplayer_spaces {
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val HOSTS = Set("alice", "bob")
@@ -49,9 +50,9 @@ module multiplayer_spaces {
       _show(_guestSpace, if (accepted) _moves + 1 else _moves, _winner, _online),
     }
   }
-  /// Resignation gives the other matched person the lasting win.
+  /// After both first moves, resignation gives the other matched person the lasting win.
   action resignPlay(person: str): bool = {
-    val winner = if (HOSTS.contains(person) and _winner == "nobody")
+    val winner = if (HOSTS.contains(person) and _winner == "nobody" and _moves >= 2)
       (if (person == "alice") "bob" else "alice") else _winner
     _show(_guestSpace, _moves, winner, _online)
   }

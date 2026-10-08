@@ -8,6 +8,7 @@ import {
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
+import { GameClock } from '@pkgs/ui-root-client/game-clock';
 import { type JSX, Show } from 'solid-js';
 import { clockLabel } from './multiplayer-format';
 import { useOfflineSince } from './use-offline-since';
@@ -32,24 +33,21 @@ function MultiplayerClock(props: {
     }
   );
   return (
-    <p class="box flex-row gap-2" role="timer" aria-live="off">
-      <span class="text textLabel">
+    <GameClock
+      active={clockRunning(props.game) && sideToMove(props.game) === props.side}
+      label={
         <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
           <Trans>White</Trans>
         </Show>
-      </span>
-      <span
-        class="textMono"
-        data-testid={`multiplayer-${props.side}-clock`}
-        aria-label={
-          props.side === 'white'
-            ? t`White has ${label()} left`
-            : t`Black has ${label()} left`
-        }
-      >
-        {label()}
-      </span>
-    </p>
+      }
+      value={label()}
+      dataSet={{ testid: `multiplayer-${props.side}-clock` }}
+      ariaLabel={
+        props.side === 'white'
+          ? t`White has ${label()} left`
+          : t`Black has ${label()} left`
+      }
+    />
   );
 }
 

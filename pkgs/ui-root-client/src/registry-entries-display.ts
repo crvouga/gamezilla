@@ -19,6 +19,7 @@ import EmptyStateExample from './empty-state.example';
 import ErrorStateExample from './error-state.example';
 import ExplorerWorkspaceExample from './explorer-workspace.example';
 import FilterBarExample from './filter-bar.example';
+import GameArenaExample from './game-arena.example';
 import InspectionWorkspaceExample from './inspection-workspace.example';
 import ListExample from './list.example';
 import LoadingStateExample from './loading-state.example';
@@ -43,6 +44,7 @@ const DISCLOSURE = 'Disclosure';
 const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
+  entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
   entry('range-control', 'RangeControl', DATA_DISPLAY, RangeControlExample),
   entry('document-panel', 'DocumentPanel', DATA_DISPLAY, DocumentPanelExample),
   entry(

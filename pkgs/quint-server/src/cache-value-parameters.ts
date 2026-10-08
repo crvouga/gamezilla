@@ -1,8 +1,7 @@
 import {
-  type IdGenerator,
-  moduleToString,
   newIdGenerator,
   parsePhase1fromText,
+  type QuintEx,
   type QuintOpDef,
 } from '@informalsystems/quint';
 
@@ -18,41 +17,111 @@ export function cacheValueParameters(source: string): string {
   if (parsed.errors.length > 0)
     throw new Error('Cannot cache parameters of an invalid Quint module.');
   const names = new Set(source.match(/[a-zA-Z_][a-zA-Z0-9_]*/g));
+  const edits: SourceEdit[] = [];
   for (const module of parsed.modules) {
     for (const declaration of module.declarations) {
-      if (declaration.kind === 'def') cacheDefinition(declaration, ids, names);
+      if (declaration.kind === 'def')
+        cacheDefinition(declaration, {
+          ids,
+          names,
+          source,
+          sourceMap: parsed.sourceMap,
+          edits,
+        });
     }
   }
-  return parsed.modules.map(moduleToString).join('\n');
+  for (const edit of edits.sort((a, b) => b.start - a.start)) {
+    source = source.slice(0, edit.start) + edit.text + source.slice(edit.end);
+  }
+  return source;
 }
 
-function cacheDefinition(
-  definition: QuintOpDef,
-  ids: IdGenerator,
-  names: Set<string>
-): void {
+type SourceEdit = {
+  readonly start: number;
+  readonly end: number;
+  readonly text: string;
+};
+type CacheInput = {
+  readonly ids: ReturnType<typeof newIdGenerator>;
+  readonly names: Set<string>;
+  readonly source: string;
+  readonly sourceMap: ReturnType<typeof parsePhase1fromText>['sourceMap'];
+  readonly edits: SourceEdit[];
+};
+
+function cacheDefinition(definition: QuintOpDef, args: CacheInput): void {
   if (definition.expr.kind !== 'lambda') return;
   const lambda = definition.expr;
-  for (const parameter of [...lambda.params].reverse()) {
+  const body = args.sourceMap.get(lambda.expr.id);
+  if (body?.end === undefined) return;
+  const bindings: string[] = [];
+  for (const parameter of lambda.params) {
+    if (/^cached_input_\d+$/.test(parameter.name)) continue;
+    if (valueReferences(lambda.expr, parameter.name) < 2) continue;
     const kind = parameter.typeAnnotation?.kind;
-    if (kind === undefined || !['const', 'rec', 'fun', 'list'].includes(kind))
+    if (
+      kind === undefined ||
+      ![
+        'const',
+        'rec',
+        'fun',
+        'list',
+        'int',
+        'str',
+        'bool',
+        'set',
+        'tup',
+        'sum',
+      ].includes(kind)
+    )
       continue;
     const original = parameter.name;
-    let cached = `cached_input_${ids.nextId()}`;
-    while (names.has(cached)) cached = `cached_input_${ids.nextId()}`;
-    names.add(cached);
-    parameter.name = cached;
-    lambda.expr = {
-      kind: 'let',
-      id: ids.nextId(),
-      opdef: {
-        kind: 'def',
-        id: ids.nextId(),
-        name: original,
-        qualifier: definition.qualifier === 'puredef' ? 'pureval' : 'val',
-        expr: { kind: 'name', id: ids.nextId(), name: cached },
-      },
-      expr: lambda.expr,
-    };
+    const location = args.sourceMap.get(parameter.id);
+    if (location === undefined) continue;
+    let cached = `cached_input_${args.ids.nextId()}`;
+    while (args.names.has(cached)) cached = `cached_input_${args.ids.nextId()}`;
+    args.names.add(cached);
+    args.edits.push({
+      start: location.start.index,
+      end: location.start.index + original.length,
+      text: cached,
+    });
+    const qualifier = definition.qualifier === 'puredef' ? 'pure val' : 'val';
+    const annotation =
+      location.end === undefined
+        ? ''
+        : args.source.slice(
+            location.start.index + original.length,
+            location.end.index + 1
+          );
+    bindings.push(`${qualifier} ${original}${annotation} = ${cached};`);
   }
+  if (bindings.length === 0) return;
+  args.edits.push({
+    start: body.start.index,
+    end: body.start.index,
+    text: `{ ${bindings.join(' ')} `,
+  });
+  args.edits.push({
+    start: body.end.index + 1,
+    end: body.end.index + 1,
+    text: ' }',
+  });
+}
+
+function valueReferences(expression: QuintEx, name: string): number {
+  if (expression.kind === 'name') return expression.name === name ? 1 : 0;
+  if (expression.kind === 'app')
+    return expression.args.reduce(
+      (count, argument) => count + valueReferences(argument, name),
+      0
+    );
+  if (expression.kind === 'lambda')
+    return valueReferences(expression.expr, name);
+  if (expression.kind === 'let')
+    return (
+      valueReferences(expression.opdef.expr, name) +
+      valueReferences(expression.expr, name)
+    );
+  return 0;
 }

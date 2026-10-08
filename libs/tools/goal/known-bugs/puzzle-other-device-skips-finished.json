@@ -1,0 +1,4 @@
+{
+  "summary": "A second device opening puzzles must select an unplayed puzzle while the device that played the finished attempt can reopen its result.",
+  "regressionTest": "specs/chess/puzzle-selection.feature"
+}

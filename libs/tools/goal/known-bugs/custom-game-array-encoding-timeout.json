@@ -1,4 +1,4 @@
 {
-  "summary": "The unchanged custom-game induction exceeded its 240-second deadline with the optional fun-arrays SMT encoding during local Check. The default encoding proved the same complete candidate in 113 seconds versus 147–162 seconds for arrays. Remove the opt-in without changing the model, candidate, bound or deadline.",
+  "summary": "The unchanged custom-game induction exceeded its 240-second deadline with optional fun-arrays SMT encoding. Its literal regression pins the custom-game model, complete _inductive candidate, default encoding, four-step setting and original 240000 ms deadline. Caching value parameters before native induction also exceeded that deadline; the original source proved initialization, preservation and every safety implication in 203929 ms. Default native induction now uses the original source; bounded and supported array checks keep equivalent caching. The complete chess package check still exceeds its 600-second CI task budget, so release verification remains blocked.",
   "regressionTest": "libs/tools/scripts/check-models.test.ts"
 }

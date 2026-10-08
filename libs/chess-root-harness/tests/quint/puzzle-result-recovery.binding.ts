@@ -30,6 +30,7 @@ import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import competingRatingTrace from './fixtures/puzzle-competing-equal-rating.itf.json';
+import unrecordedResultTrace from './fixtures/puzzle-recovery-before-next.itf.json';
 import watcherReadyTrace from './fixtures/puzzle-recovery-watcher-not-ready.itf.json';
 
 const FINISH = {
@@ -62,6 +63,13 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 32,
   timeoutMs: 180_000,
   regressions: [
+    // regression: puzzle-recovery-before-next
+    {
+      id: 'puzzle-recovery-before-next',
+      title: 'A returning device records the first result before moving on',
+      seed: '0x67932',
+      itf: unrecordedResultTrace,
+    },
     // regression: puzzle-recovery-watcher-not-ready
     {
       id: 'puzzle-recovery-watcher-not-ready',

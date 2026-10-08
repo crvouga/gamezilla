@@ -665,7 +665,7 @@ terms:
       the same board. Colours follow the colour balance and stay fixed for
       the game.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
-    model: [PlayGame, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
+    model: [PlayGame, PlayWorld, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
 
   - term: matched

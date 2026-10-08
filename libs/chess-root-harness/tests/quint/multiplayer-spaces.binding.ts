@@ -9,11 +9,21 @@ import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { leaveSpace } from '@libs/spaces-harness/space-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import fixedColours from './fixtures/multiplayer-spaces-fixed-colours.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'multiplayer-spaces',
   traces: 32,
   maxSteps: 24,
+  regressions: [
+    {
+      // regression: multiplayer-spaces-fixed-colours
+      id: 'multiplayer-spaces-fixed-colours',
+      title: 'The opening uses the colours named by the shared-space model',
+      seed: '0x67932',
+      itf: fixedColours,
+    },
+  ],
   actions: {
     init: (w) => w.s.apply(prepareMultiplayerSpaceModel),
     joinSpace: (w, picks) =>

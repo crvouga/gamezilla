@@ -52,6 +52,7 @@ Feature: Multiplayer chess is played and watched within spaces
       Then Carol is told only the matched people can move multiplayer pieces
       And Alice and Bob keep the same multiplayer board
 
+    @regression:multiplayer-empty-board-unavailable
     Scenario: Someone outside either space cannot watch the multiplayer game
       Given Alice and Bob have a multiplayer game in different spaces
       When Carol opens Alice's multiplayer game
@@ -59,8 +60,9 @@ Feature: Multiplayer chess is played and watched within spaces
 
   Rule: Guests see the multiplayer result only while in either space
 
+    @regression:multiplayer-space-result-after-first-moves
     Scenario: A guest sees the result shared by the matched people
-      Given Alice and Bob have a multiplayer game in different spaces
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       And Carol is a guest watching Alice's multiplayer game
       When Bob resigns multiplayer chess
       Then Carol sees Alice won the multiplayer game

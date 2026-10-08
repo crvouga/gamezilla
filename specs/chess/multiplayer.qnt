@@ -47,6 +47,12 @@ module multiplayer {
     whiteClock: int, blackClock: int, drawOffer: str, rematchOffer: str,
     ratedGames: str -> int
   }
+  type PlayWorld = {
+    games: int -> PlayGame, sequence: int -> int, received: Set[int],
+    current: str -> int, seeking: str -> str, searchAge: str -> int,
+    accounts: Set[str], offline: Set[PlayDevice], balance: str -> int,
+    rated: str -> (str -> int)
+  }
 
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val DEVICES = PEOPLE.map(p => Set("phone", "computer").map(d => { person: p, place: d })).flatten()
@@ -116,7 +122,7 @@ module multiplayer {
   var _rated: str -> (str -> int)
   var _lastKnown: PlayDevice -> LastKnownPlay
 
-  val _now = {
+  val _now: PlayWorld = {
     games: _games, sequence: _sequence, received: _received, current: _current,
     seeking: _seeking, searchAge: _searchAge, accounts: _accounts, offline: _offline,
     balance: _balance, rated: _rated
@@ -131,12 +137,26 @@ module multiplayer {
   pure def _plays(g: PlayGame, p: str): bool = g.white == p or g.black == p
   pure def _finished(o: PlayOutcome): bool = o != NoPlay and o != OngoingPlay and o != AbortedPlay
 
+  pure def _unfinishedGames(games: int -> PlayGame, p: str): int = NUMBERS.fold(0, (count, n) => {
+    val g = games.get(n)
+    if (g.outcome == OngoingPlay and _plays(g, p)) count + 1 else count
+  })
+  pure def _finishedBalance(games: int -> PlayGame, p: str): int = NUMBERS.fold(0, (balance, n) => {
+    val g = games.get(n)
+    balance + (if (_finished(g.outcome) and g.white == p) 1 else 0)
+      - (if (_finished(g.outcome) and g.black == p) 1 else 0)
+  })
+  pure def _finishedRated(games: int -> PlayGame, p: str, sp: str): int = NUMBERS.fold(0, (count, n) => {
+    val g = games.get(n)
+    if (_finished(g.outcome) and _plays(g, p) and _speed(g.control) == sp) count + 1 else count
+  })
+
   def _game(p: str): PlayGame = _games.get(_current.get(p))
   def _unfinished(p: str): bool = _current.get(p) != 0 and _game(p).outcome == OngoingPlay
   def _canAct(d: PlayDevice): bool = not(_offline.contains(d)) and _accounts.contains(d.person)
 
   /// What one person sees on an online device.
-  pure def _view(w, p) = {
+  pure def _view(w: PlayWorld, p: str): LastKnownPlay = {
     val n = w.current.get(p)
     val g = w.games.get(n)
     val looking = w.seeking.get(p) != NONE
@@ -155,7 +175,7 @@ module multiplayer {
 
   /// Records a game's new state. A game that just finished counts once
   /// toward both people's rated games at its speed and their colour balance.
-  pure def _record(w, n, changed) = {
+  pure def _record(w: PlayWorld, n: int, changed: PlayGame): PlayWorld = {
     val before = w.games.get(n)
     val settled = if (changed.outcome == OngoingPlay) changed else { ...changed, drawBy: NOBODY }
     val games = w.games.set(n, settled)
@@ -172,7 +192,7 @@ module multiplayer {
 
   /// Starts a search at a time control, ending any rematch offer of the
   /// person's last game.
-  pure def _search(w, p, control) = {
+  pure def _search(w: PlayWorld, p: str, control: str): PlayWorld = {
     val n = w.current.get(p)
     { ...w,
       seeking: w.seeking.set(p, control), searchAge: w.searchAge.set(p, 0),
@@ -181,7 +201,7 @@ module multiplayer {
 
   /// A rematch of a finished matchmaking game: same people and time
   /// control, colours swapped, numbered two after the earlier game.
-  pure def _rematch(w, number) = {
+  pure def _rematch(w: PlayWorld, number: int): PlayWorld = {
     val g = w.games.get(number)
     val n = number + 2
     { ...w,
@@ -210,7 +230,7 @@ module multiplayer {
       else { ...g, blackLeft: g.blackLeft - s }
     }
 
-  action _show(w) = {
+  action _show(w: PlayWorld): bool = {
     val shown = DEVICES.mapBy(d => if (w.offline.contains(d)) _lastKnown.get(d) else _view(w, d.person))
     all {
       _games' = w.games, _sequence' = w.sequence, _received' = w.received,
@@ -451,7 +471,9 @@ module multiplayer {
 
   /// Seconds pass for every game and search, whoever is online.
   action multiplayerTimePasses(seconds: int): bool = {
-    val ticked = NUMBERS.fold(_now, (w, n) => _record(w, n, _tick(w.games.get(n), seconds)))
+    val clocksStopped = NUMBERS.forall(n => _games.get(n).outcome != OngoingPlay)
+    val ticked = if (clocksStopped) _now
+      else NUMBERS.fold(_now, (w, n) => _record(w, n, _tick(w.games.get(n), seconds)))
     _show({ ...ticked,
       searchAge: PEOPLE.mapBy(p => if (_seeking.get(p) != NONE) _searchAge.get(p) + seconds else _searchAge.get(p)) })
   }
@@ -523,7 +545,7 @@ module multiplayer {
   })
   /// One person cannot have two unfinished games or look for an opponent during one.
   val invOneUnfinishedGame = PEOPLE.forall(p => and {
-    NUMBERS.filter(n => _games.get(n).outcome == OngoingPlay and _plays(_games.get(n), p)).size() <= 1,
+    _unfinishedGames(_games, p) <= 1,
     _unfinished(p) implies _seeking.get(p) == NONE,
   })
   /// A winner is one of the two people, nobody moves once a game is over,
@@ -556,9 +578,7 @@ module multiplayer {
   val invFairColours = and {
     MATCHES.forall(n => _games.get(n).outcome != NoPlay implies
       _games.get(n).whiteBalance <= _games.get(n).blackBalance),
-    PEOPLE.forall(p => _balance.get(p) ==
-      NUMBERS.filter(n => _finished(_games.get(n).outcome) and _games.get(n).white == p).size()
-      - NUMBERS.filter(n => _finished(_games.get(n).outcome) and _games.get(n).black == p).size()),
+    PEOPLE.forall(p => _balance.get(p) == _finishedBalance(_games, p)),
   }
   /// Neither clock runs before both first moves, a clock never holds more
   /// than its time plus the increments earned, and a clock at zero lost.
@@ -577,9 +597,7 @@ module multiplayer {
   /// Each finished game counts once toward both people's rated multiplayer
   /// games at its speed; an aborted game counts for nobody.
   val invRatedOnce = PEOPLE.forall(p => SPEEDS.forall(sp =>
-    _rated.get(p).get(sp) == NUMBERS.filter(n => and {
-      _finished(_games.get(n).outcome), _plays(_games.get(n), p), _speed(_games.get(n).control) == sp,
-    }).size()))
+    _rated.get(p).get(sp) == _finishedRated(_games, p, sp)))
   /// A draw offer belongs to one of the two people of an unfinished game; a
   /// rematch offer to one of the two people of a finished game both still have.
   val invOffers = NUMBERS.forall(n => {

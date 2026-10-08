@@ -39,6 +39,7 @@
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
     "@pkgs/room-root-client": "workspace:*",
+    "@pkgs/secure-storage-root-client": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",

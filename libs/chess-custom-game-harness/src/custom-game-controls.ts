@@ -166,7 +166,9 @@ export async function changeThroughCustomGameControls(
   if (
     modified ||
     !(await ui.get(target).isVisible()) ||
-    (await ui.get(target).text()) === 'Confirmed'
+    (await ui.snapshotHtml())
+      ?.match(new RegExp(`<button[^>]*data-testid="${target}"[^>]*>`))?.[0]
+      ?.includes('data-phase="success"') === true
   ) {
     await chooseCustomGame(s, actor, input);
     return;

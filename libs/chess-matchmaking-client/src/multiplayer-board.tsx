@@ -7,10 +7,13 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
+import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
+import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerAnnouncement } from './multiplayer-announcement';
 import { MultiplayerClocks } from './multiplayer-clocks';
 import { moveListText } from './multiplayer-format';
+import { MultiplayerLineup } from './multiplayer-lineup';
 
 function WatcherAnnouncement(props: {
   readonly game: MultiplayerGame;
@@ -97,23 +100,14 @@ export function MultiplayerBoard(props: {
       data-outcome={props.game.outcome}
       data-reason={props.game.reason ?? ''}
     >
-      <p class="text text-text" data-testid="multiplayer-opponent">
-        <Trans>Opponent:</Trans> {opponentName()} ({opponentRating()}) ·{' '}
-        <span data-testid="multiplayer-time-control">
-          {props.game.time_control ?? ''}
-        </span>{' '}
-        ·{' '}
-        <span data-testid="multiplayer-colour">
-          <Show
-            when={participant()}
-            fallback={<Trans>Watching multiplayer chess.</Trans>}
-          >
-            <Show when={white()} fallback={<Trans>You play Black</Trans>}>
-              <Trans>You play White</Trans>
-            </Show>
-          </Show>
-        </span>
-      </p>
+      <MultiplayerLineup
+        game={props.game}
+        myId={props.myId}
+        opponentName={opponentName()}
+        opponentRating={opponentRating()}
+        white={white()}
+        participant={participant()}
+      />
       <MultiplayerClocks game={props.game} />
       <Show
         when={participant()}
@@ -135,7 +129,7 @@ export function MultiplayerBoard(props: {
           }
         />
       </Show>
-      <div class="box w-full max-w-lg self-center">
+      <GameBoardStage>
         <ChessBoard
           theme={BOARD_THEME}
           fen={props.game.fen}
@@ -149,12 +143,15 @@ export function MultiplayerBoard(props: {
           }}
           dataSet={{ testid: 'multiplayer-board' }}
         />
-      </div>
-      <section aria-label={t`Multiplayer move list`}>
-        <p class="textMono" data-testid="multiplayer-move-list">
+      </GameBoardStage>
+      <GameSection title={t`Multiplayer move list`}>
+        <p
+          class="text textCaption textMono break-words text-text-secondary"
+          data-testid="multiplayer-move-list"
+        >
           {moveListText(props.game)}
         </p>
-      </section>
+      </GameSection>
     </div>
   );
 }

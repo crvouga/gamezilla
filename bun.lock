@@ -292,7 +292,6 @@
         "@libs/account-privacy-shared": "workspace:*",
         "@libs/app-root-server": "workspace:*",
         "@libs/harness": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
       },
@@ -1011,6 +1010,7 @@
         "@pkgs/logger-client": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/room-root-client": "workspace:*",
+        "@pkgs/secure-storage-root-client": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
         "@pkgs/sounds-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
@@ -5829,6 +5829,7 @@
       "devDependencies": {
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",

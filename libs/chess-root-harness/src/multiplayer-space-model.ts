@@ -20,7 +20,7 @@ export const prepareMultiplayerSpaceModel = scenarioAction({
       await Promise.resolve(givenOpponentSearch.act(s, actor));
       await s.session.advanceTime(1);
     }
-    await Promise.resolve(pairChessOpponents.act(s, 'alice'));
+    await Promise.resolve(pairChessOpponents.act(s, 'alice', true));
     for (const actor of ['alice', 'bob'])
       await Promise.resolve(openMultiplayerChess.act(s, actor));
     await ensureActor(s, 'carol');

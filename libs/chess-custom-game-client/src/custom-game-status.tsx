@@ -13,6 +13,7 @@ import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
+import { GameClock } from '@pkgs/ui-root-client/game-clock';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -103,19 +104,25 @@ export function CustomGameClock(props: {
         : null
   );
   return (
-    <Show when={props.game.minutes > 0} fallback={<Trans>Untimed</Trans>}>
-      <span
-        class="textMono"
-        data-testid={`chess-custom-${props.side}-clock`}
-        aria-label={
-          props.side === 'white'
-            ? t`White time remaining`
-            : t`Black time remaining`
-        }
-      >
-        {clockLabel(seconds())}
-      </span>
-    </Show>
+    <GameClock
+      active={props.game.status === 'active' && props.game.turn === props.side}
+      label={
+        <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
+          <Trans>White</Trans>
+        </Show>
+      }
+      value={
+        <Show when={props.game.minutes > 0} fallback={<Trans>Untimed</Trans>}>
+          {clockLabel(seconds())}
+        </Show>
+      }
+      dataSet={{ testid: `chess-custom-${props.side}-clock` }}
+      ariaLabel={
+        props.side === 'white'
+          ? t`White time remaining`
+          : t`Black time remaining`
+      }
+    />
   );
 }
 
@@ -146,7 +153,7 @@ export function CustomGameStatus(props: {
   return (
     <div class="box gap-2" data-component="CustomGameStatus">
       <p
-        class="textBodyBold"
+        class="text textCaption text-text-secondary"
         role="status"
         aria-live="polite"
         data-testid="chess-custom-status"
@@ -155,13 +162,9 @@ export function CustomGameStatus(props: {
       </p>
       <Show when={props.model.current()} keyed>
         {(game) => (
-          <div class="box flex-row gap-4">
-            <span>
-              <Trans>White</Trans> <CustomGameClock game={game} side="white" />
-            </span>
-            <span>
-              <Trans>Black</Trans> <CustomGameClock game={game} side="black" />
-            </span>
+          <div class="box flex-row gap-2">
+            <CustomGameClock game={game} side="white" />
+            <CustomGameClock game={game} side="black" />
           </div>
         )}
       </Show>

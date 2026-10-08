@@ -1,9 +1,10 @@
 import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client/button';
+import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
+import { GameDisclosure } from '@pkgs/ui-root-client/game-disclosure';
+import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
-import { CustomGameAction } from './custom-game-action';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 function CustomGameTimeChoices(props: {
@@ -32,9 +33,9 @@ function CustomGameTimeChoices(props: {
         dataSet={{ testid: 'chess-custom-increment' }}
       />
       <div class="box flex-row flex-wrap gap-2">
-        <CustomGameAction
+        <GameActionButton
           title={<Trans>Use this clock</Trans>}
-          testId="chess-custom-clock"
+          dataSet={{ testid: 'chess-custom-clock' }}
           operation={() =>
             props.model.choose({
               operation: 'clock',
@@ -43,14 +44,14 @@ function CustomGameTimeChoices(props: {
             })
           }
         />
-        <CustomGameAction
+        <GameActionButton
           title={<Trans>Untimed</Trans>}
-          testId="chess-custom-untimed"
+          dataSet={{ testid: 'chess-custom-untimed' }}
           operation={() => props.model.choose({ operation: 'untimed' })}
         />
-        <CustomGameAction
+        <GameActionButton
           title={<Trans>Swap colors</Trans>}
-          testId="chess-custom-swap"
+          dataSet={{ testid: 'chess-custom-swap' }}
           operation={() => props.model.choose({ operation: 'swap' })}
         />
       </div>
@@ -61,7 +62,6 @@ function CustomGameTimeChoices(props: {
 export function CustomGameConfiguration(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
-  const [advanced, setAdvanced] = createSignal(false);
   const startable = (): boolean => {
     const game = props.model.current();
     return game !== null && customGameStartable(game);
@@ -71,7 +71,12 @@ export function CustomGameConfiguration(props: {
     return side !== null && props.model.current()!.ready.includes(side);
   };
   return (
-    <div class="box gap-3">
+    <GameSection
+      title={<Trans>Ready, set, play</Trans>}
+      description={
+        <Trans>Agree on the lineup and clock, then get ready.</Trans>
+      }
+    >
       <p class="text" role="status" data-testid="chess-custom-startable">
         <Show
           when={startable()}
@@ -84,38 +89,37 @@ export function CustomGameConfiguration(props: {
       </p>
       <div class="box flex-row gap-2 flex-wrap">
         <Show when={props.model.mySide() !== null && props.model.canJoin()}>
-          <CustomGameAction
+          <GameActionButton
             title={
               <Show when={ready()} fallback={<Trans>I'm ready</Trans>}>
                 <Trans>Withdraw readiness</Trans>
               </Show>
             }
-            testId="chess-custom-ready"
+            dataSet={{ testid: 'chess-custom-ready' }}
+            variant={ready() ? 'outline' : 'solid'}
             operation={() =>
               props.model.choose({ operation: ready() ? 'unready' : 'ready' })
             }
           />
         </Show>
         <Show when={props.model.canStart()}>
-          <CustomGameAction
+          <GameActionButton
             title={<Trans>Start game</Trans>}
-            testId="chess-custom-start"
+            dataSet={{ testid: 'chess-custom-start' }}
+            variant="solid"
             operation={() => props.model.choose({ operation: 'start' })}
             disabled={!startable()}
           />
         </Show>
-        <Show when={props.model.canConfigure()}>
-          <Button
-            title={<Trans>Game options</Trans>}
-            variant="ghost"
-            onClick={() => setAdvanced(!advanced())}
-            dataSet={{ testid: 'chess-custom-options' }}
-          />
-        </Show>
       </div>
-      <Show when={advanced() && props.model.canConfigure()}>
-        <CustomGameTimeChoices model={props.model} />
+      <Show when={props.model.canConfigure()}>
+        <GameDisclosure
+          title={<Trans>Game options</Trans>}
+          dataSet={{ testid: 'chess-custom-options' }}
+        >
+          <CustomGameTimeChoices model={props.model} />
+        </GameDisclosure>
       </Show>
-    </div>
+    </GameSection>
   );
 }

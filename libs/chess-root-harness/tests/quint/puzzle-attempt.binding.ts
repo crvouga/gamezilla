@@ -59,6 +59,7 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import offlineNavigationTrace from './fixtures/puzzle-offline-navigation.itf.json';
+import reopenResult from './fixtures/puzzle-reopen-keeps-result.itf.json';
 import reviewSolutionTrace from './fixtures/puzzle-review-solution.itf.json';
 import skippedReconnectTrace from './fixtures/puzzle-skipped-reconnect.itf.json';
 import hintedSolutionTrace from './fixtures/puzzle-solution-after-hint.itf.json';
@@ -128,6 +129,13 @@ bindQuintModel<QuintHarnessWorld>({
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: puzzle-reopen-keeps-result
+      id: 'puzzle-reopen-keeps-result',
+      title: 'Reopening keeps a finished attempt until the solver moves on',
+      seed: '0x67932',
+      itf: reopenResult,
+    },
     // regression: puzzle-reconnect-allowance-disappears
     // regression: puzzle-skipped-reconnect
     {

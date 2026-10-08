@@ -31,6 +31,12 @@ function MultiplayerReason(props: { readonly game: MultiplayerGame }) {
   const flagged = () => (props.game.white_ms === 0 ? t`White` : t`Black`);
   return (
     <Switch fallback={<span> {props.game.reason}</span>}>
+      <Match when={props.game.reason === 'first move missed'}>
+        <span>
+          {' '}
+          <Trans>The first move wasn't made in time.</Trans>
+        </span>
+      </Match>
       <Match when={props.game.reason === 'timeout'}>
         <span>
           {' '}

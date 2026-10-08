@@ -11,6 +11,7 @@ afterAll(() => Bun.WebView.closeAll());
 
 test('the full report stylesheet preserves chess-cell children and flush-content heading metrics', async () => {
   // regression: ui-quality-css-module-collision
+  // regression: ui-quality-headless-renderer
   const root = resolve(import.meta.dir, '../../..');
   const module = (file: string) => {
     const path = resolve(root, file);
@@ -25,7 +26,7 @@ test('the full report stylesheet preserves chess-cell children and flush-content
   const view = new Bun.WebView({
     width: 390,
     height: 844,
-    backend: { type: 'chrome', url: false },
+    backend: { type: 'chrome', url: false, argv: ['--headless=new'] },
   });
   try {
     await view.navigate('about:blank');

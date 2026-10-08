@@ -1,0 +1,4 @@
+{
+  "summary": "Custom-game status and matchmaking helper text retained class=\"text-sm text-text-secondary\", violating the shared typography vocabulary. Use the caption role; the checker pins both the rejected input and its accepted replacement.",
+  "regressionTest": "libs/tools/scripts/design-vocabulary.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The guest result example must start after both first moves; resignation before them is refused.",
+  "regressionTest": "specs/chess/multiplayer-in-spaces.feature"
+}

@@ -6,6 +6,18 @@ function hits(text: string, path = 'src/screen.tsx'): readonly string[] {
 }
 
 describe('designVocabularyViolations', () => {
+  // regression: game-ui-status-type-role
+  test('game status uses the shared caption role', () => {
+    expect(
+      hits('<p class="text-sm text-text-secondary" role="status" />').some(
+        (violation) => violation.includes('ad-hoc type "text-sm"')
+      )
+    ).toBe(true);
+    expect(
+      hits('<p class="text textCaption text-text-secondary" role="status" />')
+    ).toEqual([]);
+  });
+
   test('a violation names the role to use instead', () => {
     const out = hits('<p class="text text-xs" />');
     expect(out).toEqual([

@@ -16,9 +16,9 @@ import {
   signedInAccountOf as readAccount,
   signedInAccountOf,
 } from '@libs/harness/identity';
+import { failNextHarnessObjectWrite } from '@libs/harness/mockingbird-object-store';
 import { partitioned } from '@libs/harness/observations';
 import { openAccount } from '@libs/harness/shell-actions';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import sql from '@pkgs/sql-root-shared/sql';
 
@@ -167,12 +167,7 @@ export const completeExport = scenarioAction({
       })
       .map((event) => event.id);
     if (fail) {
-      const store = s.harness.server.blob;
-      if (!(store instanceof ObjectStoreImplInMemory))
-        throw new Error(
-          'Export storage faults need the in-process storage host'
-        );
-      store.armFault(new Error('Export file storage unavailable'));
+      failNextHarnessObjectWrite(s.harness.server.blob);
     }
     await s.session.advanceTime(1_001);
     await Promise.resolve(runPrivacyJobs.act(s, true, eventIds));
