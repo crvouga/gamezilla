@@ -24,6 +24,7 @@ product:
     - room
     - runtime
     - spaces
+    - statecharts
     - sync-engine
 
   # The kinds of person the product treats differently.
