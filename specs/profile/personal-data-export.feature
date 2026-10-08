@@ -35,6 +35,7 @@ Feature: Take a private copy of personal data
       When Alice's personal-data export becomes ready
       Then Bob's private personal data cannot appear in Alice's export
 
+    @regression:privacy-export-vendor-storage-fault
     Scenario: A failed export never pretends its incomplete answer is complete
       Given Alice has asked for a personal-data export
       When Alice's personal-data export fails

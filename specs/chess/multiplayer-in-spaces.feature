@@ -52,6 +52,7 @@ Feature: Multiplayer chess is played and watched within spaces
       Then Carol is told only the matched people can move multiplayer pieces
       And Alice and Bob keep the same multiplayer board
 
+    @regression:multiplayer-empty-board-unavailable
     Scenario: Someone outside either space cannot watch the multiplayer game
       Given Alice and Bob have a multiplayer game in different spaces
       When Carol opens Alice's multiplayer game
