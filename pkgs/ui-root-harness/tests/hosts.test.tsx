@@ -65,6 +65,23 @@ describe('Switch', () => {
     expect(track?.className).toMatch(/bg-tint-active/);
   });
 
+  test('the thumb always contrasts with its track', () => {
+    // regression: ui-switch-thumb-on-own-color
+    const [on, setOn] = createSignal(false);
+    renderUi(() => (
+      <Switch value={on()} onValueChange={setOn} aria-label="Sound" />
+    ));
+    const el = screen.getByRole('switch', { name: 'Sound' });
+    const track = el.querySelector('[class*="rounded"]');
+    const thumb = track?.firstElementChild;
+    expect(thumb?.className).toMatch(/bg-text-secondary/);
+    fireEvent.click(el);
+    // On is the brass fill with an ink thumb, never ink on bronze `tint`.
+    expect(track?.className).toMatch(/\bbg-tint-active\b/);
+    expect(track?.className).not.toMatch(/\bbg-tint\b(?!-)/);
+    expect(thumb?.className).toMatch(/bg-on-primary/);
+  });
+
   // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper
   // around the toggle, so tapping the switch by its id changed nothing.
   test('its test id names the toggle a person presses', () => {

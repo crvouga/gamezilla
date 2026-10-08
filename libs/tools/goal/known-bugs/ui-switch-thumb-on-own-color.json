@@ -1,0 +1,4 @@
+{
+  "summary": "The switch put its ink thumb on the tint color, which is bronze in light mode, and on a dark track when off in dark mode, so the thumb barely showed. Fixed by using the brass fill when on and a secondary-text thumb when off.",
+  "regressionTest": "pkgs/ui-root-harness/tests/hosts.test.tsx"
+}

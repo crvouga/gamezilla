@@ -7,6 +7,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
@@ -61,5 +62,27 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
         </Trans>
       </p>
     </div>
+  );
+}
+
+/**
+ * The billing screen's shell around its body: the Settings breadcrumb and a
+ * whole-body scroll, so the plan, pricing and benefits never clip on a short
+ * phone.
+ */
+export function BillingScreenLayout(
+  props: BillingScreenViewProps
+): JSX.Element {
+  return (
+    <ScreenBase
+      screenId="billing"
+      surface="canvas"
+      scroll
+      breadcrumbs={[
+        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Billing</Trans> },
+      ]}
+      content={() => <BillingScreenView {...props} />}
+    />
   );
 }
