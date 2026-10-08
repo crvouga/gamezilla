@@ -1,0 +1,64 @@
+journeys:
+  Bob declines and neither is a friend:
+    description: Bob declines and neither is a friend
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    events:
+    - Bob declines Alice's friend request
+    endsIn: Bob's inbox does not show a friend request from Alice — 1
+    checks:
+    - Bob's inbox does not show a friend request from Alice
+    - Bob's friends list does not show Alice
+    - Alice's search offers to ask Bob again within 15 seconds
+    - Alice's friends list does not show Bob
+    gherkin:
+    - specs/friends/friend-request-decline-cancel.feature:13 — Bob declines and neither is a friend
+    exampleRow: []
+  Asking again straight after a decline is refused with a reason:
+    description: Asking again straight after a decline is refused with a reason
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    - Bob has declined Alice's friend request
+    events:
+    - Alice asks Bob again when Alice and Bob are signed in and Alice has sent Bob a friend request and Bob has
+      declined Alice's friend request
+    endsIn: Alice's request to Bob is refused with "Try again later" — 2
+    checks:
+    - Alice's request to Bob is refused with "Try again later"
+    - Bob's inbox does not show a friend request from Alice
+    gherkin:
+    - specs/friends/friend-request-decline-cancel.feature:20 — Asking again straight after a decline is refused
+      with a reason
+    exampleRow: []
+  Alice cancels and the request is gone from Bob's inbox:
+    description: Alice cancels and the request is gone from Bob's inbox
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    events:
+    - Alice cancels the friend request to Bob
+    endsIn: Alice's search offers to ask Bob — 3
+    checks:
+    - Alice's search offers to ask Bob
+    - Bob's inbox stops showing the friend request from Alice within 15 seconds
+    gherkin:
+    - specs/friends/friend-request-decline-cancel.feature:29 — Alice cancels and the request is gone from Bob's
+      inbox
+    exampleRow: []
+  Cancelling lets the asker ask again:
+    description: Cancelling lets the asker ask again
+    startingConditions:
+    - Alice and Bob are signed in
+    - Alice has sent Bob a friend request
+    - Alice has cancelled the friend request to Bob
+    events:
+    - Alice asks Bob again when Alice and Bob are signed in and Alice has sent Bob a friend request and Alice has
+      cancelled the friend request to Bob
+    endsIn: Bob's inbox shows a friend request from Alice within 15 seconds — 4
+    checks:
+    - Bob's inbox shows a friend request from Alice within 15 seconds
+    gherkin:
+    - specs/friends/friend-request-decline-cancel.feature:34 — Cancelling lets the asker ask again
+    exampleRow: []

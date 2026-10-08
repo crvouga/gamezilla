@@ -1,0 +1,199 @@
+id: chess-chess-opponent-policies
+initial: Viewing Chess opponents respect the person's other choices
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  - pkgs/chess-board-root-client/src/chess-board-view.tsx
+  - pkgs/chess-board-root-client/src/chess-board-user-shapes.ts
+  - pkgs/chess-board-root-client/src/chess-board-squares.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Chess opponents respect the person's other choices:
+    meta:
+      description: The person is at the place where chess opponents respect the person's other choices.
+      snapshot: the-person-is-at-the-place-where-chess-opponents-respect-the-person-s-other-choices
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:2
+    'on':
+      a matchmaking match is formed for Alice and Bob:
+        target: Alice and Bob have the same multiplayer game — 1
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:8
+          condition:
+          - Alice and Bob are looking for 5+0 chess opponents
+          example: People who have not blocked each other can be matched
+      matchmaking pairs people up:
+        target: Alice and Bob are still looking for other chess opponents — 2
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:13
+          condition:
+          - Alice and Bob are looking for 5+0 chess opponents
+          - Alice blocked Bob
+          example: Blocking before they are matched keeps both people seeking other chess opponents
+      Alice opens multiplayer chess when Alice blocked Bob after their multiplayer game was formed:
+        target: Alice keeps her multiplayer game with Bob — 3
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:20
+          condition:
+          - Alice blocked Bob after their multiplayer game was formed
+          example: A block after they were matched does not erase the game
+      Alice finds a chess opponent for 5+0 when Alice is a Plus member with a connection:
+        target: Alice is looking for a chess opponent — 4
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:27
+          condition:
+          - Alice is a Plus member with a connection
+          example: A Plus member can find a chess opponent
+      Alice opens multiplayer chess when Alice no longer has paid access while she was looking for a chess opponent:
+        target: Alice is still looking for a chess opponent — 5
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:32
+          condition:
+          - Alice no longer has paid access while she was looking for a chess opponent
+          example: Losing paid access does not remove an opponent search
+      Alice finds a chess opponent for 5+0 when Alice and Bob are playing a puzzle in a space:
+        target: The person remains at the described place until the next choice — 6 step 1
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:39
+          condition:
+          - Alice and Bob are playing a puzzle in a space
+          example: Returning after looking for an opponent keeps the space's puzzle as it was
+      Alice resigns multiplayer chess:
+        target: Alice's puzzle rating is still 1700 — 7
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:45
+          condition:
+          - Alice's puzzle rating has settled at 1700
+          - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+          example: A multiplayer result does not move a puzzle rating
+  Alice and Bob have the same multiplayer game — 1:
+    meta:
+      description: The person observes that alice and Bob have the same multiplayer game.
+      snapshot: the-person-observes-that-alice-and-bob-have-the-same-multiplayer-game
+      recognize: []
+      checks:
+      - Alice and Bob have the same multiplayer game
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice and Bob are still looking for other chess opponents — 2:
+    meta:
+      description: The person observes that alice and Bob are still looking for other chess opponents.
+      snapshot: the-person-observes-that-alice-and-bob-are-still-looking-for-other-chess-opponents
+      recognize: []
+      checks:
+      - Alice and Bob are still looking for other chess opponents
+      - Bob is not told Alice blocked him
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice keeps her multiplayer game with Bob — 3:
+    meta:
+      description: The person observes that alice keeps her multiplayer game with Bob.
+      snapshot: the-person-observes-that-alice-keeps-her-multiplayer-game-with-bob
+      recognize: []
+      checks:
+      - Alice keeps her multiplayer game with Bob
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is looking for a chess opponent — 4:
+    meta:
+      description: The person observes that alice is looking for a chess opponent.
+      snapshot: the-person-observes-that-alice-is-looking-for-a-chess-opponent
+      recognize: []
+      checks:
+      - Alice is looking for a chess opponent
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is still looking for a chess opponent — 5:
+    meta:
+      description: The person observes that alice is still looking for a chess opponent.
+      snapshot: the-person-observes-that-alice-is-still-looking-for-a-chess-opponent
+      recognize: []
+      checks:
+      - Alice is still looking for a chess opponent
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:32
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  The person remains at the described place until the next choice — 6 step 1:
+    meta:
+      description: The person observes that the person remains at the described place until the next choice.
+      snapshot: the-person-observes-that-the-person-remains-at-the-described-place-until-the-next-cho
+      recognize: []
+      checks:
+      - The person remains at the described place until the next choice.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:39
+    'on':
+      Alice returns to the puzzle in the space:
+        target: Bob keeps the same puzzle in the space — 6 step 2
+        meta:
+          source:
+          - specs/chess/chess-opponent-policies.feature:39
+          condition: []
+          example: Returning after looking for an opponent keeps the space's puzzle as it was
+  Bob keeps the same puzzle in the space — 6 step 2:
+    meta:
+      description: The person observes that bob keeps the same puzzle in the space.
+      snapshot: the-person-observes-that-bob-keeps-the-same-puzzle-in-the-space
+      recognize: []
+      checks:
+      - Bob keeps the same puzzle in the space
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:39
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle rating is still 1700 — 7:
+    meta:
+      description: The person observes that alice's puzzle rating is still 1700.
+      snapshot: the-person-observes-that-alice-s-puzzle-rating-is-still-1700
+      recognize: []
+      checks:
+      - Alice's puzzle rating is still 1700
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/chess-opponent-policies.feature:45
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,76 @@
+journeys:
+  A person still waits after a day without a compatible person:
+    description: A person still waits after a day without a compatible person
+    startingConditions:
+    - Alice is waiting with a range of 5 points
+    events:
+    - a day passes when Alice is waiting with a range of 5 points
+    endsIn: Alice is waiting — 1
+    checks:
+    - Alice is waiting
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:8 — A person still waits after a day without a compatible person
+    exampleRow: []
+  Time alone does not stop two incompatible waits:
+    description: Time alone does not stop two incompatible waits
+    startingConditions:
+    - Alice and Bob are waiting with ratings 100 points apart
+    - both accept nobody more than 5 points away
+    events:
+    - a day passes when Alice and Bob are waiting with ratings 100 points apart and both accept nobody more than
+      5 points away
+    endsIn: Alice and Bob are still waiting — 2
+    checks:
+    - Alice and Bob are still waiting
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:13 — Time alone does not stop two incompatible waits
+    exampleRow: []
+  Both people receive one complete matchmaking match:
+    description: Both people receive one complete matchmaking match
+    startingConditions:
+    - Alice and Bob are waiting within each other's ranges
+    events:
+    - matchmaking pairs people up
+    endsIn: one matchmaking match is formed for Alice and Bob — 3
+    checks:
+    - one matchmaking match is formed for Alice and Bob
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:22 — Both people receive one complete matchmaking match
+    exampleRow: []
+  A later request for the match does not replace it:
+    description: A later request for the match does not replace it
+    startingConditions:
+    - Alice and Bob are matched with each other
+    events:
+    - a day passes when Alice and Bob are matched with each other
+    endsIn: Alice and Bob keep the same match — 4
+    checks:
+    - Alice and Bob keep the same match
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:27 — A later request for the match does not replace it
+    exampleRow: []
+  An available person may start a wait:
+    description: An available person may start a wait
+    startingConditions:
+    - Alice is available for a match
+    events:
+    - Alice waits for a match with a rating of 1000 when Alice is available for a match
+    endsIn: Alice is waiting — 5
+    checks:
+    - Alice is waiting
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:34 — An available person may start a wait
+    exampleRow: []
+  An unavailable person has no accepted wait:
+    description: An unavailable person has no accepted wait
+    startingConditions:
+    - Alice is unavailable for a match
+    events:
+    - Alice waits for a match with a rating of 1000 when Alice is unavailable for a match
+    endsIn: Alice is told she is unavailable for a match — 6
+    checks:
+    - Alice is told she is unavailable for a match
+    - Alice is not waiting
+    gherkin:
+    - specs/matchmaking/lasting-outcomes.feature:39 — An unavailable person has no accepted wait
+    exampleRow: []

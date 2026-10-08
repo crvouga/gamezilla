@@ -1,0 +1,16 @@
+journeys:
+  Switching to yearly after the trial starts a paid year right away:
+    description: Switching to yearly after the trial starts a paid year right away
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    events:
+    - Alice switches the membership to the yearly plan in the billing portal
+    endsIn: Alice's membership is active on the yearly plan — 1
+    checks:
+    - Alice's membership is active on the yearly plan
+    - Alice's renewal date moves later
+    gherkin:
+    - specs/billing/membership-interval-switch.feature:12 — Switching to yearly after the trial starts a paid year
+      right away
+    exampleRow: []

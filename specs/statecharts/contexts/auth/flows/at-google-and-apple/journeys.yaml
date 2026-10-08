@@ -1,0 +1,140 @@
+journeys:
+  Dave signs in with Apple into a new account:
+    description: Dave signs in with Apple into a new account
+    startingConditions:
+    - Dave has no account yet
+    events:
+    - Dave signs in with their Apple account when Dave has no account yet
+    endsIn: Dave is signed into a new account — 1
+    checks:
+    - Dave is signed into a new account
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:9 — Dave signs in with Apple into a new account
+    exampleRow: []
+  Declining the app at Apple cancels signing in:
+    description: Declining the app at Apple cancels signing in
+    startingConditions:
+    - Dave has no account yet
+    events:
+    - Dave declines the app while signing in with Apple when Dave has no account yet
+    endsIn: Dave is told signing in was cancelled — 2
+    checks:
+    - Dave is told signing in was cancelled
+    - Dave is signed out
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:14 — Declining the app at Apple cancels signing in
+    exampleRow: []
+  A deleted Apple account can no longer sign in:
+    description: A deleted Apple account can no longer sign in
+    startingConditions:
+    - Dave has deleted their Apple account
+    events:
+    - Dave tries to sign in with Apple
+    endsIn: Dave is told signing in was cancelled — 3
+    checks:
+    - Dave is told signing in was cancelled
+    - Dave is signed out
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:20 — A deleted Apple account can no longer sign in
+    exampleRow: []
+  Stopping using Sign in with Apple signs Dave out:
+    description: Stopping using Sign in with Apple signs Dave out
+    startingConditions:
+    - Dave is signed in with their Apple account
+    events:
+    - Dave stops using Sign in with Apple
+    endsIn: Dave is signed out — 4
+    checks:
+    - Dave is signed out
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:28 — Stopping using Sign in with Apple signs Dave out
+    exampleRow: []
+  Dave signs in with Apple again after stopping using Sign in with Apple:
+    description: Dave signs in with Apple again after stopping using Sign in with Apple
+    startingConditions:
+    - Dave has stopped using Sign in with Apple
+    events:
+    - Dave signs in with their Apple account when Dave has stopped using Sign in with Apple
+    endsIn: Dave is signed into the same account — 5
+    checks:
+    - Dave is signed into the same account
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:33 — Dave signs in with Apple again after stopping using Sign in with
+      Apple
+    exampleRow: []
+  Signing in with Apple again asks Dave to let the app use it:
+    description: Signing in with Apple again asks Dave to let the app use it
+    startingConditions:
+    - Dave has stopped using Sign in with Apple
+    events:
+    - Dave declines the app while signing in with Apple when Dave has stopped using Sign in with Apple
+    endsIn: Dave is told signing in was cancelled — 6
+    checks:
+    - Dave is told signing in was cancelled
+    - Dave is signed out
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:38 — Signing in with Apple again asks Dave to let the app use it
+    exampleRow: []
+  Deleting Dave's Apple account signs Dave out:
+    description: Deleting Dave's Apple account signs Dave out
+    startingConditions:
+    - Dave is signed in with their Apple account
+    events:
+    - Dave deletes their Apple account
+    endsIn: Dave is signed out — 7
+    checks:
+    - Dave is signed out
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:47 — Deleting Dave's Apple account signs Dave out
+    exampleRow: []
+  A new Google email address keeps Bob's account:
+    description: A new Google email address keeps Bob's account
+    startingConditions:
+    - Bob has an account they sign into with Google
+    - Bob has changed the email address of their Google account
+    events:
+    - Bob signs in with their Google account
+    endsIn: Bob is signed into the same account — 8
+    checks:
+    - Bob is signed into the same account
+    - Bob's Google sign-in method shows their new email address
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:55 — A new Google email address keeps Bob's account
+    exampleRow: []
+  A hidden email address shows as a private Apple email address:
+    description: A hidden email address shows as a private Apple email address
+    startingConditions:
+    - Dave has no account yet
+    events:
+    - Dave signs in with Apple, hiding their email address
+    endsIn: Dave's Apple sign-in method shows a private Apple email address — 9
+    checks:
+    - Dave's Apple sign-in method shows a private Apple email address
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:65 — A hidden email address shows as a private Apple email address
+    exampleRow: []
+  Apple stopping mail forwarding shows on Dave's Apple sign-in method:
+    description: Apple stopping mail forwarding shows on Dave's Apple sign-in method
+    startingConditions:
+    - Dave is signed in with Apple and hid their email address
+    events:
+    - Apple stops forwarding mail to Dave
+    endsIn: Dave's Apple sign-in method shows mail is not forwarded — 10
+    checks:
+    - Dave's Apple sign-in method shows mail is not forwarded
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:70 — Apple stopping mail forwarding shows on Dave's Apple sign-in method
+    exampleRow: []
+  Apple forwarding mail again shows on Dave's Apple sign-in method:
+    description: Apple forwarding mail again shows on Dave's Apple sign-in method
+    startingConditions:
+    - Dave is signed in with Apple and hid their email address
+    - Apple has stopped forwarding mail to Dave
+    events:
+    - Apple forwards mail to Dave again
+    endsIn: Dave's Apple sign-in method shows mail is forwarded — 11
+    checks:
+    - Dave's Apple sign-in method shows mail is forwarded
+    gherkin:
+    - specs/auth/at-google-and-apple.feature:75 — Apple forwarding mail again shows on Dave's Apple sign-in method
+    exampleRow: []

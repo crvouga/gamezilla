@@ -1,0 +1,305 @@
+{
+  "id": "chess-puzzle-selection",
+  "initial": "Viewing Choosing the next puzzle",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-space-role.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-review-board.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Choosing the next puzzle": {
+      "meta": {
+        "description": "The person is at the place where choosing the next puzzle.",
+        "snapshot": "the-person-is-at-the-place-where-choosing-the-next-puzzle",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:2"
+        ]
+      },
+      "on": {
+        "Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and the puzzle pool holds just one puzzle, with a popularity of 50, played 5 times": {
+          "target": "Alice has a puzzle on the board — 1",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:12"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is hosting a space",
+              "the puzzle pool holds just one puzzle, with a popularity of 50, played 5 times"
+            ],
+            "example": "A puzzle exactly at the quality bar is served"
+          }
+        },
+        "Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and the puzzle pool holds just one puzzle, with a popularity of 49, played 300 times": {
+          "target": "Alice is told the feed is empty within 15 seconds — 2",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:17"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is hosting a space",
+              "the puzzle pool holds just one puzzle, with a popularity of 49, played 300 times"
+            ],
+            "example": "A puzzle below the quality bar is never served"
+          }
+        },
+        "Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and the puzzle pool holds just one puzzle, with a popularity of 90, played 4 times": {
+          "target": "Alice is told the feed is empty within 15 seconds — 3",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:17"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is hosting a space",
+              "the puzzle pool holds just one puzzle, with a popularity of 90, played 4 times"
+            ],
+            "example": "A puzzle below the quality bar is never served"
+          }
+        },
+        "Alice opens puzzles in their space when Alice is signed in and the puzzle pool's unplayed puzzles are rated 1450, 1650 and 1900 and Alice is hosting a space and Alice's puzzle rating has settled at 1500": {
+          "target": "Alice is served a puzzle rated between 1400 and 1600 — 4",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:35"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "the puzzle pool's unplayed puzzles are rated 1450, 1650 and 1900",
+              "Alice is hosting a space",
+              "Alice's puzzle rating has settled at 1500"
+            ],
+            "example": "A settled rating is served a puzzle within 100 of the feed target"
+          }
+        },
+        "Alice opens puzzles in their space when Alice is signed in and the puzzle pool's unplayed puzzles are rated 1450, 1650 and 1900 and Alice is hosting a space and Alice is a new solver with a provisional 1500 puzzle rating": {
+          "target": "Alice is served a puzzle rated between 1300 and 1700 — 6",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:45"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "the puzzle pool's unplayed puzzles are rated 1450, 1650 and 1900",
+              "Alice is hosting a space",
+              "Alice is a new solver with a provisional 1500 puzzle rating"
+            ],
+            "example": "A provisional rating is served a puzzle within 200 of the feed target"
+          }
+        },
+        "Alice opens puzzles in their space when Alice is signed in and the puzzle pool's unplayed puzzles are rated 1650 and 1900 and Alice's puzzle rating has settled at 1500 and Alice is hosting a space": {
+          "target": "Alice is served the puzzle rated 1650 — 8",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:63"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "the puzzle pool's unplayed puzzles are rated 1650 and 1900",
+              "Alice's puzzle rating has settled at 1500",
+              "Alice is hosting a space"
+            ],
+            "example": "The nearest unplayed puzzle comes next when none fits the rating window"
+          }
+        },
+        "Alice moves on to the next puzzle": {
+          "target": "Alice is served a puzzle within 100 of their new puzzle rating — 10",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:74"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice's puzzle rating has settled at 1500",
+              "Alice has solved the puzzle"
+            ],
+            "example": "After a solve, the next puzzle fits the new puzzle rating"
+          }
+        },
+        "Alice opens puzzles on their other device when Alice is signed in and Alice is also signed in on another device and Alice has solved the puzzle": {
+          "target": "Alice has a puzzle on the board — 11",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-selection.feature:88"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is also signed in on another device",
+              "Alice has solved the puzzle"
+            ],
+            "example": "The other device serves a puzzle not yet played on either device"
+          }
+        }
+      }
+    },
+    "Alice has a puzzle on the board — 1": {
+      "meta": {
+        "description": "The person observes that alice has a puzzle on the board.",
+        "snapshot": "the-person-observes-that-alice-has-a-puzzle-on-the-board",
+        "recognize": [],
+        "checks": [
+          "Alice has a puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:12"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the feed is empty within 15 seconds — 2": {
+      "meta": {
+        "description": "The person observes that alice is told the feed is empty within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-feed-is-empty-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice is told the feed is empty within 15 seconds",
+          "Alice has no puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the feed is empty within 15 seconds — 3": {
+      "meta": {
+        "description": "The person observes that alice is told the feed is empty within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-feed-is-empty-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice is told the feed is empty within 15 seconds",
+          "Alice has no puzzle on the board"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is served a puzzle rated between 1400 and 1600 — 4": {
+      "meta": {
+        "description": "The person observes that alice is served a puzzle rated between 1400 and 1600.",
+        "snapshot": "the-person-observes-that-alice-is-served-a-puzzle-rated-between-1400-and-1600",
+        "recognize": [],
+        "checks": [
+          "Alice is served a puzzle rated between 1400 and 1600",
+          "Alice is not offered the puzzle rated 1650"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:35",
+          "specs/chess/puzzle-selection.feature:40"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice is served a puzzle rated between 1300 and 1700 — 6": {
+      "meta": {
+        "description": "The person observes that alice is served a puzzle rated between 1300 and 1700.",
+        "snapshot": "the-person-observes-that-alice-is-served-a-puzzle-rated-between-1300-and-1700",
+        "recognize": [],
+        "checks": [
+          "Alice is served a puzzle rated between 1300 and 1700",
+          "Alice is not offered the puzzle rated 1900"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:45",
+          "specs/chess/puzzle-selection.feature:50"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice is served the puzzle rated 1650 — 8": {
+      "meta": {
+        "description": "The person observes that alice is served the puzzle rated 1650.",
+        "snapshot": "the-person-observes-that-alice-is-served-the-puzzle-rated-1650",
+        "recognize": [],
+        "checks": [
+          "Alice is served the puzzle rated 1650",
+          "Alice is not offered the puzzle rated 1900"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:63",
+          "specs/chess/puzzle-selection.feature:67"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice is served a puzzle within 100 of their new puzzle rating — 10": {
+      "meta": {
+        "description": "The person observes that alice is served a puzzle within 100 of their new puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-is-served-a-puzzle-within-100-of-their-new-puzzle-rati",
+        "recognize": [],
+        "checks": [
+          "Alice is served a puzzle within 100 of their new puzzle rating"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:74"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has a puzzle on the board — 11": {
+      "meta": {
+        "description": "The person observes that alice has a puzzle on the board.",
+        "snapshot": "the-person-observes-that-alice-has-a-puzzle-on-the-board",
+        "recognize": [],
+        "checks": [
+          "Alice has a puzzle on the board",
+          "Alice is not offered that puzzle on their other device"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-selection.feature:88",
+          "specs/chess/puzzle-selection.feature:93"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    }
+  }
+}

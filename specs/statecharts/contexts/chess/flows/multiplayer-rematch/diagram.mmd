@@ -1,0 +1,42 @@
+stateDiagram-v2
+  state "Viewing A multiplayer rematch after the game" as s0
+  state "Alice is offered a multiplayer rematch — 1" as s1
+  state "Bob is told an aborted multiplayer game has no multiplayer rematch — 2" as s2
+  state "Bob is told the multiplayer game is not over yet — 3" as s3
+  state "Bob is told Alice is already playing another multiplayer game — 4" as s4
+  state "Bob is told he is already looking for a chess opponent — 5" as s5
+  state "Bob is told Alice is already looking for a chess opponent — 6" as s6
+  state "Alice is Black and Bob is White in their new multiplayer game — 7" as s7
+  state "Alice is Black and Bob is White in their new multiplayer game — 8" as s8
+  state "Bob is told only Alice may answer his multiplayer rematch offer — 9" as s9
+  state "neither person is offered a multiplayer rematch — 10" as s10
+  state "Bob is told only Alice may answer his multiplayer rematch offer — 11" as s11
+  state "neither person is offered a multiplayer rematch — 12" as s12
+  state "Alice is told the multiplayer rematch offer has ended — 13" as s13
+  [*] --> s0
+  s0 --> s1: Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over
+  s0 --> s2: Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob was aborted
+  s0 --> s3: Bob offers a multiplayer rematch when Alice has an unfinished multiplayer game with Bob
+  s0 --> s4: Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice has since started an unfinished multiplayer game with Carol
+  s0 --> s5: Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob is looking for a 5+0 chess opponent
+  s0 --> s6: Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice is looking for a 5+0 chess opponent
+  s0 --> s7: Alice accepts the multiplayer rematch when Alice was White and Bob was Black in their finished 5+0 multiplayer game and Bob has offered Alice a multiplayer rematch
+  s0 --> s8: Alice offers a multiplayer rematch
+  s0 --> s9: Bob accepts the multiplayer rematch
+  s0 --> s10: Alice declines the multiplayer rematch
+  s0 --> s11: Bob declines the multiplayer rematch
+  s0 --> s12: Bob finds a new opponent
+  s0 --> s13: Alice accepts the multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob's multiplayer rematch offer ended when he found a new opponent
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]

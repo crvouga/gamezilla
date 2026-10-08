@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Block and unblock" as s0
+  state "Bob's inbox stops showing the friend request from Alice within 5 seconds — 1" as s1
+  state "Bob's search for 'alice' shows nobody within 15 seconds — 2" as s2
+  state "Alice's friends list does not show Bob — 3" as s3
+  state "Bob's search does not show Alice — 4" as s4
+  state "Bob's search for 'alice' shows nobody within 15 seconds — 5" as s5
+  state "Alice's inbox stops showing the friend request from Bob within 5 seconds — 6" as s6
+  state "Bob can ask Alice again within 5 seconds — 7" as s7
+  state "Bob's search offers to ask Alice again within 15 seconds — 8" as s8
+  state "Alice can unblock Bob — 9" as s9
+  state "Alice's search offers to ask Bob — 10" as s10
+  [*] --> s0
+  s0 --> s1: Alice blocks Bob when Alice and Bob are signed in and Alice has sent Bob a friend request
+  s0 --> s2: Alice blocks Bob when Alice and Bob are signed in
+  s0 --> s3: Alice blocks Bob when Alice and Bob are friends
+  s0 --> s4: Bob searches for 'alice'
+  s0 --> s5: the connection comes back when Alice and Bob are signed in and Bob is offline and Alice has blocked Bob
+  s0 --> s6: Alice blocks Bob from their request when Alice and Bob are signed in and Bob has sent Alice a friend request
+  s0 --> s7: Alice blocks Bob from their request when Alice and Bob are signed in and Bob has sent Alice a friend request from Alice's profile
+  s0 --> s8: the connection comes back when Alice and Bob are friends and Alice has blocked Bob and Bob is offline and Alice has unblocked Bob
+  s0 --> s9: Alice searches for 'bob'
+  s0 --> s10: Alice unblocks Bob
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

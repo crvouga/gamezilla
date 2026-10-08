@@ -1,0 +1,93 @@
+id: room-match-recovery
+initial: Viewing Timed matches keep their clocks after interruption
+meta:
+  context: Room
+  kind: flow
+  owner: Room owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Timed matches keep their clocks after interruption:
+    meta:
+      description: The person is at the place where timed matches keep their clocks after interruption.
+      snapshot: the-person-is-at-the-place-where-timed-matches-keep-their-clocks-after-interruption
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/room/match-recovery.feature:2
+    'on':
+      the room is available again when White and Black started a match as the room became unavailable and 2 seconds have passed:
+        target: White has 2 seconds left and Black has 4 seconds left — 1
+        meta:
+          source:
+          - specs/room/match-recovery.feature:9
+          condition:
+          - White and Black started a match as the room became unavailable
+          - 2 seconds have passed
+          example: Returning before time runs out keeps only the time left
+      the room is available again when White and Black started a match as the room became unavailable and 4 seconds have passed:
+        target: White and Black both see Black win on time — 2
+        meta:
+          source:
+          - specs/room/match-recovery.feature:15
+          condition:
+          - White and Black started a match as the room became unavailable
+          - 4 seconds have passed
+          example: A start its maker did not hear back about still runs out of time
+      ? the room is available again when White and Black have started a match with 4 seconds for White and 4 seconds
+        for Black and White has moved as the room became unavailable and 4 seconds have passed
+      : target: White and Black both see White win on time — 3
+        meta:
+          source:
+          - specs/room/match-recovery.feature:21
+          condition:
+          - White and Black have started a match with 4 seconds for White and 4 seconds for Black
+          - White has moved as the room became unavailable
+          - 4 seconds have passed
+          example: An interrupted move cannot stop the next player's clock
+  White has 2 seconds left and Black has 4 seconds left — 1:
+    meta:
+      description: The person observes that white has 2 seconds left and Black has 4 seconds left.
+      snapshot: the-person-observes-that-white-has-2-seconds-left-and-black-has-4-seconds-left
+      recognize: []
+      checks:
+      - White has 2 seconds left and Black has 4 seconds left
+      events: []
+      confidence: assumed
+      source:
+      - specs/room/match-recovery.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  White and Black both see Black win on time — 2:
+    meta:
+      description: The person observes that white and Black both see Black win on time.
+      snapshot: the-person-observes-that-white-and-black-both-see-black-win-on-time
+      recognize: []
+      checks:
+      - White and Black both see Black win on time
+      events: []
+      confidence: assumed
+      source:
+      - specs/room/match-recovery.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  White and Black both see White win on time — 3:
+    meta:
+      description: The person observes that white and Black both see White win on time.
+      snapshot: the-person-observes-that-white-and-black-both-see-white-win-on-time
+      recognize: []
+      checks:
+      - White and Black both see White win on time
+      events: []
+      confidence: assumed
+      source:
+      - specs/room/match-recovery.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

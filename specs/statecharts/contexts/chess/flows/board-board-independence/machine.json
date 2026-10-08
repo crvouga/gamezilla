@@ -1,0 +1,481 @@
+{
+  "id": "chess-board-board-independence",
+  "initial": "Viewing Use separate chessboards independently",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/chess-board-root-client/src/create-chess-board-model.ts",
+      "pkgs/chess-board-root-client/src/chess-board.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-view.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-user-shapes.ts",
+      "pkgs/chess-board-root-client/src/chess-board-squares.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Use separate chessboards independently": {
+      "meta": {
+        "description": "The person is at the place where use separate chessboards independently.",
+        "snapshot": "the-person-is-at-the-place-where-use-separate-chessboards-independently",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:2"
+        ]
+      },
+      "on": {
+        "Alice moves the piece from e2 to e4 on the first chessboard when Alice has two separate interactive chessboards and Alice has e2 selected on the second chessboard": {
+          "target": "Alice sees a White pawn on e4 on the first chessboard — 1",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:9"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards",
+              "Alice has e2 selected on the second chessboard"
+            ],
+            "example": "Moving on the first board preserves the second board's selection"
+          }
+        },
+        "Alice selects the piece on e2 on the first chessboard": {
+          "target": "Alice sees e2 selected on both chessboards — 2",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:17"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards",
+              "Alice has e2 selected on the second chessboard"
+            ],
+            "example": "Selecting on the first board keeps the second board's selection"
+          }
+        },
+        "Alice begins dragging the piece on e2 on the first chessboard": {
+          "target": "Alice holds the piece from e2 on the first chessboard — 3",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:24"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards",
+              "Alice has e2 selected on the second chessboard"
+            ],
+            "example": "Holding on the first board keeps the second board's selected piece at source"
+          }
+        },
+        "Alice cancels the drag on the first chessboard": {
+          "target": "Alice no longer holds a piece on the first chessboard — 4",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:33"
+            ],
+            "condition": [
+              "Alice holds e2 on the first chessboard and has e2 selected on the second"
+            ],
+            "example": "Cancelling one held piece preserves the other board's selection"
+          }
+        },
+        "Alice's first activity replaces its chessboard's position": {
+          "target": "Alice sees the replacement position on the first chessboard — 5",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:40"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards",
+              "Alice has e2 selected on the second chessboard"
+            ],
+            "example": "Replacing one activity's position preserves the other activity's board"
+          }
+        },
+        "Alice's first board settings disable interactivity": {
+          "target": "Alice sees no selection on the first chessboard — 6",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:51"
+            ],
+            "condition": [
+              "Alice has e2 selected on both chessboards"
+            ],
+            "example": "Disabling the first board clears only its selected piece"
+          }
+        },
+        "Alice's first board settings enable interactivity": {
+          "target": "Alice can move a piece on the first chessboard — 7",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:58"
+            ],
+            "condition": [
+              "Alice has a disabled first chessboard and e2 selected on the second chessboard"
+            ],
+            "example": "Enabling the first board preserves the second board's choice"
+          }
+        },
+        "Alice moves the piece from e2 to e4 on the first chessboard when Alice has a disabled first chessboard and e2 selected on the second chessboard": {
+          "target": "Alice cannot move a piece on the first chessboard while interactivity is disabled — 8",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:64"
+            ],
+            "condition": [
+              "Alice has a disabled first chessboard and e2 selected on the second chessboard"
+            ],
+            "example": "A disabled first board cannot offer a move or disturb the second board"
+          }
+        },
+        "Alice's first board settings disable sound": {
+          "target": "Alice's first chessboard has sound disabled — 9",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:72"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards"
+            ],
+            "example": "Disabling one board's sound preserves the other board's sound choice"
+          }
+        },
+        "Alice's first board settings enable sound": {
+          "target": "Alice's first chessboard has sound enabled — 10",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:79"
+            ],
+            "condition": [
+              "Alice has a silent first chessboard and a second chessboard with sound enabled"
+            ],
+            "example": "Re-enabling the first board's sound preserves the second board's sound choice"
+          }
+        },
+        "Alice moves the piece from e2 to e4 on the second chessboard when Alice has a silent first chessboard and a second chessboard with sound enabled": {
+          "target": "Alice hears one move sound from the second chessboard — 11",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:86"
+            ],
+            "condition": [
+              "Alice has a silent first chessboard and a second chessboard with sound enabled"
+            ],
+            "example": "The second board still sounds after the first board is silenced"
+          }
+        },
+        "Alice moves the piece from e2 to e4 on the first chessboard when Alice has a silent first chessboard and a second chessboard with sound enabled": {
+          "target": "Alice cannot hear chessboard sounds from the first board while its sound is disabled — 12",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:93"
+            ],
+            "condition": [
+              "Alice has a silent first chessboard and a second chessboard with sound enabled"
+            ],
+            "example": "A silent first board moves without borrowing the second board's sound"
+          }
+        },
+        "Alice closes the first chessboard": {
+          "target": "Alice cannot see the first chessboard because it is closed — 13",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:103"
+            ],
+            "condition": [
+              "Alice has two separate interactive chessboards",
+              "Alice has e2 selected on the second chessboard"
+            ],
+            "example": "Closing the first board keeps the second board selected and available"
+          }
+        },
+        "Alice moves the piece from e2 to e4 on the second chessboard when Alice has closed the first chessboard while the second chessboard remains interactive": {
+          "target": "Alice sees a White pawn on e4 on the second chessboard — 14",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-independence.feature:112"
+            ],
+            "condition": [
+              "Alice has closed the first chessboard while the second chessboard remains interactive"
+            ],
+            "example": "The second board still makes and sounds a move after the first board closes"
+          }
+        }
+      }
+    },
+    "Alice sees a White pawn on e4 on the first chessboard — 1": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on e4 on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-e4-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on e4 on the first chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's first activity receives one move while the second activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees e2 selected on both chessboards — 2": {
+      "meta": {
+        "description": "The person observes that alice sees e2 selected on both chessboards.",
+        "snapshot": "the-person-observes-that-alice-sees-e2-selected-on-both-chessboards",
+        "recognize": [],
+        "checks": [
+          "Alice sees e2 selected on both chessboards",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice holds the piece from e2 on the first chessboard — 3": {
+      "meta": {
+        "description": "The person observes that alice holds the piece from e2 on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-holds-the-piece-from-e2-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice holds the piece from e2 on the first chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice sees the White pawn remaining on e2 on the second chessboard",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:24"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice no longer holds a piece on the first chessboard — 4": {
+      "meta": {
+        "description": "The person observes that alice no longer holds a piece on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-no-longer-holds-a-piece-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice no longer holds a piece on the first chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:33"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the replacement position on the first chessboard — 5": {
+      "meta": {
+        "description": "The person observes that alice sees the replacement position on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-sees-the-replacement-position-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice sees the replacement position on the first chessboard",
+          "Alice sees the position before White's first move on the second chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:40"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees no selection on the first chessboard — 6": {
+      "meta": {
+        "description": "The person observes that alice sees no selection on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-sees-no-selection-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice sees no selection on the first chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:51"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice can move a piece on the first chessboard — 7": {
+      "meta": {
+        "description": "The person observes that alice can move a piece on the first chessboard.",
+        "snapshot": "the-person-observes-that-alice-can-move-a-piece-on-the-first-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice can move a piece on the first chessboard",
+          "Alice still has e2 selected on the second chessboard"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:58"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot move a piece on the first chessboard while interactivity is disabled — 8": {
+      "meta": {
+        "description": "The person observes that alice cannot move a piece on the first chessboard while interactivity is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-move-a-piece-on-the-first-chessboard-while-inte",
+        "recognize": [],
+        "checks": [
+          "Alice cannot move a piece on the first chessboard while interactivity is disabled",
+          "Alice sees the White pawn remaining on e2 on the first chessboard",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:64"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's first chessboard has sound disabled — 9": {
+      "meta": {
+        "description": "The person observes that alice's first chessboard has sound disabled.",
+        "snapshot": "the-person-observes-that-alice-s-first-chessboard-has-sound-disabled",
+        "recognize": [],
+        "checks": [
+          "Alice's first chessboard has sound disabled",
+          "Alice's second chessboard has sound enabled",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:72"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's first chessboard has sound enabled — 10": {
+      "meta": {
+        "description": "The person observes that alice's first chessboard has sound enabled.",
+        "snapshot": "the-person-observes-that-alice-s-first-chessboard-has-sound-enabled",
+        "recognize": [],
+        "checks": [
+          "Alice's first chessboard has sound enabled",
+          "Alice's second chessboard has sound enabled",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:79"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears one move sound from the second chessboard — 11": {
+      "meta": {
+        "description": "The person observes that alice hears one move sound from the second chessboard.",
+        "snapshot": "the-person-observes-that-alice-hears-one-move-sound-from-the-second-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice hears one move sound from the second chessboard",
+          "Alice hears no sound from the first chessboard",
+          "Alice's second activity receives one move while the first activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:86"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hear chessboard sounds from the first board while its sound is disabled — 12": {
+      "meta": {
+        "description": "The person observes that alice cannot hear chessboard sounds from the first board while its sound is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-hear-chessboard-sounds-from-the-first-board-whi",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hear chessboard sounds from the first board while its sound is disabled",
+          "Alice's second chessboard has sound enabled",
+          "Alice's first activity receives one move while the second activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:93"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot see the first chessboard because it is closed — 13": {
+      "meta": {
+        "description": "The person observes that alice cannot see the first chessboard because it is closed.",
+        "snapshot": "the-person-observes-that-alice-cannot-see-the-first-chessboard-because-it-is-closed",
+        "recognize": [],
+        "checks": [
+          "Alice cannot see the first chessboard because it is closed",
+          "Alice still has e2 selected on the second chessboard",
+          "Alice's second chessboard has sound enabled",
+          "Alice's two activities receive no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:103"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a White pawn on e4 on the second chessboard — 14": {
+      "meta": {
+        "description": "The person observes that alice sees a White pawn on e4 on the second chessboard.",
+        "snapshot": "the-person-observes-that-alice-sees-a-white-pawn-on-e4-on-the-second-chessboard",
+        "recognize": [],
+        "checks": [
+          "Alice sees a White pawn on e4 on the second chessboard",
+          "Alice hears one move sound from the second chessboard",
+          "Alice's second activity receives one move while the first activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.feature:112"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

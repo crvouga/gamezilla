@@ -1,0 +1,499 @@
+journeys:
+  A movable own piece offers its legal destination:
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White pawn on e2
+    events:
+    - Alice selects the piece on e2 when Alice has a chessboard with a movable White pawn on e2
+    endsIn: Alice has e2 selected — 1
+    checks:
+    - Alice has e2 selected
+    - Alice sees e4 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '5'
+  A movable own piece offers its legal destination (example 2):
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White knight on g1
+    events:
+    - Alice selects the piece on g1 when Alice has a chessboard with a movable White knight on g1
+    endsIn: Alice has g1 selected — 2
+    checks:
+    - Alice has g1 selected
+    - Alice sees f3 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '6'
+  A movable own piece offers its legal destination (example 3):
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White bishop on c4
+    events:
+    - Alice selects the piece on c4
+    endsIn: Alice has c4 selected — 3
+    checks:
+    - Alice has c4 selected
+    - Alice sees d5 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '7'
+  A movable own piece offers its legal destination (example 4):
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White rook on a1
+    events:
+    - Alice selects the piece on a1
+    endsIn: Alice has a1 selected — 4
+    checks:
+    - Alice has a1 selected
+    - Alice sees a4 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '8'
+  A movable own piece offers its legal destination (example 5):
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White queen on d1
+    events:
+    - Alice selects the piece on d1
+    endsIn: Alice has d1 selected — 5
+    checks:
+    - Alice has d1 selected
+    - Alice sees d4 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '9'
+  A movable own piece offers its legal destination (example 6):
+    description: A movable own piece offers its legal destination
+    startingConditions:
+    - Alice has a chessboard with a movable White king on e1
+    events:
+    - Alice selects the piece on e1
+    endsIn: Alice has e1 selected — 6
+    checks:
+    - Alice has e1 selected
+    - Alice sees f1 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:8 — A movable own piece offers its legal destination
+    exampleRow:
+    - '10'
+  Black's pawn offers destinations when Black is to move:
+    description: Black's pawn offers destinations when Black is to move
+    startingConditions:
+    - Alice has a chessboard after White's move from e2 to e4
+    events:
+    - Alice selects the piece on e7 when Alice has a chessboard after White's move from e2 to e4
+    endsIn: Alice has e7 selected — 7
+    checks:
+    - Alice has e7 selected
+    - Alice sees only e5 and e6 as legal destinations
+    gherkin:
+    - specs/chess-board/board-interaction.feature:23 — Black's pawn offers destinations when Black is to move
+    exampleRow: []
+  Choosing a selected piece again puts the selection down:
+    description: Choosing a selected piece again puts the selection down
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice selects the piece on e2 when Alice has selected the piece on e2
+    endsIn: Alice sees no selection or legal destinations — 8
+    checks:
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:29 — Choosing a selected piece again puts the selection down
+    exampleRow: []
+  Choosing another own piece changes selection without sound:
+    description: Choosing another own piece changes selection without sound
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice selects the piece on g1 when Alice has selected the piece on e2
+    endsIn: Alice has g1 selected — 9
+    checks:
+    - Alice has g1 selected
+    - Alice sees only f3 and h3 as legal destinations
+    - Alice hears no chessboard sounds
+    gherkin:
+    - specs/chess-board/board-interaction.feature:35 — Choosing another own piece changes selection without sound
+    exampleRow: []
+  An opposing piece cannot be selected:
+    description: An opposing piece cannot be selected
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the piece on e7 when Alice has an interactive chessboard
+    endsIn: Alice cannot select e7 while White is to move — 10
+    checks:
+    - Alice cannot select e7 while White is to move
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:42 — An opposing piece cannot be selected
+    exampleRow: []
+  An empty square cannot be selected:
+    description: An empty square cannot be selected
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice selects the piece on e4
+    endsIn: Alice cannot select the empty square e4 — 11
+    checks:
+    - Alice cannot select the empty square e4
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:49 — An empty square cannot be selected
+    exampleRow: []
+  A pinned knight offers no move that exposes its king:
+    description: A pinned knight offers no move that exposes its king
+    startingConditions:
+    - Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8
+    events:
+    - Alice selects the piece on e2 when Alice has a chessboard with the White knight on e2 pinned to its king on
+      e1 by the Black rook on e8
+    endsIn: Alice is not offered a legal destination for the knight on e2 because it is pinned to its king — 12
+    checks:
+    - Alice is not offered a legal destination for the knight on e2 because it is pinned to its king
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:56 — A pinned knight offers no move that exposes its king
+    exampleRow: []
+  A rook offers only the move that answers check:
+    description: A rook offers only the move that answers check
+    startingConditions:
+    - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2
+    events:
+    - Alice selects the piece on a2
+    endsIn: Alice sees only e2 as a legal destination — 13
+    checks:
+    - Alice sees only e2 as a legal destination
+    gherkin:
+    - specs/chess-board/board-interaction.feature:62 — A rook offers only the move that answers check
+    exampleRow: []
+  A selected pawn completes one move and clears its selection:
+    description: A selected pawn completes one move and clears its selection
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice moves the piece from e2 to e4 when Alice has selected the piece on e2
+    endsIn: Alice sees a White pawn on e4 — 14
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice sees Black to move
+    - Alice sees no selection or legal destinations
+    - Alice sees e2 and e4 marked as the last move
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:69 — A selected pawn completes one move and clears its selection
+    exampleRow: []
+  Dragging a pawn completes the same move as selection:
+    description: Dragging a pawn completes the same move as selection
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice drags the piece from e2 to e4
+    endsIn: Alice sees a White pawn on e4 — 15
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice sees Black to move
+    - Alice sees no selection or legal destinations
+    - Alice sees e2 and e4 marked as the last move
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:78 — Dragging a pawn completes the same move as selection
+    exampleRow: []
+  Black's reply passes the turn back to White:
+    description: Black's reply passes the turn back to White
+    startingConditions:
+    - Alice has a chessboard after White's move from e2 to e4
+    events:
+    - Alice moves the piece from e7 to e5
+    endsIn: Alice sees a Black pawn on e5 — 16
+    checks:
+    - Alice sees a Black pawn on e5
+    - Alice sees White to move
+    - Alice sees e7 and e5 marked as the last move
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:87 — Black's reply passes the turn back to White
+    exampleRow: []
+  A newly held piece replaces the earlier selected source:
+    description: A newly held piece replaces the earlier selected source
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice drags the piece from d2 to d4
+    endsIn: Alice sees a White pawn on d4 — 17
+    checks:
+    - Alice sees a White pawn on d4
+    - Alice sees the White pawn remaining on e2
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:95 — A newly held piece replaces the earlier selected source
+    exampleRow: []
+  White cannot move again before Black's reply:
+    description: White cannot move again before Black's reply
+    startingConditions:
+    - Alice has a chessboard after White's move from e2 to e4
+    events:
+    - Alice moves the piece from d2 to d4
+    endsIn: Alice cannot move White's pawn while Black is to move — 18
+    checks:
+    - Alice cannot move White's pawn while Black is to move
+    - Alice sees the White pawn remaining on d2
+    - Alice sees Black to move
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:103 — White cannot move again before Black's reply
+    exampleRow: []
+  A legal capture removes its victim and sounds once:
+    description: A legal capture removes its victim and sounds once
+    startingConditions:
+    - Alice has a chessboard ready for a capture
+    events:
+    - Alice moves the piece from e4 to d5
+    endsIn: Alice sees a White pawn on d5 — 19
+    checks:
+    - Alice sees a White pawn on d5
+    - Alice sees no captured piece after the animation
+    - Alice hears one capture sound
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:113 — A legal capture removes its victim and sounds once
+    exampleRow: []
+  An illegal selected destination clears selection without a move:
+    description: An illegal selected destination clears selection without a move
+    startingConditions:
+    - Alice has selected the piece on e2
+    - Alice has chessboard sound enabled
+    events:
+    - Alice moves the piece from e2 to e5 when Alice has selected the piece on e2 and Alice has chessboard sound
+      enabled
+    endsIn: Alice sees the White pawn remaining on e2 — 20
+    checks:
+    - Alice sees the White pawn remaining on e2
+    - Alice sees no selection or legal destinations
+    - Alice hears one illegal move sound
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:121 — An illegal selected destination clears selection without
+      a move
+    exampleRow: []
+  An illegal dragged destination returns the piece without a move:
+    description: An illegal dragged destination returns the piece without a move
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice drags the piece from e2 to e5
+    endsIn: Alice sees the White pawn remaining on e2 — 21
+    checks:
+    - Alice sees the White pawn remaining on e2
+    - Alice sees no selection or legal destinations
+    - Alice no longer holds a piece
+    - Alice hears one illegal move sound
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:130 — An illegal dragged destination returns the piece without
+      a move
+    exampleRow: []
+  An own piece cannot be captured:
+    description: An own piece cannot be captured
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice drags the piece from e2 to d2
+    endsIn: Alice cannot capture the White pawn on d2 — 22
+    checks:
+    - Alice cannot capture the White pawn on d2
+    - Alice sees the White pawn remaining on e2
+    - Alice sees the White pawn remaining on d2
+    - Alice hears no capture sound
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:139 — An own piece cannot be captured
+    exampleRow: []
+  A move that keeps its king in check is refused:
+    description: A move that keeps its king in check is refused
+    startingConditions:
+    - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2
+    events:
+    - Alice moves the piece from a2 to a3
+    endsIn: Alice cannot move the rook because its king would remain in check — 23
+    checks:
+    - Alice cannot move the rook because its king would remain in check
+    - Alice sees the White rook remaining on a2
+    - Alice sees White's king on e1 marked as in check
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:148 — A move that keeps its king in check is refused
+    exampleRow: []
+  A pinned knight cannot expose its king by moving:
+    description: A pinned knight cannot expose its king by moving
+    startingConditions:
+    - Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8
+    events:
+    - Alice moves the piece from e2 to c3
+    endsIn: Alice cannot move the pinned knight because it would expose its king — 24
+    checks:
+    - Alice cannot move the pinned knight because it would expose its king
+    - Alice sees the White knight remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:156 — A pinned knight cannot expose its king by moving
+    exampleRow: []
+  A permitted reply removes the king's check:
+    description: A permitted reply removes the king's check
+    startingConditions:
+    - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2
+    events:
+    - Alice moves the piece from a2 to e2 when Alice has a chessboard with White's king on e1 in check from Black's
+      rook on e8 and White's rook on a2
+    endsIn: Alice sees a White rook on e2 — 25
+    checks:
+    - Alice sees a White rook on e2
+    - Alice sees neither king marked as in check
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:163 — A permitted reply removes the king's check
+    exampleRow: []
+  A silent illegal move preserves the position without sound:
+    description: A silent illegal move preserves the position without sound
+    startingConditions:
+    - Alice has a silent chessboard
+    events:
+    - Alice moves the piece from e2 to e5 when Alice has a silent chessboard
+    endsIn: Alice sees the White pawn remaining on e2 — 26
+    checks:
+    - Alice sees the White pawn remaining on e2
+    - Alice hears no chessboard sounds
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:170 — A silent illegal move preserves the position without sound
+    exampleRow: []
+  Dropping a piece on its own square puts it down without a move:
+    description: Dropping a piece on its own square puts it down without a move
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice drops the held piece on e2
+    endsIn: Alice sees a White pawn on e2 — 27
+    checks:
+    - Alice sees a White pawn on e2
+    - Alice no longer holds a piece
+    - Alice sees no selection or legal destinations
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:179 — Dropping a piece on its own square puts it down without
+      a move
+    exampleRow: []
+  Dropping outside the chessboard puts the piece back:
+    description: Dropping outside the chessboard puts the piece back
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice drops the held piece outside the chessboard
+    endsIn: Alice sees the White pawn remaining on e2 — 28
+    checks:
+    - Alice sees the White pawn remaining on e2
+    - Alice no longer holds a piece
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:187 — Dropping outside the chessboard puts the piece back
+    exampleRow: []
+  Dragging an opposing piece cannot offer a move:
+    description: Dragging an opposing piece cannot offer a move
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice drags the piece from e7 to e5
+    endsIn: Alice cannot move Black's pawn while White is to move — 29
+    checks:
+    - Alice cannot move Black's pawn while White is to move
+    - Alice no longer holds a piece
+    - Alice sees the Black pawn remaining on e7
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:194 — Dragging an opposing piece cannot offer a move
+    exampleRow: []
+  Dragging an empty square cannot offer a move:
+    description: Dragging an empty square cannot offer a move
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice drags the piece from e4 to e5
+    endsIn: Alice cannot move a piece from the empty square e4 — 30
+    checks:
+    - Alice cannot move a piece from the empty square e4
+    - Alice no longer holds a piece
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-interaction.feature:202 — Dragging an empty square cannot offer a move
+    exampleRow: []
+  An ordinary move has no check or end sound:
+    description: An ordinary move has no check or end sound
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice moves the piece from e2 to e4 when Alice has an interactive chessboard
+    endsIn: Alice hears one move sound with no check or end sounds — 31
+    checks:
+    - Alice hears one move sound with no check or end sounds
+    - Alice sees neither king marked as in check
+    gherkin:
+    - specs/chess-board/board-interaction.feature:211 — An ordinary move has no check or end sound
+    exampleRow: []
+  A checking move identifies the threatened king:
+    description: A checking move identifies the threatened king
+    startingConditions:
+    - Alice has a chessboard ready for White to check Black by moving the rook from a2 to e2
+    events:
+    - Alice moves the piece from a2 to e2 when Alice has a chessboard ready for White to check Black by moving the
+      rook from a2 to e2
+    endsIn: Alice sees Black's king on e8 marked as in check — 32
+    checks:
+    - Alice sees Black's king on e8 marked as in check
+    - Alice is told Black is in check
+    - Alice hears one move sound followed by one check sound
+    gherkin:
+    - specs/chess-board/board-interaction.feature:217 — A checking move identifies the threatened king
+    exampleRow: []
+  Checkmate announces the result with each sound once:
+    description: Checkmate announces the result with each sound once
+    startingConditions:
+    - Alice has a chessboard ready for White to checkmate Black by moving the queen from g6 to g7
+    events:
+    - Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by moving
+      the queen from g6 to g7
+    endsIn: Alice is told Black is checkmated — 33
+    checks:
+    - Alice is told Black is checkmated
+    - Alice sees Black's king on h8 marked as in check
+    - Alice hears one move sound followed by one check sound and one end sound
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:224 — Checkmate announces the result with each sound once
+    exampleRow: []
+  A mating capture sounds capture before check and the end sound:
+    description: A mating capture sounds capture before check and the end sound
+    startingConditions:
+    - Alice has a chessboard ready for White to checkmate Black by capturing the rook on g7 with the queen on g6
+    events:
+    - Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by capturing
+      the rook on g7 with the queen on g6
+    endsIn: Alice is told Black is checkmated — 34
+    checks:
+    - Alice is told Black is checkmated
+    - Alice hears one capture sound followed by one check sound and one end sound
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-interaction.feature:232 — A mating capture sounds capture before check and the end
+      sound
+    exampleRow: []

@@ -1,0 +1,240 @@
+{
+  "id": "runtime-accessibility",
+  "initial": "Viewing Using the app without seeing it or without a mouse",
+  "meta": {
+    "context": "App",
+    "kind": "flow",
+    "owner": "App owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Using the app without seeing it or without a mouse": {
+      "meta": {
+        "description": "The person is at the place where using the app without seeing it or without a mouse.",
+        "snapshot": "the-person-is-at-the-place-where-using-the-app-without-seeing-it-or-without-a-mouse",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:2"
+        ]
+      },
+      "on": {
+        "Alice opens the app": {
+          "target": "Alice hears what every control on the tabs does — 1",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:13"
+            ],
+            "condition": [
+              "Alice is listening to the app"
+            ],
+            "example": "Someone listening hears what every control on the tabs does"
+          }
+        },
+        "Alice opens Settings when Alice is listening to the app": {
+          "target": "Alice hears what every control in Settings does — 2",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:17"
+            ],
+            "condition": [
+              "Alice is listening to the app"
+            ],
+            "example": "Someone listening hears what every control in Settings does"
+          }
+        },
+        "Alice opens the Profile tab": {
+          "target": "Alice hears the picture on their profile described as their avatar — 3",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:24"
+            ],
+            "condition": [
+              "Alice is listening to the app"
+            ],
+            "example": "Someone listening hears their avatar described"
+          }
+        },
+        "Alice opens the Notifications tab": {
+          "target": "Alice is on Notifications — 4",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:35"
+            ],
+            "condition": [
+              "Alice is using the keyboard alone"
+            ],
+            "example": "A person using the keyboard alone goes to another tab"
+          }
+        },
+        "Alice moves the keyboard through the tabs": {
+          "target": "Alice's keyboard reaches every control on the tabs once, in the order they are shown — 5",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:39"
+            ],
+            "condition": [
+              "Alice is using the keyboard alone"
+            ],
+            "example": "The keyboard reaches every control on the tabs once, in the order they are shown"
+          }
+        },
+        "Alice opens Settings when Alice is using the keyboard alone": {
+          "target": "Alice is on Settings — 6",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:49"
+            ],
+            "condition": [
+              "Alice is using the keyboard alone"
+            ],
+            "example": "Opening Settings brings the keyboard into Settings"
+          }
+        },
+        "Alice comes back from Settings": {
+          "target": "Alice is on Spaces — 7",
+          "meta": {
+            "source": [
+              "specs/runtime/accessibility.feature:54"
+            ],
+            "condition": [
+              "Alice is using the keyboard alone",
+              "Alice has opened Settings from Spaces"
+            ],
+            "example": "Coming back from Settings puts the keyboard back where it was"
+          }
+        }
+      }
+    },
+    "Alice hears what every control on the tabs does — 1": {
+      "meta": {
+        "description": "The person observes that alice hears what every control on the tabs does.",
+        "snapshot": "the-person-observes-that-alice-hears-what-every-control-on-the-tabs-does",
+        "recognize": [],
+        "checks": [
+          "Alice hears what every control on the tabs does"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears what every control in Settings does — 2": {
+      "meta": {
+        "description": "The person observes that alice hears what every control in Settings does.",
+        "snapshot": "the-person-observes-that-alice-hears-what-every-control-in-settings-does",
+        "recognize": [],
+        "checks": [
+          "Alice hears what every control in Settings does"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the picture on their profile described as their avatar — 3": {
+      "meta": {
+        "description": "The person observes that alice hears the picture on their profile described as their avatar.",
+        "snapshot": "the-person-observes-that-alice-hears-the-picture-on-their-profile-described-as-their-",
+        "recognize": [],
+        "checks": [
+          "Alice hears the picture on their profile described as their avatar"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:24"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is on Notifications — 4": {
+      "meta": {
+        "description": "The person observes that alice is on Notifications.",
+        "snapshot": "the-person-observes-that-alice-is-on-notifications",
+        "recognize": [],
+        "checks": [
+          "Alice is on Notifications"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:35"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's keyboard reaches every control on the tabs once, in the order they are shown — 5": {
+      "meta": {
+        "description": "The person observes that alice's keyboard reaches every control on the tabs once, in the order they are shown.",
+        "snapshot": "the-person-observes-that-alice-s-keyboard-reaches-every-control-on-the-tabs-once-in-t",
+        "recognize": [],
+        "checks": [
+          "Alice's keyboard reaches every control on the tabs once, in the order they are shown"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:39"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is on Settings — 6": {
+      "meta": {
+        "description": "The person observes that alice is on Settings.",
+        "snapshot": "the-person-observes-that-alice-is-on-settings",
+        "recognize": [],
+        "checks": [
+          "Alice is on Settings",
+          "Alice's keyboard is in Settings"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:49"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is on Spaces — 7": {
+      "meta": {
+        "description": "The person observes that alice is on Spaces.",
+        "snapshot": "the-person-observes-that-alice-is-on-spaces",
+        "recognize": [],
+        "checks": [
+          "Alice is on Spaces",
+          "Alice's keyboard is back where it was before Alice opened Settings"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/accessibility.feature:54"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+stateDiagram-v2
+  state "Viewing Customize the puzzle feed" as s0
+  state "Alice's feed history shows 'Unseen' — 1" as s1
+  state "Alice's feed history shows 'Any' — 2" as s2
+  state "Alice's feed rating offset is 100 — 3" as s3
+  state "Alice's feed targets a custom 1550 — 4" as s4
+  state "Alice's unsaved feed settings preview a target of 1550 — 5" as s5
+  state "Alice's feed targets a custom 1600 — 7" as s6
+  state "Alice's saved feed advances after one second — 8" as s7
+  state "Alice's feed targets 1600 automatically — 9" as s8
+  state "Alice's feed targets 1500 automatically — 10" as s9
+  state "Alice's feed targets 1500 automatically — 11" as s10
+  state "Alice's feed rating offset is 400 — 12" as s11
+  state "Alice cannot raise the feed rating offset past 400 — 13" as s12
+  state "Alice cannot lower the feed rating offset past -400 — 14" as s13
+  state "Alice's unsaved feed settings preview a target of 3000 — 15" as s14
+  state "Alice cannot raise the custom feed target past 3000 — 16" as s15
+  state "Alice cannot lower the custom feed target past 400 — 17" as s16
+  state "Alice is served a puzzle with the 'fork' theme — 18" as s17
+  state "Alice is not offered a puzzle without the 'fork' theme — 19" as s18
+  state "Alice is solving the puzzle they failed — 20" as s19
+  state "Alice is told the feed is empty because they have no failed attempts — 21" as s20
+  [*] --> s0
+  s0 --> s1: Alice opens puzzles in their space
+  s0 --> s2: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen 'Any' for the unsaved feed history
+  s0 --> s3: Alice raises the feed rating offset by 2 steps
+  s0 --> s4: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 1 step
+  s0 --> s5: Alice starts editing the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has saved a custom feed target raised by 1 step
+  s0 --> s6: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 2 steps
+  s0 --> s7: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen unsaved auto-advance after one second
+  s0 --> s8: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has raised the unsaved feed rating offset by 2 steps
+  s0 --> s9: Alice closes the feed settings without saving
+  s0 --> s10: Alice reopens the app on the puzzle
+  s0 --> s11: Alice raises the feed rating offset by 8 steps
+  s0 --> s12: Alice raises the feed rating offset by 1 step
+  s0 --> s13: Alice lowers the feed rating offset by 1 step
+  s0 --> s14: Alice raises the custom feed target by 1 step when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 29 steps
+  s0 --> s15: Alice raises the custom feed target by 1 step when Alice is signed in and Alice is playing puzzles in their space and Alice has chosen an unsaved custom feed target raised by 30 steps
+  s0 --> s16: Alice lowers the custom feed target by 1 step
+  s0 --> s17: Alice limits the feed to the 'fork' theme
+  s0 --> s18: Alice moves on to the next puzzle
+  s0 --> s19: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles and failed 1 and Alice has chosen 'Failed' for the unsaved feed history
+  s0 --> s20: Alice saves the feed settings when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles in a row and Alice has chosen 'Failed' for the unsaved feed history
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]
+  s17 --> [*]
+  s18 --> [*]
+  s19 --> [*]
+  s20 --> [*]

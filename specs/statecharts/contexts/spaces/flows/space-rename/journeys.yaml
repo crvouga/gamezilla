@@ -1,0 +1,146 @@
+journeys:
+  Everyone in the space sees the host's new name for it:
+    description: Everyone in the space sees the host's new name for it
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    events:
+    - Alice renames the space to 'Friday puzzles' when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby
+    endsIn: Bob sees the space is called "Friday puzzles" within 15 seconds — 1
+    checks:
+    - Bob sees the space is called "Friday puzzles" within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:13 — Everyone in the space sees the host's new name for it
+    exampleRow: []
+  A friend's lobby lists the space by its new name:
+    description: A friend's lobby lists the space by its new name
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Bob has gone back to the lobby
+    events:
+    - Alice renames the space to 'Friday puzzles' when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Bob has gone back to the lobby
+    endsIn: Bob's lobby lists Alice's space as "Friday puzzles" within 15 seconds — 2
+    checks:
+    - Bob's lobby lists Alice's space as "Friday puzzles" within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:17 — A friend's lobby lists the space by its new name
+    exampleRow: []
+  Only the host can rename the space:
+    description: Only the host can rename the space
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    events:
+    - Opens the described view
+    endsIn: Alice can rename the space — 3
+    checks:
+    - Alice can rename the space
+    - Bob cannot rename the space
+    gherkin:
+    - specs/spaces/space-rename.feature:22 — Only the host can rename the space
+    exampleRow: []
+  Clearing the space name names the space after its host again:
+    description: Clearing the space name names the space after its host again
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed the space to "Friday puzzles"
+    events:
+    - Alice clears the space name
+    endsIn: Bob sees the space is named after Alice within 15 seconds — 4
+    checks:
+    - Bob sees the space is named after Alice within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:26 — Clearing the space name names the space after its host again
+    exampleRow: []
+  A space name that only looks like an offensive word is saved:
+    description: A space name that only looks like an offensive word is saved
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    events:
+    - Alice renames the space to 'Assassin chess club'
+    endsIn: Bob sees the space is called "Assassin chess club" within 15 seconds — 5
+    checks:
+    - Bob sees the space is called "Assassin chess club" within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:33 — A space name that only looks like an offensive word is saved
+    exampleRow: []
+  A space name that is not allowed is refused:
+    description: A space name that is not allowed is refused
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed the space to "Friday puzzles"
+    events:
+    - Alice renames the space to 'free coins at spam.gg'
+    endsIn: Alice is told that space name is not allowed — 6
+    checks:
+    - Alice is told that space name is not allowed
+    - Bob still sees the space is called "Friday puzzles"
+    gherkin:
+    - specs/spaces/space-rename.feature:37 — A space name that is not allowed is refused
+    exampleRow: []
+  A space name the team stops allowing shows the space named after its host:
+    description: A space name the team stops allowing shows the space named after its host
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed the space to "Cheater corner"
+    events:
+    - the team stops allowing the space name 'Cheater corner'
+    endsIn: Bob sees the space is named after Alice within 15 seconds — 7
+    checks:
+    - Bob sees the space is named after Alice within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:48 — A space name the team stops allowing shows the space named after its
+      host
+    exampleRow: []
+  A space name the team starts allowing again shows as it was:
+    description: A space name the team starts allowing again shows as it was
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed the space to "Cheater corner"
+    - the team has stopped allowing the space name "Cheater corner"
+    events:
+    - the team starts allowing the space name 'Cheater corner' again
+    endsIn: Bob sees the space is called "Cheater corner" within 15 seconds — 8
+    checks:
+    - Bob sees the space is called "Cheater corner" within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:52 — A space name the team starts allowing again shows as it was
+    exampleRow: []
+  A space name that is no longer allowed cannot be given again:
+    description: A space name that is no longer allowed cannot be given again
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed the space to "Cheater corner"
+    - the team has stopped allowing the space name "Cheater corner"
+    events:
+    - Alice renames the space to 'Cheater corner'
+    endsIn: Alice is told that space name is not allowed — 9
+    checks:
+    - Alice is told that space name is not allowed
+    gherkin:
+    - specs/spaces/space-rename.feature:57 — A space name that is no longer allowed cannot be given again
+    exampleRow: []
+  A space named after a host whose username the team stops allowing uses their stand-in name:
+    description: A space named after a host whose username the team stops allowing uses their stand-in name
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice has renamed themselves to @chess_cheater
+    events:
+    - the team stops allowing the username @chess_cheater
+    endsIn: Bob sees the space is named after Alice's stand-in name within 15 seconds — 10
+    checks:
+    - Bob sees the space is named after Alice's stand-in name within 15 seconds
+    gherkin:
+    - specs/spaces/space-rename.feature:65 — A space named after a host whose username the team stops allowing uses
+      their stand-in name
+    exampleRow: []

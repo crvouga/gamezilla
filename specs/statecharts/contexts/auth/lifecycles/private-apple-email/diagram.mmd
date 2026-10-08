@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Opening private apple email" as s0
+  state "Choosing Apple sign-in with an ordinary address" as s1
+  state "Signed in with Apple with an ordinary address" as s2
+  state "Signed in with Apple with a private address" as s3
+  state "Signed in with Apple with a private address and forwarding stopped" as s4
+  [*] --> s0
+  s0 --> s1: Opens with choosing Apple sign-in with an ordinary address
+  s1 --> s2: Sign in with apple resulting in signed in with Apple with an ordinary address
+  s1 --> s3: Sign in with apple resulting in signed in with Apple with a private address
+  s2 --> [*]
+  s3 --> s3: Forward mail again resulting in signed in with Apple with a private address
+  s3 --> s4: Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+  s4 --> s4: Stop forwarding mail resulting in signed in with Apple with a private address and forwarding stopped
+  s4 --> s3: Forward mail again resulting in signed in with Apple with a private address

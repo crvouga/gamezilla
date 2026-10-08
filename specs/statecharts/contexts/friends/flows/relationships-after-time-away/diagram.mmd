@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Relationships after time away" as s0
+  state "Alice's friends list shows Bob — 1" as s1
+  state "Alice's friends list stops showing Bob within 15 seconds — 2" as s2
+  state "Alice's inbox shows a friend request from Bob within 15 seconds — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice opens their friends list
+  s0 --> s2: the connection comes back when Alice and Bob are friends and Alice is offline and Bob has removed Alice
+  s0 --> s3: the connection comes back when Alice and Bob are signed in and Alice is offline and Bob has sent Alice a friend request
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

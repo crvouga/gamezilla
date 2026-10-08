@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Claim and release an open place" as s0
+  state "Black is Bob in the Custom Game — 1" as s1
+  state "Carol is told that side is not an open place — 2" as s2
+  state "Black is an open place in the Custom Game — 3" as s3
+  state "Alice is told only that participant may release the side — 4" as s4
+  state "Black is Bob in the Custom Game — 5" as s5
+  state "Bob is told the Custom Game has already started — 6" as s6
+  state "Carol is told the Custom Game has finished — 7" as s7
+  state "Bob is told the Custom Game was cancelled — 8" as s8
+  state "Black is either Bob or Carol in the Custom Game — 9" as s9
+  state "Bob is told that side is not an open place — 10" as s10
+  [*] --> s0
+  s0 --> s1: Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space
+  s0 --> s2: Carol claims Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Carol is in Alice's space
+  s0 --> s3: Bob releases Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s4: Alice releases Black in the Custom Game
+  s0 --> s5: Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob has released Black in the Custom Game
+  s0 --> s6: Bob releases Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s7: Carol claims Black in the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black and Carol is in Alice's space
+  s0 --> s8: Bob claims Black in the Custom Game when Alice has a cancelled Custom Game and Bob is in Alice's space
+  s0 --> s9: Bob and Carol claim Black at the same time
+  s0 --> s10: Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Black has since been replaced by a bot
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

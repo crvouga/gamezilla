@@ -1,0 +1,792 @@
+{
+  "id": "chess-puzzle-solving-and-recovery",
+  "initial": "Choosing chess play",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [
+      "SignedIn",
+      "SpaceEnded",
+      "SpaceOpened"
+    ],
+    "reviewStatus": "draft; owner approval and execution adapters pending"
+  },
+  "states": {
+    "Choosing chess play": {
+      "meta": {
+        "description": "The space offers chess choices.",
+        "snapshot": "the-space-offers-chess-choices",
+        "recognize": [],
+        "checks": [
+          "The space offers chess choices."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Opens puzzles with an available start": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Opens puzzles offline before any puzzle reached the device": {
+          "target": "Told a connection is needed",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Returns to an unfinished puzzle already on the device": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Joins to watch a host’s current puzzle": {
+          "target": "Watching the current board",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "SpaceOpened": {
+          "target": "Choosing chess play",
+          "meta": {
+            "source": [
+              "specs/spaces/events.qnt"
+            ],
+            "reaction": "The authorized participant has a space in which to choose chess; no puzzle is started by this fact alone.",
+            "confidence": "assumed"
+          }
+        }
+      }
+    },
+    "Waiting for a puzzle": {
+      "meta": {
+        "description": "The board waits for an available puzzle.",
+        "snapshot": "the-board-waits-for-an-available-puzzle",
+        "recognize": [],
+        "checks": [
+          "The board waits for an available puzzle."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "The next puzzle becomes ready": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the current puzzle": {
+      "meta": {
+        "description": "The solver sees the board, guidance and remaining allowance.",
+        "snapshot": "the-solver-sees-the-board-guidance-and-remaining-allowance",
+        "recognize": [
+          "[data-testid=\"chess-puzzle-board\"]"
+        ],
+        "checks": [
+          "The solver sees the board, guidance and remaining allowance."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Plays a legal wrong move": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Plays an illegal move": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Solves the puzzle": {
+          "target": "Seeing a solved puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Skips the puzzle": {
+          "target": "Seeing a skipped puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Shows the complete solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Asks for the first hint": {
+          "target": "Seeing the first hint",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Reviews an earlier reached position": {
+          "target": "Reviewing an earlier position",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Leaves for the chess choices": {
+          "target": "Choosing chess play",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told the move is wrong": {
+      "meta": {
+        "description": "The wrong move is rejected and the first result remains recorded.",
+        "snapshot": "the-wrong-move-is-rejected-and-the-first-result-remains-recorded",
+        "recognize": [],
+        "checks": [
+          "The wrong move is rejected and the first result remains recorded."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Retries the same puzzle": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the first hint": {
+      "meta": {
+        "description": "The solution piece is highlighted without finishing the puzzle.",
+        "snapshot": "the-solution-piece-is-highlighted-without-finishing-the-puzzle",
+        "recognize": [],
+        "checks": [
+          "The solution piece is highlighted without finishing the puzzle."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Asks for the second hint": {
+          "target": "Seeing the second hint",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Plays the correct continuation": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the second hint": {
+      "meta": {
+        "description": "The solution move is shown without finishing the puzzle.",
+        "snapshot": "the-solution-move-is-shown-without-finishing-the-puzzle",
+        "recognize": [],
+        "checks": [
+          "The solution move is shown without finishing the puzzle."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Plays the correct continuation": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Reviewing an earlier position": {
+      "meta": {
+        "description": "The solver reviews a reached position without playing a new candidate there.",
+        "snapshot": "the-solver-reviews-a-reached-position-without-playing-a-new-candidate-there",
+        "recognize": [],
+        "checks": [
+          "The solver reviews a reached position without playing a new candidate there."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Returns to the current position": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a solved puzzle": {
+      "meta": {
+        "description": "The solved board, result and rating change are shown.",
+        "snapshot": "the-solved-board-result-and-rating-change-are-shown",
+        "recognize": [],
+        "checks": [
+          "The solved board, result and rating change are shown."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Retries for practice": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Moves on within the daily allowance": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Requests a new rated puzzle beyond twenty guest starts today": {
+          "target": "Told today’s allowance is used",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a skipped puzzle": {
+      "meta": {
+        "description": "The skipped result is shown and the solver may retry or move on.",
+        "snapshot": "the-skipped-result-is-shown-and-the-solver-may-retry-or-move-on",
+        "recognize": [],
+        "checks": [
+          "The skipped result is shown and the solver may retry or move on."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Retries for practice": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Moves on within the daily allowance": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the full solution": {
+      "meta": {
+        "description": "The revealed solution is shown and is never praised as a clean rated solve.",
+        "snapshot": "the-revealed-solution-is-shown-and-is-never-praised-as-a-clean-rated-solve",
+        "recognize": [],
+        "checks": [
+          "The revealed solution is shown and is never praised as a clean rated solve."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Retries for practice": {
+          "target": "Solving the current puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "Moves on within the daily allowance": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told today’s allowance is used": {
+      "meta": {
+        "description": "No new rated puzzle starts; sign-in and the UTC reset offer ways to continue.",
+        "snapshot": "no-new-rated-puzzle-starts-sign-in-and-the-utc-reset-offer-ways-to-continue",
+        "recognize": [],
+        "checks": [
+          "No new rated puzzle starts; sign-in and the UTC reset offer ways to continue."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "SignedIn": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "The next UTC day begins": {
+          "target": "Waiting for a puzzle",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told a connection is needed": {
+      "meta": {
+        "description": "A puzzle not yet available on the device cannot open offline.",
+        "snapshot": "a-puzzle-not-yet-available-on-the-device-cannot-open-offline",
+        "recognize": [],
+        "checks": [
+          "A puzzle not yet available on the device cannot open offline."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Connection returns": {
+          "target": "Choosing chess play",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a stale watched board": {
+      "meta": {
+        "description": "The watcher keeps the last seen board while disconnected.",
+        "snapshot": "the-watcher-keeps-the-last-seen-board-while-disconnected",
+        "recognize": [],
+        "checks": [
+          "The watcher keeps the last seen board while disconnected."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "Connection returns while the space remains open": {
+          "target": "Watching the current board",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Watching the current board": {
+      "meta": {
+        "description": "The watcher follows the host’s puzzle and receives no personal rating result.",
+        "snapshot": "the-watcher-follows-the-host-s-puzzle-and-receives-no-personal-rating-result",
+        "recognize": [],
+        "checks": [
+          "The watcher follows the host’s puzzle and receives no personal rating result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ]
+      },
+      "on": {
+        "The watcher loses the connection": {
+          "target": "Viewing a stale watched board",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        },
+        "SpaceEnded": {
+          "target": "Viewing the ended space",
+          "meta": {
+            "source": [
+              "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+              "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+              "specs/chess/puzzle-attempt.qnt",
+              "specs/chess/puzzle-play.feature",
+              "specs/chess/puzzle-quota.feature",
+              "specs/chess/puzzle-spectator.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing the ended space": {
+      "meta": {
+        "description": "The ended space cannot continue admitting people.",
+        "snapshot": "the-ended-space-cannot-continue-admitting-people",
+        "recognize": [
+          "[data-testid=\"space-ended\"]"
+        ],
+        "checks": [
+          "The ended space cannot continue admitting people."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+          "specs/chess/puzzle-attempt.qnt",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/puzzle-quota.feature",
+          "specs/chess/puzzle-spectator.feature"
+        ],
+        "scopeEnd": "This outcome completes the chart’s scope; the person may still navigate elsewhere."
+      },
+      "type": "final"
+    }
+  }
+}

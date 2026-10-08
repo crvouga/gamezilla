@@ -1,0 +1,1776 @@
+{
+  "id": "profile-account-sign-in-lifecycle",
+  "initial": "Opening account sign in",
+  "meta": {
+    "context": "Identity",
+    "kind": "lifecycle",
+    "owner": "Identity owner (not named in specs)",
+    "tier": "critical",
+    "emits": [
+      "SignedIn",
+      "SignedOut"
+    ],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/profile/account-sign-in.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
+    "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
+  },
+  "states": {
+    "Opening account sign in": {
+      "meta": {
+        "description": "The person is opening the account sign in view.",
+        "snapshot": "the-person-is-opening-the-account-sign-in-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ]
+      },
+      "on": {
+        "Opens with viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "profile--account-sign-in_22.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:104"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing the guest account": {
+      "meta": {
+        "description": "The person is viewing the guest account.",
+        "snapshot": "the-person-is-viewing-the-guest-account",
+        "recognize": [],
+        "checks": [
+          "No account ever loses its last sign-in method (so Alice never has more accounts than outside accounts).",
+          "An account has at most one outside account per sign-in method.",
+          "Devices are signed in only to accounts that exist.",
+          "An online device shows whether it is signed in as everyone else knows it; an offline one may still show signed in after it was signed out, never the reverse.",
+          "An online device shows the sign-in methods everyone else knows. An offline device keeps the ones it last saw. A device that is not signed in shows none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "showsSignedIn.contains(selected device)": false,
+            "signInMethodsShown.get(selected device)": []
+          }
+        ],
+        "invariants": [
+          "invLastMethodStays",
+          "invOnePerSignInMethod",
+          "invRealAccounts",
+          "invScreensAgree",
+          "invShownMethods"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Sign in resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Connect sign in method resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        },
+        "Remove sign in method resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Reconnect resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Lose connection resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:236"
+            ]
+          }
+        },
+        "Sign out resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Abandon sign in resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "abandonSignIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:159"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_4.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        }
+      }
+    },
+    "Signed in with apple": {
+      "meta": {
+        "description": "The person is signed in with apple.",
+        "snapshot": "the-person-is-signed-in-with-apple",
+        "recognize": [],
+        "checks": [
+          "No account ever loses its last sign-in method (so Alice never has more accounts than outside accounts).",
+          "An account has at most one outside account per sign-in method.",
+          "Devices are signed in only to accounts that exist.",
+          "An online device shows whether it is signed in as everyone else knows it; an offline one may still show signed in after it was signed out, never the reverse.",
+          "An online device shows the sign-in methods everyone else knows. An offline device keeps the ones it last saw. A device that is not signed in shows none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "showsSignedIn.contains(selected device)": true,
+            "signInMethodsShown.get(selected device)": [
+              "apple"
+            ]
+          }
+        ],
+        "invariants": [
+          "invLastMethodStays",
+          "invOnePerSignInMethod",
+          "invRealAccounts",
+          "invScreensAgree",
+          "invShownMethods"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Sign out resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Lose connection resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:236"
+            ]
+          }
+        },
+        "Sign out resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Connect sign in method resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Remove sign in method resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Abandon sign in resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "abandonSignIn",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:159"
+            ]
+          }
+        },
+        "Connect sign in method resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in signed in with account methods": {
+          "target": "Signed in with account methods",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_21.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_6.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        }
+      }
+    },
+    "Signed in with apple and google": {
+      "meta": {
+        "description": "The person is signed in with apple and google.",
+        "snapshot": "the-person-is-signed-in-with-apple-and-google",
+        "recognize": [],
+        "checks": [
+          "No account ever loses its last sign-in method (so Alice never has more accounts than outside accounts).",
+          "An account has at most one outside account per sign-in method.",
+          "Devices are signed in only to accounts that exist.",
+          "An online device shows whether it is signed in as everyone else knows it; an offline one may still show signed in after it was signed out, never the reverse.",
+          "An online device shows the sign-in methods everyone else knows. An offline device keeps the ones it last saw. A device that is not signed in shows none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "showsSignedIn.contains(selected device)": true,
+            "signInMethodsShown.get(selected device)": [
+              "apple",
+              "google"
+            ]
+          }
+        ],
+        "invariants": [
+          "invLastMethodStays",
+          "invOnePerSignInMethod",
+          "invRealAccounts",
+          "invScreensAgree",
+          "invShownMethods"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Lose connection resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:236"
+            ]
+          }
+        },
+        "Remove sign in method resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_19.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_18.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_18.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Remove sign in method resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Abandon sign in resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "abandonSignIn",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 97,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:159"
+            ]
+          }
+        },
+        "Remove sign in method resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_13.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Sign out resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_13.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_4.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Sign out resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_12.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_20.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in signed in with account methods": {
+          "target": "Signed in with account methods",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_2.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with apple": {
+          "target": "Signed in with apple",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_15.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Connect sign in method resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_10.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        }
+      }
+    },
+    "Signed in with google": {
+      "meta": {
+        "description": "The person is signed in with google.",
+        "snapshot": "the-person-is-signed-in-with-google",
+        "recognize": [],
+        "checks": [
+          "No account ever loses its last sign-in method (so Alice never has more accounts than outside accounts).",
+          "An account has at most one outside account per sign-in method.",
+          "Devices are signed in only to accounts that exist.",
+          "An online device shows whether it is signed in as everyone else knows it; an offline one may still show signed in after it was signed out, never the reverse.",
+          "An online device shows the sign-in methods everyone else knows. An offline device keeps the ones it last saw. A device that is not signed in shows none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "showsSignedIn.contains(selected device)": true,
+            "signInMethodsShown.get(selected device)": [
+              "google"
+            ]
+          }
+        ],
+        "invariants": [
+          "invLastMethodStays",
+          "invOnePerSignInMethod",
+          "invRealAccounts",
+          "invScreensAgree",
+          "invShownMethods"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Lose connection resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "loseConnection",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:236"
+            ]
+          }
+        },
+        "Connect sign in method resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        },
+        "Remove sign in method resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "removeSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:197"
+            ]
+          }
+        },
+        "Sign out resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Sign out resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_5.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Connect sign in method resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "connectSignInMethod",
+            "witness": {
+              "trace": "profile--account-sign-in_4.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:180"
+            ]
+          }
+        },
+        "Reconnect resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_4.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_12.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Sign out everywhere resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "signOutEverywhere",
+            "witness": {
+              "trace": "profile--account-sign-in_12.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:219"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_12.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        },
+        "Abandon sign in resulting in signed in with google": {
+          "target": "Signed in with google",
+          "meta": {
+            "action": "abandonSignIn",
+            "witness": {
+              "trace": "profile--account-sign-in_8.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:159"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with apple and google": {
+          "target": "Signed in with apple and google",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_8.itf.json",
+              "step": 80,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleShared"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        }
+      }
+    },
+    "Signed in with account methods": {
+      "meta": {
+        "description": "The person is signed in with account methods.",
+        "snapshot": "the-person-is-signed-in-with-account-methods",
+        "recognize": [],
+        "checks": [
+          "No account ever loses its last sign-in method (so Alice never has more accounts than outside accounts).",
+          "An account has at most one outside account per sign-in method.",
+          "Devices are signed in only to accounts that exist.",
+          "An online device shows whether it is signed in as everyone else knows it; an offline one may still show signed in after it was signed out, never the reverse.",
+          "An online device shows the sign-in methods everyone else knows. An offline device keeps the ones it last saw. A device that is not signed in shows none."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/account-sign-in.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "showsSignedIn.contains(selected device)": true,
+            "signInMethodsShown.get(selected device)": []
+          }
+        ],
+        "invariants": [
+          "invLastMethodStays",
+          "invOnePerSignInMethod",
+          "invRealAccounts",
+          "invScreensAgree",
+          "invShownMethods"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Reconnect resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "reconnect",
+            "witness": {
+              "trace": "profile--account-sign-in_21.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:242"
+            ]
+          }
+        },
+        "Sign out resulting in viewing the guest account": {
+          "target": "Viewing the guest account",
+          "meta": {
+            "action": "signOut",
+            "witness": {
+              "trace": "profile--account-sign-in_2.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "appleHidden"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "apple"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:167"
+            ]
+          }
+        },
+        "Sign in resulting in signed in with account methods": {
+          "target": "Signed in with account methods",
+          "meta": {
+            "action": "signIn",
+            "witness": {
+              "trace": "profile--account-sign-in_23.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "device": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "identity": {
+                  "tag": "Some",
+                  "value": "google"
+                },
+                "provider": {
+                  "tag": "Some",
+                  "value": "google"
+                }
+              }
+            },
+            "source": [
+              "specs/profile/account-sign-in.qnt:140"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

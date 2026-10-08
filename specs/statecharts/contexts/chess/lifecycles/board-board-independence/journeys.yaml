@@ -1,0 +1,2737 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Select separate piece resulting in selecting a piece on the first board
+    - Configure separate sound resulting in selecting a piece on the first board
+    - Replace separate position resulting in selecting a piece on the first board
+    - Configure separate input resulting in selecting a piece on the first board
+    - Close separate board resulting in selecting a piece on the first board
+    - Select separate piece resulting in viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate input resulting in holding a piece on the first board
+    - Configure separate sound resulting in holding a piece on the first board
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ba85d58b0ea28137f8f9041b675ab8ed2a26f765cc16eb320a82a176f99b6d00
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 95f30605f6e4d88441f33800c201d7693ce76ee9c7998ede91fd64f6ba1c0a9a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Select separate piece resulting in selecting a piece on the first board
+    - Replace separate position resulting in selecting a piece on the first board
+    - Replace separate position resulting in selecting a piece on the first board
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate input resulting in holding a piece on the first board
+    - Cancel separate drag resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 149747b92de2eccfb42decfec0c1df79dd752e3854a78c3b3c6142630599ca6a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Move separate piece resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e0d89fb120072da1d86529a54cff976ca6312912542ee1fa0db2695a6b4aa755
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Move separate piece resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3e1ba7150a54581efb339b8bba3352e929db58d5d96c734537357e7d364138df
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4836ae5ed9bca32e0d89b0ac18b074fd005b551aff4b277359ad814e9c2cae05
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e43d85a62a0340f16d22d6dc90867076b66c88862dd4b6141f15860d5f5c23da
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3c15834ed67fe15fbb0f261fa62bbbfa409df5a362a1e25c952e514f64970a9c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Select separate piece resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d455de7e6e1e56a6f6518cb22e897f574a019f3f66e6017833463d03845bdb7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b431231b57607f40c5bd7033f9f5c4fd7c30230681d26ebfb4a1939d0eb52087
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Cancel separate drag resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4f6753b7acc57b6e9468678758e70a6b5219c2a9e693d092a2180454e24c60f7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Select separate piece resulting in selecting a piece on the first board
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a7a55ec4a9840989e36c86cfe6d6ce28bdb2a29d64ee4407191f06f286f8109d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Begin separate drag resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 48167c9920bf2ed334c2713fbe7658b88ff0144e6b4a006e3bb8b1796f1a49a7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d6ea43bf990c49ba05a66411954ff2551bec96467b2157d11a1293abfebc3e0a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Select separate piece resulting in selecting a piece on the first board
+    - Configure separate input resulting in selecting a piece on the first board
+    - Close separate board resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Select separate piece resulting in first board closed
+    - Move separate piece resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Begin separate drag resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: eda03f2716fa219bbb7335f83e60c5fd1851132506c9b9998ff93d79db02b5bc
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c80aeb07fe2c7e70c76eeb9f9ef0258a5bbc3cbcc355a30f441439c41b4d453e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Select separate piece resulting in selecting a piece on the first board
+    - Configure separate input resulting in selecting a piece on the first board
+    - Configure separate input resulting in selecting a piece on the first board
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 62329c1deb2356fe9a27b5ad5763680e119d6f27fc07012c7893836a74a13697
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Move separate piece resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Select separate piece resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d85b34e4a1563f854639385cde8f54acf6f744d3ff0dcc2adae955303f6d3445
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate input resulting in holding a piece on the first board
+    - Configure separate input resulting in holding a piece on the first board
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Select separate piece resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Move separate piece resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b776d72409cc9079a006dad6d12a0e39e12fc807a510ae3ee2fda216f47646e6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a0eb8b0be56bcbb77152a1220c10441d77155996f796255b15029dbf8f9928aa
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Replace separate position resulting in holding a piece on the first board
+    - Close separate board resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f9d45ab80f6584eaba60ed6903598cd303f0e149050ccb2dd4ad6ba96a079bad
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e4d928d30464dd425a6948d5e587ff329e05fd90a23158198752be14c167ec3b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Begin separate drag resulting in holding a piece on the first board
+    - Configure separate sound resulting in holding a piece on the first board
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Close separate board resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    endsIn: Viewing two independent boards
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 488abc36c69061b429986b4e8f59404ee240a2d86e434b04e1217a032469a6fe
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Move separate piece resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Configure separate input resulting in viewing two independent boards
+    - Replace separate position resulting in viewing two independent boards
+    - Configure separate sound resulting in viewing two independent boards
+    - Close separate board resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Replace separate position resulting in first board closed
+    - Configure separate input resulting in first board closed
+    - Configure separate sound resulting in first board closed
+    endsIn: First board closed
+    quintTrace:
+      model: specs/chess-board/board-independence.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: aa224845f08764414f3ec28186ebda0a282c652833118d74077da46cbf512c5c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

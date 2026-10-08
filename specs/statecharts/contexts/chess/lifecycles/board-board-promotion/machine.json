@@ -1,0 +1,1572 @@
+{
+  "id": "chess-board-board-promotion-lifecycle",
+  "initial": "Opening board board promotion",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/chess-board/board-promotion.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening board board promotion": {
+      "meta": {
+        "description": "The person is opening the board board promotion view.",
+        "snapshot": "the-person-is-opening-the-board-board-promotion-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ]
+      },
+      "on": {
+        "Opens with playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-promotion_11.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:19"
+            ]
+          }
+        }
+      }
+    },
+    "Playing before promotion": {
+      "meta": {
+        "description": "The person is playing before promotion.",
+        "snapshot": "the-person-is-playing-before-promotion",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": false,
+            "promotionBoard.promotedPiece": "none"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        },
+        "Try other promotion move resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "tryOtherPromotionMove",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:40"
+            ]
+          }
+        },
+        "Request promotion resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Configure promotion input resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Cancel promotion resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Configure automatic queen resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "configureAutomaticQueen",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:50"
+            ]
+          }
+        },
+        "Request promotion resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_14.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "queen"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Request promotion resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_5.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "queen"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing a promotion piece": {
+      "meta": {
+        "description": "The person is choosing a promotion piece.",
+        "snapshot": "the-person-is-choosing-a-promotion-piece",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": true,
+            "promotionBoard.promotedPiece": "none"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Try other promotion move resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "tryOtherPromotionMove",
+            "witness": {
+              "trace": "chess-board--board-promotion_15.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:40"
+            ]
+          }
+        },
+        "Cancel promotion resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_15.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "queen"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Configure promotion input resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_5.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_5.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        },
+        "Request promotion resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Configure automatic queen resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "configureAutomaticQueen",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:50"
+            ]
+          }
+        },
+        "Configure promotion input resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "queen"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Choose promotion resulting in seeing a promoted knight": {
+          "target": "Seeing a promoted knight",
+          "meta": {
+            "action": "choosePromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:31"
+            ]
+          }
+        },
+        "Choose promotion resulting in seeing a promoted bishop": {
+          "target": "Seeing a promoted bishop",
+          "meta": {
+            "action": "choosePromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:31"
+            ]
+          }
+        },
+        "Replace promotion position resulting in choosing a promotion piece": {
+          "target": "Choosing a promotion piece",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_8.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        },
+        "Choose promotion resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "choosePromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:31"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a promoted queen": {
+      "meta": {
+        "description": "The person is seeing a promoted queen.",
+        "snapshot": "the-person-is-seeing-a-promoted-queen",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": false,
+            "promotionBoard.promotedPiece": "queen"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Request promotion resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_5.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_5.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        },
+        "Configure automatic queen resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "configureAutomaticQueen",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:50"
+            ]
+          }
+        },
+        "Configure promotion input resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Cancel promotion resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_8.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Try other promotion move resulting in seeing a promoted queen": {
+          "target": "Seeing a promoted queen",
+          "meta": {
+            "action": "tryOtherPromotionMove",
+            "witness": {
+              "trace": "chess-board--board-promotion_8.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "queen"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:40"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a promoted knight": {
+      "meta": {
+        "description": "The person is seeing a promoted knight.",
+        "snapshot": "the-person-is-seeing-a-promoted-knight",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": false,
+            "promotionBoard.promotedPiece": "knight"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Request promotion resulting in seeing a promoted knight": {
+          "target": "Seeing a promoted knight",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Cancel promotion resulting in seeing a promoted knight": {
+          "target": "Seeing a promoted knight",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Configure promotion input resulting in seeing a promoted knight": {
+          "target": "Seeing a promoted knight",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Try other promotion move resulting in seeing a promoted knight": {
+          "target": "Seeing a promoted knight",
+          "meta": {
+            "action": "tryOtherPromotionMove",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:40"
+            ]
+          }
+        },
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_4.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a promoted bishop": {
+      "meta": {
+        "description": "The person is seeing a promoted bishop.",
+        "snapshot": "the-person-is-seeing-a-promoted-bishop",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": false,
+            "promotionBoard.promotedPiece": "bishop"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Request promotion resulting in seeing a promoted bishop": {
+          "target": "Seeing a promoted bishop",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Configure promotion input resulting in seeing a promoted bishop": {
+          "target": "Seeing a promoted bishop",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Cancel promotion resulting in seeing a promoted bishop": {
+          "target": "Seeing a promoted bishop",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 93,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_13.itf.json",
+              "step": 94,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "stalemate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        },
+        "Configure automatic queen resulting in seeing a promoted bishop": {
+          "target": "Seeing a promoted bishop",
+          "meta": {
+            "action": "configureAutomaticQueen",
+            "witness": {
+              "trace": "chess-board--board-promotion_1.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:50"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing a promoted rook": {
+      "meta": {
+        "description": "The person is seeing a promoted rook.",
+        "snapshot": "the-person-is-seeing-a-promoted-rook",
+        "recognize": [],
+        "checks": [
+          "Waiting for a choice keeps the original pawn and offers no move.",
+          "A completed promotion has exactly one of the four promised pieces.",
+          "Each action offers at most one move, with the chosen piece when promoted.",
+          "Disabled and finished positions offer neither a choice nor a move.",
+          "The activity sees only one of the prepared positions."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "promotionBoard.choice": false,
+            "promotionBoard.promotedPiece": "rook"
+          }
+        ],
+        "invariants": [
+          "invPendingPromotion",
+          "invPromotedPiece",
+          "invOnePromotionOffer",
+          "invPromotionAuthority",
+          "invPromotionPositions"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Request promotion resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "requestPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:23"
+            ]
+          }
+        },
+        "Try other promotion move resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "tryOtherPromotionMove",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:40"
+            ]
+          }
+        },
+        "Cancel promotion resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "cancelPromotion",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "bishop"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:38"
+            ]
+          }
+        },
+        "Configure automatic queen resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "configureAutomaticQueen",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "ready"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:50"
+            ]
+          }
+        },
+        "Configure promotion input resulting in seeing a promoted rook": {
+          "target": "Seeing a promoted rook",
+          "meta": {
+            "action": "configurePromotionInput",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "rook"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "checkmate"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:45"
+            ]
+          }
+        },
+        "Replace promotion position resulting in playing before promotion": {
+          "target": "Playing before promotion",
+          "meta": {
+            "action": "replacePromotionPosition",
+            "witness": {
+              "trace": "chess-board--board-promotion_22.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "automatic": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "piece": {
+                  "tag": "Some",
+                  "value": "knight"
+                },
+                "target": {
+                  "tag": "Some",
+                  "value": "replacement"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-promotion.qnt:54"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

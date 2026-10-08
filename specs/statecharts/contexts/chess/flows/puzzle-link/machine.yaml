@@ -1,0 +1,272 @@
+id: chess-puzzle-link
+initial: Viewing Share a puzzle link
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-link-opening.ts
+  - libs/chess-puzzle-client/src/puzzle-link-screen.tsx
+  - libs/chess-puzzle-client/src/puzzle-link-client.ts
+  - libs/chess-puzzle-client/src/chess-puzzle-share-link.tsx
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Share a puzzle link:
+    meta:
+      description: The person is at the place where share a puzzle link.
+      snapshot: the-person-is-at-the-place-where-share-a-puzzle-link
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:2
+    'on':
+      Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space:
+        target: Alice has a puzzle link to the puzzle on their board — 1
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:13
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          example: A solver shares a puzzle link to the puzzle they are solving
+      ? Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space and Alice
+        has solved the puzzle
+      : target: Alice has a puzzle link to the puzzle on their board — 2
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:17
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has solved the puzzle
+          example: A solver shares a puzzle link to a puzzle they have finished
+      ? Alice shares a puzzle link when Alice is signed in and Alice is playing puzzles in their space and Alice
+        has shared a puzzle link to the puzzle on their board
+      : target: Alice has the same puzzle link as before — 3
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:22
+          condition:
+          - Alice is signed in
+          - Alice is playing puzzles in their space
+          - Alice has shared a puzzle link to the puzzle on their board
+          example: Sharing a puzzle link again shares the same puzzle link
+      Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed in:
+        target: Bob has the hook-mate puzzle on their board — 4
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:33
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is signed in
+          example: Opening a puzzle link to an unplayed puzzle starts a rated attempt
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed
+        in and Bob has solved the hook-mate puzzle
+      : target: Bob has the hook-mate puzzle on their board — 5
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:38
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is signed in
+          - Bob has solved the hook-mate puzzle
+          example: Opening a puzzle link to a puzzle already played is unrated
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is signed
+        in and Bob is offline
+      : target: Bob is told puzzles need a connection within 15 seconds — 6
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:44
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is signed in
+          - Bob is offline
+          example: Opening a puzzle link while offline tells the person puzzles need a connection
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and the puzzle
+        has since been retired and Bob is signed in
+      : target: Bob is told the puzzle is no longer available — 7
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:52
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - the puzzle has since been retired
+          - Bob is signed in
+          example: Opening a retired puzzle's link tells the person it is no longer available
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+        who has played 19 puzzles today
+      : target: Bob has the hook-mate puzzle on their board — 8
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:64
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is a guest who has played 19 puzzles today
+          example: A guest's puzzle link uses one of today's puzzle starts
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+        who has played 18 puzzles today and Bob has opened Alice's puzzle link
+      : target: Bob is still asked to find the next move — 9
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:70
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is a guest who has played 18 puzzles today
+          - Bob has opened Alice's puzzle link
+          example: Opening the same puzzle link again uses no further puzzle start
+      ? Bob opens Alice's puzzle link when Alice has shared a puzzle link to the hook-mate puzzle and Bob is a guest
+        who has finished today's last allowed puzzle and Bob has never played the hook-mate puzzle
+      : target: Bob is told no new puzzle can start because today's allowance is used within 15 seconds — 10
+        meta:
+          source:
+          - specs/chess/puzzle-link.feature:77
+          condition:
+          - Alice has shared a puzzle link to the hook-mate puzzle
+          - Bob is a guest who has finished today's last allowed puzzle
+          - Bob has never played the hook-mate puzzle
+          example: A guest past the daily puzzle limit cannot open a puzzle link to an unplayed puzzle and is asked
+            to sign in
+  Alice has a puzzle link to the puzzle on their board — 1:
+    meta:
+      description: The person observes that alice has a puzzle link to the puzzle on their board.
+      snapshot: the-person-observes-that-alice-has-a-puzzle-link-to-the-puzzle-on-their-board
+      recognize: []
+      checks:
+      - Alice has a puzzle link to the puzzle on their board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has a puzzle link to the puzzle on their board — 2:
+    meta:
+      description: The person observes that alice has a puzzle link to the puzzle on their board.
+      snapshot: the-person-observes-that-alice-has-a-puzzle-link-to-the-puzzle-on-their-board
+      recognize: []
+      checks:
+      - Alice has a puzzle link to the puzzle on their board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has the same puzzle link as before — 3:
+    meta:
+      description: The person observes that alice has the same puzzle link as before.
+      snapshot: the-person-observes-that-alice-has-the-same-puzzle-link-as-before
+      recognize: []
+      checks:
+      - Alice has the same puzzle link as before
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:22
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob has the hook-mate puzzle on their board — 4:
+    meta:
+      description: The person observes that bob has the hook-mate puzzle on their board.
+      snapshot: the-person-observes-that-bob-has-the-hook-mate-puzzle-on-their-board
+      recognize: []
+      checks:
+      - Bob has the hook-mate puzzle on their board
+      - Bob's attempt is rated
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:33
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob has the hook-mate puzzle on their board — 5:
+    meta:
+      description: The person observes that bob has the hook-mate puzzle on their board.
+      snapshot: the-person-observes-that-bob-has-the-hook-mate-puzzle-on-their-board
+      recognize: []
+      checks:
+      - Bob has the hook-mate puzzle on their board
+      - Bob is told the attempt is unrated
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:38
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told puzzles need a connection within 15 seconds — 6:
+    meta:
+      description: The person observes that bob is told puzzles need a connection within 15 seconds.
+      snapshot: the-person-observes-that-bob-is-told-puzzles-need-a-connection-within-15-seconds
+      recognize: []
+      checks:
+      - Bob is told puzzles need a connection within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:44
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told the puzzle is no longer available — 7:
+    meta:
+      description: The person observes that bob is told the puzzle is no longer available.
+      snapshot: the-person-observes-that-bob-is-told-the-puzzle-is-no-longer-available
+      recognize: []
+      checks:
+      - Bob is told the puzzle is no longer available
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:52
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob has the hook-mate puzzle on their board — 8:
+    meta:
+      description: The person observes that bob has the hook-mate puzzle on their board.
+      snapshot: the-person-observes-that-bob-has-the-hook-mate-puzzle-on-their-board
+      recognize: []
+      checks:
+      - Bob has the hook-mate puzzle on their board
+      - Bob can read that 0 rated puzzles remain today
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:64
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is still asked to find the next move — 9:
+    meta:
+      description: The person observes that bob is still asked to find the next move.
+      snapshot: the-person-observes-that-bob-is-still-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Bob is still asked to find the next move
+      - Bob can read that 1 rated puzzles remain today
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:70
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told no new puzzle can start because today's allowance is used within 15 seconds — 10:
+    meta:
+      description: The person observes that bob is told no new puzzle can start because today's allowance is used
+        within 15 seconds.
+      snapshot: the-person-observes-that-bob-is-told-no-new-puzzle-can-start-because-today-s-allowanc
+      recognize: []
+      checks:
+      - Bob is told no new puzzle can start because today's allowance is used within 15 seconds
+      - Bob is asked to sign in
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-link.feature:77
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

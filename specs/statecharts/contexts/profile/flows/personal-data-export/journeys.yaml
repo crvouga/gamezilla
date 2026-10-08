@@ -1,0 +1,129 @@
+journeys:
+  A person requests their own export:
+    description: A person requests their own export
+    startingConditions:
+    - Alice has a recently proven account
+    events:
+    - Alice asks for a personal-data export when Alice has a recently proven account
+    endsIn: Alice sees that the export is being prepared — 1
+    checks:
+    - Alice sees that the export is being prepared
+    - Alice sees when it must be ready
+    gherkin:
+    - specs/profile/personal-data-export.feature:8 — A person requests their own export
+    exampleRow: []
+  Old proof requires signing in again:
+    description: Old proof requires signing in again
+    startingConditions:
+    - Alice completed signing in more than 10 minutes ago
+    events:
+    - Alice asks for a personal-data export when Alice completed signing in more than 10 minutes ago
+    endsIn: Alice is told to prove the account again before exporting personal data — 2
+    checks:
+    - Alice is told to prove the account again before exporting personal data
+    gherkin:
+    - specs/profile/personal-data-export.feature:14 — Old proof requires signing in again
+    exampleRow: []
+  An offline request is refused plainly:
+    description: An offline request is refused plainly
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice is offline
+    events:
+    - Alice asks for a personal-data export when Alice has a recently proven account and Alice is offline
+    endsIn: Alice is told the personal-data export needs a connection — 3
+    checks:
+    - Alice is told the personal-data export needs a connection
+    gherkin:
+    - specs/profile/personal-data-export.feature:19 — An offline request is refused plainly
+    exampleRow: []
+  An export includes readable and reusable personal data:
+    description: An export includes readable and reusable personal data
+    startingConditions:
+    - Alice has asked for a personal-data export
+    events:
+    - Alice's personal-data export becomes ready when Alice has asked for a personal-data export
+    endsIn: Alice can download a readable summary and reusable detail within 24 hours of asking — 4
+    checks:
+    - Alice can download a readable summary and reusable detail within 24 hours of asking
+    - the export includes every category of Alice's retained personal data
+    gherkin:
+    - specs/profile/personal-data-export.feature:27 — An export includes readable and reusable personal data
+    exampleRow: []
+  Another person's private information cannot appear in an export:
+    description: Another person's private information cannot appear in an export
+    startingConditions:
+    - Alice and Bob have separate accounts with personal data
+    events:
+    - Alice's personal-data export becomes ready when Alice and Bob have separate accounts with personal data
+    endsIn: Bob's private personal data cannot appear in Alice's export — 5
+    checks:
+    - Bob's private personal data cannot appear in Alice's export
+    gherkin:
+    - specs/profile/personal-data-export.feature:33 — Another person's private information cannot appear in an export
+    exampleRow: []
+  A failed export never pretends its incomplete answer is complete:
+    description: A failed export never pretends its incomplete answer is complete
+    startingConditions:
+    - Alice has asked for a personal-data export
+    events:
+    - Alice's personal-data export fails
+    endsIn: Alice is told the export failed and can ask again — 6
+    checks:
+    - Alice is told the export failed and can ask again
+    - Alice is not offered an incomplete export as a complete answer
+    gherkin:
+    - specs/profile/personal-data-export.feature:39 — A failed export never pretends its incomplete answer is complete
+    exampleRow: []
+  The person downloads a ready export:
+    description: The person downloads a ready export
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice's personal-data export has been ready for 6 days
+    events:
+    - Alice downloads the personal-data export when Alice has a recently proven account and Alice's personal-data
+      export has been ready for 6 days
+    endsIn: Alice receives her personal-data export — 7
+    checks:
+    - Alice receives her personal-data export
+    gherkin:
+    - specs/profile/personal-data-export.feature:47 — The person downloads a ready export
+    exampleRow: []
+  Another account cannot download the same export:
+    description: Another account cannot download the same export
+    startingConditions:
+    - Alice's personal-data export is ready
+    - Bob has a recently proven account
+    events:
+    - Bob opens Alice's personal-data export address
+    endsIn: Bob cannot download it because the export belongs to Alice — 8
+    checks:
+    - Bob cannot download it because the export belongs to Alice
+    gherkin:
+    - specs/profile/personal-data-export.feature:53 — Another account cannot download the same export
+    exampleRow: []
+  An expired export cannot be downloaded:
+    description: An expired export cannot be downloaded
+    startingConditions:
+    - Alice's personal-data export has been ready for 7 days
+    events:
+    - Alice downloads the personal-data export when Alice's personal-data export has been ready for 7 days
+    endsIn: Alice is told the export has expired and can ask for a new one — 9
+    checks:
+    - Alice is told the export has expired and can ask for a new one
+    gherkin:
+    - specs/profile/personal-data-export.feature:59 — An expired export cannot be downloaded
+    exampleRow: []
+  Deletion withdraws a ready export:
+    description: Deletion withdraws a ready export
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice's personal-data export is ready
+    events:
+    - Alice confirms account deletion
+    endsIn: Alice cannot download that export because the account has been deleted — 10
+    checks:
+    - Alice cannot download that export because the account has been deleted
+    gherkin:
+    - specs/profile/personal-data-export.feature:64 — Deletion withdraws a ready export
+    exampleRow: []

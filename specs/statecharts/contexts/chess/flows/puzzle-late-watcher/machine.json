@@ -1,0 +1,140 @@
+{
+  "id": "chess-puzzle-late-watcher",
+  "initial": "Viewing Arriving while a puzzle is under way",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-space-role.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-review-board.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Arriving while a puzzle is under way": {
+      "meta": {
+        "description": "The person is at the place where arriving while a puzzle is under way.",
+        "snapshot": "the-person-is-at-the-place-where-arriving-while-a-puzzle-is-under-way",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-late-watcher.feature:2"
+        ]
+      },
+      "on": {
+        "Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has played the next move of the solution": {
+          "target": "Bob is watching Alice's puzzle within 15 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-late-watcher.feature:15"
+            ],
+            "condition": [
+              "Alice and Bob are guests",
+              "Alice is hosting a space",
+              "Alice is playing puzzles in their space",
+              "Alice has played the next move of the solution"
+            ],
+            "example": "Someone who arrives mid-puzzle sees the host's current position"
+          }
+        },
+        "the connection comes back": {
+          "target": "Alice's and Bob's boards agree within 20 seconds — 2",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-late-watcher.feature:21"
+            ],
+            "condition": [
+              "Alice and Bob are guests",
+              "Alice is hosting a space",
+              "Alice is playing puzzles in their space",
+              "Bob has joined the space from the link and is watching Alice's puzzle",
+              "Bob is offline",
+              "Alice has played the next move of the solution"
+            ],
+            "example": "A watcher who loses the connection sees the host's position once back online"
+          }
+        },
+        "Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has solved the puzzle and Alice has moved on to the next puzzle": {
+          "target": "Alice's and Bob's boards agree within 15 seconds — 3",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-late-watcher.feature:28"
+            ],
+            "condition": [
+              "Alice and Bob are guests",
+              "Alice is hosting a space",
+              "Alice is playing puzzles in their space",
+              "Alice has solved the puzzle",
+              "Alice has moved on to the next puzzle"
+            ],
+            "example": "Someone who arrives after the host moved on sees the new puzzle"
+          }
+        }
+      }
+    },
+    "Bob is watching Alice's puzzle within 15 seconds — 1": {
+      "meta": {
+        "description": "The person observes that bob is watching Alice's puzzle within 15 seconds.",
+        "snapshot": "the-person-observes-that-bob-is-watching-alice-s-puzzle-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Bob is watching Alice's puzzle within 15 seconds",
+          "Alice's and Bob's boards agree within 15 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-late-watcher.feature:15"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's and Bob's boards agree within 20 seconds — 2": {
+      "meta": {
+        "description": "The person observes that alice's and Bob's boards agree within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-and-bob-s-boards-agree-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's and Bob's boards agree within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-late-watcher.feature:21"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's and Bob's boards agree within 15 seconds — 3": {
+      "meta": {
+        "description": "The person observes that alice's and Bob's boards agree within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-and-bob-s-boards-agree-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's and Bob's boards agree within 15 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-late-watcher.feature:28"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

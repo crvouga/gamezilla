@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Friends watch a puzzle" as s0
+  state "Alice is the host of the puzzle and can move pieces — 1" as s1
+  state "Alice is solving a different puzzle than the one before — 2" as s2
+  state "Alice is on the same puzzle as before — 3" as s3
+  state "Alice's board is unchanged — 4" as s4
+  state "Alice's board is unchanged — 5" as s5
+  state "Alice's board is unchanged — 6" as s6
+  state "Alice's game log records that puzzle as solved — 7" as s7
+  state "Alice has no puzzle on the board — 10" as s8
+  state "Alice and Bob both see only Bob's suggestion — 11" as s9
+  state "Bob sees no suggestions within 15 seconds — 12" as s10
+  [*] --> s0
+  s0 --> s1: Alice plays the next move of the solution when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+  s0 --> s2: Alice moves on to the next puzzle
+  s0 --> s3: Bob tries to move on from Alice's puzzle when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle and Alice has solved the puzzle
+  s0 --> s4: Bob tries to play the next move of Alice's puzzle
+  s0 --> s5: Bob tries to skip Alice's puzzle
+  s0 --> s6: Bob tries to move on from Alice's puzzle when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+  s0 --> s7: Alice solves the puzzle when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+  s0 --> s8: Alice leaves the puzzle for the chess choices
+  s0 --> s9: Bob suggests a move that is not the solution
+  s0 --> s10: Alice plays the next move of the solution when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle and Bob has suggested a move that Alice can see
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

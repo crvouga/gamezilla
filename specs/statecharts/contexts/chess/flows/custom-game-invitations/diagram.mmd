@@ -1,0 +1,36 @@
+stateDiagram-v2
+  state "Viewing Offer and accept a side" as s0
+  state "Black is reserved for Bob in the Custom Game — 1" as s1
+  state "Alice is told the person must be in the space — 2" as s2
+  state "Bob does not see Alice's invitation to play Black — 4" as s3
+  state "Carol cannot see the Custom Game — 5" as s4
+  state "Black is Bob in the Custom Game — 6" as s5
+  state "Carol is told that side is not their invitation — 7" as s6
+  state "Black is an open place in the Custom Game — 8" as s7
+  state "Bob is told that side is not their invitation — 9" as s8
+  state "Bob is told that side is not their invitation — 11" as s9
+  state "Black is either Bob or an open place in the Custom Game — 12" as s10
+  state "Bob is told that side is not their invitation — 13" as s11
+  [*] --> s0
+  s0 --> s1: Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space
+  s0 --> s2: Alice invites Carol to Black in the Custom Game
+  s0 --> s3: Alice revokes Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob
+  s0 --> s4: Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Carol is outside Alice's space
+  s0 --> s5: Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob
+  s0 --> s6: Carol accepts Black in the Custom Game
+  s0 --> s7: Bob declines Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob
+  s0 --> s8: Bob declines Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s9: Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Bob's invitation to Black has been revoked
+  s0 --> s10: Bob accepts Black while Alice revokes its invitation
+  s0 --> s11: Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob and Black has since been replaced by a bot
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]

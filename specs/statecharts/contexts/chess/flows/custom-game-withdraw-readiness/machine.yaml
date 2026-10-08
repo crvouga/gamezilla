@@ -1,0 +1,75 @@
+id: chess-custom-game-withdraw-readiness
+initial: Viewing Withdraw readiness
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-custom-game-client/src/use-custom-game-screen.ts
+  - libs/chess-custom-game-client/src/use-custom-game-review.ts
+  - libs/chess-custom-game-client/src/use-custom-game-command.ts
+  - libs/chess-custom-game-client/src/custom-game-test.tsx
+  - libs/chess-custom-game-client/src/custom-game-status.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Withdraw readiness:
+    meta:
+      description: The person is at the place where withdraw readiness.
+      snapshot: the-person-is-at-the-place-where-withdraw-readiness
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-withdraw-readiness.feature:2
+    'on':
+      ? Bob withdraws readiness for the Custom Game when Alice has a Custom Game between Alice as White and Bob
+        as Black and Alice and Bob are ready for the Custom Game
+      : target: Bob is not ready for the Custom Game — 1
+        meta:
+          source:
+          - specs/chess/custom-game-withdraw-readiness.feature:7
+          condition:
+          - Alice has a Custom Game between Alice as White and Bob as Black
+          - Alice and Bob are ready for the Custom Game
+          example: A ready person withdraws their agreement
+      Bob withdraws readiness for the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black:
+        target: Bob is told the Custom Game has already started — 2
+        meta:
+          source:
+          - specs/chess/custom-game-withdraw-readiness.feature:14
+          condition:
+          - Alice has an active Custom Game between Alice as White and Bob as Black
+          example: Readiness cannot be withdrawn after start
+  Bob is not ready for the Custom Game — 1:
+    meta:
+      description: The person observes that bob is not ready for the Custom Game.
+      snapshot: the-person-observes-that-bob-is-not-ready-for-the-custom-game
+      recognize: []
+      checks:
+      - Bob is not ready for the Custom Game
+      - The Custom Game cannot start
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-withdraw-readiness.feature:7
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob is told the Custom Game has already started — 2:
+    meta:
+      description: The person observes that bob is told the Custom Game has already started.
+      snapshot: the-person-observes-that-bob-is-told-the-custom-game-has-already-started
+      recognize: []
+      checks:
+      - Bob is told the Custom Game has already started
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-withdraw-readiness.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

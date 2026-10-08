@@ -1,0 +1,88 @@
+journeys:
+  An earlier save's confirmation preserves another person's writing:
+    description: An earlier save's confirmation preserves another person's writing
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice is waiting to hear back about the note "Groceries" saying "milk"
+    - Bob has written the note "Groceries" saying "eggs"
+    events:
+    - Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is
+      waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying
+      'eggs'
+    endsIn: Alice sees the note "Groceries" saying "eggs" — 1
+    checks:
+    - Alice sees the note "Groceries" saying "eggs"
+    - Bob sees the note "Groceries" saying "eggs"
+    gherkin:
+    - specs/sync-engine/note-conflicts.feature:13 — An earlier save's confirmation preserves another person's writing
+    exampleRow: []
+  An earlier save's confirmation preserves another person's deletion:
+    description: An earlier save's confirmation preserves another person's deletion
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice is waiting to hear back about the note "Groceries" saying "milk"
+    - Bob has written the note "Groceries" saying "eggs"
+    - Bob has deleted the note "Groceries"
+    events:
+    - Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is
+      waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying
+      'eggs' and Bob has deleted the note 'Groceries'
+    endsIn: Alice does not see the note "Groceries" — 2
+    checks:
+    - Alice does not see the note "Groceries"
+    - Bob does not see the note "Groceries"
+    gherkin:
+    - specs/sync-engine/note-conflicts.feature:20 — An earlier save's confirmation preserves another person's deletion
+    exampleRow: []
+  The earlier writer hears back while both writers await word:
+    description: The earlier writer hears back while both writers await word
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice is waiting to hear back about the note "Groceries" saying "milk"
+    - Bob is waiting to hear back about the note "Groceries" saying "eggs"
+    events:
+    - Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is
+      waiting to hear back about the note 'Groceries' saying 'milk' and Bob is waiting to hear back about the note
+      'Groceries' saying 'eggs'
+    endsIn: Alice sees the note "Groceries" saying "eggs" — 3
+    checks:
+    - Alice sees the note "Groceries" saying "eggs"
+    - Bob sees the note "Groceries" saying "eggs"
+    gherkin:
+    - specs/sync-engine/note-conflicts.feature:28 — The earlier writer hears back while both writers await word
+    exampleRow: []
+  Signing back in keeps another person's later writing:
+    description: Signing back in keeps another person's later writing
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice is waiting to hear back about the note "Groceries" saying "milk"
+    - Bob has written the note "Groceries" saying "eggs"
+    - Alice's app has been signed out elsewhere
+    events:
+    - Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back
+      about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs' and Alice's
+      app has been signed out elsewhere
+    endsIn: Alice sees the note "Groceries" saying "eggs" — 4
+    checks:
+    - Alice sees the note "Groceries" saying "eggs"
+    - Bob sees the note "Groceries" saying "eggs"
+    gherkin:
+    - specs/sync-engine/note-conflicts.feature:38 — Signing back in keeps another person's later writing
+    exampleRow: []
+  Signing back in forgets writing that never reached anyone else:
+    description: Signing back in forgets writing that never reached anyone else
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app is offline
+    - Alice has written the note "Groceries" saying "milk"
+    - Alice's app has been signed out elsewhere
+    events:
+    - Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and
+      Alice has written the note 'Groceries' saying 'milk' and Alice's app has been signed out elsewhere
+    endsIn: Alice does not see the note "Groceries" — 5
+    checks:
+    - Alice does not see the note "Groceries"
+    - Bob does not see the note "Groceries"
+    gherkin:
+    - specs/sync-engine/note-conflicts.feature:46 — Signing back in forgets writing that never reached anyone else
+    exampleRow: []

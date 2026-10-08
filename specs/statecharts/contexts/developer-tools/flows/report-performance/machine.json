@@ -1,0 +1,160 @@
+{
+  "id": "developer-tools-report-performance",
+  "initial": "Viewing Find slow parts of the app in test reports",
+  "meta": {
+    "context": "Developer tools",
+    "kind": "flow",
+    "owner": "Developer tools owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/harness-report-client/src/use-report-nav.ts",
+      "pkgs/harness-report-client/src/spec-report-parts.tsx",
+      "pkgs/harness-report-client/src/report-status.tsx",
+      "pkgs/harness-report-client/src/report-parts-view.tsx",
+      "pkgs/harness-report-client/src/report-outcome.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Find slow parts of the app in test reports": {
+      "meta": {
+        "description": "The person is at the place where find slow parts of the app in test reports.",
+        "snapshot": "the-person-is-at-the-place-where-find-slow-parts-of-the-app-in-test-reports",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/developer-tools/report-performance.feature:2"
+        ]
+      },
+      "on": {
+        "the team opens that test report's heatmap when a test report records a step that took longer than the chosen allowance": {
+          "target": "the team sees the recorded time for that step — 1",
+          "meta": {
+            "source": [
+              "specs/developer-tools/report-performance.feature:8"
+            ],
+            "condition": [
+              "a test report records a step that took longer than the chosen allowance"
+            ],
+            "example": "A slow step stands out in the heatmap"
+          }
+        },
+        "the team opens that test report's heatmap when a test report records a step within the chosen allowance": {
+          "target": "that step is not marked as slow because it stayed within the allowance — 2",
+          "meta": {
+            "source": [
+              "specs/developer-tools/report-performance.feature:14"
+            ],
+            "condition": [
+              "a test report records a step within the chosen allowance"
+            ],
+            "example": "A step within the allowance is not marked as slow"
+          }
+        },
+        "the team opens that test report's heatmap when a test report has no recorded time for its steps": {
+          "target": "the team is told measurements are unavailable — 3",
+          "meta": {
+            "source": [
+              "specs/developer-tools/report-performance.feature:21"
+            ],
+            "condition": [
+              "a test report has no recorded time for its steps"
+            ],
+            "example": "A report without recorded time says measurements are unavailable"
+          }
+        },
+        "the team selects that step in the heatmap": {
+          "target": "the team sees that step's recorded moment — 5",
+          "meta": {
+            "source": [
+              "specs/developer-tools/report-performance.feature:34"
+            ],
+            "condition": [
+              "a test report records a slow step with a recorded moment"
+            ],
+            "example": "A slow step leads to the place where it happened"
+          }
+        }
+      }
+    },
+    "the team sees the recorded time for that step — 1": {
+      "meta": {
+        "description": "The person observes that the team sees the recorded time for that step.",
+        "snapshot": "the-person-observes-that-the-team-sees-the-recorded-time-for-that-step",
+        "recognize": [],
+        "checks": [
+          "the team sees the recorded time for that step",
+          "that step is marked as slow"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/developer-tools/report-performance.feature:8"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "that step is not marked as slow because it stayed within the allowance — 2": {
+      "meta": {
+        "description": "The person observes that that step is not marked as slow because it stayed within the allowance.",
+        "snapshot": "the-person-observes-that-that-step-is-not-marked-as-slow-because-it-stayed-within-the",
+        "recognize": [],
+        "checks": [
+          "that step is not marked as slow because it stayed within the allowance",
+          "the team sees the heatmap for its recorded steps"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/developer-tools/report-performance.feature:14",
+          "specs/developer-tools/report-performance.feature:26"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "the team is told measurements are unavailable — 3": {
+      "meta": {
+        "description": "The person observes that the team is told measurements are unavailable.",
+        "snapshot": "the-person-observes-that-the-team-is-told-measurements-are-unavailable",
+        "recognize": [],
+        "checks": [
+          "the team is told measurements are unavailable"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/developer-tools/report-performance.feature:21"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the team sees that step's recorded moment — 5": {
+      "meta": {
+        "description": "The person observes that the team sees that step's recorded moment.",
+        "snapshot": "the-person-observes-that-the-team-sees-that-step-s-recorded-moment",
+        "recognize": [],
+        "checks": [
+          "the team sees that step's recorded moment"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/developer-tools/report-performance.feature:34"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

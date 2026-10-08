@@ -1,0 +1,95 @@
+journeys:
+  Claiming a room nobody owns makes the claimer its owner:
+    description: Claiming a room nobody owns makes the claimer its owner
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - nobody owns the room
+    events:
+    - Alice claims the room
+    endsIn: everyone sees that Alice owns the room — 1
+    checks:
+    - everyone sees that Alice owns the room
+    gherkin:
+    - specs/room/ownership.feature:11 — Claiming a room nobody owns makes the claimer its owner
+    exampleRow: []
+  Nobody can claim a room someone already owns:
+    description: Nobody can claim a room someone already owns
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice owns the room
+    events:
+    - Bob claims the room
+    endsIn: Bob is told the room already has an owner — 2
+    checks:
+    - Bob is told the room already has an owner
+    - everyone still sees that Alice owns the room
+    gherkin:
+    - specs/room/ownership.feature:16 — Nobody can claim a room someone already owns
+    exampleRow: []
+  The owner turns someone away:
+    description: The owner turns someone away
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice owns the room
+    events:
+    - Alice turns Eve away
+    endsIn: everyone sees that Eve is turned away — 3
+    checks:
+    - everyone sees that Eve is turned away
+    gherkin:
+    - specs/room/ownership.feature:24 — The owner turns someone away
+    exampleRow: []
+  Someone who is not the owner cannot turn anyone away:
+    description: Someone who is not the owner cannot turn anyone away
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice owns the room
+    events:
+    - Bob turns Eve away
+    endsIn: Bob is told only the owner can turn someone away — 4
+    checks:
+    - Bob is told only the owner can turn someone away
+    gherkin:
+    - specs/room/ownership.feature:29 — Someone who is not the owner cannot turn anyone away
+    exampleRow: []
+  The owner cannot turn themselves away:
+    description: The owner cannot turn themselves away
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice owns the room
+    events:
+    - Alice turns Alice away
+    endsIn: Alice is told the owner cannot turn themselves away — 5
+    checks:
+    - Alice is told the owner cannot turn themselves away
+    - everyone still sees that Alice owns the room
+    gherkin:
+    - specs/room/ownership.feature:34 — The owner cannot turn themselves away
+    exampleRow: []
+  A change from someone who is turned away is refused:
+    description: A change from someone who is turned away is refused
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice has turned Eve away
+    events:
+    - Eve adds one to the tally
+    endsIn: Eve is told they have been turned away — 6
+    checks:
+    - Eve is told they have been turned away
+    - everyone still sees a tally of 0
+    gherkin:
+    - specs/room/ownership.feature:42 — A change from someone who is turned away is refused
+    exampleRow: []
+  Everyone else's changes still count:
+    description: Everyone else's changes still count
+    startingConditions:
+    - Alice, Bob and Eve are in the room
+    - Alice has turned Eve away
+    events:
+    - Bob adds one to the tally
+    endsIn: everyone sees a tally of 1 — 7
+    checks:
+    - everyone sees a tally of 1
+    gherkin:
+    - specs/room/ownership.feature:48 — Everyone else's changes still count
+    exampleRow: []

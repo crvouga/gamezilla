@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing The app opens without a connection" as s0
+  state "Alice sees the tabs — 1" as s1
+  state "Alice is on Settings — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice closes and reopens the app
+  s0 --> s2: Alice opens Settings
+  s1 --> [*]
+  s2 --> [*]

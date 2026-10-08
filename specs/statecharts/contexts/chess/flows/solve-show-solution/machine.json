@@ -1,0 +1,73 @@
+{
+  "id": "chess-solve-show-solution",
+  "initial": "Viewing Showing the solution",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Showing the solution": {
+      "meta": {
+        "description": "The person is at the place where showing the solution.",
+        "snapshot": "the-person-is-at-the-place-where-showing-the-solution",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-show-solution.feature:2"
+        ]
+      },
+      "on": {
+        "Alice shows the solution when Alice is signed in and Alice is solving the hook-mate puzzle": {
+          "target": "Alice's board reaches checkmate at move 4 of the line within 20 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/chess/solve-show-solution.feature:13"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the hook-mate puzzle"
+            ],
+            "example": "The rest of the line plays out to checkmate"
+          }
+        }
+      }
+    },
+    "Alice's board reaches checkmate at move 4 of the line within 20 seconds — 1": {
+      "meta": {
+        "description": "The person observes that alice's board reaches checkmate at move 4 of the line within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-board-reaches-checkmate-at-move-4-of-the-line-within",
+        "recognize": [],
+        "checks": [
+          "Alice's board reaches checkmate at move 4 of the line within 20 seconds",
+          "Alice's puzzle shows the revealed solution within 20 seconds",
+          "Alice cannot move pieces",
+          "Alice's game log records that puzzle as failed",
+          "Alice's stats show 1 played, 0 solved, and 0% accuracy",
+          "Alice's puzzle rating is below 1500"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-show-solution.feature:13",
+          "specs/chess/solve-show-solution.feature:17",
+          "specs/chess/solve-show-solution.feature:22",
+          "specs/chess/solve-show-solution.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    }
+  }
+}

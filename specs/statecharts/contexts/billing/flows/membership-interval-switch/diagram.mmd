@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing Switch Plus plans" as s0
+  state "Alice's membership is active on the yearly plan — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice switches the membership to the yearly plan in the billing portal
+  s1 --> [*]

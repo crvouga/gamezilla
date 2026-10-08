@@ -1,0 +1,69 @@
+journeys:
+  The opponent's pieces cannot be moved:
+    description: The opponent's pieces cannot be moved
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice tries to move the opponent's piece g8-f8
+    endsIn: Alice is still asked to find the next move — 1
+    checks:
+    - Alice is still asked to find the next move
+    - Alice's board is unchanged
+    gherkin:
+    - specs/chess/solve-move-rules.feature:15 — The opponent's pieces cannot be moved
+    exampleRow: []
+  An illegal move goes back and is not held against the solver:
+    description: An illegal move goes back and is not held against the solver
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice tries the illegal move a1-a8
+    endsIn: Alice's board is unchanged — 2
+    checks:
+    - Alice's board is unchanged
+    - Alice is still asked to find the next move
+    - Alice's puzzle rating is 1500
+    gherkin:
+    - specs/chess/solve-move-rules.feature:20 — An illegal move goes back and is not held against the solver
+    exampleRow: []
+  Pieces cannot be moved after a wrong move until a retry:
+    description: Pieces cannot be moved after a wrong move until a retry
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice plays a wrong move
+    endsIn: Alice cannot move pieces — 3
+    checks:
+    - Alice cannot move pieces
+    gherkin:
+    - specs/chess/solve-move-rules.feature:26 — Pieces cannot be moved after a wrong move until a retry
+    exampleRow: []
+  Pieces cannot be moved once the puzzle is over:
+    description: Pieces cannot be moved once the puzzle is over
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice solves the puzzle
+    endsIn: Alice cannot move pieces — 4
+    checks:
+    - Alice cannot move pieces
+    gherkin:
+    - specs/chess/solve-move-rules.feature:30 — Pieces cannot be moved once the puzzle is over
+    exampleRow: []
+  Picking up a piece shows where it can go:
+    description: Picking up a piece shows where it can go
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice picks up the rook on a1
+    endsIn: Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1 — 5
+    checks:
+    - Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1
+    gherkin:
+    - specs/chess/solve-move-rules.feature:34 — Picking up a piece shows where it can go
+    exampleRow: []

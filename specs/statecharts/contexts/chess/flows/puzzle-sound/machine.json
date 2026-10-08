@@ -1,0 +1,489 @@
+{
+  "id": "chess-puzzle-sound",
+  "initial": "Viewing Respect the app's sounds while solving and reviewing",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-space-role.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-review-board.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts",
+      "libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Respect the app's sounds while solving and reviewing": {
+      "meta": {
+        "description": "The person is at the place where respect the app's sounds while solving and reviewing.",
+        "snapshot": "the-person-is-at-the-place-where-respect-the-app-s-sounds-while-solving-and-reviewing",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:2"
+        ]
+      },
+      "on": {
+        "Alice plays a1-a5 when Alice is signed in and Alice has turned sounds on and Alice is solving the two-rook clearance puzzle": {
+          "target": "Alice hears the puzzle's move sounds — 1",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:9"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds on",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "Enabled sounds accompany a puzzle move and its opponent reply"
+          }
+        },
+        "Alice plays a1-a5 when Alice is signed in and Alice has turned sounds off and Alice is solving the two-rook clearance puzzle": {
+          "target": "Alice cannot hear puzzle sounds while the app's sounds are off — 2",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:18"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "Disabled sounds keep a puzzle move and its opponent reply silent"
+          }
+        },
+        "Alice plays e5-d6 when Alice is signed in and Alice has turned sounds on and Alice is solving the en passant puzzle": {
+          "target": "Alice hears the puzzle's capture sound — 3",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:27"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds on",
+              "Alice is solving the en passant puzzle"
+            ],
+            "example": "Enabled sounds accompany the puzzle's capture"
+          }
+        },
+        "Alice plays e5-d6 when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle and Alice has since turned sounds on and returned to that unfinished puzzle": {
+          "target": "Alice hears the puzzle's capture sound — 4",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:36"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the en passant puzzle",
+              "Alice has since turned sounds on and returned to that unfinished puzzle"
+            ],
+            "example": "A resumed puzzle completes its capture feedback after sounds are enabled"
+          }
+        },
+        "Alice plays e5-d6 when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle": {
+          "target": "Alice cannot hear puzzle sounds while the app's sounds are off — 5",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:46"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the en passant puzzle"
+            ],
+            "example": "Disabled sounds keep the puzzle's capture silent"
+          }
+        },
+        "Alice plays a wrong move when Alice is signed in and Alice has turned sounds on and Alice is solving the castling puzzle": {
+          "target": "Alice is told the move was wrong — 6",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:54"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds on",
+              "Alice is solving the castling puzzle"
+            ],
+            "example": "Enabled sounds accompany a wrong puzzle move"
+          }
+        },
+        "Alice plays a wrong move when Alice is signed in and Alice has turned sounds off and Alice is solving the castling puzzle": {
+          "target": "Alice is told the move was wrong — 7",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:63"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the castling puzzle"
+            ],
+            "example": "Disabled sounds keep wrong-move feedback silent"
+          }
+        },
+        "Alice turns sounds off": {
+          "target": "Alice's sounds are off — 8",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:73"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds on",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "Turning sounds off preserves the unfinished puzzle"
+          }
+        },
+        "Alice plays a1-a5 when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has since turned sounds off and returned to that unfinished puzzle": {
+          "target": "Alice cannot hear puzzle sounds while the app's sounds are off — 9",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:81"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the two-rook clearance puzzle",
+              "Alice has since turned sounds off and returned to that unfinished puzzle"
+            ],
+            "example": "A puzzle already open follows a later silence choice"
+          }
+        },
+        "Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice is solving the two-rook clearance puzzle": {
+          "target": "Alice's sounds are on — 10",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:89"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "Turning sounds on preserves the unfinished puzzle"
+          }
+        },
+        "Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice is solving the en passant puzzle": {
+          "target": "Alice hears no new puzzle feedback — 11",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:98"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is solving the en passant puzzle"
+            ],
+            "example": "Enabling sounds preserves the reached opening without repeating its setup sound"
+          }
+        },
+        "Alice turns sounds on when Alice is signed in and Alice has turned sounds off and Alice has solved the en passant puzzle": {
+          "target": "Alice hears no new puzzle feedback — 12",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:107"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice has solved the en passant puzzle"
+            ],
+            "example": "Enabling sounds after a silent solve does not repeat solved feedback"
+          }
+        },
+        "Alice steps forward one move in the review when Alice is signed in and Alice has turned sounds on and Alice is reviewing the solved puzzle at move 3": {
+          "target": "Alice hears the review's move sound — 13",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:117"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds on",
+              "Alice is reviewing the solved puzzle at move 3"
+            ],
+            "example": "An enabled review sounds its next move"
+          }
+        },
+        "Alice steps forward one move in the review when Alice is signed in and Alice has turned sounds off and Alice is reviewing the solved puzzle at move 3": {
+          "target": "Alice cannot hear puzzle sounds while the app's sounds are off — 14",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-sound.feature:125"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice has turned sounds off",
+              "Alice is reviewing the solved puzzle at move 3"
+            ],
+            "example": "A muted review remains silent while its position changes"
+          }
+        }
+      }
+    },
+    "Alice hears the puzzle's move sounds — 1": {
+      "meta": {
+        "description": "The person observes that alice hears the puzzle's move sounds.",
+        "snapshot": "the-person-observes-that-alice-hears-the-puzzle-s-move-sounds",
+        "recognize": [],
+        "checks": [
+          "Alice hears the puzzle's move sounds",
+          "Alice is solving the puzzle at move 3 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hear puzzle sounds while the app's sounds are off — 2": {
+      "meta": {
+        "description": "The person observes that alice cannot hear puzzle sounds while the app's sounds are off.",
+        "snapshot": "the-person-observes-that-alice-cannot-hear-puzzle-sounds-while-the-app-s-sounds-are-o",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hear puzzle sounds while the app's sounds are off",
+          "Alice is solving the puzzle at move 3 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:18"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the puzzle's capture sound — 3": {
+      "meta": {
+        "description": "The person observes that alice hears the puzzle's capture sound.",
+        "snapshot": "the-person-observes-that-alice-hears-the-puzzle-s-capture-sound",
+        "recognize": [],
+        "checks": [
+          "Alice hears the puzzle's capture sound",
+          "Alice's puzzle is solved within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the puzzle's capture sound — 4": {
+      "meta": {
+        "description": "The person observes that alice hears the puzzle's capture sound.",
+        "snapshot": "the-person-observes-that-alice-hears-the-puzzle-s-capture-sound",
+        "recognize": [],
+        "checks": [
+          "Alice hears the puzzle's capture sound",
+          "Alice's puzzle is solved within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:36"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hear puzzle sounds while the app's sounds are off — 5": {
+      "meta": {
+        "description": "The person observes that alice cannot hear puzzle sounds while the app's sounds are off.",
+        "snapshot": "the-person-observes-that-alice-cannot-hear-puzzle-sounds-while-the-app-s-sounds-are-o",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hear puzzle sounds while the app's sounds are off",
+          "Alice's puzzle is solved within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:46"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the move was wrong — 6": {
+      "meta": {
+        "description": "The person observes that alice is told the move was wrong.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-move-was-wrong",
+        "recognize": [],
+        "checks": [
+          "Alice is told the move was wrong",
+          "Alice hears the puzzle's wrong-move feedback"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:54"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the move was wrong — 7": {
+      "meta": {
+        "description": "The person observes that alice is told the move was wrong.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-move-was-wrong",
+        "recognize": [],
+        "checks": [
+          "Alice is told the move was wrong",
+          "Alice cannot hear puzzle sounds while the app's sounds are off"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:63"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sounds are off — 8": {
+      "meta": {
+        "description": "The person observes that alice's sounds are off.",
+        "snapshot": "the-person-observes-that-alice-s-sounds-are-off",
+        "recognize": [],
+        "checks": [
+          "Alice's sounds are off",
+          "Alice is solving the puzzle at move 1 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:73"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hear puzzle sounds while the app's sounds are off — 9": {
+      "meta": {
+        "description": "The person observes that alice cannot hear puzzle sounds while the app's sounds are off.",
+        "snapshot": "the-person-observes-that-alice-cannot-hear-puzzle-sounds-while-the-app-s-sounds-are-o",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hear puzzle sounds while the app's sounds are off",
+          "Alice is solving the puzzle at move 3 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:81"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sounds are on — 10": {
+      "meta": {
+        "description": "The person observes that alice's sounds are on.",
+        "snapshot": "the-person-observes-that-alice-s-sounds-are-on",
+        "recognize": [],
+        "checks": [
+          "Alice's sounds are on",
+          "Alice is solving the puzzle at move 1 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:89"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears no new puzzle feedback — 11": {
+      "meta": {
+        "description": "The person observes that alice hears no new puzzle feedback.",
+        "snapshot": "the-person-observes-that-alice-hears-no-new-puzzle-feedback",
+        "recognize": [],
+        "checks": [
+          "Alice hears no new puzzle feedback",
+          "Alice is solving the puzzle at move 1 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:98"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears no new puzzle feedback — 12": {
+      "meta": {
+        "description": "The person observes that alice hears no new puzzle feedback.",
+        "snapshot": "the-person-observes-that-alice-hears-no-new-puzzle-feedback",
+        "recognize": [],
+        "checks": [
+          "Alice hears no new puzzle feedback",
+          "Alice's puzzle is solved"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:107"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice hears the review's move sound — 13": {
+      "meta": {
+        "description": "The person observes that alice hears the review's move sound.",
+        "snapshot": "the-person-observes-that-alice-hears-the-review-s-move-sound",
+        "recognize": [],
+        "checks": [
+          "Alice hears the review's move sound",
+          "Alice's review is at move 4 of 4, reached with animation"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:117"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot hear puzzle sounds while the app's sounds are off — 14": {
+      "meta": {
+        "description": "The person observes that alice cannot hear puzzle sounds while the app's sounds are off.",
+        "snapshot": "the-person-observes-that-alice-cannot-hear-puzzle-sounds-while-the-app-s-sounds-are-o",
+        "recognize": [],
+        "checks": [
+          "Alice cannot hear puzzle sounds while the app's sounds are off",
+          "Alice's review is at move 4 of 4, reached with animation"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-sound.feature:125"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

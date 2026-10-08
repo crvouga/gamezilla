@@ -1,0 +1,421 @@
+{
+  "id": "chess-puzzle-play",
+  "initial": "Viewing Puzzle play is a feed",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-puzzle-client/src/use-puzzle-play-screen-state.ts",
+      "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+      "libs/chess-puzzle-client/src/chess-puzzle-play-queries.ts",
+      "libs/chess-puzzle-client/src/chess-puzzle-play-layout.tsx",
+      "libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Puzzle play is a feed": {
+      "meta": {
+        "description": "The person is at the place where puzzle play is a feed.",
+        "snapshot": "the-person-is-at-the-place-where-puzzle-play-is-a-feed",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:2"
+        ]
+      },
+      "on": {
+        "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by solving it cleanly": {
+          "target": "Alice is solving a different puzzle than the one before — 1",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:13"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has finished this puzzle by solving it cleanly"
+            ],
+            "example": "Moving on after a finished puzzle serves a different one"
+          }
+        },
+        "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by showing the solution": {
+          "target": "Alice is solving a different puzzle than the one before — 2",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:13"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has finished this puzzle by showing the solution"
+            ],
+            "example": "Moving on after a finished puzzle serves a different one"
+          }
+        },
+        "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by skipping it": {
+          "target": "Alice is solving a different puzzle than the one before — 3",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:13"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has finished this puzzle by skipping it"
+            ],
+            "example": "Moving on after a finished puzzle serves a different one"
+          }
+        },
+        "Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space": {
+          "target": "Alice is not offered to move on — 4",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:24"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "Moving on while the puzzle is still being solved is not offered"
+          }
+        },
+        "Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move": {
+          "target": "Alice is not offered to move on — 5",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:29"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Alice has played a wrong move"
+            ],
+            "example": "A wrong move needs a retry before moving on is offered"
+          }
+        },
+        "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space": {
+          "target": "Alice sees a rating change that raised their puzzle rating — 6",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:37"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A solve shows a rating change that raised the rating"
+          }
+        },
+        "Alice plays a wrong move": {
+          "target": "Alice sees a rating change that lowered their puzzle rating — 7",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:41"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A wrong move shows a rating change that lowered the rating"
+          }
+        },
+        "Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space": {
+          "target": "Alice sees a rating change that lowered their puzzle rating — 8",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:45"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A skip shows a rating change that lowered the rating"
+          }
+        },
+        "Alice shows the solution": {
+          "target": "Alice sees a rating change that lowered their puzzle rating — 9",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:49"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "A shown solution shows a rating change that lowered the rating"
+          }
+        },
+        "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and the puzzle pool holds just three puzzles and Alice has solved 3 puzzles in a row and Alice's feed has come round to a puzzle they already played": {
+          "target": "Alice is told the attempt is unrated — 10",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:53"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "the puzzle pool holds just three puzzles",
+              "Alice has solved 3 puzzles in a row",
+              "Alice's feed has come round to a puzzle they already played"
+            ],
+            "example": "A repeat of a played puzzle shows it is unrated instead of a rating change"
+          }
+        },
+        "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Bob is watching Alice's puzzle": {
+          "target": "Alice sees a rating change that raised their puzzle rating — 11",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:61"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space",
+              "Bob is watching Alice's puzzle"
+            ],
+            "example": "A watcher sees no rating change of their own"
+          }
+        },
+        "Alice asks for a hint": {
+          "target": "Alice cannot see the puzzle's own rating — 14",
+          "meta": {
+            "source": [
+              "specs/chess/puzzle-play.feature:79"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is playing puzzles in their space"
+            ],
+            "example": "The puzzle's own rating and themes cannot be seen while it is being solved"
+          }
+        }
+      }
+    },
+    "Alice is solving a different puzzle than the one before — 1": {
+      "meta": {
+        "description": "The person observes that alice is solving a different puzzle than the one before.",
+        "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
+        "recognize": [],
+        "checks": [
+          "Alice is solving a different puzzle than the one before"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is solving a different puzzle than the one before — 2": {
+      "meta": {
+        "description": "The person observes that alice is solving a different puzzle than the one before.",
+        "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
+        "recognize": [],
+        "checks": [
+          "Alice is solving a different puzzle than the one before"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is solving a different puzzle than the one before — 3": {
+      "meta": {
+        "description": "The person observes that alice is solving a different puzzle than the one before.",
+        "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
+        "recognize": [],
+        "checks": [
+          "Alice is solving a different puzzle than the one before"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered to move on — 4": {
+      "meta": {
+        "description": "The person observes that alice is not offered to move on.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-to-move-on",
+        "recognize": [],
+        "checks": [
+          "Alice is not offered to move on",
+          "Alice is on the same puzzle as before"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:24"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered to move on — 5": {
+      "meta": {
+        "description": "The person observes that alice is not offered to move on.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-to-move-on",
+        "recognize": [],
+        "checks": [
+          "Alice is not offered to move on",
+          "Alice's puzzle remains wrong"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:29"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a rating change that raised their puzzle rating — 6": {
+      "meta": {
+        "description": "The person observes that alice sees a rating change that raised their puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-sees-a-rating-change-that-raised-their-puzzle-rating",
+        "recognize": [],
+        "checks": [
+          "Alice sees a rating change that raised their puzzle rating",
+          "Alice can see the puzzle's own rating",
+          "Alice can see the puzzle's themes"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:37",
+          "specs/chess/puzzle-play.feature:69"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice sees a rating change that lowered their puzzle rating — 7": {
+      "meta": {
+        "description": "The person observes that alice sees a rating change that lowered their puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-sees-a-rating-change-that-lowered-their-puzzle-rating",
+        "recognize": [],
+        "checks": [
+          "Alice sees a rating change that lowered their puzzle rating"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:41"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a rating change that lowered their puzzle rating — 8": {
+      "meta": {
+        "description": "The person observes that alice sees a rating change that lowered their puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-sees-a-rating-change-that-lowered-their-puzzle-rating",
+        "recognize": [],
+        "checks": [
+          "Alice sees a rating change that lowered their puzzle rating",
+          "Alice can see the puzzle's own rating",
+          "Alice can see the puzzle's themes"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:45",
+          "specs/chess/puzzle-play.feature:74"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Alice sees a rating change that lowered their puzzle rating — 9": {
+      "meta": {
+        "description": "The person observes that alice sees a rating change that lowered their puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-sees-a-rating-change-that-lowered-their-puzzle-rating",
+        "recognize": [],
+        "checks": [
+          "Alice sees a rating change that lowered their puzzle rating"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:49"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the attempt is unrated — 10": {
+      "meta": {
+        "description": "The person observes that alice is told the attempt is unrated.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-attempt-is-unrated",
+        "recognize": [],
+        "checks": [
+          "Alice is told the attempt is unrated",
+          "Alice sees no rating change"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:53"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a rating change that raised their puzzle rating — 11": {
+      "meta": {
+        "description": "The person observes that alice sees a rating change that raised their puzzle rating.",
+        "snapshot": "the-person-observes-that-alice-sees-a-rating-change-that-raised-their-puzzle-rating",
+        "recognize": [],
+        "checks": [
+          "Alice sees a rating change that raised their puzzle rating",
+          "Bob sees no rating change"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:61"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot see the puzzle's own rating — 14": {
+      "meta": {
+        "description": "The person observes that alice cannot see the puzzle's own rating.",
+        "snapshot": "the-person-observes-that-alice-cannot-see-the-puzzle-s-own-rating",
+        "recognize": [],
+        "checks": [
+          "Alice cannot see the puzzle's own rating",
+          "Alice cannot see the puzzle's themes"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-play.feature:79"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

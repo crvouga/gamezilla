@@ -1,0 +1,197 @@
+{
+  "id": "sync-engine-note-conflicts",
+  "initial": "Viewing Earlier saves preserve later edits",
+  "meta": {
+    "context": "Sync engine",
+    "kind": "flow",
+    "owner": "Sync engine owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Earlier saves preserve later edits": {
+      "meta": {
+        "description": "The person is at the place where earlier saves preserve later edits.",
+        "snapshot": "the-person-is-at-the-place-where-earlier-saves-preserve-later-edits",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:2"
+        ]
+      },
+      "on": {
+        "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs'": {
+          "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 1",
+          "meta": {
+            "source": [
+              "specs/sync-engine/note-conflicts.feature:13"
+            ],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
+              "Bob has written the note \"Groceries\" saying \"eggs\""
+            ],
+            "example": "An earlier save's confirmation preserves another person's writing"
+          }
+        },
+        "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs' and Bob has deleted the note 'Groceries'": {
+          "target": "Alice does not see the note \"Groceries\" — 2",
+          "meta": {
+            "source": [
+              "specs/sync-engine/note-conflicts.feature:20"
+            ],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
+              "Bob has written the note \"Groceries\" saying \"eggs\"",
+              "Bob has deleted the note \"Groceries\""
+            ],
+            "example": "An earlier save's confirmation preserves another person's deletion"
+          }
+        },
+        "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob is waiting to hear back about the note 'Groceries' saying 'eggs'": {
+          "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 3",
+          "meta": {
+            "source": [
+              "specs/sync-engine/note-conflicts.feature:28"
+            ],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
+              "Bob is waiting to hear back about the note \"Groceries\" saying \"eggs\""
+            ],
+            "example": "The earlier writer hears back while both writers await word"
+          }
+        },
+        "Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs' and Alice's app has been signed out elsewhere": {
+          "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 4",
+          "meta": {
+            "source": [
+              "specs/sync-engine/note-conflicts.feature:38"
+            ],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
+              "Bob has written the note \"Groceries\" saying \"eggs\"",
+              "Alice's app has been signed out elsewhere"
+            ],
+            "example": "Signing back in keeps another person's later writing"
+          }
+        },
+        "Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk' and Alice's app has been signed out elsewhere": {
+          "target": "Alice does not see the note \"Groceries\" — 5",
+          "meta": {
+            "source": [
+              "specs/sync-engine/note-conflicts.feature:46"
+            ],
+            "condition": [
+              "Alice and Bob are in the shared space \"Trip\"",
+              "Alice's app is offline",
+              "Alice has written the note \"Groceries\" saying \"milk\"",
+              "Alice's app has been signed out elsewhere"
+            ],
+            "example": "Signing back in forgets writing that never reached anyone else"
+          }
+        }
+      }
+    },
+    "Alice sees the note \"Groceries\" saying \"eggs\" — 1": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" saying \"eggs\".",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-saying-eggs",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" saying \"eggs\"",
+          "Bob sees the note \"Groceries\" saying \"eggs\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice does not see the note \"Groceries\" — 2": {
+      "meta": {
+        "description": "The person observes that alice does not see the note \"Groceries\".",
+        "snapshot": "the-person-observes-that-alice-does-not-see-the-note-groceries",
+        "recognize": [],
+        "checks": [
+          "Alice does not see the note \"Groceries\"",
+          "Bob does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:20"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the note \"Groceries\" saying \"eggs\" — 3": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" saying \"eggs\".",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-saying-eggs",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" saying \"eggs\"",
+          "Bob sees the note \"Groceries\" saying \"eggs\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:28"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees the note \"Groceries\" saying \"eggs\" — 4": {
+      "meta": {
+        "description": "The person observes that alice sees the note \"Groceries\" saying \"eggs\".",
+        "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-saying-eggs",
+        "recognize": [],
+        "checks": [
+          "Alice sees the note \"Groceries\" saying \"eggs\"",
+          "Bob sees the note \"Groceries\" saying \"eggs\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:38"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice does not see the note \"Groceries\" — 5": {
+      "meta": {
+        "description": "The person observes that alice does not see the note \"Groceries\".",
+        "snapshot": "the-person-observes-that-alice-does-not-see-the-note-groceries",
+        "recognize": [],
+        "checks": [
+          "Alice does not see the note \"Groceries\"",
+          "Bob does not see the note \"Groceries\""
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/sync-engine/note-conflicts.feature:46"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

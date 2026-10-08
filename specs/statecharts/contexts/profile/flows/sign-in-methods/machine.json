@@ -1,0 +1,272 @@
+{
+  "id": "profile-sign-in-methods",
+  "initial": "Viewing Manage sign-in methods",
+  "meta": {
+    "context": "Identity",
+    "kind": "flow",
+    "owner": "Identity owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Manage sign-in methods": {
+      "meta": {
+        "description": "The person is at the place where manage sign-in methods.",
+        "snapshot": "the-person-is-at-the-place-where-manage-sign-in-methods",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:2"
+        ]
+      },
+      "on": {
+        "Alice connects Apple": {
+          "target": "Alice's sign-in methods are Google and Apple — 1",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:9"
+            ],
+            "condition": [
+              "Alice is signed in with Google"
+            ],
+            "example": "A connected Apple account becomes a sign-in method"
+          }
+        },
+        "Alice signs in with Apple": {
+          "target": "Alice is signed into the same account — 2",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:14"
+            ],
+            "condition": [
+              "Alice has connected Apple to their account",
+              "Alice has signed out"
+            ],
+            "example": "A connected Apple account signs Alice into the same account"
+          }
+        },
+        "Alice removes Apple from their account": {
+          "target": "Alice's sign-in methods are Google — 3",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:20"
+            ],
+            "condition": [
+              "Alice has connected Apple to their account"
+            ],
+            "example": "A connected Apple account can be removed"
+          }
+        },
+        "Alice tries to remove Google": {
+          "target": "Alice's sign-in methods are still Google — 4",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:25"
+            ],
+            "condition": [
+              "Alice is signed in with Google"
+            ],
+            "example": "The last sign-in method cannot be removed"
+          }
+        },
+        "Alice tries to connect that Apple account": {
+          "target": "Alice is told that Apple account belongs to another account — 5",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:30"
+            ],
+            "condition": [
+              "Alice's Apple account already signs into a separate account",
+              "Alice is signed in with Google"
+            ],
+            "example": "An Apple account that already signs into another account cannot be connected"
+          }
+        },
+        "Alice signs in with Apple at the same address": {
+          "target": "Alice is asked to prove the account match — 6",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:37"
+            ],
+            "condition": [
+              "Alice has an account they sign into with Google at an unverified address",
+              "Alice has signed out"
+            ],
+            "example": "An unverified address match has Alice prove the accounts are theirs"
+          }
+        },
+        "Alice confirms the match with Google": {
+          "target": "Alice is signed into the same account — 7",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:44"
+            ],
+            "condition": [
+              "Alice is being asked to prove an unverified address match"
+            ],
+            "example": "Proving an unverified address match with Google makes one account"
+          }
+        },
+        "Alice keeps the accounts separate": {
+          "target": "Alice is signed into a different account — 8",
+          "meta": {
+            "source": [
+              "specs/profile/sign-in-methods.feature:50"
+            ],
+            "condition": [
+              "Alice is being asked to prove an unverified address match"
+            ],
+            "example": "Keeping an unverified address match separate makes a new account"
+          }
+        }
+      }
+    },
+    "Alice's sign-in methods are Google and Apple — 1": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are Google and Apple.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-google-and-apple",
+        "recognize": [],
+        "checks": [
+          "Alice's sign-in methods are Google and Apple"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is signed into the same account — 2": {
+      "meta": {
+        "description": "The person observes that alice is signed into the same account.",
+        "snapshot": "the-person-observes-that-alice-is-signed-into-the-same-account",
+        "recognize": [],
+        "checks": [
+          "Alice is signed into the same account"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:14"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sign-in methods are Google — 3": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are Google.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-google",
+        "recognize": [],
+        "checks": [
+          "Alice's sign-in methods are Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:20"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's sign-in methods are still Google — 4": {
+      "meta": {
+        "description": "The person observes that alice's sign-in methods are still Google.",
+        "snapshot": "the-person-observes-that-alice-s-sign-in-methods-are-still-google",
+        "recognize": [],
+        "checks": [
+          "Alice's sign-in methods are still Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:25"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told that Apple account belongs to another account — 5": {
+      "meta": {
+        "description": "The person observes that alice is told that Apple account belongs to another account.",
+        "snapshot": "the-person-observes-that-alice-is-told-that-apple-account-belongs-to-another-account",
+        "recognize": [],
+        "checks": [
+          "Alice is told that Apple account belongs to another account",
+          "Alice's sign-in methods are Google"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:30"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is asked to prove the account match — 6": {
+      "meta": {
+        "description": "The person observes that alice is asked to prove the account match.",
+        "snapshot": "the-person-observes-that-alice-is-asked-to-prove-the-account-match",
+        "recognize": [],
+        "checks": [
+          "Alice is asked to prove the account match",
+          "Alice is signed out"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:37"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is signed into the same account — 7": {
+      "meta": {
+        "description": "The person observes that alice is signed into the same account.",
+        "snapshot": "the-person-observes-that-alice-is-signed-into-the-same-account",
+        "recognize": [],
+        "checks": [
+          "Alice is signed into the same account",
+          "Alice's sign-in methods are Google and Apple"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:44"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is signed into a different account — 8": {
+      "meta": {
+        "description": "The person observes that alice is signed into a different account.",
+        "snapshot": "the-person-observes-that-alice-is-signed-into-a-different-account",
+        "recognize": [],
+        "checks": [
+          "Alice is signed into a different account"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/profile/sign-in-methods.feature:50"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

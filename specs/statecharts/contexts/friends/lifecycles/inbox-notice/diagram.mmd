@@ -1,0 +1,53 @@
+stateDiagram-v2
+  state "Opening inbox notice" as s0
+  state "Inbox notice not yet delivered" as s1
+  state "Viewing an unread notice" as s2
+  state "Viewing an unread notice whose request has ended" as s3
+  state "Viewing a read notice whose request has ended" as s4
+  state "Viewing a read notice whose request has ended after dismissal" as s5
+  state "Viewing a read notice whose request has ended in the archive after dismissal" as s6
+  state "Viewing a read notice in the archive" as s7
+  state "Viewing a read notice whose request has ended in the archive" as s8
+  state "Viewing a read notice" as s9
+  [*] --> s0
+  s0 --> s1: Opens with inbox notice not yet delivered
+  s1 --> s1: The originating request closes resulting in inbox notice not yet delivered
+  s1 --> s1: The recipient or another person chooses an inbox action resulting in inbox notice not yet delivered
+  s1 --> s1: The notice is delivered resulting in inbox notice not yet delivered
+  s1 --> s2: The notice is delivered resulting in viewing an unread notice
+  s2 --> s3: The originating request closes resulting in viewing an unread notice whose request has ended
+  s2 --> s2: The originating request closes resulting in viewing an unread notice
+  s2 --> s2: The notice is delivered resulting in viewing an unread notice
+  s2 --> s2: The recipient or another person chooses an inbox action resulting in viewing an unread notice
+  s2 --> s7: The recipient or another person chooses an inbox action resulting in viewing a read notice in the archive
+  s2 --> s9: The recipient or another person chooses an inbox action resulting in viewing a read notice
+  s3 --> s4: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended
+  s3 --> s3: The notice is delivered resulting in viewing an unread notice whose request has ended
+  s3 --> s3: The originating request closes resulting in viewing an unread notice whose request has ended
+  s3 --> s3: The recipient or another person chooses an inbox action resulting in viewing an unread notice whose request has ended
+  s3 --> s8: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive
+  s3 --> s5: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended after dismissal
+  s4 --> s4: The originating request closes resulting in viewing a read notice whose request has ended
+  s4 --> s4: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended
+  s4 --> s4: The notice is delivered resulting in viewing a read notice whose request has ended
+  s4 --> s5: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended after dismissal
+  s4 --> s8: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive
+  s5 --> s5: The notice is delivered resulting in viewing a read notice whose request has ended after dismissal
+  s5 --> s5: The originating request closes resulting in viewing a read notice whose request has ended after dismissal
+  s5 --> s5: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended after dismissal
+  s5 --> s6: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive after dismissal
+  s6 --> s6: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive after dismissal
+  s6 --> s6: The originating request closes resulting in viewing a read notice whose request has ended in the archive after dismissal
+  s6 --> s6: The notice is delivered resulting in viewing a read notice whose request has ended in the archive after dismissal
+  s7 --> s7: The notice is delivered resulting in viewing a read notice in the archive
+  s7 --> s8: The originating request closes resulting in viewing a read notice whose request has ended in the archive
+  s7 --> s7: The recipient or another person chooses an inbox action resulting in viewing a read notice in the archive
+  s7 --> s7: The originating request closes resulting in viewing a read notice in the archive
+  s8 --> s8: The originating request closes resulting in viewing a read notice whose request has ended in the archive
+  s8 --> s8: The notice is delivered resulting in viewing a read notice whose request has ended in the archive
+  s8 --> s6: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive after dismissal
+  s8 --> s8: The recipient or another person chooses an inbox action resulting in viewing a read notice whose request has ended in the archive
+  s9 --> s9: The notice is delivered resulting in viewing a read notice
+  s9 --> s9: The recipient or another person chooses an inbox action resulting in viewing a read notice
+  s9 --> s9: The originating request closes resulting in viewing a read notice
+  s9 --> s4: The originating request closes resulting in viewing a read notice whose request has ended

@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Keep and review earlier Custom Games" as s0
+  state "The earlier Custom Game still shows e4 and its resignation outcome — 1" as s1
+  state "Alice is told the Custom Game must finish or be cancelled first — 2" as s2
+  state "White is an open place and Black is Alice in the configuring Custom Game — 3" as s3
+  state "White is an open place and Black is Alice in the configuring Custom Game — 4" as s4
+  state "Carol sees the Custom Game starting board — 5" as s5
+  state "Carol cannot see the Custom Game — 6" as s6
+  [*] --> s0
+  s0 --> s1: Alice creates a rematch of the Custom Game when Alice has a completed Custom Game after White's e4
+  s0 --> s2: Alice creates a Custom Game
+  s0 --> s3: Alice creates a rematch of the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black and Bob has left Alice's space
+  s0 --> s4: Alice creates a rematch of the Custom Game when Alice has a cancelled Custom Game that invited Bob to Black
+  s0 --> s5: Carol reviews move 0 of the Custom Game
+  s0 --> s6: Carol tries to watch the Custom Game
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

@@ -1,0 +1,41 @@
+journeys:
+  A refund ends the membership at once:
+    description: A refund ends the membership at once
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    events:
+    - Alice's payment is refunded when Alice has subscribed to Plus and Alice's free trial has ended
+    endsIn: Alice's membership has ended — 1
+    checks:
+    - Alice's membership has ended
+    gherkin:
+    - specs/billing/refunds.feature:14 — A refund ends the membership at once
+    exampleRow: []
+  A refund takes paid access away at once:
+    description: A refund takes paid access away at once
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    events:
+    - Alice's payment is refunded when Alice has subscribed to Plus and Alice's free trial has ended
+    endsIn: Alice's membership has ended — 1
+    checks:
+    - Alice has free access
+    gherkin:
+    - specs/billing/refunds.feature:18 — A refund takes paid access away at once
+    exampleRow: []
+  A refunded person can subscribe again:
+    description: A refunded person can subscribe again
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's free trial has ended
+    - Alice's payment has been refunded
+    events:
+    - Alice subscribes to Plus
+    endsIn: Alice has paid access — 3
+    checks:
+    - Alice has paid access
+    gherkin:
+    - specs/billing/refunds.feature:22 — A refunded person can subscribe again
+    exampleRow: []

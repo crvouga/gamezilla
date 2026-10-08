@@ -1,0 +1,42 @@
+stateDiagram-v2
+  state "Viewing Find someone to play multiplayer chess" as s0
+  state "Alice is looking for a chess opponent — 1" as s1
+  state "Alice is invited to sign in — 2" as s2
+  state "Alice is told finding an opponent needs a connection — 3" as s3
+  state "Alice is looking for a chess opponent — 4" as s4
+  state "Alice is told to finish her multiplayer game first — 5" as s5
+  state "Alice is looking for a chess opponent — 6" as s6
+  state "Alice is told to finish her Custom Game first — 7" as s7
+  state "Alice and Bob have the same multiplayer game — 8" as s8
+  state "Alice and Bob keep the same multiplayer game and board — 9" as s9
+  state "Alice sees her same opponent search on that device — 10" as s10
+  state "Alice sees the same multiplayer game and board on that device — 11" as s11
+  state "Alice is not looking for a chess opponent — 12" as s12
+  state "Alice is told she has no opponent search to stop — 13" as s13
+  [*] --> s0
+  s0 --> s1: Alice finds a chess opponent for 5+0 when Alice has a free account and a connection
+  s0 --> s2: Alice finds a chess opponent for 5+0 when Alice is a guest and Alice is hosting a space
+  s0 --> s3: Alice finds a chess opponent for 5+0 when Alice has an account without a connection
+  s0 --> s4: Alice finds a chess opponent for 5+0 when Alice's multiplayer game with Bob is over
+  s0 --> s5: Alice finds a chess opponent for 5+0 on another device
+  s0 --> s6: Alice finds a chess opponent when Alice has a free account and a connection and Alice has a completed Custom Game between Alice as White and Bob as Black
+  s0 --> s7: Alice finds a chess opponent when Alice has a free account and a connection and Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s8: a matchmaking match is formed for Alice and Bob
+  s0 --> s9: Alice opens multiplayer chess
+  s0 --> s10: Alice opens multiplayer chess on another device when Alice is looking for a chess opponent
+  s0 --> s11: Alice opens multiplayer chess on another device when Alice has an unfinished multiplayer game with Bob
+  s0 --> s12: Alice stops finding a chess opponent when Alice is looking for a chess opponent
+  s0 --> s13: Alice stops finding a chess opponent when Alice has an unfinished multiplayer game with Bob
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]

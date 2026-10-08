@@ -1,0 +1,45 @@
+stateDiagram-v2
+  state "Viewing Play the Custom Game" as s0
+  state "Black is to move in the Custom Game — 1" as s1
+  state "Bob is told only the participant to move may play — 2" as s2
+  state "Alice is told the move is illegal — 3" as s3
+  state "Alice is told the Custom Game has not started — 4" as s4
+  state "Alice is told the Custom Game has finished — 5" as s5
+  state "Alice is told the Custom Game was cancelled — 6" as s6
+  state "A legal Black bot move follows within 5 seconds — 7" as s7
+  state "The Custom Game move list is unchanged — 8" as s8
+  state "Bob wins the Custom Game by checkmate — 9" as s9
+  state "Alice is told the Custom Game has finished — 10" as s10
+  state "The Custom Game is completed as a draw — 11" as s11
+  state "Carol is told only the other participant may accept a draw — 12" as s12
+  state "Alice sees the Custom Game starting board — 13" as s13
+  state "Alice is told that move is not in the Custom Game — 14" as s14
+  [*] --> s0
+  s0 --> s1: Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s2: Bob plays e7-e5 in the Custom Game
+  s0 --> s3: Alice plays e2-e5 in the Custom Game
+  s0 --> s4: Alice plays e2-e4 in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s5: Alice plays e2-e4 in the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+  s0 --> s6: Alice plays e2-e4 in the Custom Game when Alice has a cancelled Custom Game
+  s0 --> s7: Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game against a bot as Black
+  s0 --> s8: 5 seconds pass
+  s0 --> s9: Bob plays d8-h4 in the Custom Game
+  s0 --> s10: Alice resigns the Custom Game
+  s0 --> s11: Bob accepts the draw in the Custom Game
+  s0 --> s12: Carol accepts the draw in the Custom Game
+  s0 --> s13: Alice reviews move 0 of the Custom Game
+  s0 --> s14: Alice reviews move 99 of the Custom Game
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]

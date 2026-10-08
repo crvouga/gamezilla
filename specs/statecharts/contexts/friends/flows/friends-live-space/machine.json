@@ -1,0 +1,131 @@
+{
+  "id": "friends-friends-live-space",
+  "initial": "Viewing Friends in an open space",
+  "meta": {
+    "context": "Friends",
+    "kind": "flow",
+    "owner": "Friends owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/notifications-client/src/notifications-unread-count-live-bridge.tsx",
+      "libs/friends-client/src/use-friends.ts",
+      "libs/friends-client/src/use-friends-client-deps.ts",
+      "libs/friends-client/src/friends-permission-gate.tsx",
+      "libs/friends-client/src/friends-notification-provider.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Friends in an open space": {
+      "meta": {
+        "description": "The person is at the place where friends in an open space.",
+        "snapshot": "the-person-is-at-the-place-where-friends-in-an-open-space",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-live-space.feature:2"
+        ]
+      },
+      "on": {
+        "Alice creates a space": {
+          "target": "Bob's friends list shows Alice as live within 15 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/friends/friends-live-space.feature:12"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Bob is viewing their friends list with Alice in it"
+            ],
+            "example": "A friend in an open space shows as live"
+          }
+        },
+        "Bob joins Alice's space from their friends list": {
+          "target": "Bob is in the space — 2",
+          "meta": {
+            "source": [
+              "specs/friends/friends-live-space.feature:17"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Alice is hosting a space"
+            ],
+            "example": "A friend joins a live friend's space from their friends list"
+          }
+        },
+        "Alice ends the space": {
+          "target": "Bob's friends list stops showing Alice as live within 15 seconds — 3",
+          "meta": {
+            "source": [
+              "specs/friends/friends-live-space.feature:22"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Alice is hosting a space",
+              "Bob's friends list shows Alice as live"
+            ],
+            "example": "A friend's live mark goes when their space ends"
+          }
+        }
+      }
+    },
+    "Bob's friends list shows Alice as live within 15 seconds — 1": {
+      "meta": {
+        "description": "The person observes that bob's friends list shows Alice as live within 15 seconds.",
+        "snapshot": "the-person-observes-that-bob-s-friends-list-shows-alice-as-live-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Bob's friends list shows Alice as live within 15 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-live-space.feature:12"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is in the space — 2": {
+      "meta": {
+        "description": "The person observes that bob is in the space.",
+        "snapshot": "the-person-observes-that-bob-is-in-the-space",
+        "recognize": [],
+        "checks": [
+          "Bob is in the space"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-live-space.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob's friends list stops showing Alice as live within 15 seconds — 3": {
+      "meta": {
+        "description": "The person observes that bob's friends list stops showing Alice as live within 15 seconds.",
+        "snapshot": "the-person-observes-that-bob-s-friends-list-stops-showing-alice-as-live-within-15-sec",
+        "recognize": [],
+        "checks": [
+          "Bob's friends list stops showing Alice as live within 15 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-live-space.feature:22"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Keep the feedback wizard out of the way" as s0
+  state "the team has one feedback wizard — 1" as s1
+  state "the team has one feedback wizard — 2" as s2
+  state "feedback takes no permanent place in the app — 3" as s3
+  state "the feedback wizard is a full-width sheet — 4" as s4
+  state "the feedback widget has moved — 5" as s5
+  [*] --> s0
+  s0 --> s1: the team opens feedback from the command palette when the team's app is working
+  s0 --> s2: the team opens feedback from the command palette when the team has opened the feedback wizard
+  s0 --> s3: the team closes the wizard
+  s0 --> s4: the team opens Support
+  s0 --> s5: the team moves the feedback widget out of the way
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

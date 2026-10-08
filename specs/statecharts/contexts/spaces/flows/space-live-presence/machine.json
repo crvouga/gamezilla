@@ -1,0 +1,133 @@
+{
+  "id": "spaces-space-live-presence",
+  "initial": "Viewing Presence in a space",
+  "meta": {
+    "context": "Spaces",
+    "kind": "flow",
+    "owner": "Spaces owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/spaces-client/src/use-live-space-ids.ts",
+      "libs/spaces-client/src/use-joinable-live-space-ids.ts",
+      "libs/spaces-client/src/use-friend-live-space-id.ts",
+      "libs/spaces-client/src/space-presence-strip.tsx",
+      "libs/spaces-client/src/space-live-badge.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Presence in a space": {
+      "meta": {
+        "description": "The person is at the place where presence in a space.",
+        "snapshot": "the-person-is-at-the-place-where-presence-in-a-space",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-live-presence.feature:2"
+        ]
+      },
+      "on": {
+        "Bob joins the space from the link": {
+          "target": "Alice sees 2 people in the space within 20 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/spaces/space-live-presence.feature:8"
+            ],
+            "condition": [
+              "Alice is hosting a space"
+            ],
+            "example": "Everyone in a space sees who is there"
+          }
+        },
+        "Bob leaves the space when Alice is hosting a space that Bob joined from the link": {
+          "target": "Alice sees 1 person in the space within 20 seconds — 2",
+          "meta": {
+            "source": [
+              "specs/spaces/space-live-presence.feature:14"
+            ],
+            "condition": [
+              "Alice is hosting a space that Bob joined from the link"
+            ],
+            "example": "Someone stops showing as there after leaving"
+          }
+        },
+        "Alice ends the space": {
+          "target": "Bob sees the space has ended within 20 seconds — 4",
+          "meta": {
+            "source": [
+              "specs/spaces/space-live-presence.feature:28"
+            ],
+            "condition": [
+              "Alice is hosting a space that Bob joined from the link",
+              "Bob has left the space"
+            ],
+            "example": "Someone who left stops being offered to join when the space ends"
+          }
+        }
+      }
+    },
+    "Alice sees 2 people in the space within 20 seconds — 1": {
+      "meta": {
+        "description": "The person observes that alice sees 2 people in the space within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-sees-2-people-in-the-space-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice sees 2 people in the space within 20 seconds",
+          "Bob sees 2 people in the space within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-live-presence.feature:8"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees 1 person in the space within 20 seconds — 2": {
+      "meta": {
+        "description": "The person observes that alice sees 1 person in the space within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-sees-1-person-in-the-space-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice sees 1 person in the space within 20 seconds",
+          "Bob is offered to join"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-live-presence.feature:14",
+          "specs/spaces/space-live-presence.feature:22"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final",
+      "on": {}
+    },
+    "Bob sees the space has ended within 20 seconds — 4": {
+      "meta": {
+        "description": "The person observes that bob sees the space has ended within 20 seconds.",
+        "snapshot": "the-person-observes-that-bob-sees-the-space-has-ended-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Bob sees the space has ended within 20 seconds",
+          "Bob is not offered to join"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-live-presence.feature:28"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

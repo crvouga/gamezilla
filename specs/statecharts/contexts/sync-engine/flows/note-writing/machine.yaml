@@ -1,0 +1,200 @@
+id: sync-engine-note-writing
+initial: Viewing Write a note
+meta:
+  context: Sync engine
+  kind: flow
+  owner: Sync engine owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Write a note:
+    meta:
+      description: The person is at the place where write a note.
+      snapshot: the-person-is-at-the-place-where-write-a-note
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:2
+    'on':
+      Alice writes the note 'Groceries' saying 'milk' when A new note shows at once on its writer's device:
+        target: Alice sees the note "Groceries" at once — 1
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:9
+          condition: []
+          example: A new note shows at once on its writer's device
+      Alice's app closes and reopens:
+        target: Alice sees the note "Groceries" saying "milk" — 2
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:13
+          condition:
+          - Alice has written the note "Groceries" saying "milk"
+          example: A note keeps its title and body after the app reopens
+      Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip':
+        target: Bob sees the note "Groceries" saying "milk" — 3
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:20
+          condition:
+          - Alice and Bob are in the shared space "Trip"
+          example: A note one person writes reaches the other people in the shared space
+      Alice changes all 100 notes at once to say 'done':
+        target: Bob sees all 100 notes saying "done" — 4
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:27
+          condition:
+          - Alice has written 100 notes that have reached Bob
+          example: A change to 100 notes at once reaches everyone
+      Alice changes all 64 notes at once to say 'done':
+        target: Bob sees all 64 notes saying "done" — 5
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:32
+          condition:
+          - Alice has written 64 notes that have reached Bob
+          - Bob's app cannot send
+          example: A change to 64 notes at once reaches someone whose app cannot send
+      Alice changes all 65 notes at once to say 'done':
+        target: Bob sees all 65 notes saying "done" — 6
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:38
+          condition:
+          - Alice has written 65 notes that have reached Bob
+          example: A change to 65 notes at once reaches everyone, each note once
+      ? Alice writes the note 'Groceries' saying 'milk' when Alice and Bob have slow connections and live updates
+        have stopped for a while and started again and the next live update to Bob will arrive garbled
+      : target: Bob never sees the note "Groceries" without its text — 7
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:47
+          condition:
+          - Alice and Bob have slow connections
+          - live updates have stopped for a while and started again
+          - the next live update to Bob will arrive garbled
+          example: A garbled live update never shows a note without its text
+      Alice and Bob keep writing notes:
+        target: neither Alice nor Bob ever sees a note go back to what it said before — 8
+        meta:
+          source:
+          - specs/sync-engine/note-writing.feature:57
+          condition:
+          - Alice and Bob are in the shared space "Trip"
+          - live updates to Alice and Bob are lost, repeated and delayed at random
+          example: However live updates are lost, repeated and delayed, nobody sees a note go back to what it said
+            before
+  Alice sees the note "Groceries" at once — 1:
+    meta:
+      description: The person observes that alice sees the note "Groceries" at once.
+      snapshot: the-person-observes-that-alice-sees-the-note-groceries-at-once
+      recognize: []
+      checks:
+      - Alice sees the note "Groceries" at once
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the note "Groceries" saying "milk" — 2:
+    meta:
+      description: The person observes that alice sees the note "Groceries" saying "milk".
+      snapshot: the-person-observes-that-alice-sees-the-note-groceries-saying-milk
+      recognize: []
+      checks:
+      - Alice sees the note "Groceries" saying "milk"
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees the note "Groceries" saying "milk" — 3:
+    meta:
+      description: The person observes that bob sees the note "Groceries" saying "milk".
+      snapshot: the-person-observes-that-bob-sees-the-note-groceries-saying-milk
+      recognize: []
+      checks:
+      - Bob sees the note "Groceries" saying "milk"
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:20
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees all 100 notes saying "done" — 4:
+    meta:
+      description: The person observes that bob sees all 100 notes saying "done".
+      snapshot: the-person-observes-that-bob-sees-all-100-notes-saying-done
+      recognize: []
+      checks:
+      - Bob sees all 100 notes saying "done"
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:27
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees all 64 notes saying "done" — 5:
+    meta:
+      description: The person observes that bob sees all 64 notes saying "done".
+      snapshot: the-person-observes-that-bob-sees-all-64-notes-saying-done
+      recognize: []
+      checks:
+      - Bob sees all 64 notes saying "done"
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:32
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees all 65 notes saying "done" — 6:
+    meta:
+      description: The person observes that bob sees all 65 notes saying "done".
+      snapshot: the-person-observes-that-bob-sees-all-65-notes-saying-done
+      recognize: []
+      checks:
+      - Bob sees all 65 notes saying "done"
+      - Bob sees exactly 65 notes
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:38
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob never sees the note "Groceries" without its text — 7:
+    meta:
+      description: The person observes that bob never sees the note "Groceries" without its text.
+      snapshot: the-person-observes-that-bob-never-sees-the-note-groceries-without-its-text
+      recognize: []
+      checks:
+      - Bob never sees the note "Groceries" without its text
+      - Bob sees the note "Groceries" saying "milk"
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:47
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  neither Alice nor Bob ever sees a note go back to what it said before — 8:
+    meta:
+      description: The person observes that neither Alice nor Bob ever sees a note go back to what it said before.
+      snapshot: the-person-observes-that-neither-alice-nor-bob-ever-sees-a-note-go-back-to-what-it-sa
+      recognize: []
+      checks:
+      - neither Alice nor Bob ever sees a note go back to what it said before
+      events: []
+      confidence: assumed
+      source:
+      - specs/sync-engine/note-writing.feature:57
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

@@ -1,0 +1,395 @@
+{
+  "id": "chess-multiplayer-draw-offers",
+  "initial": "Viewing Offer a multiplayer draw",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-matchmaking-client/src/use-multiplayer-data.ts",
+      "libs/chess-matchmaking-client/src/use-multiplayer-controls.ts",
+      "libs/chess-matchmaking-client/src/multiplayer-waiting.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-screen.tsx",
+      "libs/chess-matchmaking-client/src/multiplayer-ratings.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Offer a multiplayer draw": {
+      "meta": {
+        "description": "The person is at the place where offer a multiplayer draw.",
+        "snapshot": "the-person-is-at-the-place-where-offer-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:2"
+        ]
+      },
+      "on": {
+        "Alice offers a multiplayer draw when Alice is White and Bob is Black in a new multiplayer game": {
+          "target": "Bob is offered a multiplayer draw — 1",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:9"
+            ],
+            "condition": [
+              "Alice is White and Bob is Black in a new multiplayer game"
+            ],
+            "example": "White offers Black a multiplayer draw"
+          }
+        },
+        "Alice offers a multiplayer draw when Alice has offered Bob a multiplayer draw": {
+          "target": "Bob is still offered a multiplayer draw — 2",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:14"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "Offering a multiplayer draw twice keeps one offer"
+          }
+        },
+        "Alice offers a multiplayer draw when Bob resigned multiplayer chess and Alice won": {
+          "target": "Alice is told the multiplayer game is over — 3",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:20"
+            ],
+            "condition": [
+              "Bob resigned multiplayer chess and Alice won"
+            ],
+            "example": "No multiplayer draw offer is taken once the game is over"
+          }
+        },
+        "Bob accepts the multiplayer draw when Alice has offered Bob a multiplayer draw": {
+          "target": "both people see the multiplayer game is drawn by agreement — 4",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:27"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "Black accepts White's multiplayer draw offer"
+          }
+        },
+        "Bob offers a multiplayer draw": {
+          "target": "both people see the multiplayer game is drawn by agreement — 5",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:32"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "Offering a multiplayer draw back accepts the waiting offer"
+          }
+        },
+        "Alice accepts the multiplayer draw": {
+          "target": "Alice is told only Bob may answer her multiplayer draw offer — 6",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:37"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "White cannot accept her own multiplayer draw offer"
+          }
+        },
+        "Bob accepts the multiplayer draw when Alice is White and Bob is Black in a new multiplayer game": {
+          "target": "Bob is told no multiplayer draw offer is waiting — 7",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:43"
+            ],
+            "condition": [
+              "Alice is White and Bob is Black in a new multiplayer game"
+            ],
+            "example": "A multiplayer draw nobody offered cannot be accepted"
+          }
+        },
+        "Bob declines the multiplayer draw when Alice has offered Bob a multiplayer draw": {
+          "target": "neither person is offered a multiplayer draw — 8",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:51"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "Black declines White's multiplayer draw offer"
+          }
+        },
+        "Alice declines the multiplayer draw": {
+          "target": "Alice is told only Bob may answer her multiplayer draw offer — 9",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:57"
+            ],
+            "condition": [
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "White cannot decline her own multiplayer draw offer"
+          }
+        },
+        "Bob declines the multiplayer draw when Alice is White and Bob is Black in a new multiplayer game": {
+          "target": "Bob is told no multiplayer draw offer is waiting — 10",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:63"
+            ],
+            "condition": [
+              "Alice is White and Bob is Black in a new multiplayer game"
+            ],
+            "example": "A multiplayer draw nobody offered cannot be declined"
+          }
+        },
+        "Bob plays e7 to e5 as a multiplayer move": {
+          "target": "neither person is offered a multiplayer draw — 11",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:70"
+            ],
+            "condition": [
+              "Alice's multiplayer move e2 to e4 was accepted",
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "Black's move declines White's multiplayer draw offer"
+          }
+        },
+        "Alice plays e2 to e4 as a multiplayer move": {
+          "target": "Bob is still offered a multiplayer draw — 12",
+          "meta": {
+            "source": [
+              "specs/chess/multiplayer-draw-offers.feature:76"
+            ],
+            "condition": [
+              "Alice is White and Bob is Black in a new multiplayer game",
+              "Alice has offered Bob a multiplayer draw"
+            ],
+            "example": "White's own move keeps her multiplayer draw offer"
+          }
+        }
+      }
+    },
+    "Bob is offered a multiplayer draw — 1": {
+      "meta": {
+        "description": "The person observes that bob is offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-bob-is-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "Bob is offered a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is still offered a multiplayer draw — 2": {
+      "meta": {
+        "description": "The person observes that bob is still offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-bob-is-still-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "Bob is still offered a multiplayer draw",
+          "the multiplayer game is still unfinished"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:14"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the multiplayer game is over — 3": {
+      "meta": {
+        "description": "The person observes that alice is told the multiplayer game is over.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-multiplayer-game-is-over",
+        "recognize": [],
+        "checks": [
+          "Alice is told the multiplayer game is over"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:20"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "both people see the multiplayer game is drawn by agreement — 4": {
+      "meta": {
+        "description": "The person observes that both people see the multiplayer game is drawn by agreement.",
+        "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-agreement",
+        "recognize": [],
+        "checks": [
+          "both people see the multiplayer game is drawn by agreement"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "both people see the multiplayer game is drawn by agreement — 5": {
+      "meta": {
+        "description": "The person observes that both people see the multiplayer game is drawn by agreement.",
+        "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-is-drawn-by-agreement",
+        "recognize": [],
+        "checks": [
+          "both people see the multiplayer game is drawn by agreement"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:32"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told only Bob may answer her multiplayer draw offer — 6": {
+      "meta": {
+        "description": "The person observes that alice is told only Bob may answer her multiplayer draw offer.",
+        "snapshot": "the-person-observes-that-alice-is-told-only-bob-may-answer-her-multiplayer-draw-offer",
+        "recognize": [],
+        "checks": [
+          "Alice is told only Bob may answer her multiplayer draw offer",
+          "the multiplayer game is still unfinished"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:37"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is told no multiplayer draw offer is waiting — 7": {
+      "meta": {
+        "description": "The person observes that bob is told no multiplayer draw offer is waiting.",
+        "snapshot": "the-person-observes-that-bob-is-told-no-multiplayer-draw-offer-is-waiting",
+        "recognize": [],
+        "checks": [
+          "Bob is told no multiplayer draw offer is waiting",
+          "the multiplayer game is still unfinished"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:43"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "neither person is offered a multiplayer draw — 8": {
+      "meta": {
+        "description": "The person observes that neither person is offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-neither-person-is-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "neither person is offered a multiplayer draw",
+          "the multiplayer game is still unfinished"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:51"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told only Bob may answer her multiplayer draw offer — 9": {
+      "meta": {
+        "description": "The person observes that alice is told only Bob may answer her multiplayer draw offer.",
+        "snapshot": "the-person-observes-that-alice-is-told-only-bob-may-answer-her-multiplayer-draw-offer",
+        "recognize": [],
+        "checks": [
+          "Alice is told only Bob may answer her multiplayer draw offer",
+          "Bob is still offered a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:57"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is told no multiplayer draw offer is waiting — 10": {
+      "meta": {
+        "description": "The person observes that bob is told no multiplayer draw offer is waiting.",
+        "snapshot": "the-person-observes-that-bob-is-told-no-multiplayer-draw-offer-is-waiting",
+        "recognize": [],
+        "checks": [
+          "Bob is told no multiplayer draw offer is waiting"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:63"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "neither person is offered a multiplayer draw — 11": {
+      "meta": {
+        "description": "The person observes that neither person is offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-neither-person-is-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "neither person is offered a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:70"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is still offered a multiplayer draw — 12": {
+      "meta": {
+        "description": "The person observes that bob is still offered a multiplayer draw.",
+        "snapshot": "the-person-observes-that-bob-is-still-offered-a-multiplayer-draw",
+        "recognize": [],
+        "checks": [
+          "Bob is still offered a multiplayer draw"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/multiplayer-draw-offers.feature:76"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

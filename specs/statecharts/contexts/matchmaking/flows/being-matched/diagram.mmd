@@ -1,0 +1,24 @@
+stateDiagram-v2
+  state "Viewing Being matched" as s0
+  state "Alice and Bob are matched with each other — 1" as s1
+  state "Alice is still waiting — 2" as s2
+  state "Alice is still waiting — 3" as s3
+  state "Alice sees her change counted — 4" as s4
+  state "Alice and Bob are matched with each other — 5" as s5
+  state "Alice is told her change did not count — 6" as s6
+  state "Alice is told her change did not count — 7" as s7
+  [*] --> s0
+  s0 --> s1: matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points
+  s0 --> s2: matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points
+  s0 --> s3: matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points
+  s0 --> s4: Alice widens her range to 200 points when Alice is waiting with a rating of 1000, accepting anyone within 5 points
+  s0 --> s5: matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points and Alice has widened her range to 200 points
+  s0 --> s6: Alice widens her range to 200 points when Alice has been matched with Bob
+  s0 --> s7: Alice widens her range to 200 points when Alice has stopped waiting
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]

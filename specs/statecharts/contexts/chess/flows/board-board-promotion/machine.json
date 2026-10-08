@@ -1,0 +1,227 @@
+{
+  "id": "chess-board-board-promotion",
+  "initial": "Viewing Decide promotion with the keyboard",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/chess-board-root-client/src/chess-board-promotion.tsx",
+      "pkgs/chess-board-root-client/src/create-chess-board-model.ts",
+      "pkgs/chess-board-root-client/src/chess-board.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-view.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-user-shapes.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Decide promotion with the keyboard": {
+      "meta": {
+        "description": "The person is at the place where decide promotion with the keyboard.",
+        "snapshot": "the-person-is-at-the-place-where-decide-promotion-with-the-keyboard",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:2"
+        ]
+      },
+      "on": {
+        "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8": {
+          "target": "Alice can identify queen, rook, bishop and knight as the promotion choices without sound — 1",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:9"
+            ],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8"
+            ],
+            "example": "A requested promotion names each piece and gives the queen the keyboard"
+          }
+        },
+        "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled": {
+          "target": "Alice cannot request promotion while interactivity is disabled — 2",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:16"
+            ],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled"
+            ],
+            "example": "Disabled input cannot request a promotion choice"
+          }
+        },
+        "Alice chooses the promotion to a queen": {
+          "target": "Alice's keyboard is on a8 — 3",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:27"
+            ],
+            "condition": [
+              "Alice has a pending White promotion from a7 to a8"
+            ],
+            "example": "A chosen promotion gives its destination the keyboard"
+          }
+        },
+        "Alice cancels the promotion": {
+          "target": "Alice's keyboard is on a7 — 4",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:35"
+            ],
+            "condition": [
+              "Alice has a pending White promotion from a7 to a8"
+            ],
+            "example": "A cancelled promotion gives its source the keyboard"
+          }
+        },
+        "Alice selects the piece on a7": {
+          "target": "Alice is not offered a promotion choice before requesting the last-rank move — 5",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:42"
+            ],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8"
+            ],
+            "example": "Choosing a pawn before its last-rank move offers no promotion choices"
+          }
+        },
+        "Alice cancels the promotion with Escape": {
+          "target": "Alice is not offered a promotion choice before requesting the last-rank move — 6",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-promotion.feature:49"
+            ],
+            "condition": [
+              "Alice has a chessboard ready for White's promotion from a7 to a8"
+            ],
+            "example": "Escape before requesting promotion keeps the pawn and offers no choice"
+          }
+        }
+      }
+    },
+    "Alice can identify queen, rook, bishop and knight as the promotion choices without sound — 1": {
+      "meta": {
+        "description": "The person observes that alice can identify queen, rook, bishop and knight as the promotion choices without sound.",
+        "snapshot": "the-person-observes-that-alice-can-identify-queen-rook-bishop-and-knight-as-the-promo",
+        "recognize": [],
+        "checks": [
+          "Alice can identify queen, rook, bishop and knight as the promotion choices without sound",
+          "Alice's keyboard is on the queen promotion choice",
+          "Alice sees the White pawn remaining on a7"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot request promotion while interactivity is disabled — 2": {
+      "meta": {
+        "description": "The person observes that alice cannot request promotion while interactivity is disabled.",
+        "snapshot": "the-person-observes-that-alice-cannot-request-promotion-while-interactivity-is-disabl",
+        "recognize": [],
+        "checks": [
+          "Alice cannot request promotion while interactivity is disabled",
+          "Alice is not offered a promotion choice",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:16"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's keyboard is on a8 — 3": {
+      "meta": {
+        "description": "The person observes that alice's keyboard is on a8.",
+        "snapshot": "the-person-observes-that-alice-s-keyboard-is-on-a8",
+        "recognize": [],
+        "checks": [
+          "Alice's keyboard is on a8",
+          "Alice sees a White queen on a8",
+          "Alice's activity receives one move promoting to a queen"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's keyboard is on a7 — 4": {
+      "meta": {
+        "description": "The person observes that alice's keyboard is on a7.",
+        "snapshot": "the-person-observes-that-alice-s-keyboard-is-on-a7",
+        "recognize": [],
+        "checks": [
+          "Alice's keyboard is on a7",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:35"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered a promotion choice before requesting the last-rank move — 5": {
+      "meta": {
+        "description": "The person observes that alice is not offered a promotion choice before requesting the last-rank move.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-a-promotion-choice-before-requesting-th",
+        "recognize": [],
+        "checks": [
+          "Alice is not offered a promotion choice before requesting the last-rank move",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:42"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not offered a promotion choice before requesting the last-rank move — 6": {
+      "meta": {
+        "description": "The person observes that alice is not offered a promotion choice before requesting the last-rank move.",
+        "snapshot": "the-person-observes-that-alice-is-not-offered-a-promotion-choice-before-requesting-th",
+        "recognize": [],
+        "checks": [
+          "Alice is not offered a promotion choice before requesting the last-rank move",
+          "Alice sees the White pawn remaining on a7",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-promotion.feature:49"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

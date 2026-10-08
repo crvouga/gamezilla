@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Opening matching" as s0
+  state "Not looking for a match" as s1
+  state "Waiting for a match" as s2
+  state "Seeing a complete match" as s3
+  [*] --> s0
+  s0 --> s1: Opens with not looking for a match
+  s1 --> s1: Change range resulting in not looking for a match
+  s1 --> s1: Stop waiting resulting in not looking for a match
+  s1 --> s1: Seconds pass resulting in not looking for a match
+  s1 --> s1: Allow pair resulting in not looking for a match
+  s1 --> s1: Pair up resulting in not looking for a match
+  s1 --> s1: Restrict pair resulting in not looking for a match
+  s1 --> s1: Become available resulting in not looking for a match
+  s1 --> s2: Wait for match resulting in waiting for a match
+  s1 --> s1: Wait for match resulting in not looking for a match
+  s1 --> s1: Lose connection resulting in not looking for a match
+  s1 --> s1: Come back online resulting in not looking for a match
+  s1 --> s1: Repeat request resulting in not looking for a match
+  s1 --> s1: Become unavailable resulting in not looking for a match
+  s1 --> s1: Repeat range change resulting in not looking for a match
+  s2 --> s2: Pair up resulting in waiting for a match
+  s2 --> s2: Stop waiting resulting in waiting for a match
+  s2 --> s2: Change range resulting in waiting for a match
+  s2 --> s2: Seconds pass resulting in waiting for a match
+  s2 --> s2: Lose connection resulting in waiting for a match
+  s2 --> s2: Restrict pair resulting in waiting for a match
+  s2 --> s2: Become available resulting in waiting for a match
+  s2 --> s2: Wait for match resulting in waiting for a match
+  s2 --> s2: Allow pair resulting in waiting for a match
+  s2 --> s2: Repeat request resulting in waiting for a match
+  s2 --> s2: Come back online resulting in waiting for a match
+  s2 --> s2: Repeat range change resulting in waiting for a match
+  s2 --> s1: Stop waiting resulting in not looking for a match
+  s2 --> s3: Pair up resulting in seeing a complete match
+  s2 --> s2: Become unavailable resulting in waiting for a match
+  s2 --> s1: Become unavailable resulting in not looking for a match
+  s3 --> s3: Seconds pass resulting in seeing a complete match
+  s3 --> s3: Allow pair resulting in seeing a complete match
+  s3 --> s3: Pair up resulting in seeing a complete match
+  s3 --> s3: Stop waiting resulting in seeing a complete match
+  s3 --> s2: Wait for match resulting in waiting for a match
+  s3 --> s3: Lose connection resulting in seeing a complete match
+  s3 --> s3: Restrict pair resulting in seeing a complete match
+  s3 --> s3: Become available resulting in seeing a complete match
+  s3 --> s3: Repeat request resulting in seeing a complete match
+  s3 --> s3: Change range resulting in seeing a complete match
+  s3 --> s3: Wait for match resulting in seeing a complete match
+  s3 --> s3: Come back online resulting in seeing a complete match
+  s3 --> s3: Become unavailable resulting in seeing a complete match
+  s3 --> s3: Repeat range change resulting in seeing a complete match

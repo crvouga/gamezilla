@@ -1,0 +1,168 @@
+{
+  "id": "chess-custom-game-devices",
+  "initial": "Viewing One Custom Game across a person's devices",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/chess-custom-game-client/src/use-custom-game-screen.ts",
+      "libs/chess-custom-game-client/src/use-custom-game-review.ts",
+      "libs/chess-custom-game-client/src/use-custom-game-command.ts",
+      "libs/chess-custom-game-client/src/custom-game-test.tsx",
+      "libs/chess-custom-game-client/src/custom-game-status.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing One Custom Game across a person's devices": {
+      "meta": {
+        "description": "The person is at the place where one Custom Game across a person's devices.",
+        "snapshot": "the-person-is-at-the-place-where-one-custom-game-across-a-person-s-devices",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/custom-game-devices.feature:2"
+        ]
+      },
+      "on": {
+        "Alice returns to the Custom Game on another device": {
+          "target": "Black is to move on both of Alice's devices — 1",
+          "meta": {
+            "source": [
+              "specs/chess/custom-game-devices.feature:7"
+            ],
+            "condition": [
+              "Alice has a recently proven account",
+              "Alice has an active Custom Game after White's e4"
+            ],
+            "example": "Another device sees the participant's current side"
+          }
+        },
+        "Alice plays e2-e4 on both devices at the same time": {
+          "target": "The Custom Game move list shows e4 once — 2",
+          "meta": {
+            "source": [
+              "specs/chess/custom-game-devices.feature:14"
+            ],
+            "condition": [
+              "Alice has a recently proven account",
+              "Alice has an active Custom Game between Alice as White and Bob as Black",
+              "Alice has the Custom Game open on another device"
+            ],
+            "example": "Two devices cannot play White's turn twice"
+          }
+        },
+        "Alice's other device returns online": {
+          "target": "Both of Alice's devices show Alice's win by resignation — 3",
+          "meta": {
+            "source": [
+              "specs/chess/custom-game-devices.feature:24"
+            ],
+            "condition": [
+              "Alice has a recently proven account",
+              "Alice has an active Custom Game between Alice as White and Bob as Black",
+              "Alice's other device is offline with the Custom Game open",
+              "Bob has resigned the Custom Game"
+            ],
+            "example": "Another device sees a resignation that happened while it was away"
+          }
+        },
+        "Alice plays e2-e4 on the offline other device": {
+          "target": "Alice is told Custom Games need a connection on the other device — 4",
+          "meta": {
+            "source": [
+              "specs/chess/custom-game-devices.feature:32"
+            ],
+            "condition": [
+              "Alice has a recently proven account",
+              "Alice has an active Custom Game between Alice as White and Bob as Black",
+              "Alice's other device is offline with the Custom Game open",
+              "Bob has resigned the Custom Game"
+            ],
+            "example": "An offline second device cannot move after the first device finishes"
+          }
+        }
+      }
+    },
+    "Black is to move on both of Alice's devices — 1": {
+      "meta": {
+        "description": "The person observes that black is to move on both of Alice's devices.",
+        "snapshot": "the-person-observes-that-black-is-to-move-on-both-of-alice-s-devices",
+        "recognize": [],
+        "checks": [
+          "Black is to move on both of Alice's devices",
+          "Both of Alice's devices show the Custom Game move list with e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/custom-game-devices.feature:7"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "The Custom Game move list shows e4 once — 2": {
+      "meta": {
+        "description": "The person observes that the Custom Game move list shows e4 once.",
+        "snapshot": "the-person-observes-that-the-custom-game-move-list-shows-e4-once",
+        "recognize": [],
+        "checks": [
+          "The Custom Game move list shows e4 once",
+          "Black is to move on both of Alice's devices"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/custom-game-devices.feature:14"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Both of Alice's devices show Alice's win by resignation — 3": {
+      "meta": {
+        "description": "The person observes that both of Alice's devices show Alice's win by resignation.",
+        "snapshot": "the-person-observes-that-both-of-alice-s-devices-show-alice-s-win-by-resignation",
+        "recognize": [],
+        "checks": [
+          "Both of Alice's devices show Alice's win by resignation"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/custom-game-devices.feature:24"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told Custom Games need a connection on the other device — 4": {
+      "meta": {
+        "description": "The person observes that alice is told Custom Games need a connection on the other device.",
+        "snapshot": "the-person-observes-that-alice-is-told-custom-games-need-a-connection-on-the-other-de",
+        "recognize": [],
+        "checks": [
+          "Alice is told Custom Games need a connection on the other device",
+          "The Custom Game keeps its completed outcome"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/custom-game-devices.feature:32"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

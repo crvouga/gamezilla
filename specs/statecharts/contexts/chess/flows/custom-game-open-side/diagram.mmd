@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Open a side" as s0
+  state "Black is an open place in the Custom Game — 1" as s1
+  state "Alice is told the Custom Game has already started — 2" as s2
+  [*] --> s0
+  s0 --> s1: Alice opens Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is a bot
+  s0 --> s2: Alice opens Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]

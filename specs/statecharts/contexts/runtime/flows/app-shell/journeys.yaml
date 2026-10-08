@@ -1,0 +1,60 @@
+journeys:
+  A person who opens the app lands on Spaces:
+    description: A person who opens the app lands on Spaces
+    startingConditions: []
+    events:
+    - Alice opens the app
+    endsIn: Alice sees the tabs — 1
+    checks:
+    - Alice sees the tabs
+    - Alice is on Spaces
+    gherkin:
+    - specs/runtime/app-shell.feature:9 — A person who opens the app lands on Spaces
+    exampleRow: []
+  Opening Notifications lands on Notifications:
+    description: Opening Notifications lands on Notifications
+    startingConditions: []
+    events:
+    - Alice opens the Notifications tab
+    endsIn: Alice is on Notifications — 2
+    checks:
+    - Alice is on Notifications
+    gherkin:
+    - specs/runtime/app-shell.feature:17 — Opening Notifications lands on Notifications
+    exampleRow: []
+  Opening Profile lands on Profile:
+    description: Opening Profile lands on Profile
+    startingConditions: []
+    events:
+    - Alice opens the Profile tab
+    endsIn: Alice is on Profile — 3
+    checks:
+    - Alice is on Profile
+    gherkin:
+    - specs/runtime/app-shell.feature:21 — Opening Profile lands on Profile
+    exampleRow: []
+  A guest can open Settings:
+    description: A guest can open Settings
+    startingConditions:
+    - Bob is a guest
+    events:
+    - Bob opens Settings when Bob is a guest
+    endsIn: Bob is on Settings — 4
+    checks:
+    - Bob is on Settings
+    gherkin:
+    - specs/runtime/app-shell.feature:27 — A guest can open Settings
+    exampleRow: []
+  Each person's app keeps its own place:
+    description: Each person's app keeps its own place
+    startingConditions:
+    - Alice and Bob are guests
+    events:
+    - Bob opens Settings when Alice and Bob are guests
+    endsIn: Bob is on Settings — 5
+    checks:
+    - Bob is on Settings
+    - Alice is still on Spaces
+    gherkin:
+    - specs/runtime/app-shell.feature:32 — Each person's app keeps its own place
+    exampleRow: []

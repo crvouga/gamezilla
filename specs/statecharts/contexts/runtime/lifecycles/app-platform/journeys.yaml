@@ -1,0 +1,2353 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 22cefbe8a6200c01e952b53f1470f7ebea9d942c5fe916e49faeb367ba57e10e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open settings resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Sign in resulting in viewing Search
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open tab resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    endsIn: Viewing profile
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bcae56cac5090e5ad70d3d65c2c13c5dec8ac1e7b85fdb2650d8deff91d8db30
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Sign in resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    endsIn: Viewing Ended
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 55e4a2f60abc639acc1d6b40bb16860f7fd67a596566131dc631dca2eec621f3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Leave settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    endsIn: Viewing notifications
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2ea9cdae0889830b4ee9e0d3caa0ad1ec346d099d93d3199d01c2f8a01afdc8e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Sign in resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - End resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - End resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - End resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Cut off resulting in viewing Search
+    endsIn: Viewing Search
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c6828ef76113c8d3cf512bc5a2b9eef7a63c48c5eed1e0ebae4b2632e8407272
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Leave settings resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - End resulting in viewing Search
+    - Host resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    endsIn: Viewing notifications
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 941c70b36194d4a8d1b34543b9c080dd8b49df705f6a6551ec096fef649b45fe
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    endsIn: Viewing profile
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6afa974e76404774630f095436ac1cc8caa54765dad8b0e8659209a63c39af59
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Sign in resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    endsIn: Viewing profile
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d79716f1aee550ad7c5131953c49d45c282d3525c53f9a0593a42320c656af99
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - End resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - End resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    endsIn: Viewing spaces
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 6ac12ce849899e845491fd446f731a0a2b35ee438d8d9844ebf44257088b218f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Cut off resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Sign in resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - End resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Sign in resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Host resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d9d83e5b2782f24f3ec30c4b59194ff18a7117fd503f8aa70a186eaffb37b4c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Leave settings resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - End resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - End resulting in viewing Search
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 34e50d493139ffc434a013019d29349e7f1d7e82f447cc1608d19ae8b5b1e146
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - End resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    endsIn: Viewing profile
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0abecb71ed51784337a5930a54843471046f9104053c58341eb7735ef00285b7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bf46ad53ee5bccef575a5166fd1ea02d621e95016769fd1857d4150d96672d94
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Sign in resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - End resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Host resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - End resulting in viewing Search
+    - End resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Leave settings resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    endsIn: Viewing Settings
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ce9af45b344fcae847943c1b6b17d5714f4b74b27bf7c389962b80c4cf3f9c7f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Leave settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    endsIn: Viewing Settings
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: da9b8d97af42f1588b7d6c3202684600ca4f1598208f56071133f1894a4923a0
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Leave settings resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    endsIn: Viewing Ended
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3fe62a8beec1e6d091a42071c3d0056b99cdeab8ea0e1b5b2b01c437909797f3
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - End resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    endsIn: Viewing spaces
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 07bb818f3b1fdda8fcdc12fe5e3668984a7528e550998c92351dbb0453f88060
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Sign in resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Host resulting in viewing profile
+    - End resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Open tab resulting in viewing spaces
+    - Leave settings resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    endsIn: Viewing spaces
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 93671a5292366471a98c7f0ce10f58cb8d688255eb0c3c09749aae4f2308501d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Sign in resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - End resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - End resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - End resulting in viewing Search
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Host resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ab4a44ec3245defd8543d0c01069a6725aa208e23e93f487813d6349ebe6d953
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Sign in resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Open settings resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Reconnect resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - End resulting in viewing Search
+    - Host resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Reconnect resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Leave settings resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Cut off resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Host resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    endsIn: Viewing Search
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4927b393e7c8ffda684cfb1da074e0be9a19f94518d2c9f1f534fb65cacef7fa
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing In Space
+    - Open resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Look up resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Cut off resulting in viewing Settings
+    - Leave settings resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    endsIn: Viewing In Space
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 507046410e5e36998579a4c77f30f94bb3d402d91943bd7cc40dc408c5d510e5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Open resulting in viewing spaces
+    - Sign in resulting in viewing spaces
+    - Host resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Sign in resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Leave settings resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Look up resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Look up resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Look up resulting in viewing spaces
+    - Open settings resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Open tab resulting in viewing spaces
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing Settings
+    - Leave settings resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing Settings
+    - End resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing Settings
+    - Open settings resulting in viewing Settings
+    endsIn: Viewing Settings
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: bf07f90751cd36618c728365a3aa98af171dae315eb5c46cc2989f79c7bf8f3f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Look up resulting in viewing Search
+    - Open resulting in viewing Search
+    - Host resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing Search
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Host resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Look up resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - End resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - End resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Host resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - End resulting in viewing Search
+    - Reconnect resulting in viewing Search
+    - Cut off resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Leave settings resulting in viewing Ended
+    - Open tab resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Reconnect resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Open tab resulting in viewing profile
+    - End resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Sign in resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    endsIn: Viewing profile
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a16612b10bb7c60fde9ef177c9d9570f86c71bf0ea5f64e70fae94ae01207d04
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing spaces
+    - Host resulting in viewing spaces
+    - End resulting in viewing spaces
+    - Open resulting in viewing spaces
+    - Open tab resulting in viewing spaces
+    - Host resulting in viewing spaces
+    - Cut off resulting in viewing spaces
+    - Open settings resulting in viewing Settings
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Open tab resulting in viewing Search
+    - Look up resulting in viewing Search
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Open tab resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Cut off resulting in viewing notifications
+    - Reconnect resulting in viewing notifications
+    - Sign in resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Open settings resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - End resulting in viewing notifications
+    - Leave settings resulting in viewing notifications
+    - Host resulting in viewing notifications
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Look up resulting in viewing Ended
+    - Host resulting in viewing Ended
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open settings resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Leave settings resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Open tab resulting in viewing In Space
+    - Reconnect resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open settings resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Open tab resulting in viewing profile
+    - Look up resulting in viewing profile
+    - Host resulting in viewing profile
+    - Leave settings resulting in viewing profile
+    - Open settings resulting in viewing Settings
+    - Leave settings resulting in viewing profile
+    - End resulting in viewing profile
+    - Reconnect resulting in viewing profile
+    - Open tab resulting in viewing profile
+    - Open settings resulting in viewing profile
+    - Host resulting in viewing profile
+    - Host resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing In Space
+    - End resulting in viewing In Space
+    - Cut off resulting in viewing In Space
+    - Host resulting in viewing In Space
+    - End resulting in viewing Ended
+    - Open tab resulting in viewing Ended
+    - Cut off resulting in viewing Ended
+    endsIn: Viewing Ended
+    quintTrace:
+      model: specs/runtime/app-platform.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e94442a8f5f295e113443f2eb95476ce43152fa8f9aa3f20b83bb29dfafdb950
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

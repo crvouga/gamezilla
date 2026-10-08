@@ -1,0 +1,5829 @@
+{
+  "id": "chess-puzzle-attempt-lifecycle",
+  "initial": "Opening puzzle attempt",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/chess/puzzle-attempt.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening puzzle attempt": {
+      "meta": {
+        "description": "The person is opening the puzzle attempt view.",
+        "snapshot": "the-person-is-opening-the-puzzle-attempt-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ]
+      },
+      "on": {
+        "Opens with choosing a game": {
+          "target": "Choosing a game",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess--puzzle-attempt_7.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:204"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing a game": {
+      "meta": {
+        "description": "The person is choosing a game.",
+        "snapshot": "the-person-is-choosing-a-game",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "GameChoice",
+            "puzzleState.get(\"alice\")": "none",
+            "help": "none",
+            "guidance": "none"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Connection returns resulting in choosing a game": {
+          "target": "Choosing a game",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Time passes resulting in choosing a game": {
+          "target": "Choosing a game",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Opens chess puzzles resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "openPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:225"
+            ]
+          }
+        },
+        "Opens chess puzzles resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "openPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 47,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:225"
+            ]
+          }
+        },
+        "Opens chess puzzles resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "openPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:225"
+            ]
+          }
+        },
+        "Opens chess puzzles resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "openPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:225"
+            ]
+          }
+        },
+        "Mute assistant resulting in choosing a game": {
+          "target": "Choosing a game",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 64,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Opens chess puzzles resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "openPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:225"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the puzzle": {
+      "meta": {
+        "description": "The person is solving the puzzle.",
+        "snapshot": "the-person-is-solving-the-puzzle",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solving",
+            "help": "none",
+            "guidance": "ready"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Solves the puzzle resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "solve",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:249"
+            ]
+          }
+        },
+        "Choose piece resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "choosePiece",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:427"
+            ]
+          }
+        },
+        "Mute assistant resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 16,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Unmute assistant resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "playCorrectContinuation",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:263"
+            ]
+          }
+        },
+        "Try illegal move resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "tryIllegalMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:395"
+            ]
+          }
+        },
+        "Skips the puzzle resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "skip",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 51,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:300"
+            ]
+          }
+        },
+        "Try retry while solving resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "tryRetryWhileSolving",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:382"
+            ]
+          }
+        },
+        "Shows the complete puzzle solution resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "showSolution",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:293"
+            ]
+          }
+        },
+        "Suggest move resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "suggestMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:413"
+            ]
+          }
+        },
+        "Try solution before hint resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "trySolutionBeforeHint",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:388"
+            ]
+          }
+        },
+        "Plays a wrong puzzle move resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "playWrongMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:256"
+            ]
+          }
+        },
+        "Time passes resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 99,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Asks for the first hint resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "requestHint",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:269"
+            ]
+          }
+        },
+        "Connection returns resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Reopen app resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the solved puzzle": {
+      "meta": {
+        "description": "The person is seeing the solved puzzle.",
+        "snapshot": "the-person-is-seeing-the-solved-puzzle",
+        "recognize": [
+          "[data-testid=\"chess-puzzle-board\"] with the expected result and guidance"
+        ],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "confirmed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt",
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/solve-flow.feature"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solved",
+            "help": "none",
+            "guidance": "checkmate"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Try show solution after finish resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "tryShowSolutionAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:340"
+            ]
+          }
+        },
+        "Moves on to a different puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOn",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:314"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 73,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Connection returns resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Reopen app resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Try hint after finish resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "tryHintAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 95,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:334"
+            ]
+          }
+        },
+        "Try move after finish resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "tryMoveAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 97,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:328"
+            ]
+          }
+        },
+        "Requests the next puzzle twice at once resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOnTwiceAtOnce",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:321"
+            ]
+          }
+        },
+        "Mute assistant resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 66,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Time passes resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Try skip after finish resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "trySkipAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:346"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 95,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Unmute assistant resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_19.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing chess play": {
+      "meta": {
+        "description": "The person is choosing chess play.",
+        "snapshot": "the-person-is-choosing-chess-play",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "ChessChoices",
+            "puzzleState.get(\"alice\")": "none",
+            "help": "none",
+            "guidance": "none"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Returns to the space game choices resulting in choosing a game": {
+          "target": "Choosing a game",
+          "meta": {
+            "action": "backToGameChoice",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:244"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        },
+        "Time passes resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        },
+        "Connection returns resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        },
+        "Mute assistant resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Unmute assistant resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_19.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_13.itf.json",
+              "step": 35,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        },
+        "Returns to the puzzle board resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "goBackToPuzzles",
+            "witness": {
+              "trace": "chess--puzzle-attempt_20.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:232"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the puzzle after a correct continuation": {
+      "meta": {
+        "description": "The person is solving the puzzle after a correct continuation.",
+        "snapshot": "the-person-is-solving-the-puzzle-after-a-correct-continuation",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solving",
+            "help": "none",
+            "guidance": "progress"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Skips the puzzle resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "skip",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:300"
+            ]
+          }
+        },
+        "Connection returns resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Try retry while solving resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "tryRetryWhileSolving",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:382"
+            ]
+          }
+        },
+        "Asks for the first hint resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "requestHint",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:269"
+            ]
+          }
+        },
+        "Shows the complete puzzle solution resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "showSolution",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:293"
+            ]
+          }
+        },
+        "Time passes resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Suggest move resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "suggestMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:413"
+            ]
+          }
+        },
+        "Choose piece resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "choosePiece",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:427"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Plays a wrong puzzle move resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "playWrongMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:256"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Reopen app resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Solves the puzzle resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "solve",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:249"
+            ]
+          }
+        },
+        "Mute assistant resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Unmute assistant resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Try illegal move resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "tryIllegalMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_22.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:395"
+            ]
+          }
+        },
+        "Try solution before hint resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "trySolutionBeforeHint",
+            "witness": {
+              "trace": "chess--puzzle-attempt_22.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:388"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_18.itf.json",
+              "step": 80,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the skipped puzzle": {
+      "meta": {
+        "description": "The person is seeing the skipped puzzle.",
+        "snapshot": "the-person-is-seeing-the-skipped-puzzle",
+        "recognize": [
+          "[data-testid=\"chess-puzzle-board\"] with the expected result and guidance"
+        ],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "confirmed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt",
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/solve-flow.feature"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "skipped",
+            "help": "none",
+            "guidance": "skipped"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Reopen app resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Requests the next puzzle twice at once resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOnTwiceAtOnce",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 35,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:321"
+            ]
+          }
+        },
+        "Moves on to a different puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOn",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:314"
+            ]
+          }
+        },
+        "Connection returns resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Try hint after finish resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "tryHintAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:334"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Try show solution after finish resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "tryShowSolutionAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:340"
+            ]
+          }
+        },
+        "Unmute assistant resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 64,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Try review before retry resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "tryReviewBeforeRetry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:407"
+            ]
+          }
+        },
+        "Mute assistant resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Time passes resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 34,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Try move after finish resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "tryMoveAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:328"
+            ]
+          }
+        },
+        "Try skip after finish resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "trySkipAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_4.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:346"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the puzzle with the solution piece highlighted": {
+      "meta": {
+        "description": "The person is solving the puzzle with the solution piece highlighted.",
+        "snapshot": "the-person-is-solving-the-puzzle-with-the-solution-piece-highlighted",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solving",
+            "help": "highlight",
+            "guidance": "hint"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Shows the complete puzzle solution resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "showSolution",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 40,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:293"
+            ]
+          }
+        },
+        "Try retry while solving resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "tryRetryWhileSolving",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:382"
+            ]
+          }
+        },
+        "Try earlier hint resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "tryEarlierHint",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:401"
+            ]
+          }
+        },
+        "Reopen app resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Try illegal move resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "tryIllegalMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:395"
+            ]
+          }
+        },
+        "Solves the puzzle resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "solve",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:249"
+            ]
+          }
+        },
+        "Unmute assistant resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "playCorrectContinuation",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 34,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:263"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Plays a wrong puzzle move resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "playWrongMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:256"
+            ]
+          }
+        },
+        "Time passes resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Asks for the second hint resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "revealSolutionMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:275"
+            ]
+          }
+        },
+        "Choose piece resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "choosePiece",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:427"
+            ]
+          }
+        },
+        "Suggest move resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "suggestMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:413"
+            ]
+          }
+        },
+        "Skips the puzzle resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "skip",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:300"
+            ]
+          }
+        },
+        "Connection returns resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Mute assistant resulting in solving the puzzle with the solution piece highlighted": {
+          "target": "Solving the puzzle with the solution piece highlighted",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_4.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_1.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the full solution": {
+      "meta": {
+        "description": "The person is seeing the full solution.",
+        "snapshot": "the-person-is-seeing-the-full-solution",
+        "recognize": [
+          "[data-testid=\"chess-puzzle-board\"] with the expected result and guidance"
+        ],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "confirmed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt",
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/solve-flow.feature"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "revealed",
+            "help": "solution",
+            "guidance": "revealed"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Try skip after finish resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "trySkipAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:346"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Reopen app resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 58,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Connection returns resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Moves on to a different puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOn",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:314"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Requests the next puzzle twice at once resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOnTwiceAtOnce",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:321"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Time passes resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Try move after finish resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "tryMoveAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:328"
+            ]
+          }
+        },
+        "Try hint after finish resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "tryHintAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:334"
+            ]
+          }
+        },
+        "Try show solution after finish resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "tryShowSolutionAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_5.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:340"
+            ]
+          }
+        },
+        "Mute assistant resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_5.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Unmute assistant resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_5.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_5.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the solved puzzle while reviewing an earlier move": {
+      "meta": {
+        "description": "The person is seeing the solved puzzle while reviewing an earlier move.",
+        "snapshot": "the-person-is-seeing-the-solved-puzzle-while-reviewing-an-earlier-move",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solved",
+            "help": "none",
+            "guidance": "review"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Reviews the next reached position resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        },
+        "Unmute assistant resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Reopen app resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Mute assistant resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Time passes resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Try move after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryMoveAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:328"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Try show solution after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryShowSolutionAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:340"
+            ]
+          }
+        },
+        "Reviews the next reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Requests the next puzzle twice at once resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOnTwiceAtOnce",
+            "witness": {
+              "trace": "chess--puzzle-attempt_16.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:321"
+            ]
+          }
+        },
+        "Try hint after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryHintAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_4.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:334"
+            ]
+          }
+        },
+        "Moves on to a different puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOn",
+            "witness": {
+              "trace": "chess--puzzle-attempt_22.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:314"
+            ]
+          }
+        },
+        "Try skip after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "trySkipAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_18.itf.json",
+              "step": 36,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:346"
+            ]
+          }
+        },
+        "Connection returns resulting in seeing the solved puzzle while reviewing an earlier move": {
+          "target": "Seeing the solved puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_21.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        }
+      }
+    },
+    "Told the move is wrong": {
+      "meta": {
+        "description": "The person is told the move is wrong.",
+        "snapshot": "the-person-is-told-the-move-is-wrong",
+        "recognize": [
+          "[data-testid=\"chess-puzzle-board\"] with the expected result and guidance"
+        ],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "confirmed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt",
+          "libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx",
+          "specs/chess/puzzle-play.feature",
+          "specs/chess/solve-flow.feature"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "wrong",
+            "help": "none",
+            "guidance": "wrong"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Reopen app resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 86,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_11.itf.json",
+              "step": 87,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Try move before retry resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "tryMoveBeforeRetry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:376"
+            ]
+          }
+        },
+        "Try review before retry resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "tryReviewBeforeRetry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:407"
+            ]
+          }
+        },
+        "Skips the puzzle resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "skip",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:300"
+            ]
+          }
+        },
+        "Connection returns resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Shows the complete puzzle solution resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "showSolution",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:293"
+            ]
+          }
+        },
+        "Try hint before retry resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "tryHintBeforeRetry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_3.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:370"
+            ]
+          }
+        },
+        "Mute assistant resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Time passes resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Unmute assistant resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_4.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing the full solution while reviewing an earlier move": {
+      "meta": {
+        "description": "The person is seeing the full solution while reviewing an earlier move.",
+        "snapshot": "the-person-is-seeing-the-full-solution-while-reviewing-an-earlier-move",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "revealed",
+            "help": "solution",
+            "guidance": "review"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Mute assistant resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Try show solution after finish resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "tryShowSolutionAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:340"
+            ]
+          }
+        },
+        "Reviews the next reached position resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        },
+        "Time passes resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Requests the next puzzle twice at once resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOnTwiceAtOnce",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:321"
+            ]
+          }
+        },
+        "Reviews the next reached position resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        },
+        "Retries the same puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "retry",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:307"
+            ]
+          }
+        },
+        "Reopen app resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_2.itf.json",
+              "step": 93,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Moves on to a different puzzle resulting in solving the puzzle": {
+          "target": "Solving the puzzle",
+          "meta": {
+            "action": "moveOn",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:314"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Connection returns resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Try move after finish resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "tryMoveAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:328"
+            ]
+          }
+        },
+        "Choose review position resulting in seeing the full solution": {
+          "target": "Seeing the full solution",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_17.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_23.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Try hint after finish resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "tryHintAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_12.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:334"
+            ]
+          }
+        },
+        "Try skip after finish resulting in seeing the full solution while reviewing an earlier move": {
+          "target": "Seeing the full solution while reviewing an earlier move",
+          "meta": {
+            "action": "trySkipAfterFinish",
+            "witness": {
+              "trace": "chess--puzzle-attempt_12.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:346"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the puzzle while reviewing an earlier move": {
+      "meta": {
+        "description": "The person is solving the puzzle while reviewing an earlier move.",
+        "snapshot": "the-person-is-solving-the-puzzle-while-reviewing-an-earlier-move",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solving",
+            "help": "none",
+            "guidance": "review"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Try hint from review resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryHintFromReview",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:358"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        },
+        "Try retry while solving resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryRetryWhileSolving",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:382"
+            ]
+          }
+        },
+        "Skips the puzzle resulting in seeing the skipped puzzle": {
+          "target": "Seeing the skipped puzzle",
+          "meta": {
+            "action": "skip",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 49,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:300"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Time passes resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_10.itf.json",
+              "step": 99,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Reviews the next reached position resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        },
+        "Connection returns resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "connectionReturns",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 41,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:458"
+            ]
+          }
+        },
+        "Try show solution from review resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryShowSolutionFromReview",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:364"
+            ]
+          }
+        },
+        "Reopen app resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 45,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_8.itf.json",
+              "step": 47,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Try move from review resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "tryMoveFromReview",
+            "witness": {
+              "trace": "chess--puzzle-attempt_5.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:352"
+            ]
+          }
+        },
+        "Choose review position resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "chooseReviewPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_22.itf.json",
+              "step": 83,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:419"
+            ]
+          }
+        },
+        "Unmute assistant resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_13.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Mute assistant resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "muteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_13.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:469"
+            ]
+          }
+        },
+        "Reviews the next reached position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepForwardPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_1.itf.json",
+              "step": 86,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:287"
+            ]
+          }
+        }
+      }
+    },
+    "Solving the puzzle with a solution move shown": {
+      "meta": {
+        "description": "The person is solving the puzzle with a solution move shown.",
+        "snapshot": "the-person-is-solving-the-puzzle-with-a-solution-move-shown",
+        "recognize": [],
+        "checks": [
+          "The assistant always belongs to the puzzle visible on that device.",
+          "The assistant cannot contradict the board's outcome, including offline.",
+          "Muting keeps the same observation whenever the board is present.",
+          "A guest here never uses more than the daily allowance.",
+          "Moving on is offered only to the host, once the puzzle on the board is over.",
+          "Off the board, no puzzle and no puzzle state shows.",
+          "While every device has a connection, the watcher's board agrees with the host's.",
+          "With a device offline, the watcher keeps the board they had when the connection went.",
+          "Examining a position cannot go beyond the moves reached on that puzzle.",
+          "Reviewing an earlier position never attaches current-move guidance to it.",
+          "Help belongs to the board being examined; off the board it is absent.",
+          "A solved puzzle stays solved while its earlier positions are examined."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/puzzle-attempt.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "view.get(\"alice\")": "Board",
+            "puzzleState.get(\"alice\")": "solving",
+            "help": "solution",
+            "guidance": "hint"
+          }
+        ],
+        "invariants": [
+          "invCommentaryBelongsToCurrentPuzzle",
+          "invCommentaryAgreesWithBoard",
+          "invMutedObservationRemains",
+          "invStartsWithinAllowance",
+          "invMoveOnOnlyWhenOver",
+          "invNothingOffTheBoard",
+          "invWatcherSeesTheHostsBoard",
+          "invOfflineWatcherKeepsTheBoard",
+          "invOnlyReachedPositions",
+          "invReviewGuidanceBelongsToPosition",
+          "invHelpBelongsToPosition",
+          "invSolvedReviewCannotReactivate"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Solves the puzzle resulting in seeing the solved puzzle": {
+          "target": "Seeing the solved puzzle",
+          "meta": {
+            "action": "solve",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 54,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:249"
+            ]
+          }
+        },
+        "Time passes resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "timePasses",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:433"
+            ]
+          }
+        },
+        "Try retry while solving resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "tryRetryWhileSolving",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:382"
+            ]
+          }
+        },
+        "Plays a wrong puzzle move resulting in told the move is wrong": {
+          "target": "Told the move is wrong",
+          "meta": {
+            "action": "playWrongMove",
+            "witness": {
+              "trace": "chess--puzzle-attempt_9.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:256"
+            ]
+          }
+        },
+        "Choose piece resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "choosePiece",
+            "witness": {
+              "trace": "chess--puzzle-attempt_19.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:427"
+            ]
+          }
+        },
+        "Unmute assistant resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "unmuteAssistant",
+            "witness": {
+              "trace": "chess--puzzle-attempt_19.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:479"
+            ]
+          }
+        },
+        "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
+          "target": "Solving the puzzle after a correct continuation",
+          "meta": {
+            "action": "playCorrectContinuation",
+            "witness": {
+              "trace": "chess--puzzle-attempt_12.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:263"
+            ]
+          }
+        },
+        "Reopen app resulting in solving the puzzle with a solution move shown": {
+          "target": "Solving the puzzle with a solution move shown",
+          "meta": {
+            "action": "reopenApp",
+            "witness": {
+              "trace": "chess--puzzle-attempt_12.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:438"
+            ]
+          }
+        },
+        "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
+          "target": "Solving the puzzle while reviewing an earlier move",
+          "meta": {
+            "action": "stepBackPosition",
+            "witness": {
+              "trace": "chess--puzzle-attempt_12.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:281"
+            ]
+          }
+        },
+        "Leaves the puzzle board resulting in choosing chess play": {
+          "target": "Choosing chess play",
+          "meta": {
+            "action": "leavePuzzle",
+            "witness": {
+              "trace": "chess--puzzle-attempt_20.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "move": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/chess/puzzle-attempt.qnt:238"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

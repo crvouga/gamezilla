@@ -1,0 +1,211 @@
+journeys:
+  The host drives the puzzle and the watcher only watches:
+    description: The host drives the puzzle and the watcher only watches
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice plays the next move of the solution when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+    endsIn: Alice is the host of the puzzle and can move pieces — 1
+    checks:
+    - Alice is the host of the puzzle and can move pieces
+    - Bob is watching the puzzle and cannot move pieces
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:14 — The host drives the puzzle and the watcher only watches
+    exampleRow: []
+  The host can move on from a finished puzzle:
+    description: The host can move on from a finished puzzle
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    - Alice has solved the puzzle
+    events:
+    - Alice moves on to the next puzzle
+    endsIn: Alice is solving a different puzzle than the one before — 2
+    checks:
+    - Alice is solving a different puzzle than the one before
+    - Alice's and Bob's boards agree
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:19 — The host can move on from a finished puzzle
+    exampleRow: []
+  A watcher cannot move on from the host's finished puzzle:
+    description: A watcher cannot move on from the host's finished puzzle
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    - Alice has solved the puzzle
+    events:
+    - Bob tries to move on from Alice's puzzle when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle and
+      Alice has solved the puzzle
+    endsIn: Alice is on the same puzzle as before — 3
+    checks:
+    - Alice is on the same puzzle as before
+    - Bob sees the puzzle solved within 15 seconds
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:25 — A watcher cannot move on from the host's finished puzzle
+    exampleRow: []
+  A watcher trying to play the next move of the host's puzzle changes nothing:
+    description: A watcher trying to <attempt> the host's puzzle changes nothing
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Bob tries to play the next move of Alice's puzzle
+    endsIn: Alice's board is unchanged — 4
+    checks:
+    - Alice's board is unchanged
+    - Alice is still asked to find the next move
+    - Alice's and Bob's boards agree
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:31 — A watcher trying to <attempt> the host's puzzle changes nothing
+    exampleRow:
+    - '24'
+  A watcher trying to skip the host's puzzle changes nothing:
+    description: A watcher trying to <attempt> the host's puzzle changes nothing
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Bob tries to skip Alice's puzzle
+    endsIn: Alice's board is unchanged — 5
+    checks:
+    - Alice's board is unchanged
+    - Alice is still asked to find the next move
+    - Alice's and Bob's boards agree
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:31 — A watcher trying to <attempt> the host's puzzle changes nothing
+    exampleRow:
+    - '25'
+  A watcher trying to move on from the host's puzzle changes nothing:
+    description: A watcher trying to <attempt> the host's puzzle changes nothing
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Bob tries to move on from Alice's puzzle when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+    endsIn: Alice's board is unchanged — 6
+    checks:
+    - Alice's board is unchanged
+    - Alice is still asked to find the next move
+    - Alice's and Bob's boards agree
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:31 — A watcher trying to <attempt> the host's puzzle changes nothing
+    exampleRow:
+    - '26'
+  Only the host is rated for a watched solve:
+    description: Only the host is rated for a watched solve
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice solves the puzzle when Alice and Bob are friends and Alice is hosting a space that Bob joined from the
+      lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+    endsIn: Alice's game log records that puzzle as solved — 7
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Bob's game log is empty within 15 seconds
+    - Bob's puzzle rating is 1500
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:46 — Only the host is rated for a watched solve
+    exampleRow: []
+  A watcher sees the host's puzzle solved:
+    description: A watcher sees the host's puzzle solved
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice solves the puzzle when Alice and Bob are friends and Alice is hosting a space that Bob joined from the
+      lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+    endsIn: Alice's game log records that puzzle as solved — 7
+    checks:
+    - Bob sees the puzzle solved within 15 seconds
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:54 — A watcher sees the host's puzzle solved
+    exampleRow: []
+  A watcher's board follows each of the host's moves:
+    description: A watcher's board follows each of the host's moves
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice plays the next move of the solution when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle
+    endsIn: Alice is the host of the puzzle and can move pieces — 1
+    checks:
+    - Alice's and Bob's boards agree
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:58 — A watcher's board follows each of the host's moves
+    exampleRow: []
+  Leaving the puzzle takes the watcher off the board too:
+    description: Leaving the puzzle takes the watcher off the board too
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice leaves the puzzle for the chess choices
+    endsIn: Alice has no puzzle on the board — 10
+    checks:
+    - Alice has no puzzle on the board
+    - Bob has no puzzle on the board
+    - Bob is not offered a puzzle of his own
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:62 — Leaving the puzzle takes the watcher off the board too
+    exampleRow: []
+  A watcher's suggestion shows to host and watcher without moving the puzzle:
+    description: A watcher's suggestion shows to host and watcher without moving the puzzle
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Bob suggests a move that is not the solution
+    endsIn: Alice and Bob both see only Bob's suggestion — 11
+    checks:
+    - Alice and Bob both see only Bob's suggestion
+    - Alice is still asked to find the next move
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:70 — A watcher's suggestion shows to host and watcher without moving
+      the puzzle
+    exampleRow: []
+  The host's move clears the watcher's suggestion:
+    description: The host's move clears the watcher's suggestion
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space that Bob joined from the lobby
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    - Bob has suggested a move that Alice can see
+    events:
+    - Alice plays the next move of the solution when Alice and Bob are friends and Alice is hosting a space that
+      Bob joined from the lobby and Alice is playing puzzles in their space and Bob is watching Alice's puzzle and
+      Bob has suggested a move that Alice can see
+    endsIn: Bob sees no suggestions within 15 seconds — 12
+    checks:
+    - Bob sees no suggestions within 15 seconds
+    gherkin:
+    - specs/chess/puzzle-spectator.feature:75 — The host's move clears the watcher's suggestion
+    exampleRow: []

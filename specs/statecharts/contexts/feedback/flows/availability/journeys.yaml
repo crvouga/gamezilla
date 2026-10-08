@@ -1,0 +1,124 @@
+journeys:
+  A working app lets the team keep feedback:
+    description: A working app lets the team keep feedback
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team submits feedback titled 'Chess board freezes' saying 'The board stopped after a move'
+    endsIn: the team can read the local feedback — 1
+    checks:
+    - the team can read the local feedback
+    - the feedback contains the available diagnostics
+    gherkin:
+    - specs/feedback/availability.feature:9 — A working app lets the team keep feedback
+    exampleRow: []
+  An app that stays loading lets the team keep feedback:
+    description: An app that stays loading lets the team keep feedback
+    startingConditions:
+    - the team's app stays loading
+    events:
+    - the team submits feedback titled 'Opening never finishes' saying 'The opening screen stays visible'
+    endsIn: the team can read the local feedback — 2
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:15 — An app that stays loading lets the team keep feedback
+    exampleRow: []
+  An app that crashes lets the team keep feedback:
+    description: An app that crashes lets the team keep feedback
+    startingConditions:
+    - the team's app has crashed
+    events:
+    - the team submits feedback titled 'Board disappeared' saying 'The app crashed during a game'
+    endsIn: the team can read the local feedback — 3
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:20 — An app that crashes lets the team keep feedback
+    exampleRow: []
+  Trouble opening Settings does not prevent feedback:
+    description: Trouble opening Settings does not prevent feedback
+    startingConditions:
+    - the team's app cannot open Settings
+    events:
+    - the team submits feedback titled 'Settings cannot open' saying 'Choosing Settings leaves a blank screen'
+    endsIn: the team can read the local feedback — 4
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:25 — Trouble opening Settings does not prevent feedback
+    exampleRow: []
+  Trouble signing in does not prevent feedback:
+    description: Trouble signing in does not prevent feedback
+    startingConditions:
+    - the team's app cannot sign in
+    events:
+    - the team submits feedback titled 'Sign in stops' saying 'Signing in never finishes'
+    endsIn: the team can read the local feedback — 5
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:30 — Trouble signing in does not prevent feedback
+    exampleRow: []
+  Unavailable diagnostics still keep useful feedback:
+    description: Unavailable diagnostics still keep useful feedback
+    startingConditions:
+    - some diagnostics are unavailable
+    events:
+    - the team submits feedback titled 'Board disappeared' saying 'The app went blank'
+    endsIn: the team can read the local feedback — 6
+    checks:
+    - the team can read the local feedback
+    - the feedback identifies unavailable diagnostics
+    gherkin:
+    - specs/feedback/availability.feature:38 — Unavailable diagnostics still keep useful feedback
+    exampleRow: []
+  Diagnostics that never arrive do not hold up feedback:
+    description: Diagnostics that never arrive do not hold up feedback
+    startingConditions:
+    - some diagnostics never arrive
+    events:
+    - the team submits feedback titled 'App stopped responding' saying 'Nothing happens after a move'
+    endsIn: the team can read the local feedback — 7
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:44 — Diagnostics that never arrive do not hold up feedback
+    exampleRow: []
+  The team keeps feedback while offline:
+    description: The team keeps feedback while offline
+    startingConditions:
+    - the team's device is offline
+    events:
+    - the team submits feedback titled 'Offline board freezes' saying 'The board stopped while offline'
+    endsIn: the team can read the local feedback — 8
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:52 — The team keeps feedback while offline
+    exampleRow: []
+  Closing the app keeps the feedback readable:
+    description: Closing the app keeps the feedback readable
+    startingConditions:
+    - the team has kept local feedback titled "Chess board freezes"
+    events:
+    - the team's app closes
+    endsIn: the team can read the local feedback — 9
+    checks:
+    - the team can read the local feedback
+    gherkin:
+    - specs/feedback/availability.feature:57 — Closing the app keeps the feedback readable
+    exampleRow: []
+  Unreachable reporting lets the team keep the feedback for later:
+    description: Unreachable reporting lets the team keep the feedback for later
+    startingConditions:
+    - the team cannot send feedback
+    events:
+    - the team submits feedback titled 'Board froze' saying 'Stopped after a move'
+    endsIn: the team can copy the feedback to keep for later — 10
+    checks:
+    - the team can copy the feedback to keep for later
+    - the feedback has not been saved locally
+    gherkin:
+    - specs/feedback/availability.feature:65 — Unreachable reporting lets the team keep the feedback for later
+    exampleRow: []

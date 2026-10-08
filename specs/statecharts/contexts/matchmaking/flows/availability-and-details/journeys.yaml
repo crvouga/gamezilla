@@ -1,0 +1,132 @@
+journeys:
+  Alice's wait ends when she becomes unavailable for a match:
+    description: Alice's wait ends when she becomes unavailable for a match
+    startingConditions:
+    - Alice is waiting for a match
+    events:
+    - Alice becomes unavailable for a match when Alice is waiting for a match
+    endsIn: Alice is not waiting for a match — 1
+    checks:
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:9 — Alice's wait ends when she becomes unavailable for
+      a match
+    exampleRow: []
+  Alice cannot be matched after becoming unavailable:
+    description: Alice cannot be matched after becoming unavailable
+    startingConditions:
+    - Alice was waiting but is unavailable for a match
+    - Bob is waiting for a match
+    events:
+    - matchmaking pairs people up when Alice was waiting but is unavailable for a match and Bob is waiting for a
+      match
+    endsIn: Bob is still waiting — 2
+    checks:
+    - Bob is still waiting
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:14 — Alice cannot be matched after becoming unavailable
+    exampleRow: []
+  Becoming unavailable after pairing cannot erase a match:
+    description: Becoming unavailable after pairing cannot erase a match
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice becomes unavailable for a match when Alice has been matched with Bob
+    endsIn: Alice and Bob keep the same match — 3
+    checks:
+    - Alice and Bob keep the same match
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:21 — Becoming unavailable after pairing cannot erase a
+      match
+    exampleRow: []
+  Alice can ask for a new match after becoming available again:
+    description: Alice can ask for a new match after becoming available again
+    startingConditions:
+    - Alice's earlier wait ended when she became unavailable
+    - Alice is available for a match again
+    events:
+    - Alice waits for a match with a rating of 1500 when Alice's earlier wait ended when she became unavailable
+      and Alice is available for a match again
+    endsIn: Alice is waiting — 4
+    checks:
+    - Alice is waiting
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:29 — Alice can ask for a new match after becoming available
+      again
+    exampleRow: []
+  Becoming available does not restart Alice's ended wait:
+    description: Becoming available does not restart Alice's ended wait
+    startingConditions:
+    - Alice's earlier wait ended when she became unavailable
+    events:
+    - Alice becomes available for a match again
+    endsIn: Alice is not waiting for a match — 5
+    checks:
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:35 — Becoming available does not restart Alice's ended
+      wait
+    exampleRow: []
+  Alice sees her own waiting details:
+    description: Alice sees her own waiting details
+    startingConditions: []
+    events:
+    - Alice waits for a match with a rating of 1500 when Alice sees her own waiting details
+    endsIn: Alice's wait shows her name and a rating of 1500 — 6
+    checks:
+    - Alice's wait shows her name and a rating of 1500
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:42 — Alice sees her own waiting details
+    exampleRow: []
+  Bob cannot see Alice's private wait:
+    description: Bob cannot see Alice's private wait
+    startingConditions:
+    - Alice is waiting for a match
+    events:
+    - Bob asks to see Alice's wait
+    endsIn: Bob is told no wait is available to him — 7
+    checks:
+    - Bob is told no wait is available to him
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:46 — Bob cannot see Alice's private wait
+    exampleRow: []
+  A matched person sees who they are matched with:
+    description: A matched person sees who they are matched with
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points
+      and Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    endsIn: Alice and Bob are matched with each other — 8
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:51 — A matched person sees who they are matched with
+    exampleRow: []
+  People waiting in the same matching pool can be matched:
+    description: People waiting in the same matching pool can be matched
+    startingConditions:
+    - Alice and Bob are waiting in the same matching pool within each other's ranges
+    events:
+    - matchmaking pairs people up when Alice and Bob are waiting in the same matching pool within each other's ranges
+    endsIn: Alice and Bob are matched with each other — 9
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:59 — People waiting in the same matching pool can be matched
+    exampleRow: []
+  People in different matching pools cannot be matched:
+    description: People in different matching pools cannot be matched
+    startingConditions:
+    - Alice and Bob are waiting in different matching pools within each other's ranges
+    events:
+    - matchmaking pairs people up when Alice and Bob are waiting in different matching pools within each other's
+      ranges
+    endsIn: Alice and Bob are still waiting — 10
+    checks:
+    - Alice and Bob are still waiting
+    gherkin:
+    - specs/matchmaking/availability-and-details.feature:64 — People in different matching pools cannot be matched
+    exampleRow: []

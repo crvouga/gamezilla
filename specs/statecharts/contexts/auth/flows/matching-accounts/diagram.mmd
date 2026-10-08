@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Confirming a matching account" as s0
+  state "Eve is signed into the same account — 1" as s1
+  state "Carol is told to confirm the matching account first — 2" as s2
+  state "Carol is signed into the same account — 3" as s3
+  state "Carol is told the matching account could not be confirmed — 4" as s4
+  state "Carol is signed into a new account — 5" as s5
+  state "Carol is signed into the same account — 6" as s6
+  state "Carol is told the chance to confirm has lapsed — 7" as s7
+  state "Carol is told the chance to confirm has lapsed — 8" as s8
+  [*] --> s0
+  s0 --> s1: Eve signs in with their Apple account
+  s0 --> s2: Carol signs in with their Apple account
+  s0 --> s3: Carol confirms the matching account with Google when Carol is being asked to confirm the matching account with Google
+  s0 --> s4: Carol confirms the matching account with Bob's Google account
+  s0 --> s5: Carol keeps the accounts separate when Carol is being asked to confirm the matching account with Google
+  s0 --> s6: Carol confirms the matching account with Google when Carol was asked to confirm the matching account with Google 9 minutes ago
+  s0 --> s7: Carol confirms the matching account with Google when Carol was asked to confirm the matching account with Google 11 minutes ago
+  s0 --> s8: Carol keeps the accounts separate when Carol was asked to confirm the matching account with Google 11 minutes ago
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

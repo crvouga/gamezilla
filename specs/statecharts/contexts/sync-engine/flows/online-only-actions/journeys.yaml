@@ -1,0 +1,47 @@
+journeys:
+  An announcement written offline says it needs a connection:
+    description: An announcement written offline says it needs a connection
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app is offline
+    events:
+    - Alice writes the announcement 'Fire drill' saying 'at noon'
+    endsIn: Alice is told announcements need a connection — 1
+    checks:
+    - Alice is told announcements need a connection
+    - Alice does not see the note "Fire drill"
+    gherkin:
+    - specs/sync-engine/online-only-actions.feature:14 — An announcement written offline says it needs a connection
+    exampleRow: []
+  An announcement tried offline does not go out later:
+    description: An announcement tried offline does not go out later
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app is offline
+    - Alice has tried to write the announcement "Fire drill" saying "at noon"
+    events:
+    - Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline
+      and Alice has tried to write the announcement 'Fire drill' saying 'at noon'
+    endsIn: Alice does not see the note "Fire drill" — 2
+    checks:
+    - Alice does not see the note "Fire drill"
+    - Bob does not see the note "Fire drill"
+    gherkin:
+    - specs/sync-engine/online-only-actions.feature:19 — An announcement tried offline does not go out later
+    exampleRow: []
+  An announcement can be written once the connection is back:
+    description: An announcement can be written once the connection is back
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice's app is offline
+    - Alice has tried to write the announcement "Fire drill" saying "at noon"
+    events:
+    - Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline
+      and Alice has tried to write the announcement 'Fire drill' saying 'at noon'
+    - Alice writes the announcement 'Fire drill' saying 'at noon'
+    endsIn: Bob sees the note "Fire drill" saying "at noon" — 3 step 2
+    checks:
+    - Bob sees the note "Fire drill" saying "at noon"
+    gherkin:
+    - specs/sync-engine/online-only-actions.feature:25 — An announcement can be written once the connection is back
+    exampleRow: []

@@ -1,0 +1,103 @@
+journeys:
+  Free-form feedback keeps the author's writing:
+    description: Free-form feedback keeps the author's writing
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team submits feedback titled 'Board movement' saying '# Movement\n\n- Pieces feel slow\n- Keep the last
+      move visible'
+    endsIn: the team can read the local feedback — 1
+    checks:
+    - the team can read the local feedback
+    - the feedback keeps the Markdown "# Movement\n\n- Pieces feel slow\n- Keep the last move visible"
+    gherkin:
+    - specs/feedback/giving-feedback.feature:8 — Free-form feedback keeps the author's writing
+    exampleRow: []
+  Blank feedback explains what is missing:
+    description: Blank feedback explains what is missing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "   "
+    events:
+    - the team sends the feedback
+    endsIn: the team is told to write something before sending feedback — 2
+    checks:
+    - the team is told to write something before sending feedback
+    - the feedback has not been saved locally
+    gherkin:
+    - specs/feedback/giving-feedback.feature:14 — Blank feedback explains what is missing
+    exampleRow: []
+  A bug template offers a starting point:
+    description: A bug template offers a starting point
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team chooses the bug template
+    endsIn: the draft offers prompts for what happened, what was expected and reproduction steps — 3
+    checks:
+    - the draft offers prompts for what happened, what was expected and reproduction steps
+    gherkin:
+    - specs/feedback/giving-feedback.feature:23 — A bug template offers a starting point
+    exampleRow: []
+  A template keeps writing already in progress:
+    description: A template keeps writing already in progress
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep this observation"
+    events:
+    - the team chooses the polish template
+    endsIn: the draft includes "Keep this observation" — 4
+    checks:
+    - the draft includes "Keep this observation"
+    - the draft offers prompts for an intended improvement
+    gherkin:
+    - specs/feedback/giving-feedback.feature:28 — A template keeps writing already in progress
+    exampleRow: []
+  A heading appears as a heading while writing:
+    description: A heading appears as a heading while writing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Movement"
+    events:
+    - the team makes 'Movement' a heading
+    endsIn: the draft shows "Movement" as a heading while writing — 5
+    checks:
+    - the draft shows "Movement" as a heading while writing
+    gherkin:
+    - specs/feedback/giving-feedback.feature:37 — A heading appears as a heading while writing
+    exampleRow: []
+  A partial command offers the polish template:
+    description: A partial command offers the polish template
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team writes feedback saying '/pol'
+    endsIn: the team is offered the polish template — 6
+    checks:
+    - the team is offered the polish template
+    gherkin:
+    - specs/feedback/giving-feedback.feature:44 — A partial command offers the polish template
+    exampleRow: []
+  An unknown command stays in the author's writing:
+    description: An unknown command stays in the author's writing
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team writes feedback saying '/board'
+    endsIn: the team is not offered a template because no template matches — 7
+    checks:
+    - the team is not offered a template because no template matches
+    - the draft includes "/board"
+    gherkin:
+    - specs/feedback/giving-feedback.feature:49 — An unknown command stays in the author's writing
+    exampleRow: []
+  A suggested bug template keeps the observation:
+    description: A suggested bug template keeps the observation
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep this observation /bug"
+    events:
+    - the team chooses the suggested bug template
+    endsIn: the draft includes "Keep this observation" — 8
+    checks:
+    - the draft includes "Keep this observation"
+    - the draft offers prompts for what happened, what was expected and reproduction steps
+    gherkin:
+    - specs/feedback/giving-feedback.feature:58 — A suggested bug template keeps the observation
+    exampleRow: []

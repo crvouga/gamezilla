@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Viewing Finish or cancel a Custom Game" as s0
+  state "Alice wins the Custom Game by resignation — 1" as s1
+  state "Carol is told only a participant may resign — 2" as s2
+  state "The Custom Game is cancelled with no winner — 3" as s3
+  state "The Custom Game is cancelled with no winner — 4" as s4
+  state "Carol is told only the creator cancels the Custom Game — 5" as s5
+  state "Bob is told only the creator cancels the Custom Game — 6" as s6
+  state "Alice is told the Custom Game has finished — 7" as s7
+  state "The Custom Game is cancelled with no winner — 8" as s8
+  state "Bob is told to resign instead of cancelling — 9" as s9
+  state "Black is an open place in the Custom Game — 10" as s10
+  state "Alice wins the Custom Game by resignation — 11" as s11
+  state "Black is Carol in the Custom Game — 12" as s12
+  state "The Custom Game is cancelled with no winner — 13" as s13
+  state "The Custom Game keeps its completed outcome — 14" as s14
+  state "White is Bob and Black is Alice in the configuring Custom Game — 15" as s15
+  state "Alice is told the Custom Game must finish or be cancelled first — 16" as s16
+  [*] --> s0
+  s0 --> s1: Bob resigns the Custom Game
+  s0 --> s2: Carol resigns the Custom Game
+  s0 --> s3: Alice cancels the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob
+  s0 --> s4: Alice cancels the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game are bots and The Custom Game has started
+  s0 --> s5: Carol cancels the Custom Game
+  s0 --> s6: Bob cancels the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s7: Alice cancels the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+  s0 --> s8: Bob cancels the Custom Game when Alice has an active Custom Game after White's e4
+  s0 --> s9: Bob cancels the Custom Game when Alice has an active Custom Game after White's e4 and Black's e5
+  s0 --> s10: Bob leaves the space when Alice has a Custom Game between Alice as White and Bob as Black
+  s0 --> s11: Bob leaves the space when Alice has an active Custom Game between Alice as White and Bob as Black
+  s0 --> s12: Bob joins the space from the link
+  s0 --> s13: Alice leaves the space
+  s0 --> s14: Alice ends the space
+  s0 --> s15: Alice creates a rematch of the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+  s0 --> s16: Alice creates a rematch of the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]
+  s13 --> [*]
+  s14 --> [*]
+  s15 --> [*]
+  s16 --> [*]

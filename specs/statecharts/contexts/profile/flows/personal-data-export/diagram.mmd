@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Take a private copy of personal data" as s0
+  state "Alice sees that the export is being prepared — 1" as s1
+  state "Alice is told to prove the account again before exporting personal data — 2" as s2
+  state "Alice is told the personal-data export needs a connection — 3" as s3
+  state "Alice can download a readable summary and reusable detail within 24 hours of asking — 4" as s4
+  state "Bob's private personal data cannot appear in Alice's export — 5" as s5
+  state "Alice is told the export failed and can ask again — 6" as s6
+  state "Alice receives her personal-data export — 7" as s7
+  state "Bob cannot download it because the export belongs to Alice — 8" as s8
+  state "Alice is told the export has expired and can ask for a new one — 9" as s9
+  state "Alice cannot download that export because the account has been deleted — 10" as s10
+  [*] --> s0
+  s0 --> s1: Alice asks for a personal-data export when Alice has a recently proven account
+  s0 --> s2: Alice asks for a personal-data export when Alice completed signing in more than 10 minutes ago
+  s0 --> s3: Alice asks for a personal-data export when Alice has a recently proven account and Alice is offline
+  s0 --> s4: Alice's personal-data export becomes ready when Alice has asked for a personal-data export
+  s0 --> s5: Alice's personal-data export becomes ready when Alice and Bob have separate accounts with personal data
+  s0 --> s6: Alice's personal-data export fails
+  s0 --> s7: Alice downloads the personal-data export when Alice has a recently proven account and Alice's personal-data export has been ready for 6 days
+  s0 --> s8: Bob opens Alice's personal-data export address
+  s0 --> s9: Alice downloads the personal-data export when Alice's personal-data export has been ready for 7 days
+  s0 --> s10: Alice confirms account deletion
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

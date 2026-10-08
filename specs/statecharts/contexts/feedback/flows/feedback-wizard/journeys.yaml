@@ -1,0 +1,62 @@
+journeys:
+  Feedback opens through the command palette:
+    description: Feedback opens through the command palette
+    startingConditions:
+    - the team's app is working
+    events:
+    - the team opens feedback from the command palette when the team's app is working
+    endsIn: the team has one feedback wizard — 1
+    checks:
+    - the team has one feedback wizard
+    gherkin:
+    - specs/feedback/feedback-wizard.feature:9 — Feedback opens through the command palette
+    exampleRow: []
+  Opening feedback again keeps the same wizard:
+    description: Opening feedback again keeps the same wizard
+    startingConditions:
+    - the team has opened the feedback wizard
+    events:
+    - the team opens feedback from the command palette when the team has opened the feedback wizard
+    endsIn: the team has one feedback wizard — 2
+    checks:
+    - the team has one feedback wizard
+    gherkin:
+    - specs/feedback/feedback-wizard.feature:14 — Opening feedback again keeps the same wizard
+    exampleRow: []
+  Closing feedback clears the app for other work:
+    description: Closing feedback clears the app for other work
+    startingConditions:
+    - the team has opened the feedback wizard
+    events:
+    - the team closes the wizard
+    endsIn: feedback takes no permanent place in the app — 3
+    checks:
+    - feedback takes no permanent place in the app
+    gherkin:
+    - specs/feedback/feedback-wizard.feature:22 — Closing feedback clears the app for other work
+    exampleRow: []
+  A phone opens a full-width feedback sheet:
+    description: A phone opens a full-width feedback sheet
+    startingConditions:
+    - the team is using the app on a phone
+    events:
+    - the team opens Support
+    endsIn: the feedback wizard is a full-width sheet — 4
+    checks:
+    - the feedback wizard is a full-width sheet
+    gherkin:
+    - specs/feedback/feedback-wizard.feature:30 — A phone opens a full-width feedback sheet
+    exampleRow: []
+  Moving feedback keeps unfinished writing:
+    description: Moving feedback keeps unfinished writing
+    startingConditions:
+    - the team has a draft titled "Board movement" saying "Keep the last move visible"
+    events:
+    - the team moves the feedback widget out of the way
+    endsIn: the feedback widget has moved — 5
+    checks:
+    - the feedback widget has moved
+    - the draft is titled "Board movement" saying "Keep the last move visible"
+    gherkin:
+    - specs/feedback/feedback-wizard.feature:38 — Moving feedback keeps unfinished writing
+    exampleRow: []

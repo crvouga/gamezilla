@@ -1,0 +1,133 @@
+{
+  "id": "spaces-space-links",
+  "initial": "Viewing What a space's link leads to",
+  "meta": {
+    "context": "Spaces",
+    "kind": "flow",
+    "owner": "Spaces owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/spaces-client/src/use-space-user-entries.ts",
+      "libs/spaces-client/src/use-space-room.ts",
+      "libs/spaces-client/src/use-space-room-selector.ts",
+      "libs/spaces-client/src/use-space-room-connection.ts",
+      "libs/spaces-client/src/use-space-participant-colors.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing What a space's link leads to": {
+      "meta": {
+        "description": "The person is at the place where what a space's link leads to.",
+        "snapshot": "the-person-is-at-the-place-where-what-a-space-s-link-leads-to",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-links.feature:2"
+        ]
+      },
+      "on": {
+        "Bob joins the space from the link": {
+          "target": "Bob sees the space has ended within 15 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/spaces/space-links.feature:9"
+            ],
+            "condition": [
+              "Alice and Bob are guests",
+              "Alice has hosted a space and ended it"
+            ],
+            "example": "The link to an ended space says it has ended"
+          }
+        },
+        "Bob opens a link to a space that does not exist": {
+          "target": "Bob is told the space cannot be found within 15 seconds — 2",
+          "meta": {
+            "source": [
+              "specs/spaces/space-links.feature:17"
+            ],
+            "condition": [
+              "Bob is a guest"
+            ],
+            "example": "A link to a space that never existed says so"
+          }
+        },
+        "Bob joins Alice's space from the lobby": {
+          "target": "Bob is in the space — 3",
+          "meta": {
+            "source": [
+              "specs/spaces/space-links.feature:23"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Alice is hosting a space that Bob joined from the lobby",
+              "Bob has gone back to the lobby"
+            ],
+            "example": "Someone who stepped out returns to the space once"
+          }
+        }
+      }
+    },
+    "Bob sees the space has ended within 15 seconds — 1": {
+      "meta": {
+        "description": "The person observes that bob sees the space has ended within 15 seconds.",
+        "snapshot": "the-person-observes-that-bob-sees-the-space-has-ended-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Bob sees the space has ended within 15 seconds",
+          "Bob is not offered to join"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-links.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is told the space cannot be found within 15 seconds — 2": {
+      "meta": {
+        "description": "The person observes that bob is told the space cannot be found within 15 seconds.",
+        "snapshot": "the-person-observes-that-bob-is-told-the-space-cannot-be-found-within-15-seconds",
+        "recognize": [],
+        "checks": [
+          "Bob is told the space cannot be found within 15 seconds",
+          "Bob is offered the way back to Spaces"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-links.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is in the space — 3": {
+      "meta": {
+        "description": "The person observes that bob is in the space.",
+        "snapshot": "the-person-observes-that-bob-is-in-the-space",
+        "recognize": [],
+        "checks": [
+          "Bob is in the space",
+          "Alice sees 2 people in the space within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/space-links.feature:23"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

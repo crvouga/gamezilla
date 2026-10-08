@@ -1,0 +1,287 @@
+{
+  "id": "chess-solve-flow",
+  "initial": "Viewing The solve flow",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing The solve flow": {
+      "meta": {
+        "description": "The person is at the place where the solve flow.",
+        "snapshot": "the-person-is-at-the-place-where-the-solve-flow",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:2"
+        ]
+      },
+      "on": {
+        "Alice opens the two-rook clearance puzzle": {
+          "target": "Alice's board faces White — 1",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:13"
+            ],
+            "condition": [
+              "Alice is signed in"
+            ],
+            "example": "The puzzle opens after the opponent's setup move, facing the solver"
+          }
+        },
+        "Alice plays the move a1-a5": {
+          "target": "the opponent replies h7-h6 by itself — 2",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:21"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the two-rook clearance puzzle"
+            ],
+            "example": "A correct move is answered by the opponent's reply, played by itself"
+          }
+        },
+        "Alice plays the move h1-h5": {
+          "target": "Alice's puzzle is solved within 20 seconds — 3",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:29"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the two-rook clearance puzzle",
+              "Alice has played a1-a5"
+            ],
+            "example": "Finishing the line solves the puzzle"
+          }
+        },
+        "Alice plays a wrong move": {
+          "target": "Alice is told the move was wrong — 4",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:37"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the castling puzzle"
+            ],
+            "example": "A wrong move is called out at once"
+          }
+        },
+        "Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle": {
+          "target": "Alice's puzzle is solved within 20 seconds — 5",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:44"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the castling puzzle"
+            ],
+            "example": "Castling by moving the king two squares solves the puzzle"
+          }
+        },
+        "Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling puzzle": {
+          "target": "Alice's puzzle is solved within 20 seconds — 6",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:50"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the castling puzzle"
+            ],
+            "example": "Castling by moving the king onto its rook solves the puzzle"
+          }
+        },
+        "Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle and Alice has played a wrong move and retried": {
+          "target": "Alice's puzzle is solved within 20 seconds — 7",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:56"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the castling puzzle",
+              "Alice has played a wrong move and retried"
+            ],
+            "example": "Retrying and castling two squares keeps the failed result"
+          }
+        },
+        "Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling puzzle and Alice has played a wrong move and retried": {
+          "target": "Alice's puzzle is solved within 20 seconds — 8",
+          "meta": {
+            "source": [
+              "specs/chess/solve-flow.feature:65"
+            ],
+            "condition": [
+              "Alice is signed in",
+              "Alice is solving the castling puzzle",
+              "Alice has played a wrong move and retried"
+            ],
+            "example": "Retrying and castling onto the rook keeps the failed result"
+          }
+        }
+      }
+    },
+    "Alice's board faces White — 1": {
+      "meta": {
+        "description": "The person observes that alice's board faces White.",
+        "snapshot": "the-person-observes-that-alice-s-board-faces-white",
+        "recognize": [],
+        "checks": [
+          "Alice's board faces White",
+          "Alice's board shows a7-a6 as the last move",
+          "it is White's move on Alice's board",
+          "Alice is prompted to find the next move for White"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the opponent replies h7-h6 by itself — 2": {
+      "meta": {
+        "description": "The person observes that the opponent replies h7-h6 by itself.",
+        "snapshot": "the-person-observes-that-the-opponent-replies-h7-h6-by-itself",
+        "recognize": [],
+        "checks": [
+          "the opponent replies h7-h6 by itself",
+          "it is White's move on Alice's board",
+          "Alice is solving the puzzle at move 3 of the line"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:21"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 3": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds",
+          "Alice feels the success haptic"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:29"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is told the move was wrong — 4": {
+      "meta": {
+        "description": "The person observes that alice is told the move was wrong.",
+        "snapshot": "the-person-observes-that-alice-is-told-the-move-was-wrong",
+        "recognize": [],
+        "checks": [
+          "Alice is told the move was wrong",
+          "Alice feels the error haptic"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:37"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 5": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:44"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 6": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:50"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 7": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds",
+          "Alice's game log records that puzzle as failed",
+          "Alice's stats show 1 played, 0 solved, and 0% accuracy"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:56"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's puzzle is solved within 20 seconds — 8": {
+      "meta": {
+        "description": "The person observes that alice's puzzle is solved within 20 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
+        "recognize": [],
+        "checks": [
+          "Alice's puzzle is solved within 20 seconds",
+          "Alice's game log records that puzzle as failed",
+          "Alice's stats show 1 played, 0 solved, and 0% accuracy"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess/solve-flow.feature:65"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

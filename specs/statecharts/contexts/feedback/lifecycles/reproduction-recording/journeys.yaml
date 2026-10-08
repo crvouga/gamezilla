@@ -1,0 +1,9 @@
+journeys:
+  Happy path:
+    description: The draft or recording reaches its reviewable result.
+    events:
+    - Starts a reproduction recording
+    - Recording becomes available
+    - Stops the reproduction
+    - Recorded steps are ready
+    endsIn: Reviewing a recording

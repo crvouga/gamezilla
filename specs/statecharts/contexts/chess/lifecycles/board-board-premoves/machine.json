@@ -1,0 +1,777 @@
+{
+  "id": "chess-board-board-premoves-lifecycle",
+  "initial": "Opening board board premoves",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/chess-board/board-premoves.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening board board premoves": {
+      "meta": {
+        "description": "The person is opening the board board premoves view.",
+        "snapshot": "the-person-is-opening-the-board-board-premoves-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-premoves.qnt"
+        ]
+      },
+      "on": {
+        "Opens with seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-premoves_10.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:22"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing 0 planned moves": {
+      "meta": {
+        "description": "The person is seeing 0 planned moves.",
+        "snapshot": "the-person-is-seeing-0-planned-moves",
+        "recognize": [],
+        "checks": [
+          "Previews preserve the queued order and never duplicate a prepared move.",
+          "Each action offers at most one completed move to the activity.",
+          "A queued move's real piece has not completed that move yet.",
+          "Disabled premoves have neither a preview nor a selected waiting source.",
+          "The two prepared replies and completed moves describe a valid board.",
+          "Replacement positions retain neither old previews nor old move offers."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-premoves.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "queued length": 0,
+            "enabled": true
+          }
+        ],
+        "invariants": [
+          "invPremoveQueue",
+          "invOnePremovePerReply",
+          "invPremovePreview",
+          "invDisabledPremoves",
+          "invPremovePosition",
+          "invPremoveReplacement"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Configure premoves resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Configure premoves resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Replace premove position resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "replacePremovePosition",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:81"
+            ]
+          }
+        },
+        "Cancel premoves resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "cancelPremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:71"
+            ]
+          }
+        },
+        "Queue premove resulting in seeing 1 planned moves": {
+          "target": "Seeing 1 planned moves",
+          "meta": {
+            "action": "queuePremove",
+            "witness": {
+              "trace": "chess-board--board-premoves_1.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:39"
+            ]
+          }
+        },
+        "Receive premove reply resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "receivePremoveReply",
+            "witness": {
+              "trace": "chess-board--board-premoves_1.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:49"
+            ]
+          }
+        },
+        "Select premove source resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "selectPremoveSource",
+            "witness": {
+              "trace": "chess-board--board-premoves_14.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:29"
+            ]
+          }
+        }
+      }
+    },
+    "Premoves disabled": {
+      "meta": {
+        "description": "The person is premoves disabled.",
+        "snapshot": "the-person-is-premoves-disabled",
+        "recognize": [],
+        "checks": [
+          "Previews preserve the queued order and never duplicate a prepared move.",
+          "Each action offers at most one completed move to the activity.",
+          "A queued move's real piece has not completed that move yet.",
+          "Disabled premoves have neither a preview nor a selected waiting source.",
+          "The two prepared replies and completed moves describe a valid board.",
+          "Replacement positions retain neither old previews nor old move offers."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-premoves.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "queued length": 0,
+            "enabled": false
+          }
+        ],
+        "invariants": [
+          "invPremoveQueue",
+          "invOnePremovePerReply",
+          "invPremovePreview",
+          "invDisabledPremoves",
+          "invPremovePosition",
+          "invPremoveReplacement"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Configure premoves resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Replace premove position resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "replacePremovePosition",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:81"
+            ]
+          }
+        },
+        "Cancel premoves resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "cancelPremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:71"
+            ]
+          }
+        },
+        "Configure premoves resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_0.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Queue premove resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "queuePremove",
+            "witness": {
+              "trace": "chess-board--board-premoves_12.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:39"
+            ]
+          }
+        },
+        "Select premove source resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "selectPremoveSource",
+            "witness": {
+              "trace": "chess-board--board-premoves_13.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:29"
+            ]
+          }
+        },
+        "Receive premove reply resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "receivePremoveReply",
+            "witness": {
+              "trace": "chess-board--board-premoves_13.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:49"
+            ]
+          }
+        }
+      }
+    },
+    "Seeing 1 planned moves": {
+      "meta": {
+        "description": "The person is seeing 1 planned moves.",
+        "snapshot": "the-person-is-seeing-1-planned-moves",
+        "recognize": [],
+        "checks": [
+          "Previews preserve the queued order and never duplicate a prepared move.",
+          "Each action offers at most one completed move to the activity.",
+          "A queued move's real piece has not completed that move yet.",
+          "Disabled premoves have neither a preview nor a selected waiting source.",
+          "The two prepared replies and completed moves describe a valid board.",
+          "Replacement positions retain neither old previews nor old move offers."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-premoves.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "queued length": 1,
+            "enabled": true
+          }
+        ],
+        "invariants": [
+          "invPremoveQueue",
+          "invOnePremovePerReply",
+          "invPremovePreview",
+          "invDisabledPremoves",
+          "invPremovePosition",
+          "invPremoveReplacement"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Select premove source resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "selectPremoveSource",
+            "witness": {
+              "trace": "chess-board--board-premoves_1.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:29"
+            ]
+          }
+        },
+        "Invalidate premove resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "invalidatePremove",
+            "witness": {
+              "trace": "chess-board--board-premoves_20.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:63"
+            ]
+          }
+        },
+        "Configure premoves resulting in premoves disabled": {
+          "target": "Premoves disabled",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_13.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Queue premove resulting in seeing 1 planned moves": {
+          "target": "Seeing 1 planned moves",
+          "meta": {
+            "action": "queuePremove",
+            "witness": {
+              "trace": "chess-board--board-premoves_6.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:39"
+            ]
+          }
+        },
+        "Receive premove reply resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "receivePremoveReply",
+            "witness": {
+              "trace": "chess-board--board-premoves_6.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "a3"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:49"
+            ]
+          }
+        },
+        "Configure premoves resulting in seeing 1 planned moves": {
+          "target": "Seeing 1 planned moves",
+          "meta": {
+            "action": "configurePremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_6.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:75"
+            ]
+          }
+        },
+        "Cancel premoves resulting in seeing 0 planned moves": {
+          "target": "Seeing 0 planned moves",
+          "meta": {
+            "action": "cancelPremoves",
+            "witness": {
+              "trace": "chess-board--board-premoves_2.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "d2 to d4"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "d2"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:71"
+            ]
+          }
+        },
+        "Select premove source resulting in seeing 1 planned moves": {
+          "target": "Seeing 1 planned moves",
+          "meta": {
+            "action": "selectPremoveSource",
+            "witness": {
+              "trace": "chess-board--board-premoves_11.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canPremove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "move": {
+                  "tag": "Some",
+                  "value": "g1 to f3"
+                },
+                "source": {
+                  "tag": "Some",
+                  "value": "g1"
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-premoves.qnt:29"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

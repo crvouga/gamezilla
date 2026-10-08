@@ -1,0 +1,98 @@
+journeys:
+  Two people who accept each other are matched:
+    description: Two people who accept each other are matched
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points
+      and Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    endsIn: Alice and Bob are matched with each other — 1
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/being-matched.feature:9 — Two people who accept each other are matched
+    exampleRow: []
+  Bob's wide range does not match him with Alice, who does not accept him:
+    description: Bob's wide range does not match him with Alice, who does not accept him
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 5 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points
+      and Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    endsIn: Alice is still waiting — 2
+    checks:
+    - Alice is still waiting
+    - Bob is still waiting
+    gherkin:
+    - specs/matchmaking/being-matched.feature:15 — Bob's wide range does not match him with Alice, who does not
+      accept him
+    exampleRow: []
+  Alice waiting alone is not matched with herself:
+    description: Alice waiting alone is not matched with herself
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    endsIn: Alice is still waiting — 3
+    checks:
+    - Alice is still waiting
+    gherkin:
+    - specs/matchmaking/being-matched.feature:22 — Alice waiting alone is not matched with herself
+    exampleRow: []
+  Alice's wider range counts:
+    description: Alice's wider range counts
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 5 points
+    events:
+    - Alice widens her range to 200 points when Alice is waiting with a rating of 1000, accepting anyone within
+      5 points
+    endsIn: Alice sees her change counted — 4
+    checks:
+    - Alice sees her change counted
+    gherkin:
+    - specs/matchmaking/being-matched.feature:29 — Alice's wider range counts
+    exampleRow: []
+  Alice's wider range matches her with Bob:
+    description: Alice's wider range matches her with Bob
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 5 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    - Alice has widened her range to 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points
+      and Bob is waiting with a rating of 1050, accepting anyone within 200 points and Alice has widened her range
+      to 200 points
+    endsIn: Alice and Bob are matched with each other — 5
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/being-matched.feature:34 — Alice's wider range matches her with Bob
+    exampleRow: []
+  Alice cannot change her range once she is matched:
+    description: Alice cannot change her range once she is matched
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice widens her range to 200 points when Alice has been matched with Bob
+    endsIn: Alice is told her change did not count — 6
+    checks:
+    - Alice is told her change did not count
+    - Alice is matched with Bob
+    gherkin:
+    - specs/matchmaking/being-matched.feature:41 — Alice cannot change her range once she is matched
+    exampleRow: []
+  Alice cannot change her range once she has stopped waiting:
+    description: Alice cannot change her range once she has stopped waiting
+    startingConditions:
+    - Alice has stopped waiting
+    events:
+    - Alice widens her range to 200 points when Alice has stopped waiting
+    endsIn: Alice is told her change did not count — 7
+    checks:
+    - Alice is told her change did not count
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/being-matched.feature:47 — Alice cannot change her range once she has stopped waiting
+    exampleRow: []

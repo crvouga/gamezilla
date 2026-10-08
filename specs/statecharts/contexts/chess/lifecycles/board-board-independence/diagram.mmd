@@ -1,0 +1,39 @@
+stateDiagram-v2
+  state "Opening board board independence" as s0
+  state "Viewing two independent boards" as s1
+  state "Selecting a piece on the first board" as s2
+  state "Holding a piece on the first board" as s3
+  state "First board closed" as s4
+  [*] --> s0
+  s0 --> s1: Opens with viewing two independent boards
+  s1 --> s2: Select separate piece resulting in selecting a piece on the first board
+  s1 --> s3: Begin separate drag resulting in holding a piece on the first board
+  s1 --> s1: Configure separate input resulting in viewing two independent boards
+  s1 --> s1: Replace separate position resulting in viewing two independent boards
+  s1 --> s1: Configure separate sound resulting in viewing two independent boards
+  s1 --> s1: Close separate board resulting in viewing two independent boards
+  s1 --> s1: Move separate piece resulting in viewing two independent boards
+  s1 --> s4: Close separate board resulting in first board closed
+  s1 --> s1: Begin separate drag resulting in viewing two independent boards
+  s1 --> s1: Cancel separate drag resulting in viewing two independent boards
+  s2 --> s2: Configure separate sound resulting in selecting a piece on the first board
+  s2 --> s2: Replace separate position resulting in selecting a piece on the first board
+  s2 --> s2: Configure separate input resulting in selecting a piece on the first board
+  s2 --> s2: Close separate board resulting in selecting a piece on the first board
+  s2 --> s1: Select separate piece resulting in viewing two independent boards
+  s2 --> s3: Begin separate drag resulting in holding a piece on the first board
+  s2 --> s1: Replace separate position resulting in viewing two independent boards
+  s2 --> s4: Close separate board resulting in first board closed
+  s3 --> s3: Configure separate input resulting in holding a piece on the first board
+  s3 --> s3: Configure separate sound resulting in holding a piece on the first board
+  s3 --> s1: Configure separate input resulting in viewing two independent boards
+  s3 --> s1: Cancel separate drag resulting in viewing two independent boards
+  s3 --> s4: Close separate board resulting in first board closed
+  s3 --> s3: Replace separate position resulting in holding a piece on the first board
+  s3 --> s1: Replace separate position resulting in viewing two independent boards
+  s4 --> s4: Configure separate sound resulting in first board closed
+  s4 --> s4: Configure separate input resulting in first board closed
+  s4 --> s4: Replace separate position resulting in first board closed
+  s4 --> s4: Move separate piece resulting in first board closed
+  s4 --> s4: Select separate piece resulting in first board closed
+  s4 --> s4: Begin separate drag resulting in first board closed

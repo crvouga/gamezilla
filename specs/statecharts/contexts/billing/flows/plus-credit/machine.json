@@ -1,0 +1,134 @@
+{
+  "id": "billing-plus-credit",
+  "initial": "Viewing Plus credit from switching plans",
+  "meta": {
+    "context": "Billing",
+    "kind": "flow",
+    "owner": "Billing owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Plus credit from switching plans": {
+      "meta": {
+        "description": "The person is at the place where plus credit from switching plans.",
+        "snapshot": "the-person-is-at-the-place-where-plus-credit-from-switching-plans",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/plus-credit.feature:2"
+        ]
+      },
+      "on": {
+        "Alice switches the membership to the monthly plan in the billing portal": {
+          "target": "Alice's membership is active on the monthly plan — 1",
+          "meta": {
+            "source": [
+              "specs/billing/plus-credit.feature:14"
+            ],
+            "condition": [
+              "Alice has subscribed to Plus",
+              "Alice's free trial has ended",
+              "Alice has switched the membership to the yearly plan in the billing portal"
+            ],
+            "example": "Switching from yearly to monthly keeps Plus credit"
+          }
+        },
+        "Alice's billing period ends when Alice has subscribed to Plus and Alice's free trial has ended and Alice has switched the membership to the yearly plan in the billing portal and Alice has Plus credit from the yearly plan and Alice's card has expired": {
+          "target": "Alice's membership is active — 2",
+          "meta": {
+            "source": [
+              "specs/billing/plus-credit.feature:19"
+            ],
+            "condition": [
+              "Alice has subscribed to Plus",
+              "Alice's free trial has ended",
+              "Alice has switched the membership to the yearly plan in the billing portal",
+              "Alice has Plus credit from the yearly plan",
+              "Alice's card has expired"
+            ],
+            "example": "A renewal Plus credit covers stays active when the card is declined"
+          }
+        },
+        "Alice's billing period ends when Alice has subscribed to Plus and Alice's free trial has ended and Alice has switched the membership to the yearly plan in the billing portal and Alice's Plus credit no longer covers a renewal and Alice's card has expired": {
+          "target": "Alice's membership is delinquent — 3",
+          "meta": {
+            "source": [
+              "specs/billing/plus-credit.feature:26"
+            ],
+            "condition": [
+              "Alice has subscribed to Plus",
+              "Alice's free trial has ended",
+              "Alice has switched the membership to the yearly plan in the billing portal",
+              "Alice's Plus credit no longer covers a renewal",
+              "Alice's card has expired"
+            ],
+            "example": "A renewal Plus credit does not cover is a failed payment"
+          }
+        }
+      }
+    },
+    "Alice's membership is active on the monthly plan — 1": {
+      "meta": {
+        "description": "The person observes that alice's membership is active on the monthly plan.",
+        "snapshot": "the-person-observes-that-alice-s-membership-is-active-on-the-monthly-plan",
+        "recognize": [],
+        "checks": [
+          "Alice's membership is active on the monthly plan",
+          "Alice has Plus credit from the yearly plan"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/plus-credit.feature:14"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's membership is active — 2": {
+      "meta": {
+        "description": "The person observes that alice's membership is active.",
+        "snapshot": "the-person-observes-that-alice-s-membership-is-active",
+        "recognize": [],
+        "checks": [
+          "Alice's membership is active",
+          "Alice is not told a payment failed"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/plus-credit.feature:19"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's membership is delinquent — 3": {
+      "meta": {
+        "description": "The person observes that alice's membership is delinquent.",
+        "snapshot": "the-person-observes-that-alice-s-membership-is-delinquent",
+        "recognize": [],
+        "checks": [
+          "Alice's membership is delinquent",
+          "Alice is told their payment failed"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/plus-credit.feature:26"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

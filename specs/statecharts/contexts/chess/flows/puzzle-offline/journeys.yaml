@@ -1,0 +1,30 @@
+journeys:
+  Offline with no puzzles on the device, Alice is told puzzles need a connection:
+    description: Offline with no puzzles on the device, Alice is told puzzles need a connection
+    startingConditions:
+    - Alice is signed in
+    - Alice went offline before any puzzles reached their device
+    events:
+    - Alice opens puzzles in their space
+    endsIn: Alice is told puzzles need a connection within 15 seconds — 1
+    checks:
+    - Alice is told puzzles need a connection within 15 seconds
+    - Alice has no puzzle on the board
+    gherkin:
+    - specs/chess/puzzle-offline.feature:12 — Offline with no puzzles on the device, Alice is told puzzles need
+      a connection
+    exampleRow: []
+  Coming back online brings a puzzle to an empty offline feed:
+    description: Coming back online brings a puzzle to an empty offline feed
+    startingConditions:
+    - Alice is signed in
+    - Alice went offline before any puzzles reached their device
+    - Alice has opened puzzles in their space
+    events:
+    - the connection comes back
+    endsIn: Alice has a puzzle on the board within 30 seconds — 2
+    checks:
+    - Alice has a puzzle on the board within 30 seconds
+    gherkin:
+    - specs/chess/puzzle-offline.feature:18 — Coming back online brings a puzzle to an empty offline feed
+    exampleRow: []

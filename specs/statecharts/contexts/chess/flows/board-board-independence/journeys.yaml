@@ -1,0 +1,217 @@
+journeys:
+  Moving on the first board preserves the second board's selection:
+    description: Moving on the first board preserves the second board's selection
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    - Alice has e2 selected on the second chessboard
+    events:
+    - Alice moves the piece from e2 to e4 on the first chessboard when Alice has two separate interactive chessboards
+      and Alice has e2 selected on the second chessboard
+    endsIn: Alice sees a White pawn on e4 on the first chessboard — 1
+    checks:
+    - Alice sees a White pawn on e4 on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice's first activity receives one move while the second activity receives no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:9 — Moving on the first board preserves the second board's selection
+    exampleRow: []
+  Selecting on the first board keeps the second board's selection:
+    description: Selecting on the first board keeps the second board's selection
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    - Alice has e2 selected on the second chessboard
+    events:
+    - Alice selects the piece on e2 on the first chessboard
+    endsIn: Alice sees e2 selected on both chessboards — 2
+    checks:
+    - Alice sees e2 selected on both chessboards
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:17 — Selecting on the first board keeps the second board's selection
+    exampleRow: []
+  Holding on the first board keeps the second board's selected piece at source:
+    description: Holding on the first board keeps the second board's selected piece at source
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    - Alice has e2 selected on the second chessboard
+    events:
+    - Alice begins dragging the piece on e2 on the first chessboard
+    endsIn: Alice holds the piece from e2 on the first chessboard — 3
+    checks:
+    - Alice holds the piece from e2 on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice sees the White pawn remaining on e2 on the second chessboard
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:24 — Holding on the first board keeps the second board's selected
+      piece at source
+    exampleRow: []
+  Cancelling one held piece preserves the other board's selection:
+    description: Cancelling one held piece preserves the other board's selection
+    startingConditions:
+    - Alice holds e2 on the first chessboard and has e2 selected on the second
+    events:
+    - Alice cancels the drag on the first chessboard
+    endsIn: Alice no longer holds a piece on the first chessboard — 4
+    checks:
+    - Alice no longer holds a piece on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:33 — Cancelling one held piece preserves the other board's selection
+    exampleRow: []
+  Replacing one activity's position preserves the other activity's board:
+    description: Replacing one activity's position preserves the other activity's board
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    - Alice has e2 selected on the second chessboard
+    events:
+    - Alice's first activity replaces its chessboard's position
+    endsIn: Alice sees the replacement position on the first chessboard — 5
+    checks:
+    - Alice sees the replacement position on the first chessboard
+    - Alice sees the position before White's first move on the second chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:40 — Replacing one activity's position preserves the other activity's
+      board
+    exampleRow: []
+  Disabling the first board clears only its selected piece:
+    description: Disabling the first board clears only its selected piece
+    startingConditions:
+    - Alice has e2 selected on both chessboards
+    events:
+    - Alice's first board settings disable interactivity
+    endsIn: Alice sees no selection on the first chessboard — 6
+    checks:
+    - Alice sees no selection on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:51 — Disabling the first board clears only its selected piece
+    exampleRow: []
+  Enabling the first board preserves the second board's choice:
+    description: Enabling the first board preserves the second board's choice
+    startingConditions:
+    - Alice has a disabled first chessboard and e2 selected on the second chessboard
+    events:
+    - Alice's first board settings enable interactivity
+    endsIn: Alice can move a piece on the first chessboard — 7
+    checks:
+    - Alice can move a piece on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    gherkin:
+    - specs/chess-board/board-independence.feature:58 — Enabling the first board preserves the second board's choice
+    exampleRow: []
+  A disabled first board cannot offer a move or disturb the second board:
+    description: A disabled first board cannot offer a move or disturb the second board
+    startingConditions:
+    - Alice has a disabled first chessboard and e2 selected on the second chessboard
+    events:
+    - Alice moves the piece from e2 to e4 on the first chessboard when Alice has a disabled first chessboard and
+      e2 selected on the second chessboard
+    endsIn: Alice cannot move a piece on the first chessboard while interactivity is disabled — 8
+    checks:
+    - Alice cannot move a piece on the first chessboard while interactivity is disabled
+    - Alice sees the White pawn remaining on e2 on the first chessboard
+    - Alice still has e2 selected on the second chessboard
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:64 — A disabled first board cannot offer a move or disturb the
+      second board
+    exampleRow: []
+  Disabling one board's sound preserves the other board's sound choice:
+    description: Disabling one board's sound preserves the other board's sound choice
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    events:
+    - Alice's first board settings disable sound
+    endsIn: Alice's first chessboard has sound disabled — 9
+    checks:
+    - Alice's first chessboard has sound disabled
+    - Alice's second chessboard has sound enabled
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:72 — Disabling one board's sound preserves the other board's
+      sound choice
+    exampleRow: []
+  Re-enabling the first board's sound preserves the second board's sound choice:
+    description: Re-enabling the first board's sound preserves the second board's sound choice
+    startingConditions:
+    - Alice has a silent first chessboard and a second chessboard with sound enabled
+    events:
+    - Alice's first board settings enable sound
+    endsIn: Alice's first chessboard has sound enabled — 10
+    checks:
+    - Alice's first chessboard has sound enabled
+    - Alice's second chessboard has sound enabled
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:79 — Re-enabling the first board's sound preserves the second
+      board's sound choice
+    exampleRow: []
+  The second board still sounds after the first board is silenced:
+    description: The second board still sounds after the first board is silenced
+    startingConditions:
+    - Alice has a silent first chessboard and a second chessboard with sound enabled
+    events:
+    - Alice moves the piece from e2 to e4 on the second chessboard when Alice has a silent first chessboard and
+      a second chessboard with sound enabled
+    endsIn: Alice hears one move sound from the second chessboard — 11
+    checks:
+    - Alice hears one move sound from the second chessboard
+    - Alice hears no sound from the first chessboard
+    - Alice's second activity receives one move while the first activity receives no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:86 — The second board still sounds after the first board is silenced
+    exampleRow: []
+  A silent first board moves without borrowing the second board's sound:
+    description: A silent first board moves without borrowing the second board's sound
+    startingConditions:
+    - Alice has a silent first chessboard and a second chessboard with sound enabled
+    events:
+    - Alice moves the piece from e2 to e4 on the first chessboard when Alice has a silent first chessboard and a
+      second chessboard with sound enabled
+    endsIn: Alice cannot hear chessboard sounds from the first board while its sound is disabled — 12
+    checks:
+    - Alice cannot hear chessboard sounds from the first board while its sound is disabled
+    - Alice's second chessboard has sound enabled
+    - Alice's first activity receives one move while the second activity receives no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:93 — A silent first board moves without borrowing the second
+      board's sound
+    exampleRow: []
+  Closing the first board keeps the second board selected and available:
+    description: Closing the first board keeps the second board selected and available
+    startingConditions:
+    - Alice has two separate interactive chessboards
+    - Alice has e2 selected on the second chessboard
+    events:
+    - Alice closes the first chessboard
+    endsIn: Alice cannot see the first chessboard because it is closed — 13
+    checks:
+    - Alice cannot see the first chessboard because it is closed
+    - Alice still has e2 selected on the second chessboard
+    - Alice's second chessboard has sound enabled
+    - Alice's two activities receive no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:103 — Closing the first board keeps the second board selected
+      and available
+    exampleRow: []
+  The second board still makes and sounds a move after the first board closes:
+    description: The second board still makes and sounds a move after the first board closes
+    startingConditions:
+    - Alice has closed the first chessboard while the second chessboard remains interactive
+    events:
+    - Alice moves the piece from e2 to e4 on the second chessboard when Alice has closed the first chessboard while
+      the second chessboard remains interactive
+    endsIn: Alice sees a White pawn on e4 on the second chessboard — 14
+    checks:
+    - Alice sees a White pawn on e4 on the second chessboard
+    - Alice hears one move sound from the second chessboard
+    - Alice's second activity receives one move while the first activity receives no moves
+    gherkin:
+    - specs/chess-board/board-independence.feature:112 — The second board still makes and sounds a move after the
+      first board closes
+    exampleRow: []

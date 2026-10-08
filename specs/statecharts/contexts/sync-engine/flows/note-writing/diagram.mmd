@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing Write a note" as s0
+  state "Alice sees the note 'Groceries' at once — 1" as s1
+  state "Alice sees the note 'Groceries' saying 'milk' — 2" as s2
+  state "Bob sees the note 'Groceries' saying 'milk' — 3" as s3
+  state "Bob sees all 100 notes saying 'done' — 4" as s4
+  state "Bob sees all 64 notes saying 'done' — 5" as s5
+  state "Bob sees all 65 notes saying 'done' — 6" as s6
+  state "Bob never sees the note 'Groceries' without its text — 7" as s7
+  state "neither Alice nor Bob ever sees a note go back to what it said before — 8" as s8
+  [*] --> s0
+  s0 --> s1: Alice writes the note 'Groceries' saying 'milk' when A new note shows at once on its writer's device
+  s0 --> s2: Alice's app closes and reopens
+  s0 --> s3: Alice writes the note 'Groceries' saying 'milk' when Alice and Bob are in the shared space 'Trip'
+  s0 --> s4: Alice changes all 100 notes at once to say 'done'
+  s0 --> s5: Alice changes all 64 notes at once to say 'done'
+  s0 --> s6: Alice changes all 65 notes at once to say 'done'
+  s0 --> s7: Alice writes the note 'Groceries' saying 'milk' when Alice and Bob have slow connections and live updates have stopped for a while and started again and the next live update to Bob will arrive garbled
+  s0 --> s8: Alice and Bob keep writing notes
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

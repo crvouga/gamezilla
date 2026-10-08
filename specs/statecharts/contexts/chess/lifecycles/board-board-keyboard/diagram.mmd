@@ -1,0 +1,19 @@
+stateDiagram-v2
+  state "Opening board board keyboard" as s0
+  state "Keyboard moves unavailable" as s1
+  state "Moving keyboard focus on the board" as s2
+  state "Choosing a keyboard destination" as s3
+  [*] --> s0
+  s0 --> s1: Opens with keyboard moves unavailable
+  s0 --> s2: Opens with moving keyboard focus on the board
+  s1 --> s1: Choose keyboard square resulting in keyboard moves unavailable
+  s2 --> s2: Move keyboard resulting in moving keyboard focus on the board
+  s2 --> s2: Tap keyboard square resulting in moving keyboard focus on the board
+  s2 --> s2: Choose keyboard square resulting in moving keyboard focus on the board
+  s2 --> s3: Tap keyboard square resulting in choosing a keyboard destination
+  s2 --> s3: Choose keyboard square resulting in choosing a keyboard destination
+  s3 --> s2: Choose keyboard square resulting in moving keyboard focus on the board
+  s3 --> s3: Move keyboard resulting in choosing a keyboard destination
+  s3 --> s2: Tap keyboard square resulting in moving keyboard focus on the board
+  s3 --> s3: Tap keyboard square resulting in choosing a keyboard destination
+  s3 --> s3: Choose keyboard square resulting in choosing a keyboard destination

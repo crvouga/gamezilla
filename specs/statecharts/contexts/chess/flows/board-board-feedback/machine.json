@@ -1,0 +1,279 @@
+{
+  "id": "chess-board-board-feedback",
+  "initial": "Viewing Recognize the activity's annotation appearance",
+  "meta": {
+    "context": "Chess",
+    "kind": "flow",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/chess-board-root-client/src/chess-board-feedback.tsx",
+      "pkgs/chess-board-root-client/src/create-chess-board-model.ts",
+      "pkgs/chess-board-root-client/src/chess-board.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-view.tsx",
+      "pkgs/chess-board-root-client/src/chess-board-user-shapes.ts"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Recognize the activity's annotation appearance": {
+      "meta": {
+        "description": "The person is at the place where recognize the activity's annotation appearance.",
+        "snapshot": "the-person-is-at-the-place-where-recognize-the-activity-s-annotation-appearance",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:2"
+        ]
+      },
+      "on": {
+        "Alice's activity supplies an arrow from e2 to e4 with its default appearance": {
+          "target": "Alice sees a green solid arrow from e2 to e4 — 1",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:9"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "An arrow without a chosen color uses the activity's primary green"
+          }
+        },
+        "Alice's activity supplies an arrow from e2 to e4 with danger appearance": {
+          "target": "Alice sees a red solid arrow from e2 to e4 — 2",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:15"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "Chosen colors and dashed lines retain their appearance"
+          }
+        },
+        "Alice's activity supplies an arrow from e2 to e4 with bright green appearance": {
+          "target": "Alice sees a bright green solid arrow from e2 to e4 — 3",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:15"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "Chosen colors and dashed lines retain their appearance"
+          }
+        },
+        "Alice's activity supplies an arrow from e2 to e4 with bright green dashed appearance": {
+          "target": "Alice sees a bright green dashed arrow from e2 to e4 — 4",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:15"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "Chosen colors and dashed lines retain their appearance"
+          }
+        },
+        "Alice's activity supplies the usual feedback badges": {
+          "target": "Alice sees a green tick at the upper-right of e4 — 5",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:30"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "Usual feedback marks keep their symbols, colors and upper-right placement"
+          }
+        },
+        "Alice's activity supplies a centered tick on e4": {
+          "target": "Alice sees a green tick at the center of e4 — 6",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:37"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "The activity may place a feedback mark in the center"
+          }
+        },
+        "Alice's activity supplies a gold tick on e4": {
+          "target": "Alice sees a gold tick at the upper-right of e4 — 7",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:42"
+            ],
+            "condition": [
+              "Alice has an interactive chessboard"
+            ],
+            "example": "The activity may choose another feedback color"
+          }
+        },
+        "Alice changes the orientation": {
+          "target": "Alice sees a green tick at the center of e4 — 8",
+          "meta": {
+            "source": [
+              "specs/chess-board/board-feedback.feature:50"
+            ],
+            "condition": [
+              "Alice has a centered green tick on e4"
+            ],
+            "example": "A centered feedback mark stays on e4 when the board turns"
+          }
+        }
+      }
+    },
+    "Alice sees a green solid arrow from e2 to e4 — 1": {
+      "meta": {
+        "description": "The person observes that alice sees a green solid arrow from e2 to e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-green-solid-arrow-from-e2-to-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a green solid arrow from e2 to e4",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a red solid arrow from e2 to e4 — 2": {
+      "meta": {
+        "description": "The person observes that alice sees a red solid arrow from e2 to e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-red-solid-arrow-from-e2-to-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a red solid arrow from e2 to e4",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:15"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a bright green solid arrow from e2 to e4 — 3": {
+      "meta": {
+        "description": "The person observes that alice sees a bright green solid arrow from e2 to e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-bright-green-solid-arrow-from-e2-to-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a bright green solid arrow from e2 to e4",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:15"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a bright green dashed arrow from e2 to e4 — 4": {
+      "meta": {
+        "description": "The person observes that alice sees a bright green dashed arrow from e2 to e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-bright-green-dashed-arrow-from-e2-to-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a bright green dashed arrow from e2 to e4",
+          "Alice's activity receives no moves"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:15"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a green tick at the upper-right of e4 — 5": {
+      "meta": {
+        "description": "The person observes that alice sees a green tick at the upper-right of e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-green-tick-at-the-upper-right-of-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a green tick at the upper-right of e4",
+          "Alice sees a red cross at the upper-right of d5",
+          "Alice sees two blue exclamation marks at the upper-right of f3"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:30"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a green tick at the center of e4 — 6": {
+      "meta": {
+        "description": "The person observes that alice sees a green tick at the center of e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-green-tick-at-the-center-of-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a green tick at the center of e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:37"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a gold tick at the upper-right of e4 — 7": {
+      "meta": {
+        "description": "The person observes that alice sees a gold tick at the upper-right of e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-gold-tick-at-the-upper-right-of-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a gold tick at the upper-right of e4"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:42"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice sees a green tick at the center of e4 — 8": {
+      "meta": {
+        "description": "The person observes that alice sees a green tick at the center of e4.",
+        "snapshot": "the-person-observes-that-alice-sees-a-green-tick-at-the-center-of-e4",
+        "recognize": [],
+        "checks": [
+          "Alice sees a green tick at the center of e4",
+          "Alice's chessboard faces Black"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-feedback.feature:50"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "runtime-device-layouts",
+  "initial": "Viewing Use the complete app on every supported device",
+  "meta": {
+    "context": "App",
+    "kind": "flow",
+    "owner": "App owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "pkgs/device-client/src/wall-web-device.ts",
+      "libs/app-root-client/src/test-device-ports.ts",
+      "libs/app-root-client/src/device-ports-context.tsx",
+      "libs/app-root-client/src/device-bootstrap.tsx",
+      "libs/app-root-client/src/account-device.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Use the complete app on every supported device": {
+      "meta": {
+        "description": "The person is at the place where use the complete app on every supported device.",
+        "snapshot": "the-person-is-at-the-place-where-use-the-complete-app-on-every-supported-device",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/device-layouts.feature:2"
+        ]
+      },
+      "on": {
+        "Alice turns the phone from portrait to landscape": {
+          "target": "Alice has the same place in the app and saved preferences — 1",
+          "meta": {
+            "source": [
+              "specs/runtime/device-layouts.feature:9"
+            ],
+            "condition": [
+              "Alice is using the app on a phone",
+              "Alice has a place in the app and saved preferences"
+            ],
+            "example": "Turning a phone preserves the person's place"
+          }
+        },
+        "Alice turns the tablet from landscape to portrait": {
+          "target": "Alice has the same place in the app and saved preferences — 2",
+          "meta": {
+            "source": [
+              "specs/runtime/device-layouts.feature:16"
+            ],
+            "condition": [
+              "Alice is using the app on a tablet",
+              "Alice has a place in the app and saved preferences"
+            ],
+            "example": "Turning a tablet preserves the person's place"
+          }
+        },
+        "Alice narrows the space available to the app": {
+          "target": "Alice has the same place in the app and saved preferences — 3",
+          "meta": {
+            "source": [
+              "specs/runtime/device-layouts.feature:23"
+            ],
+            "condition": [
+              "Alice is using the app on a computer",
+              "Alice has a place in the app and saved preferences"
+            ],
+            "example": "Narrowing a computer's app keeps its controls available"
+          }
+        }
+      }
+    },
+    "Alice has the same place in the app and saved preferences — 1": {
+      "meta": {
+        "description": "The person observes that alice has the same place in the app and saved preferences.",
+        "snapshot": "the-person-observes-that-alice-has-the-same-place-in-the-app-and-saved-preferences",
+        "recognize": [],
+        "checks": [
+          "Alice has the same place in the app and saved preferences",
+          "Alice can reach every control offered there"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/device-layouts.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has the same place in the app and saved preferences — 2": {
+      "meta": {
+        "description": "The person observes that alice has the same place in the app and saved preferences.",
+        "snapshot": "the-person-observes-that-alice-has-the-same-place-in-the-app-and-saved-preferences",
+        "recognize": [],
+        "checks": [
+          "Alice has the same place in the app and saved preferences",
+          "Alice can reach every control offered there"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/device-layouts.feature:16"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice has the same place in the app and saved preferences — 3": {
+      "meta": {
+        "description": "The person observes that alice has the same place in the app and saved preferences.",
+        "snapshot": "the-person-observes-that-alice-has-the-same-place-in-the-app-and-saved-preferences",
+        "recognize": [],
+        "checks": [
+          "Alice has the same place in the app and saved preferences",
+          "Alice can reach every control offered there"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/runtime/device-layouts.feature:23"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

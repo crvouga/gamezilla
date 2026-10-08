@@ -1,0 +1,46 @@
+journeys:
+  Before any puzzle, the stats show the seed rating, provisional, and nothing played:
+    description: Before any puzzle, the stats show the seed rating, provisional, and nothing played
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice's stats show a rating of "1500?" — 1
+    checks:
+    - Alice's stats show a rating of "1500?"
+    - Alice's stats show 0 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/puzzle-stats-summary.feature:11 — Before any puzzle, the stats show the seed rating, provisional,
+      and nothing played
+    exampleRow: []
+  Two solves and one failure show as 3 played, 2 solved, 67% accuracy:
+    description: Two solves and one failure show as 3 played, 2 solved, 67% accuracy
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved 2 puzzles and failed 1
+    events:
+    - Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      solved 2 puzzles and failed 1
+    endsIn: Alice's stats show 3 played, 2 solved, and 67% accuracy — 2
+    checks:
+    - Alice's stats show 3 played, 2 solved, and 67% accuracy
+    gherkin:
+    - specs/chess/puzzle-stats-summary.feature:18 — Two solves and one failure show as 3 played, 2 solved, 67% accuracy
+    exampleRow: []
+  The stats show how the rating moved over time:
+    description: The stats show how the rating moved over time
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved 2 puzzles and failed 1
+    events:
+    - Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space and Alice has
+      solved 2 puzzles and failed 1
+    endsIn: Alice's stats show 3 played, 2 solved, and 67% accuracy — 2
+    checks:
+    - Alice's stats show their rating after each of those 3 puzzles
+    gherkin:
+    - specs/chess/puzzle-stats-summary.feature:25 — The stats show how the rating moved over time
+    exampleRow: []

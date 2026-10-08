@@ -1,0 +1,339 @@
+journeys:
+  An enabled chessboard accepts a legal move:
+    description: An enabled chessboard accepts a legal move
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice moves the piece from e2 to e4 when Alice has an interactive chessboard
+    endsIn: Alice sees a White pawn on e4 — 1
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice's activity receives one move
+    gherkin:
+    - specs/chess-board/board-authority.feature:8 — An enabled chessboard accepts a legal move
+    exampleRow: []
+  Disabling interactivity puts a held piece back:
+    description: Disabling interactivity puts a held piece back
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice's board settings disable interactivity when Alice is dragging the piece on e2
+    endsIn: Alice no longer holds a piece — 2
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:15 — Disabling interactivity puts a held piece back
+    exampleRow: []
+  A disabled chessboard refuses a move:
+    description: A disabled chessboard refuses a move
+    startingConditions:
+    - Alice has a chessboard with interactivity disabled
+    events:
+    - Alice moves the piece from e2 to e4 when Alice has a chessboard with interactivity disabled
+    endsIn: Alice cannot move a piece while interactivity is disabled — 3
+    checks:
+    - Alice cannot move a piece while interactivity is disabled
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:22 — A disabled chessboard refuses a move
+    exampleRow: []
+  Disabling interactivity abandons a pending promotion choice:
+    description: Disabling interactivity abandons a pending promotion choice
+    startingConditions:
+    - Alice has a pending White promotion from a7 to a8
+    events:
+    - Alice's board settings disable interactivity when Alice has a pending White promotion from a7 to a8
+    endsIn: Alice sees the White pawn remaining on a7 — 4
+    checks:
+    - Alice sees the White pawn remaining on a7
+    - Alice is not offered a promotion choice
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:29 — Disabling interactivity abandons a pending promotion choice
+    exampleRow: []
+  Re-enabling interactivity allows a future promotion request:
+    description: Re-enabling interactivity allows a future promotion request
+    startingConditions:
+    - Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled
+    events:
+    - Alice's board settings enable interactivity
+    endsIn: Alice can request promotion from a7 to a8 — 5
+    checks:
+    - Alice can request promotion from a7 to a8
+    - Alice sees the White pawn remaining on a7
+    gherkin:
+    - specs/chess-board/board-authority.feature:36 — Re-enabling interactivity allows a future promotion request
+    exampleRow: []
+  A replacement position puts a held piece back:
+    description: A replacement position puts a held piece back
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice's activity replaces the position when Alice is dragging the piece on e2
+    endsIn: Alice no longer holds a piece — 6
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the replacement position
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:45 — A replacement position puts a held piece back
+    exampleRow: []
+  Replacing the same position preserves selection:
+    description: Replacing the same position preserves selection
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice's activity supplies the same position again
+    endsIn: Alice still has e2 selected — 7
+    checks:
+    - Alice still has e2 selected
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:53 — Replacing the same position preserves selection
+    exampleRow: []
+  A replacement position abandons a pending promotion choice:
+    description: A replacement position abandons a pending promotion choice
+    startingConditions:
+    - Alice has a pending White promotion from a7 to a8
+    events:
+    - Alice's activity replaces the position when Alice has a pending White promotion from a7 to a8
+    endsIn: Alice sees the replacement position — 8
+    checks:
+    - Alice sees the replacement position
+    - Alice is not offered a promotion choice
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:59 — A replacement position abandons a pending promotion choice
+    exampleRow: []
+  An unrelated position clears the old move and selection:
+    description: An unrelated position clears the old move and selection
+    startingConditions:
+    - Alice has a chessboard after White's move from e2 to e4 with e7 selected
+    events:
+    - Alice's activity replaces the position when Alice has a chessboard after White's move from e2 to e4 with e7
+      selected
+    endsIn: Alice sees the replacement position — 9
+    checks:
+    - Alice sees the replacement position
+    - Alice sees no selection or legal destinations
+    - Alice sees no last move marked
+    - Alice hears no chessboard sounds
+    gherkin:
+    - specs/chess-board/board-authority.feature:66 — An unrelated position clears the old move and selection
+    exampleRow: []
+  An unrelated position clears the earlier move announcement:
+    description: An unrelated position clears the earlier move announcement
+    startingConditions:
+    - Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7
+    events:
+    - Alice's activity replaces the position when Alice has a chessboard after White checkmated Black by moving
+      the queen from g6 to g7
+    endsIn: Alice sees the replacement position — 10
+    checks:
+    - Alice sees the replacement position
+    - Alice has no move announcement from the previous position
+    gherkin:
+    - specs/chess-board/board-authority.feature:75 — An unrelated position clears the earlier move announcement
+    exampleRow: []
+  Turning a held chessboard puts the piece back:
+    description: Turning a held chessboard puts the piece back
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice changes the orientation
+    endsIn: Alice no longer holds a piece — 11
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the White pawn remaining on e2
+    - Alice's chessboard faces Black
+    gherkin:
+    - specs/chess-board/board-authority.feature:84 — Turning a held chessboard puts the piece back
+    exampleRow: []
+  A resized chessboard keeps its selected piece:
+    description: A resized chessboard keeps its selected piece
+    startingConditions:
+    - Alice has selected the piece on e2
+    events:
+    - Alice resizes the chessboard when Alice has selected the piece on e2
+    endsIn: Alice still has e2 selected — 12
+    checks:
+    - Alice still has e2 selected
+    - Alice sees the White pawn remaining on e2
+    gherkin:
+    - specs/chess-board/board-authority.feature:94 — A resized chessboard keeps its selected piece
+    exampleRow: []
+  Resizing while holding a piece cancels the drag:
+    description: Resizing while holding a piece cancels the drag
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice resizes the chessboard when Alice is dragging the piece on e2
+    endsIn: Alice no longer holds a piece — 13
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:100 — Resizing while holding a piece cancels the drag
+    exampleRow: []
+  Cancelling a held piece returns it to its square:
+    description: Cancelling a held piece returns it to its square
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice cancels the drag when Alice is dragging the piece on e2
+    endsIn: Alice no longer holds a piece — 14
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:110 — Cancelling a held piece returns it to its square
+    exampleRow: []
+  Switching away from the activity cancels a held piece:
+    description: Switching away from the activity cancels a held piece
+    startingConditions:
+    - Alice is dragging the piece on e2
+    events:
+    - Alice switches away from the chessboard's activity
+    endsIn: Alice no longer holds a piece — 15
+    checks:
+    - Alice no longer holds a piece
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:118 — Switching away from the activity cancels a held piece
+    exampleRow: []
+  Cancelling without a held piece preserves the position:
+    description: Cancelling without a held piece preserves the position
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice cancels the drag when Alice has an interactive chessboard
+    endsIn: Alice sees the White pawn remaining on e2 — 16
+    checks:
+    - Alice sees the White pawn remaining on e2
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:125 — Cancelling without a held piece preserves the position
+    exampleRow: []
+  Confirmation preserves the offered move without offering it twice:
+    description: Confirmation preserves the offered move without offering it twice
+    startingConditions:
+    - Alice has a chessboard after offering White's move from e2 to e4
+    events:
+    - Alice's activity confirms the offered position
+    endsIn: Alice sees a White pawn on e4 — 17
+    checks:
+    - Alice sees a White pawn on e4
+    - Alice sees e2 and e4 marked as the last move
+    - Alice hears no chessboard sounds
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:133 — Confirmation preserves the offered move without offering it
+      twice
+    exampleRow: []
+  Refusal restores the earlier position without sound:
+    description: Refusal restores the earlier position without sound
+    startingConditions:
+    - Alice has a chessboard after offering White's move from e2 to e4
+    events:
+    - Alice's activity refuses the offered move
+    endsIn: Alice sees White's offered move refused — 18
+    checks:
+    - Alice sees White's offered move refused
+    - Alice sees the White pawn remaining on e2
+    - Alice hears no chessboard sounds
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:141 — Refusal restores the earlier position without sound
+    exampleRow: []
+  An immediate opponent reply has one move highlight and sound:
+    description: An immediate opponent reply has one move highlight and sound
+    startingConditions:
+    - Alice has a chessboard after offering White's move from e2 to e4
+    events:
+    - Alice's activity supplies Black's reply from e7 to e5
+    endsIn: Alice sees a Black pawn on e5 — 19
+    checks:
+    - Alice sees a Black pawn on e5
+    - Alice sees e7 and e5 marked as the last move
+    - Alice hears one move sound
+    gherkin:
+    - specs/chess-board/board-authority.feature:152 — An immediate opponent reply has one move highlight and sound
+    exampleRow: []
+  An unusable supplied position keeps the last good position:
+    description: An unusable supplied position keeps the last good position
+    startingConditions:
+    - Alice has an interactive chessboard
+    events:
+    - Alice's activity supplies an unusable position
+    endsIn: Alice still sees the position before White's first move — 20
+    checks:
+    - Alice still sees the position before White's first move
+    - Alice hears no chessboard sounds
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:159 — An unusable supplied position keeps the last good position
+    exampleRow: []
+  An unusable initial position starts normal chess:
+    description: An unusable initial position starts normal chess
+    startingConditions:
+    - Alice's activity has no chessboard yet
+    events:
+    - Alice's activity starts a chessboard with an unusable position
+    endsIn: Alice sees the position before White's first move — 21
+    checks:
+    - Alice sees the position before White's first move
+    - Alice sees White to move
+    gherkin:
+    - specs/chess-board/board-authority.feature:166 — An unusable initial position starts normal chess
+    exampleRow: []
+  Enabling automatic queen promotion applies to the next new request:
+    description: Enabling automatic queen promotion applies to the next new request
+    startingConditions:
+    - Alice has a chessboard ready for White's promotion from a7 to a8
+    events:
+    - Alice's board settings enable automatic queen promotion when Alice has a chessboard ready for White's promotion
+      from a7 to a8
+    endsIn: Alice can request promotion from a7 to a8 automatically to a queen — 22
+    checks:
+    - Alice can request promotion from a7 to a8 automatically to a queen
+    - Alice sees the White pawn remaining on a7
+    gherkin:
+    - specs/chess-board/board-authority.feature:174 — Enabling automatic queen promotion applies to the next new
+      request
+    exampleRow: []
+  Disabling automatic queen promotion restores the next explicit choice:
+    description: Disabling automatic queen promotion restores the next explicit choice
+    startingConditions:
+    - Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled
+    events:
+    - Alice's board settings disable automatic queen promotion
+    endsIn: Alice can request promotion from a7 to a8 with an explicit promotion choice — 23
+    checks:
+    - Alice can request promotion from a7 to a8 with an explicit promotion choice
+    - Alice sees the White pawn remaining on a7
+    gherkin:
+    - specs/chess-board/board-authority.feature:180 — Disabling automatic queen promotion restores the next explicit
+      choice
+    exampleRow: []
+  Enabling automatic queen promotion preserves a pending explicit choice:
+    description: Enabling automatic queen promotion preserves a pending explicit choice
+    startingConditions:
+    - Alice has a pending White promotion from a7 to a8
+    events:
+    - Alice's board settings enable automatic queen promotion when Alice has a pending White promotion from a7 to
+      a8
+    endsIn: Alice is still offered queen, rook, bishop and knight as the promotion choice — 24
+    checks:
+    - Alice is still offered queen, rook, bishop and knight as the promotion choice
+    - Alice cannot complete the move until the pending promotion choice is decided
+    - Alice's activity receives no moves
+    gherkin:
+    - specs/chess-board/board-authority.feature:186 — Enabling automatic queen promotion preserves a pending explicit
+      choice
+    exampleRow: []

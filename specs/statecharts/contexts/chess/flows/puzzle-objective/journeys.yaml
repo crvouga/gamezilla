@@ -1,0 +1,97 @@
+journeys:
+  Either rook delivers a valid checkmate:
+    description: Either rook delivers a valid checkmate
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    events:
+    - Alice plays the move a7-a8
+    endsIn: Alice's puzzle is solved within 20 seconds — 1
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-objective.feature:8 — Either rook delivers a valid checkmate
+    exampleRow:
+    - '7'
+  Either rook delivers a valid checkmate (example 2):
+    description: Either rook delivers a valid checkmate
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    events:
+    - Alice plays the move b7-b8
+    endsIn: Alice's puzzle is solved within 20 seconds — 2
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    gherkin:
+    - specs/chess/puzzle-objective.feature:8 — Either rook delivers a valid checkmate
+    exampleRow:
+    - '8'
+  A legal move that neither solves nor checkmates is wrong:
+    description: A legal move that neither solves nor checkmates is wrong
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    events:
+    - Alice plays the move a7-a6
+    endsIn: Alice is told the move was wrong — 3
+    checks:
+    - Alice is told the move was wrong
+    gherkin:
+    - specs/chess/puzzle-objective.feature:21 — A legal move that neither solves nor checkmates is wrong
+    exampleRow: []
+  An illegal apparent checkmate cannot solve the puzzle:
+    description: An illegal apparent checkmate cannot solve the puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice tries the illegal move a1-a8
+    endsIn: Alice's board is unchanged — 4
+    checks:
+    - Alice's board is unchanged
+    - Alice is still asked to find the next move
+    gherkin:
+    - specs/chess/puzzle-objective.feature:27 — An illegal apparent checkmate cannot solve the puzzle
+    exampleRow: []
+  An alternate checkmate survives the return of the connection:
+    description: An alternate checkmate survives the return of the connection
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the puzzle with more than one mate on the final move
+    - Alice has delivered the alternate checkmate offline
+    events:
+    - the connection comes back when Alice is signed in and Alice is solving the puzzle with more than one mate
+      on the final move and Alice has delivered the alternate checkmate offline
+    endsIn: Alice's game log records that puzzle as solved — 5
+    checks:
+    - Alice's game log records that puzzle as solved
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    - Alice's puzzle rating is above 1500
+    gherkin:
+    - specs/chess/puzzle-objective.feature:37 — An alternate checkmate survives the return of the connection
+    exampleRow: []
+  Two devices completing through different checkmates count one solved puzzle:
+    description: Two devices completing through different checkmates count one solved puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is also signed in on another device
+    - Alice is solving the puzzle with more than one mate on the final move
+    - Alice has delivered different valid checkmates on both devices offline
+    events:
+    - the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice
+      is solving the puzzle with more than one mate on the final move and Alice has delivered different valid checkmates
+      on both devices offline
+    endsIn: Alice's stats show 1 played, 1 solved, and 100% accuracy — 6
+    checks:
+    - Alice's stats show 1 played, 1 solved, and 100% accuracy
+    - Alice's other device shows 1 played, 1 solved, and 100% accuracy
+    - both of Alice's devices show the same puzzle rating within 30 seconds
+    gherkin:
+    - specs/chess/puzzle-objective.feature:46 — Two devices completing through different checkmates count one solved
+      puzzle
+    exampleRow: []

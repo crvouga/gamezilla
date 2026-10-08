@@ -1,0 +1,67 @@
+journeys:
+  Another signed-in device keeps the opponent search:
+    description: Another signed-in device keeps the opponent search
+    startingConditions:
+    - Alice signed out on her phone while looking for a chess opponent
+    events:
+    - Alice opens multiplayer chess on another signed-in device
+    endsIn: Alice is looking for her same chess opponent — 1
+    checks:
+    - Alice is looking for her same chess opponent
+    gherkin:
+    - specs/chess/multiplayer-account-and-space.feature:8 — Another signed-in device keeps the opponent search
+    exampleRow: []
+  A signed-out device cannot continue account-only play:
+    description: A signed-out device cannot continue account-only play
+    startingConditions:
+    - Alice signed out on her phone during a multiplayer game with Bob
+    - Alice is hosting a space
+    events:
+    - Alice finds a chess opponent for 5+0 on her phone
+    endsIn: Alice is invited to sign in — 2
+    checks:
+    - Alice is invited to sign in
+    - Alice cannot see the account's multiplayer game on her phone
+    gherkin:
+    - specs/chess/multiplayer-account-and-space.feature:13 — A signed-out device cannot continue account-only play
+    exampleRow: []
+  Renaming updates the multiplayer opponent's username without replacing the game:
+    description: Renaming updates the multiplayer opponent's username without replacing the game
+    startingConditions:
+    - Alice renamed herself to "alice_atlas" during her multiplayer game with Bob
+    events:
+    - Bob opens multiplayer chess when Alice renamed herself to 'alice_atlas' during her multiplayer game with Bob
+    endsIn: Bob sees his opponent's username is "alice_atlas" — 3
+    checks:
+    - Bob sees his opponent's username is "alice_atlas"
+    - Bob keeps his same multiplayer game with Alice
+    gherkin:
+    - specs/chess/multiplayer-account-and-space.feature:23 — Renaming updates the multiplayer opponent's username
+      without replacing the game
+    exampleRow: []
+  Returning in another space keeps the person's multiplayer game:
+    description: Returning in another space keeps the person's multiplayer game
+    startingConditions:
+    - Alice ended her space while playing multiplayer chess with Bob
+    - Alice is hosting another space
+    events:
+    - Alice opens multiplayer chess
+    endsIn: Alice keeps her same multiplayer game with Bob — 4
+    checks:
+    - Alice keeps her same multiplayer game with Bob
+    gherkin:
+    - specs/chess/multiplayer-account-and-space.feature:32 — Returning in another space keeps the person's multiplayer
+      game
+    exampleRow: []
+  Removing a friend keeps the accepted game:
+    description: Removing a friend keeps the accepted game
+    startingConditions:
+    - Alice removed Bob from her friends list during their multiplayer game
+    events:
+    - Bob opens multiplayer chess when Alice removed Bob from her friends list during their multiplayer game
+    endsIn: Bob keeps his same multiplayer game with Alice — 5
+    checks:
+    - Bob keeps his same multiplayer game with Alice
+    gherkin:
+    - specs/chess/multiplayer-account-and-space.feature:38 — Removing a friend keeps the accepted game
+    exampleRow: []

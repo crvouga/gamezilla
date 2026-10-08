@@ -1,0 +1,136 @@
+id: feedback-drafts
+initial: Viewing Keep feedback drafts
+meta:
+  context: Product feedback
+  kind: flow
+  owner: Product feedback owner (not named in specs)
+  tier: standard
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Keep feedback drafts:
+    meta:
+      description: The person is at the place where keep feedback drafts.
+      snapshot: the-person-is-at-the-place-where-keep-feedback-drafts
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:2
+    'on':
+      the team returns to the wizard after closing it:
+        target: the draft is titled "Board movement" saying "Keep the last move visible" — 1
+        meta:
+          source:
+          - specs/feedback/drafts.feature:9
+          condition:
+          - the team has a draft titled "Board movement" saying "Keep the last move visible"
+          example: Returning to the wizard restores unfinished writing
+      the team's app reopens after closing when the team has a draft titled 'Board movement' saying 'Keep the last move visible':
+        target: the draft is titled "Board movement" saying "Keep the last move visible" — 2
+        meta:
+          source:
+          - specs/feedback/drafts.feature:17
+          condition:
+          - the team has a draft titled "Board movement" saying "Keep the last move visible"
+          example: Returning to the app restores unfinished writing
+      the team starts new feedback:
+        target: the team can find the draft "Board movement" in feedback management — 3
+        meta:
+          source:
+          - specs/feedback/drafts.feature:25
+          condition:
+          - the team has a draft titled "Board movement" saying "Keep the last move visible"
+          example: Starting another draft keeps earlier writing
+      ? the team sends the feedback when the team cannot send feedback and the team has a draft titled 'Board movement'
+        saying 'Keep the last move visible'
+      : target: the team is told the draft is kept until feedback can be sent — 4
+        meta:
+          source:
+          - specs/feedback/drafts.feature:34
+          condition:
+          - the team cannot send feedback
+          - the team has a draft titled "Board movement" saying "Keep the last move visible"
+          example: Failed sending explains that the draft is kept
+      the team's app reopens after closing when the team has stopped a reproduction recording:
+        target: the team can review the recording before sending feedback — 6
+        meta:
+          source:
+          - specs/feedback/drafts.feature:51
+          condition:
+          - the team has stopped a reproduction recording
+          example: Returning to the app restores a reproduction ready to review
+  the draft is titled "Board movement" saying "Keep the last move visible" — 1:
+    meta:
+      description: The person observes that the draft is titled "Board movement" saying "Keep the last move visible".
+      snapshot: the-person-observes-that-the-draft-is-titled-board-movement-saying-keep-the-last-move
+      recognize: []
+      checks:
+      - the draft is titled "Board movement" saying "Keep the last move visible"
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the draft is titled "Board movement" saying "Keep the last move visible" — 2:
+    meta:
+      description: The person observes that the draft is titled "Board movement" saying "Keep the last move visible".
+      snapshot: the-person-observes-that-the-draft-is-titled-board-movement-saying-keep-the-last-move
+      recognize: []
+      checks:
+      - the draft is titled "Board movement" saying "Keep the last move visible"
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the team can find the draft "Board movement" in feedback management — 3:
+    meta:
+      description: The person observes that the team can find the draft "Board movement" in feedback management.
+      snapshot: the-person-observes-that-the-team-can-find-the-draft-board-movement-in-feedback-manag
+      recognize: []
+      checks:
+      - the team can find the draft "Board movement" in feedback management
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:25
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the team is told the draft is kept until feedback can be sent — 4:
+    meta:
+      description: The person observes that the team is told the draft is kept until feedback can be sent.
+      snapshot: the-person-observes-that-the-team-is-told-the-draft-is-kept-until-feedback-can-be-sen
+      recognize: []
+      checks:
+      - the team is told the draft is kept until feedback can be sent
+      - the draft is titled "Board movement" saying "Keep the last move visible"
+      - the team can copy the feedback to keep for later
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:34
+      - specs/feedback/drafts.feature:41
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+    'on': {}
+  the team can review the recording before sending feedback — 6:
+    meta:
+      description: The person observes that the team can review the recording before sending feedback.
+      snapshot: the-person-observes-that-the-team-can-review-the-recording-before-sending-feedback
+      recognize: []
+      checks:
+      - the team can review the recording before sending feedback
+      events: []
+      confidence: assumed
+      source:
+      - specs/feedback/drafts.feature:51
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

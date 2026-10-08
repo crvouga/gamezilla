@@ -1,0 +1,57 @@
+journeys:
+  SignedIn is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - SignedIn
+    endsIn: Seeing account-bound choices become available only where the current permission decision allows them
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  SignedOut is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - SignedOut
+    endsIn: Seeing account-only choices are denied and the person sees the current identity
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  UsernameChanged is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - UsernameChanged
+    endsIn: Seeing the person’s current name replaces their earlier name on affected public surfaces
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  AccountDeletionConfirmed is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - AccountDeletionConfirmed
+    endsIn: Seeing the deleted account cannot be used or shown; retained legal records confer no access
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  SpaceOpened is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - SpaceOpened
+    endsIn: Seeing an open space becomes visible only to people entitled to find it
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  PersonJoined is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - PersonJoined
+    endsIn: Seeing current presence changes for people who can view that space
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  PersonLeft is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - PersonLeft
+    endsIn: Seeing the person no longer appears as present in that space
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.
+  SpaceEnded is received:
+    description: The receiving context updates the visible facts it owns.
+    events:
+    - SpaceEnded
+    endsIn: Seeing the ended space is removed from live choices and an open participant view shows it ended
+    startingConditions:
+    - Seed an authorized affected person and an affected aggregate.

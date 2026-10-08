@@ -1,0 +1,11 @@
+stateDiagram-v2
+  state "Viewing Notes survive a crash" as s0
+  state "Alice sees the note 'Groceries' saying 'milk' — 1" as s1
+  state "The person remains at the described place until the next choice — 2 step 1" as s2
+  state "Alice sees the note 'Groceries' saying 'milk' — 2 step 2" as s3
+  [*] --> s0
+  s0 --> s1: Alice's app crashes and reopens when Alice and Bob are in the shared space 'Trip' and Alice has written the note 'Groceries' saying 'milk' and Bob has written the note 'Hotel' saying 'Main St' and the note 'Hotel' has reached Alice
+  s0 --> s2: Alice's app crashes and reopens when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk'
+  s1 --> [*]
+  s2 --> s3: Alice's app comes back online
+  s3 --> [*]

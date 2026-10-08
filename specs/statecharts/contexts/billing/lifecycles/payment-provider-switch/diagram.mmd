@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Opening payment provider switch" as s0
+  state "Viewing none membership" as s1
+  state "Viewing trialing membership at the second provider" as s2
+  state "Viewing ended membership at the second provider" as s3
+  state "Viewing trialing membership at the first provider" as s4
+  state "Viewing ended membership at the first provider" as s5
+  state "Viewing active membership at the second provider" as s6
+  state "Viewing active membership at the first provider" as s7
+  [*] --> s0
+  s0 --> s1: Opens with viewing none membership
+  s1 --> s1: The team switches new memberships to another provider resulting in viewing none membership
+  s1 --> s1: Subscribes to Plus resulting in viewing none membership
+  s1 --> s1: The billing period ends resulting in viewing none membership
+  s1 --> s1: Ends membership immediately resulting in viewing none membership
+  s1 --> s2: Subscribes to Plus resulting in viewing trialing membership at the second provider
+  s1 --> s4: Subscribes to Plus resulting in viewing trialing membership at the first provider
+  s2 --> s2: The team switches new memberships to another provider resulting in viewing trialing membership at the second provider
+  s2 --> s3: Ends membership immediately resulting in viewing ended membership at the second provider
+  s2 --> s2: The billing period ends resulting in viewing trialing membership at the second provider
+  s2 --> s6: The billing period ends resulting in viewing active membership at the second provider
+  s2 --> s2: Subscribes to Plus resulting in viewing trialing membership at the second provider
+  s2 --> s2: Ends membership immediately resulting in viewing trialing membership at the second provider
+  s3 --> s4: Subscribes to Plus resulting in viewing trialing membership at the first provider
+  s3 --> s3: The team switches new memberships to another provider resulting in viewing ended membership at the second provider
+  s3 --> s2: Subscribes to Plus resulting in viewing trialing membership at the second provider
+  s3 --> s3: Ends membership immediately resulting in viewing ended membership at the second provider
+  s3 --> s3: Subscribes to Plus resulting in viewing ended membership at the second provider
+  s3 --> s3: The billing period ends resulting in viewing ended membership at the second provider
+  s4 --> s4: The team switches new memberships to another provider resulting in viewing trialing membership at the first provider
+  s4 --> s5: Ends membership immediately resulting in viewing ended membership at the first provider
+  s4 --> s4: Subscribes to Plus resulting in viewing trialing membership at the first provider
+  s4 --> s4: Ends membership immediately resulting in viewing trialing membership at the first provider
+  s4 --> s7: The billing period ends resulting in viewing active membership at the first provider
+  s4 --> s4: The billing period ends resulting in viewing trialing membership at the first provider
+  s5 --> s5: The team switches new memberships to another provider resulting in viewing ended membership at the first provider
+  s5 --> s4: Subscribes to Plus resulting in viewing trialing membership at the first provider
+  s5 --> s5: Subscribes to Plus resulting in viewing ended membership at the first provider
+  s5 --> s2: Subscribes to Plus resulting in viewing trialing membership at the second provider
+  s5 --> s5: The billing period ends resulting in viewing ended membership at the first provider
+  s5 --> s5: Ends membership immediately resulting in viewing ended membership at the first provider
+  s6 --> s6: The billing period ends resulting in viewing active membership at the second provider
+  s6 --> s6: The team switches new memberships to another provider resulting in viewing active membership at the second provider
+  s6 --> s6: Ends membership immediately resulting in viewing active membership at the second provider
+  s6 --> s3: Ends membership immediately resulting in viewing ended membership at the second provider
+  s6 --> s6: Subscribes to Plus resulting in viewing active membership at the second provider
+  s7 --> s7: The team switches new memberships to another provider resulting in viewing active membership at the first provider
+  s7 --> s5: Ends membership immediately resulting in viewing ended membership at the first provider
+  s7 --> s7: Subscribes to Plus resulting in viewing active membership at the first provider
+  s7 --> s7: The billing period ends resulting in viewing active membership at the first provider
+  s7 --> s7: Ends membership immediately resulting in viewing active membership at the first provider

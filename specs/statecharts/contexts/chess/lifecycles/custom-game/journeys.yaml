@@ -1,0 +1,571 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Finish game resulting in seeing a finished Custom Game with black wins by checkmate
+    - Create game resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing configuring Custom Game
+    - The connection returns resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4fb684abfffa7b3c83bd5039cb4e26903ed11159e99e93773fbca6ac65ea4723
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0ed0eaab4c30c637e7718ca2bb2b4da2c4f42b7baf69c6a30da45f009bb7cb69
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: aa6b0b8692c3699cbf2ec2429aeec0109f4f7734c32ed54da7438dacdf585f0f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4f8f8fbcc89f69ba908f747406303163097b361b7c790dad31725ce25218e141
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 40e14d777a7019b6308b8f65c10e9e6d92e8308e991ea4c5b740ee70aa804280
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Claim side resulting in viewing no Custom Game
+    - Become ready resulting in viewing no Custom Game
+    - Become unready resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 72631550594cb45011c4cec925b14e1300de9d3c8bfc41606877d64ce19dd2bf
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Offer draw resulting in playing a Custom Game
+    - Offer draw resulting in playing a Custom Game
+    - Finish game resulting in seeing a finished Custom Game with black wins by checkmate
+    - Rematch resulting in seeing configuring Custom Game
+    - Become ready resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Competing choices resulting in seeing a cancelled Custom Game with cancelled
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 18d889138b9d65d9aafc393d40bafe472097560a1a5e1fd805e16af563c3ad57
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Swap sides resulting in viewing no Custom Game
+    - Become unready resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 080edcb6233e65c7e03c1f9026b620c1f86aebf3d2bba8530e7830ae22a1800f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4de63c17d2fea0dd5ba76d0c2caa08038248b64fec03b26de78aa706b59352e6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Rematch resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1a584d9420b756d815b64ee117e53801b8357c1a12905a9596a42dc9185de878
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Sign out resulting in viewing no Custom Game
+    - Create game resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d3de5f8dce5d3066feb055eb17f6842209c5fe2f071c31f81c3f089aab69dc6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Finish game resulting in seeing a finished Custom Game with white wins by checkmate
+    - Rematch resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Become unready resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1de731fd30e09a5f6d2924ba1e1cec7dd1767751f94375b445717ffcd0becc1f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Resign game resulting in seeing a finished Custom Game with black wins by resignation
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: aeb9eab4fc754d5a6956c1a82cee4ebc373acf1b9d1e31197716c92ae7dff605
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Create game resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Choose clock resulting in viewing no Custom Game
+    - Sign in resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Choose clock resulting in viewing no Custom Game
+    - Assign bot resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 971fa95f172b9f184ebb27e65027ff9a012f8c4174c738d5a518316c8672985d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Claim side resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4fc454856382e5d9dd2440f02a1acb886acaba92d887b58a3bfa1c50d9221199
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing no Custom Game
+    - Create game resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Become ready resulting in seeing configuring Custom Game
+    - Claim side resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    endsIn: Seeing a cancelled Custom Game with cancelled
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 05674dfa8dc71db0564b956418dd18b0f407f281895888a2c5c586b90feefc56
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 91437324b2df47484896b53082e77e362be29254f773e9808870a3c639f14d3e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Cancel game resulting in viewing no Custom Game
+    - Create game resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b69a325faa19e71caa53c251a82a09a26319860f1fe98471f5e5a827490fab69
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Offer draw resulting in playing a Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Start game resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 05e5ed61ce3bcf59b3bf5173d649433d7dfae8766132e8ce39cb8f9e44f046df
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Invite resulting in seeing configuring Custom Game
+    - Accept side resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Swap sides resulting in viewing no Custom Game
+    - Swap sides resulting in viewing no Custom Game
+    - Choose clock resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 97f60333849ea0f59cf04a3b07ef2ee7d1e26be534af152f5eca2d2d08b0d2d6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Claim side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Invite resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7e8b6c3d71b359d9ff38ae5a747183034f39ad9960fffd9b2a2aee88b78cbe44
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Competing choices resulting in seeing a finished Custom Game with white wins by resignation
+    - Sign out resulting in viewing no Custom Game
+    - Sign in resulting in seeing a finished Custom Game with white wins by resignation
+    - Create game resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Release side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Become unready resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Close side resulting in viewing no Custom Game
+    - Swap sides resulting in viewing no Custom Game
+    - Sign in resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8ac22a2c96968273e63830b61314db2d0a4ee6e96ec43c3c8d959cdb256bdf46
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Finish game resulting in seeing a finished Custom Game with white wins by checkmate
+    - Create game resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: de4453774d86c9cff371c26ea4fcc50d6755b8c03aa16651b4e0127ea92ae18d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with playing a Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2a22c0dd47fb36a4b4ea76b40df7aee6409ab896b30e4f273f369a90823b331f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Additional witness for revokeSide:
+    description: A successful trace covering previously unobserved invitation or draw decisions.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Invite resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Revoke side resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Person leaves resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    startingConditions:
+    - Exact sample from seed 43; inspect nondeterministic choices in transition witnesses.
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 43
+      traceSequence: 1
+      maxSamples: 200
+      maxSteps: 100
+      sha256: 3d19ced77f50c6a7e5f206d1733f33c52f790c50aa8a93463fbf2a03969a3ae8
+  Additional witness for declineDraw:
+    description: A successful trace covering previously unobserved invitation or draw decisions.
+    events:
+    - Opens with playing a Custom Game
+    - Offer draw resulting in playing a Custom Game
+    - Decline draw resulting in playing a Custom Game
+    - Resign game resulting in playing a Custom Game
+    - Rematch resulting in playing a Custom Game
+    - Assign bot resulting in playing a Custom Game
+    - Cancel game resulting in playing a Custom Game
+    - The connection returns resulting in seeing a cancelled Custom Game with cancelled
+    - Create game resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Invite resulting in seeing configuring Custom Game
+    - Swap sides resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    endsIn: Seeing configuring Custom Game
+    startingConditions:
+    - Exact sample from seed 43; inspect nondeterministic choices in transition witnesses.
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 43
+      traceSequence: 59
+      maxSamples: 200
+      maxSteps: 100
+      sha256: 79742c94e4bf2aa8db4394fafdc02a009617f62980628383cfa637ef7d3c6cbc
+  Additional witness for declineSide:
+    description: A successful trace covering previously unobserved invitation or draw decisions.
+    events:
+    - Opens with seeing configuring Custom Game
+    - Become ready resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Invite resulting in seeing configuring Custom Game
+    - Decline side resulting in seeing configuring Custom Game
+    - Assign bot resulting in seeing configuring Custom Game
+    - Open side resulting in seeing configuring Custom Game
+    - Choose clock resulting in seeing configuring Custom Game
+    - Take side resulting in seeing configuring Custom Game
+    - Become unready resulting in seeing configuring Custom Game
+    - Close side resulting in seeing configuring Custom Game
+    - Cancel game resulting in seeing a cancelled Custom Game with cancelled
+    - Create game resulting in seeing configuring Custom Game
+    - Sign out resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    startingConditions:
+    - Exact sample from seed 43; inspect nondeterministic choices in transition witnesses.
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 43
+      traceSequence: 97
+      maxSamples: 200
+      maxSteps: 100
+      sha256: 1732c6c09a1f166d5c300d0e73309b3769b5bcaa5e4be3a2e70814d76cb12f02
+  Additional witness for acceptDraw:
+    description: A successful trace covering previously unobserved invitation or draw decisions.
+    events:
+    - Opens with playing a Custom Game
+    - Sign out resulting in viewing no Custom Game
+    - Accept draw resulting in viewing no Custom Game
+    - Rematch resulting in viewing no Custom Game
+    - Cancel game resulting in viewing no Custom Game
+    endsIn: Viewing no Custom Game
+    startingConditions:
+    - Exact sample from seed 43; inspect nondeterministic choices in transition witnesses.
+    quintTrace:
+      model: specs/chess/custom-game.qnt
+      seed: 43
+      traceSequence: 120
+      maxSamples: 200
+      maxSteps: 100
+      sha256: d90da7783702ec1d6d7b6345b149ce9e183dd2934a636396bdf6465ccc96db5e

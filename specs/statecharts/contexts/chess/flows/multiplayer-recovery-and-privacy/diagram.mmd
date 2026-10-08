@@ -1,0 +1,33 @@
+stateDiagram-v2
+  state "Viewing Keep a multiplayer game after time away" as s0
+  state "Alice is told multiplayer moves need a connection — 1" as s1
+  state "Alice and Bob see the same multiplayer board with two moves — 2" as s2
+  state "Alice sees she won the multiplayer game — 3" as s3
+  state "Alice and Bob keep the unfinished multiplayer game — 4" as s4
+  state "Alice sees her multiplayer board and Bob's name — 5" as s5
+  state "Carol is told no multiplayer game is available to her — 6" as s6
+  state "Carol is told no multiplayer game is available to her — 7" as s7
+  state "Alice is not looking for a chess opponent — 8" as s8
+  state "Bob sees the multiplayer game was aborted — 9" as s9
+  state "Bob sees he won the multiplayer game — 10" as s10
+  [*] --> s0
+  s0 --> s1: Alice plays e2 to e4 as a multiplayer move
+  s0 --> s2: Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob's multiplayer move e7 to e5 was accepted
+  s0 --> s3: Alice's phone comes back online for multiplayer chess when Alice's phone was offline when Bob resigned multiplayer chess
+  s0 --> s4: Alice's phone loses its multiplayer connection
+  s0 --> s5: Alice opens multiplayer chess
+  s0 --> s6: Carol opens Alice's multiplayer game
+  s0 --> s7: Carol plays e2 to e4 in Alice's multiplayer game
+  s0 --> s8: Alice confirms account deletion when Alice is looking for a chess opponent
+  s0 --> s9: Alice confirms account deletion when Alice is White and Bob is Black in a new 5+0 multiplayer game
+  s0 --> s10: Alice confirms account deletion when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]

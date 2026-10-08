@@ -1,0 +1,43 @@
+journeys:
+  A returning account controls its accepted side:
+    description: A returning account controls its accepted side
+    startingConditions:
+    - Bob has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Bob has signed out
+    events:
+    - Bob signs in with Google
+    endsIn: Black is Bob in the Custom Game — 1
+    checks:
+    - Black is Bob in the Custom Game
+    - Bob sees the active Custom Game with White to move
+    gherkin:
+    - specs/chess/custom-game-identity.feature:7 — A returning account controls its accepted side
+    exampleRow: []
+  Signing out removes that device's access to the account's game:
+    description: Signing out removes that device's access to the account's game
+    startingConditions:
+    - Bob has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob signs out
+    endsIn: Bob cannot see the Custom Game — 2
+    checks:
+    - Bob cannot see the Custom Game
+    - Alice still sees the active Custom Game with White to move
+    gherkin:
+    - specs/chess/custom-game-identity.feature:15 — Signing out removes that device's access to the account's game
+    exampleRow: []
+  The participating person appears under their new name:
+    description: The participating person appears under their new name
+    startingConditions:
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Alice renames themselves to @calm_rook
+    endsIn: White in the Custom Game is named @calm_rook — 3
+    checks:
+    - White in the Custom Game is named @calm_rook
+    - White is to move in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-identity.feature:25 — The participating person appears under their new name
+    exampleRow: []

@@ -1,0 +1,27 @@
+stateDiagram-v2
+  state "Viewing A multiplayer game stays as it ended" as s0
+  state "Alice sees the multiplayer game is drawn by agreement — 1" as s1
+  state "Alice is told the multiplayer game is over — 2" as s2
+  state "Alice is told the multiplayer game is over — 3" as s3
+  state "Alice is looking for a 5+0 chess opponent — 4" as s4
+  state "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 5" as s5
+  state "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 6" as s6
+  state "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 7" as s7
+  state "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 8" as s8
+  [*] --> s0
+  s0 --> s1: Alice opens multiplayer chess on another device
+  s0 --> s2: Alice plays g1 to f3 as a multiplayer move
+  s0 --> s3: Alice plays e2 to e4 as a multiplayer move
+  s0 --> s4: Alice finds a new opponent
+  s0 --> s5: Alice opens multiplayer chess when Bob resigned multiplayer chess and Alice won
+  s0 --> s6: Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5
+  s0 --> s7: Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was aborted
+  s0 --> s8: Alice opens multiplayer chess when Alice has a free account and has never played a multiplayer game
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]

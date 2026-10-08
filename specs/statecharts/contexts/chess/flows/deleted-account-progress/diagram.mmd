@@ -1,0 +1,18 @@
+stateDiagram-v2
+  state "Viewing Erase a deleted account's puzzle progress" as s0
+  state "Alice's other device cannot show the deleted account's puzzle rating, game log or stats within 30 seconds — 1" as s1
+  state "Alice's feed targets 1500 automatically — 2" as s2
+  state "Alice's puzzle rating is 1500 and has not settled — 3" as s3
+  state "Alice's game log cannot show the deleted account's attempts — 4" as s4
+  state "Alice's game log cannot show the deleted account's attempts — 5" as s5
+  [*] --> s0
+  s0 --> s1: Alice confirms account deletion
+  s0 --> s2: Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had saved a custom feed target
+  s0 --> s3: Alice signs in with Google when Alice's account deletion has completed and Alice had a settled puzzle rating on the deleted account
+  s0 --> s4: Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had solved puzzles in its game log
+  s0 --> s5: the connection comes back
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]

@@ -1,0 +1,2311 @@
+id: chess-board-board-options-lifecycle
+initial: Opening board board options
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess-board/board-options.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening board board options:
+    meta:
+      description: The person is opening the board board options view.
+      snapshot: the-person-is-opening-the-board-board-options-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+    'on':
+      Opens with viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: init
+          witness:
+            trace: chess-board--board-options_20.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess-board/board-options.qnt:30
+  Viewing an interactive board:
+    meta:
+      description: The person is viewing an interactive board.
+      snapshot: the-person-is-viewing-an-interactive-board
+      recognize: []
+      checks:
+      - Preview and disabled boards retain no unfinished input.
+      - One unfinished choice belongs to its prepared source position.
+      - The fixed width owns both the footprint and whether that width permits moves.
+      - Appearance changes retain a prepared position and the chosen colors.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+      quintPredicates:
+      - held: false
+        selected: false
+        pendingPromotion: false
+        interactive: true
+      invariants:
+      - invOptionsAuthority
+      - invOptionsGesture
+      - invOptionsWidth
+      - invOptionsPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Resize available space resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Replace options position resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Configure board colors resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureBoardColors
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:83
+      Configure legal marks resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureLegalMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 5
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:79
+      Configure coordinates resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureCoordinates
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 8
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:77
+      Configure last move marks resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureLastMoveMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 20
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:81
+      Configure fixed width resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 23
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Request options promotion resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: requestOptionsPromotion
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 28
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:55
+      Configure options input resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 33
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Request options promotion resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: requestOptionsPromotion
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 34
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:55
+      Select options piece resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: selectOptionsPiece
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 42
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:36
+      Select options piece resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: selectOptionsPiece
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 49
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:36
+      Begin options drag resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: beginOptionsDrag
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 50
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:42
+      Move options piece resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: moveOptionsPiece
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 60
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:48
+      Configure options input resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 73
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Begin options drag resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: beginOptionsDrag
+          witness:
+            trace: chess-board--board-options_11.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:42
+  Choosing promotion with board options:
+    meta:
+      description: The person is choosing promotion with board options.
+      snapshot: the-person-is-choosing-promotion-with-board-options
+      recognize: []
+      checks:
+      - Preview and disabled boards retain no unfinished input.
+      - One unfinished choice belongs to its prepared source position.
+      - The fixed width owns both the footprint and whether that width permits moves.
+      - Appearance changes retain a prepared position and the chosen colors.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+      quintPredicates:
+      - held: false
+        selected: false
+        pendingPromotion: true
+        interactive: true
+      invariants:
+      - invOptionsAuthority
+      - invOptionsGesture
+      - invOptionsWidth
+      - invOptionsPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Configure last move marks resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureLastMoveMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:81
+      Configure fixed width resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Configure fixed width resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_10.itf.json
+            step: 44
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Configure legal marks resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureLegalMarks
+          witness:
+            trace: chess-board--board-options_10.itf.json
+            step: 45
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:79
+      Replace options position resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_10.itf.json
+            step: 46
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Configure options input resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_22.itf.json
+            step: 47
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Configure board colors resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureBoardColors
+          witness:
+            trace: chess-board--board-options_22.itf.json
+            step: 49
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:83
+      Replace options position resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_22.itf.json
+            step: 50
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Resize available space resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_22.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Configure options input resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_23.itf.json
+            step: 70
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Configure coordinates resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: configureCoordinates
+          witness:
+            trace: chess-board--board-options_16.itf.json
+            step: 51
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:77
+      Resize available space resulting in choosing promotion with board options:
+        target: Choosing promotion with board options
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_16.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:62
+  Seeing a selected piece with board options:
+    meta:
+      description: The person is seeing a selected piece with board options.
+      snapshot: the-person-is-seeing-a-selected-piece-with-board-options
+      recognize: []
+      checks:
+      - Preview and disabled boards retain no unfinished input.
+      - One unfinished choice belongs to its prepared source position.
+      - The fixed width owns both the footprint and whether that width permits moves.
+      - Appearance changes retain a prepared position and the chosen colors.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+      quintPredicates:
+      - held: false
+        selected: true
+        pendingPromotion: false
+        interactive: true
+      invariants:
+      - invOptionsAuthority
+      - invOptionsGesture
+      - invOptionsWidth
+      - invOptionsPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Configure last move marks resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: configureLastMoveMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:81
+      Configure fixed width resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 44
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Replace options position resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_16.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Configure board colors resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: configureBoardColors
+          witness:
+            trace: chess-board--board-options_6.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:83
+      Configure fixed width resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_6.itf.json
+            step: 100
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Begin options drag resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: beginOptionsDrag
+          witness:
+            trace: chess-board--board-options_18.itf.json
+            step: 95
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:42
+      Select options piece resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: selectOptionsPiece
+          witness:
+            trace: chess-board--board-options_19.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:36
+      Resize available space resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_19.itf.json
+            step: 29
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Configure legal marks resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: configureLegalMarks
+          witness:
+            trace: chess-board--board-options_8.itf.json
+            step: 2
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:79
+      Configure options input resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_8.itf.json
+            step: 3
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Move options piece resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: moveOptionsPiece
+          witness:
+            trace: chess-board--board-options_8.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:48
+      Resize available space resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_9.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Configure coordinates resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: configureCoordinates
+          witness:
+            trace: chess-board--board-options_15.itf.json
+            step: 94
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:77
+      Replace options position resulting in seeing a selected piece with board options:
+        target: Seeing a selected piece with board options
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_14.itf.json
+            step: 15
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:88
+  Watching a board without move controls:
+    meta:
+      description: The person is watching a board without move controls.
+      snapshot: the-person-is-watching-a-board-without-move-controls
+      recognize: []
+      checks:
+      - Preview and disabled boards retain no unfinished input.
+      - One unfinished choice belongs to its prepared source position.
+      - The fixed width owns both the footprint and whether that width permits moves.
+      - Appearance changes retain a prepared position and the chosen colors.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+      quintPredicates:
+      - held: false
+        selected: false
+        pendingPromotion: false
+        interactive: false
+      invariants:
+      - invOptionsAuthority
+      - invOptionsGesture
+      - invOptionsWidth
+      - invOptionsPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Resize available space resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 74
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Configure options input resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 75
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Configure fixed width resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Configure legal marks resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureLegalMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 77
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:79
+      Replace options position resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 78
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Configure coordinates resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureCoordinates
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 83
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:77
+      Configure last move marks resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureLastMoveMarks
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 86
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:81
+      Configure board colors resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureBoardColors
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 90
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:83
+      Configure options input resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_1.itf.json
+            step: 92
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Begin options drag resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: beginOptionsDrag
+          witness:
+            trace: chess-board--board-options_0.itf.json
+            step: 58
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:42
+      Select options piece resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: selectOptionsPiece
+          witness:
+            trace: chess-board--board-options_0.itf.json
+            step: 61
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:36
+      Move options piece resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: moveOptionsPiece
+          witness:
+            trace: chess-board--board-options_0.itf.json
+            step: 66
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:48
+      Request options promotion resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: requestOptionsPromotion
+          witness:
+            trace: chess-board--board-options_10.itf.json
+            step: 59
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: promotion
+          source:
+          - specs/chess-board/board-options.qnt:55
+  Holding a piece with board options:
+    meta:
+      description: The person is holding a piece with board options.
+      snapshot: the-person-is-holding-a-piece-with-board-options
+      recognize: []
+      checks:
+      - Preview and disabled boards retain no unfinished input.
+      - One unfinished choice belongs to its prepared source position.
+      - The fixed width owns both the footprint and whether that width permits moves.
+      - Appearance changes retain a prepared position and the chosen colors.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.qnt
+      quintPredicates:
+      - held: true
+        selected: false
+        pendingPromotion: false
+        interactive: true
+      invariants:
+      - invOptionsAuthority
+      - invOptionsGesture
+      - invOptionsWidth
+      - invOptionsPosition
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Configure coordinates resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: configureCoordinates
+          witness:
+            trace: chess-board--board-options_11.itf.json
+            step: 77
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:77
+      Configure legal marks resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: configureLegalMarks
+          witness:
+            trace: chess-board--board-options_11.itf.json
+            step: 81
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:79
+      Configure last move marks resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: configureLastMoveMarks
+          witness:
+            trace: chess-board--board-options_11.itf.json
+            step: 82
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:81
+      Move options piece resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: moveOptionsPiece
+          witness:
+            trace: chess-board--board-options_11.itf.json
+            step: 84
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:48
+      Configure options input resulting in watching a board without move controls:
+        target: Watching a board without move controls
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_23.itf.json
+            step: 6
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Configure fixed width resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: configureFixedWidth
+          witness:
+            trace: chess-board--board-options_23.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:67
+      Configure board colors resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: configureBoardColors
+          witness:
+            trace: chess-board--board-options_17.itf.json
+            step: 95
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:83
+      Configure options input resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: configureOptionsInput
+          witness:
+            trace: chess-board--board-options_17.itf.json
+            step: 99
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: green and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:72
+      Replace options position resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_19.itf.json
+            step: 18
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:88
+      Resize available space resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_2.itf.json
+            step: 41
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: replacement
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Resize available space resulting in viewing an interactive board:
+        target: Viewing an interactive board
+        meta:
+          action: resizeAvailableSpace
+          witness:
+            trace: chess-board--board-options_2.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: narrow
+              canMove:
+                tag: Some
+                value: false
+              chosen:
+                tag: Some
+                value: narrow
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: false
+              show:
+                tag: Some
+                value: false
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:62
+      Replace options position resulting in holding a piece with board options:
+        target: Holding a piece with board options
+        meta:
+          action: replaceOptionsPosition
+          witness:
+            trace: chess-board--board-options_21.itf.json
+            step: 25
+            seed: 42
+            nondeterministicChoices:
+              available:
+                tag: Some
+                value: broad
+              canMove:
+                tag: Some
+                value: true
+              chosen:
+                tag: Some
+                value: broad
+              colors:
+                tag: Some
+                value: brown and cream
+              fixed:
+                tag: Some
+                value: true
+              show:
+                tag: Some
+                value: true
+              target:
+                tag: Some
+                value: opening
+          source:
+          - specs/chess-board/board-options.qnt:88

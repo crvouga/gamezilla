@@ -1,0 +1,79 @@
+journeys:
+  Alice's wait shows her name and rating:
+    description: Alice's wait shows her name and rating
+    startingConditions: []
+    events:
+    - Alice waits for a match with a rating of 1500 when Alice's wait shows her name and rating
+    endsIn: Alice is waiting — 1
+    checks:
+    - Alice is waiting
+    - Alice's wait shows her name and a rating of 1500
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:10 — Alice's wait shows her name and rating
+    exampleRow: []
+  Once matched, Alice can wait for a match again:
+    description: Once matched, Alice can wait for a match again
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice waits for a match with a rating of 1500 when Alice has been matched with Bob
+    endsIn: Alice is waiting — 2
+    checks:
+    - Alice is waiting
+    - Alice's wait shows her name and a rating of 1500
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:15 — Once matched, Alice can wait for a match again
+    exampleRow: []
+  Alice cannot wait a second time while she is waiting:
+    description: Alice cannot wait a second time while she is waiting
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 200 points
+    events:
+    - Alice waits for a match with a rating of 1500 when Alice is waiting with a rating of 1000, accepting anyone
+      within 200 points
+    endsIn: Alice is told she is already waiting — 3
+    checks:
+    - Alice is told she is already waiting
+    - Alice's wait shows her name and a rating of 1000
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:21 — Alice cannot wait a second time while she is waiting
+    exampleRow: []
+  Alice stops waiting and is no longer waiting:
+    description: Alice stops waiting and is no longer waiting
+    startingConditions:
+    - Alice is waiting for a match
+    events:
+    - Alice stops waiting when Alice is waiting for a match
+    endsIn: Alice sees she stopped waiting — 4
+    checks:
+    - Alice sees she stopped waiting
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:29 — Alice stops waiting and is no longer waiting
+    exampleRow: []
+  Alice cannot stop waiting once she is matched with Bob:
+    description: Alice cannot stop waiting once she is matched with Bob
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice stops waiting when Alice has been matched with Bob
+    endsIn: Alice is told there was nothing to stop — 5
+    checks:
+    - Alice is told there was nothing to stop
+    - Alice is matched with Bob
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:35 — Alice cannot stop waiting once she is matched with Bob
+    exampleRow: []
+  Alice has nothing to stop once she has stopped waiting:
+    description: Alice has nothing to stop once she has stopped waiting
+    startingConditions:
+    - Alice has stopped waiting
+    events:
+    - Alice stops waiting when Alice has stopped waiting
+    endsIn: Alice is told there was nothing to stop — 6
+    checks:
+    - Alice is told there was nothing to stop
+    - Alice is not waiting for a match
+    gherkin:
+    - specs/matchmaking/waiting-for-a-match.feature:41 — Alice has nothing to stop once she has stopped waiting
+    exampleRow: []

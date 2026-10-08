@@ -1,0 +1,654 @@
+{
+  "id": "auth-outside-account-sign-in",
+  "initial": "Choosing a sign-in method",
+  "meta": {
+    "context": "Auth",
+    "kind": "flow",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [
+      "SignedOut"
+    ],
+    "reviewStatus": "draft; owner approval and execution adapters pending"
+  },
+  "states": {
+    "Choosing a sign-in method": {
+      "meta": {
+        "description": "The person sees the sign-in dialog and available providers.",
+        "snapshot": "the-person-sees-the-sign-in-dialog-and-available-providers",
+        "recognize": [],
+        "checks": [
+          "The person sees the sign-in dialog and available providers."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Chooses an available provider online": {
+          "target": "At Google or Apple",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Chooses a provider offline": {
+          "target": "Told a connection is needed",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told a connection is needed": {
+      "meta": {
+        "description": "The person sees why sign-in cannot start offline.",
+        "snapshot": "the-person-sees-why-sign-in-cannot-start-offline",
+        "recognize": [],
+        "checks": [
+          "The person sees why sign-in cannot start offline."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Connection returns": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "At Google or Apple": {
+      "meta": {
+        "description": "The chosen provider asks the person to sign in.",
+        "snapshot": "the-chosen-provider-asks-the-person-to-sign-in",
+        "recognize": [],
+        "checks": [
+          "The chosen provider asks the person to sign in."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Provider identifies an existing account": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Provider identifies a new verified address match without an Apple relay": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Provider identifies an address match needing account proof": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Provider identifies a new account without a match": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Provider has trouble": {
+          "target": "Told provider sign-in failed",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Abandons provider sign-in": {
+          "target": "Guest profile kept",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Confirming a matching account": {
+      "meta": {
+        "description": "The person may prove the matching account or keep accounts separate.",
+        "snapshot": "the-person-may-prove-the-matching-account-or-keep-accounts-separate",
+        "recognize": [],
+        "checks": [
+          "The person may prove the matching account or keep accounts separate."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Proves the matching account": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Keeps the accounts separate": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Proves a different account": {
+          "target": "Told account proof does not match",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "The ten-minute chance to confirm expires": {
+          "target": "Told matching proof expired",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told matching proof expired": {
+      "meta": {
+        "description": "The matching-account chance has expired after ten minutes.",
+        "snapshot": "the-matching-account-chance-has-expired-after-ten-minutes",
+        "recognize": [],
+        "checks": [
+          "The matching-account chance has expired after ten minutes."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Starts sign-in again": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told provider sign-in failed": {
+      "meta": {
+        "description": "Provider trouble is explained and no wrong account is opened.",
+        "snapshot": "provider-trouble-is-explained-and-no-wrong-account-is-opened",
+        "recognize": [],
+        "checks": [
+          "Provider trouble is explained and no wrong account is opened."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Tries provider sign-in again": {
+          "target": "At Google or Apple",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told account proof does not match": {
+      "meta": {
+        "description": "The proof does not identify the matching account and no silent merge occurs.",
+        "snapshot": "the-proof-does-not-identify-the-matching-account-and-no-silent-merge-occurs",
+        "recognize": [],
+        "checks": [
+          "The proof does not identify the matching account and no silent merge occurs."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Tries proving the matching account again": {
+          "target": "Confirming a matching account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Signed in to the chosen account": {
+      "meta": {
+        "description": "The account’s profile appears on this device.",
+        "snapshot": "the-account-s-profile-appears-on-this-device",
+        "recognize": [],
+        "checks": [
+          "The account’s profile appears on this device."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Opens connected sign-in methods": {
+          "target": "Choosing sign-in methods to connect",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "The thirty-day sign-in expires": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "SignedOut": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Guest profile kept": {
+      "meta": {
+        "description": "An abandoned sign-in leaves the guest’s profile intact.",
+        "snapshot": "an-abandoned-sign-in-leaves-the-guest-s-profile-intact",
+        "recognize": [],
+        "checks": [
+          "An abandoned sign-in leaves the guest’s profile intact."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Starts signing in again": {
+          "target": "Choosing a sign-in method",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing sign-in methods to connect": {
+      "meta": {
+        "description": "The account lists its connected sign-in methods.",
+        "snapshot": "the-account-lists-its-connected-sign-in-methods",
+        "recognize": [],
+        "checks": [
+          "The account lists its connected sign-in methods."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Connects an available method of a different provider": {
+          "target": "Signed in to the chosen account",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Connects a method already owned elsewhere or of the same provider": {
+          "target": "Told the method cannot be connected",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Removes a method while another remains": {
+          "target": "Confirming method removal",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        },
+        "Removes the only method": {
+          "target": "Told the last method must remain",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told the method cannot be connected": {
+      "meta": {
+        "description": "Another account’s method or a second method of the same provider is refused.",
+        "snapshot": "another-account-s-method-or-a-second-method-of-the-same-provider-is-refused",
+        "recognize": [],
+        "checks": [
+          "Another account’s method or a second method of the same provider is refused."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Returns to connected methods": {
+          "target": "Choosing sign-in methods to connect",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Confirming method removal": {
+      "meta": {
+        "description": "The person can confirm removal of a method while another remains.",
+        "snapshot": "the-person-can-confirm-removal-of-a-method-while-another-remains",
+        "recognize": [],
+        "checks": [
+          "The person can confirm removal of a method while another remains."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Confirms removal": {
+          "target": "Choosing sign-in methods to connect",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    },
+    "Told the last method must remain": {
+      "meta": {
+        "description": "The last sign-in method cannot be removed.",
+        "snapshot": "the-last-sign-in-method-cannot-be-removed",
+        "recognize": [],
+        "checks": [
+          "The last sign-in method cannot be removed."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "libs/auth-client/src/sign-in-modal.tsx",
+          "libs/auth-client/src/sign-in-modal-body.tsx",
+          "specs/auth/outside-accounts.qnt",
+          "specs/auth/matching-accounts.feature",
+          "specs/auth/provider-trouble.feature",
+          "specs/auth/sign-in-ends.feature"
+        ]
+      },
+      "on": {
+        "Returns to connected methods": {
+          "target": "Choosing sign-in methods to connect",
+          "meta": {
+            "source": [
+              "libs/auth-client/src/sign-in-modal.tsx",
+              "libs/auth-client/src/sign-in-modal-body.tsx",
+              "specs/auth/outside-accounts.qnt",
+              "specs/auth/matching-accounts.feature",
+              "specs/auth/provider-trouble.feature",
+              "specs/auth/sign-in-ends.feature"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

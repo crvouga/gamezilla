@@ -1,0 +1,16 @@
+stateDiagram-v2
+  state "Opening note recovery" as s0
+  state "Seeing no note" as s1
+  state "Reading a saved note" as s2
+  [*] --> s0
+  s0 --> s1: Opens with seeing no note
+  s1 --> s1: Go offline resulting in seeing no note
+  s1 --> s1: Write unheard resulting in seeing no note
+  s1 --> s2: Go online resulting in reading a saved note
+  s1 --> s2: Write unheard resulting in reading a saved note
+  s1 --> s1: Go online resulting in seeing no note
+  s1 --> s1: Hear back resulting in seeing no note
+  s2 --> s2: Hear back resulting in reading a saved note
+  s2 --> s2: Write unheard resulting in reading a saved note
+  s2 --> s2: Go online resulting in reading a saved note
+  s2 --> s2: Go offline resulting in reading a saved note

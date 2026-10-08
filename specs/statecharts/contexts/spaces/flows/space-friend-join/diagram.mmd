@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing A friend joins from the lobby" as s0
+  state "Bob's lobby lists Alice's space — 1" as s1
+  state "Bob is in the space — 2" as s2
+  state "Bob is not offered to join — 3" as s3
+  [*] --> s0
+  s0 --> s1: Alice creates a space
+  s0 --> s2: Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice is hosting a space
+  s0 --> s3: Bob joins Alice's space from the lobby when Alice and Bob are friends and Alice has hosted a space and ended it
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

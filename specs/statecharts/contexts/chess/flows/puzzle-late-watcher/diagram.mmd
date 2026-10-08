@@ -1,0 +1,12 @@
+stateDiagram-v2
+  state "Viewing Arriving while a puzzle is under way" as s0
+  state "Bob is watching Alice's puzzle within 15 seconds — 1" as s1
+  state "Alice's and Bob's boards agree within 20 seconds — 2" as s2
+  state "Alice's and Bob's boards agree within 15 seconds — 3" as s3
+  [*] --> s0
+  s0 --> s1: Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has played the next move of the solution
+  s0 --> s2: the connection comes back
+  s0 --> s3: Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has solved the puzzle and Alice has moved on to the next puzzle
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]

@@ -1,0 +1,1700 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b77ac3d527cd54464832255a612a9fc5631eb446cffdc06a50c0073c684a200e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 331709eec482687883ea1af914fabdea6a0203bf77764e45119fad194d030395
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9b77167c3991538c460581fc9d2270603f1eee1ddcc009a43c0591359fd5e01d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Lose connection resulting in active account with Ready export
+    - Lose connection resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a250f74bded7abbe1f5c114838adc7074d637872c8eafbd55f48d815b2a4bb74
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4e3d4320024ff9f256d62ec591b1111691a39ccf188a9061ed3f75f538c3aac8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Confirms permanent account deletion resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 78bb8f35e1530779869f1313d6f5a7302a3d07461fe7d3cc1215783f1773396c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Time reaches the stated deadline resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Time reaches the stated deadline resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 0048d4b928cace7df45555058c842da58ee4627f0d83fd6e5d5c7c4b33151429
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: c09c0a241e22f5404a7de89abb4a8aa6fa2a0aaf85e32c82e43c6f4eefdd2ad1
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f9b367c9e116cd569adf476d243c8129653cdda71bef7c591d8c1b131b27f272
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Requests a personal-data export resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Personal-data export preparation fails resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ab5c3498adab41cbdebdf77b560c96c2559d78877b6a1e2d8f515cf69340154b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a446e3a94acfde33f997fae6f2f7be1f056282119a22633c707050cef24323d8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Personal-data export preparation fails resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Requests a personal-data export resulting in deleting account with Expired export
+    - The personal-data export becomes ready resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Downloads the private export resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d956f430c13c2dd90fcdc72459fd4a6b1b1938fadb321202986536e4f2432527
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Prove account resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Requests a personal-data export resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - The personal-data export becomes ready resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Requests a personal-data export resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Confirms permanent account deletion resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 288fdac27459868a5ff86672c5453df43759a61e9b854004b078fb7e23b623e2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fbd737fb605d601c01f3f84b38df92541c0124fcc205566f272ade950a54295a
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Confirms permanent account deletion resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 20adb6a8f32df44748909bf32cf94f4261824f7d5181abd576030f67d9e3b876
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8d7b5ba9d46efec2ae7caa5ae1ab3a63e887953f03a332906240e2d1d557b649
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Confirms permanent account deletion resulting in active account with Ready export
+    - Time reaches the stated deadline resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Lose connection resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Connection returns resulting in active account with Expired export
+    - Prove account resulting in active account with Expired export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: df9eadac0cf63e9696c3823cf3be4852a49dab17980944d0a0f90447b3fddb2d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    endsIn: Active account with Export Failed export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4db20dc546400e0585b8d3b4b8f23ce58f1fe9a4ad47d90159ac2d8e5eb43fc8
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Confirms permanent account deletion resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 013cc0a565b2280b3fb004250275fbbf503894c5e0d33e52a8c606e7640e9c84
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Lose connection resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - The personal-data export becomes ready resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Lose connection resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Downloads the private export resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Lose connection resulting in active account with Ready export
+    - Connection returns resulting in active account with Ready export
+    - Prove account resulting in active account with Ready export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Prove account resulting in deleting account with Expired export
+    - Downloads the private export resulting in deleting account with Expired export
+    - Downloads the private export resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cc58319680f05934967d714eaaa7c14f1d4c4cf1dbfea4b40d17707a31f9d168
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Prove account resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Confirms permanent account deletion resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3b7651edf6aeaeddc0263a9d7f2a4ed2bda243e1405f43018d897bd4167c215d
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in deleting account with Expired export
+    - Lose connection resulting in deleting account with Expired export
+    - Connection returns resulting in deleting account with Expired export
+    - Time reaches the stated deadline resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Connection returns resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    - Prove account resulting in deleted account with Expired export
+    - Lose connection resulting in deleted account with Expired export
+    endsIn: Deleted account with Expired export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 06ca134ffd140ceb29c921a216f8f53c3c2020bf98762c3f3df85507f2c4ecb7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Requests a personal-data export resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - The personal-data export becomes ready resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Confirms permanent account deletion resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Connection returns resulting in active account with No Export export
+    - Lose connection resulting in active account with No Export export
+    - Prove account resulting in active account with No Export export
+    endsIn: Active account with No Export export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9f1f036554846bd791999229349edea75ee8ac2f465c385a9cf8d030222a714b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with active account with No Export export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Connection returns resulting in active account with Preparing export
+    - Lose connection resulting in active account with Preparing export
+    - Personal-data export preparation fails resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Requests a personal-data export resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Confirms permanent account deletion resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Prove account resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Lose connection resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    - Connection returns resulting in active account with Export Failed export
+    endsIn: Active account with Export Failed export
+    quintTrace:
+      model: specs/profile/account-privacy.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fd0c1712926936474b6f2e5c3cb5a36521c504dd9431e94a709c95bb127467a5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

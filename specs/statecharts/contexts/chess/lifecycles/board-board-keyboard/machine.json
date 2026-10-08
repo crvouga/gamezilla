@@ -1,0 +1,690 @@
+{
+  "id": "chess-board-board-keyboard-lifecycle",
+  "initial": "Opening board board keyboard",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/chess-board/board-keyboard.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening board board keyboard": {
+      "meta": {
+        "description": "The person is opening the board board keyboard view.",
+        "snapshot": "the-person-is-opening-the-board-board-keyboard-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-keyboard.qnt"
+        ]
+      },
+      "on": {
+        "Opens with keyboard moves unavailable": {
+          "target": "Keyboard moves unavailable",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-keyboard_11.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:30"
+            ]
+          }
+        },
+        "Opens with moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-keyboard_5.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:30"
+            ]
+          }
+        }
+      }
+    },
+    "Keyboard moves unavailable": {
+      "meta": {
+        "description": "The person is keyboard moves unavailable.",
+        "snapshot": "the-person-is-keyboard-moves-unavailable",
+        "recognize": [],
+        "checks": [
+          "The keyboard never leaves a named square, including at reversed edges.",
+          "Only a prepared legal move is offered, once on completion.",
+          "Disabled input never selects a source or offers a move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-keyboard.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "keyboardBoard.interactive": false,
+            "keyboardBoard.selectedSource": "none"
+          }
+        ],
+        "invariants": [
+          "invKeyboardSquare",
+          "invKeyboardMove",
+          "invKeyboardAuthority"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Choose keyboard square resulting in keyboard moves unavailable": {
+          "target": "Keyboard moves unavailable",
+          "meta": {
+            "action": "chooseKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_15.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "right"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "5"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:49"
+            ]
+          }
+        }
+      }
+    },
+    "Moving keyboard focus on the board": {
+      "meta": {
+        "description": "The person is moving keyboard focus on the board.",
+        "snapshot": "the-person-is-moving-keyboard-focus-on-the-board",
+        "recognize": [],
+        "checks": [
+          "The keyboard never leaves a named square, including at reversed edges.",
+          "Only a prepared legal move is offered, once on completion.",
+          "Disabled input never selects a source or offers a move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-keyboard.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "keyboardBoard.interactive": true,
+            "keyboardBoard.selectedSource": "none"
+          }
+        ],
+        "invariants": [
+          "invKeyboardSquare",
+          "invKeyboardMove",
+          "invKeyboardAuthority"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Move keyboard resulting in moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "moveKeyboard",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "up"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "6"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Space"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:38"
+            ]
+          }
+        },
+        "Tap keyboard square resulting in moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "tapKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "left"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "5"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Space"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:55"
+            ]
+          }
+        },
+        "Choose keyboard square resulting in moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "chooseKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "down"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Space"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:49"
+            ]
+          }
+        },
+        "Tap keyboard square resulting in choosing a keyboard destination": {
+          "target": "Choosing a keyboard destination",
+          "meta": {
+            "action": "tapKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "down"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:55"
+            ]
+          }
+        },
+        "Choose keyboard square resulting in choosing a keyboard destination": {
+          "target": "Choosing a keyboard destination",
+          "meta": {
+            "action": "chooseKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "down"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:49"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing a keyboard destination": {
+      "meta": {
+        "description": "The person is choosing a keyboard destination.",
+        "snapshot": "the-person-is-choosing-a-keyboard-destination",
+        "recognize": [],
+        "checks": [
+          "The keyboard never leaves a named square, including at reversed edges.",
+          "Only a prepared legal move is offered, once on completion.",
+          "Disabled input never selects a source or offers a move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-keyboard.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "keyboardBoard.interactive": true,
+            "keyboardBoard.selectedSource": "e2"
+          },
+          {
+            "keyboardBoard.interactive": true,
+            "keyboardBoard.selectedSource": "g1"
+          }
+        ],
+        "invariants": [
+          "invKeyboardSquare",
+          "invKeyboardMove",
+          "invKeyboardAuthority"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Choose keyboard square resulting in moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "chooseKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "up"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "5"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Space"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:49"
+            ]
+          }
+        },
+        "Move keyboard resulting in choosing a keyboard destination": {
+          "target": "Choosing a keyboard destination",
+          "meta": {
+            "action": "moveKeyboard",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "right"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "0"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:38"
+            ]
+          }
+        },
+        "Tap keyboard square resulting in moving keyboard focus on the board": {
+          "target": "Moving keyboard focus on the board",
+          "meta": {
+            "action": "tapKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_21.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "down"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "5"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Space"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "2"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:55"
+            ]
+          }
+        },
+        "Tap keyboard square resulting in choosing a keyboard destination": {
+          "target": "Choosing a keyboard destination",
+          "meta": {
+            "action": "tapKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_12.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "up"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "4"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "1"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:55"
+            ]
+          }
+        },
+        "Choose keyboard square resulting in choosing a keyboard destination": {
+          "target": "Choosing a keyboard destination",
+          "meta": {
+            "action": "chooseKeyboardSquare",
+            "witness": {
+              "trace": "chess-board--board-keyboard_18.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "direction": {
+                  "tag": "Some",
+                  "value": "right"
+                },
+                "file": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "6"
+                  }
+                },
+                "key": {
+                  "tag": "Some",
+                  "value": "Enter"
+                },
+                "orientation": {
+                  "tag": "None",
+                  "value": {
+                    "#tup": []
+                  }
+                },
+                "rank": {
+                  "tag": "Some",
+                  "value": {
+                    "#bigint": "3"
+                  }
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-keyboard.qnt:49"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

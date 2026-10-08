@@ -1,0 +1,43 @@
+journeys:
+  Turning a phone preserves the person's place:
+    description: Turning a phone preserves the person's place
+    startingConditions:
+    - Alice is using the app on a phone
+    - Alice has a place in the app and saved preferences
+    events:
+    - Alice turns the phone from portrait to landscape
+    endsIn: Alice has the same place in the app and saved preferences — 1
+    checks:
+    - Alice has the same place in the app and saved preferences
+    - Alice can reach every control offered there
+    gherkin:
+    - specs/runtime/device-layouts.feature:9 — Turning a phone preserves the person's place
+    exampleRow: []
+  Turning a tablet preserves the person's place:
+    description: Turning a tablet preserves the person's place
+    startingConditions:
+    - Alice is using the app on a tablet
+    - Alice has a place in the app and saved preferences
+    events:
+    - Alice turns the tablet from landscape to portrait
+    endsIn: Alice has the same place in the app and saved preferences — 2
+    checks:
+    - Alice has the same place in the app and saved preferences
+    - Alice can reach every control offered there
+    gherkin:
+    - specs/runtime/device-layouts.feature:16 — Turning a tablet preserves the person's place
+    exampleRow: []
+  Narrowing a computer's app keeps its controls available:
+    description: Narrowing a computer's app keeps its controls available
+    startingConditions:
+    - Alice is using the app on a computer
+    - Alice has a place in the app and saved preferences
+    events:
+    - Alice narrows the space available to the app
+    endsIn: Alice has the same place in the app and saved preferences — 3
+    checks:
+    - Alice has the same place in the app and saved preferences
+    - Alice can reach every control offered there
+    gherkin:
+    - specs/runtime/device-layouts.feature:23 — Narrowing a computer's app keeps its controls available
+    exampleRow: []

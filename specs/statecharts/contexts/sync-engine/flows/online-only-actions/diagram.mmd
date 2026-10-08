@@ -1,0 +1,11 @@
+stateDiagram-v2
+  state "Viewing Online-only actions" as s0
+  state "Alice is told announcements need a connection — 1" as s1
+  state "Alice does not see the note 'Fire drill' — 2" as s2
+  state "Bob sees the note 'Fire drill' saying 'at noon' — 3 step 2" as s3
+  [*] --> s0
+  s0 --> s1: Alice writes the announcement 'Fire drill' saying 'at noon'
+  s0 --> s2: Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has tried to write the announcement 'Fire drill' saying 'at noon'
+  s1 --> [*]
+  s2 --> s3: Alice writes the announcement 'Fire drill' saying 'at noon'
+  s3 --> [*]

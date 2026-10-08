@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Friend request accepted" as s0
+  state "Bob's friends list shows Alice — 1" as s1
+  state "Alice is shown Bob's profile — 2" as s2
+  [*] --> s0
+  s0 --> s1: Bob accepts Alice's friend request
+  s0 --> s2: Alice opens the notice that Bob accepted
+  s1 --> [*]
+  s2 --> [*]

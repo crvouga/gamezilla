@@ -1,0 +1,192 @@
+journeys:
+  Black aborts before either person has moved:
+    description: Black aborts before either person has moved
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - Bob aborts the multiplayer game
+    endsIn: both people see the multiplayer game was aborted — 1
+    checks:
+    - both people see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:8 — Black aborts before either person has moved
+    exampleRow: []
+  White aborts after her first move but before Black's:
+    description: White aborts after her first move but before Black's
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    events:
+    - Alice aborts the multiplayer game when Alice's multiplayer move e2 to e4 was accepted
+    endsIn: both people see the multiplayer game was aborted — 2
+    checks:
+    - both people see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:13 — White aborts after her first move but before Black's
+    exampleRow: []
+  Aborting is refused once both people have moved:
+    description: Aborting is refused once both people have moved
+    startingConditions:
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    events:
+    - Alice aborts the multiplayer game when Alice is White and Bob is Black in a 5+0 multiplayer game after e4
+      and e5
+    endsIn: Alice is told the multiplayer game can no longer be aborted — 3
+    checks:
+    - Alice is told the multiplayer game can no longer be aborted
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:18 — Aborting is refused once both people have moved
+    exampleRow: []
+  A game that is over cannot be aborted:
+    description: A game that is over cannot be aborted
+    startingConditions:
+    - Bob resigned multiplayer chess and Alice won
+    events:
+    - Alice aborts the multiplayer game when Bob resigned multiplayer chess and Alice won
+    endsIn: Alice is told the multiplayer game is over — 4
+    checks:
+    - Alice is told the multiplayer game is over
+    - both people still see Alice won the multiplayer game
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:24 — A game that is over cannot be aborted
+    exampleRow: []
+  Black cannot resign before either person has moved:
+    description: Black cannot resign before either person has moved
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - Bob resigns multiplayer chess when Alice is White and Bob is Black in a new multiplayer game
+    endsIn: Bob is told to abort the multiplayer game instead — 5
+    checks:
+    - Bob is told to abort the multiplayer game instead
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:32 — Black cannot resign before either person has moved
+    exampleRow: []
+  Black cannot resign after only White's first move:
+    description: Black cannot resign after only White's first move
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    events:
+    - Bob resigns multiplayer chess when Alice's multiplayer move e2 to e4 was accepted
+    endsIn: Bob is told to abort the multiplayer game instead — 6
+    checks:
+    - Bob is told to abort the multiplayer game instead
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:38 — Black cannot resign after only White's first move
+    exampleRow: []
+  Black may resign once both people have moved:
+    description: Black may resign once both people have moved
+    startingConditions:
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    events:
+    - Bob resigns multiplayer chess when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and
+      e5
+    endsIn: both people see Alice won the multiplayer game — 7
+    checks:
+    - both people see Alice won the multiplayer game
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:44 — Black may resign once both people have moved
+    exampleRow: []
+  White misses the first move after 30 seconds:
+    description: White misses the first move after 30 seconds
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - 30 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new multiplayer game
+    endsIn: both people see the multiplayer game was aborted — 8
+    checks:
+    - both people see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:51 — White misses the first move after 30 seconds
+    exampleRow: []
+  Black misses the first move 30 seconds after White's:
+    description: Black misses the first move 30 seconds after White's
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted
+    events:
+    - 30 seconds pass in multiplayer chess when Alice's multiplayer move e2 to e4 was accepted
+    endsIn: both people see the multiplayer game was aborted — 9
+    checks:
+    - both people see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:56 — Black misses the first move 30 seconds after White's
+    exampleRow: []
+  White still has time for the first move after 29 seconds:
+    description: White still has time for the first move after 29 seconds
+    startingConditions:
+    - Alice is White and Bob is Black in a new multiplayer game
+    events:
+    - 29 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new multiplayer game
+    endsIn: the multiplayer game is still unfinished — 10
+    checks:
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:61 — White still has time for the first move after 29 seconds
+    exampleRow: []
+  Black's 30 seconds start from White's first move:
+    description: Black's 30 seconds start from White's first move
+    startingConditions:
+    - Alice's multiplayer move e2 to e4 was accepted 25 seconds after the game started
+    events:
+    - 29 seconds pass in multiplayer chess when Alice's multiplayer move e2 to e4 was accepted 25 seconds after
+      the game started
+    endsIn: the multiplayer game is still unfinished — 11
+    checks:
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:66 — Black's 30 seconds start from White's first move
+    exampleRow: []
+  A person matched while their phone was offline does not lose the game:
+    description: A person matched while their phone was offline does not lose the game
+    startingConditions:
+    - Alice is White in a new 5+0 multiplayer game with Bob and her phone has been offline since they were matched
+    events:
+    - 30 seconds pass in multiplayer chess when Alice is White in a new 5+0 multiplayer game with Bob and her phone
+      has been offline since they were matched
+    endsIn: both people see the multiplayer game was aborted — 12
+    checks:
+    - both people see the multiplayer game was aborted
+    - neither person's blitz rating has moved
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:73 — A person matched while their phone was offline does not lose the
+      game
+    exampleRow: []
+  After an aborted game a person may find a chess opponent again:
+    description: After an aborted game a person may find a chess opponent again
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob was aborted
+    events:
+    - Alice finds a chess opponent for 5+0
+    endsIn: Alice is looking for a 5+0 chess opponent — 13
+    checks:
+    - Alice is looking for a 5+0 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:79 — After an aborted game a person may find a chess opponent again
+    exampleRow: []
+  Aborting an aborted game again changes nothing:
+    description: Aborting an aborted game again changes nothing
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob was aborted
+    events:
+    - Alice aborts the multiplayer game when Alice's 5+0 multiplayer game with Bob was aborted
+    endsIn: both people still see the multiplayer game was aborted — 14
+    checks:
+    - both people still see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:84 — Aborting an aborted game again changes nothing
+    exampleRow: []
+  An aborted game cannot be resigned:
+    description: An aborted game cannot be resigned
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob was aborted
+    events:
+    - Bob resigns multiplayer chess when Alice's 5+0 multiplayer game with Bob was aborted
+    endsIn: Bob is told the multiplayer game is over — 15
+    checks:
+    - Bob is told the multiplayer game is over
+    - both people still see the multiplayer game was aborted
+    gherkin:
+    - specs/chess/multiplayer-abort.feature:89 — An aborted game cannot be resigned
+    exampleRow: []

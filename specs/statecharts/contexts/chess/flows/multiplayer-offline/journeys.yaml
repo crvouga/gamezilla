@@ -1,0 +1,160 @@
+journeys:
+  An offline person keeps seeing their last known multiplayer board:
+    description: An offline person keeps seeing their last known multiplayer board
+    startingConditions:
+    - Alice has a new multiplayer game and her phone is offline
+    events:
+    - Alice opens multiplayer chess when Alice has a new multiplayer game and her phone is offline
+    endsIn: Alice's phone keeps its last known multiplayer board — 1
+    checks:
+    - Alice's phone keeps its last known multiplayer board
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:9 — An offline person keeps seeing their last known multiplayer board
+    exampleRow: []
+  An offline person cannot resign:
+    description: An offline person cannot resign
+    startingConditions:
+    - Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+    - Alice's phone is offline
+    events:
+    - Alice resigns multiplayer chess
+    endsIn: Alice is told multiplayer chess needs a connection — 2
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:14 — An offline person cannot resign
+    exampleRow: []
+  An offline person cannot abort the game:
+    description: An offline person cannot abort the game
+    startingConditions:
+    - Alice has a new multiplayer game and her phone is offline
+    events:
+    - Alice aborts the multiplayer game
+    endsIn: Alice is told multiplayer chess needs a connection — 3
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:21 — An offline person cannot abort the game
+    exampleRow: []
+  An offline person cannot offer a multiplayer draw:
+    description: An offline person cannot offer a multiplayer draw
+    startingConditions:
+    - Alice has a new multiplayer game and her phone is offline
+    events:
+    - Alice offers a multiplayer draw
+    endsIn: Alice is told multiplayer chess needs a connection — 4
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Bob is not offered a multiplayer draw
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:27 — An offline person cannot offer a multiplayer draw
+    exampleRow: []
+  An offline person cannot accept a multiplayer draw:
+    description: An offline person cannot accept a multiplayer draw
+    startingConditions:
+    - Bob has offered Alice a multiplayer draw
+    - Alice's phone is offline
+    events:
+    - Alice accepts the multiplayer draw
+    endsIn: Alice is told multiplayer chess needs a connection — 5
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - the multiplayer game is still unfinished
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:33 — An offline person cannot accept a multiplayer draw
+    exampleRow: []
+  An offline person cannot decline a multiplayer draw:
+    description: An offline person cannot decline a multiplayer draw
+    startingConditions:
+    - Bob has offered Alice a multiplayer draw
+    - Alice's phone is offline
+    events:
+    - Alice declines the multiplayer draw
+    endsIn: Alice is told multiplayer chess needs a connection — 6
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Alice is still offered a multiplayer draw
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:40 — An offline person cannot decline a multiplayer draw
+    exampleRow: []
+  An offline person keeps seeing their last known search:
+    description: An offline person keeps seeing their last known search
+    startingConditions:
+    - Alice is looking for a 5+0 chess opponent and her phone is offline
+    events:
+    - Alice opens multiplayer chess when Alice is looking for a 5+0 chess opponent and her phone is offline
+    endsIn: Alice sees she is still looking for a 5+0 chess opponent — 7
+    checks:
+    - Alice sees she is still looking for a 5+0 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:49 — An offline person keeps seeing their last known search
+    exampleRow: []
+  An offline person cannot stop finding a chess opponent:
+    description: An offline person cannot stop finding a chess opponent
+    startingConditions:
+    - Alice is looking for a 5+0 chess opponent and her phone is offline
+    events:
+    - Alice stops finding a chess opponent
+    endsIn: Alice is told multiplayer chess needs a connection — 8
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Alice is still looking for a chess opponent
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:54 — An offline person cannot stop finding a chess opponent
+    exampleRow: []
+  An offline person cannot find a new opponent:
+    description: An offline person cannot find a new opponent
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob is over and her phone is offline
+    events:
+    - Alice finds a new opponent
+    endsIn: Alice is told multiplayer chess needs a connection — 9
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:60 — An offline person cannot find a new opponent
+    exampleRow: []
+  An offline person cannot offer a multiplayer rematch:
+    description: An offline person cannot offer a multiplayer rematch
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob is over and her phone is offline
+    events:
+    - Alice offers a multiplayer rematch
+    endsIn: Alice is told multiplayer chess needs a connection — 10
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Bob is not offered a multiplayer rematch
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:66 — An offline person cannot offer a multiplayer rematch
+    exampleRow: []
+  An offline person cannot accept a multiplayer rematch:
+    description: An offline person cannot accept a multiplayer rematch
+    startingConditions:
+    - Bob has offered Alice a multiplayer rematch
+    - Alice's phone is offline
+    events:
+    - Alice accepts the multiplayer rematch
+    endsIn: Alice is told multiplayer chess needs a connection — 11
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Alice is still offered a multiplayer rematch
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:72 — An offline person cannot accept a multiplayer rematch
+    exampleRow: []
+  An offline person cannot decline a multiplayer rematch:
+    description: An offline person cannot decline a multiplayer rematch
+    startingConditions:
+    - Bob has offered Alice a multiplayer rematch
+    - Alice's phone is offline
+    events:
+    - Alice declines the multiplayer rematch
+    endsIn: Alice is told multiplayer chess needs a connection — 12
+    checks:
+    - Alice is told multiplayer chess needs a connection
+    - Alice is still offered a multiplayer rematch
+    gherkin:
+    - specs/chess/multiplayer-offline.feature:79 — An offline person cannot decline a multiplayer rematch
+    exampleRow: []

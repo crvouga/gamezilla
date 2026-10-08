@@ -1,0 +1,194 @@
+{
+  "id": "friends-friends-profile-changes",
+  "initial": "Viewing Profile changes reach other people",
+  "meta": {
+    "context": "Friends",
+    "kind": "flow",
+    "owner": "Friends owner (not named in specs)",
+    "tier": "standard",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/friends-client/src/use-friends.ts",
+      "libs/friends-client/src/use-friends-client-deps.ts",
+      "libs/friends-client/src/friends-permission-gate.tsx",
+      "libs/friends-client/src/friends-notification-provider.tsx",
+      "libs/friends-client/src/friends-list-screen-view.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Profile changes reach other people": {
+      "meta": {
+        "description": "The person is at the place where profile changes reach other people.",
+        "snapshot": "the-person-is-at-the-place-where-profile-changes-reach-other-people",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:2"
+        ]
+      },
+      "on": {
+        "Bob renames themselves to @robert_1": {
+          "target": "Alice sees @robert_1 appear in their friends list within 15 seconds — 1",
+          "meta": {
+            "source": [
+              "specs/friends/friends-profile-changes.feature:10"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Alice is viewing their friends list with Bob in it"
+            ],
+            "example": "A friend's new name appears in an open friends list"
+          }
+        },
+        "Alice searches for 'robert_1'": {
+          "target": "Alice's search shows @robert_1 — 2",
+          "meta": {
+            "source": [
+              "specs/friends/friends-profile-changes.feature:17"
+            ],
+            "condition": [
+              "Alice and Bob are signed in",
+              "Bob has renamed themselves to @robert_1"
+            ],
+            "example": "Search finds a renamed person by the new name"
+          }
+        },
+        "Alice searches for 'bob'": {
+          "target": "Alice's search shows nobody — 3",
+          "meta": {
+            "source": [
+              "specs/friends/friends-profile-changes.feature:23"
+            ],
+            "condition": [
+              "Alice and Bob are signed in",
+              "Bob has renamed themselves to @robert_1"
+            ],
+            "example": "Search no longer finds a renamed person by the old name"
+          }
+        },
+        "the team stops allowing the username @chess_cheater": {
+          "target": "Alice's friends list shows Bob under a stand-in name within 15 seconds — 4",
+          "meta": {
+            "source": [
+              "specs/friends/friends-profile-changes.feature:35"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Bob has renamed themselves to @chess_cheater",
+              "Alice is viewing their friends list with Bob in it"
+            ],
+            "example": "A friend whose username the team stops allowing is listed under a stand-in name"
+          }
+        },
+        "Alice searches for 'chess_cheater'": {
+          "target": "Alice cannot find Bob by @chess_cheater — 5",
+          "meta": {
+            "source": [
+              "specs/friends/friends-profile-changes.feature:41"
+            ],
+            "condition": [
+              "Alice and Bob are friends",
+              "Bob has renamed themselves to @chess_cheater",
+              "the team has stopped allowing the username @chess_cheater"
+            ],
+            "example": "Search does not find a person by a username that is no longer allowed"
+          }
+        }
+      }
+    },
+    "Alice sees @robert_1 appear in their friends list within 15 seconds — 1": {
+      "meta": {
+        "description": "The person observes that alice sees @robert_1 appear in their friends list within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-sees-robert-1-appear-in-their-friends-list-within-15-s",
+        "recognize": [],
+        "checks": [
+          "Alice sees @robert_1 appear in their friends list within 15 seconds",
+          "@bob is gone from Alice's open friends list"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:10"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's search shows @robert_1 — 2": {
+      "meta": {
+        "description": "The person observes that alice's search shows @robert_1.",
+        "snapshot": "the-person-observes-that-alice-s-search-shows-robert-1",
+        "recognize": [],
+        "checks": [
+          "Alice's search shows @robert_1"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's search shows nobody — 3": {
+      "meta": {
+        "description": "The person observes that alice's search shows nobody.",
+        "snapshot": "the-person-observes-that-alice-s-search-shows-nobody",
+        "recognize": [],
+        "checks": [
+          "Alice's search shows nobody"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:23"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice's friends list shows Bob under a stand-in name within 15 seconds — 4": {
+      "meta": {
+        "description": "The person observes that alice's friends list shows Bob under a stand-in name within 15 seconds.",
+        "snapshot": "the-person-observes-that-alice-s-friends-list-shows-bob-under-a-stand-in-name-within-",
+        "recognize": [],
+        "checks": [
+          "Alice's friends list shows Bob under a stand-in name within 15 seconds",
+          "Alice's friends list does not show @chess_cheater"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:35"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice cannot find Bob by @chess_cheater — 5": {
+      "meta": {
+        "description": "The person observes that alice cannot find Bob by @chess_cheater.",
+        "snapshot": "the-person-observes-that-alice-cannot-find-bob-by-chess-cheater",
+        "recognize": [],
+        "checks": [
+          "Alice cannot find Bob by @chess_cheater"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friends-profile-changes.feature:41"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

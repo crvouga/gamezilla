@@ -1,0 +1,209 @@
+journeys:
+  A username change refused as "Username is too short" keeps the username unchanged:
+    description: A username change refused as "<reason>" keeps the username unchanged
+    startingConditions:
+    - Alice's username is @alice_one
+    events:
+    - Alice tries to use username 'ab'
+    endsIn: Alice's username change is refused with "Username is too short" — 1
+    checks:
+    - Alice's username change is refused with "Username is too short"
+    - Alice's profile shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:9 — A username change refused as "<reason>" keeps the username unchanged
+    exampleRow:
+    - '5'
+  A username change refused as "Username is too long" keeps the username unchanged:
+    description: A username change refused as "<reason>" keeps the username unchanged
+    startingConditions:
+    - Alice's username is @alice_one
+    events:
+    - Alice tries to use username 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    endsIn: Alice's username change is refused with "Username is too long" — 2
+    checks:
+    - Alice's username change is refused with "Username is too long"
+    - Alice's profile shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:9 — A username change refused as "<reason>" keeps the username unchanged
+    exampleRow:
+    - '6'
+  A username change refused as "Username can only use letters, numbers, and _" keeps the username unchanged:
+    description: A username change refused as "<reason>" keeps the username unchanged
+    startingConditions:
+    - Alice's username is @alice_one
+    events:
+    - Alice tries to use username 'no spaces!'
+    endsIn: Alice's username change is refused with "Username can only use letters, numbers, and _" — 3
+    checks:
+    - Alice's username change is refused with "Username can only use letters, numbers, and _"
+    - Alice's profile shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:9 — A username change refused as "<reason>" keeps the username unchanged
+    exampleRow:
+    - '7'
+  A disguised offensive username change is refused:
+    description: A disguised offensive username change is refused
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice tries to use username 'sh1thead_99'
+    endsIn: Alice's username change is refused with "That username is not allowed" — 4
+    checks:
+    - Alice's username change is refused with "That username is not allowed"
+    gherkin:
+    - specs/profile/username-rules.feature:21 — A disguised offensive username change is refused
+    exampleRow: []
+  A username that passes someone off as the team is refused:
+    description: A username that passes someone off as the team is refused
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice tries to use username 'official_support'
+    endsIn: Alice's username change is refused with "That username is not allowed" — 5
+    checks:
+    - Alice's username change is refused with "That username is not allowed"
+    gherkin:
+    - specs/profile/username-rules.feature:26 — A username that passes someone off as the team is refused
+    exampleRow: []
+  A username that only holds an offensive word inside an ordinary word is saved:
+    description: A username that only holds an offensive word inside an ordinary word is saved
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice tries to use username 'scunthorpe_fan'
+    endsIn: Alice's profile shows @scunthorpe_fan — 6
+    checks:
+    - Alice's profile shows @scunthorpe_fan
+    gherkin:
+    - specs/profile/username-rules.feature:31 — A username that only holds an offensive word inside an ordinary
+      word is saved
+    exampleRow: []
+  A username change moments after the last one is refused:
+    description: A username change moments after the last one is refused
+    startingConditions:
+    - Alice has just renamed themselves to @alice_one
+    events:
+    - Alice tries to use username 'alice_two' when Alice has just renamed themselves to @alice_one
+    endsIn: Alice's username change is refused with "Username was changed recently" — 7
+    checks:
+    - Alice's username change is refused with "Username was changed recently"
+    - Alice's profile still shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:36 — A username change moments after the last one is refused
+    exampleRow: []
+  A username change without a connection is refused:
+    description: A username change without a connection is refused
+    startingConditions:
+    - Alice's username is @alice_one
+    - Alice is offline
+    events:
+    - Alice tries to use username 'alice_two' when Alice's username is @alice_one and Alice is offline
+    endsIn: Alice's username change is refused with "You're offline" — 8
+    checks:
+    - Alice's username change is refused with "You're offline"
+    - Alice's profile still shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:42 — A username change without a connection is refused
+    exampleRow: []
+  A username is saved in lowercase:
+    description: A username is saved in lowercase
+    startingConditions:
+    - Alice is a guest
+    events:
+    - Alice tries to use username 'Chess_Fan_7'
+    endsIn: Alice's profile shows @chess_fan_7 — 9
+    checks:
+    - Alice's profile shows @chess_fan_7
+    gherkin:
+    - specs/profile/username-rules.feature:49 — A username is saved in lowercase
+    exampleRow: []
+  A username draft left without saving keeps the saved username:
+    description: A username draft left without saving keeps the saved username
+    startingConditions:
+    - Alice's username is @alice_one
+    events:
+    - Alice starts renaming themselves to @never_saved and leaves without saving
+    endsIn: Alice's profile shows @alice_one — 10
+    checks:
+    - Alice's profile shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:54 — A username draft left without saving keeps the saved username
+    exampleRow: []
+  A username cannot be claimed twice, regardless of case:
+    description: A username cannot be claimed twice, regardless of case
+    startingConditions:
+    - Alice's username is @queen_gambit
+    events:
+    - Bob tries to use username 'QUEEN_GAMBIT'
+    endsIn: Bob's username change is refused with "Username is taken" — 11
+    checks:
+    - Bob's username change is refused with "Username is taken"
+    gherkin:
+    - specs/profile/username-rules.feature:59 — A username cannot be claimed twice, regardless of case
+    exampleRow: []
+  A username the team stops allowing shows as a stand-in name:
+    description: A username the team stops allowing shows as a stand-in name
+    startingConditions:
+    - Alice's username is @chess_cheater
+    events:
+    - the team stops allowing the username @chess_cheater when Alice's username is @chess_cheater
+    endsIn: Alice's profile shows a stand-in name — 12
+    checks:
+    - Alice's profile shows a stand-in name
+    - Alice is told other people see a stand-in name until they rename themselves
+    gherkin:
+    - specs/profile/username-rules.feature:69 — A username the team stops allowing shows as a stand-in name
+    exampleRow: []
+  A username the team starts allowing again shows as it was:
+    description: A username the team starts allowing again shows as it was
+    startingConditions:
+    - Alice's username is @chess_cheater
+    - the team has stopped allowing the username @chess_cheater
+    events:
+    - the team starts allowing the username @chess_cheater again
+    endsIn: Alice's profile shows @chess_cheater — 13
+    checks:
+    - Alice's profile shows @chess_cheater
+    gherkin:
+    - specs/profile/username-rules.feature:74 — A username the team starts allowing again shows as it was
+    exampleRow: []
+  Renaming themselves replaces the stand-in name:
+    description: Renaming themselves replaces the stand-in name
+    startingConditions:
+    - Alice's username is @chess_cheater
+    - the team has stopped allowing the username @chess_cheater
+    events:
+    - Alice renames themselves to @alice_one
+    endsIn: Alice's profile shows @alice_one — 14
+    checks:
+    - Alice's profile shows @alice_one
+    gherkin:
+    - specs/profile/username-rules.feature:79 — Renaming themselves replaces the stand-in name
+    exampleRow: []
+  A username that is no longer allowed cannot be saved again:
+    description: A username that is no longer allowed cannot be saved again
+    startingConditions:
+    - Alice's username is @chess_cheater
+    - the team has stopped allowing the username @chess_cheater
+    events:
+    - Alice tries to use username 'chess_cheater'
+    endsIn: Alice's username change is refused with "That username is not allowed" — 15
+    checks:
+    - Alice's username change is refused with "That username is not allowed"
+    - Alice's profile still shows a stand-in name
+    gherkin:
+    - specs/profile/username-rules.feature:84 — A username that is no longer allowed cannot be saved again
+    exampleRow: []
+  A device without a connection shows the stand-in name at once:
+    description: A device without a connection shows the stand-in name at once
+    startingConditions:
+    - Alice's username is @chess_cheater
+    - Alice is offline
+    events:
+    - the team stops allowing the username @chess_cheater when Alice's username is @chess_cheater and Alice is offline
+    endsIn: Alice's profile shows a stand-in name — 16
+    checks:
+    - Alice's profile shows a stand-in name
+    gherkin:
+    - specs/profile/username-rules.feature:90 — A device without a connection shows the stand-in name at once
+    exampleRow: []

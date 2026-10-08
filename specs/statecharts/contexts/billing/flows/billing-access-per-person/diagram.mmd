@@ -1,0 +1,9 @@
+stateDiagram-v2
+  state "Viewing Paid access belongs to one person" as s0
+  state "Bob has free access — 1" as s1
+  state "Bob has free access on Alice's device — 2" as s2
+  [*] --> s0
+  s0 --> s1: Bob views the billing plans
+  s0 --> s2: Bob signs in with Google on Alice's device
+  s1 --> [*]
+  s2 --> [*]

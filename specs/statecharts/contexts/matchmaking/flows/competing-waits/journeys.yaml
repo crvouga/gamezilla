@@ -1,0 +1,112 @@
+journeys:
+  Alice is paired with Bob before Carol's later compatible wait:
+    description: Alice is paired with Bob before Carol's later compatible wait
+    startingConditions:
+    - Alice, Bob and Carol are waiting in that order within each other's ranges
+    events:
+    - matchmaking pairs people up when Alice, Bob and Carol are waiting in that order within each other's ranges
+    endsIn: Alice and Bob are matched with each other — 1
+    checks:
+    - Alice and Bob are matched with each other
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:8 — Alice is paired with Bob before Carol's later compatible wait
+    exampleRow: []
+  An earlier incompatible wait does not hold back a compatible pair:
+    description: An earlier incompatible wait does not hold back a compatible pair
+    startingConditions:
+    - Alice is waiting with a rating of 1000, accepting anyone within 5 points
+    - Bob is waiting with a rating of 1050, accepting anyone within 200 points
+    - Carol is waiting with a rating of 1100, accepting anyone within 200 points
+    events:
+    - matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points
+      and Bob is waiting with a rating of 1050, accepting anyone within 200 points and Carol is waiting with a rating
+      of 1100, accepting anyone within 200 points
+    endsIn: Bob and Carol are matched with each other — 2
+    checks:
+    - Bob and Carol are matched with each other
+    - Alice is still waiting
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:13 — An earlier incompatible wait does not hold back a compatible
+      pair
+    exampleRow: []
+  Four compatible people receive two separate matches:
+    description: Four compatible people receive two separate matches
+    startingConditions:
+    - Alice, Bob, Carol and Dave are waiting in that order within each other's ranges
+    events:
+    - matchmaking pairs people up when Alice, Bob, Carol and Dave are waiting in that order within each other's
+      ranges
+    endsIn: Alice and Bob are matched with each other — 3
+    checks:
+    - Alice and Bob are matched with each other
+    - Carol and Dave are matched with each other
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:23 — Four compatible people receive two separate matches
+    exampleRow: []
+  Pairing again cannot use a matched wait again:
+    description: Pairing again cannot use a matched wait again
+    startingConditions:
+    - Alice has been matched with Bob
+    - Carol is waiting for a match
+    events:
+    - matchmaking pairs people up when Alice has been matched with Bob and Carol is waiting for a match
+    endsIn: Alice and Bob keep the same match — 4
+    checks:
+    - Alice and Bob keep the same match
+    - Carol is still waiting
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:29 — Pairing again cannot use a matched wait again
+    exampleRow: []
+  A person stops while a compatible person is waiting:
+    description: A person stops while a compatible person is waiting
+    startingConditions:
+    - Alice and Bob are waiting within each other's ranges
+    events:
+    - Alice stops waiting when Alice and Bob are waiting within each other's ranges
+    endsIn: Alice sees she stopped waiting — 5
+    checks:
+    - Alice sees she stopped waiting
+    - Bob is waiting
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:38 — A person stops while a compatible person is waiting
+    exampleRow: []
+  A stopped wait is not paired with a later compatible person:
+    description: A stopped wait is not paired with a later compatible person
+    startingConditions:
+    - Alice has stopped waiting
+    - Bob is waiting for a match
+    events:
+    - matchmaking pairs people up when Alice has stopped waiting and Bob is waiting for a match
+    endsIn: Alice is not waiting for a match — 6
+    checks:
+    - Alice is not waiting for a match
+    - Bob is still waiting
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:44 — A stopped wait is not paired with a later compatible person
+    exampleRow: []
+  Alice cannot undo the match by stopping after it was made:
+    description: Alice cannot undo the match by stopping after it was made
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice stops waiting when Alice has been matched with Bob
+    endsIn: Alice is told there was nothing to stop — 7
+    checks:
+    - Alice is told there was nothing to stop
+    - Alice and Bob keep the same match
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:51 — Alice cannot undo the match by stopping after it was made
+    exampleRow: []
+  Bob keeps his match when Alice asks for a later one:
+    description: Bob keeps his match when Alice asks for a later one
+    startingConditions:
+    - Alice has been matched with Bob
+    events:
+    - Alice waits for a match with a rating of 1500
+    endsIn: Alice is waiting — 8
+    checks:
+    - Alice is waiting
+    - Bob keeps his earlier match with Alice
+    gherkin:
+    - specs/matchmaking/competing-waits.feature:60 — Bob keeps his match when Alice asks for a later one
+    exampleRow: []

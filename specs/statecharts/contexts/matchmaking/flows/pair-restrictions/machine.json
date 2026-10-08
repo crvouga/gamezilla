@@ -1,0 +1,210 @@
+{
+  "id": "matchmaking-pair-restrictions",
+  "initial": "Viewing Match restrictions count when people are paired",
+  "meta": {
+    "context": "Matchmaking",
+    "kind": "flow",
+    "owner": "Matchmaking owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Match restrictions count when people are paired": {
+      "meta": {
+        "description": "The person is at the place where match restrictions count when people are paired.",
+        "snapshot": "the-person-is-at-the-place-where-match-restrictions-count-when-people-are-paired",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:2"
+        ]
+      },
+      "on": {
+        "Alice and Bob become unable to be matched together when Alice and Bob are waiting within each other's ranges": {
+          "target": "Alice and Bob are still waiting — 1",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:8"
+            ],
+            "condition": [
+              "Alice and Bob are waiting within each other's ranges"
+            ],
+            "example": "A restriction prevents a close pair from matching"
+          }
+        },
+        "matchmaking pairs people up when Alice and Bob are waiting within each other's ranges": {
+          "target": "Alice and Bob are matched with each other — 2",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:14"
+            ],
+            "condition": [
+              "Alice and Bob are waiting within each other's ranges"
+            ],
+            "example": "Unrestricted compatible people are matched"
+          }
+        },
+        "Alice and Bob can be matched together again when Alice and Bob are waiting but cannot be matched together": {
+          "target": "Alice and Bob can be matched together — 3",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:22"
+            ],
+            "condition": [
+              "Alice and Bob are waiting but cannot be matched together"
+            ],
+            "example": "A waiting pair can match after their restriction is removed"
+          }
+        },
+        "Alice and Bob can be matched together again when Alice stopped waiting while she and Bob could not be matched together": {
+          "target": "Alice is not waiting — 4",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:27"
+            ],
+            "condition": [
+              "Alice stopped waiting while she and Bob could not be matched together"
+            ],
+            "example": "Removing a restriction never revives a stopped wait"
+          }
+        },
+        "Alice and Bob become unable to be matched together when Alice and Bob are matched with each other": {
+          "target": "Alice and Bob keep the same match — 5",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:34"
+            ],
+            "condition": [
+              "Alice and Bob are matched with each other"
+            ],
+            "example": "An existing match stays when a restriction arises"
+          }
+        },
+        "matchmaking pairs people up when Alice and Bob cannot be matched together and Alice and Bob are waiting within each other's ranges": {
+          "target": "Alice and Bob are still waiting — 6",
+          "meta": {
+            "source": [
+              "specs/matchmaking/pair-restrictions.feature:39"
+            ],
+            "condition": [
+              "Alice and Bob cannot be matched together",
+              "Alice and Bob are waiting within each other's ranges"
+            ],
+            "example": "The same restriction prevents a later match"
+          }
+        }
+      }
+    },
+    "Alice and Bob are still waiting — 1": {
+      "meta": {
+        "description": "The person observes that alice and Bob are still waiting.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob are still waiting",
+          "Alice and Bob cannot be matched together"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:8"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are matched with each other — 2": {
+      "meta": {
+        "description": "The person observes that alice and Bob are matched with each other.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob are matched with each other"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:14"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob can be matched together — 3": {
+      "meta": {
+        "description": "The person observes that alice and Bob can be matched together.",
+        "snapshot": "the-person-observes-that-alice-and-bob-can-be-matched-together",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob can be matched together"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:22"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice is not waiting — 4": {
+      "meta": {
+        "description": "The person observes that alice is not waiting.",
+        "snapshot": "the-person-observes-that-alice-is-not-waiting",
+        "recognize": [],
+        "checks": [
+          "Alice is not waiting"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob keep the same match — 5": {
+      "meta": {
+        "description": "The person observes that alice and Bob keep the same match.",
+        "snapshot": "the-person-observes-that-alice-and-bob-keep-the-same-match",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob keep the same match"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:34"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Alice and Bob are still waiting — 6": {
+      "meta": {
+        "description": "The person observes that alice and Bob are still waiting.",
+        "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
+        "recognize": [],
+        "checks": [
+          "Alice and Bob are still waiting"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/matchmaking/pair-restrictions.feature:39"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

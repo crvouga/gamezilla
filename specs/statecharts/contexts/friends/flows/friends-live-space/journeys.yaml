@@ -1,0 +1,41 @@
+journeys:
+  A friend in an open space shows as live:
+    description: A friend in an open space shows as live
+    startingConditions:
+    - Alice and Bob are friends
+    - Bob is viewing their friends list with Alice in it
+    events:
+    - Alice creates a space
+    endsIn: Bob's friends list shows Alice as live within 15 seconds — 1
+    checks:
+    - Bob's friends list shows Alice as live within 15 seconds
+    gherkin:
+    - specs/friends/friends-live-space.feature:12 — A friend in an open space shows as live
+    exampleRow: []
+  A friend joins a live friend's space from their friends list:
+    description: A friend joins a live friend's space from their friends list
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space
+    events:
+    - Bob joins Alice's space from their friends list
+    endsIn: Bob is in the space — 2
+    checks:
+    - Bob is in the space
+    gherkin:
+    - specs/friends/friends-live-space.feature:17 — A friend joins a live friend's space from their friends list
+    exampleRow: []
+  A friend's live mark goes when their space ends:
+    description: A friend's live mark goes when their space ends
+    startingConditions:
+    - Alice and Bob are friends
+    - Alice is hosting a space
+    - Bob's friends list shows Alice as live
+    events:
+    - Alice ends the space
+    endsIn: Bob's friends list stops showing Alice as live within 15 seconds — 3
+    checks:
+    - Bob's friends list stops showing Alice as live within 15 seconds
+    gherkin:
+    - specs/friends/friends-live-space.feature:22 — A friend's live mark goes when their space ends
+    exampleRow: []

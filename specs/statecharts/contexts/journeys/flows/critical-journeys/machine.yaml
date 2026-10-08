@@ -1,0 +1,237 @@
+id: journeys-critical-journeys
+initial: Viewing Critical journeys
+meta:
+  context: Journeys
+  kind: flow
+  owner: Journeys owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Critical journeys:
+    meta:
+      description: The person is at the place where critical journeys.
+      snapshot: the-person-is-at-the-place-where-critical-journeys
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:2
+    'on':
+      a person opens the app on a fresh device:
+        target: the app gets past its opening screen onto the tabs — 1
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:10
+          condition: []
+          example: The app opens past its opening screen onto the tabs
+      they start signing in with Google:
+        target: Google is asked to sign them in and send them back to the app — 2
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:14
+          condition:
+          - a person opens the app on a fresh device
+          example: Signing in with Google hands the person to Google with the way back
+      they sign out of their account:
+        target: their account offers to sign in again — 3
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:19
+          condition:
+          - a person is signed in on a fresh device
+          example: A signed-in person can sign out
+      they host a space:
+        target: the space offers games to play — 4 step 1
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:24
+          condition:
+          - a person is signed in on a fresh device
+          example: A person hosts a space and ends it
+      they start a chess puzzle in the space:
+        target: a puzzle board is laid out and ready to play — 5
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:31
+          condition:
+          - a person is signed in on a fresh device
+          - they are hosting a space
+          example: A chess puzzle started in a space is ready to play
+      they save a new avatar:
+        target: editing their avatar again shows the new one — 6
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:37
+          condition:
+          - a person is signed in on a fresh device
+          example: A person changes their avatar and the change is kept
+      they search for people with a name nobody has:
+        target: the search finishes with no results — 7
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:42
+          condition:
+          - a person is signed in on a fresh device
+          example: Searching for people finishes with an answer
+      they solve the puzzle:
+        target: the next puzzle is ready to play — 8
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:47
+          condition:
+          - a person opens the app on a fresh device
+          - they are hosting a space
+          - they have started a chess puzzle in the space
+          example: A guest solves a puzzle and the next one is ready
+      they look at the billing plans:
+        target: Plus is offered at its monthly and yearly prices — 9
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:54
+          condition:
+          - a person is signed in on a fresh device
+          example: A signed-in person can see what Plus offers
+  the app gets past its opening screen onto the tabs — 1:
+    meta:
+      description: The person observes that the app gets past its opening screen onto the tabs.
+      snapshot: the-person-observes-that-the-app-gets-past-its-opening-screen-onto-the-tabs
+      recognize: []
+      checks:
+      - the app gets past its opening screen onto the tabs
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:10
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Google is asked to sign them in and send them back to the app — 2:
+    meta:
+      description: The person observes that google is asked to sign them in and send them back to the app.
+      snapshot: the-person-observes-that-google-is-asked-to-sign-them-in-and-send-them-back-to-the-ap
+      recognize: []
+      checks:
+      - Google is asked to sign them in and send them back to the app
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:14
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  their account offers to sign in again — 3:
+    meta:
+      description: The person observes that their account offers to sign in again.
+      snapshot: the-person-observes-that-their-account-offers-to-sign-in-again
+      recognize: []
+      checks:
+      - their account offers to sign in again
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:19
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the space offers games to play — 4 step 1:
+    meta:
+      description: The person observes that the space offers games to play.
+      snapshot: the-person-observes-that-the-space-offers-games-to-play
+      recognize: []
+      checks:
+      - the space offers games to play
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:24
+    'on':
+      they end the space:
+        target: the space shows it has ended — 4 step 2
+        meta:
+          source:
+          - specs/journeys/critical-journeys.feature:24
+          condition: []
+          example: A person hosts a space and ends it
+  the space shows it has ended — 4 step 2:
+    meta:
+      description: The person observes that the space shows it has ended.
+      snapshot: the-person-observes-that-the-space-shows-it-has-ended
+      recognize: []
+      checks:
+      - the space shows it has ended
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:24
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  a puzzle board is laid out and ready to play — 5:
+    meta:
+      description: The person observes that a puzzle board is laid out and ready to play.
+      snapshot: the-person-observes-that-a-puzzle-board-is-laid-out-and-ready-to-play
+      recognize: []
+      checks:
+      - a puzzle board is laid out and ready to play
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:31
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  editing their avatar again shows the new one — 6:
+    meta:
+      description: The person observes that editing their avatar again shows the new one.
+      snapshot: the-person-observes-that-editing-their-avatar-again-shows-the-new-one
+      recognize: []
+      checks:
+      - editing their avatar again shows the new one
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:37
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the search finishes with no results — 7:
+    meta:
+      description: The person observes that the search finishes with no results.
+      snapshot: the-person-observes-that-the-search-finishes-with-no-results
+      recognize: []
+      checks:
+      - the search finishes with no results
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:42
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  the next puzzle is ready to play — 8:
+    meta:
+      description: The person observes that the next puzzle is ready to play.
+      snapshot: the-person-observes-that-the-next-puzzle-is-ready-to-play
+      recognize: []
+      checks:
+      - the next puzzle is ready to play
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:47
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+      knownIssue:
+      - known-issues.md#ki-001
+    type: final
+  Plus is offered at its monthly and yearly prices — 9:
+    meta:
+      description: The person observes that plus is offered at its monthly and yearly prices.
+      snapshot: the-person-observes-that-plus-is-offered-at-its-monthly-and-yearly-prices
+      recognize: []
+      checks:
+      - Plus is offered at its monthly and yearly prices
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/critical-journeys.feature:54
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

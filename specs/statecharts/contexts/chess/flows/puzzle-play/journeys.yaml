@@ -1,0 +1,208 @@
+journeys:
+  Moving on after a finished puzzle serves a different one:
+    description: Moving on after a finished puzzle serves a different one
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by solving it cleanly
+    events:
+    - Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by solving it cleanly
+    endsIn: Alice is solving a different puzzle than the one before — 1
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-play.feature:13 — Moving on after a finished puzzle serves a different one
+    exampleRow:
+    - '7'
+  Moving on after a finished puzzle serves a different one (example 2):
+    description: Moving on after a finished puzzle serves a different one
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by showing the solution
+    events:
+    - Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by showing the solution
+    endsIn: Alice is solving a different puzzle than the one before — 2
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-play.feature:13 — Moving on after a finished puzzle serves a different one
+    exampleRow:
+    - '8'
+  Moving on after a finished puzzle serves a different one (example 3):
+    description: Moving on after a finished puzzle serves a different one
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by skipping it
+    events:
+    - Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by skipping it
+    endsIn: Alice is solving a different puzzle than the one before — 3
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-play.feature:13 — Moving on after a finished puzzle serves a different one
+    exampleRow:
+    - '9'
+  Moving on while the puzzle is still being solved is not offered:
+    description: Moving on while the puzzle is still being solved is not offered
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice is not offered to move on — 4
+    checks:
+    - Alice is not offered to move on
+    - Alice is on the same puzzle as before
+    gherkin:
+    - specs/chess/puzzle-play.feature:24 — Moving on while the puzzle is still being solved is not offered
+    exampleRow: []
+  A wrong move needs a retry before moving on is offered:
+    description: A wrong move needs a retry before moving on is offered
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has played a wrong move
+    endsIn: Alice is not offered to move on — 5
+    checks:
+    - Alice is not offered to move on
+    - Alice's puzzle remains wrong
+    gherkin:
+    - specs/chess/puzzle-play.feature:29 — A wrong move needs a retry before moving on is offered
+    exampleRow: []
+  A solve shows a rating change that raised the rating:
+    description: A solve shows a rating change that raised the rating
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice sees a rating change that raised their puzzle rating — 6
+    checks:
+    - Alice sees a rating change that raised their puzzle rating
+    gherkin:
+    - specs/chess/puzzle-play.feature:37 — A solve shows a rating change that raised the rating
+    exampleRow: []
+  A wrong move shows a rating change that lowered the rating:
+    description: A wrong move shows a rating change that lowered the rating
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice plays a wrong move
+    endsIn: Alice sees a rating change that lowered their puzzle rating — 7
+    checks:
+    - Alice sees a rating change that lowered their puzzle rating
+    gherkin:
+    - specs/chess/puzzle-play.feature:41 — A wrong move shows a rating change that lowered the rating
+    exampleRow: []
+  A skip shows a rating change that lowered the rating:
+    description: A skip shows a rating change that lowered the rating
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice sees a rating change that lowered their puzzle rating — 8
+    checks:
+    - Alice sees a rating change that lowered their puzzle rating
+    gherkin:
+    - specs/chess/puzzle-play.feature:45 — A skip shows a rating change that lowered the rating
+    exampleRow: []
+  A shown solution shows a rating change that lowered the rating:
+    description: A shown solution shows a rating change that lowered the rating
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice shows the solution
+    endsIn: Alice sees a rating change that lowered their puzzle rating — 9
+    checks:
+    - Alice sees a rating change that lowered their puzzle rating
+    gherkin:
+    - specs/chess/puzzle-play.feature:49 — A shown solution shows a rating change that lowered the rating
+    exampleRow: []
+  A repeat of a played puzzle shows it is unrated instead of a rating change:
+    description: A repeat of a played puzzle shows it is unrated instead of a rating change
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - the puzzle pool holds just three puzzles
+    - Alice has solved 3 puzzles in a row
+    - Alice's feed has come round to a puzzle they already played
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and the puzzle
+      pool holds just three puzzles and Alice has solved 3 puzzles in a row and Alice's feed has come round to a
+      puzzle they already played
+    endsIn: Alice is told the attempt is unrated — 10
+    checks:
+    - Alice is told the attempt is unrated
+    - Alice sees no rating change
+    gherkin:
+    - specs/chess/puzzle-play.feature:53 — A repeat of a played puzzle shows it is unrated instead of a rating change
+    exampleRow: []
+  A watcher sees no rating change of their own:
+    description: A watcher sees no rating change of their own
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Bob is watching Alice's puzzle
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Bob is watching
+      Alice's puzzle
+    endsIn: Alice sees a rating change that raised their puzzle rating — 11
+    checks:
+    - Alice sees a rating change that raised their puzzle rating
+    - Bob sees no rating change
+    gherkin:
+    - specs/chess/puzzle-play.feature:61 — A watcher sees no rating change of their own
+    exampleRow: []
+  The puzzle's own rating and themes show once the puzzle is solved:
+    description: The puzzle's own rating and themes show once the puzzle is solved
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice sees a rating change that raised their puzzle rating — 6
+    checks:
+    - Alice can see the puzzle's own rating
+    - Alice can see the puzzle's themes
+    gherkin:
+    - specs/chess/puzzle-play.feature:69 — The puzzle's own rating and themes show once the puzzle is solved
+    exampleRow: []
+  The puzzle's own rating and themes show once the puzzle is skipped:
+    description: The puzzle's own rating and themes show once the puzzle is skipped
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice sees a rating change that lowered their puzzle rating — 8
+    checks:
+    - Alice can see the puzzle's own rating
+    - Alice can see the puzzle's themes
+    gherkin:
+    - specs/chess/puzzle-play.feature:74 — The puzzle's own rating and themes show once the puzzle is skipped
+    exampleRow: []
+  The puzzle's own rating and themes cannot be seen while it is being solved:
+    description: The puzzle's own rating and themes cannot be seen while it is being solved
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice asks for a hint
+    endsIn: Alice cannot see the puzzle's own rating — 14
+    checks:
+    - Alice cannot see the puzzle's own rating
+    - Alice cannot see the puzzle's themes
+    gherkin:
+    - specs/chess/puzzle-play.feature:79 — The puzzle's own rating and themes cannot be seen while it is being solved
+    exampleRow: []

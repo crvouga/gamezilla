@@ -1,0 +1,6 @@
+stateDiagram-v2
+  state "Viewing A long time offline" as s0
+  state "Bob sees all 40 notes, each in its folder — 1" as s1
+  [*] --> s0
+  s0 --> s1: Alice's app comes back online
+  s1 --> [*]

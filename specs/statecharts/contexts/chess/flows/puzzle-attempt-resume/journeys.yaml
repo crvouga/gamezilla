@@ -1,0 +1,172 @@
+journeys:
+  Going back to an unfinished puzzle resumes the same attempt:
+    description: Going back to an unfinished puzzle resumes the same attempt
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    - Alice has left the puzzle for the chess choices
+    events:
+    - Alice goes back to the puzzles when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has played a wrong move and Alice has left the puzzle for the chess choices
+    endsIn: Alice is on the same puzzle as before — 1
+    checks:
+    - Alice is on the same puzzle as before
+    - Alice is told the move was wrong
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:12 — Going back to an unfinished puzzle resumes the same attempt
+    exampleRow: []
+  A puzzle in progress when the app closed is waiting on return:
+    description: A puzzle in progress when the app closed is waiting on return
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has closed and reopened the app
+    events:
+    - Alice returns to their space
+    endsIn: Alice is asked to find the next move within 20 seconds — 2
+    checks:
+    - Alice is asked to find the next move within 20 seconds
+    - Alice is on the same puzzle as before
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:19 — A puzzle in progress when the app closed is waiting on return
+    exampleRow: []
+  Going back after a finished puzzle starts the next one:
+    description: Going back after a finished puzzle starts the next one
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    - Alice has left the puzzle for the chess choices
+    events:
+    - Alice goes back to the puzzles when Alice is signed in and Alice is playing puzzles in their space and Alice
+      has solved the puzzle and Alice has left the puzzle for the chess choices
+    endsIn: Alice is solving a different puzzle than the one before — 3
+    checks:
+    - Alice is solving a different puzzle than the one before
+    - Alice is not offered the puzzle that is over
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:25 — Going back after a finished puzzle starts the next one
+    exampleRow: []
+  Asking for the next puzzle twice at once lands on one fresh puzzle:
+    description: Asking for the next puzzle twice at once lands on one fresh puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    events:
+    - Alice asks for the next puzzle twice in quick succession
+    endsIn: Alice is solving a different puzzle than the one before — 4
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:35 — Asking for the next puzzle twice at once lands on one fresh
+      puzzle
+    exampleRow: []
+  Moving on to the next puzzle works without a connection:
+    description: Moving on to the next puzzle works without a connection
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    - Alice is offline
+    events:
+    - Alice moves on to the next puzzle
+    endsIn: Alice is solving a different puzzle than the one before — 5
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:40 — Moving on to the next puzzle works without a connection
+    exampleRow: []
+  Auto-advance moves on by itself after a solve:
+    description: Auto-advance moves on by itself after a solve
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has puzzles set to advance 1 second after a solve
+    events:
+    - Alice solves the puzzle
+    endsIn: Alice is on a different puzzle than the one before within 5 seconds — 6
+    checks:
+    - Alice is on a different puzzle than the one before within 5 seconds
+    - Alice's puzzle is not solved
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:49 — Auto-advance moves on by itself after a solve
+    exampleRow: []
+  The solver returns from the chess choices to the game choice:
+    description: The solver returns from the chess choices to the game choice
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has left the puzzle for the chess choices
+    events:
+    - Alice goes back from the chess choices to the game choice
+    endsIn: Alice sees the space's game choice — 7
+    checks:
+    - Alice sees the space's game choice
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:58 — The solver returns from the chess choices to the game choice
+    exampleRow: []
+  Reopening a finished puzzle retains its result:
+    description: Reopening a finished puzzle retains its result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by solving it cleanly
+    events:
+    - Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by solving it cleanly
+    endsIn: Alice's puzzle remains solved — 8
+    checks:
+    - Alice's puzzle remains solved
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:66 — Reopening a finished puzzle retains its result
+    exampleRow:
+    - '46'
+  Reopening a finished puzzle retains its result (example 9):
+    description: Reopening a finished puzzle retains its result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by showing the solution
+    events:
+    - Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by showing the solution
+    endsIn: Alice's puzzle remains revealed — 9
+    checks:
+    - Alice's puzzle remains revealed
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:66 — Reopening a finished puzzle retains its result
+    exampleRow:
+    - '47'
+  Reopening a finished puzzle retains its result (example 10):
+    description: Reopening a finished puzzle retains its result
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has finished this puzzle by skipping it
+    events:
+    - Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has finished this puzzle by skipping it
+    endsIn: Alice's puzzle remains skipped — 10
+    checks:
+    - Alice's puzzle remains skipped
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:66 — Reopening a finished puzzle retains its result
+    exampleRow:
+    - '48'
+  Reopening a wrong move retains the chance to retry:
+    description: Reopening a wrong move retains the chance to retry
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has played a wrong move
+    events:
+    - Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and
+      Alice has played a wrong move
+    endsIn: Alice's puzzle remains wrong — 11
+    checks:
+    - Alice's puzzle remains wrong
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature:77 — Reopening a wrong move retains the chance to retry
+    exampleRow: []

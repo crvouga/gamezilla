@@ -1,0 +1,2737 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished absent index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2ac7261ce023bb7da89993d50894e241c2fe9339fc4cf65f85bf33f46a68b81f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 8b65acaf139361fc4123255035a687750cf18f02754e680d05dcdcc40e9427dc
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7d368b90fa65ec75ba6dfa1a74f7d0ebe748d136e17b89a94d4b6d5d9f131700
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 5928d87dd4c63a03268ae320c16d363917493b8a680139b8402a5d2ef3bf09a6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished invalid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 721380b8e7c88c0160d8843e6cd4cf2e16243aaba8310579d72639e6f6245c98
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2d06e2f0a46ec2266e398c4db708d5ac50910e214619b00d8d1052e2836f9137
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished valid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2388d067d217b56014f2481d430fbc6f18b24631fdc6486cfbd9f9a31dc0a4c7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished invalid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b7a3074220d967c09228b9e8cf7a2f4a55b4ccb7f50fd36faf49c682de322144
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d1e0342e5747732eba623f9276f9a21a2961ee605e257c460d1a35a617835605
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f2edc03fb0796521610632ba933846583018846ec3dadf446d802f77160ba1a2
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished valid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ee326a847072a3a34875ef2a931417d0b0e4f63a82d31b04a0beebb5e4a19596
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: cb2b366698fa143fb9468edef0808ce6db137a99c316e4940530f557a2cab63c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished invalid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: a874d1e0bd5f646ad1271991bb90f1949f1face7e8347a3395923e68d4447772
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 45d5bb32fac84ed4ec2642351f19e2caa0b24fd3cbe2fd4a3334f0cabd9910cb
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished valid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 76398dfa4041407c688d37ccf228e9bfde18f8f62cc5e2204641512a9f9ee128
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing failed maintenance
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 24584de2cb53f5966645a4bb7e3f64acbdf569b6032a1d0fa042a7e34333b179
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished invalid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 33ca673e35c93b8321c956ace8c99abab58ad2be5e535f6cba6230fc24d3d338
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 77556c99cf29a410868a981db32d21907933bf93754c6232153220cbcfd03605
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 4124a45fe01a2c81dd3f8797ce887db57884cda748e5255975beaff3f2402035
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: dd9cfd366f959d7b95f6ad33e27355aa525c5da1ebed4e67cdb2656ff767c0e5
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 9c226ddd5d169ec54ce5b4f7d38aafade4cc4ee004000af3583bf47c6dda2369
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing unfinished valid index work
+    - Recover resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 1da81446e73b158fb0988b4d7779feb0fba847752c98c8f2ae38b0ab9ad7270f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2dbf237dc7ca98d503f0970a2fde50fb383b76b31672527b200e7e7566730fca
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with waiting for an index
+    - Attempt resulting in seeing deferred maintenance
+    - Attempt resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    - Repeat resulting in seeing completed maintenance
+    endsIn: Seeing completed maintenance
+    quintTrace:
+      model: specs/db-indexes/index-interruption.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: b92c1ffb4631808595fd1c9f3684728b7d5b61dc6e75e482f61c8b333bfe2aa9
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

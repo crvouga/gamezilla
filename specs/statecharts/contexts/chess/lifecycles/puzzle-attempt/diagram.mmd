@@ -1,0 +1,213 @@
+stateDiagram-v2
+  state "Opening puzzle attempt" as s0
+  state "Choosing a game" as s1
+  state "Solving the puzzle" as s2
+  state "Seeing the solved puzzle" as s3
+  state "Choosing chess play" as s4
+  state "Solving the puzzle after a correct continuation" as s5
+  state "Seeing the skipped puzzle" as s6
+  state "Solving the puzzle with the solution piece highlighted" as s7
+  state "Seeing the full solution" as s8
+  state "Seeing the solved puzzle while reviewing an earlier move" as s9
+  state "Told the move is wrong" as s10
+  state "Seeing the full solution while reviewing an earlier move" as s11
+  state "Solving the puzzle while reviewing an earlier move" as s12
+  state "Solving the puzzle with a solution move shown" as s13
+  [*] --> s0
+  s0 --> s1: Opens with choosing a game
+  s1 --> s1: Connection returns resulting in choosing a game
+  s1 --> s1: Time passes resulting in choosing a game
+  s1 --> s2: Opens chess puzzles resulting in solving the puzzle
+  s1 --> s12: Opens chess puzzles resulting in solving the puzzle while reviewing an earlier move
+  s1 --> s10: Opens chess puzzles resulting in told the move is wrong
+  s1 --> s5: Opens chess puzzles resulting in solving the puzzle after a correct continuation
+  s1 --> s1: Mute assistant resulting in choosing a game
+  s1 --> s7: Opens chess puzzles resulting in solving the puzzle with the solution piece highlighted
+  s2 --> s3: Solves the puzzle resulting in seeing the solved puzzle
+  s2 --> s2: Choose piece resulting in solving the puzzle
+  s2 --> s2: Mute assistant resulting in solving the puzzle
+  s2 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s2 --> s2: Unmute assistant resulting in solving the puzzle
+  s2 --> s2: Choose review position resulting in solving the puzzle
+  s2 --> s5: Plays a correct continuation resulting in solving the puzzle after a correct continuation
+  s2 --> s2: Try illegal move resulting in solving the puzzle
+  s2 --> s6: Skips the puzzle resulting in seeing the skipped puzzle
+  s2 --> s2: Try retry while solving resulting in solving the puzzle
+  s2 --> s8: Shows the complete puzzle solution resulting in seeing the full solution
+  s2 --> s2: Suggest move resulting in solving the puzzle
+  s2 --> s2: Try solution before hint resulting in solving the puzzle
+  s2 --> s10: Plays a wrong puzzle move resulting in told the move is wrong
+  s2 --> s2: Time passes resulting in solving the puzzle
+  s2 --> s7: Asks for the first hint resulting in solving the puzzle with the solution piece highlighted
+  s2 --> s2: Connection returns resulting in solving the puzzle
+  s2 --> s2: Reopen app resulting in solving the puzzle
+  s3 --> s3: Try show solution after finish resulting in seeing the solved puzzle
+  s3 --> s2: Moves on to a different puzzle resulting in solving the puzzle
+  s3 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s3 --> s3: Choose review position resulting in seeing the solved puzzle
+  s3 --> s9: Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move
+  s3 --> s3: Connection returns resulting in seeing the solved puzzle
+  s3 --> s3: Reopen app resulting in seeing the solved puzzle
+  s3 --> s3: Try hint after finish resulting in seeing the solved puzzle
+  s3 --> s3: Try move after finish resulting in seeing the solved puzzle
+  s3 --> s2: Requests the next puzzle twice at once resulting in solving the puzzle
+  s3 --> s3: Mute assistant resulting in seeing the solved puzzle
+  s3 --> s9: Choose review position resulting in seeing the solved puzzle while reviewing an earlier move
+  s3 --> s3: Time passes resulting in seeing the solved puzzle
+  s3 --> s3: Try skip after finish resulting in seeing the solved puzzle
+  s3 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s3 --> s3: Unmute assistant resulting in seeing the solved puzzle
+  s4 --> s1: Returns to the space game choices resulting in choosing a game
+  s4 --> s5: Returns to the puzzle board resulting in solving the puzzle after a correct continuation
+  s4 --> s4: Time passes resulting in choosing chess play
+  s4 --> s2: Returns to the puzzle board resulting in solving the puzzle
+  s4 --> s10: Returns to the puzzle board resulting in told the move is wrong
+  s4 --> s4: Connection returns resulting in choosing chess play
+  s4 --> s7: Returns to the puzzle board resulting in solving the puzzle with the solution piece highlighted
+  s4 --> s4: Mute assistant resulting in choosing chess play
+  s4 --> s4: Unmute assistant resulting in choosing chess play
+  s4 --> s12: Returns to the puzzle board resulting in solving the puzzle while reviewing an earlier move
+  s4 --> s13: Returns to the puzzle board resulting in solving the puzzle with a solution move shown
+  s5 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s5 --> s6: Skips the puzzle resulting in seeing the skipped puzzle
+  s5 --> s5: Connection returns resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Try retry while solving resulting in solving the puzzle after a correct continuation
+  s5 --> s7: Asks for the first hint resulting in solving the puzzle with the solution piece highlighted
+  s5 --> s8: Shows the complete puzzle solution resulting in seeing the full solution
+  s5 --> s5: Time passes resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Suggest move resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Choose piece resulting in solving the puzzle after a correct continuation
+  s5 --> s12: Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move
+  s5 --> s10: Plays a wrong puzzle move resulting in told the move is wrong
+  s5 --> s5: Choose review position resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Reopen app resulting in solving the puzzle after a correct continuation
+  s5 --> s3: Solves the puzzle resulting in seeing the solved puzzle
+  s5 --> s5: Mute assistant resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Unmute assistant resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Try illegal move resulting in solving the puzzle after a correct continuation
+  s5 --> s5: Try solution before hint resulting in solving the puzzle after a correct continuation
+  s5 --> s12: Choose review position resulting in solving the puzzle while reviewing an earlier move
+  s6 --> s6: Reopen app resulting in seeing the skipped puzzle
+  s6 --> s2: Requests the next puzzle twice at once resulting in solving the puzzle
+  s6 --> s2: Moves on to a different puzzle resulting in solving the puzzle
+  s6 --> s6: Connection returns resulting in seeing the skipped puzzle
+  s6 --> s6: Try hint after finish resulting in seeing the skipped puzzle
+  s6 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s6 --> s6: Try show solution after finish resulting in seeing the skipped puzzle
+  s6 --> s6: Unmute assistant resulting in seeing the skipped puzzle
+  s6 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s6 --> s6: Try review before retry resulting in seeing the skipped puzzle
+  s6 --> s6: Mute assistant resulting in seeing the skipped puzzle
+  s6 --> s6: Time passes resulting in seeing the skipped puzzle
+  s6 --> s6: Try move after finish resulting in seeing the skipped puzzle
+  s6 --> s6: Try skip after finish resulting in seeing the skipped puzzle
+  s7 --> s8: Shows the complete puzzle solution resulting in seeing the full solution
+  s7 --> s7: Try retry while solving resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Try earlier hint resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Reopen app resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Try illegal move resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s3: Solves the puzzle resulting in seeing the solved puzzle
+  s7 --> s7: Unmute assistant resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s5: Plays a correct continuation resulting in solving the puzzle after a correct continuation
+  s7 --> s12: Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move
+  s7 --> s10: Plays a wrong puzzle move resulting in told the move is wrong
+  s7 --> s7: Time passes resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Choose review position resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s7 --> s13: Asks for the second hint resulting in solving the puzzle with a solution move shown
+  s7 --> s7: Choose piece resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Suggest move resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s6: Skips the puzzle resulting in seeing the skipped puzzle
+  s7 --> s7: Connection returns resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s7: Mute assistant resulting in solving the puzzle with the solution piece highlighted
+  s7 --> s12: Choose review position resulting in solving the puzzle while reviewing an earlier move
+  s8 --> s8: Try skip after finish resulting in seeing the full solution
+  s8 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s8 --> s8: Reopen app resulting in seeing the full solution
+  s8 --> s8: Connection returns resulting in seeing the full solution
+  s8 --> s2: Moves on to a different puzzle resulting in solving the puzzle
+  s8 --> s11: Choose review position resulting in seeing the full solution while reviewing an earlier move
+  s8 --> s2: Requests the next puzzle twice at once resulting in solving the puzzle
+  s8 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s8 --> s11: Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move
+  s8 --> s8: Time passes resulting in seeing the full solution
+  s8 --> s8: Try move after finish resulting in seeing the full solution
+  s8 --> s8: Try hint after finish resulting in seeing the full solution
+  s8 --> s8: Try show solution after finish resulting in seeing the full solution
+  s8 --> s8: Mute assistant resulting in seeing the full solution
+  s8 --> s8: Unmute assistant resulting in seeing the full solution
+  s8 --> s8: Choose review position resulting in seeing the full solution
+  s9 --> s3: Reviews the next reached position resulting in seeing the solved puzzle
+  s9 --> s9: Unmute assistant resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s9 --> s9: Choose review position resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Reopen app resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Mute assistant resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Time passes resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s3: Choose review position resulting in seeing the solved puzzle
+  s9 --> s9: Try move after finish resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Try show solution after finish resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Reviews the next reached position resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s9 --> s2: Requests the next puzzle twice at once resulting in solving the puzzle
+  s9 --> s9: Try hint after finish resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s2: Moves on to a different puzzle resulting in solving the puzzle
+  s9 --> s9: Try skip after finish resulting in seeing the solved puzzle while reviewing an earlier move
+  s9 --> s9: Connection returns resulting in seeing the solved puzzle while reviewing an earlier move
+  s10 --> s10: Reopen app resulting in told the move is wrong
+  s10 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s10 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s10 --> s10: Try move before retry resulting in told the move is wrong
+  s10 --> s10: Try review before retry resulting in told the move is wrong
+  s10 --> s6: Skips the puzzle resulting in seeing the skipped puzzle
+  s10 --> s10: Connection returns resulting in told the move is wrong
+  s10 --> s5: Retries the same puzzle resulting in solving the puzzle after a correct continuation
+  s10 --> s8: Shows the complete puzzle solution resulting in seeing the full solution
+  s10 --> s10: Try hint before retry resulting in told the move is wrong
+  s10 --> s10: Mute assistant resulting in told the move is wrong
+  s10 --> s10: Time passes resulting in told the move is wrong
+  s10 --> s10: Unmute assistant resulting in told the move is wrong
+  s11 --> s11: Mute assistant resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s11: Try show solution after finish resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s8: Reviews the next reached position resulting in seeing the full solution
+  s11 --> s11: Time passes resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s2: Requests the next puzzle twice at once resulting in solving the puzzle
+  s11 --> s11: Reviews the next reached position resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s2: Retries the same puzzle resulting in solving the puzzle
+  s11 --> s11: Reopen app resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s2: Moves on to a different puzzle resulting in solving the puzzle
+  s11 --> s11: Choose review position resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s11: Connection returns resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s11 --> s11: Try move after finish resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s8: Choose review position resulting in seeing the full solution
+  s11 --> s11: Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s11: Try hint after finish resulting in seeing the full solution while reviewing an earlier move
+  s11 --> s11: Try skip after finish resulting in seeing the full solution while reviewing an earlier move
+  s12 --> s12: Try hint from review resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s4: Leaves the puzzle board resulting in choosing chess play
+  s12 --> s12: Try retry while solving resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s6: Skips the puzzle resulting in seeing the skipped puzzle
+  s12 --> s12: Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Time passes resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s5: Reviews the next reached position resulting in solving the puzzle after a correct continuation
+  s12 --> s12: Connection returns resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Try show solution from review resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Reopen app resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Choose review position resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Try move from review resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s5: Choose review position resulting in solving the puzzle after a correct continuation
+  s12 --> s12: Unmute assistant resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Mute assistant resulting in solving the puzzle while reviewing an earlier move
+  s12 --> s12: Reviews the next reached position resulting in solving the puzzle while reviewing an earlier move
+  s13 --> s3: Solves the puzzle resulting in seeing the solved puzzle
+  s13 --> s13: Time passes resulting in solving the puzzle with a solution move shown
+  s13 --> s13: Try retry while solving resulting in solving the puzzle with a solution move shown
+  s13 --> s10: Plays a wrong puzzle move resulting in told the move is wrong
+  s13 --> s13: Choose piece resulting in solving the puzzle with a solution move shown
+  s13 --> s13: Unmute assistant resulting in solving the puzzle with a solution move shown
+  s13 --> s5: Plays a correct continuation resulting in solving the puzzle after a correct continuation
+  s13 --> s13: Reopen app resulting in solving the puzzle with a solution move shown
+  s13 --> s12: Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move
+  s13 --> s4: Leaves the puzzle board resulting in choosing chess play

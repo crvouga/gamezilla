@@ -1,0 +1,90 @@
+journeys:
+  A signed-in person without a membership sees both prices and a 7-day free trial:
+    description: A signed-in person without a membership sees both prices and a 7-day free trial
+    startingConditions:
+    - Alice is signed in with Google
+    events:
+    - Alice views the billing plans when Alice is signed in with Google
+    endsIn: Alice sees the monthly plan at $7 00 a month — 1
+    checks:
+    - Alice sees the monthly plan at $7.00 a month
+    - Alice sees the yearly plan at $60.00 a year, $5.00 a month, saving 29%
+    - Alice is offered a 7-day free trial
+    gherkin:
+    - specs/billing/billing-plans-details.feature:10 — A signed-in person without a membership sees both prices
+      and a 7-day free trial
+    exampleRow: []
+  A person on a free trial sees the day their free trial ends and the days left in the free trial:
+    description: A person on a free trial sees the day their free trial ends and the days left in the free trial
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice has 5 days left in the free trial
+    events:
+    - Alice views the billing plans when Alice has subscribed to Plus and Alice has 5 days left in the free trial
+    endsIn: Alice sees their free trial ends in 5 days — 2
+    checks:
+    - Alice sees their free trial ends in 5 days
+    - Alice sees the day their free trial ends
+    gherkin:
+    - specs/billing/billing-plans-details.feature:20 — A person on a free trial sees the day their free trial ends
+      and the days left in the free trial
+    exampleRow: []
+  A Plus member on the monthly plan sees it marked as their current plan:
+    description: A Plus member on the monthly plan sees it marked as their current plan
+    startingConditions:
+    - Alice has subscribed to Plus
+    events:
+    - Alice views the billing plans when Alice has subscribed to Plus
+    endsIn: Alice sees the monthly plan marked as their current plan — 3
+    checks:
+    - Alice sees the monthly plan marked as their current plan
+    - Alice sees the yearly plan not marked as their current plan
+    gherkin:
+    - specs/billing/billing-plans-details.feature:32 — A Plus member on the monthly plan sees it marked as their
+      current plan
+    exampleRow: []
+  A Plus member on the yearly plan sees it marked as their current plan:
+    description: A Plus member on the yearly plan sees it marked as their current plan
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice has switched the membership to the yearly plan in the billing portal
+    events:
+    - Alice views the billing plans when Alice has subscribed to Plus and Alice has switched the membership to the
+      yearly plan in the billing portal
+    endsIn: Alice sees the yearly plan marked as their current plan — 4
+    checks:
+    - Alice sees the yearly plan marked as their current plan
+    - Alice sees the monthly plan not marked as their current plan
+    gherkin:
+    - specs/billing/billing-plans-details.feature:37 — A Plus member on the yearly plan sees it marked as their
+      current plan
+    exampleRow: []
+  A Plus member whose payment failed is told so on the billing plans:
+    description: A Plus member whose payment failed is told so on the billing plans
+    startingConditions:
+    - Alice has subscribed to Plus
+    - Alice's payment has failed
+    events:
+    - Alice views the billing plans when Alice has subscribed to Plus and Alice's payment has failed
+    endsIn: Alice is told their payment failed — 5
+    checks:
+    - Alice is told their payment failed
+    - Alice is offered to pay with a new card
+    gherkin:
+    - specs/billing/billing-plans-details.feature:48 — A Plus member whose payment failed is told so on the billing
+      plans
+    exampleRow: []
+  A Plus member whose payments go through is not told a payment failed:
+    description: A Plus member whose payments go through is not told a payment failed
+    startingConditions:
+    - Alice has subscribed to Plus
+    events:
+    - Alice views the billing plans when Alice has subscribed to Plus
+    endsIn: Alice sees the monthly plan marked as their current plan — 3
+    checks:
+    - Alice is not told a payment failed
+    - Alice is not offered to pay with a new card
+    gherkin:
+    - specs/billing/billing-plans-details.feature:54 — A Plus member whose payments go through is not told a payment
+      failed
+    exampleRow: []

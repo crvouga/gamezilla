@@ -1,0 +1,102 @@
+journeys:
+  A deleted creator leaves no running bot game:
+    description: A deleted creator leaves no running bot game
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has an active Custom Game between two bots
+    events:
+    - Alice confirms account deletion
+    endsIn: The Custom Game is cancelled with no winner — 1
+    checks:
+    - The Custom Game is cancelled with no winner
+    - Bob cannot see the Custom Game
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:7 — A deleted creator leaves no running bot game
+    exampleRow: []
+  A later account cannot recover the deleted creator's game:
+    description: A later account cannot recover the deleted creator's game
+    startingConditions:
+    - Alice's account deletion has completed
+    - Alice's deleted account had a Custom Game
+    events:
+    - Alice signs in with Google
+    endsIn: Alice cannot see the deleted account's Custom Game — 2
+    checks:
+    - Alice cannot see the deleted account's Custom Game
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:14 — A later account cannot recover the deleted creator's game
+    exampleRow: []
+  A deleted invitee no longer has a reserved side:
+    description: A deleted invitee no longer has a reserved side
+    startingConditions:
+    - Bob has a recently proven account
+    - Alice has a configuring Custom Game
+    - Black in the Custom Game is reserved for Bob
+    events:
+    - Bob confirms account deletion when Bob has a recently proven account and Alice has a configuring Custom Game
+      and Black in the Custom Game is reserved for Bob
+    endsIn: Black is an open place in the Custom Game — 3
+    checks:
+    - Black is an open place in the Custom Game
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:23 — A deleted invitee no longer has a reserved side
+    exampleRow: []
+  A deleted participant's active side resigns:
+    description: A deleted participant's active side resigns
+    startingConditions:
+    - Bob has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    events:
+    - Bob confirms account deletion when Bob has a recently proven account and Alice has an active Custom Game between
+      Alice as White and Bob as Black
+    endsIn: Alice wins the Custom Game by resignation — 4
+    checks:
+    - Alice wins the Custom Game by resignation
+    - Alice's space has not ended
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:30 — A deleted participant's active side resigns
+    exampleRow: []
+  Deleting a watcher cannot resign for either participant:
+    description: Deleting a watcher cannot resign for either participant
+    startingConditions:
+    - Carol has a recently proven account
+    - Alice has an active Custom Game between Alice as White and Bob as Black
+    - Carol is in Alice's space
+    events:
+    - Carol confirms account deletion
+    endsIn: The Custom Game remains active — 5
+    checks:
+    - The Custom Game remains active
+    - Neither person has won the Custom Game
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:37 — Deleting a watcher cannot resign for either participant
+    exampleRow: []
+  An export includes the participant's choices moves and outcome:
+    description: An export includes the participant's choices moves and outcome
+    startingConditions:
+    - Alice has a recently proven account
+    - Alice has a completed Custom Game after White's e4
+    - Alice has asked for a personal-data export
+    events:
+    - Alice's personal-data export becomes ready
+    endsIn: Alice's personal-data export includes the Custom Game choices moves and outcome — 6
+    checks:
+    - Alice's personal-data export includes the Custom Game choices moves and outcome
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:48 — An export includes the participant's choices moves and outcome
+    exampleRow: []
+  An export cannot include an outsider's Custom Game:
+    description: An export cannot include an outsider's Custom Game
+    startingConditions:
+    - Carol has a recently proven account
+    - Alice has a completed Custom Game between Alice as White and Bob as Black
+    - Carol is outside Alice's space
+    - Carol has asked for a personal-data export
+    events:
+    - Carol's personal-data export becomes ready
+    endsIn: Carol's personal-data export cannot include Alice's Custom Game — 7
+    checks:
+    - Carol's personal-data export cannot include Alice's Custom Game
+    gherkin:
+    - specs/chess/custom-game-privacy.feature:55 — An export cannot include an outsider's Custom Game
+    exampleRow: []

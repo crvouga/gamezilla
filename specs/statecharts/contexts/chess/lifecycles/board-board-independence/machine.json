@@ -1,0 +1,1047 @@
+{
+  "id": "chess-board-board-independence-lifecycle",
+  "initial": "Opening board board independence",
+  "meta": {
+    "context": "Chess",
+    "kind": "lifecycle",
+    "owner": "Chess owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/chess-board/board-independence.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening board board independence": {
+      "meta": {
+        "description": "The person is opening the board board independence view.",
+        "snapshot": "the-person-is-opening-the-board-board-independence-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.qnt"
+        ]
+      },
+      "on": {
+        "Opens with viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "chess-board--board-independence_8.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:24"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing two independent boards": {
+      "meta": {
+        "description": "The person is viewing two independent boards.",
+        "snapshot": "the-person-is-viewing-two-independent-boards",
+        "recognize": [],
+        "checks": [
+          "A held piece has no simultaneous selection, and disabled boards have neither.",
+          "Every board retains its own prepared position or has no position after closing.",
+          "Each prepared local move is received once by its own activity; the shared audible record has at most one sound for each completed move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "first.present": true,
+            "first.held": false,
+            "first.selected": false
+          }
+        ],
+        "invariants": [
+          "invSeparateGestures",
+          "invSeparatePositions",
+          "invSeparateOffers"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Select separate piece resulting in selecting a piece on the first board": {
+          "target": "Selecting a piece on the first board",
+          "meta": {
+            "action": "selectSeparatePiece",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:27"
+            ]
+          }
+        },
+        "Begin separate drag resulting in holding a piece on the first board": {
+          "target": "Holding a piece on the first board",
+          "meta": {
+            "action": "beginSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:33"
+            ]
+          }
+        },
+        "Configure separate input resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "configureSeparateInput",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:59"
+            ]
+          }
+        },
+        "Replace separate position resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        },
+        "Configure separate sound resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "configureSeparateSound",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:66"
+            ]
+          }
+        },
+        "Close separate board resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "closeSeparateBoard",
+            "witness": {
+              "trace": "chess-board--board-independence_12.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:77"
+            ]
+          }
+        },
+        "Move separate piece resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "moveSeparatePiece",
+            "witness": {
+              "trace": "chess-board--board-independence_12.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:45"
+            ]
+          }
+        },
+        "Close separate board resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "closeSeparateBoard",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:77"
+            ]
+          }
+        },
+        "Begin separate drag resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "beginSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_20.itf.json",
+              "step": 1,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:33"
+            ]
+          }
+        },
+        "Cancel separate drag resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "cancelSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_20.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:39"
+            ]
+          }
+        }
+      }
+    },
+    "Selecting a piece on the first board": {
+      "meta": {
+        "description": "The person is selecting a piece on the first board.",
+        "snapshot": "the-person-is-selecting-a-piece-on-the-first-board",
+        "recognize": [],
+        "checks": [
+          "A held piece has no simultaneous selection, and disabled boards have neither.",
+          "Every board retains its own prepared position or has no position after closing.",
+          "Each prepared local move is received once by its own activity; the shared audible record has at most one sound for each completed move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "first.present": true,
+            "first.held": false,
+            "first.selected": true
+          }
+        ],
+        "invariants": [
+          "invSeparateGestures",
+          "invSeparatePositions",
+          "invSeparateOffers"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Configure separate sound resulting in selecting a piece on the first board": {
+          "target": "Selecting a piece on the first board",
+          "meta": {
+            "action": "configureSeparateSound",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:66"
+            ]
+          }
+        },
+        "Replace separate position resulting in selecting a piece on the first board": {
+          "target": "Selecting a piece on the first board",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        },
+        "Configure separate input resulting in selecting a piece on the first board": {
+          "target": "Selecting a piece on the first board",
+          "meta": {
+            "action": "configureSeparateInput",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:59"
+            ]
+          }
+        },
+        "Close separate board resulting in selecting a piece on the first board": {
+          "target": "Selecting a piece on the first board",
+          "meta": {
+            "action": "closeSeparateBoard",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:77"
+            ]
+          }
+        },
+        "Select separate piece resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "selectSeparatePiece",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:27"
+            ]
+          }
+        },
+        "Begin separate drag resulting in holding a piece on the first board": {
+          "target": "Holding a piece on the first board",
+          "meta": {
+            "action": "beginSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:33"
+            ]
+          }
+        },
+        "Replace separate position resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_21.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        },
+        "Close separate board resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "closeSeparateBoard",
+            "witness": {
+              "trace": "chess-board--board-independence_10.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:77"
+            ]
+          }
+        }
+      }
+    },
+    "Holding a piece on the first board": {
+      "meta": {
+        "description": "The person is holding a piece on the first board.",
+        "snapshot": "the-person-is-holding-a-piece-on-the-first-board",
+        "recognize": [],
+        "checks": [
+          "A held piece has no simultaneous selection, and disabled boards have neither.",
+          "Every board retains its own prepared position or has no position after closing.",
+          "Each prepared local move is received once by its own activity; the shared audible record has at most one sound for each completed move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "first.present": true,
+            "first.held": true,
+            "first.selected": false
+          }
+        ],
+        "invariants": [
+          "invSeparateGestures",
+          "invSeparatePositions",
+          "invSeparateOffers"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Configure separate input resulting in holding a piece on the first board": {
+          "target": "Holding a piece on the first board",
+          "meta": {
+            "action": "configureSeparateInput",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:59"
+            ]
+          }
+        },
+        "Configure separate sound resulting in holding a piece on the first board": {
+          "target": "Holding a piece on the first board",
+          "meta": {
+            "action": "configureSeparateSound",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:66"
+            ]
+          }
+        },
+        "Configure separate input resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "configureSeparateInput",
+            "witness": {
+              "trace": "chess-board--board-independence_13.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:59"
+            ]
+          }
+        },
+        "Cancel separate drag resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "cancelSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:39"
+            ]
+          }
+        },
+        "Close separate board resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "closeSeparateBoard",
+            "witness": {
+              "trace": "chess-board--board-independence_17.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:77"
+            ]
+          }
+        },
+        "Replace separate position resulting in holding a piece on the first board": {
+          "target": "Holding a piece on the first board",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_3.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        },
+        "Replace separate position resulting in viewing two independent boards": {
+          "target": "Viewing two independent boards",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_9.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "first"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        }
+      }
+    },
+    "First board closed": {
+      "meta": {
+        "description": "The person is first board closed.",
+        "snapshot": "the-person-is-first-board-closed",
+        "recognize": [],
+        "checks": [
+          "A held piece has no simultaneous selection, and disabled boards have neither.",
+          "Every board retains its own prepared position or has no position after closing.",
+          "Each prepared local move is received once by its own activity; the shared audible record has at most one sound for each completed move."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/chess-board/board-independence.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "first.present": false,
+            "first.held": false,
+            "first.selected": false
+          }
+        ],
+        "invariants": [
+          "invSeparateGestures",
+          "invSeparatePositions",
+          "invSeparateOffers"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path.",
+        "intentionalDeadEnd": "The visible state is stable in this projection. Remaining operations preserve it; changing data may still be possible. See Quint predicates and the projection review question."
+      },
+      "on": {
+        "Configure separate sound resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "configureSeparateSound",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:66"
+            ]
+          }
+        },
+        "Configure separate input resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "configureSeparateInput",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 10,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:59"
+            ]
+          }
+        },
+        "Replace separate position resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "replaceSeparatePosition",
+            "witness": {
+              "trace": "chess-board--board-independence_19.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:71"
+            ]
+          }
+        },
+        "Move separate piece resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "moveSeparatePiece",
+            "witness": {
+              "trace": "chess-board--board-independence_18.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": true
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:45"
+            ]
+          }
+        },
+        "Select separate piece resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "selectSeparatePiece",
+            "witness": {
+              "trace": "chess-board--board-independence_14.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": true
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:27"
+            ]
+          }
+        },
+        "Begin separate drag resulting in first board closed": {
+          "target": "First board closed",
+          "meta": {
+            "action": "beginSeparateDrag",
+            "witness": {
+              "trace": "chess-board--board-independence_4.itf.json",
+              "step": 2,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "canMove": {
+                  "tag": "Some",
+                  "value": false
+                },
+                "name": {
+                  "tag": "Some",
+                  "value": "second"
+                },
+                "sound": {
+                  "tag": "Some",
+                  "value": false
+                }
+              }
+            },
+            "source": [
+              "specs/chess-board/board-independence.qnt:33"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

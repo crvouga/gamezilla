@@ -1,0 +1,831 @@
+id: chess-board-board-interaction-part-1
+initial: Viewing Choose and complete chess moves
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - pkgs/chess-board-root-client/src/create-chess-board-model.ts
+  - pkgs/chess-board-root-client/src/chess-board.tsx
+  - pkgs/chess-board-root-client/src/chess-board-view.tsx
+  - pkgs/chess-board-root-client/src/chess-board-user-shapes.ts
+  - pkgs/chess-board-root-client/src/chess-board-squares.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+  childCharts:
+  - ../board-board-interaction-part-2/machine.yaml
+states:
+  Viewing Choose and complete chess moves:
+    meta:
+      description: The person is at the place where choose and complete chess moves.
+      snapshot: the-person-is-at-the-place-where-choose-and-complete-chess-moves
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:2
+    'on':
+      Alice selects the piece on e2 when Alice has a chessboard with a movable White pawn on e2:
+        target: Alice has e2 selected — 1
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White pawn on e2
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on g1 when Alice has a chessboard with a movable White knight on g1:
+        target: Alice has g1 selected — 2
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White knight on g1
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on c4:
+        target: Alice has c4 selected — 3
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White bishop on c4
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on a1:
+        target: Alice has a1 selected — 4
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White rook on a1
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on d1:
+        target: Alice has d1 selected — 5
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White queen on d1
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on e1:
+        target: Alice has e1 selected — 6
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:8
+          condition:
+          - Alice has a chessboard with a movable White king on e1
+          example: A movable own piece offers its legal destination
+      Alice selects the piece on e7 when Alice has a chessboard after White's move from e2 to e4:
+        target: Alice has e7 selected — 7
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:23
+          condition:
+          - Alice has a chessboard after White's move from e2 to e4
+          example: Black's pawn offers destinations when Black is to move
+      Alice selects the piece on e2 when Alice has selected the piece on e2:
+        target: Alice sees no selection or legal destinations — 8
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:29
+          condition:
+          - Alice has selected the piece on e2
+          example: Choosing a selected piece again puts the selection down
+      Alice selects the piece on g1 when Alice has selected the piece on e2:
+        target: Alice has g1 selected — 9
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:35
+          condition:
+          - Alice has selected the piece on e2
+          example: Choosing another own piece changes selection without sound
+      Alice selects the piece on e7 when Alice has an interactive chessboard:
+        target: Alice cannot select e7 while White is to move — 10
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:42
+          condition:
+          - Alice has an interactive chessboard
+          example: An opposing piece cannot be selected
+      Alice selects the piece on e4:
+        target: Alice cannot select the empty square e4 — 11
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:49
+          condition:
+          - Alice has an interactive chessboard
+          example: An empty square cannot be selected
+      ? Alice selects the piece on e2 when Alice has a chessboard with the White knight on e2 pinned to its king
+        on e1 by the Black rook on e8
+      : target: Alice is not offered a legal destination for the knight on e2 because it is pinned to its king —
+          12
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:56
+          condition:
+          - Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8
+          example: A pinned knight offers no move that exposes its king
+      Alice selects the piece on a2:
+        target: Alice sees only e2 as a legal destination — 13
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:62
+          condition:
+          - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on
+            a2
+          example: A rook offers only the move that answers check
+      Alice moves the piece from e2 to e4 when Alice has selected the piece on e2:
+        target: Alice sees a White pawn on e4 — 14
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:69
+          condition:
+          - Alice has selected the piece on e2
+          example: A selected pawn completes one move and clears its selection
+      Alice drags the piece from e2 to e4:
+        target: Alice sees a White pawn on e4 — 15
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:78
+          condition:
+          - Alice has an interactive chessboard
+          example: Dragging a pawn completes the same move as selection
+      Alice moves the piece from e7 to e5:
+        target: Alice sees a Black pawn on e5 — 16
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:87
+          condition:
+          - Alice has a chessboard after White's move from e2 to e4
+          example: Black's reply passes the turn back to White
+      Alice drags the piece from d2 to d4:
+        target: Alice sees a White pawn on d4 — 17
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:95
+          condition:
+          - Alice has selected the piece on e2
+          example: A newly held piece replaces the earlier selected source
+      Alice moves the piece from d2 to d4:
+        target: Alice cannot move White's pawn while Black is to move — 18
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:103
+          condition:
+          - Alice has a chessboard after White's move from e2 to e4
+          example: White cannot move again before Black's reply
+      Alice moves the piece from e4 to d5:
+        target: Alice sees a White pawn on d5 — 19
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:113
+          condition:
+          - Alice has a chessboard ready for a capture
+          example: A legal capture removes its victim and sounds once
+      Alice moves the piece from e2 to e5 when Alice has selected the piece on e2 and Alice has chessboard sound enabled:
+        target: Alice sees the White pawn remaining on e2 — 20
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:121
+          condition:
+          - Alice has selected the piece on e2
+          - Alice has chessboard sound enabled
+          example: An illegal selected destination clears selection without a move
+      Alice drags the piece from e2 to e5:
+        target: Alice sees the White pawn remaining on e2 — 21
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:130
+          condition:
+          - Alice has an interactive chessboard
+          example: An illegal dragged destination returns the piece without a move
+      Alice drags the piece from e2 to d2:
+        target: Alice cannot capture the White pawn on d2 — 22
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:139
+          condition:
+          - Alice has an interactive chessboard
+          example: An own piece cannot be captured
+      Alice moves the piece from a2 to a3:
+        target: Alice cannot move the rook because its king would remain in check — 23
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:148
+          condition:
+          - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on
+            a2
+          example: A move that keeps its king in check is refused
+      Alice moves the piece from e2 to c3:
+        target: Alice cannot move the pinned knight because it would expose its king — 24
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:156
+          condition:
+          - Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8
+          example: A pinned knight cannot expose its king by moving
+      ? Alice moves the piece from a2 to e2 when Alice has a chessboard with White's king on e1 in check from Black's
+        rook on e8 and White's rook on a2
+      : target: Alice sees a White rook on e2 — 25
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:163
+          condition:
+          - Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on
+            a2
+          example: A permitted reply removes the king's check
+      Alice moves the piece from e2 to e5 when Alice has a silent chessboard:
+        target: Alice sees the White pawn remaining on e2 — 26
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:170
+          condition:
+          - Alice has a silent chessboard
+          example: A silent illegal move preserves the position without sound
+      Alice drops the held piece on e2:
+        target: Alice sees a White pawn on e2 — 27
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:179
+          condition:
+          - Alice is dragging the piece on e2
+          example: Dropping a piece on its own square puts it down without a move
+      Alice drops the held piece outside the chessboard:
+        target: Alice sees the White pawn remaining on e2 — 28
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:187
+          condition:
+          - Alice is dragging the piece on e2
+          example: Dropping outside the chessboard puts the piece back
+      Alice drags the piece from e7 to e5:
+        target: Alice cannot move Black's pawn while White is to move — 29
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:194
+          condition:
+          - Alice has an interactive chessboard
+          example: Dragging an opposing piece cannot offer a move
+      Alice drags the piece from e4 to e5:
+        target: Alice cannot move a piece from the empty square e4 — 30
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:202
+          condition:
+          - Alice has an interactive chessboard
+          example: Dragging an empty square cannot offer a move
+      Alice moves the piece from e2 to e4 when Alice has an interactive chessboard:
+        target: Alice hears one move sound with no check or end sounds — 31
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:211
+          condition:
+          - Alice has an interactive chessboard
+          example: An ordinary move has no check or end sound
+      ? Alice moves the piece from a2 to e2 when Alice has a chessboard ready for White to check Black by moving
+        the rook from a2 to e2
+      : target: Alice sees Black's king on e8 marked as in check — 32
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:217
+          condition:
+          - Alice has a chessboard ready for White to check Black by moving the rook from a2 to e2
+          example: A checking move identifies the threatened king
+      ? Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by moving
+        the queen from g6 to g7
+      : target: Alice is told Black is checkmated — 33
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:224
+          condition:
+          - Alice has a chessboard ready for White to checkmate Black by moving the queen from g6 to g7
+          example: Checkmate announces the result with each sound once
+      ? Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by capturing
+        the rook on g7 with the queen on g6
+      : target: Alice is told Black is checkmated — 34
+        meta:
+          source:
+          - specs/chess-board/board-interaction.feature:232
+          condition:
+          - Alice has a chessboard ready for White to checkmate Black by capturing the rook on g7 with the queen
+            on g6
+          example: A mating capture sounds capture before check and the end sound
+  Alice has e2 selected — 1:
+    meta:
+      description: The person observes that alice has e2 selected.
+      snapshot: the-person-observes-that-alice-has-e2-selected
+      recognize: []
+      checks:
+      - Alice has e2 selected
+      - Alice sees e4 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has g1 selected — 2:
+    meta:
+      description: The person observes that alice has g1 selected.
+      snapshot: the-person-observes-that-alice-has-g1-selected
+      recognize: []
+      checks:
+      - Alice has g1 selected
+      - Alice sees f3 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has c4 selected — 3:
+    meta:
+      description: The person observes that alice has c4 selected.
+      snapshot: the-person-observes-that-alice-has-c4-selected
+      recognize: []
+      checks:
+      - Alice has c4 selected
+      - Alice sees d5 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has a1 selected — 4:
+    meta:
+      description: The person observes that alice has a1 selected.
+      snapshot: the-person-observes-that-alice-has-a1-selected
+      recognize: []
+      checks:
+      - Alice has a1 selected
+      - Alice sees a4 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has d1 selected — 5:
+    meta:
+      description: The person observes that alice has d1 selected.
+      snapshot: the-person-observes-that-alice-has-d1-selected
+      recognize: []
+      checks:
+      - Alice has d1 selected
+      - Alice sees d4 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has e1 selected — 6:
+    meta:
+      description: The person observes that alice has e1 selected.
+      snapshot: the-person-observes-that-alice-has-e1-selected
+      recognize: []
+      checks:
+      - Alice has e1 selected
+      - Alice sees f1 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:8
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has e7 selected — 7:
+    meta:
+      description: The person observes that alice has e7 selected.
+      snapshot: the-person-observes-that-alice-has-e7-selected
+      recognize: []
+      checks:
+      - Alice has e7 selected
+      - Alice sees only e5 and e6 as legal destinations
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:23
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees no selection or legal destinations — 8:
+    meta:
+      description: The person observes that alice sees no selection or legal destinations.
+      snapshot: the-person-observes-that-alice-sees-no-selection-or-legal-destinations
+      recognize: []
+      checks:
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has g1 selected — 9:
+    meta:
+      description: The person observes that alice has g1 selected.
+      snapshot: the-person-observes-that-alice-has-g1-selected
+      recognize: []
+      checks:
+      - Alice has g1 selected
+      - Alice sees only f3 and h3 as legal destinations
+      - Alice hears no chessboard sounds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:35
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot select e7 while White is to move — 10:
+    meta:
+      description: The person observes that alice cannot select e7 while White is to move.
+      snapshot: the-person-observes-that-alice-cannot-select-e7-while-white-is-to-move
+      recognize: []
+      checks:
+      - Alice cannot select e7 while White is to move
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:42
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot select the empty square e4 — 11:
+    meta:
+      description: The person observes that alice cannot select the empty square e4.
+      snapshot: the-person-observes-that-alice-cannot-select-the-empty-square-e4
+      recognize: []
+      checks:
+      - Alice cannot select the empty square e4
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:49
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is not offered a legal destination for the knight on e2 because it is pinned to its king — 12:
+    meta:
+      description: The person observes that alice is not offered a legal destination for the knight on e2 because
+        it is pinned to its king.
+      snapshot: the-person-observes-that-alice-is-not-offered-a-legal-destination-for-the-knight-on-e
+      recognize: []
+      checks:
+      - Alice is not offered a legal destination for the knight on e2 because it is pinned to its king
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:56
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees only e2 as a legal destination — 13:
+    meta:
+      description: The person observes that alice sees only e2 as a legal destination.
+      snapshot: the-person-observes-that-alice-sees-only-e2-as-a-legal-destination
+      recognize: []
+      checks:
+      - Alice sees only e2 as a legal destination
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:62
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e4 — 14:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice sees Black to move
+      - Alice sees no selection or legal destinations
+      - Alice sees e2 and e4 marked as the last move
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:69
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e4 — 15:
+    meta:
+      description: The person observes that alice sees a White pawn on e4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e4
+      - Alice sees Black to move
+      - Alice sees no selection or legal destinations
+      - Alice sees e2 and e4 marked as the last move
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:78
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a Black pawn on e5 — 16:
+    meta:
+      description: The person observes that alice sees a Black pawn on e5.
+      snapshot: the-person-observes-that-alice-sees-a-black-pawn-on-e5
+      recognize: []
+      checks:
+      - Alice sees a Black pawn on e5
+      - Alice sees White to move
+      - Alice sees e7 and e5 marked as the last move
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:87
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on d4 — 17:
+    meta:
+      description: The person observes that alice sees a White pawn on d4.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-d4
+      recognize: []
+      checks:
+      - Alice sees a White pawn on d4
+      - Alice sees the White pawn remaining on e2
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:95
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move White's pawn while Black is to move — 18:
+    meta:
+      description: The person observes that alice cannot move White's pawn while Black is to move.
+      snapshot: the-person-observes-that-alice-cannot-move-white-s-pawn-while-black-is-to-move
+      recognize: []
+      checks:
+      - Alice cannot move White's pawn while Black is to move
+      - Alice sees the White pawn remaining on d2
+      - Alice sees Black to move
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:103
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on d5 — 19:
+    meta:
+      description: The person observes that alice sees a White pawn on d5.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-d5
+      recognize: []
+      checks:
+      - Alice sees a White pawn on d5
+      - Alice sees no captured piece after the animation
+      - Alice hears one capture sound
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:113
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on e2 — 20:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on e2.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-e2
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on e2
+      - Alice sees no selection or legal destinations
+      - Alice hears one illegal move sound
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:121
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on e2 — 21:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on e2.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-e2
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on e2
+      - Alice sees no selection or legal destinations
+      - Alice no longer holds a piece
+      - Alice hears one illegal move sound
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:130
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot capture the White pawn on d2 — 22:
+    meta:
+      description: The person observes that alice cannot capture the White pawn on d2.
+      snapshot: the-person-observes-that-alice-cannot-capture-the-white-pawn-on-d2
+      recognize: []
+      checks:
+      - Alice cannot capture the White pawn on d2
+      - Alice sees the White pawn remaining on e2
+      - Alice sees the White pawn remaining on d2
+      - Alice hears no capture sound
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:139
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the rook because its king would remain in check — 23:
+    meta:
+      description: The person observes that alice cannot move the rook because its king would remain in check.
+      snapshot: the-person-observes-that-alice-cannot-move-the-rook-because-its-king-would-remain-in-
+      recognize: []
+      checks:
+      - Alice cannot move the rook because its king would remain in check
+      - Alice sees the White rook remaining on a2
+      - Alice sees White's king on e1 marked as in check
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:148
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move the pinned knight because it would expose its king — 24:
+    meta:
+      description: The person observes that alice cannot move the pinned knight because it would expose its king.
+      snapshot: the-person-observes-that-alice-cannot-move-the-pinned-knight-because-it-would-expose-
+      recognize: []
+      checks:
+      - Alice cannot move the pinned knight because it would expose its king
+      - Alice sees the White knight remaining on e2
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:156
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White rook on e2 — 25:
+    meta:
+      description: The person observes that alice sees a White rook on e2.
+      snapshot: the-person-observes-that-alice-sees-a-white-rook-on-e2
+      recognize: []
+      checks:
+      - Alice sees a White rook on e2
+      - Alice sees neither king marked as in check
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:163
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on e2 — 26:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on e2.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-e2
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on e2
+      - Alice hears no chessboard sounds
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:170
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees a White pawn on e2 — 27:
+    meta:
+      description: The person observes that alice sees a White pawn on e2.
+      snapshot: the-person-observes-that-alice-sees-a-white-pawn-on-e2
+      recognize: []
+      checks:
+      - Alice sees a White pawn on e2
+      - Alice no longer holds a piece
+      - Alice sees no selection or legal destinations
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:179
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees the White pawn remaining on e2 — 28:
+    meta:
+      description: The person observes that alice sees the White pawn remaining on e2.
+      snapshot: the-person-observes-that-alice-sees-the-white-pawn-remaining-on-e2
+      recognize: []
+      checks:
+      - Alice sees the White pawn remaining on e2
+      - Alice no longer holds a piece
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:187
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move Black's pawn while White is to move — 29:
+    meta:
+      description: The person observes that alice cannot move Black's pawn while White is to move.
+      snapshot: the-person-observes-that-alice-cannot-move-black-s-pawn-while-white-is-to-move
+      recognize: []
+      checks:
+      - Alice cannot move Black's pawn while White is to move
+      - Alice no longer holds a piece
+      - Alice sees the Black pawn remaining on e7
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:194
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice cannot move a piece from the empty square e4 — 30:
+    meta:
+      description: The person observes that alice cannot move a piece from the empty square e4.
+      snapshot: the-person-observes-that-alice-cannot-move-a-piece-from-the-empty-square-e4
+      recognize: []
+      checks:
+      - Alice cannot move a piece from the empty square e4
+      - Alice no longer holds a piece
+      - Alice's activity receives no moves
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:202
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears one move sound with no check or end sounds — 31:
+    meta:
+      description: The person observes that alice hears one move sound with no check or end sounds.
+      snapshot: the-person-observes-that-alice-hears-one-move-sound-with-no-check-or-end-sounds
+      recognize: []
+      checks:
+      - Alice hears one move sound with no check or end sounds
+      - Alice sees neither king marked as in check
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:211
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice sees Black's king on e8 marked as in check — 32:
+    meta:
+      description: The person observes that alice sees Black's king on e8 marked as in check.
+      snapshot: the-person-observes-that-alice-sees-black-s-king-on-e8-marked-as-in-check
+      recognize: []
+      checks:
+      - Alice sees Black's king on e8 marked as in check
+      - Alice is told Black is in check
+      - Alice hears one move sound followed by one check sound
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:217
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told Black is checkmated — 33:
+    meta:
+      description: The person observes that alice is told Black is checkmated.
+      snapshot: the-person-observes-that-alice-is-told-black-is-checkmated
+      recognize: []
+      checks:
+      - Alice is told Black is checkmated
+      - Alice sees Black's king on h8 marked as in check
+      - Alice hears one move sound followed by one check sound and one end sound
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:224
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told Black is checkmated — 34:
+    meta:
+      description: The person observes that alice is told Black is checkmated.
+      snapshot: the-person-observes-that-alice-is-told-black-is-checkmated
+      recognize: []
+      checks:
+      - Alice is told Black is checkmated
+      - Alice hears one capture sound followed by one check sound and one end sound
+      - Alice's activity receives one move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:232
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

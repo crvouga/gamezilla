@@ -1,0 +1,121 @@
+journeys:
+  The puzzle opens after the opponent's setup move, facing the solver:
+    description: The puzzle opens after the opponent's setup move, facing the solver
+    startingConditions:
+    - Alice is signed in
+    events:
+    - Alice opens the two-rook clearance puzzle
+    endsIn: Alice's board faces White — 1
+    checks:
+    - Alice's board faces White
+    - Alice's board shows a7-a6 as the last move
+    - it is White's move on Alice's board
+    - Alice is prompted to find the next move for White
+    gherkin:
+    - specs/chess/solve-flow.feature:13 — The puzzle opens after the opponent's setup move, facing the solver
+    exampleRow: []
+  A correct move is answered by the opponent's reply, played by itself:
+    description: A correct move is answered by the opponent's reply, played by itself
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    events:
+    - Alice plays the move a1-a5
+    endsIn: the opponent replies h7-h6 by itself — 2
+    checks:
+    - the opponent replies h7-h6 by itself
+    - it is White's move on Alice's board
+    - Alice is solving the puzzle at move 3 of the line
+    gherkin:
+    - specs/chess/solve-flow.feature:21 — A correct move is answered by the opponent's reply, played by itself
+    exampleRow: []
+  Finishing the line solves the puzzle:
+    description: Finishing the line solves the puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the two-rook clearance puzzle
+    - Alice has played a1-a5
+    events:
+    - Alice plays the move h1-h5
+    endsIn: Alice's puzzle is solved within 20 seconds — 3
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice feels the success haptic
+    gherkin:
+    - specs/chess/solve-flow.feature:29 — Finishing the line solves the puzzle
+    exampleRow: []
+  A wrong move is called out at once:
+    description: A wrong move is called out at once
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the castling puzzle
+    events:
+    - Alice plays a wrong move
+    endsIn: Alice is told the move was wrong — 4
+    checks:
+    - Alice is told the move was wrong
+    - Alice feels the error haptic
+    gherkin:
+    - specs/chess/solve-flow.feature:37 — A wrong move is called out at once
+    exampleRow: []
+  Castling by moving the king two squares solves the puzzle:
+    description: Castling by moving the king two squares solves the puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the castling puzzle
+    events:
+    - Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle
+    endsIn: Alice's puzzle is solved within 20 seconds — 5
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    gherkin:
+    - specs/chess/solve-flow.feature:44 — Castling by moving the king two squares solves the puzzle
+    exampleRow: []
+  Castling by moving the king onto its rook solves the puzzle:
+    description: Castling by moving the king onto its rook solves the puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the castling puzzle
+    events:
+    - Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling
+      puzzle
+    endsIn: Alice's puzzle is solved within 20 seconds — 6
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    gherkin:
+    - specs/chess/solve-flow.feature:50 — Castling by moving the king onto its rook solves the puzzle
+    exampleRow: []
+  Retrying and castling two squares keeps the failed result:
+    description: Retrying and castling two squares keeps the failed result
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the castling puzzle
+    - Alice has played a wrong move and retried
+    events:
+    - Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle
+      and Alice has played a wrong move and retried
+    endsIn: Alice's puzzle is solved within 20 seconds — 7
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/solve-flow.feature:56 — Retrying and castling two squares keeps the failed result
+    exampleRow: []
+  Retrying and castling onto the rook keeps the failed result:
+    description: Retrying and castling onto the rook keeps the failed result
+    startingConditions:
+    - Alice is signed in
+    - Alice is solving the castling puzzle
+    - Alice has played a wrong move and retried
+    events:
+    - Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling
+      puzzle and Alice has played a wrong move and retried
+    endsIn: Alice's puzzle is solved within 20 seconds — 8
+    checks:
+    - Alice's puzzle is solved within 20 seconds
+    - Alice's game log records that puzzle as failed
+    - Alice's stats show 1 played, 0 solved, and 0% accuracy
+    gherkin:
+    - specs/chess/solve-flow.feature:65 — Retrying and castling onto the rook keeps the failed result
+    exampleRow: []

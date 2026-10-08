@@ -1,0 +1,1239 @@
+journeys:
+  Valid model trace 1:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Cancels the pending choice resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Cancels the pending choice resulting in viewing a person to ask
+    endsIn: Viewing a person to ask
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 0
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e7867f62a63c983abeffce0da26c5d4af1f71b0cc38d4a00e6dddaa9e0636fc6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 2:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Removes the friend resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Accepts the friend request resulting in viewing a friend
+    - Unblocks the other person resulting in viewing a friend
+    - Asks the other person to be friends resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Cancels the pending choice resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Unblocks the other person resulting in viewing a friend
+    - The connection returns resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Cancels the pending choice resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Declines the request from the profile resulting in viewing a person you blocked
+    - Accepts the friend request resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 1
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 207e8b3104437343cc29cab50621131ce572228b2525c97ddf5abef7d16a5843
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 3:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Accepts the friend request resulting in choosing whether to accept a request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Accepts the friend request resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    endsIn: Choosing whether to accept a request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 2
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 929812f16b563b4259ffe5934f9aa9bb3783c2d932082cf99ae1492c91073f0c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 4:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Declines the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Declines the request from the profile resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Declines the request from the profile resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Declines the request from the profile resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 3
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 206329bd7a0bdb227c62a5753fe719042d617375cf09ed851334a3616afd1b24
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 5:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Declines the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    endsIn: Viewing a person to ask
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 4
+      maxSamples: 24
+      maxSteps: 100
+      sha256: f64111eadb8ee2c8a96217c4be82d313846f3ec51f804853998a1a83dfe7d419
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 6:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Cancels the pending choice resulting in waiting for a sent request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - The connection returns resulting in choosing whether to accept a request after a declined request
+    - Accepts the friend request from the profile resulting in viewing a friend after a declined request
+    - Removes the friend resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in choosing whether to accept a request after a declined request
+    - Unblocks the other person resulting in choosing whether to accept a request after a declined request
+    - Unblocks the other person resulting in choosing whether to accept a request after a declined request
+    - Blocks the other person resulting in choosing whether to accept a request after a declined request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Unblocks the other person resulting in viewing a person you blocked after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Unblocks the other person resulting in viewing a person you blocked after a declined request
+    endsIn: Viewing a person you blocked after a declined request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 5
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 39d8f5659092ebb52143ce8f55c93f2cc136dd890b8f09365e357a0180ee529c
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 7:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Accepts the friend request from the profile resulting in viewing a person you blocked
+    - Removes the friend resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Declines the request from the profile resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Cancels the pending choice resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 6
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 270237d62be95cc57b4e06adcaf31d386cfa1327f5d704e43d86bfe52e85617e
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 8:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person you blocked after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Asks the other person to be friends resulting in unable to find the other person after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in unable to find the other person after a declined request
+    - The connection returns resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - The connection returns resulting in choosing whether to accept a request after a declined request
+    - Cancels the pending choice resulting in choosing whether to accept a request after a declined request
+    - Unblocks the other person resulting in choosing whether to accept a request after a declined request
+    - Blocks the other person resulting in choosing whether to accept a request after a declined request
+    - Blocks the other person resulting in choosing whether to accept a request after a declined request
+    - The connection returns resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    - The connection returns resulting in unable to find the other person after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    endsIn: Unable to find the other person after a declined request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 7
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 664ac9947d3d3107f9d567b2c9636e00ded5d40a785ab6d9b3673e779004b297
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 9:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Declines the request from the profile resulting in viewing a person to ask after a declined request
+    - Accepts the friend request from the profile resulting in viewing a person to ask after a declined request
+    - Removes the friend resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in unable to find the other person after a declined request
+    - The connection returns resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in unable to find the other person after a declined request
+    - Unblocks the other person resulting in unable to find the other person after a declined request
+    - The connection returns resulting in viewing a person to ask after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Unblocks the other person resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    endsIn: Viewing a person to ask after a declined request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 8
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 3e315b80dd41df8cfcd1e93f93f663db7046c7acb88efb34171265fd4c28281f
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 10:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Accepts the friend request from the profile resulting in unable to find the other person
+    - Removes the friend resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Removes the friend resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Declines the request from the profile resulting in unable to find the other person
+    endsIn: Unable to find the other person
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 9
+      maxSamples: 24
+      maxSteps: 100
+      sha256: fe1dbea98a701721f526fe184f002d695435e7458b1fffb9e1c72f7508841adf
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 11:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - The connection returns resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Cancels the pending choice resulting in choosing whether to accept a request
+    - The connection returns resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    endsIn: Viewing a person to ask
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 10
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 12630fb1c2edae1891ff41ba29043b0ca83b217fbc8c637ac5cc59cde8ff03aa
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 12:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Declines the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Accepts the friend request resulting in waiting for a sent request
+    - Removes the friend resulting in waiting for a sent request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in viewing a person to ask after a declined request
+    endsIn: Viewing a person to ask after a declined request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 11
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 96614ae090d630900f41ad5ca6a2c1799ca2b28d6b336b055d4c35b99fe4065b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 13:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Declines the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Accepts the friend request resulting in viewing a friend
+    - Asks the other person to be friends resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 12
+      maxSamples: 24
+      maxSteps: 100
+      sha256: e5f584ffecc3a5da2173aaad0d00e90114e2365a2b88fe4c3c2f82afc5d8b4e0
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 14:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Declines the friend request resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Declines the request from the profile resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Removes the friend resulting in waiting for a sent request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    endsIn: Viewing a person to ask
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 13
+      maxSamples: 24
+      maxSteps: 100
+      sha256: ea809b114764376edfc4460e953fa31d0467ed8e06b3b6d80db0a83549aa8ee0
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 15:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 14
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 7e3b15cde91e9e62dac130cc49a0f4a48d69101eace6dbaee38be4465e788023
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 16:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Accepts the friend request from the profile resulting in waiting for a sent request
+    - The connection returns resulting in viewing a friend
+    - Unblocks the other person resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Accepts the friend request from the profile resulting in unable to find the other person
+    - Removes the friend resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 15
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 920ae30e45d25dc46335392cbdb7e510e29756bb6193a52c6b38ea09d0c2589b
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 17:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - The connection returns resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Cancels the pending choice resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    endsIn: Choosing whether to accept a request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 16
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d5a6c6ef510fbcab25e78b6e28671a57a86a884f2059849c1b9c4d226e0f30ea
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 18:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Asks the other person to be friends resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Blocks the other person resulting in viewing a friend
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Declines the friend request resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Removes the friend resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    endsIn: Unable to find the other person
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 17
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 609d5a10e5c6a60704c30290db28d653ccee07b2e5899a6ff01376f37b40f0ec
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 19:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Cancels the pending choice resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Accepts the friend request resulting in viewing a friend
+    - Removes the friend resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Unblocks the other person resulting in waiting for a sent request
+    - Declines the friend request resulting in viewing a person to ask after a declined request
+    - Blocks the other person resulting in viewing a person to ask after a declined request
+    - Asks the other person to be friends resulting in choosing whether to accept a request after a declined request
+    - Unblocks the other person resulting in choosing whether to accept a request after a declined request
+    - Blocks the other person resulting in choosing whether to accept a request after a declined request
+    endsIn: Choosing whether to accept a request after a declined request
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 18
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 2d6b404708cca9f00afae5cfbd6b9c627ac0f71d276262f9de1f0c7d47787023
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 20:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Accepts the friend request resulting in viewing a person you blocked
+    - Removes the friend resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Cancels the pending choice resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    endsIn: Unable to find the other person
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 19
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 43f9c973e3fa2c630233215473268e26efe64f9a5a373cd4da9a66e775d232a7
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 21:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Declines the request from the profile resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Accepts the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Cancels the pending choice resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    endsIn: Viewing a person to ask
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 20
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 317d83e62983084ec7edbe9746dde9e8f8045cba2039da51cd25cedc81b33138
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 22:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - The connection returns resulting in choosing whether to accept a request
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Declines the request from the profile resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - The connection returns resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in waiting for a sent request
+    - Blocks the other person resulting in waiting for a sent request
+    - Accepts the friend request resulting in viewing a friend
+    - Removes the friend resulting in viewing a friend
+    - The connection returns resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Unblocks the other person resulting in choosing whether to accept a request
+    - Blocks the other person resulting in choosing whether to accept a request
+    - Accepts the friend request from the profile resulting in viewing a friend
+    - Unblocks the other person resulting in viewing a friend
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 21
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 24e129835e24c9c42ae39122cc3bac3ffc027e9c17f94be8c7371ed6add95d88
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 23:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Declines the request from the profile resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 22
+      maxSamples: 24
+      maxSteps: 100
+      sha256: 27143f7065d620fed02f69845e9237dd444fd3aa01e7ad0e4b38dd4937319221
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.
+  Valid model trace 24:
+    description: A simulator-accepted history projected onto the aggregate’s visible states.
+    events:
+    - Opens with viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in viewing a person to ask
+    - Accepts the friend request resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - The connection returns resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in unable to find the other person
+    - Removes the friend resulting in unable to find the other person
+    - Asks the other person to be friends resulting in unable to find the other person
+    - Unblocks the other person resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Declines the friend request resulting in unable to find the other person
+    - Blocks the other person resulting in unable to find the other person
+    - Unblocks the other person resulting in viewing a person to ask
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    - Accepts the friend request from the profile resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person to ask
+    - Blocks the other person resulting in viewing a person to ask
+    - Asks the other person to be friends resulting in choosing whether to accept a request
+    - Blocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Blocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Unblocks the other person resulting in viewing a person you blocked
+    - Asks the other person to be friends resulting in viewing a person you blocked
+    endsIn: Viewing a person you blocked
+    quintTrace:
+      model: specs/friends/friendship.qnt
+      seed: 42
+      traceSequence: 23
+      maxSamples: 24
+      maxSteps: 100
+      sha256: d6a56ec160df9b212ed67b220321e77f875d374670199d43e79c045454febbb6
+    startingConditions:
+    - Use the exact Quint sample’s nondeterministic choices; arbitrary data can enable different outcomes.

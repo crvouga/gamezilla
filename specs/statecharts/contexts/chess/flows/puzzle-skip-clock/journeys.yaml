@@ -1,0 +1,83 @@
+journeys:
+  The puzzle clock runs while Alice is solving:
+    description: The puzzle clock runs while Alice is solving
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - 65 seconds pass
+    endsIn: Alice's puzzle clock shows at least 60 seconds — 1
+    checks:
+    - Alice's puzzle clock shows at least 60 seconds
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:14 — The puzzle clock runs while Alice is solving
+    exampleRow: []
+  The puzzle clock stops on a solve:
+    description: The puzzle clock stops on a solve
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has solved the puzzle
+    events:
+    - 30 seconds pass
+    endsIn: Alice's puzzle clock has not moved since the solve — 2
+    checks:
+    - Alice's puzzle clock has not moved since the solve
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:18 — The puzzle clock stops on a solve
+    exampleRow: []
+  A skipped puzzle is over and logged as abandoned:
+    description: A skipped puzzle is over and logged as abandoned
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice's puzzle is skipped — 3
+    checks:
+    - Alice's puzzle is skipped
+    - Alice's game log records that puzzle as abandoned
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:23 — A skipped puzzle is over and logged as abandoned
+    exampleRow: []
+  Moving on after a skip starts a fresh puzzle:
+    description: Moving on after a skip starts a fresh puzzle
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    - Alice has skipped the puzzle
+    events:
+    - Alice moves on to the next puzzle
+    endsIn: Alice is solving a different puzzle than the one before — 4
+    checks:
+    - Alice is solving a different puzzle than the one before
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:28 — Moving on after a skip starts a fresh puzzle
+    exampleRow: []
+  Skipping a puzzle drops the rating:
+    description: Skipping a puzzle drops the rating
+    startingConditions:
+    - Alice is signed in
+    - Alice is playing puzzles in their space
+    events:
+    - Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space
+    endsIn: Alice's puzzle is skipped — 3
+    checks:
+    - Alice's puzzle rating is below 1500
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:33 — Skipping a puzzle drops the rating
+    exampleRow: []
+  A slow solve changes the rating as much as a quick one:
+    description: A slow solve changes the rating as much as a quick one
+    startingConditions:
+    - Alice and Bob are signed in
+    - Bob has solved the hook-mate puzzle
+    - Alice has been solving the hook-mate puzzle for 5 minutes
+    events:
+    - Alice solves the puzzle
+    endsIn: Alice's puzzle rating is the same as Bob's — 6
+    checks:
+    - Alice's puzzle rating is the same as Bob's
+    gherkin:
+    - specs/chess/puzzle-skip-clock.feature:40 — A slow solve changes the rating as much as a quick one
+    exampleRow: []

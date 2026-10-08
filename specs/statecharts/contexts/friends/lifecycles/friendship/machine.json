@@ -1,0 +1,2890 @@
+{
+  "id": "friends-friendship-lifecycle",
+  "initial": "Opening friendship",
+  "meta": {
+    "context": "Friends",
+    "kind": "lifecycle",
+    "owner": "Friends owner (not named in specs)",
+    "tier": "standard",
+    "emits": [
+      "BecameFriends",
+      "FriendshipEnded"
+    ],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/friends/friendship.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
+    "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
+  },
+  "states": {
+    "Opening friendship": {
+      "meta": {
+        "description": "The person is opening the friendship view.",
+        "snapshot": "the-person-is-opening-the-friendship-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ]
+      },
+      "on": {
+        "Opens with viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "friends--friendship_16.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/friends/friendship.qnt:104"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a person to ask": {
+      "meta": {
+        "description": "The person is viewing a person to ask.",
+        "snapshot": "the-person-is-viewing-a-person-to-ask",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Stranger",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Asks the other person to be friends resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 35,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "The connection returns resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Removes the friend resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_12.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_19.itf.json",
+              "step": 43,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "The connection returns resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_7.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        }
+      }
+    },
+    "Waiting for a sent request": {
+      "meta": {
+        "description": "The person is waiting for a sent request.",
+        "snapshot": "the-person-is-waiting-for-a-sent-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "RequestSent",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Accepts the friend request from the profile resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 72,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Blocks the other person resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 22,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 36,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_20.itf.json",
+              "step": 59,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_7.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_6.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Removes the friend resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_6.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        },
+        "Accepts the friend request from the profile resulting in waiting for a sent request": {
+          "target": "Waiting for a sent request",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_8.itf.json",
+              "step": 4,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "The connection returns resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_8.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a friend": {
+      "meta": {
+        "description": "The person is viewing a friend.",
+        "snapshot": "the-person-is-viewing-a-friend",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Friend",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Cancels the pending choice resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Removes the friend resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "The connection returns resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 58,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 88,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Removes the friend resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_22.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a person you blocked": {
+      "meta": {
+        "description": "The person is viewing a person you blocked.",
+        "snapshot": "the-person-is-viewing-a-person-you-blocked",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Blocking",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Unblocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 36,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 44,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 86,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 90,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 93,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Accepts the friend request from the profile resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_14.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Removes the friend resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_14.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_11.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        }
+      }
+    },
+    "Unable to find the other person": {
+      "meta": {
+        "description": "The person is unable to find the other person.",
+        "snapshot": "the-person-is-unable-to-find-the-other-person",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Hidden",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Asks the other person to be friends resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 49,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Declines the friend request resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "The connection returns resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_12.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_19.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_14.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Accepts the friend request from the profile resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_21.itf.json",
+              "step": 13,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Removes the friend resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_21.itf.json",
+              "step": 14,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing whether to accept a request": {
+      "meta": {
+        "description": "The person is choosing whether to accept a request.",
+        "snapshot": "the-person-is-choosing-whether-to-accept-a-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "RequestReceived",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": false
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Cancels the pending choice resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_0.itf.json",
+              "step": 100,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person you blocked": {
+          "target": "Viewing a person you blocked",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_1.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 23,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 24,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        },
+        "Blocks the other person resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Accepts the friend request from the profile resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_13.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_19.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "Declines the request from the profile resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "declineFromProfile",
+            "witness": {
+              "trace": "friends--friendship_14.itf.json",
+              "step": 92,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:180"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person": {
+          "target": "Unable to find the other person",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_20.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in choosing whether to accept a request": {
+          "target": "Choosing whether to accept a request",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_7.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "The connection returns resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_7.itf.json",
+              "step": 97,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person to ask": {
+          "target": "Viewing a person to ask",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_6.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "Accepts the friend request resulting in viewing a friend": {
+          "target": "Viewing a friend",
+          "meta": {
+            "action": "accept",
+            "witness": {
+              "trace": "friends--friendship_10.itf.json",
+              "step": 56,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:147"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a person to ask after a declined request": {
+      "meta": {
+        "description": "The person is viewing a person to ask after a declined request.",
+        "snapshot": "the-person-is-viewing-a-person-to-ask-after-a-declined-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Stranger",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": true
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Blocks the other person resulting in viewing a person you blocked after a declined request": {
+          "target": "Viewing a person you blocked after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 47,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Blocks the other person resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 48,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "The connection returns resulting in choosing whether to accept a request after a declined request": {
+          "target": "Choosing whether to accept a request after a declined request",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Asks the other person to be friends resulting in choosing whether to accept a request after a declined request": {
+          "target": "Choosing whether to accept a request after a declined request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 68,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "The connection returns resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 98,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Accepts the friend request from the profile resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_20.itf.json",
+              "step": 60,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Removes the friend resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_20.itf.json",
+              "step": 61,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a person you blocked after a declined request": {
+      "meta": {
+        "description": "The person is viewing a person you blocked after a declined request.",
+        "snapshot": "the-person-is-viewing-a-person-you-blocked-after-a-declined-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Blocking",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": true
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Blocks the other person resulting in viewing a person you blocked after a declined request": {
+          "target": "Viewing a person you blocked after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 46,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person you blocked after a declined request": {
+          "target": "Viewing a person you blocked after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        }
+      }
+    },
+    "Choosing whether to accept a request after a declined request": {
+      "meta": {
+        "description": "The person is choosing whether to accept a request after a declined request.",
+        "snapshot": "the-person-is-choosing-whether-to-accept-a-request-after-a-declined-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "RequestReceived",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": true
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Accepts the friend request from the profile resulting in viewing a friend after a declined request": {
+          "target": "Viewing a friend after a declined request",
+          "meta": {
+            "action": "acceptFromProfile",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 67,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:158"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in choosing whether to accept a request after a declined request": {
+          "target": "Choosing whether to accept a request after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 80,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "Blocks the other person resulting in choosing whether to accept a request after a declined request": {
+          "target": "Choosing whether to accept a request after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 83,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Declines the friend request resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "decline",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:169"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in choosing whether to accept a request after a declined request": {
+          "target": "Choosing whether to accept a request after a declined request",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 84,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:133"
+            ]
+          }
+        },
+        "The connection returns resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 89,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a friend after a declined request": {
+      "meta": {
+        "description": "The person is viewing a friend after a declined request.",
+        "snapshot": "the-person-is-viewing-a-friend-after-a-declined-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Friend",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": true
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Removes the friend resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "remove",
+            "witness": {
+              "trace": "friends--friendship_18.itf.json",
+              "step": 76,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:191"
+            ]
+          }
+        }
+      }
+    },
+    "Unable to find the other person after a declined request": {
+      "meta": {
+        "description": "The person is unable to find the other person after a declined request.",
+        "snapshot": "the-person-is-unable-to-find-the-other-person-after-a-declined-request",
+        "recognize": [],
+        "checks": [
+          "Friendship is mutual, and connected friends see the same relationship.",
+          "A sent request is received on the other side once both are connected.",
+          "A blocked person cannot find the blocker once their connection returns.",
+          "Connected people see every change made while they were away.",
+          "An offline person keeps their last known relationships until returning.",
+          "A block leaves no friendship and no friend request between the two.",
+          "A friend request declined today is not still waiting.",
+          "With no connection, a person asks, answers, removes and blocks no further time. Their last known relationships remain available."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/friends/friendship.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "friendshipStatus.get((\"alice\",\"bob\"))": [
+              "Hidden",
+              []
+            ],
+            "declined.contains((\"alice\",\"bob\"))": true
+          }
+        ],
+        "invariants": [
+          "invFriendsBothWays",
+          "invRequestsPair",
+          "invBlockedCannotFind",
+          "invConnectedRelationshipsAgree",
+          "invOfflineKeepsLastKnown",
+          "invBlockEndsTies",
+          "invDeclinedIsNotWaiting",
+          "invOfflineDoesNoMore"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Asks the other person to be friends resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "ask",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:119"
+            ]
+          }
+        },
+        "Blocks the other person resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "block",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:203"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in unable to find the other person after a declined request": {
+          "target": "Unable to find the other person after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "bob"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "carol"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        },
+        "The connection returns resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "_connectionReturns",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "carol"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "alice"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:239"
+            ]
+          }
+        },
+        "Unblocks the other person resulting in viewing a person to ask after a declined request": {
+          "target": "Viewing a person to ask after a declined request",
+          "meta": {
+            "action": "unblock",
+            "witness": {
+              "trace": "friends--friendship_15.itf.json",
+              "step": 91,
+              "seed": 42,
+              "nondeterministicChoices": {
+                "other": {
+                  "tag": "Some",
+                  "value": "alice"
+                },
+                "person": {
+                  "tag": "Some",
+                  "value": "bob"
+                }
+              }
+            },
+            "source": [
+              "specs/friends/friendship.qnt:219"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

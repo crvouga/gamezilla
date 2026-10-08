@@ -1,0 +1,1564 @@
+{
+  "id": "billing-membership-lifecycle-lifecycle",
+  "initial": "Opening membership lifecycle",
+  "meta": {
+    "context": "Billing",
+    "kind": "lifecycle",
+    "owner": "Billing owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "quint": [
+      "specs/billing/membership-lifecycle.qnt"
+    ],
+    "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
+  },
+  "states": {
+    "Opening membership lifecycle": {
+      "meta": {
+        "description": "The person is opening the membership lifecycle view.",
+        "snapshot": "the-person-is-opening-the-membership-lifecycle-view",
+        "recognize": [],
+        "checks": [
+          "No final outcome is claimed before the opening result."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ]
+      },
+      "on": {
+        "Opens with viewing free access": {
+          "target": "Viewing free access",
+          "meta": {
+            "action": "init",
+            "witness": {
+              "trace": "billing--membership-lifecycle_10.itf.json",
+              "step": 0,
+              "seed": 42
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:116"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing free access": {
+      "meta": {
+        "description": "The person is viewing free access.",
+        "snapshot": "the-person-is-viewing-free-access",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "none",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Subscribes to Plus resulting in viewing a free trial on the monthly plan": {
+          "target": "Viewing a free trial on the monthly plan",
+          "meta": {
+            "action": "subscribe",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:127"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a free trial on the monthly plan": {
+      "meta": {
+        "description": "The person is viewing a free trial on the monthly plan.",
+        "snapshot": "the-person-is-viewing-a-free-trial-on-the-monthly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "trialing",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "The billing period ends resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 20,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing a free trial on the yearly plan": {
+          "target": "Viewing a free trial on the yearly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 25,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period": {
+          "target": "Viewing a free trial on the monthly plan ending this period",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 38,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing a declined renewal on the monthly plan": {
+          "target": "Viewing a declined renewal on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 69,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 50,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an active membership on the monthly plan": {
+      "meta": {
+        "description": "The person is viewing an active membership on the monthly plan.",
+        "snapshot": "the-person-is-viewing-an-active-membership-on-the-monthly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "active",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "The billing period ends resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 9,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period": {
+          "target": "Viewing an active membership on the monthly plan ending this period",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 11,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 17,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing a declined renewal on the monthly plan": {
+          "target": "Viewing a declined renewal on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 8,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing an active membership on the yearly plan": {
+          "target": "Viewing an active membership on the yearly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 27,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 7,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an active membership on the monthly plan ending this period": {
+      "meta": {
+        "description": "The person is viewing an active membership on the monthly plan ending this period.",
+        "snapshot": "the-person-is-viewing-an-active-membership-on-the-monthly-plan-ending-this-period",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "active",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": true
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Restores membership renewal resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 15,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period": {
+          "target": "Viewing an active membership on the yearly plan ending this period",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 52,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 55,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_22.itf.json",
+              "step": 21,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an ended membership on the monthly plan": {
+      "meta": {
+        "description": "The person is viewing an ended membership on the monthly plan.",
+        "snapshot": "the-person-is-viewing-an-ended-membership-on-the-monthly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "ended",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Subscribes to Plus again resulting in viewing a free trial on the monthly plan": {
+          "target": "Viewing a free trial on the monthly plan",
+          "meta": {
+            "action": "resubscribe",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:241"
+            ]
+          }
+        },
+        "Subscribes to Plus again resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "resubscribe",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 74,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:241"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 75,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "The provider ends payment attempts resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentRetriesExhausted",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 77,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:174"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 79,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 80,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 81,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 96,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Restores membership renewal resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 82,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        },
+        "A working card pays the renewal resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentRecovered",
+            "witness": {
+              "trace": "billing--membership-lifecycle_14.itf.json",
+              "step": 54,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:162"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a free trial on the yearly plan": {
+      "meta": {
+        "description": "The person is viewing a free trial on the yearly plan.",
+        "snapshot": "the-person-is-viewing-a-free-trial-on-the-yearly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "trialing",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "The renewal payment is declined resulting in viewing a declined renewal on the yearly plan": {
+          "target": "Viewing a declined renewal on the yearly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 26,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an active membership on the yearly plan": {
+          "target": "Viewing an active membership on the yearly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 64,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period": {
+          "target": "Viewing a free trial on the yearly plan ending this period",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_14.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_21.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing a free trial on the monthly plan": {
+          "target": "Viewing a free trial on the monthly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_20.itf.json",
+              "step": 3,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a declined renewal on the yearly plan": {
+      "meta": {
+        "description": "The person is viewing a declined renewal on the yearly plan.",
+        "snapshot": "the-person-is-viewing-a-declined-renewal-on-the-yearly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "delinquent",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "A working card pays the renewal resulting in viewing an active membership on the yearly plan": {
+          "target": "Viewing an active membership on the yearly plan",
+          "meta": {
+            "action": "paymentRecovered",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 28,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:162"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 32,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "The provider ends payment attempts resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "paymentRetriesExhausted",
+            "witness": {
+              "trace": "billing--membership-lifecycle_14.itf.json",
+              "step": 12,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:174"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an active membership on the yearly plan": {
+      "meta": {
+        "description": "The person is viewing an active membership on the yearly plan.",
+        "snapshot": "the-person-is-viewing-an-active-membership-on-the-yearly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "active",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "The billing period ends resulting in viewing an active membership on the yearly plan": {
+          "target": "Viewing an active membership on the yearly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing a declined renewal on the yearly plan": {
+          "target": "Viewing a declined renewal on the yearly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 31,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 65,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period": {
+          "target": "Viewing an active membership on the yearly plan ending this period",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an ended membership on the yearly plan": {
+      "meta": {
+        "description": "The person is viewing an ended membership on the yearly plan.",
+        "snapshot": "the-person-is-viewing-an-ended-membership-on-the-yearly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "ended",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Subscribes to Plus again resulting in viewing a free trial on the monthly plan": {
+          "target": "Viewing a free trial on the monthly plan",
+          "meta": {
+            "action": "resubscribe",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:241"
+            ]
+          }
+        },
+        "Subscribes to Plus again resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "resubscribe",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:241"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 71,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 73,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 77,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "Cancels the pending choice resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancel",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 83,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:181"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_15.itf.json",
+              "step": 85,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Restores membership renewal resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_12.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        },
+        "A working card pays the renewal resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "paymentRecovered",
+            "witness": {
+              "trace": "billing--membership-lifecycle_18.itf.json",
+              "step": 94,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:162"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a free trial on the monthly plan ending this period": {
+      "meta": {
+        "description": "The person is viewing a free trial on the monthly plan ending this period.",
+        "snapshot": "the-person-is-viewing-a-free-trial-on-the-monthly-plan-ending-this-period",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "trialing",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": true
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 39,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period": {
+          "target": "Viewing a free trial on the yearly plan ending this period",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 62,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 57,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_14.itf.json",
+              "step": 19,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "Restores membership renewal resulting in viewing a free trial on the monthly plan": {
+          "target": "Viewing a free trial on the monthly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_12.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing an active membership on the yearly plan ending this period": {
+      "meta": {
+        "description": "The person is viewing an active membership on the yearly plan ending this period.",
+        "snapshot": "the-person-is-viewing-an-active-membership-on-the-yearly-plan-ending-this-period",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "active",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": true
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Changes the membership interval resulting in viewing an active membership on the monthly plan ending this period": {
+          "target": "Viewing an active membership on the monthly plan ending this period",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 53,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 30,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_18.itf.json",
+              "step": 42,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_17.itf.json",
+              "step": 33,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "Restores membership renewal resulting in viewing an active membership on the yearly plan": {
+          "target": "Viewing an active membership on the yearly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_9.itf.json",
+              "step": 29,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a free trial on the yearly plan ending this period": {
+      "meta": {
+        "description": "The person is viewing a free trial on the yearly plan ending this period.",
+        "snapshot": "the-person-is-viewing-a-free-trial-on-the-yearly-plan-ending-this-period",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "trialing",
+            "newest membership plan": "year",
+            "endsAtPeriodEnd": true
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Restores membership renewal resulting in viewing a free trial on the yearly plan": {
+          "target": "Viewing a free trial on the yearly plan",
+          "meta": {
+            "action": "renewInBillingPortal",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 63,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:189"
+            ]
+          }
+        },
+        "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "paymentFailed",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 18,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:159"
+            ]
+          }
+        },
+        "The billing period ends resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "periodEnd",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 37,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:156"
+            ]
+          }
+        },
+        "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
+          "target": "Viewing an ended membership on the yearly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_12.itf.json",
+              "step": 36,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period": {
+          "target": "Viewing a free trial on the monthly plan ending this period",
+          "meta": {
+            "action": "switchPlan",
+            "witness": {
+              "trace": "billing--membership-lifecycle_16.itf.json",
+              "step": 40,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:208"
+            ]
+          }
+        }
+      }
+    },
+    "Viewing a declined renewal on the monthly plan": {
+      "meta": {
+        "description": "The person is viewing a declined renewal on the monthly plan.",
+        "snapshot": "the-person-is-viewing-a-declined-renewal-on-the-monthly-plan",
+        "recognize": [],
+        "checks": [
+          "Only the newest membership may still be going.",
+          "An ended membership is never still set to end at the period end.",
+          "A phone with a connection knows what her computer knows.",
+          "Once subscribed, Alice's computer shows paid access.",
+          "Credit never goes negative.",
+          "A declined card is what leaves the newest membership delinquent."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/billing/membership-lifecycle.qnt"
+        ],
+        "quintPredicates": [
+          {
+            "newest membership status": "delinquent",
+            "newest membership plan": "month",
+            "endsAtPeriodEnd": false
+          }
+        ],
+        "invariants": [
+          "invOnlyNewestNotEnded",
+          "invEndedNotCanceling",
+          "invOnlinePhoneInSync",
+          "invSubscribedIsPaid",
+          "invCreditNotNegative",
+          "invDelinquentCardDeclines"
+        ],
+        "projectionReview": "Confirm that omitted data do not enable an impossible stitched path."
+      },
+      "on": {
+        "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "cancelImmediately",
+            "witness": {
+              "trace": "billing--membership-lifecycle_6.itf.json",
+              "step": 70,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:197"
+            ]
+          }
+        },
+        "A working card pays the renewal resulting in viewing an active membership on the monthly plan": {
+          "target": "Viewing an active membership on the monthly plan",
+          "meta": {
+            "action": "paymentRecovered",
+            "witness": {
+              "trace": "billing--membership-lifecycle_7.itf.json",
+              "step": 5,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:162"
+            ]
+          }
+        },
+        "The provider ends payment attempts resulting in viewing an ended membership on the monthly plan": {
+          "target": "Viewing an ended membership on the monthly plan",
+          "meta": {
+            "action": "paymentRetriesExhausted",
+            "witness": {
+              "trace": "billing--membership-lifecycle_20.itf.json",
+              "step": 6,
+              "seed": 42,
+              "nondeterministicChoices": {}
+            },
+            "source": [
+              "specs/billing/membership-lifecycle.qnt:174"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

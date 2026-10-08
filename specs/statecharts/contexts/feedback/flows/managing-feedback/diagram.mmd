@@ -1,0 +1,21 @@
+stateDiagram-v2
+  state "Viewing Manage authored feedback" as s0
+  state "feedback management shows 'Board polish' saying 'Animate every move' — 1" as s1
+  state "the change is refused because the feedback belongs to another developer — 2" as s2
+  state "feedback management does not show 'Board movement' — 3" as s3
+  state "feedback management does not show 'Board movement' — 4" as s4
+  state "feedback management shows 'Board movement' — 5" as s5
+  state "feedback management shows 'Board movement' — 6" as s6
+  [*] --> s0
+  s0 --> s1: the team changes that feedback to 'Board polish' saying 'Animate every move'
+  s0 --> s2: the team tries to change that feedback
+  s0 --> s3: the team confirms deleting that feedback when the team has a draft titled 'Board movement' saying 'Keep the last move visible'
+  s0 --> s4: the team confirms deleting that feedback when the team has kept local feedback titled 'Board movement'
+  s0 --> s5: the team cancels deleting that feedback
+  s0 --> s6: the team opens feedback management
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]

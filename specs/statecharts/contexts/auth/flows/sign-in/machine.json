@@ -1,0 +1,175 @@
+{
+  "id": "auth-sign-in",
+  "initial": "Viewing Signing in",
+  "meta": {
+    "context": "Auth",
+    "kind": "flow",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/auth-client/src/use-sign-out.ts",
+      "libs/auth-client/src/use-sign-out-confirmation.tsx",
+      "libs/auth-client/src/use-sign-in.ts",
+      "libs/auth-client/src/use-sign-in-modal-lifecycle.ts",
+      "libs/auth-client/src/sign-out-everywhere.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Signing in": {
+      "meta": {
+        "description": "The person is at the place where signing in.",
+        "snapshot": "the-person-is-at-the-place-where-signing-in",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:2"
+        ]
+      },
+      "on": {
+        "Opens the described view when People are offered Google sign-in and not Apple sign-in": {
+          "target": "people are offered Google sign-in and not Apple sign-in — 1",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in.feature:9"
+            ],
+            "condition": [],
+            "example": "People are offered Google sign-in and not Apple sign-in"
+          }
+        },
+        "Opens the described view when Starting a Google sign-in hands the person to Google with the way back": {
+          "target": "starting a Google sign-in hands the person to Google with the way back to the app — 2",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in.feature:12"
+            ],
+            "condition": [],
+            "example": "Starting a Google sign-in hands the person to Google with the way back"
+          }
+        },
+        "Opens the described view when Google agrees to send people back after they sign in": {
+          "target": "Google agrees to send people back to the app after they sign in — 3",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in.feature:15"
+            ],
+            "condition": [],
+            "example": "Google agrees to send people back after they sign in"
+          }
+        },
+        "a person on the web finishes signing in": {
+          "target": "the app on the web knows whether they are signed in — 4",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in.feature:18"
+            ],
+            "condition": [],
+            "example": "A person finishing signing in on the web knows whether it worked"
+          }
+        },
+        "Opens the described view when Google sign-ins started in another environment return to it": {
+          "target": "Google sign-ins started in any other environment return to that environment — 5",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in.feature:22"
+            ],
+            "condition": [],
+            "example": "Google sign-ins started in another environment return to it"
+          }
+        }
+      }
+    },
+    "people are offered Google sign-in and not Apple sign-in — 1": {
+      "meta": {
+        "description": "The person observes that people are offered Google sign-in and not Apple sign-in.",
+        "snapshot": "the-person-observes-that-people-are-offered-google-sign-in-and-not-apple-sign-in",
+        "recognize": [],
+        "checks": [
+          "people are offered Google sign-in and not Apple sign-in"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:9"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "starting a Google sign-in hands the person to Google with the way back to the app — 2": {
+      "meta": {
+        "description": "The person observes that starting a Google sign-in hands the person to Google with the way back to the app.",
+        "snapshot": "the-person-observes-that-starting-a-google-sign-in-hands-the-person-to-google-with-th",
+        "recognize": [],
+        "checks": [
+          "starting a Google sign-in hands the person to Google with the way back to the app"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:12"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Google agrees to send people back to the app after they sign in — 3": {
+      "meta": {
+        "description": "The person observes that google agrees to send people back to the app after they sign in.",
+        "snapshot": "the-person-observes-that-google-agrees-to-send-people-back-to-the-app-after-they-sign",
+        "recognize": [],
+        "checks": [
+          "Google agrees to send people back to the app after they sign in"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:15"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the app on the web knows whether they are signed in — 4": {
+      "meta": {
+        "description": "The person observes that the app on the web knows whether they are signed in.",
+        "snapshot": "the-person-observes-that-the-app-on-the-web-knows-whether-they-are-signed-in",
+        "recognize": [],
+        "checks": [
+          "the app on the web knows whether they are signed in"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:18"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Google sign-ins started in any other environment return to that environment — 5": {
+      "meta": {
+        "description": "The person observes that google sign-ins started in any other environment return to that environment.",
+        "snapshot": "the-person-observes-that-google-sign-ins-started-in-any-other-environment-return-to-t",
+        "recognize": [],
+        "checks": [
+          "Google sign-ins started in any other environment return to that environment"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in.feature:22"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

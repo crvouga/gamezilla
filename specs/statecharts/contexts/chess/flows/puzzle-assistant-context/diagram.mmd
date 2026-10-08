@@ -1,0 +1,39 @@
+stateDiagram-v2
+  state "Viewing Commentary follows the current puzzle" as s0
+  state "Alice's assistant encourages another look at the current position — 1" as s1
+  state "Alice's assistant introduces the current puzzle — 2" as s2
+  state "Alice cannot hear the old puzzle's assistant speaking — 3" as s3
+  state "Alice's assistant acknowledges the current solved puzzle — 4" as s4
+  state "Alice's assistant explains that they are reviewing an earlier position — 5" as s5
+  state "Alice's assistant explains that the solution is shown — 6" as s6
+  state "Alice is solving a different puzzle than the one before — 7" as s7
+  state "Alice's assistant acknowledges checkmate — 8" as s8
+  state "Alice's assistant acknowledges a correct continuation — 9" as s9
+  state "Alice's board is at move 3 of the line within 20 seconds — 10" as s10
+  state "Alice's puzzle remains solved — 11" as s11
+  state "Alice's board is at move 3 of the line within 20 seconds — 12" as s12
+  [*] --> s0
+  s0 --> s1: Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move
+  s0 --> s2: Alice moves on to the next puzzle
+  s0 --> s3: Alice leaves the puzzle for the chess choices
+  s0 --> s4: the connection comes back
+  s0 --> s5: Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has shown the solution
+  s0 --> s6: Alice returns to the current puzzle move when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has shown the solution and Alice is reviewing an earlier position in the puzzle
+  s0 --> s7: Alice goes back to the puzzles
+  s0 --> s8: Alice returns to the current puzzle move when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has solved the puzzle and Alice is reviewing an earlier position in the puzzle
+  s0 --> s9: Alice plays the move a1-a5
+  s0 --> s10: Alice retries the puzzle when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and Alice has played g6-g5 and Alice has played a wrong move
+  s0 --> s11: Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has solved the puzzle
+  s0 --> s12: Alice steps forward one move in the puzzle
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]
+  s5 --> [*]
+  s6 --> [*]
+  s7 --> [*]
+  s8 --> [*]
+  s9 --> [*]
+  s10 --> [*]
+  s11 --> [*]
+  s12 --> [*]

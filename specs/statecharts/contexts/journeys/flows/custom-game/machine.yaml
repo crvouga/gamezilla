@@ -1,0 +1,229 @@
+id: journeys-custom-game
+initial: Viewing Play a Custom Game in a space
+meta:
+  context: Journeys
+  kind: flow
+  owner: Journeys owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates: []
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Play a Custom Game in a space:
+    meta:
+      description: The person is at the place where play a Custom Game in a space.
+      snapshot: the-person-is-at-the-place-where-play-a-custom-game-in-a-space
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:2
+    'on':
+      they start a Custom Game against a bot:
+        target: their Custom Game board is ready for White — 1 step 1
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:9
+          condition:
+          - a person opens the app on a fresh device
+          - they are hosting a space
+          example: A guest plays a move against a bot and resigns
+      they start the Custom Game:
+        target: they are told Custom Games need a connection — 2
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:21
+          condition:
+          - a person opens the app on a fresh device
+          - they are hosting a space
+          - they have a ready Custom Game against a bot
+          - the device is offline
+          example: An offline guest cannot start the ready game
+      Alice invites Bob to Black in a new Custom Game:
+        target: Bob sees Alice's invitation to play Black — 3 step 1
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:32
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          example: Someone who joined from the link accepts an invitation and becomes ready
+      Alice starts the Custom Game:
+        target: Bob's board faces Black — 4 step 1
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:41
+          condition:
+          - Alice is hosting a space that Bob joined from the link
+          - Alice and Bob are ready for a Custom Game with Bob as Black
+          example: Two people play a move and finish by resignation
+  their Custom Game board is ready for White — 1 step 1:
+    meta:
+      description: The person observes that their Custom Game board is ready for White.
+      snapshot: the-person-observes-that-their-custom-game-board-is-ready-for-white
+      recognize: []
+      checks:
+      - their Custom Game board is ready for White
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:9
+    'on':
+      they play e2-e4 in the Custom Game:
+        target: a legal bot reply returns White's turn — 1 step 2
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:9
+          condition: []
+          example: A guest plays a move against a bot and resigns
+  a legal bot reply returns White's turn — 1 step 2:
+    meta:
+      description: The person observes that a legal bot reply returns White's turn.
+      snapshot: the-person-observes-that-a-legal-bot-reply-returns-white-s-turn
+      recognize: []
+      checks:
+      - a legal bot reply returns White's turn
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:9
+    'on':
+      they resign the Custom Game:
+        target: their Custom Game is completed by resignation — 1 step 3
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:9
+          condition: []
+          example: A guest plays a move against a bot and resigns
+  their Custom Game is completed by resignation — 1 step 3:
+    meta:
+      description: The person observes that their Custom Game is completed by resignation.
+      snapshot: the-person-observes-that-their-custom-game-is-completed-by-resignation
+      recognize: []
+      checks:
+      - their Custom Game is completed by resignation
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  they are told Custom Games need a connection — 2:
+    meta:
+      description: The person observes that they are told Custom Games need a connection.
+      snapshot: the-person-observes-that-they-are-told-custom-games-need-a-connection
+      recognize: []
+      checks:
+      - they are told Custom Games need a connection
+      - their Custom Game has not started
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:21
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob sees Alice's invitation to play Black — 3 step 1:
+    meta:
+      description: The person observes that bob sees Alice's invitation to play Black.
+      snapshot: the-person-observes-that-bob-sees-alice-s-invitation-to-play-black
+      recognize: []
+      checks:
+      - Bob sees Alice's invitation to play Black
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:32
+    'on':
+      Bob accepts Black in the Custom Game:
+        target: Black is Bob in the Custom Game — 3 step 2
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:32
+          condition: []
+          example: Someone who joined from the link accepts an invitation and becomes ready
+  Black is Bob in the Custom Game — 3 step 2:
+    meta:
+      description: The person observes that black is Bob in the Custom Game.
+      snapshot: the-person-observes-that-black-is-bob-in-the-custom-game
+      recognize: []
+      checks:
+      - Black is Bob in the Custom Game
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:32
+    'on':
+      Alice and Bob become ready for the Custom Game:
+        target: The Custom Game is startable — 3 step 3
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:32
+          condition: []
+          example: Someone who joined from the link accepts an invitation and becomes ready
+  The Custom Game is startable — 3 step 3:
+    meta:
+      description: The person observes that the Custom Game is startable.
+      snapshot: the-person-observes-that-the-custom-game-is-startable
+      recognize: []
+      checks:
+      - The Custom Game is startable
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:32
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Bob's board faces Black — 4 step 1:
+    meta:
+      description: The person observes that bob's board faces Black.
+      snapshot: the-person-observes-that-bob-s-board-faces-black
+      recognize: []
+      checks:
+      - Bob's board faces Black
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:41
+    'on':
+      Alice plays e2-e4 in the Custom Game:
+        target: Bob sees e4 in the Custom Game move list — 4 step 2
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:41
+          condition: []
+          example: Two people play a move and finish by resignation
+  Bob sees e4 in the Custom Game move list — 4 step 2:
+    meta:
+      description: The person observes that bob sees e4 in the Custom Game move list.
+      snapshot: the-person-observes-that-bob-sees-e4-in-the-custom-game-move-list
+      recognize: []
+      checks:
+      - Bob sees e4 in the Custom Game move list
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:41
+    'on':
+      Bob resigns the Custom Game:
+        target: both people see Alice wins the Custom Game by resignation — 4 step 3
+        meta:
+          source:
+          - specs/journeys/custom-game.feature:41
+          condition: []
+          example: Two people play a move and finish by resignation
+  both people see Alice wins the Custom Game by resignation — 4 step 3:
+    meta:
+      description: The person observes that both people see Alice wins the Custom Game by resignation.
+      snapshot: the-person-observes-that-both-people-see-alice-wins-the-custom-game-by-resignation
+      recognize: []
+      checks:
+      - both people see Alice wins the Custom Game by resignation
+      events: []
+      confidence: assumed
+      source:
+      - specs/journeys/custom-game.feature:41
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

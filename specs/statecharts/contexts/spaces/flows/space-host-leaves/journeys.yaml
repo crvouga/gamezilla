@@ -1,0 +1,43 @@
+journeys:
+  When the host leaves, the space ends for everyone in it:
+    description: When the host leaves, the space ends for everyone in it
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    events:
+    - Alice leaves the space
+    endsIn: Bob sees the space has ended within 15 seconds — 1
+    checks:
+    - Bob sees the space has ended within 15 seconds
+    - Alice is not in a space
+    gherkin:
+    - specs/spaces/space-host-leaves.feature:13 — When the host leaves, the space ends for everyone in it
+    exampleRow: []
+  A host who loses the connection still hosts the space when it comes back:
+    description: A host who loses the connection still hosts the space when it comes back
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    - Alice has been without a connection for 5 minutes
+    events:
+    - the connection comes back
+    endsIn: Alice is in the space — 2
+    checks:
+    - Alice is in the space
+    - Alice sees 2 people in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-host-leaves.feature:18 — A host who loses the connection still hosts the space when it
+      comes back
+    exampleRow: []
+  A host who closes the app still hosts the space on return:
+    description: A host who closes the app still hosts the space on return
+    startingConditions:
+    - Alice is hosting a space that Bob joined from the link
+    - Alice has closed and reopened the app
+    events:
+    - Alice returns to their space
+    endsIn: Alice is in the space — 3
+    checks:
+    - Alice is in the space
+    - Bob sees 2 people in the space within 20 seconds
+    gherkin:
+    - specs/spaces/space-host-leaves.feature:24 — A host who closes the app still hosts the space on return
+    exampleRow: []

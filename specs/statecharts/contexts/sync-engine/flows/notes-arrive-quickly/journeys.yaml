@@ -1,0 +1,29 @@
+journeys:
+  Over slow connections a note reaches the other person within a quarter of a second:
+    description: Over slow connections a note reaches the other person within a quarter of a second
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice and Bob have slow connections
+    events:
+    - Alice writes the note 'Groceries' saying 'milk'
+    endsIn: Bob sees the note "Groceries" within a quarter of a second — 1
+    checks:
+    - Bob sees the note "Groceries" within a quarter of a second
+    gherkin:
+    - specs/sync-engine/notes-arrive-quickly.feature:9 — Over slow connections a note reaches the other person within
+      a quarter of a second
+    exampleRow: []
+  Over slow connections nearly every note reaches the other person within a fifth of a second:
+    description: Over slow connections nearly every note reaches the other person within a fifth of a second
+    startingConditions:
+    - Alice and Bob are in the shared space "Trip"
+    - Alice and Bob have slow connections
+    events:
+    - Alice writes 20 notes one after another
+    endsIn: at least 19 of the 20 notes reach Bob within a fifth of a second each — 2
+    checks:
+    - at least 19 of the 20 notes reach Bob within a fifth of a second each
+    gherkin:
+    - specs/sync-engine/notes-arrive-quickly.feature:15 — Over slow connections nearly every note reaches the other
+      person within a fifth of a second
+    exampleRow: []

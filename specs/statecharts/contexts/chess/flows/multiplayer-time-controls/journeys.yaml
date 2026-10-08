@@ -1,0 +1,121 @@
+journeys:
+  A person looks for a chess opponent at the time control they chose:
+    description: A person looks for a chess opponent at the time control they chose
+    startingConditions:
+    - Alice has a free account and a connection
+    events:
+    - Alice finds a chess opponent for 5+0
+    endsIn: Alice is looking for a 5+0 chess opponent — 1
+    checks:
+    - Alice is looking for a 5+0 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:8 — A person looks for a chess opponent at the time control
+      they chose
+    exampleRow: []
+  A time control that is not offered is refused:
+    description: A time control that is not offered is refused
+    startingConditions:
+    - Alice has a free account and a connection
+    events:
+    - Alice finds a chess opponent for 4+0
+    endsIn: Alice is told 4+0 is not an offered time control — 2
+    checks:
+    - Alice is told 4+0 is not an offered time control
+    - Alice is not looking for a chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:13 — A time control that is not offered is refused
+    exampleRow: []
+  A person already looking cannot start a second search:
+    description: A person already looking cannot start a second search
+    startingConditions:
+    - Alice is looking for a 5+0 chess opponent
+    events:
+    - Alice finds a chess opponent for 3+2
+    endsIn: Alice is told she is already looking for a chess opponent — 3
+    checks:
+    - Alice is told she is already looking for a chess opponent
+    - Alice is still looking for a 5+0 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:19 — A person already looking cannot start a second search
+    exampleRow: []
+  Two people looking for 5+0 get a 5+0 multiplayer game:
+    description: Two people looking for 5+0 get a 5+0 multiplayer game
+    startingConditions:
+    - Alice and Bob are looking for 5+0 chess opponents
+    events:
+    - matchmaking pairs people up when Alice and Bob are looking for 5+0 chess opponents
+    endsIn: Alice and Bob have the same multiplayer game — 4
+    checks:
+    - Alice and Bob have the same multiplayer game
+    - both people see their multiplayer game is played at 5+0
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:27 — Two people looking for 5+0 get a 5+0 multiplayer game
+    exampleRow: []
+  A 5+0 search is never matched with a 3+2 search:
+    description: A 5+0 search is never matched with a 3+2 search
+    startingConditions:
+    - Alice is looking for a 5+0 chess opponent
+    - Bob is looking for a 3+2 chess opponent
+    events:
+    - matchmaking pairs people up when Alice is looking for a 5+0 chess opponent and Bob is looking for a 3+2 chess
+      opponent
+    endsIn: Alice and Bob are still looking for other chess opponents — 5
+    checks:
+    - Alice and Bob are still looking for other chess opponents
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:33 — A 5+0 search is never matched with a 3+2 search
+    exampleRow: []
+  A new opponent search keeps the time control of a game that is over:
+    description: A new opponent search keeps the time control of a game that is over
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob is over
+    events:
+    - Alice finds a new opponent when Alice's 5+0 multiplayer game with Bob is over
+    endsIn: Alice is looking for a 5+0 chess opponent — 6
+    checks:
+    - Alice is looking for a 5+0 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:41 — A new opponent search keeps the time control of a game
+      that is over
+    exampleRow: []
+  A new opponent search keeps an aborted game's time control:
+    description: A new opponent search keeps an aborted game's time control
+    startingConditions:
+    - Alice's 3+2 multiplayer game with Bob was aborted
+    events:
+    - Bob finds a new opponent
+    endsIn: Bob is looking for a 3+2 chess opponent — 7
+    checks:
+    - Bob is looking for a 3+2 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:46 — A new opponent search keeps an aborted game's time control
+    exampleRow: []
+  A person already looking cannot find a new opponent as well:
+    description: A person already looking cannot find a new opponent as well
+    startingConditions:
+    - Alice's 5+0 multiplayer game with Bob is over
+    - Alice is looking for a 3+2 chess opponent
+    events:
+    - Alice finds a new opponent when Alice's 5+0 multiplayer game with Bob is over and Alice is looking for a 3+2
+      chess opponent
+    endsIn: Alice is told she is already looking for a chess opponent — 8
+    checks:
+    - Alice is told she is already looking for a chess opponent
+    - Alice is still looking for a 3+2 chess opponent
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:51 — A person already looking cannot find a new opponent as
+      well
+    exampleRow: []
+  A new opponent cannot be found during an unfinished game:
+    description: A new opponent cannot be found during an unfinished game
+    startingConditions:
+    - Alice has an unfinished multiplayer game with Bob
+    events:
+    - Alice finds a new opponent when Alice has an unfinished multiplayer game with Bob
+    endsIn: Alice is told to finish her multiplayer game first — 9
+    checks:
+    - Alice is told to finish her multiplayer game first
+    - Alice keeps her multiplayer game with Bob
+    gherkin:
+    - specs/chess/multiplayer-time-controls.feature:58 — A new opponent cannot be found during an unfinished game
+    exampleRow: []

@@ -1,0 +1,15 @@
+stateDiagram-v2
+  state "Viewing Custom Games with the keyboard and by listening" as s0
+  state "Black is a bot in the Custom Game — 1" as s1
+  state "The Custom Game is active with White to move — 2" as s2
+  state "Alice hears White is Alice and Black is a bot — 3" as s3
+  state "Alice hears the Custom Game's completed outcome — 4" as s4
+  [*] --> s0
+  s0 --> s1: Alice assigns a bot to Black in the Custom Game with the keyboard alone
+  s0 --> s2: Alice starts the Custom Game with the keyboard alone
+  s0 --> s3: Alice listens to the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is a bot
+  s0 --> s4: Alice listens to the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black
+  s1 --> [*]
+  s2 --> [*]
+  s3 --> [*]
+  s4 --> [*]

@@ -1,0 +1,161 @@
+{
+  "id": "auth-sign-in-ends",
+  "initial": "Viewing How long a sign-in lasts",
+  "meta": {
+    "context": "Auth",
+    "kind": "flow",
+    "owner": "Auth owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/auth-client/src/use-sign-out.ts",
+      "libs/auth-client/src/use-sign-out-confirmation.tsx",
+      "libs/auth-client/src/use-sign-in.ts",
+      "libs/auth-client/src/use-sign-in-modal-lifecycle.ts",
+      "libs/auth-client/src/sign-out-everywhere.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing How long a sign-in lasts": {
+      "meta": {
+        "description": "The person is at the place where how long a sign-in lasts.",
+        "snapshot": "the-person-is-at-the-place-where-how-long-a-sign-in-lasts",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in-ends.feature:2"
+        ]
+      },
+      "on": {
+        "29 days pass": {
+          "target": "Dave is still signed in — 1",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in-ends.feature:13"
+            ],
+            "condition": [
+              "Dave is signed in with their Apple account"
+            ],
+            "example": "A sign-in lasts 29 days"
+          }
+        },
+        "30 days pass": {
+          "target": "Dave is signed out — 2",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in-ends.feature:17"
+            ],
+            "condition": [
+              "Dave is signed in with their Apple account"
+            ],
+            "example": "A sign-in lapses after 30 days"
+          }
+        },
+        "Bob signs out everywhere when Bob is signed in with their Google account and Bob is also signed in on a second device": {
+          "target": "Bob is signed out — 3",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in-ends.feature:27"
+            ],
+            "condition": [
+              "Bob is signed in with their Google account",
+              "Bob is also signed in on a second device"
+            ],
+            "example": "Signing out everywhere signs Bob out on every device"
+          }
+        },
+        "Bob signs out everywhere when Bob is signed in with their Google account and Bob is also signed in on a second device and Alice is signed in with their Google account": {
+          "target": "Bob's second device is signed out — 4",
+          "meta": {
+            "source": [
+              "specs/auth/sign-in-ends.feature:32"
+            ],
+            "condition": [
+              "Bob is signed in with their Google account",
+              "Bob is also signed in on a second device",
+              "Alice is signed in with their Google account"
+            ],
+            "example": "Signing out everywhere keeps other accounts signed in"
+          }
+        }
+      }
+    },
+    "Dave is still signed in — 1": {
+      "meta": {
+        "description": "The person observes that dave is still signed in.",
+        "snapshot": "the-person-observes-that-dave-is-still-signed-in",
+        "recognize": [],
+        "checks": [
+          "Dave is still signed in"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in-ends.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Dave is signed out — 2": {
+      "meta": {
+        "description": "The person observes that dave is signed out.",
+        "snapshot": "the-person-observes-that-dave-is-signed-out",
+        "recognize": [],
+        "checks": [
+          "Dave is signed out"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in-ends.feature:17"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob is signed out — 3": {
+      "meta": {
+        "description": "The person observes that bob is signed out.",
+        "snapshot": "the-person-observes-that-bob-is-signed-out",
+        "recognize": [],
+        "checks": [
+          "Bob is signed out",
+          "Bob's second device is signed out"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in-ends.feature:27"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "Bob's second device is signed out — 4": {
+      "meta": {
+        "description": "The person observes that bob's second device is signed out.",
+        "snapshot": "the-person-observes-that-bob-s-second-device-is-signed-out",
+        "recognize": [],
+        "checks": [
+          "Bob's second device is signed out",
+          "Alice is still signed in"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/auth/sign-in-ends.feature:32"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

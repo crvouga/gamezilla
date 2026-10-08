@@ -1,0 +1,106 @@
+journeys:
+  Returning to a device brings back its saved questions:
+    description: Returning to a device brings back its saved questions
+    startingConditions:
+    - Alice's phone has a saved data notebook question about her friends
+    - the team has been investigating Bob's phone
+    events:
+    - the team opens the data notebook for Alice's phone
+    endsIn: the team sees Alice's saved data notebook question about her friends — 1
+    checks:
+    - the team sees Alice's saved data notebook question about her friends
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:9 — Returning to a device brings back its saved questions
+    exampleRow: []
+  Another device's questions do not replace the first device's questions:
+    description: Another device's questions do not replace the first device's questions
+    startingConditions:
+    - Alice's phone has a saved data notebook question about her friends
+    - Bob's phone has a saved data notebook question about his spaces
+    events:
+    - the team opens the data notebook for Bob's phone
+    endsIn: the team sees Bob's saved data notebook question about his spaces — 2
+    checks:
+    - the team sees Bob's saved data notebook question about his spaces
+    - Alice's data notebook still keeps the question about her friends
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:15 — Another device's questions do not replace the first device's
+      questions
+    exampleRow: []
+  Duplication keeps the original question and makes a separate copy:
+    description: Duplication keeps the original question and makes a separate copy
+    startingConditions:
+    - the team's data notebook has a question about Alice's friends
+    events:
+    - the team duplicates the data notebook question about Alice's friends when the team's data notebook has a question
+      about Alice's friends
+    endsIn: the team sees the copied question immediately after its original — 3
+    checks:
+    - the team sees the copied question immediately after its original
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:24 — Duplication keeps the original question and makes a separate
+      copy
+    exampleRow: []
+  A copy cannot start answering automatically:
+    description: A copy cannot start answering automatically
+    startingConditions:
+    - the team's data notebook question about Alice's friends answers automatically
+    events:
+    - the team duplicates the data notebook question about Alice's friends when the team's data notebook question
+      about Alice's friends answers automatically
+    endsIn: the copied question still waits for the team to ask for its answer — 4
+    checks:
+    - the copied question still waits for the team to ask for its answer
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:29 — A copy cannot start answering automatically
+    exampleRow: []
+  Removing one of two questions keeps the other:
+    description: Removing one of two questions keeps the other
+    startingConditions:
+    - the team's data notebook has questions about Alice's friends and Alice's spaces
+    events:
+    - the team removes the data notebook question about Alice's friends when the team's data notebook has questions
+      about Alice's friends and Alice's spaces
+    endsIn: the team sees only the data notebook question about Alice's spaces — 5
+    checks:
+    - the team sees only the data notebook question about Alice's spaces
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:36 — Removing one of two questions keeps the other
+    exampleRow: []
+  The last question cannot be removed:
+    description: The last question cannot be removed
+    startingConditions:
+    - the team's data notebook has only a question about Alice's friends
+    events:
+    - the team removes the data notebook question about Alice's friends when the team's data notebook has only a
+      question about Alice's friends
+    endsIn: the data notebook still has that question because it is the last one — 6
+    checks:
+    - the data notebook still has that question because it is the last one
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:41 — The last question cannot be removed
+    exampleRow: []
+  A successful question shows an answer:
+    description: A successful question shows an answer
+    startingConditions:
+    - the team's data notebook has a question about Alice's friends
+    events:
+    - the team runs the data notebook question about Alice's friends
+    endsIn: the team sees the question's answer — 7
+    checks:
+    - the team sees the question's answer
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:48 — A successful question shows an answer
+    exampleRow: []
+  A failed question shows the failure:
+    description: A failed question shows the failure
+    startingConditions:
+    - the team has a data notebook question that cannot be answered
+    events:
+    - the team runs that data notebook question
+    endsIn: the team is told why the data notebook question failed — 8
+    checks:
+    - the team is told why the data notebook question failed
+    gherkin:
+    - specs/developer-tools/data-notebook.feature:53 — A failed question shows the failure
+    exampleRow: []

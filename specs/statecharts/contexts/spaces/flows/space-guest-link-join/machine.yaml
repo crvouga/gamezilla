@@ -1,0 +1,54 @@
+id: spaces-space-guest-link-join
+initial: Viewing Join a space from its link
+meta:
+  context: Spaces
+  kind: flow
+  owner: Spaces owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/spaces-client/src/use-space-join-snapshot.ts
+  - libs/spaces-client/src/use-space-join-access-flags.ts
+  - libs/spaces-client/src/use-space-guest-membership-ids.ts
+  - libs/spaces-client/src/use-space-by-link.ts
+  - libs/spaces-client/src/use-join-space.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Join a space from its link:
+    meta:
+      description: The person is at the place where join a space from its link.
+      snapshot: the-person-is-at-the-place-where-join-a-space-from-its-link
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-guest-link-join.feature:2
+    'on':
+      Bob joins the space from the link:
+        target: Bob is in the space — 1
+        meta:
+          source:
+          - specs/spaces/space-guest-link-join.feature:9
+          condition:
+          - Alice and Bob are guests
+          - Alice is hosting a space
+          example: A guest with no account joins a space from its link
+  Bob is in the space — 1:
+    meta:
+      description: The person observes that bob is in the space.
+      snapshot: the-person-observes-that-bob-is-in-the-space
+      recognize: []
+      checks:
+      - Bob is in the space
+      - Bob sees 2 people in the space within 15 seconds
+      - Alice sees 2 people in the space within 15 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/spaces/space-guest-link-join.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

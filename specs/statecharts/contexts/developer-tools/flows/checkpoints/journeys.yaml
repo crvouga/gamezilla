@@ -1,0 +1,88 @@
+journeys:
+  Restoring returns the people to their saved apps:
+    description: Restoring returns the people to their saved apps
+    startingConditions:
+    - the team has saved checkpoint "Before the invitation" with Alice and Bob
+    - Alice's test world has changed since that checkpoint
+    events:
+    - the team restores checkpoint 'Before the invitation'
+    endsIn: Alice and Bob see the apps saved in checkpoint "Before the invitation" — 1
+    checks:
+    - Alice and Bob see the apps saved in checkpoint "Before the invitation"
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:8 — Restoring returns the people to their saved apps
+    exampleRow: []
+  An incompatible checkpoint cannot be restored:
+    description: An incompatible checkpoint cannot be restored
+    startingConditions:
+    - checkpoint "Before the invitation" cannot be used by this version of the app
+    events:
+    - the team selects checkpoint 'Before the invitation'
+    endsIn: the team is not offered restoring because the checkpoint is incompatible — 2
+    checks:
+    - the team is not offered restoring because the checkpoint is incompatible
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:14 — An incompatible checkpoint cannot be restored
+    exampleRow: []
+  A saved checkpoint appears among the team's choices:
+    description: A saved checkpoint appears among the team's choices
+    startingConditions:
+    - the team is investigating a test world with Alice and Bob
+    events:
+    - the team saves checkpoint 'Before the invitation'
+    endsIn: the team can select checkpoint "Before the invitation" — 3
+    checks:
+    - the team can select checkpoint "Before the invitation"
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:22 — A saved checkpoint appears among the team's choices
+    exampleRow: []
+  Confirmation removes the selected checkpoint:
+    description: Confirmation removes the selected checkpoint
+    startingConditions:
+    - the team has selected checkpoint "Before the invitation" for deletion
+    events:
+    - the team confirms deleting the selected checkpoints
+    endsIn: the team cannot select checkpoint "Before the invitation" because it was deleted — 4
+    checks:
+    - the team cannot select checkpoint "Before the invitation" because it was deleted
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:29 — Confirmation removes the selected checkpoint
+    exampleRow: []
+  Cancelling keeps the selected checkpoint:
+    description: Cancelling keeps the selected checkpoint
+    startingConditions:
+    - the team has selected checkpoint "Before the invitation" for deletion
+    events:
+    - the team cancels deleting the selected checkpoints
+    endsIn: the team can select checkpoint "Before the invitation" — 5
+    checks:
+    - the team can select checkpoint "Before the invitation"
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:34 — Cancelling keeps the selected checkpoint
+    exampleRow: []
+  Incompatible checkpoints disappear together:
+    description: Incompatible checkpoints disappear together
+    startingConditions:
+    - checkpoint "Before the invitation" cannot be used by this version of the app
+    events:
+    - the team confirms removing incompatible checkpoints when checkpoint 'Before the invitation' cannot be used
+      by this version of the app
+    endsIn: the team cannot select checkpoint "Before the invitation" because it was removed — 6
+    checks:
+    - the team cannot select checkpoint "Before the invitation" because it was removed
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:41 — Incompatible checkpoints disappear together
+    exampleRow: []
+  A compatible checkpoint remains available:
+    description: A compatible checkpoint remains available
+    startingConditions:
+    - checkpoint "After accepting" can be used by this version of the app
+    events:
+    - the team confirms removing incompatible checkpoints when checkpoint 'After accepting' can be used by this
+      version of the app
+    endsIn: the team can select checkpoint "After accepting" — 7
+    checks:
+    - the team can select checkpoint "After accepting"
+    gherkin:
+    - specs/developer-tools/checkpoints.feature:46 — A compatible checkpoint remains available
+    exampleRow: []

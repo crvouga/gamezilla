@@ -1,0 +1,345 @@
+id: chess-puzzle-feed-lifecycle
+initial: Opening puzzle feed
+meta:
+  context: Chess
+  kind: lifecycle
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  quint:
+  - specs/chess/puzzle-feed.qnt
+  abstraction: Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations
+    of hidden preconditions. This is not exhaustive model checking.
+states:
+  Opening puzzle feed:
+    meta:
+      description: The person is opening the puzzle feed view.
+      snapshot: the-person-is-opening-the-puzzle-feed-view
+      recognize: []
+      checks:
+      - No final outcome is claimed before the opening result.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed.qnt
+    'on':
+      Opens with viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: init
+          witness:
+            trace: chess--puzzle-feed_23.itf.json
+            step: 0
+            seed: 42
+          source:
+          - specs/chess/puzzle-feed.qnt:25
+  Viewing saved puzzle feed choices:
+    meta:
+      description: The person is viewing saved puzzle feed choices.
+      snapshot: the-person-is-viewing-saved-puzzle-feed-choices
+      recognize: []
+      checks:
+      - Viewing saved puzzle feed choices is shown accurately.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed.qnt
+      quintPredicates:
+      - editing: false
+        _pending: false
+      invariants: []
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Reopen app resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 1
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: chosen rating
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:65
+      Start editing feed resulting in previewing puzzle feed choices:
+        target: Previewing puzzle feed choices
+        meta:
+          action: startEditingFeed
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 8
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: own rating
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:44
+      Connection returns resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 26
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: immediately
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:73
+  Previewing puzzle feed choices:
+    meta:
+      description: The person is previewing puzzle feed choices.
+      snapshot: the-person-is-previewing-puzzle-feed-choices
+      recognize: []
+      checks:
+      - Previewing puzzle feed choices is shown accurately.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed.qnt
+      quintPredicates:
+      - editing: true
+        _pending: false
+      - editing: true
+        _pending: true
+      invariants: []
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Save feed choices resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: saveFeedChoices
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 10
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: mate in two
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:54
+      Discard feed choices resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: discardFeedChoices
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 16
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: any history
+              device:
+                tag: Some
+                value: alice
+          source:
+          - specs/chess/puzzle-feed.qnt:59
+      Connection returns resulting in previewing puzzle feed choices:
+        target: Previewing puzzle feed choices
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 20
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: mate in two
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:73
+      Reopen app resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 22
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: mate in two
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:65
+      Preview feed choice resulting in previewing puzzle feed choices:
+        target: Previewing puzzle feed choices
+        meta:
+          action: previewFeedChoice
+          witness:
+            trace: chess--puzzle-feed_5.itf.json
+            step: 30
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: played
+              device:
+                tag: Some
+                value: alice
+          source:
+          - specs/chess/puzzle-feed.qnt:49
+      Save feed choices resulting in viewing saved feed choices awaiting connection:
+        target: Viewing saved feed choices awaiting connection
+        meta:
+          action: saveFeedChoices
+          witness:
+            trace: chess--puzzle-feed_4.itf.json
+            step: 54
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: chosen rating
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:54
+      Reopen app resulting in viewing saved feed choices awaiting connection:
+        target: Viewing saved feed choices awaiting connection
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-feed_18.itf.json
+            step: 76
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: after one second
+              device:
+                tag: Some
+                value: alice
+          source:
+          - specs/chess/puzzle-feed.qnt:65
+      Discard feed choices resulting in viewing saved feed choices awaiting connection:
+        target: Viewing saved feed choices awaiting connection
+        meta:
+          action: discardFeedChoices
+          witness:
+            trace: chess--puzzle-feed_21.itf.json
+            step: 43
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: own rating
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:59
+  Viewing saved feed choices awaiting connection:
+    meta:
+      description: The person is viewing saved feed choices awaiting connection.
+      snapshot: the-person-is-viewing-saved-feed-choices-awaiting-connection
+      recognize: []
+      checks:
+      - Viewing saved feed choices awaiting connection is shown accurately.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed.qnt
+      quintPredicates:
+      - editing: false
+        _pending: true
+      invariants: []
+      projectionReview: Confirm that omitted data do not enable an impossible stitched path.
+    'on':
+      Connection returns resulting in viewing saved puzzle feed choices:
+        target: Viewing saved puzzle feed choices
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-feed_4.itf.json
+            step: 56
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: mate in two
+              device:
+                tag: Some
+                value: alice
+          source:
+          - specs/chess/puzzle-feed.qnt:73
+      Connection returns resulting in viewing saved feed choices awaiting connection:
+        target: Viewing saved feed choices awaiting connection
+        meta:
+          action: connectionReturns
+          witness:
+            trace: chess--puzzle-feed_18.itf.json
+            step: 71
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: harder
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:73
+      Start editing feed resulting in previewing puzzle feed choices:
+        target: Previewing puzzle feed choices
+        meta:
+          action: startEditingFeed
+          witness:
+            trace: chess--puzzle-feed_18.itf.json
+            step: 72
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: played
+              device:
+                tag: Some
+                value: charlie
+          source:
+          - specs/chess/puzzle-feed.qnt:44
+      Reopen app resulting in viewing saved feed choices awaiting connection:
+        target: Viewing saved feed choices awaiting connection
+        meta:
+          action: reopenApp
+          witness:
+            trace: chess--puzzle-feed_18.itf.json
+            step: 77
+            seed: 42
+            nondeterministicChoices:
+              choice:
+                tag: Some
+                value: after one second
+              device:
+                tag: Some
+                value: alice
+          source:
+          - specs/chess/puzzle-feed.qnt:65

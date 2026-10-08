@@ -1,0 +1,304 @@
+id: chess-puzzle-accessibility
+initial: Viewing Puzzles with the keyboard and by listening
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing Puzzles with the keyboard and by listening:
+    meta:
+      description: The person is at the place where puzzles with the keyboard and by listening.
+      snapshot: the-person-is-at-the-place-where-puzzles-with-the-keyboard-and-by-listening
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:2
+    'on':
+      Alice opens the two-rook clearance puzzle:
+        target: Alice hears the setup move a7-a6 — 1
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:13
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          example: Opening a puzzle tells someone listening to the app the setup move and which side is to move
+      Alice plays the move a1-a5:
+        target: Alice hears the opponent's reply h7-h6 — 2
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:18
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          - Alice is solving the two-rook clearance puzzle
+          example: Someone listening to the app hears the opponent's reply
+      Alice plays a wrong move:
+        target: Alice hears in words that the move was wrong — 3
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:30
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          - Alice is solving the castling puzzle
+          example: Someone listening to the app hears in words that a move was wrong
+      Alice plays the move h1-h5:
+        target: Alice hears the puzzle is solved — 4
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:35
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          - Alice is solving the two-rook clearance puzzle
+          - Alice has played a1-a5
+          example: Someone listening to the app hears that the puzzle is solved
+      Alice asks for a hint:
+        target: Alice hears the hint names the rook on a1 — 5
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:41
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          - Alice is solving the two-rook clearance puzzle
+          example: Someone listening to the app hears which piece a hint picks
+      Alice solves the puzzle:
+        target: Alice hears their rating change — 6
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:46
+          condition:
+          - Alice is signed in
+          - Alice is listening to the app
+          - Alice is playing puzzles in their space
+          example: Someone listening to the app hears the rating change
+      Alice plays the move h1-h5 with the keyboard:
+        target: Alice's puzzle is solved within 20 seconds — 7
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:54
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is solving the two-rook clearance puzzle
+          - Alice has played a1-a5 with the keyboard
+          example: A solver solves a puzzle with the keyboard alone
+      Alice asks for a hint with the keyboard:
+        target: Alice's hint highlights the piece to move — 8
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:68
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is playing puzzles in their space
+          example: A hint works with the keyboard alone
+      Alice retries the puzzle with the keyboard:
+        target: Alice is still asked to find the next move — 9
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:72
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move
+          example: Retrying works with the keyboard alone
+      Alice shows the solution with the keyboard:
+        target: Alice's puzzle shows the revealed solution within 20 seconds — 10
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:77
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is playing puzzles in their space
+          example: Showing the solution works with the keyboard alone
+      Alice skips the puzzle with the keyboard:
+        target: Alice's puzzle is skipped — 11
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:81
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is playing puzzles in their space
+          example: Skipping works with the keyboard alone
+      Alice moves on to the next puzzle with the keyboard:
+        target: Alice is solving a different puzzle than the one before — 12
+        meta:
+          source:
+          - specs/chess/puzzle-accessibility.feature:85
+          condition:
+          - Alice has an account and is using the keyboard alone
+          - Alice is playing puzzles in their space
+          - Alice has solved the puzzle
+          example: Moving on works with the keyboard alone
+  Alice hears the setup move a7-a6 — 1:
+    meta:
+      description: The person observes that alice hears the setup move a7-a6.
+      snapshot: the-person-observes-that-alice-hears-the-setup-move-a7-a6
+      recognize: []
+      checks:
+      - Alice hears the setup move a7-a6
+      - Alice hears that White is to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:13
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears the opponent's reply h7-h6 — 2:
+    meta:
+      description: The person observes that alice hears the opponent's reply h7-h6.
+      snapshot: the-person-observes-that-alice-hears-the-opponent-s-reply-h7-h6
+      recognize: []
+      checks:
+      - Alice hears the opponent's reply h7-h6
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:18
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears in words that the move was wrong — 3:
+    meta:
+      description: The person observes that alice hears in words that the move was wrong.
+      snapshot: the-person-observes-that-alice-hears-in-words-that-the-move-was-wrong
+      recognize: []
+      checks:
+      - Alice hears in words that the move was wrong
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:30
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears the puzzle is solved — 4:
+    meta:
+      description: The person observes that alice hears the puzzle is solved.
+      snapshot: the-person-observes-that-alice-hears-the-puzzle-is-solved
+      recognize: []
+      checks:
+      - Alice hears the puzzle is solved
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:35
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears the hint names the rook on a1 — 5:
+    meta:
+      description: The person observes that alice hears the hint names the rook on a1.
+      snapshot: the-person-observes-that-alice-hears-the-hint-names-the-rook-on-a1
+      recognize: []
+      checks:
+      - Alice hears the hint names the rook on a1
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:41
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice hears their rating change — 6:
+    meta:
+      description: The person observes that alice hears their rating change.
+      snapshot: the-person-observes-that-alice-hears-their-rating-change
+      recognize: []
+      checks:
+      - Alice hears their rating change
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:46
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle is solved within 20 seconds — 7:
+    meta:
+      description: The person observes that alice's puzzle is solved within 20 seconds.
+      snapshot: the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds
+      recognize: []
+      checks:
+      - Alice's puzzle is solved within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:54
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's hint highlights the piece to move — 8:
+    meta:
+      description: The person observes that alice's hint highlights the piece to move.
+      snapshot: the-person-observes-that-alice-s-hint-highlights-the-piece-to-move
+      recognize: []
+      checks:
+      - Alice's hint highlights the piece to move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:68
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is still asked to find the next move — 9:
+    meta:
+      description: The person observes that alice is still asked to find the next move.
+      snapshot: the-person-observes-that-alice-is-still-asked-to-find-the-next-move
+      recognize: []
+      checks:
+      - Alice is still asked to find the next move
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:72
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle shows the revealed solution within 20 seconds — 10:
+    meta:
+      description: The person observes that alice's puzzle shows the revealed solution within 20 seconds.
+      snapshot: the-person-observes-that-alice-s-puzzle-shows-the-revealed-solution-within-20-seconds
+      recognize: []
+      checks:
+      - Alice's puzzle shows the revealed solution within 20 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:77
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle is skipped — 11:
+    meta:
+      description: The person observes that alice's puzzle is skipped.
+      snapshot: the-person-observes-that-alice-s-puzzle-is-skipped
+      recognize: []
+      checks:
+      - Alice's puzzle is skipped
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:81
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is solving a different puzzle than the one before — 12:
+    meta:
+      description: The person observes that alice is solving a different puzzle than the one before.
+      snapshot: the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before
+      recognize: []
+      checks:
+      - Alice is solving a different puzzle than the one before
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-accessibility.feature:85
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

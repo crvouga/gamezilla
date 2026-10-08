@@ -1,0 +1,118 @@
+id: billing-billing-plans
+initial: Viewing What the billing plans offer
+meta:
+  context: Billing
+  kind: flow
+  owner: Billing owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/billing-client/src/billing-view-model.ts
+  - libs/billing-client/src/billing-screen.tsx
+  - libs/billing-client/src/billing-screen-view.tsx
+  - libs/billing-client/src/billing-plan-card.tsx
+  - libs/billing-client/src/billing-offer-sections.tsx
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing What the billing plans offer:
+    meta:
+      description: The person is at the place where what the billing plans offer.
+      snapshot: the-person-is-at-the-place-where-what-the-billing-plans-offer
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans.feature:2
+    'on':
+      Alice views the billing plans when Alice has subscribed to Plus:
+        target: Alice is offered to manage their membership — 1
+        meta:
+          source:
+          - specs/billing/billing-plans.feature:11
+          condition:
+          - Alice has subscribed to Plus
+          example: A Plus member is offered to manage their membership, not to subscribe again
+      Alice leaves checkout without paying:
+        target: Alice has free access — 2
+        meta:
+          source:
+          - specs/billing/billing-plans.feature:17
+          condition:
+          - Alice is signed in with Google
+          example: Leaving checkout without paying keeps free access
+      Alice subscribes to Plus:
+        target: Alice's other device has paid access within 30 seconds — 3
+        meta:
+          source:
+          - specs/billing/billing-plans.feature:23
+          condition:
+          - Alice is signed in with Google
+          - Alice is also signed in on another device
+          example: Subscribing on one device gives paid access on the other
+      Alice views the billing plans when Alice is signed in with Google and Alice is offline:
+        target: Alice is told subscribing needs a connection — 4
+        meta:
+          source:
+          - specs/billing/billing-plans.feature:29
+          condition:
+          - Alice is signed in with Google
+          - Alice is offline
+          example: Subscribing needs a connection and says so
+  Alice is offered to manage their membership — 1:
+    meta:
+      description: The person observes that alice is offered to manage their membership.
+      snapshot: the-person-observes-that-alice-is-offered-to-manage-their-membership
+      recognize: []
+      checks:
+      - Alice is offered to manage their membership
+      - Alice is not offered to subscribe
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans.feature:11
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has free access — 2:
+    meta:
+      description: The person observes that alice has free access.
+      snapshot: the-person-observes-that-alice-has-free-access
+      recognize: []
+      checks:
+      - Alice has free access
+      - Alice is offered to subscribe
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans.feature:17
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's other device has paid access within 30 seconds — 3:
+    meta:
+      description: The person observes that alice's other device has paid access within 30 seconds.
+      snapshot: the-person-observes-that-alice-s-other-device-has-paid-access-within-30-seconds
+      recognize: []
+      checks:
+      - Alice's other device has paid access within 30 seconds
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans.feature:23
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told subscribing needs a connection — 4:
+    meta:
+      description: The person observes that alice is told subscribing needs a connection.
+      snapshot: the-person-observes-that-alice-is-told-subscribing-needs-a-connection
+      recognize: []
+      checks:
+      - Alice is told subscribing needs a connection
+      events: []
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans.feature:29
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

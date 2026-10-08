@@ -1,0 +1,149 @@
+{
+  "id": "spaces-live-updates",
+  "initial": "Viewing Seeing each other play",
+  "meta": {
+    "context": "Spaces",
+    "kind": "flow",
+    "owner": "Spaces owner (not named in specs)",
+    "tier": "critical",
+    "emits": [],
+    "reactsTo": [],
+    "reviewStatus": "draft; owner approval and execution adapters pending",
+    "codeCandidates": [
+      "libs/spaces-client/src/use-live-space-ids.ts",
+      "libs/spaces-client/src/use-joinable-live-space-ids.ts",
+      "libs/spaces-client/src/use-friend-live-space-id.ts",
+      "libs/spaces-client/src/space-live-badge.tsx",
+      "libs/spaces-client/src/space-join-live-body.tsx"
+    ],
+    "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
+  },
+  "states": {
+    "Viewing Seeing each other play": {
+      "meta": {
+        "description": "The person is at the place where seeing each other play.",
+        "snapshot": "the-person-is-at-the-place-where-seeing-each-other-play",
+        "recognize": [],
+        "checks": [
+          "The journey’s starting facts are in place."
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/live-updates.feature:2"
+        ]
+      },
+      "on": {
+        "Opens the described view when What happens in a space can reach everyone in it": {
+          "target": "what happens in a space can reach everyone in it — 1",
+          "meta": {
+            "source": [
+              "specs/spaces/live-updates.feature:10"
+            ],
+            "condition": [],
+            "example": "What happens in a space can reach everyone in it"
+          }
+        },
+        "Opens the described view when The app can pass on what happens in a space": {
+          "target": "the app can pass on what happens in a space — 2",
+          "meta": {
+            "source": [
+              "specs/spaces/live-updates.feature:13"
+            ],
+            "condition": [],
+            "example": "The app can pass on what happens in a space"
+          }
+        },
+        "Opens the described view when People's apps follow this environment's spaces": {
+          "target": "people's apps follow what happens in this environment's spaces — 3",
+          "meta": {
+            "source": [
+              "specs/spaces/live-updates.feature:16"
+            ],
+            "condition": [],
+            "example": "People's apps follow this environment's spaces"
+          }
+        },
+        "Opens the described view when Nobody can listen in on spaces with a well-known password": {
+          "target": "nobody can listen in on spaces or disturb them with the default password — 4",
+          "meta": {
+            "source": [
+              "specs/spaces/live-updates.feature:19"
+            ],
+            "condition": [],
+            "example": "Nobody can listen in on spaces with a well-known password"
+          }
+        }
+      }
+    },
+    "what happens in a space can reach everyone in it — 1": {
+      "meta": {
+        "description": "The person observes that what happens in a space can reach everyone in it.",
+        "snapshot": "the-person-observes-that-what-happens-in-a-space-can-reach-everyone-in-it",
+        "recognize": [],
+        "checks": [
+          "what happens in a space can reach everyone in it"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/live-updates.feature:10"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "the app can pass on what happens in a space — 2": {
+      "meta": {
+        "description": "The person observes that the app can pass on what happens in a space.",
+        "snapshot": "the-person-observes-that-the-app-can-pass-on-what-happens-in-a-space",
+        "recognize": [],
+        "checks": [
+          "the app can pass on what happens in a space"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/live-updates.feature:13"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "people's apps follow what happens in this environment's spaces — 3": {
+      "meta": {
+        "description": "The person observes that people's apps follow what happens in this environment's spaces.",
+        "snapshot": "the-person-observes-that-people-s-apps-follow-what-happens-in-this-environment-s-spac",
+        "recognize": [],
+        "checks": [
+          "people's apps follow what happens in this environment's spaces"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/live-updates.feature:16"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    },
+    "nobody can listen in on spaces or disturb them with the default password — 4": {
+      "meta": {
+        "description": "The person observes that nobody can listen in on spaces or disturb them with the default password.",
+        "snapshot": "the-person-observes-that-nobody-can-listen-in-on-spaces-or-disturb-them-with-the-defa",
+        "recognize": [],
+        "checks": [
+          "nobody can listen in on spaces or disturb them with the default password",
+          "nobody can listen in on spaces or disturb them with a publicly known password"
+        ],
+        "events": [],
+        "confidence": "assumed",
+        "source": [
+          "specs/spaces/live-updates.feature:19"
+        ],
+        "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
+      },
+      "type": "final"
+    }
+  }
+}

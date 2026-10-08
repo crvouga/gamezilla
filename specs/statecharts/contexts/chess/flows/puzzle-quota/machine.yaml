@@ -1,0 +1,240 @@
+id: chess-puzzle-quota
+initial: Viewing The daily rated puzzle allowance
+meta:
+  context: Chess
+  kind: flow
+  owner: Chess owner (not named in specs)
+  tier: critical
+  emits: []
+  reactsTo: []
+  reviewStatus: draft; owner approval and execution adapters pending
+  codeCandidates:
+  - libs/chess-puzzle-client/src/use-puzzle-status-feedback.ts
+  - libs/chess-puzzle-client/src/use-puzzle-space-role.ts
+  - libs/chess-puzzle-client/src/use-puzzle-review-board.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorder.ts
+  - libs/chess-puzzle-client/src/use-puzzle-result-recorded.ts
+  scope: Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.
+states:
+  Viewing The daily rated puzzle allowance:
+    meta:
+      description: The person is at the place where the daily rated puzzle allowance.
+      snapshot: the-person-is-at-the-place-where-the-daily-rated-puzzle-allowance
+      recognize: []
+      checks:
+      - The journey’s starting facts are in place.
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:2
+    'on':
+      Alice moves on to the next puzzle:
+        target: Alice has a puzzle on the board — 1
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:9
+          condition:
+          - Alice is a guest who has played 19 puzzles today
+          example: A guest's twentieth puzzle of the day still starts
+      Alice asks for another puzzle:
+        target: Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 2
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:15
+          condition:
+          - Alice is a guest who has finished today's last allowed puzzle
+          example: The next puzzle past the limit does not start
+      Alice solves the puzzle:
+        target: Alice's puzzle is solved — 3
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:24
+          condition:
+          - Alice is a guest who reached today's puzzle limit while solving a puzzle
+          example: The puzzle on the board can still be finished once the limit is reached
+      ? Alice goes back to the puzzles when Alice is a guest who has been shown today's puzzle limit and Alice is
+        signed in with Google
+      : target: Alice has a puzzle on the board within 30 seconds — 4
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:33
+          condition:
+          - Alice is a guest who has been shown today's puzzle limit
+          - Alice is signed in with Google
+          example: Signing in lifts the limit and a puzzle is ready again
+      ? Alice goes back to the puzzles when Alice is a guest who reached today's puzzle limit while solving a puzzle
+        and Alice has left the puzzle for the chess choices
+      : target: Alice is on the same puzzle as before — 5
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:42
+          condition:
+          - Alice is a guest who reached today's puzzle limit while solving a puzzle
+          - Alice has left the puzzle for the chess choices
+          example: Going back to a puzzle unfinished at the limit uses no further start
+      Alice returns to their space:
+        target: Alice is asked to find the next move within 20 seconds — 6
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:50
+          condition:
+          - Alice is a guest who reached today's puzzle limit while solving a puzzle
+          - Alice has closed and reopened the app
+          example: A puzzle open at the limit when the app closed is waiting on return
+      ? Alice goes back to the puzzles when Alice is a guest who has finished today's last allowed puzzle and Alice
+        has left the puzzle for the chess choices
+      : target: Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 7
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:58
+          condition:
+          - Alice is a guest who has finished today's last allowed puzzle
+          - Alice has left the puzzle for the chess choices
+          example: Going back after the puzzle is over does not save a puzzle start for later
+      Alice opens puzzles in their space:
+        target: Alice can read that 19 rated puzzles remain today — 8
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:68
+          condition:
+          - Alice is a guest
+          - Alice is hosting a space
+          example: Starting a puzzle shows the remaining allowance
+      Alice retries the puzzle:
+        target: Alice can read that 19 rated puzzles remain today — 9
+        meta:
+          source:
+          - specs/chess/puzzle-quota.feature:75
+          condition:
+          - Alice is a guest
+          - Alice is playing puzzles in their space
+          - Alice has played a wrong move
+          example: Retrying uses none of the remaining allowance
+  Alice has a puzzle on the board — 1:
+    meta:
+      description: The person observes that alice has a puzzle on the board.
+      snapshot: the-person-observes-that-alice-has-a-puzzle-on-the-board
+      recognize: []
+      checks:
+      - Alice has a puzzle on the board
+      - Alice is not shown the puzzle limit
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:9
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 2:
+    meta:
+      description: The person observes that alice is told no new puzzle can start because today's allowance is used
+        within 15 seconds.
+      snapshot: the-person-observes-that-alice-is-told-no-new-puzzle-can-start-because-today-s-allowa
+      recognize: []
+      checks:
+      - Alice is told no new puzzle can start because today's allowance is used within 15 seconds
+      - Alice has no puzzle on the board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:15
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice's puzzle is solved — 3:
+    meta:
+      description: The person observes that alice's puzzle is solved.
+      snapshot: the-person-observes-that-alice-s-puzzle-is-solved
+      recognize: []
+      checks:
+      - Alice's puzzle is solved
+      - Alice is not shown the puzzle limit
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:24
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice has a puzzle on the board within 30 seconds — 4:
+    meta:
+      description: The person observes that alice has a puzzle on the board within 30 seconds.
+      snapshot: the-person-observes-that-alice-has-a-puzzle-on-the-board-within-30-seconds
+      recognize: []
+      checks:
+      - Alice has a puzzle on the board within 30 seconds
+      - Alice is not shown the puzzle limit
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:33
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is on the same puzzle as before — 5:
+    meta:
+      description: The person observes that alice is on the same puzzle as before.
+      snapshot: the-person-observes-that-alice-is-on-the-same-puzzle-as-before
+      recognize: []
+      checks:
+      - Alice is on the same puzzle as before
+      - Alice is still asked to find the next move
+      - Alice is not shown the puzzle limit
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:42
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is asked to find the next move within 20 seconds — 6:
+    meta:
+      description: The person observes that alice is asked to find the next move within 20 seconds.
+      snapshot: the-person-observes-that-alice-is-asked-to-find-the-next-move-within-20-seconds
+      recognize: []
+      checks:
+      - Alice is asked to find the next move within 20 seconds
+      - Alice is on the same puzzle as before
+      - Alice is not shown the puzzle limit
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:50
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 7:
+    meta:
+      description: The person observes that alice is told no new puzzle can start because today's allowance is used
+        within 15 seconds.
+      snapshot: the-person-observes-that-alice-is-told-no-new-puzzle-can-start-because-today-s-allowa
+      recognize: []
+      checks:
+      - Alice is told no new puzzle can start because today's allowance is used within 15 seconds
+      - Alice has no puzzle on the board
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:58
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can read that 19 rated puzzles remain today — 8:
+    meta:
+      description: The person observes that alice can read that 19 rated puzzles remain today.
+      snapshot: the-person-observes-that-alice-can-read-that-19-rated-puzzles-remain-today
+      recognize: []
+      checks:
+      - Alice can read that 19 rated puzzles remain today
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:68
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final
+  Alice can read that 19 rated puzzles remain today — 9:
+    meta:
+      description: The person observes that alice can read that 19 rated puzzles remain today.
+      snapshot: the-person-observes-that-alice-can-read-that-19-rated-puzzles-remain-today
+      recognize: []
+      checks:
+      - Alice can read that 19 rated puzzles remain today
+      events: []
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-quota.feature:75
+      scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
+    type: final

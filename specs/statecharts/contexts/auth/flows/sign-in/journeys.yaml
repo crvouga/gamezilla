@@ -1,0 +1,56 @@
+journeys:
+  People are offered Google sign-in and not Apple sign-in:
+    description: People are offered Google sign-in and not Apple sign-in
+    startingConditions: []
+    events:
+    - Opens the described view when People are offered Google sign-in and not Apple sign-in
+    endsIn: people are offered Google sign-in and not Apple sign-in — 1
+    checks:
+    - people are offered Google sign-in and not Apple sign-in
+    gherkin:
+    - specs/auth/sign-in.feature:9 — People are offered Google sign-in and not Apple sign-in
+    exampleRow: []
+  Starting a Google sign-in hands the person to Google with the way back:
+    description: Starting a Google sign-in hands the person to Google with the way back
+    startingConditions: []
+    events:
+    - Opens the described view when Starting a Google sign-in hands the person to Google with the way back
+    endsIn: starting a Google sign-in hands the person to Google with the way back to the app — 2
+    checks:
+    - starting a Google sign-in hands the person to Google with the way back to the app
+    gherkin:
+    - specs/auth/sign-in.feature:12 — Starting a Google sign-in hands the person to Google with the way back
+    exampleRow: []
+  Google agrees to send people back after they sign in:
+    description: Google agrees to send people back after they sign in
+    startingConditions: []
+    events:
+    - Opens the described view when Google agrees to send people back after they sign in
+    endsIn: Google agrees to send people back to the app after they sign in — 3
+    checks:
+    - Google agrees to send people back to the app after they sign in
+    gherkin:
+    - specs/auth/sign-in.feature:15 — Google agrees to send people back after they sign in
+    exampleRow: []
+  A person finishing signing in on the web knows whether it worked:
+    description: A person finishing signing in on the web knows whether it worked
+    startingConditions: []
+    events:
+    - a person on the web finishes signing in
+    endsIn: the app on the web knows whether they are signed in — 4
+    checks:
+    - the app on the web knows whether they are signed in
+    gherkin:
+    - specs/auth/sign-in.feature:18 — A person finishing signing in on the web knows whether it worked
+    exampleRow: []
+  Google sign-ins started in another environment return to it:
+    description: Google sign-ins started in another environment return to it
+    startingConditions: []
+    events:
+    - Opens the described view when Google sign-ins started in another environment return to it
+    endsIn: Google sign-ins started in any other environment return to that environment — 5
+    checks:
+    - Google sign-ins started in any other environment return to that environment
+    gherkin:
+    - specs/auth/sign-in.feature:22 — Google sign-ins started in another environment return to it
+    exampleRow: []

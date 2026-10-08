@@ -1,0 +1,79 @@
+journeys:
+  Running out against a bare king draws:
+    description: Running out against a bare king draws
+    startingConditions:
+    - Alice has a timed Custom Game with a queen against Bob's bare king
+    - White has one second left in the Custom Game
+    events:
+    - 1 second passes when Alice has a timed Custom Game with a queen against Bob's bare king and White has one
+      second left in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 1
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-material.feature:8 — Running out against a bare king draws
+    exampleRow: []
+  A queen can win on time:
+    description: A queen can win on time
+    startingConditions:
+    - Alice has a timed Custom Game with a queen against Bob's bare king
+    - Black has one second left in the Custom Game
+    events:
+    - 1 second passes when Alice has a timed Custom Game with a queen against Bob's bare king and Black has one
+      second left in the Custom Game
+    endsIn: Alice wins the Custom Game on time — 2
+    checks:
+    - Alice wins the Custom Game on time
+    gherkin:
+    - specs/chess/custom-game-material.feature:14 — A queen can win on time
+    exampleRow: []
+  Resigning against a bare king draws:
+    description: Resigning against a bare king draws
+    startingConditions:
+    - Alice has an active Custom Game with a queen against Bob's bare king
+    events:
+    - Alice resigns the Custom Game
+    endsIn: The Custom Game is completed as a draw — 3
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-material.feature:23 — Resigning against a bare king draws
+    exampleRow: []
+  Resigning to the queen awards White the game:
+    description: Resigning to the queen awards White the game
+    startingConditions:
+    - Alice has an active Custom Game with a queen against Bob's bare king
+    events:
+    - Bob resigns the Custom Game
+    endsIn: Alice wins the Custom Game by resignation — 4
+    checks:
+    - Alice wins the Custom Game by resignation
+    gherkin:
+    - specs/chess/custom-game-material.feature:28 — Resigning to the queen awards White the game
+    exampleRow: []
+  A bare king's claim draws:
+    description: A bare king's claim draws
+    startingConditions:
+    - Alice has an active Custom Game with a queen against Bob's bare king
+    - Alice has been away from the Custom Game for 60 seconds
+    events:
+    - Bob claims the win in the Custom Game
+    endsIn: The Custom Game is completed as a draw — 5
+    checks:
+    - The Custom Game is completed as a draw
+    gherkin:
+    - specs/chess/custom-game-material.feature:39 — A bare king's claim draws
+    exampleRow: []
+  The queen's claim wins:
+    description: The queen's claim wins
+    startingConditions:
+    - Alice has an active Custom Game with a queen against Bob's bare king
+    - Bob has been away from the Custom Game for 60 seconds
+    events:
+    - Alice claims the win in the Custom Game
+    endsIn: Alice wins the Custom Game because Bob stayed away — 6
+    checks:
+    - Alice wins the Custom Game because Bob stayed away
+    gherkin:
+    - specs/chess/custom-game-material.feature:44 — The queen's claim wins
+    exampleRow: []
