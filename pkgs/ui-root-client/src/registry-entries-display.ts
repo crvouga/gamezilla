@@ -15,6 +15,7 @@ import CommandPaletteExample from './command-palette.example';
 import DismissibleBannerExample from './dismissible-top-banner.example';
 import EmptyStateExample from './empty-state.example';
 import ErrorStateExample from './error-state.example';
+import GameArenaExample from './game-arena.example';
 import ListExample from './list.example';
 import LoadingStateExample from './loading-state.example';
 import MenuRowExample from './menu-row.example';
@@ -37,6 +38,7 @@ const DISCLOSURE = 'Disclosure';
 const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
+  entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
   entry(
     'pagination-controls',
     'PaginationControls',
