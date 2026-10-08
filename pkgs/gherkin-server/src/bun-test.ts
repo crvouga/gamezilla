@@ -146,13 +146,14 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
   const { options, scenario } = run;
   const ctx = scenarioContext(run);
   const lifecycle = worldLifecycle(ctx);
-  const world = await lifecycle.create(ctx);
   const reporter = createFeatureReporter(
     ctx,
     options.report,
     lifecycle.record !== undefined
   );
+  const world = await lifecycle.create(ctx);
   const outcomes: StepOutcome[] = [];
+  let hostLimited = false;
   try {
     for (const [index, step] of scenario.steps.entries()) {
       const match = matchStep(step.text);
@@ -162,6 +163,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
         outcomes.push(outcome(step, 'passed'));
       } catch (cause) {
         if (isHostLimit(cause)) {
+          hostLimited = true;
           const skipped = scenario.steps.length - index - 1;
           console.warn(
             `${options.featureUri}:${String(step.line)} ${scenario.name}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
@@ -204,7 +206,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
       reporter?.markFailed(cause);
       throw cause;
     } finally {
-      await reporter?.flush();
+      if (!hostLimited) await reporter?.flush();
     }
   }
   return true;

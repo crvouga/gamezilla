@@ -65,7 +65,13 @@ test('a world without a recorder publishes a measured scenario timeline', async 
   expect(report.steps[0]?.title).toBe('Then the evidence world holds');
 });
 
-test('the passing scenario is recorded, the host-limited one is not', () => {
+// regression: report-host-limit-evidence
+test('the passing scenario is recorded, the host-limited one is not', async () => {
+  expect(
+    await store.get(
+      'runs/measured/tests/evidence.a-scenario-the-host-cannot-finish/report.json'
+    )
+  ).toBeNull();
   const { records, malformed } = readEvidence(reportDir);
   expect(malformed).toEqual([]);
   expect(records).toEqual([
