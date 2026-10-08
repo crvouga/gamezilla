@@ -46,7 +46,6 @@ function choose(command: string) {
     );
 }
 
-// regression: quint-native-induction-cache-timeout
 bindQuintModel<QuintHarnessWorld>({
   model: 'custom-game',
   traces: 256,
