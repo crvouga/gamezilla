@@ -5,6 +5,24 @@ purpose: >-
   of the app has met every release obligation.
 
 terms:
+  - term: spec
+    definition: A written promise about what people can do and observe in the app.
+    forms: [specs]
+
+  - term: report part
+    definition: >-
+      One independently completed collection of automated evidence, combined
+      with other collections for the same version of the app.
+    forms: [report parts]
+
+  - term: UI quality check
+    definition: An automated judgement of how clearly and consistently the app is presented.
+    forms: [UI quality checks]
+
+  - term: performance check
+    definition: An automated judgement of how promptly the app responds to people.
+    forms: [performance checks]
+
   - term: the testing tool
     definition: >-
       The existing place beside the app where the team builds and

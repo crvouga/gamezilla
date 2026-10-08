@@ -1,8 +1,11 @@
 // @io-wall-ok — artifact transfer process adapter; signed URLs never reach logs.
 import { spawn } from 'node:child_process';
+import { readdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { ArtifactClient, FindOptions } from '@actions/artifact';
 import artifact from '@actions/artifact';
+import { consumeEvidence } from './check-evidence-consume';
 import { redactSecrets } from './check-shard-stream';
 
 export function transferDiagnostic(line: string): string {
@@ -36,29 +39,46 @@ export function artifactSource(
   };
 }
 
-export async function downloadEvidence(
-  prefix: string,
-  directory: string,
-  findBy: ArtifactSource,
-  client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'>
-): Promise<void> {
+export async function downloadEvidence(args: {
+  readonly prefix: string;
+  readonly directory: string;
+  readonly findBy: ArtifactSource;
+  readonly client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'>;
+  readonly consumer: {
+    readonly consume: (directory: string) => Promise<void>;
+    readonly release: (directory: string) => Promise<void>;
+  };
+}): Promise<void> {
+  const { prefix, directory, findBy, client, consumer } = args;
   const listed = await client.listArtifacts({ latest: true, findBy });
   const selected = listed.artifacts.filter((item) =>
     item.name.startsWith(prefix)
   );
   if (!selected.length) throw new Error(`No ${prefix} evidence artifacts`);
-  let next = 0;
-  async function worker(): Promise<void> {
-    for (let index = next++; index < selected.length; index = next++)
-      await client.downloadArtifact(selected[index]!.id, {
+  const failures: unknown[] = [];
+  for (const item of selected) {
+    try {
+      await client.downloadArtifact(item.id, {
         path: directory,
         findBy,
       });
+      await consumer.consume(directory);
+    } catch (error) {
+      failures.push(error);
+    } finally {
+      await consumer.release(directory);
+    }
   }
-  await Promise.all(
-    Array.from({ length: Math.min(8, selected.length) }, worker)
-  );
+  if (failures.length)
+    throw new AggregateError(failures, 'Evidence transfer failed');
   console.log(`Transferred ${selected.length} evidence artifacts`);
+}
+
+async function consumeTransfer(directory: string): Promise<void> {
+  for (const name of readdirSync(directory).filter((name) =>
+    /^(?:evidence|results)-\d+\.tar\.gz$/.test(name)
+  ))
+    await consumeEvidence(join(directory, name), process.argv[5]!);
 }
 
 async function run(): Promise<number> {
@@ -82,11 +102,17 @@ async function run(): Promise<number> {
 
 if (import.meta.main) {
   if (process.argv[2] === '--worker')
-    await downloadEvidence(
-      process.argv[3]!,
-      process.argv[4]!,
-      artifactSource(process.env),
-      artifact
-    );
+    await downloadEvidence({
+      prefix: process.argv[3]!,
+      directory: process.argv[4]!,
+      findBy: artifactSource(process.env),
+      client: artifact,
+      consumer: {
+        consume: consumeTransfer,
+        release: async (directory) => {
+          rmSync(directory, { recursive: true, force: true });
+        },
+      },
+    });
   else process.exit(await run());
 }

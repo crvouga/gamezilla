@@ -1,3 +1,4 @@
+import { performancePart } from './performance-part';
 /**
  * Write side of the shared reports store: what CI runs after a spec suite.
  * Pure over two injected {@link ObjectStore}s — the local report bucket a
@@ -26,6 +27,7 @@ import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 import { bundleIndexKey, publishBundle } from './bundle';
 import { eachLimited } from './completion-order';
+import type { ReportPartOutput } from './explorer-types';
 import {
   commitIndexKey,
   commitKey,
@@ -38,6 +40,7 @@ import {
 import type { CommitRecord, SourceRecord } from './protocol';
 import { publicationStore } from './publication';
 import { readCommit } from './read';
+import { validatePart } from './report-parts';
 import { publishSnapshotBundle } from './snapshot-bundle';
 import type { SourceIdentity } from './source-content';
 import {
@@ -233,8 +236,12 @@ export async function publishSource(
     packageDir: args.packageDir,
     bucket: args.bucket,
     status,
-    updatedAtMs: Math.max(0, ...metas.map((m) => m.endedAtMs)),
+    updatedAtMs: metas.reduce(
+      (latest, meta) => Math.max(latest, meta.endedAtMs),
+      0
+    ),
     tests: metas,
+    ...(await sourceEvidence(args.local, args.sha, source, tests)),
   };
   if (contentPrefix !== null) {
     await writeUtf8(
@@ -253,6 +260,33 @@ export async function publishSource(
     );
   }
   return record;
+}
+
+async function sourceEvidence(
+  local: ObjectStore,
+  sha: string,
+  source: string,
+  tests: readonly HtmlReportTest[]
+) {
+  const raw = await readUtf8(local, 'part.json');
+  const evidence: ReportPartOutput[] =
+    raw === null ? [] : [JSON.parse(raw) as ReportPartOutput];
+  if (
+    !evidence.some(
+      (part) => part.kind === 'ui-quality' || part.kind === 'performance'
+    )
+  ) {
+    const { kind, title, checks } = performancePart({
+      sha,
+      recordedAtMs: 0,
+      allowanceMs: 50,
+      reports: tests.map((test) => test.report),
+    });
+    evidence.push({ kind, title, checks });
+  }
+  for (const part of evidence)
+    validatePart({ ...part, sha, id: source, recordedAtMs: 0 });
+  return { evidence };
 }
 
 export type CloseCommitArgs = {
@@ -285,7 +319,12 @@ export async function closeCommit(
     ...open,
     state: 'complete',
     endedAtMs: args.endedAtMs,
-    status: args.status === 'failed' ? 'failed' : suiteStatus(statuses),
+    status:
+      args.status === 'failed'
+        ? 'failed'
+        : statuses.length === 0
+          ? 'skipped'
+          : suiteStatus(statuses),
   };
   await writeUtf8(
     store,

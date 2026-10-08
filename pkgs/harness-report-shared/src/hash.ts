@@ -13,7 +13,7 @@ export type TestRoute = {
 
 export type Route = ListRoute | TestRoute;
 
-export function parseHash(hash = location.hash): Route {
+export function parseHash(hash: string): Route {
   const raw = hash.replace(/^#\/?/, '');
   const q = raw.split('?');
   const parts = (q[0] ?? '').split('/').filter(Boolean);

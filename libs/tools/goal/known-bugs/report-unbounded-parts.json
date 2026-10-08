@@ -1,0 +1,4 @@
+{
+  "summary": "Paginating each producer independently still rendered an unbounded number of checks across many report parts.",
+  "regressionTest": "pkgs/harness-report-client/tests/parts-view.test.tsx"
+}

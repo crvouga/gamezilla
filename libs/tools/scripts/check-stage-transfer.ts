@@ -1,6 +1,6 @@
 // @io-wall-ok — restore prior stage evidence and exact cache artifacts.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { restorePlan } from './check-plan-transfer';
 import type { CheckPlan } from './check-shards';
@@ -29,14 +29,10 @@ if (import.meta.main) {
           'libs/tools/scripts/check-artifact-download.ts',
           `check-evidence-${prerequisite.index}`,
           directory,
+          'prerequisites',
         ],
         { cwd: ROOT, stdio: 'inherit' }
       );
     }
   }
-  if (!existsSync(directory)) process.exit(0);
-  for (const name of readdirSync(directory).filter((name) =>
-    /^evidence-\d+\.tar$/.test(name)
-  ))
-    execFileSync('tar', ['-xf', join(directory, name), '-C', ROOT]);
 }

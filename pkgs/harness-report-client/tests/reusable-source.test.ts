@@ -14,7 +14,9 @@ import {
   reuseSource,
   sourceContentPrefix,
 } from '@pkgs/harness-report-shared/source-content';
+import { sourcePart } from '@pkgs/harness-report-shared/source-part';
 import type { HtmlReportBlob } from '@pkgs/harness-root-shared/bundle';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
@@ -30,6 +32,37 @@ const args = {
   bucket: 'part-0',
   identity,
 };
+
+test('reused producer evidence preserves quality measurements for the next commit', async () => {
+  const remote = new ObjectStoreImplInMemory();
+  const local = await localBucket();
+  await writeUtf8(
+    local,
+    'part.json',
+    JSON.stringify({
+      kind: 'ui-quality',
+      title: 'Quality',
+      checks: [
+        {
+          id: 'put',
+          title: 'Counter UI',
+          status: 'passed',
+          detail: 'Readable',
+          measurements: [
+            { name: 'Quality', value: 8.5, unit: 'score', limit: 7 },
+          ],
+        },
+      ],
+    })
+  );
+  await publishSource(remote, { ...args, local });
+  const reused = await reuseSource(remote, { ...args, sha: NEXT_SHA });
+  expect(reused).not.toBeNull();
+  const part = sourcePart(NEXT_SHA, reused!);
+  expect(part.sha).toBe(NEXT_SHA);
+  expect(part.checks[0]?.measurements[0]?.value).toBe(8.5);
+  expect(part.checks[0]?.id).toBe(`${source}/put`);
+});
 
 class TrackingStore extends ObjectStoreImplInMemory {
   readonly writes: string[] = [];

@@ -63,3 +63,29 @@ export async function eachLimited<T>(
     // Results are void; draining is the point.
   }
 }
+
+/** Consume a lazy input with backpressure, draining started work before failure. */
+export async function eachLimitedStream<T>(
+  items: AsyncIterable<T>,
+  limit: number,
+  work: (item: T) => Promise<void>
+): Promise<void> {
+  const width = Math.max(1, Math.floor(limit));
+  const running = new Set<Promise<void>>();
+  const outcome: { failure: { error: unknown } | null } = { failure: null };
+  try {
+    for await (const item of items) {
+      if (outcome.failure !== null) break;
+      const task: Promise<void> = work(item)
+        .catch((error: unknown) => {
+          outcome.failure ??= { error };
+        })
+        .finally(() => running.delete(task));
+      running.add(task);
+      if (running.size >= width) await Promise.race(running);
+    }
+  } finally {
+    await Promise.all(running);
+  }
+  if (outcome.failure !== null) throw outcome.failure.error;
+}

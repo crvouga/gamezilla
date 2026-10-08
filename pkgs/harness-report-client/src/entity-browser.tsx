@@ -1,276 +1,196 @@
+import { useLingui } from '@lingui/solid/macro';
 import type {
   CatalogEntity,
   CatalogGroup,
-  CatalogGroupView,
-  CatalogLayout,
   CatalogQuery,
   CatalogSort,
   CatalogStatus,
 } from '@pkgs/harness-report-shared/catalog';
-
-import {
-  arrangeCatalog,
-  catalogCounts,
-} from '@pkgs/harness-report-shared/catalog';
+import { arrangeCatalog } from '@pkgs/harness-report-shared/catalog';
 import { fmtMs } from '@pkgs/harness-report-shared/format';
-import { createMemo, For, Show } from 'solid-js';
-import type { TabOption } from './tab-picker';
-import { TabPicker } from './tab-picker';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { FilterBar } from '@pkgs/ui-root-client/filter-bar';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { PaginationControls } from '@pkgs/ui-root-client/pagination-controls';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { Select } from '@pkgs/ui-root-client/select';
+import { createMemo, createSignal, For, Show } from 'solid-js';
+import { ReportStatus } from './report-status';
 
-const STATUSES: readonly CatalogStatus[] = [
-  'all',
-  'failed',
-  'passed',
-  'skipped',
-  'running',
-];
-const GROUPS: readonly CatalogGroup[] = [
-  'package',
-  'file',
-  'status',
-  'runtime',
-  'none',
-];
-const SORTS: readonly CatalogSort[] = ['status', 'duration', 'name', 'recent'];
-const LAYOUTS: readonly CatalogLayout[] = ['list', 'grid'];
+const PAGE_SIZE = 64;
 
-function label(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
+type BrowserProps = {
+  readonly entities: readonly CatalogEntity[];
+  readonly query: CatalogQuery;
+  readonly onQuery: (query: CatalogQuery) => void;
+  readonly onOpen: (id: string) => void;
+  readonly empty: string;
+  readonly pending: boolean;
+};
 
-function options(values: readonly string[]): TabOption[] {
-  return values.map((value) => ({ value, label: label(value) }));
-}
-
-function statusOptions(
-  counts: Record<CatalogStatus, number>
-): readonly TabOption[] {
-  return STATUSES.map((status) => ({
-    value: status,
-    label: `${label(status)} ${String(counts[status])}`,
-  }));
-}
-
-function groupSummary(group: CatalogGroupView): string {
-  const tests = `${String(group.entities.length)}`;
-  const failed = group.failed > 0 ? ` · ${String(group.failed)} failed` : '';
-  return `${tests} · ${fmtMs(group.durationMs)}${failed}`;
-}
-
-function CatalogBar(props: {
-  query: CatalogQuery;
-  counts: Record<CatalogStatus, number>;
-  onQuery: (next: CatalogQuery) => void;
-}) {
-  const set = (patch: Partial<CatalogQuery>) =>
+function CatalogBar(
+  props: Pick<BrowserProps, 'query' | 'onQuery'> & {
+    readonly resetPage: () => void;
+  }
+) {
+  const { t } = useLingui();
+  const set = (patch: Partial<CatalogQuery>) => {
+    props.resetPage();
     props.onQuery({ ...props.query, ...patch });
-  return (
-    <div class="sr-catalog">
-      <input
-        class="sr-search"
-        type="search"
-        placeholder="Search"
-        aria-label="Search"
-        value={props.query.q}
-        onInput={(e) => set({ q: e.currentTarget.value })}
-      />
-      <div class="sr-catalog-row">
-        <TabPicker
-          label="Status"
-          value={props.query.status}
-          options={statusOptions(props.counts)}
-          onPick={(status) => set({ status: status as CatalogStatus })}
-        />
-        <TabPicker
-          label="Group"
-          value={props.query.group}
-          options={options(GROUPS)}
-          onPick={(group) => set({ group: group as CatalogGroup })}
-        />
-        <TabPicker
-          label="Sort"
-          value={props.query.sort}
-          options={options(SORTS)}
-          onPick={(sort) => set({ sort: sort as CatalogSort })}
-        />
-        <TabPicker
-          label="Layout"
-          value={props.query.layout}
-          options={options(LAYOUTS)}
-          onPick={(layout) => set({ layout: layout as CatalogLayout })}
-        />
-      </div>
-    </div>
-  );
-}
-
-function openHandlers(entity: CatalogEntity, onOpen: (id: string) => void) {
-  const open = () => onOpen(entity.id);
-  return {
-    open,
-    onKeyDown: (e: KeyboardEvent) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      e.preventDefault();
-      open();
-    },
   };
-}
-
-function EntityDetail(props: { entity: CatalogEntity }) {
   return (
-    <Show when={props.entity.detail}>
-      <div class="sub">
-        <span>{props.entity.detail}</span>
-        <Show when={props.entity.href}>
-          {(href) => (
-            <a
-              href={href()}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {' · run'}
-            </a>
-          )}
-        </Show>
-      </div>
-    </Show>
-  );
-}
-
-function EntityRow(props: {
-  entity: CatalogEntity;
-  onOpen: (id: string) => void;
-}) {
-  const act = openHandlers(props.entity, props.onOpen);
-  return (
-    <div
-      class="sr-row"
-      role="link"
-      tabindex="0"
-      aria-label={`Open ${props.entity.title}`}
-      onClick={act.open}
-      onKeyDown={act.onKeyDown}
+    <FilterBar
+      value={props.query.q}
+      onChange={(q) => set({ q })}
+      label={t`Find test runs`}
+      placeholder={t`Name, spec, or package`}
     >
-      <span class={`sr-dot ${props.entity.status}`} />
-      <div>
-        <div class="title">{props.entity.title}</div>
-        <EntityDetail entity={props.entity} />
-      </div>
-      <span class="dur">{fmtMs(props.entity.durationMs)}</span>
-    </div>
-  );
-}
-
-function EntityCard(props: {
-  entity: CatalogEntity;
-  onOpen: (id: string) => void;
-}) {
-  const act = openHandlers(props.entity, props.onOpen);
-  return (
-    <div
-      class={`sr-card ${props.entity.status}`}
-      role="link"
-      tabindex="0"
-      aria-label={`Open ${props.entity.title}`}
-      onClick={act.open}
-      onKeyDown={act.onKeyDown}
-    >
-      <div class="top">
-        <span class={`sr-dot ${props.entity.status}`} />
-        <span class="title">{props.entity.title}</span>
-      </div>
-      <EntityDetail entity={props.entity} />
-      <div class="meta">
-        <span>{props.entity.packageName || props.entity.file}</span>
-        <span class="dur">{fmtMs(props.entity.durationMs)}</span>
-      </div>
-    </div>
+      <Select
+        label={t`Outcome`}
+        value={props.query.status}
+        onValueChange={(status) => set({ status: status as CatalogStatus })}
+        options={[
+          { value: 'all', label: t`All outcomes` },
+          { value: 'failed', label: t`Failed` },
+          { value: 'passed', label: t`Passed` },
+          { value: 'skipped', label: t`Skipped` },
+        ]}
+      />
+      <Select
+        label={t`Group`}
+        value={props.query.group}
+        onValueChange={(group) => set({ group: group as CatalogGroup })}
+        options={[
+          { value: 'package', label: t`Package` },
+          { value: 'file', label: t`Spec` },
+          { value: 'status', label: t`Outcome` },
+          { value: 'runtime', label: t`Runtime` },
+          { value: 'none', label: t`No grouping` },
+        ]}
+      />
+      <Select
+        label={t`Sort`}
+        value={props.query.sort}
+        onValueChange={(sort) => set({ sort: sort as CatalogSort })}
+        options={[
+          { value: 'status', label: t`Failures first` },
+          { value: 'duration', label: t`Longest first` },
+          { value: 'name', label: t`Name` },
+          { value: 'recent', label: t`Recorded order` },
+        ]}
+      />
+    </FilterBar>
   );
 }
 
 export function CatalogSkeleton() {
+  const { t } = useLingui();
   return (
-    <div class="sr-group" aria-hidden="true">
-      <For each={[0, 1, 2, 3, 4, 5]}>
-        {() => (
-          <div class="sr-row sr-skel">
-            <span class="sr-dot" />
-            <div class="title" />
-            <span class="dur" />
-          </div>
-        )}
-      </For>
-    </div>
+    <LoadingState variant="compact" caption={t`Loading recorded test runs…`} />
   );
 }
 
-function EntityGroup(props: {
-  group: CatalogGroupView;
-  query: CatalogQuery;
-  onOpen: (id: string) => void;
-}) {
-  return (
-    <section class="sr-group">
-      <Show when={props.query.group !== 'none'}>
-        <div class="sr-group-head">
-          <h2>{props.group.name}</h2>
-          <span class="count">{groupSummary(props.group)}</span>
-        </div>
-      </Show>
-      <div class={props.query.layout === 'grid' ? 'sr-grid' : 'sr-rows'}>
-        <For each={props.group.entities}>
-          {(entity) => (
-            <Show
-              when={props.query.layout === 'grid'}
-              fallback={<EntityRow entity={entity} onOpen={props.onOpen} />}
-            >
-              <EntityCard entity={entity} onOpen={props.onOpen} />
-            </Show>
-          )}
-        </For>
-      </div>
-    </section>
+export function EntityBrowser(props: BrowserProps) {
+  const { t } = useLingui();
+  const [page, setPage] = createSignal(0);
+  const ordered = createMemo(() =>
+    arrangeCatalog(props.entities, props.query).flatMap(
+      (group) => group.entities
+    )
   );
-}
-
-export function EntityBrowser(props: {
-  entities: readonly CatalogEntity[];
-  query: CatalogQuery;
-  onQuery: (next: CatalogQuery) => void;
-  onOpen: (id: string) => void;
-  empty: string;
-  pending: boolean;
-}) {
-  const groups = createMemo(() => arrangeCatalog(props.entities, props.query));
-  const counts = createMemo(() => catalogCounts(props.entities));
-  const visible = createMemo(() =>
-    groups().some((group) => group.entities.length > 0)
+  const pageCount = () => Math.ceil(ordered().length / PAGE_SIZE);
+  const pageIndex = () => Math.min(page(), Math.max(0, pageCount() - 1));
+  const groups = createMemo(() =>
+    arrangeCatalog(
+      ordered().slice(pageIndex() * PAGE_SIZE, (pageIndex() + 1) * PAGE_SIZE),
+      { ...props.query, q: '', status: 'all', sort: 'recent' }
+    )
   );
   return (
-    <div class="sr-list">
+    <div class="box flex-1 min-h-0 gap-4">
       <CatalogBar
         query={props.query}
-        counts={counts()}
         onQuery={props.onQuery}
+        resetPage={() => setPage(0)}
       />
-      <Show when={props.pending && props.entities.length === 0}>
-        <CatalogSkeleton />
-      </Show>
-      <Show when={!props.pending && !visible()}>
-        <div class="sr-note">{props.empty}</div>
-      </Show>
-      <For each={groups()}>
-        {(group) => (
-          <Show when={group.entities.length > 0}>
-            <EntityGroup
-              group={group}
-              query={props.query}
-              onOpen={props.onOpen}
-            />
+      <ScrollView class="flex-1" contentClass="gap-6">
+        <Show
+          when={!props.pending || props.entities.length > 0}
+          fallback={<CatalogSkeleton />}
+        >
+          <Show
+            when={ordered().length > 0}
+            fallback={
+              <EmptyState
+                variant="compact"
+                title={props.empty}
+                action={
+                  props.query.q || props.query.status !== 'all'
+                    ? {
+                        label: t`Clear filters`,
+                        onClick: () =>
+                          props.onQuery({
+                            ...props.query,
+                            q: '',
+                            status: 'all',
+                          }),
+                      }
+                    : undefined
+                }
+              />
+            }
+          >
+            <For each={groups()}>
+              {(group) => (
+                <MenuSection
+                  title={props.query.group === 'none' ? undefined : group.name}
+                  footer={t`${group.entities.length} shown`}
+                >
+                  <div
+                    class="box"
+                    classList={{
+                      'grid grid-cols-1 sm:grid-cols-2':
+                        props.query.layout === 'grid',
+                    }}
+                  >
+                    <For each={group.entities}>
+                      {(entity) => (
+                        <MenuRow
+                          title={entity.title}
+                          caption={entity.detail || entity.file}
+                          onClick={() => props.onOpen(entity.id)}
+                          trailing={
+                            <span class="box flex-row flex-wrap items-center gap-2">
+                              <Show when={entity.durationMs !== null}>
+                                <Badge
+                                  intent="neutral"
+                                  size="sm"
+                                  label={fmtMs(entity.durationMs)}
+                                />
+                              </Show>
+                              <ReportStatus status={entity.status} />
+                            </span>
+                          }
+                        />
+                      )}
+                    </For>
+                  </div>
+                </MenuSection>
+              )}
+            </For>
+            <Show when={pageCount() > 1}>
+              <PaginationControls
+                pageIndex={pageIndex()}
+                pageCount={pageCount()}
+                onPageChange={setPage}
+              />
+            </Show>
           </Show>
-        )}
-      </For>
+        </Show>
+      </ScrollView>
     </div>
   );
 }

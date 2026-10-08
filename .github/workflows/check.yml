@@ -122,7 +122,18 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ env.CHECK_SHARDS }}
-          path: .cache/check-ci/evidence-${{ env.CHECK_SHARDS }}.tar
+          path: .cache/check-ci/evidence-${{ env.CHECK_SHARDS }}.tar.gz
+          include-hidden-files: true
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 7
+
+      - name: Transfer prerequisite verdict
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-results-${{ env.CHECK_SHARDS }}
+          path: .cache/check-ci/results-${{ env.CHECK_SHARDS }}.tar.gz
           include-hidden-files: true
           if-no-files-found: ignore
           compression-level: 0
@@ -198,7 +209,19 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ matrix.shard }}
-          path: .cache/check-ci/evidence-${{ matrix.shard }}.tar
+          path: .cache/check-ci/evidence-${{ matrix.shard }}.tar.gz
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 7
+
+      - name: Transfer shard verdict
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-results-${{ matrix.shard }}
+          path: .cache/check-ci/results-${{ matrix.shard }}.tar.gz
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
@@ -223,8 +246,6 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - name: Download producers and their exact cache artifacts
-        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
       - name: Download immutable plan
         uses: actions/download-artifact@v6
         with:
@@ -232,6 +253,8 @@ jobs:
           path: .cache/check-ci
       - name: Restore immutable plan and producers
         run: bun run libs/tools/scripts/check-stage-transfer.ts
+      - name: Consume producer evidence and required cache artifacts
+        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers consumers
       - name: check
         timeout-minutes: 25
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$((CHECK_SHARDS + 1))"
@@ -262,7 +285,19 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ env.CHECK_SHARDS }}-consumer
-          path: .cache/check-ci/evidence-*.tar
+          path: .cache/check-ci/evidence-*.tar.gz
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 7
+
+      - name: Transfer consumer verdict
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-results-${{ env.CHECK_SHARDS }}-consumer
+          path: .cache/check-ci/results-*.tar.gz
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
@@ -284,7 +319,7 @@ jobs:
         with:
           tools: bun gh
       - name: Transfer raw evidence
-        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers || echo "::warning::No shard evidence to aggregate"
+        run: bun run libs/tools/scripts/check-artifact-download.ts check-results- .cache/check-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
       - name: Summarize every suite
         env:
           PLAN_RESULT: ${{ needs.check-plan.result }}
@@ -370,9 +405,12 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - name: Transfer raw evidence without exposing signed URLs
-        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
-      - name: Aggregate and publish one batch
+      - name: Download immutable plan
+        uses: actions/download-artifact@v6
+        with:
+          name: check-plan
+          path: .cache/check-ci
+      - name: Aggregate and publish bounded evidence
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled()

@@ -43,8 +43,8 @@ export async function planReportRetention(
 ): Promise<ReportRetentionPlan> {
   const keys = (
     await Promise.all(
-      ['index/', 'commits/', 'attempts/', 'content/'].map((prefix) =>
-        store.listKeys(prefix)
+      ['index/', 'commits/', 'attempts/', 'content/', 'versions/'].map(
+        (prefix) => store.listKeys(prefix)
       )
     )
   ).flat();
@@ -68,13 +68,19 @@ export async function planReportRetention(
       latest.set(record.branch, record);
   }
   const retained = [...latest.values()];
-  const prefixes = await retainedPrefixes(store, retained);
+  const prefixes = [...(await retainedPrefixes(store, retained))];
+  for (const sha of branches.values())
+    if (isCommitSha(sha)) prefixes.push(`commits/${sha}/`);
   // A running publisher has not attached all of its shared content yet.
   const publishing = retained.some((record) => record.state === 'running');
   const indexes = new Set(
     retained.map((record) => commitIndexKey(record.sha, record.startedAtMs))
   );
   const deleteKeys = keys.filter((key) => {
+    if (key.startsWith('versions/')) {
+      const sha = key.slice('versions/'.length).replace(/\.json$/, '');
+      return !prefixes.includes(`commits/${sha}/`);
+    }
     if (key.startsWith('index/'))
       return shaOfIndexKey(key) !== null && !indexes.has(key);
     if (key.startsWith('content/') && publishing) return false;

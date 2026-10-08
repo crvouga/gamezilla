@@ -13,14 +13,15 @@ describe('reports API base', () => {
     ).toBe('http://localhost:5264');
   });
 
-  test('a stack or deployed API stays the configured origin', () => {
+  // regression: reports-local-empty
+  test('local stack reads the reports middleware while a deployed API keeps its origin', () => {
     expect(
       reportsApiBase({
         dev: true,
         pageOrigin: 'http://localhost:5264',
         configuredApi: 'http://127.0.0.1:64571',
       })
-    ).toBe('http://127.0.0.1:64571');
+    ).toBe('http://localhost:5264');
     expect(
       reportsApiBase({
         dev: false,

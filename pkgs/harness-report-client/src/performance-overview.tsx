@@ -1,5 +1,10 @@
+import { useLingui } from '@lingui/solid/macro';
 import { measuredMs } from '@pkgs/harness-report-shared/performance';
 import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { MetricStrip } from '@pkgs/ui-root-client/metric-strip';
 import { createMemo, For, Show } from 'solid-js';
 import { PerformanceHeatmap } from './performance-heatmap';
 
@@ -7,6 +12,7 @@ export function PerformanceOverview(props: {
   tests: readonly HtmlReportTest[];
   onOpen: (id: string) => void;
 }) {
+  const { t } = useLingui();
   const measured = createMemo(() =>
     props.tests.filter((test) => test.report.meta.performance !== undefined)
   );
@@ -37,57 +43,54 @@ export function PerformanceOverview(props: {
     })
   );
   return (
-    <details
-      class="sr-performance sr-performance-overview"
-      data-component="PerformanceOverview"
-    >
-      <summary>
-        App performance{' '}
-        <span class="sr-badge">{`${measured().length} / ${props.tests.length} runs measured`}</span>
-      </summary>
-      <p class="sr-performance-note">
-        Recorded elapsed work across the spec suite. Open a run for its step
-        heatmap and snapshot overhead. Grey runs have no measurements.
-      </p>
+    <div class="box gap-4" data-component="PerformanceOverview">
+      <h2 class="text textSubtitle">{t`App performance`}</h2>
+      <p class="text textCaption">{t`${measured().length} / ${props.tests.length} runs measured`}</p>
       <PerformanceHeatmap cells={cells()} onSelect={props.onOpen} />
       <Show
         when={expensive().length > 0}
-        fallback={<p>Measurements are unavailable for these reports.</p>}
+        fallback={
+          <EmptyState
+            variant="compact"
+            title={t`Measurements unavailable`}
+            body={t`These reports contain no recorded performance measurements.`}
+          />
+        }
       >
-        <table>
-          <thead>
-            <tr>
-              <th>Most expensive runs</th>
-              <th>Work</th>
-              <th>Snapshots</th>
-              <th>Slow steps</th>
-            </tr>
-          </thead>
-          <tbody>
-            <For each={expensive()}>
-              {(test) => (
-                <tr>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => props.onOpen(test.report.meta.testId)}
-                    >
-                      {test.report.meta.title}
-                    </button>
-                  </td>
-                  <td>
-                    {measuredMs(test.report.meta.performance!.executionMs)}
-                  </td>
-                  <td>
-                    {measuredMs(test.report.meta.performance!.snapshotMs)}
-                  </td>
-                  <td>{test.report.meta.performance!.slowSteps}</td>
-                </tr>
-              )}
-            </For>
-          </tbody>
-        </table>
+        <MenuSection title={t`Most expensive runs`}>
+          <For each={expensive()}>
+            {(test) => (
+              <MenuRow
+                title={test.report.meta.title}
+                caption={
+                  <MetricStrip
+                    aria-label={t`Recorded run timing`}
+                    metrics={[
+                      {
+                        label: t`Work`,
+                        value: measuredMs(
+                          test.report.meta.performance!.executionMs
+                        ),
+                      },
+                      {
+                        label: t`Snapshots`,
+                        value: measuredMs(
+                          test.report.meta.performance!.snapshotMs
+                        ),
+                      },
+                      {
+                        label: t`Slow steps`,
+                        value: test.report.meta.performance!.slowSteps,
+                      },
+                    ]}
+                  />
+                }
+                onClick={() => props.onOpen(test.report.meta.testId)}
+              />
+            )}
+          </For>
+        </MenuSection>
       </Show>
-    </details>
+    </div>
   );
 }

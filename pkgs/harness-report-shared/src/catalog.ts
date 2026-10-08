@@ -116,7 +116,16 @@ function compareGroups(
   return 0;
 }
 
-const LIST_KEYS = ['q', 'status', 'group', 'sort', 'layout'] as const;
+const LIST_KEYS = [
+  'q',
+  'status',
+  'group',
+  'sort',
+  'layout',
+  'spec',
+  'tab',
+  'partq',
+] as const;
 
 /** The list's search params, dropped when a test route carries frame and zoom. */
 export function catalogParams(

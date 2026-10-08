@@ -5,6 +5,7 @@ import { testFrames } from '@pkgs/harness-report-shared/frames';
 import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import { render } from 'solid-js/web';
 import { exampleApp } from './example-app';
+import { TestProviders } from './test-providers';
 
 async function measuredReport(
   count: number,
@@ -142,12 +143,14 @@ test('the suite overview distinguishes measured runs from old reports and opens 
   let selected = '';
   const dispose = render(
     () => (
-      <PerformanceOverview
-        tests={[measured, old]}
-        onOpen={(id) => {
-          selected = id;
-        }}
-      />
+      <TestProviders>
+        <PerformanceOverview
+          tests={[measured, old]}
+          onOpen={(id) => {
+            selected = id;
+          }}
+        />
+      </TestProviders>
     ),
     host
   );

@@ -1,60 +1,4 @@
 @layer components {
-  .sr-viewer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .sr-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--color-sr-border);
-    color: var(--color-sr-muted);
-    font-size: 12px;
-    background: var(--color-sr-panel);
-    flex: none;
-    flex-wrap: wrap;
-  }
-
-  .sr-toolbar .grow {
-    flex: 1;
-    min-width: 8px;
-  }
-
-  .sr-seg {
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid var(--color-sr-border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .sr-seg button {
-    padding: 4px 9px;
-    border-right: 1px solid var(--color-sr-border);
-    color: var(--color-sr-muted);
-  }
-
-  .sr-seg button:last-child {
-    border-right: 0;
-  }
-
-  .sr-seg button.on {
-    background: var(--color-sr-accent-soft);
-    color: var(--color-sr-text);
-  }
-
-  .sr-stage-wrap {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    min-width: 0;
-  }
-
   .sr-stage {
     flex: 1;
     display: flex;
@@ -64,11 +8,7 @@
     padding: 14px;
     overflow: auto;
     min-width: 0;
-    background: radial-gradient(
-      ellipse at 50% 0%,
-      #1a1b22 0%,
-      var(--color-sr-bg) 65%
-    );
+    background: var(--ui-color-surface);
   }
 
   .sr-stage.single {
@@ -106,8 +46,8 @@
     gap: 6px;
     justify-content: center;
     padding: 0 0 8px;
-    color: var(--color-sr-muted);
-    font-size: 11.5px;
+    color: var(--ui-color-text-secondary);
+    font-size: var(--ui-font-size-xs);
     font-weight: 550;
   }
 
@@ -117,11 +57,11 @@
   }
 
   .sr-client.active .sr-client-label {
-    color: var(--color-sr-text);
+    color: var(--ui-color-text);
   }
 
   .sr-client.active .sr-client-label .actor {
-    color: var(--color-sr-accent);
+    color: var(--ui-color-tint);
   }
 
   .sr-phone {
@@ -136,17 +76,16 @@
 
   .sr-phone .frame {
     position: relative;
-    background: var(--color-sr-panel-2);
+    background: var(--ui-color-surface-muted);
     border-radius: 18px;
-    box-shadow: var(--shadow-sr);
     overflow: hidden;
-    border: 1px solid #000;
+    border: 1px solid var(--ui-color-border);
   }
 
   .sr-phone .frame.blank {
     border-style: dashed;
-    border-color: var(--color-sr-border-strong);
-    background: rgba(31, 32, 38, 0.45);
+    border-color: var(--ui-color-border);
+    background: var(--ui-color-surface-muted);
   }
 
   .sr-snap-host {
@@ -185,40 +124,13 @@
   }
 
   .sr-chip-note {
-    font-size: 10.5px;
+    font-size: var(--ui-font-size-xs);
     font-weight: 500;
-    color: var(--color-sr-faint);
+    color: var(--ui-color-text-secondary);
   }
 
   .sr-chip-note.warn {
-    color: var(--color-sr-skip);
-  }
-
-  .sr-aside {
-    width: 300px;
-    border-left: 1px solid var(--color-sr-border);
-    overflow: auto;
-    background: var(--color-sr-panel);
-    flex: none;
-  }
-
-  .sr-aside h3 {
-    margin: 0;
-    padding: 10px 12px;
-    font-size: 11px;
-    color: var(--color-sr-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--color-sr-border);
-  }
-
-  .sr-aside pre {
-    margin: 0;
-    padding: 10px 12px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    font-size: 11px;
-    color: #cfd2dc;
+    color: var(--ui-color-warning);
   }
 
   .sr-client[role="button"] {
@@ -233,8 +145,8 @@
     height: 100%;
     min-height: 160px;
     padding: 18px;
-    color: var(--color-sr-faint);
-    font-size: 11px;
+    color: var(--ui-color-text-secondary);
+    font-size: var(--ui-font-size-xs);
     text-align: center;
   }
 }
