@@ -18,22 +18,16 @@
         "description": "The person is at the place where stop charging a deleted account.",
         "snapshot": "the-person-is-at-the-place-where-stop-charging-a-deleted-account",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:2"
-        ]
+        "source": ["specs/billing/deleted-account-payments.feature:2"]
       },
       "on": {
         "Alice confirms account deletion": {
           "target": "Alice's membership cannot renew because the account was deleted — 1",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:8"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:8"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has a recently proven account"
@@ -44,9 +38,7 @@
         "Alice views the account deletion outcome": {
           "target": "Alice is told cancellation is still being completed — 2",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:15"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:15"],
             "condition": [
               "Alice's account deletion has been confirmed",
               "the payment provider has not yet confirmed cancellation"
@@ -57,21 +49,15 @@
         "Alice's payment provider takes another membership payment": {
           "target": "that payment is refunded in full because account deletion had already been confirmed — 3",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:22"
-            ],
-            "condition": [
-              "Alice's account deletion has been confirmed"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:22"],
+            "condition": ["Alice's account deletion has been confirmed"],
             "example": "A charge after confirmed deletion is refunded"
           }
         },
         "the team reviews that payment record for accounting": {
           "target": "the team can see its minimum payment evidence — 4",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:29"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:29"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice made a membership payment less than 7 years ago"
@@ -82,9 +68,7 @@
         "Alice signs in with Google": {
           "target": "Alice has free access — 5",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:35"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:35"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice's payment record is still retained for accounting"
@@ -95,9 +79,7 @@
         "the team reviews payment records due for erasure": {
           "target": "that payment record cannot remain because its retention period has expired — 6",
           "meta": {
-            "source": [
-              "specs/billing/deleted-account-payments.feature:42"
-            ],
+            "source": ["specs/billing/deleted-account-payments.feature:42"],
             "condition": [
               "Alice's payment record is 7 years old",
               "no specific legal preservation obligation applies to it"
@@ -118,9 +100,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:8"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,9 +116,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:15"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -153,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:22"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -165,14 +141,10 @@
         "description": "The person observes that the team can see its minimum payment evidence.",
         "snapshot": "the-person-observes-that-the-team-can-see-its-minimum-payment-evidence",
         "recognize": [],
-        "checks": [
-          "the team can see its minimum payment evidence"
-        ],
+        "checks": ["the team can see its minimum payment evidence"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:29"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -188,9 +160,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:35"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -205,9 +175,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/deleted-account-payments.feature:42"
-        ],
+        "source": ["specs/billing/deleted-account-payments.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

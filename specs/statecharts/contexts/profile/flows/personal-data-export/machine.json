@@ -23,34 +23,24 @@
         "description": "The person is at the place where take a private copy of personal data.",
         "snapshot": "the-person-is-at-the-place-where-take-a-private-copy-of-personal-data",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:2"
-        ]
+        "source": ["specs/profile/personal-data-export.feature:2"]
       },
       "on": {
         "Alice asks for a personal-data export when Alice has a recently proven account": {
           "target": "Alice sees that the export is being prepared — 1",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:8"
-            ],
-            "condition": [
-              "Alice has a recently proven account"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:8"],
+            "condition": ["Alice has a recently proven account"],
             "example": "A person requests their own export"
           }
         },
         "Alice asks for a personal-data export when Alice completed signing in more than 10 minutes ago": {
           "target": "Alice is told to prove the account again before exporting personal data — 2",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:14"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:14"],
             "condition": [
               "Alice completed signing in more than 10 minutes ago"
             ],
@@ -60,9 +50,7 @@
         "Alice asks for a personal-data export when Alice has a recently proven account and Alice is offline": {
           "target": "Alice is told the personal-data export needs a connection — 3",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:19"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:19"],
             "condition": [
               "Alice has a recently proven account",
               "Alice is offline"
@@ -73,21 +61,15 @@
         "Alice's personal-data export becomes ready when Alice has asked for a personal-data export": {
           "target": "Alice can download a readable summary and reusable detail within 24 hours of asking — 4",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:27"
-            ],
-            "condition": [
-              "Alice has asked for a personal-data export"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:27"],
+            "condition": ["Alice has asked for a personal-data export"],
             "example": "An export includes readable and reusable personal data"
           }
         },
         "Alice's personal-data export becomes ready when Alice and Bob have separate accounts with personal data": {
           "target": "Bob's private personal data cannot appear in Alice's export — 5",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:33"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:33"],
             "condition": [
               "Alice and Bob have separate accounts with personal data"
             ],
@@ -97,21 +79,15 @@
         "Alice's personal-data export fails": {
           "target": "Alice is told the export failed and can ask again — 6",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:39"
-            ],
-            "condition": [
-              "Alice has asked for a personal-data export"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:39"],
+            "condition": ["Alice has asked for a personal-data export"],
             "example": "A failed export never pretends its incomplete answer is complete"
           }
         },
         "Alice downloads the personal-data export when Alice has a recently proven account and Alice's personal-data export has been ready for 6 days": {
           "target": "Alice receives her personal-data export — 7",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:47"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:47"],
             "condition": [
               "Alice has a recently proven account",
               "Alice's personal-data export has been ready for 6 days"
@@ -122,9 +98,7 @@
         "Bob opens Alice's personal-data export address": {
           "target": "Bob cannot download it because the export belongs to Alice — 8",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:53"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:53"],
             "condition": [
               "Alice's personal-data export is ready",
               "Bob has a recently proven account"
@@ -135,9 +109,7 @@
         "Alice downloads the personal-data export when Alice's personal-data export has been ready for 7 days": {
           "target": "Alice is told the export has expired and can ask for a new one — 9",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:59"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:59"],
             "condition": [
               "Alice's personal-data export has been ready for 7 days"
             ],
@@ -147,9 +119,7 @@
         "Alice confirms account deletion": {
           "target": "Alice cannot download that export because the account has been deleted — 10",
           "meta": {
-            "source": [
-              "specs/profile/personal-data-export.feature:64"
-            ],
+            "source": ["specs/profile/personal-data-export.feature:64"],
             "condition": [
               "Alice has a recently proven account",
               "Alice's personal-data export is ready"
@@ -170,9 +140,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:8"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -187,9 +155,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:14"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -199,14 +165,10 @@
         "description": "The person observes that alice is told the personal-data export needs a connection.",
         "snapshot": "the-person-observes-that-alice-is-told-the-personal-data-export-needs-a-connection",
         "recognize": [],
-        "checks": [
-          "Alice is told the personal-data export needs a connection"
-        ],
+        "checks": ["Alice is told the personal-data export needs a connection"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:19"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -222,9 +184,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:27"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -239,9 +199,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:33"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -257,9 +215,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:39"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -269,14 +225,10 @@
         "description": "The person observes that alice receives her personal-data export.",
         "snapshot": "the-person-observes-that-alice-receives-her-personal-data-export",
         "recognize": [],
-        "checks": [
-          "Alice receives her personal-data export"
-        ],
+        "checks": ["Alice receives her personal-data export"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:47"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:47"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -291,9 +243,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:53"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -308,9 +258,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:59"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -325,9 +273,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/personal-data-export.feature:64"
-        ],
+        "source": ["specs/profile/personal-data-export.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

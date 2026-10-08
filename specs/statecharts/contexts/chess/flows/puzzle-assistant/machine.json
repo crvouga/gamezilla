@@ -24,22 +24,16 @@
         "description": "The person is at the place where a grounded Puzzle Assistant.",
         "snapshot": "the-person-is-at-the-place-where-a-grounded-puzzle-assistant",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-assistant.feature:2"]
       },
       "on": {
         "Alice plays the move a1-a5": {
           "target": "Alice's assistant acknowledges a correct continuation — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:8"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:8"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle"
@@ -50,9 +44,7 @@
         "Alice plays the move a7-a8": {
           "target": "Alice's assistant acknowledges checkmate — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:14"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:14"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move"
@@ -63,9 +55,7 @@
         "Alice plays the move a7-a6": {
           "target": "Alice's assistant draws attention to an available checkmate — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:21"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:21"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move"
@@ -76,9 +66,7 @@
         "Alice plays a wrong move exposing the knight": {
           "target": "Alice's assistant explains that the knight could be captured without a recapture — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:30"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:30"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with an exposed knight"
@@ -89,9 +77,7 @@
         "Alice plays the quiet wrong move when Alice is signed in and Alice is solving the puzzle with a defended knight": {
           "target": "Alice's assistant cannot claim a hanging knight — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:36"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:36"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with a defended knight"
@@ -102,9 +88,7 @@
         "Alice plays the quiet wrong move when Alice is signed in and Alice is solving the puzzle with a knight fork threat": {
           "target": "Alice's assistant explains the knight fork of king and queen — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:42"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:42"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with a knight fork threat"
@@ -115,9 +99,7 @@
         "Alice plays a wrong move": {
           "target": "Alice's assistant cannot claim a fork — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:48"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:48"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle labelled as a fork"
@@ -128,9 +110,7 @@
         "Alice opens that puzzle": {
           "target": "Alice's assistant explains that the king must escape check — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:57"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:57"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle starts in check with a hanging piece"
@@ -141,9 +121,7 @@
         "Alice plays the quiet wrong move when Alice is signed in and Alice's puzzle offers checkmate and a wrong move exposes a knight": {
           "target": "Alice's assistant draws attention to an available checkmate — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:63"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:63"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle offers checkmate and a wrong move exposes a knight"
@@ -154,9 +132,7 @@
         "Alice asks for a hint": {
           "target": "Alice's assistant explains the highlighted solution piece — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:71"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:71"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -167,9 +143,7 @@
         "Alice shows the solution": {
           "target": "Alice's assistant explains that the solution is shown — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant.feature:77"
-            ],
+            "source": ["specs/chess/puzzle-assistant.feature:77"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -184,14 +158,10 @@
         "description": "The person observes that alice's assistant acknowledges a correct continuation.",
         "snapshot": "the-person-observes-that-alice-s-assistant-acknowledges-a-correct-continuation",
         "recognize": [],
-        "checks": [
-          "Alice's assistant acknowledges a correct continuation"
-        ],
+        "checks": ["Alice's assistant acknowledges a correct continuation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:8"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -207,9 +177,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:14"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -225,9 +193,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:21"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -242,9 +208,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:30"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -254,14 +218,10 @@
         "description": "The person observes that alice's assistant cannot claim a hanging knight.",
         "snapshot": "the-person-observes-that-alice-s-assistant-cannot-claim-a-hanging-knight",
         "recognize": [],
-        "checks": [
-          "Alice's assistant cannot claim a hanging knight"
-        ],
+        "checks": ["Alice's assistant cannot claim a hanging knight"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:36"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -276,9 +236,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:42"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -288,14 +246,10 @@
         "description": "The person observes that alice's assistant cannot claim a fork.",
         "snapshot": "the-person-observes-that-alice-s-assistant-cannot-claim-a-fork",
         "recognize": [],
-        "checks": [
-          "Alice's assistant cannot claim a fork"
-        ],
+        "checks": ["Alice's assistant cannot claim a fork"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:48"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -310,9 +264,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:57"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -327,9 +279,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:63"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:63"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -339,14 +289,10 @@
         "description": "The person observes that alice's assistant explains the highlighted solution piece.",
         "snapshot": "the-person-observes-that-alice-s-assistant-explains-the-highlighted-solution-piece",
         "recognize": [],
-        "checks": [
-          "Alice's assistant explains the highlighted solution piece"
-        ],
+        "checks": ["Alice's assistant explains the highlighted solution piece"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:71"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -362,9 +308,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant.feature:77"
-        ],
+        "source": ["specs/chess/puzzle-assistant.feature:77"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

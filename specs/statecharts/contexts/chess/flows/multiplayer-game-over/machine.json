@@ -24,22 +24,16 @@
         "description": "The person is at the place where a multiplayer game stays as it ended.",
         "snapshot": "the-person-is-at-the-place-where-a-multiplayer-game-stays-as-it-ended",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-game-over.feature:2"]
       },
       "on": {
         "Alice opens multiplayer chess on another device": {
           "target": "Alice sees the multiplayer game is drawn by agreement — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:9"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:9"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
             ],
@@ -49,9 +43,7 @@
         "Alice plays g1 to f3 as a multiplayer move": {
           "target": "Alice is told the multiplayer game is over — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:15"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:15"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
             ],
@@ -61,21 +53,15 @@
         "Alice plays e2 to e4 as a multiplayer move": {
           "target": "Alice is told the multiplayer game is over — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:21"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:21"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "No move is accepted in an aborted game"
           }
         },
         "Alice finds a new opponent": {
           "target": "Alice is looking for a 5+0 chess opponent — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:29"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:29"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
             ],
@@ -85,21 +71,15 @@
         "Alice opens multiplayer chess when Bob resigned multiplayer chess and Alice won": {
           "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:34"
-            ],
-            "condition": [
-              "Bob resigned multiplayer chess and Alice won"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:34"],
+            "condition": ["Bob resigned multiplayer chess and Alice won"],
             "example": "A won game offers no resigning, aborting or draw offer"
           }
         },
         "Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5": {
           "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:39"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:39"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5"
             ],
@@ -109,21 +89,15 @@
         "Alice opens multiplayer chess when Alice's 5+0 multiplayer game with Bob was aborted": {
           "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:44"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:44"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "An aborted game offers no resigning, aborting or draw offer"
           }
         },
         "Alice opens multiplayer chess when Alice has a free account and has never played a multiplayer game": {
           "target": "Alice cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-game-over.feature:49"
-            ],
+            "source": ["specs/chess/multiplayer-game-over.feature:49"],
             "condition": [
               "Alice has a free account and has never played a multiplayer game"
             ],
@@ -143,9 +117,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -161,9 +133,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:15"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -179,9 +149,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:21"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -191,14 +159,10 @@
         "description": "The person observes that alice is looking for a 5+0 chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-5-0-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a 5+0 chess opponent"
-        ],
+        "checks": ["Alice is looking for a 5+0 chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:29"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -213,9 +177,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:34"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -230,9 +192,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:39"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -247,9 +207,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:44"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -265,9 +223,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-game-over.feature:49"
-        ],
+        "source": ["specs/chess/multiplayer-game-over.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

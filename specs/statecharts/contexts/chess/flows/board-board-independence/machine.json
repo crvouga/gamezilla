@@ -24,22 +24,16 @@
         "description": "The person is at the place where use separate chessboards independently.",
         "snapshot": "the-person-is-at-the-place-where-use-separate-chessboards-independently",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:2"
-        ]
+        "source": ["specs/chess-board/board-independence.feature:2"]
       },
       "on": {
         "Alice moves the piece from e2 to e4 on the first chessboard when Alice has two separate interactive chessboards and Alice has e2 selected on the second chessboard": {
           "target": "Alice sees a White pawn on e4 on the first chessboard — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:9"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:9"],
             "condition": [
               "Alice has two separate interactive chessboards",
               "Alice has e2 selected on the second chessboard"
@@ -50,9 +44,7 @@
         "Alice selects the piece on e2 on the first chessboard": {
           "target": "Alice sees e2 selected on both chessboards — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:17"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:17"],
             "condition": [
               "Alice has two separate interactive chessboards",
               "Alice has e2 selected on the second chessboard"
@@ -63,9 +55,7 @@
         "Alice begins dragging the piece on e2 on the first chessboard": {
           "target": "Alice holds the piece from e2 on the first chessboard — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:24"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:24"],
             "condition": [
               "Alice has two separate interactive chessboards",
               "Alice has e2 selected on the second chessboard"
@@ -76,9 +66,7 @@
         "Alice cancels the drag on the first chessboard": {
           "target": "Alice no longer holds a piece on the first chessboard — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:33"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:33"],
             "condition": [
               "Alice holds e2 on the first chessboard and has e2 selected on the second"
             ],
@@ -88,9 +76,7 @@
         "Alice's first activity replaces its chessboard's position": {
           "target": "Alice sees the replacement position on the first chessboard — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:40"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:40"],
             "condition": [
               "Alice has two separate interactive chessboards",
               "Alice has e2 selected on the second chessboard"
@@ -101,21 +87,15 @@
         "Alice's first board settings disable interactivity": {
           "target": "Alice sees no selection on the first chessboard — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:51"
-            ],
-            "condition": [
-              "Alice has e2 selected on both chessboards"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:51"],
+            "condition": ["Alice has e2 selected on both chessboards"],
             "example": "Disabling the first board clears only its selected piece"
           }
         },
         "Alice's first board settings enable interactivity": {
           "target": "Alice can move a piece on the first chessboard — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:58"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:58"],
             "condition": [
               "Alice has a disabled first chessboard and e2 selected on the second chessboard"
             ],
@@ -125,9 +105,7 @@
         "Alice moves the piece from e2 to e4 on the first chessboard when Alice has a disabled first chessboard and e2 selected on the second chessboard": {
           "target": "Alice cannot move a piece on the first chessboard while interactivity is disabled — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:64"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:64"],
             "condition": [
               "Alice has a disabled first chessboard and e2 selected on the second chessboard"
             ],
@@ -137,21 +115,15 @@
         "Alice's first board settings disable sound": {
           "target": "Alice's first chessboard has sound disabled — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:72"
-            ],
-            "condition": [
-              "Alice has two separate interactive chessboards"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:72"],
+            "condition": ["Alice has two separate interactive chessboards"],
             "example": "Disabling one board's sound preserves the other board's sound choice"
           }
         },
         "Alice's first board settings enable sound": {
           "target": "Alice's first chessboard has sound enabled — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:79"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:79"],
             "condition": [
               "Alice has a silent first chessboard and a second chessboard with sound enabled"
             ],
@@ -161,9 +133,7 @@
         "Alice moves the piece from e2 to e4 on the second chessboard when Alice has a silent first chessboard and a second chessboard with sound enabled": {
           "target": "Alice hears one move sound from the second chessboard — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:86"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:86"],
             "condition": [
               "Alice has a silent first chessboard and a second chessboard with sound enabled"
             ],
@@ -173,9 +143,7 @@
         "Alice moves the piece from e2 to e4 on the first chessboard when Alice has a silent first chessboard and a second chessboard with sound enabled": {
           "target": "Alice cannot hear chessboard sounds from the first board while its sound is disabled — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:93"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:93"],
             "condition": [
               "Alice has a silent first chessboard and a second chessboard with sound enabled"
             ],
@@ -185,9 +153,7 @@
         "Alice closes the first chessboard": {
           "target": "Alice cannot see the first chessboard because it is closed — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:103"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:103"],
             "condition": [
               "Alice has two separate interactive chessboards",
               "Alice has e2 selected on the second chessboard"
@@ -198,9 +164,7 @@
         "Alice moves the piece from e2 to e4 on the second chessboard when Alice has closed the first chessboard while the second chessboard remains interactive": {
           "target": "Alice sees a White pawn on e4 on the second chessboard — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-independence.feature:112"
-            ],
+            "source": ["specs/chess-board/board-independence.feature:112"],
             "condition": [
               "Alice has closed the first chessboard while the second chessboard remains interactive"
             ],
@@ -221,9 +185,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:9"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -239,9 +201,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:17"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -259,9 +219,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:24"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -278,9 +236,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:33"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -298,9 +254,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:40"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -317,9 +271,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:51"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -335,9 +287,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:58"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -355,9 +305,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:64"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -374,9 +322,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:72"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:72"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -393,9 +339,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:79"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -412,9 +356,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:86"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:86"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -431,9 +373,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:93"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:93"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -451,9 +391,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:103"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:103"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -470,9 +408,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.feature:112"
-        ],
+        "source": ["specs/chess-board/board-independence.feature:112"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

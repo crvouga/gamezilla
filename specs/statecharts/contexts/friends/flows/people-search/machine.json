@@ -24,73 +24,49 @@
         "description": "The person is at the place where people search.",
         "snapshot": "the-person-is-at-the-place-where-people-search",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:2"
-        ]
+        "source": ["specs/friends/people-search.feature:2"]
       },
       "on": {
         "Alice searches for 'bob'": {
           "target": "Alice's search shows Bob — 1",
           "meta": {
-            "source": [
-              "specs/friends/people-search.feature:12"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/people-search.feature:12"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "Searching a username finds that person"
           }
         },
         "Alice searches for 'bo'": {
           "target": "Alice's search shows Bob — 2",
           "meta": {
-            "source": [
-              "specs/friends/people-search.feature:16"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/people-search.feature:16"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "The start of a name finds them"
           }
         },
         "Alice searches for 'BOB'": {
           "target": "Alice's search shows Bob — 3",
           "meta": {
-            "source": [
-              "specs/friends/people-search.feature:20"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/people-search.feature:20"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "Letter case does not matter in search"
           }
         },
         "Alice searches for 'ali'": {
           "target": "Alice's search shows nobody — 4",
           "meta": {
-            "source": [
-              "specs/friends/people-search.feature:24"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/people-search.feature:24"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "A person is not in their own results"
           }
         },
         "Alice searches for 'zz_nobody'": {
           "target": "Alice's search shows nobody — 5",
           "meta": {
-            "source": [
-              "specs/friends/people-search.feature:28"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/people-search.feature:28"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "Nobody by that name means search says so instead of spinning"
           }
         }
@@ -101,14 +77,10 @@
         "description": "The person observes that alice's search shows Bob.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-bob",
         "recognize": [],
-        "checks": [
-          "Alice's search shows Bob"
-        ],
+        "checks": ["Alice's search shows Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:12"
-        ],
+        "source": ["specs/friends/people-search.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -118,14 +90,10 @@
         "description": "The person observes that alice's search shows Bob.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-bob",
         "recognize": [],
-        "checks": [
-          "Alice's search shows Bob"
-        ],
+        "checks": ["Alice's search shows Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:16"
-        ],
+        "source": ["specs/friends/people-search.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -135,14 +103,10 @@
         "description": "The person observes that alice's search shows Bob.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-bob",
         "recognize": [],
-        "checks": [
-          "Alice's search shows Bob"
-        ],
+        "checks": ["Alice's search shows Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:20"
-        ],
+        "source": ["specs/friends/people-search.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -152,14 +116,10 @@
         "description": "The person observes that alice's search shows nobody.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-nobody",
         "recognize": [],
-        "checks": [
-          "Alice's search shows nobody"
-        ],
+        "checks": ["Alice's search shows nobody"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:24"
-        ],
+        "source": ["specs/friends/people-search.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -169,14 +129,10 @@
         "description": "The person observes that alice's search shows nobody.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-nobody",
         "recognize": [],
-        "checks": [
-          "Alice's search shows nobody"
-        ],
+        "checks": ["Alice's search shows nobody"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/people-search.feature:28"
-        ],
+        "source": ["specs/friends/people-search.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

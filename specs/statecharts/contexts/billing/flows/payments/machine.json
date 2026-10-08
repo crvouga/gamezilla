@@ -18,22 +18,16 @@
         "description": "The person is at the place where payments.",
         "snapshot": "the-person-is-at-the-place-where-payments",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payments.feature:2"
-        ]
+        "source": ["specs/billing/payments.feature:2"]
       },
       "on": {
         "Opens the described view when People can pay for Plus in production": {
           "target": "people can pay for Plus — 1",
           "meta": {
-            "source": [
-              "specs/billing/payments.feature:9"
-            ],
+            "source": ["specs/billing/payments.feature:9"],
             "condition": [],
             "example": "People can pay for Plus in production"
           }
@@ -41,9 +35,7 @@
         "Opens the described view when Payments are real only in production": {
           "target": "payments in this environment are real exactly when it is a production environment — 2",
           "meta": {
-            "source": [
-              "specs/billing/payments.feature:12"
-            ],
+            "source": ["specs/billing/payments.feature:12"],
             "condition": [],
             "example": "Payments are real only in production"
           }
@@ -55,14 +47,10 @@
         "description": "The person observes that people can pay for Plus.",
         "snapshot": "the-person-observes-that-people-can-pay-for-plus",
         "recognize": [],
-        "checks": [
-          "people can pay for Plus"
-        ],
+        "checks": ["people can pay for Plus"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payments.feature:9"
-        ],
+        "source": ["specs/billing/payments.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -77,9 +65,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payments.feature:12"
-        ],
+        "source": ["specs/billing/payments.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,34 +24,24 @@
         "description": "The person is at the place where paid access belongs to one person.",
         "snapshot": "the-person-is-at-the-place-where-paid-access-belongs-to-one-person",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-access-per-person.feature:2"
-        ]
+        "source": ["specs/billing/billing-access-per-person.feature:2"]
       },
       "on": {
         "Bob views the billing plans": {
           "target": "Bob has free access — 1",
           "meta": {
-            "source": [
-              "specs/billing/billing-access-per-person.feature:9"
-            ],
-            "condition": [
-              "Bob is a guest"
-            ],
+            "source": ["specs/billing/billing-access-per-person.feature:9"],
+            "condition": ["Bob is a guest"],
             "example": "A guest is asked to sign in before subscribing"
           }
         },
         "Bob signs in with Google on Alice's device": {
           "target": "Bob has free access on Alice's device — 2",
           "meta": {
-            "source": [
-              "specs/billing/billing-access-per-person.feature:15"
-            ],
+            "source": ["specs/billing/billing-access-per-person.feature:15"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has signed out"
@@ -72,9 +62,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-access-per-person.feature:9"
-        ],
+        "source": ["specs/billing/billing-access-per-person.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -84,14 +72,10 @@
         "description": "The person observes that bob has free access on Alice's device.",
         "snapshot": "the-person-observes-that-bob-has-free-access-on-alice-s-device",
         "recognize": [],
-        "checks": [
-          "Bob has free access on Alice's device"
-        ],
+        "checks": ["Bob has free access on Alice's device"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-access-per-person.feature:15"
-        ],
+        "source": ["specs/billing/billing-access-per-person.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

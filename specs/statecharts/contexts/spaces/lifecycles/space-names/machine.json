@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/spaces/space-names.qnt"
-    ],
+    "quint": ["specs/spaces/space-names.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the space names view.",
         "snapshot": "the-person-is-opening-the-space-names-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ]
+        "source": ["specs/spaces/space-names.qnt"]
       },
       "on": {
         "Opens with seeing No Rename with the host’s name": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/spaces/space-names.qnt:96"
-            ]
+            "source": ["specs/spaces/space-names.qnt:96"]
           }
         }
       }
@@ -60,15 +52,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ],
+        "source": ["specs/spaces/space-names.qnt"],
         "quintPredicates": [
           {
-            "lastRename": [
-              "NoRename",
-              []
-            ],
+            "lastRename": ["NoRename", []],
             "spaceName.get(\"alice\") uses host name": true
           }
         ],
@@ -105,9 +92,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Start allowing resulting in seeing No Rename with the host’s name": {
@@ -133,9 +118,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Rename resulting in seeing Name Saved with the saved space name": {
@@ -161,9 +144,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Rename resulting in seeing Name Saved with the host’s name": {
@@ -189,9 +170,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Rename resulting in seeing Name Not Allowed with the host’s name": {
@@ -217,9 +196,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         }
       }
@@ -238,15 +215,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ],
+        "source": ["specs/spaces/space-names.qnt"],
         "quintPredicates": [
           {
-            "lastRename": [
-              "NameSaved",
-              []
-            ],
+            "lastRename": ["NameSaved", []],
             "spaceName.get(\"alice\") uses host name": false
           }
         ],
@@ -283,9 +255,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Rename resulting in seeing Name Not Allowed with the saved space name": {
@@ -311,9 +281,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Stop allowing resulting in seeing Name Saved with the host’s name": {
@@ -339,9 +307,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Start allowing resulting in seeing Name Saved with the saved space name": {
@@ -367,9 +333,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Rename resulting in seeing Name Saved with the host’s name": {
@@ -395,9 +359,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Rename resulting in seeing Name Saved with the saved space name": {
@@ -423,9 +385,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         }
       }
@@ -444,15 +404,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ],
+        "source": ["specs/spaces/space-names.qnt"],
         "quintPredicates": [
           {
-            "lastRename": [
-              "NameNotAllowed",
-              []
-            ],
+            "lastRename": ["NameNotAllowed", []],
             "spaceName.get(\"alice\") uses host name": false
           }
         ],
@@ -489,9 +444,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Rename resulting in seeing Name Not Allowed with the saved space name": {
@@ -517,9 +470,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Rename resulting in seeing Name Saved with the host’s name": {
@@ -545,9 +496,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Stop allowing resulting in seeing Name Not Allowed with the host’s name": {
@@ -573,9 +522,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Rename resulting in seeing Name Saved with the saved space name": {
@@ -601,9 +548,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Stop allowing resulting in seeing Name Not Allowed with the saved space name": {
@@ -629,9 +574,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         }
       }
@@ -650,15 +593,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ],
+        "source": ["specs/spaces/space-names.qnt"],
         "quintPredicates": [
           {
-            "lastRename": [
-              "NameSaved",
-              []
-            ],
+            "lastRename": ["NameSaved", []],
             "spaceName.get(\"alice\") uses host name": true
           }
         ],
@@ -695,9 +633,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Start allowing resulting in seeing Name Saved with the host’s name": {
@@ -723,9 +659,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Stop allowing resulting in seeing Name Saved with the host’s name": {
@@ -751,9 +685,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Rename resulting in seeing Name Saved with the saved space name": {
@@ -779,9 +711,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Start allowing resulting in seeing Name Saved with the saved space name": {
@@ -807,9 +737,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Rename resulting in seeing Name Saved with the host’s name": {
@@ -835,9 +763,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         }
       }
@@ -856,15 +782,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-names.qnt"
-        ],
+        "source": ["specs/spaces/space-names.qnt"],
         "quintPredicates": [
           {
-            "lastRename": [
-              "NameNotAllowed",
-              []
-            ],
+            "lastRename": ["NameNotAllowed", []],
             "spaceName.get(\"alice\") uses host name": true
           }
         ],
@@ -901,9 +822,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:119"
-            ]
+            "source": ["specs/spaces/space-names.qnt:119"]
           }
         },
         "Rename resulting in seeing Name Not Allowed with the host’s name": {
@@ -929,9 +848,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Rename resulting in seeing Name Saved with the host’s name": {
@@ -957,9 +874,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Start allowing resulting in seeing Name Not Allowed with the host’s name": {
@@ -985,9 +900,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         },
         "Rename resulting in seeing Name Saved with the saved space name": {
@@ -1013,9 +926,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:108"
-            ]
+            "source": ["specs/spaces/space-names.qnt:108"]
           }
         },
         "Start allowing resulting in seeing Name Not Allowed with the saved space name": {
@@ -1041,9 +952,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-names.qnt:126"
-            ]
+            "source": ["specs/spaces/space-names.qnt:126"]
           }
         }
       }

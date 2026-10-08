@@ -24,22 +24,16 @@
         "description": "The person is at the place where manage authored feedback.",
         "snapshot": "the-person-is-at-the-place-where-manage-authored-feedback",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:2"
-        ]
+        "source": ["specs/feedback/managing-feedback.feature:2"]
       },
       "on": {
         "the team changes that feedback to 'Board polish' saying 'Animate every move'": {
           "target": "feedback management shows \"Board polish\" saying \"Animate every move\" — 1",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:8"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:8"],
             "condition": [
               "the team has kept local feedback titled \"Board movement\""
             ],
@@ -49,9 +43,7 @@
         "the team tries to change that feedback": {
           "target": "the change is refused because the feedback belongs to another developer — 2",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:13"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:13"],
             "condition": [
               "feedback titled \"Private observation\" belongs to another developer"
             ],
@@ -61,9 +53,7 @@
         "the team confirms deleting that feedback when the team has a draft titled 'Board movement' saying 'Keep the last move visible'": {
           "target": "feedback management does not show \"Board movement\" — 3",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:20"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:20"],
             "condition": [
               "the team has a draft titled \"Board movement\" saying \"Keep the last move visible\""
             ],
@@ -73,9 +63,7 @@
         "the team confirms deleting that feedback when the team has kept local feedback titled 'Board movement'": {
           "target": "feedback management does not show \"Board movement\" — 4",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:25"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:25"],
             "condition": [
               "the team has kept local feedback titled \"Board movement\""
             ],
@@ -85,9 +73,7 @@
         "the team cancels deleting that feedback": {
           "target": "feedback management shows \"Board movement\" — 5",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:30"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:30"],
             "condition": [
               "the team has kept local feedback titled \"Board movement\""
             ],
@@ -97,9 +83,7 @@
         "the team opens feedback management": {
           "target": "feedback management shows \"Board movement\" — 6",
           "meta": {
-            "source": [
-              "specs/feedback/managing-feedback.feature:38"
-            ],
+            "source": ["specs/feedback/managing-feedback.feature:38"],
             "condition": [
               "the team has kept local feedback titled \"Board movement\"",
               "the team has a draft titled \"Hint clarity\" saying \"Explain why this move works\""
@@ -119,9 +103,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:8"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,9 +118,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:13"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,14 +128,10 @@
         "description": "The person observes that feedback management does not show \"Board movement\".",
         "snapshot": "the-person-observes-that-feedback-management-does-not-show-board-movement",
         "recognize": [],
-        "checks": [
-          "feedback management does not show \"Board movement\""
-        ],
+        "checks": ["feedback management does not show \"Board movement\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:20"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -165,14 +141,10 @@
         "description": "The person observes that feedback management does not show \"Board movement\".",
         "snapshot": "the-person-observes-that-feedback-management-does-not-show-board-movement",
         "recognize": [],
-        "checks": [
-          "feedback management does not show \"Board movement\""
-        ],
+        "checks": ["feedback management does not show \"Board movement\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:25"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -182,14 +154,10 @@
         "description": "The person observes that feedback management shows \"Board movement\".",
         "snapshot": "the-person-observes-that-feedback-management-shows-board-movement",
         "recognize": [],
-        "checks": [
-          "feedback management shows \"Board movement\""
-        ],
+        "checks": ["feedback management shows \"Board movement\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:30"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -205,9 +173,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/managing-feedback.feature:38"
-        ],
+        "source": ["specs/feedback/managing-feedback.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

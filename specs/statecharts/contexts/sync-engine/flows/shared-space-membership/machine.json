@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "codeCandidates": [
-      "pkgs/sync-engine-client/src/shared-watch-registry.ts"
-    ],
+    "codeCandidates": ["pkgs/sync-engine-client/src/shared-watch-registry.ts"],
     "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
   },
   "states": {
@@ -20,22 +18,16 @@
         "description": "The person is at the place where leave a shared space and rejoin it.",
         "snapshot": "the-person-is-at-the-place-where-leave-a-shared-space-and-rejoin-it",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:2"
-        ]
+        "source": ["specs/sync-engine/shared-space-membership.feature:2"]
       },
       "on": {
         "Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob has left the shared space 'Trip'": {
           "target": "Alice sees the note \"Tickets\" saying \"gate 4\" — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:14"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:14"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has left the shared space \"Trip\""
@@ -46,9 +38,7 @@
         "Bob leaves the shared space 'Trip'": {
           "target": "Bob still sees the note \"Hotel\" saying \"Main St\" — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:20"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:20"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Hotel\" saying \"Main St\"",
@@ -60,9 +50,7 @@
         "Bob joins the shared space 'Trip'": {
           "target": "Bob sees the note \"Tickets\" saying \"gate 4\" — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:26"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:26"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has left the shared space \"Trip\"",
@@ -74,9 +62,7 @@
         "Alice writes the note 'Tickets' saying 'gate 4' when Alice and Bob are in the shared space 'Trip' and Bob has left the shared space 'Trip' and Bob's app cannot send": {
           "target": "Bob does not see the note \"Tickets\" — 4",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:32"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:32"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has left the shared space \"Trip\"",
@@ -88,9 +74,7 @@
         "the shared space 'Trip' ends": {
           "target": "The person remains at the described place until the next choice — 5 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:39"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:39"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob's app cannot send"
@@ -101,9 +85,7 @@
         "Bob opens the shared space 'Work', which they are not in": {
           "target": "Bob still sees the note \"Hotel\" saying \"Main St\" — 6",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:46"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:46"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Hotel\" saying \"Main St\"",
@@ -115,9 +97,7 @@
         "Bob closes the shared space 'Work' and their app catches up": {
           "target": "Bob still sees the note \"Hotel\" saying \"Main St\" — 7",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:52"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:52"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Hotel\" saying \"Main St\"",
@@ -140,9 +120,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:14"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -152,14 +130,10 @@
         "description": "The person observes that bob still sees the note \"Hotel\" saying \"Main St\".",
         "snapshot": "the-person-observes-that-bob-still-sees-the-note-hotel-saying-main-st",
         "recognize": [],
-        "checks": [
-          "Bob still sees the note \"Hotel\" saying \"Main St\""
-        ],
+        "checks": ["Bob still sees the note \"Hotel\" saying \"Main St\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:20"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -169,14 +143,10 @@
         "description": "The person observes that bob sees the note \"Tickets\" saying \"gate 4\".",
         "snapshot": "the-person-observes-that-bob-sees-the-note-tickets-saying-gate-4",
         "recognize": [],
-        "checks": [
-          "Bob sees the note \"Tickets\" saying \"gate 4\""
-        ],
+        "checks": ["Bob sees the note \"Tickets\" saying \"gate 4\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:26"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -192,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:32"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -209,17 +177,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:39"
-        ]
+        "source": ["specs/sync-engine/shared-space-membership.feature:39"]
       },
       "on": {
         "Alice writes the note 'Tickets' saying 'gate 4'": {
           "target": "Bob does not see the note \"Tickets\" — 5 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/shared-space-membership.feature:39"
-            ],
+            "source": ["specs/sync-engine/shared-space-membership.feature:39"],
             "condition": [],
             "example": "A shared space that ends stops its notes reaching someone, without their app reconnecting"
           }
@@ -237,9 +201,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:39"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -249,14 +211,10 @@
         "description": "The person observes that bob still sees the note \"Hotel\" saying \"Main St\".",
         "snapshot": "the-person-observes-that-bob-still-sees-the-note-hotel-saying-main-st",
         "recognize": [],
-        "checks": [
-          "Bob still sees the note \"Hotel\" saying \"Main St\""
-        ],
+        "checks": ["Bob still sees the note \"Hotel\" saying \"Main St\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:46"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -266,14 +224,10 @@
         "description": "The person observes that bob still sees the note \"Hotel\" saying \"Main St\".",
         "snapshot": "the-person-observes-that-bob-still-sees-the-note-hotel-saying-main-st",
         "recognize": [],
-        "checks": [
-          "Bob still sees the note \"Hotel\" saying \"Main St\""
-        ],
+        "checks": ["Bob still sees the note \"Hotel\" saying \"Main St\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/shared-space-membership.feature:52"
-        ],
+        "source": ["specs/sync-engine/shared-space-membership.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

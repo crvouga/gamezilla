@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/billing/membership-lifecycle.qnt"
-    ],
+    "quint": ["specs/billing/membership-lifecycle.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the membership lifecycle view.",
         "snapshot": "the-person-is-opening-the-membership-lifecycle-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ]
+        "source": ["specs/billing/membership-lifecycle.qnt"]
       },
       "on": {
         "Opens with viewing free access": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:116"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:116"]
           }
         }
       }
@@ -61,9 +53,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "none",
@@ -92,9 +82,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:127"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:127"]
           }
         }
       }
@@ -114,9 +102,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "trialing",
@@ -145,9 +131,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
@@ -160,9 +144,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Changes the membership interval resulting in viewing a free trial on the yearly plan": {
@@ -175,9 +157,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "Cancels the pending choice resulting in viewing a free trial on the monthly plan ending this period": {
@@ -190,9 +170,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "The renewal payment is declined resulting in viewing a declined renewal on the monthly plan": {
@@ -205,9 +183,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "The renewal payment is declined resulting in viewing an active membership on the monthly plan": {
@@ -220,9 +196,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         }
       }
@@ -242,9 +216,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "active",
@@ -273,9 +245,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Cancels the pending choice resulting in viewing an active membership on the monthly plan ending this period": {
@@ -288,9 +258,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
@@ -303,9 +271,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "The renewal payment is declined resulting in viewing a declined renewal on the monthly plan": {
@@ -318,9 +284,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "Changes the membership interval resulting in viewing an active membership on the yearly plan": {
@@ -333,9 +297,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "The renewal payment is declined resulting in viewing an active membership on the monthly plan": {
@@ -348,9 +310,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         }
       }
@@ -370,9 +330,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "active",
@@ -401,9 +359,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         },
         "Changes the membership interval resulting in viewing an active membership on the yearly plan ending this period": {
@@ -416,9 +372,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
@@ -431,9 +385,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the monthly plan": {
@@ -446,9 +398,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
@@ -461,9 +411,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         }
       }
@@ -483,9 +431,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "ended",
@@ -514,9 +460,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:241"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:241"]
           }
         },
         "Subscribes to Plus again resulting in viewing an ended membership on the monthly plan": {
@@ -529,9 +473,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:241"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:241"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
@@ -544,9 +486,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "The provider ends payment attempts resulting in viewing an ended membership on the monthly plan": {
@@ -559,9 +499,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:174"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:174"]
           }
         },
         "Changes the membership interval resulting in viewing an ended membership on the monthly plan": {
@@ -574,9 +512,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the monthly plan": {
@@ -589,9 +525,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Cancels the pending choice resulting in viewing an ended membership on the monthly plan": {
@@ -604,9 +538,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the monthly plan": {
@@ -619,9 +551,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Restores membership renewal resulting in viewing an ended membership on the monthly plan": {
@@ -634,9 +564,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         },
         "A working card pays the renewal resulting in viewing an ended membership on the monthly plan": {
@@ -649,9 +577,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:162"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:162"]
           }
         }
       }
@@ -671,9 +597,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "trialing",
@@ -702,9 +626,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "The billing period ends resulting in viewing an active membership on the yearly plan": {
@@ -717,9 +639,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Cancels the pending choice resulting in viewing a free trial on the yearly plan ending this period": {
@@ -732,9 +652,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -747,9 +665,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Changes the membership interval resulting in viewing a free trial on the monthly plan": {
@@ -762,9 +678,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         }
       }
@@ -784,9 +698,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "delinquent",
@@ -815,9 +727,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:162"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:162"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -830,9 +740,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "The provider ends payment attempts resulting in viewing an ended membership on the yearly plan": {
@@ -845,9 +753,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:174"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:174"]
           }
         }
       }
@@ -867,9 +773,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "active",
@@ -898,9 +802,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "The renewal payment is declined resulting in viewing a declined renewal on the yearly plan": {
@@ -913,9 +815,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -928,9 +828,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Cancels the pending choice resulting in viewing an active membership on the yearly plan ending this period": {
@@ -943,9 +841,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "Changes the membership interval resulting in viewing an active membership on the monthly plan": {
@@ -958,9 +854,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         }
       }
@@ -980,9 +874,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "ended",
@@ -1011,9 +903,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:241"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:241"]
           }
         },
         "Subscribes to Plus again resulting in viewing an ended membership on the yearly plan": {
@@ -1026,9 +916,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:241"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:241"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -1041,9 +929,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Changes the membership interval resulting in viewing an ended membership on the yearly plan": {
@@ -1056,9 +942,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
@@ -1071,9 +955,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "Cancels the pending choice resulting in viewing an ended membership on the yearly plan": {
@@ -1086,9 +968,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:181"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:181"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the yearly plan": {
@@ -1101,9 +981,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Restores membership renewal resulting in viewing an ended membership on the yearly plan": {
@@ -1116,9 +994,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         },
         "A working card pays the renewal resulting in viewing an ended membership on the yearly plan": {
@@ -1131,9 +1007,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:162"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:162"]
           }
         }
       }
@@ -1153,9 +1027,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "trialing",
@@ -1184,9 +1056,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Changes the membership interval resulting in viewing a free trial on the yearly plan ending this period": {
@@ -1199,9 +1069,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the monthly plan": {
@@ -1214,9 +1082,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the monthly plan": {
@@ -1229,9 +1095,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "Restores membership renewal resulting in viewing a free trial on the monthly plan": {
@@ -1244,9 +1108,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         }
       }
@@ -1266,9 +1128,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "active",
@@ -1297,9 +1157,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the yearly plan": {
@@ -1312,9 +1170,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -1327,9 +1183,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
@@ -1342,9 +1196,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "Restores membership renewal resulting in viewing an active membership on the yearly plan": {
@@ -1357,9 +1209,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         }
       }
@@ -1379,9 +1229,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "trialing",
@@ -1410,9 +1258,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:189"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:189"]
           }
         },
         "The renewal payment is declined resulting in viewing an ended membership on the yearly plan": {
@@ -1425,9 +1271,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:159"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:159"]
           }
         },
         "The billing period ends resulting in viewing an ended membership on the yearly plan": {
@@ -1440,9 +1284,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:156"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:156"]
           }
         },
         "Ends membership immediately resulting in viewing an ended membership on the yearly plan": {
@@ -1455,9 +1297,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "Changes the membership interval resulting in viewing a free trial on the monthly plan ending this period": {
@@ -1470,9 +1310,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:208"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:208"]
           }
         }
       }
@@ -1492,9 +1330,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/membership-lifecycle.qnt"
-        ],
+        "source": ["specs/billing/membership-lifecycle.qnt"],
         "quintPredicates": [
           {
             "newest membership status": "delinquent",
@@ -1523,9 +1359,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:197"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:197"]
           }
         },
         "A working card pays the renewal resulting in viewing an active membership on the monthly plan": {
@@ -1538,9 +1372,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:162"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:162"]
           }
         },
         "The provider ends payment attempts resulting in viewing an ended membership on the monthly plan": {
@@ -1553,9 +1385,7 @@
               "seed": 42,
               "nondeterministicChoices": {}
             },
-            "source": [
-              "specs/billing/membership-lifecycle.qnt:174"
-            ]
+            "source": ["specs/billing/membership-lifecycle.qnt:174"]
           }
         }
       }

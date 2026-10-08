@@ -18,46 +18,32 @@
         "description": "The person is at the place where confirming a matching account.",
         "snapshot": "the-person-is-at-the-place-where-confirming-a-matching-account",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:2"
-        ]
+        "source": ["specs/auth/matching-accounts.feature:2"]
       },
       "on": {
         "Eve signs in with their Apple account": {
           "target": "Eve is signed into the same account — 1",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:10"
-            ],
-            "condition": [
-              "Eve has an account they sign into with Google"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:10"],
+            "condition": ["Eve has an account they sign into with Google"],
             "example": "Eve's Apple account becomes a sign-in method of Eve's account at once"
           }
         },
         "Carol signs in with their Apple account": {
           "target": "Carol is told to confirm the matching account first — 2",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:16"
-            ],
-            "condition": [
-              "Carol has an account they sign into with Google"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:16"],
+            "condition": ["Carol has an account they sign into with Google"],
             "example": "Carol's Apple account at an unverified email address waits to be confirmed"
           }
         },
         "Carol confirms the matching account with Google when Carol is being asked to confirm the matching account with Google": {
           "target": "Carol is signed into the same account — 3",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:24"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:24"],
             "condition": [
               "Carol is being asked to confirm the matching account with Google"
             ],
@@ -67,9 +53,7 @@
         "Carol confirms the matching account with Bob's Google account": {
           "target": "Carol is told the matching account could not be confirmed — 4",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:30"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:30"],
             "condition": [
               "Bob has an account they sign into with Google",
               "Carol is being asked to confirm the matching account with Google"
@@ -80,9 +64,7 @@
         "Carol keeps the accounts separate when Carol is being asked to confirm the matching account with Google": {
           "target": "Carol is signed into a new account — 5",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:40"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:40"],
             "condition": [
               "Carol is being asked to confirm the matching account with Google"
             ],
@@ -92,9 +74,7 @@
         "Carol confirms the matching account with Google when Carol was asked to confirm the matching account with Google 9 minutes ago": {
           "target": "Carol is signed into the same account — 6",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:47"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:47"],
             "condition": [
               "Carol was asked to confirm the matching account with Google 9 minutes ago"
             ],
@@ -104,9 +84,7 @@
         "Carol confirms the matching account with Google when Carol was asked to confirm the matching account with Google 11 minutes ago": {
           "target": "Carol is told the chance to confirm has lapsed — 7",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:52"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:52"],
             "condition": [
               "Carol was asked to confirm the matching account with Google 11 minutes ago"
             ],
@@ -116,9 +94,7 @@
         "Carol keeps the accounts separate when Carol was asked to confirm the matching account with Google 11 minutes ago": {
           "target": "Carol is told the chance to confirm has lapsed — 8",
           "meta": {
-            "source": [
-              "specs/auth/matching-accounts.feature:58"
-            ],
+            "source": ["specs/auth/matching-accounts.feature:58"],
             "condition": [
               "Carol was asked to confirm the matching account with Google 11 minutes ago"
             ],
@@ -138,9 +114,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:10"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -156,9 +130,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:16"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -174,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:24"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -192,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:30"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -204,14 +172,10 @@
         "description": "The person observes that carol is signed into a new account.",
         "snapshot": "the-person-observes-that-carol-is-signed-into-a-new-account",
         "recognize": [],
-        "checks": [
-          "Carol is signed into a new account"
-        ],
+        "checks": ["Carol is signed into a new account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:40"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -221,14 +185,10 @@
         "description": "The person observes that carol is signed into the same account.",
         "snapshot": "the-person-observes-that-carol-is-signed-into-the-same-account",
         "recognize": [],
-        "checks": [
-          "Carol is signed into the same account"
-        ],
+        "checks": ["Carol is signed into the same account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:47"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:47"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -244,9 +204,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:52"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -262,9 +220,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/matching-accounts.feature:58"
-        ],
+        "source": ["specs/auth/matching-accounts.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

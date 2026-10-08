@@ -18,34 +18,24 @@
         "description": "The person is at the place where accepted waits keep their outcomes.",
         "snapshot": "the-person-is-at-the-place-where-accepted-waits-keep-their-outcomes",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:2"
-        ]
+        "source": ["specs/matchmaking/lasting-outcomes.feature:2"]
       },
       "on": {
         "a day passes when Alice is waiting with a range of 5 points": {
           "target": "Alice is waiting — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:8"
-            ],
-            "condition": [
-              "Alice is waiting with a range of 5 points"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:8"],
+            "condition": ["Alice is waiting with a range of 5 points"],
             "example": "A person still waits after a day without a compatible person"
           }
         },
         "a day passes when Alice and Bob are waiting with ratings 100 points apart and both accept nobody more than 5 points away": {
           "target": "Alice and Bob are still waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:13"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:13"],
             "condition": [
               "Alice and Bob are waiting with ratings 100 points apart",
               "both accept nobody more than 5 points away"
@@ -56,9 +46,7 @@
         "matchmaking pairs people up": {
           "target": "one matchmaking match is formed for Alice and Bob — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:22"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:22"],
             "condition": [
               "Alice and Bob are waiting within each other's ranges"
             ],
@@ -68,36 +56,24 @@
         "a day passes when Alice and Bob are matched with each other": {
           "target": "Alice and Bob keep the same match — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:27"
-            ],
-            "condition": [
-              "Alice and Bob are matched with each other"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:27"],
+            "condition": ["Alice and Bob are matched with each other"],
             "example": "A later request for the match does not replace it"
           }
         },
         "Alice waits for a match with a rating of 1000 when Alice is available for a match": {
           "target": "Alice is waiting — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:34"
-            ],
-            "condition": [
-              "Alice is available for a match"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:34"],
+            "condition": ["Alice is available for a match"],
             "example": "An available person may start a wait"
           }
         },
         "Alice waits for a match with a rating of 1000 when Alice is unavailable for a match": {
           "target": "Alice is told she is unavailable for a match — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/lasting-outcomes.feature:39"
-            ],
-            "condition": [
-              "Alice is unavailable for a match"
-            ],
+            "source": ["specs/matchmaking/lasting-outcomes.feature:39"],
+            "condition": ["Alice is unavailable for a match"],
             "example": "An unavailable person has no accepted wait"
           }
         }
@@ -108,14 +84,10 @@
         "description": "The person observes that alice is waiting.",
         "snapshot": "the-person-observes-that-alice-is-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is waiting"
-        ],
+        "checks": ["Alice is waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:8"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -125,14 +97,10 @@
         "description": "The person observes that alice and Bob are still waiting.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are still waiting"
-        ],
+        "checks": ["Alice and Bob are still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:13"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -142,14 +110,10 @@
         "description": "The person observes that one matchmaking match is formed for Alice and Bob.",
         "snapshot": "the-person-observes-that-one-matchmaking-match-is-formed-for-alice-and-bob",
         "recognize": [],
-        "checks": [
-          "one matchmaking match is formed for Alice and Bob"
-        ],
+        "checks": ["one matchmaking match is formed for Alice and Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:22"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -159,14 +123,10 @@
         "description": "The person observes that alice and Bob keep the same match.",
         "snapshot": "the-person-observes-that-alice-and-bob-keep-the-same-match",
         "recognize": [],
-        "checks": [
-          "Alice and Bob keep the same match"
-        ],
+        "checks": ["Alice and Bob keep the same match"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:27"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -176,14 +136,10 @@
         "description": "The person observes that alice is waiting.",
         "snapshot": "the-person-observes-that-alice-is-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is waiting"
-        ],
+        "checks": ["Alice is waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:34"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -199,9 +155,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/lasting-outcomes.feature:39"
-        ],
+        "source": ["specs/matchmaking/lasting-outcomes.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

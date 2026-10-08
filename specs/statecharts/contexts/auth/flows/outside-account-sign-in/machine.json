@@ -7,9 +7,7 @@
     "owner": "Auth owner (not named in specs)",
     "tier": "critical",
     "emits": [],
-    "reactsTo": [
-      "SignedOut"
-    ],
+    "reactsTo": ["SignedOut"],
     "reviewStatus": "draft; owner approval and execution adapters pending"
   },
   "states": {
@@ -66,9 +64,7 @@
         "description": "The person sees why sign-in cannot start offline.",
         "snapshot": "the-person-sees-why-sign-in-cannot-start-offline",
         "recognize": [],
-        "checks": [
-          "The person sees why sign-in cannot start offline."
-        ],
+        "checks": ["The person sees why sign-in cannot start offline."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -101,9 +97,7 @@
         "description": "The chosen provider asks the person to sign in.",
         "snapshot": "the-chosen-provider-asks-the-person-to-sign-in",
         "recognize": [],
-        "checks": [
-          "The chosen provider asks the person to sign in."
-        ],
+        "checks": ["The chosen provider asks the person to sign in."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -380,9 +374,7 @@
         "description": "The account’s profile appears on this device.",
         "snapshot": "the-account-s-profile-appears-on-this-device",
         "recognize": [],
-        "checks": [
-          "The account’s profile appears on this device."
-        ],
+        "checks": ["The account’s profile appears on this device."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -441,9 +433,7 @@
         "description": "An abandoned sign-in leaves the guest’s profile intact.",
         "snapshot": "an-abandoned-sign-in-leaves-the-guest-s-profile-intact",
         "recognize": [],
-        "checks": [
-          "An abandoned sign-in leaves the guest’s profile intact."
-        ],
+        "checks": ["An abandoned sign-in leaves the guest’s profile intact."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -476,9 +466,7 @@
         "description": "The account lists its connected sign-in methods.",
         "snapshot": "the-account-lists-its-connected-sign-in-methods",
         "recognize": [],
-        "checks": [
-          "The account lists its connected sign-in methods."
-        ],
+        "checks": ["The account lists its connected sign-in methods."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -620,9 +608,7 @@
         "description": "The last sign-in method cannot be removed.",
         "snapshot": "the-last-sign-in-method-cannot-be-removed",
         "recognize": [],
-        "checks": [
-          "The last sign-in method cannot be removed."
-        ],
+        "checks": ["The last sign-in method cannot be removed."],
         "events": [],
         "confidence": "assumed",
         "source": [

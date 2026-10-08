@@ -18,22 +18,16 @@
         "description": "The person is at the place where read what a test run recorded.",
         "snapshot": "the-person-is-at-the-place-where-read-what-a-test-run-recorded",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:2"
-        ]
+        "source": ["specs/developer-tools/recorded-moments.feature:2"]
       },
       "on": {
         "the team opens that test report when a test report has several failed steps with recorded moments": {
           "target": "the team sees the first failed step's first recorded moment — 1",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:9"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:9"],
             "condition": [
               "a test report has several failed steps with recorded moments"
             ],
@@ -43,21 +37,15 @@
         "the team opens that test report when a passing test report has several recorded moments": {
           "target": "the team sees its final recorded moment — 2",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:14"
-            ],
-            "condition": [
-              "a passing test report has several recorded moments"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:14"],
+            "condition": ["a passing test report has several recorded moments"],
             "example": "A passing test report opens at its final recorded moment"
           }
         },
         "the team selects the second recorded moment when a test report has Alice's picture at the second recorded moment": {
           "target": "the team sees Alice's picture from the second recorded moment — 3",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:21"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:21"],
             "condition": [
               "a test report has Alice's picture at the second recorded moment"
             ],
@@ -67,9 +55,7 @@
         "the team selects the second recorded moment when a test report has Bob's pictures only at its first and third recorded moments": {
           "target": "the team sees Bob's first picture marked as earlier — 4",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:26"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:26"],
             "condition": [
               "a test report has Bob's pictures only at its first and third recorded moments"
             ],
@@ -79,9 +65,7 @@
         "the team selects that recorded moment": {
           "target": "the team sees the observations recorded at that moment — 5",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:34"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:34"],
             "condition": [
               "a recorded moment has observations but no person's picture"
             ],
@@ -91,9 +75,7 @@
         "the team shows Bob at the selected recorded moment": {
           "target": "Bob's picture is not offered because none was recorded by that moment — 6",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:39"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:39"],
             "condition": [
               "Bob's first picture was captured after the selected recorded moment"
             ],
@@ -103,9 +85,7 @@
         "the team shows the recorded action in that moment when a recorded moment names a control present in Alice's picture": {
           "target": "the team sees that control highlighted in Alice's picture — 7",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:46"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:46"],
             "condition": [
               "a recorded moment names a control present in Alice's picture"
             ],
@@ -115,9 +95,7 @@
         "the team shows the recorded action in that moment when a recorded moment names a control absent from Alice's picture": {
           "target": "the team is told the recorded control cannot be found in that picture — 8",
           "meta": {
-            "source": [
-              "specs/developer-tools/recorded-moments.feature:51"
-            ],
+            "source": ["specs/developer-tools/recorded-moments.feature:51"],
             "condition": [
               "a recorded moment names a control absent from Alice's picture"
             ],
@@ -136,9 +114,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:9"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,14 +124,10 @@
         "description": "The person observes that the team sees its final recorded moment.",
         "snapshot": "the-person-observes-that-the-team-sees-its-final-recorded-moment",
         "recognize": [],
-        "checks": [
-          "the team sees its final recorded moment"
-        ],
+        "checks": ["the team sees its final recorded moment"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:14"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -170,9 +142,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:21"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -188,9 +158,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:26"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -200,14 +168,10 @@
         "description": "The person observes that the team sees the observations recorded at that moment.",
         "snapshot": "the-person-observes-that-the-team-sees-the-observations-recorded-at-that-moment",
         "recognize": [],
-        "checks": [
-          "the team sees the observations recorded at that moment"
-        ],
+        "checks": ["the team sees the observations recorded at that moment"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:34"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -222,9 +186,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:39"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -234,14 +196,10 @@
         "description": "The person observes that the team sees that control highlighted in Alice's picture.",
         "snapshot": "the-person-observes-that-the-team-sees-that-control-highlighted-in-alice-s-picture",
         "recognize": [],
-        "checks": [
-          "the team sees that control highlighted in Alice's picture"
-        ],
+        "checks": ["the team sees that control highlighted in Alice's picture"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:46"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -256,9 +214,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/recorded-moments.feature:51"
-        ],
+        "source": ["specs/developer-tools/recorded-moments.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

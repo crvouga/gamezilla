@@ -24,34 +24,24 @@
         "description": "The person is at the place where the daily rated puzzle allowance.",
         "snapshot": "the-person-is-at-the-place-where-the-daily-rated-puzzle-allowance",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-quota.feature:2"]
       },
       "on": {
         "Alice moves on to the next puzzle": {
           "target": "Alice has a puzzle on the board — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:9"
-            ],
-            "condition": [
-              "Alice is a guest who has played 19 puzzles today"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:9"],
+            "condition": ["Alice is a guest who has played 19 puzzles today"],
             "example": "A guest's twentieth puzzle of the day still starts"
           }
         },
         "Alice asks for another puzzle": {
           "target": "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:15"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:15"],
             "condition": [
               "Alice is a guest who has finished today's last allowed puzzle"
             ],
@@ -61,9 +51,7 @@
         "Alice solves the puzzle": {
           "target": "Alice's puzzle is solved — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:24"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:24"],
             "condition": [
               "Alice is a guest who reached today's puzzle limit while solving a puzzle"
             ],
@@ -73,9 +61,7 @@
         "Alice goes back to the puzzles when Alice is a guest who has been shown today's puzzle limit and Alice is signed in with Google": {
           "target": "Alice has a puzzle on the board within 30 seconds — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:33"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:33"],
             "condition": [
               "Alice is a guest who has been shown today's puzzle limit",
               "Alice is signed in with Google"
@@ -86,9 +72,7 @@
         "Alice goes back to the puzzles when Alice is a guest who reached today's puzzle limit while solving a puzzle and Alice has left the puzzle for the chess choices": {
           "target": "Alice is on the same puzzle as before — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:42"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:42"],
             "condition": [
               "Alice is a guest who reached today's puzzle limit while solving a puzzle",
               "Alice has left the puzzle for the chess choices"
@@ -99,9 +83,7 @@
         "Alice returns to their space": {
           "target": "Alice is asked to find the next move within 20 seconds — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:50"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:50"],
             "condition": [
               "Alice is a guest who reached today's puzzle limit while solving a puzzle",
               "Alice has closed and reopened the app"
@@ -112,9 +94,7 @@
         "Alice goes back to the puzzles when Alice is a guest who has finished today's last allowed puzzle and Alice has left the puzzle for the chess choices": {
           "target": "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:58"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:58"],
             "condition": [
               "Alice is a guest who has finished today's last allowed puzzle",
               "Alice has left the puzzle for the chess choices"
@@ -125,22 +105,15 @@
         "Alice opens puzzles in their space": {
           "target": "Alice can read that 19 rated puzzles remain today — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:68"
-            ],
-            "condition": [
-              "Alice is a guest",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:68"],
+            "condition": ["Alice is a guest", "Alice is hosting a space"],
             "example": "Starting a puzzle shows the remaining allowance"
           }
         },
         "Alice retries the puzzle": {
           "target": "Alice can read that 19 rated puzzles remain today — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-quota.feature:75"
-            ],
+            "source": ["specs/chess/puzzle-quota.feature:75"],
             "condition": [
               "Alice is a guest",
               "Alice is playing puzzles in their space",
@@ -162,9 +135,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:9"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -180,9 +151,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:15"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -198,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:24"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -216,9 +183,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:33"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -235,9 +200,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:42"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -254,9 +217,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:50"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -272,9 +233,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:58"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -284,14 +243,10 @@
         "description": "The person observes that alice can read that 19 rated puzzles remain today.",
         "snapshot": "the-person-observes-that-alice-can-read-that-19-rated-puzzles-remain-today",
         "recognize": [],
-        "checks": [
-          "Alice can read that 19 rated puzzles remain today"
-        ],
+        "checks": ["Alice can read that 19 rated puzzles remain today"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:68"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:68"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -301,14 +256,10 @@
         "description": "The person observes that alice can read that 19 rated puzzles remain today.",
         "snapshot": "the-person-observes-that-alice-can-read-that-19-rated-puzzles-remain-today",
         "recognize": [],
-        "checks": [
-          "Alice can read that 19 rated puzzles remain today"
-        ],
+        "checks": ["Alice can read that 19 rated puzzles remain today"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-quota.feature:75"
-        ],
+        "source": ["specs/chess/puzzle-quota.feature:75"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

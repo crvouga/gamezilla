@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/custom-game-control.qnt"
-    ],
+    "quint": ["specs/chess/custom-game-control.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the custom game control view.",
         "snapshot": "the-person-is-opening-the-custom-game-control-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ]
+        "source": ["specs/chess/custom-game-control.qnt"]
       },
       "on": {
         "Opens with playing a Custom Game": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:46"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:46"]
           }
         }
       }
@@ -61,9 +53,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ],
+        "source": ["specs/chess/custom-game-control.qnt"],
         "quintPredicates": [
           {
             "controlledStatus": "active",
@@ -112,9 +102,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Cancel controlled game resulting in seeing a cancelled Custom Game": {
@@ -148,9 +136,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Play controlled move resulting in playing a Custom Game": {
@@ -184,9 +170,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:59"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:59"]
           }
         },
         "Bot plays resulting in playing a Custom Game": {
@@ -220,9 +204,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:62"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:62"]
           }
         },
         "Cancel controlled game resulting in playing a Custom Game": {
@@ -256,9 +238,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Bot plays resulting in seeing black wins by checkmate": {
@@ -292,9 +272,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:62"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:62"]
           }
         },
         "Resign controlled game resulting in seeing white wins by resignation": {
@@ -328,9 +306,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Resign controlled game resulting in seeing black wins by resignation": {
@@ -364,9 +340,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         }
       }
@@ -386,9 +360,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ],
+        "source": ["specs/chess/custom-game-control.qnt"],
         "quintPredicates": [
           {
             "controlledStatus": "cancelled",
@@ -438,9 +410,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Cancel controlled game resulting in seeing a cancelled Custom Game": {
@@ -474,9 +444,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Play controlled move resulting in seeing a cancelled Custom Game": {
@@ -510,9 +478,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:59"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:59"]
           }
         }
       }
@@ -532,9 +498,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ],
+        "source": ["specs/chess/custom-game-control.qnt"],
         "quintPredicates": [
           {
             "controlledStatus": "completed",
@@ -584,9 +548,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Cancel controlled game resulting in seeing black wins by checkmate": {
@@ -620,9 +582,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Play controlled move resulting in seeing black wins by checkmate": {
@@ -656,9 +616,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:59"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:59"]
           }
         }
       }
@@ -678,9 +636,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ],
+        "source": ["specs/chess/custom-game-control.qnt"],
         "quintPredicates": [
           {
             "controlledStatus": "completed",
@@ -730,9 +686,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Cancel controlled game resulting in seeing white wins by resignation": {
@@ -766,9 +720,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Play controlled move resulting in seeing white wins by resignation": {
@@ -802,9 +754,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:59"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:59"]
           }
         }
       }
@@ -824,9 +774,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-control.qnt"
-        ],
+        "source": ["specs/chess/custom-game-control.qnt"],
         "quintPredicates": [
           {
             "controlledStatus": "completed",
@@ -876,9 +824,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:73"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:73"]
           }
         },
         "Resign controlled game resulting in seeing black wins by resignation": {
@@ -912,9 +858,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:67"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:67"]
           }
         },
         "Play controlled move resulting in seeing black wins by resignation": {
@@ -948,9 +892,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-control.qnt:59"
-            ]
+            "source": ["specs/chess/custom-game-control.qnt:59"]
           }
         }
       }

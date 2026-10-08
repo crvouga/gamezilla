@@ -18,22 +18,16 @@
         "description": "The person is at the place where online-only actions.",
         "snapshot": "the-person-is-at-the-place-where-online-only-actions",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/online-only-actions.feature:2"
-        ]
+        "source": ["specs/sync-engine/online-only-actions.feature:2"]
       },
       "on": {
         "Alice writes the announcement 'Fire drill' saying 'at noon'": {
           "target": "Alice is told announcements need a connection — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/online-only-actions.feature:14"
-            ],
+            "source": ["specs/sync-engine/online-only-actions.feature:14"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice's app is offline"
@@ -44,9 +38,7 @@
         "Alice's app comes back online when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has tried to write the announcement 'Fire drill' saying 'at noon'": {
           "target": "Alice does not see the note \"Fire drill\" — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/online-only-actions.feature:19"
-            ],
+            "source": ["specs/sync-engine/online-only-actions.feature:19"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice's app is offline",
@@ -68,9 +60,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/online-only-actions.feature:14"
-        ],
+        "source": ["specs/sync-engine/online-only-actions.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -97,9 +87,7 @@
         "Alice writes the announcement 'Fire drill' saying 'at noon'": {
           "target": "Bob sees the note \"Fire drill\" saying \"at noon\" — 3 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/online-only-actions.feature:25"
-            ],
+            "source": ["specs/sync-engine/online-only-actions.feature:25"],
             "condition": [],
             "example": "An announcement can be written once the connection is back"
           }
@@ -111,14 +99,10 @@
         "description": "The person observes that bob sees the note \"Fire drill\" saying \"at noon\".",
         "snapshot": "the-person-observes-that-bob-sees-the-note-fire-drill-saying-at-noon",
         "recognize": [],
-        "checks": [
-          "Bob sees the note \"Fire drill\" saying \"at noon\""
-        ],
+        "checks": ["Bob sees the note \"Fire drill\" saying \"at noon\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/online-only-actions.feature:25"
-        ],
+        "source": ["specs/sync-engine/online-only-actions.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

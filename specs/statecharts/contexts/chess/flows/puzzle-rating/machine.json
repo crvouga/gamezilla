@@ -24,22 +24,16 @@
         "description": "The person is at the place where puzzle rating.",
         "snapshot": "the-person-is-at-the-place-where-puzzle-rating",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-rating.feature:2"]
       },
       "on": {
         "Alice solves the puzzle when Alice is signed in and Alice's puzzle rating is one rated puzzle from settling and Alice is playing puzzles in their space": {
           "target": "Alice's stats show their rating without the \"?\" — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:9"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:9"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle rating is one rated puzzle from settling",
@@ -51,9 +45,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice is offline": {
           "target": "Alice's puzzle rating is above 1500 — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:16"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:16"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -65,9 +57,7 @@
         "the connection comes back": {
           "target": "both of Alice's devices show the same puzzle rating within 30 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:23"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:23"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -80,9 +70,7 @@
         "Alice solves the puzzle when the puzzle pool holds just three puzzles and Alice is signed in and Alice is playing puzzles in their space and Alice has solved 3 puzzles in a row and Alice's feed has come round to a puzzle they already played": {
           "target": "Alice's puzzle rating is still unchanged by the repeat because that puzzle is already rated — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:32"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:32"],
             "condition": [
               "the puzzle pool holds just three puzzles",
               "Alice is signed in",
@@ -96,9 +84,7 @@
         "Alice's account opens on another device": {
           "target": "Alice's other device shows the same puzzle rating within 30 seconds — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:42"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:42"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -110,9 +96,7 @@
         "Alice solves the puzzle when Alice and Bob are signed in and Alice's puzzle rating has settled at 1500 and Bob's puzzle rating has settled at 1500 and Bob has solved a puzzle rated 1300 and Alice is solving a puzzle rated 1700": {
           "target": "Alice's puzzle rating is above Bob's — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:57"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:57"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice's puzzle rating has settled at 1500",
@@ -126,9 +110,7 @@
         "Alice plays a wrong move when Alice and Bob are signed in and Alice's puzzle rating has settled at 1500 and Bob's puzzle rating has settled at 1500 and Bob has played a wrong move on a puzzle rated 1700 and Alice is solving a puzzle rated 1300": {
           "target": "Alice's puzzle rating is below Bob's — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:63"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:63"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice's puzzle rating has settled at 1500",
@@ -142,9 +124,7 @@
         "Alice solves the puzzle when Alice is a new solver with a provisional 1500 puzzle rating and Bob's puzzle rating has settled at 1500 and Bob has solved the hook-mate puzzle and Alice is solving the hook-mate puzzle": {
           "target": "Alice's puzzle rating is above Bob's — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:72"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:72"],
             "condition": [
               "Alice is a new solver with a provisional 1500 puzzle rating",
               "Bob's puzzle rating has settled at 1500",
@@ -157,9 +137,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice's puzzle rating has settled at 400 and Alice is playing puzzles in their space": {
           "target": "Alice's puzzle rating is above 400 — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:85"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:85"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle rating has settled at 400",
@@ -171,9 +149,7 @@
         "Alice plays a wrong move when Alice is signed in and Alice's puzzle rating has settled at 400 and Alice is playing puzzles in their space": {
           "target": "Alice's puzzle rating cannot go below 400 — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:91"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:91"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle rating has settled at 400",
@@ -185,9 +161,7 @@
         "Alice plays a wrong move when Alice is signed in and Alice's puzzle rating has settled at 3000 and Alice is playing puzzles in their space": {
           "target": "Alice's puzzle rating is below 3000 — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:97"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:97"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle rating has settled at 3000",
@@ -199,9 +173,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice's puzzle rating has settled at 3000 and Alice is playing puzzles in their space": {
           "target": "Alice's puzzle rating cannot go above 3000 — 12",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:103"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:103"],
             "condition": [
               "Alice is signed in",
               "Alice's puzzle rating has settled at 3000",
@@ -213,9 +185,7 @@
         "Alice plays a wrong move when Alice and Bob are signed in and Alice is solving the hook-mate puzzle and Bob is solving the hook-mate puzzle and Bob has taken a hint and Bob has solved the puzzle": {
           "target": "Alice's puzzle rating is below 1500 — 13",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:116"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:116"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice is solving the hook-mate puzzle",
@@ -229,9 +199,7 @@
         "Alice solves the puzzle when Alice and Bob are signed in and Bob has solved the hook-mate puzzle and Alice is solving the hook-mate puzzle and Alice has taken a hint": {
           "target": "Alice's puzzle rating is below Bob's — 14",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-rating.feature:125"
-            ],
+            "source": ["specs/chess/puzzle-rating.feature:125"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob has solved the hook-mate puzzle",
@@ -248,14 +216,10 @@
         "description": "The person observes that alice's stats show their rating without the \"?\".",
         "snapshot": "the-person-observes-that-alice-s-stats-show-their-rating-without-the",
         "recognize": [],
-        "checks": [
-          "Alice's stats show their rating without the \"?\""
-        ],
+        "checks": ["Alice's stats show their rating without the \"?\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:9"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -265,14 +229,10 @@
         "description": "The person observes that alice's puzzle rating is above 1500.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-above-1500",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is above 1500"
-        ],
+        "checks": ["Alice's puzzle rating is above 1500"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:16"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -288,9 +248,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:23"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -306,9 +264,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:32"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -323,9 +279,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:42"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -335,14 +289,10 @@
         "description": "The person observes that alice's puzzle rating is above Bob's.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-above-bob-s",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is above Bob's"
-        ],
+        "checks": ["Alice's puzzle rating is above Bob's"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:57"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -352,14 +302,10 @@
         "description": "The person observes that alice's puzzle rating is below Bob's.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-below-bob-s",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is below Bob's"
-        ],
+        "checks": ["Alice's puzzle rating is below Bob's"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:63"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:63"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -369,14 +315,10 @@
         "description": "The person observes that alice's puzzle rating is above Bob's.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-above-bob-s",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is above Bob's"
-        ],
+        "checks": ["Alice's puzzle rating is above Bob's"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:72"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:72"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -386,14 +328,10 @@
         "description": "The person observes that alice's puzzle rating is above 400.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-above-400",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is above 400"
-        ],
+        "checks": ["Alice's puzzle rating is above 400"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:85"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -403,14 +341,10 @@
         "description": "The person observes that alice's puzzle rating cannot go below 400.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-cannot-go-below-400",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating cannot go below 400"
-        ],
+        "checks": ["Alice's puzzle rating cannot go below 400"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:91"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:91"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -420,14 +354,10 @@
         "description": "The person observes that alice's puzzle rating is below 3000.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-below-3000",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is below 3000"
-        ],
+        "checks": ["Alice's puzzle rating is below 3000"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:97"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:97"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -437,14 +367,10 @@
         "description": "The person observes that alice's puzzle rating cannot go above 3000.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-cannot-go-above-3000",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating cannot go above 3000"
-        ],
+        "checks": ["Alice's puzzle rating cannot go above 3000"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:103"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:103"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -460,9 +386,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:116"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:116"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -472,14 +396,10 @@
         "description": "The person observes that alice's puzzle rating is below Bob's.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-below-bob-s",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is below Bob's"
-        ],
+        "checks": ["Alice's puzzle rating is below Bob's"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-rating.feature:125"
-        ],
+        "source": ["specs/chess/puzzle-rating.feature:125"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

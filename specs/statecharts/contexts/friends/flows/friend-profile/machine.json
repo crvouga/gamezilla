@@ -24,34 +24,24 @@
         "description": "The person is at the place where another person's profile.",
         "snapshot": "the-person-is-at-the-place-where-another-person-s-profile",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:2"
-        ]
+        "source": ["specs/friends/friend-profile.feature:2"]
       },
       "on": {
         "Alice looks up Bob": {
           "target": "Alice is shown Bob's profile — 1",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:13"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/friend-profile.feature:13"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "Looking someone up opens their profile"
           }
         },
         "Bob views Alice's request": {
           "target": "Bob is shown Alice's profile — 2",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:17"
-            ],
+            "source": ["specs/friends/friend-profile.feature:17"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request"
@@ -62,9 +52,7 @@
         "Alice sends Bob a friend request from Bob's profile": {
           "target": "Alice can cancel the request to Bob — 3",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:25"
-            ],
+            "source": ["specs/friends/friend-profile.feature:25"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice is viewing Bob's profile"
@@ -75,9 +63,7 @@
         "Bob looks up Alice": {
           "target": "Bob is offered to accept Alice's request within 15 seconds — 4",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:30"
-            ],
+            "source": ["specs/friends/friend-profile.feature:30"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request"
@@ -88,9 +74,7 @@
         "Bob accepts Alice's request from Alice's profile": {
           "target": "Bob sees Alice as a friend — 5",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:35"
-            ],
+            "source": ["specs/friends/friend-profile.feature:35"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request",
@@ -102,9 +86,7 @@
         "Bob declines Alice's request from Alice's profile": {
           "target": "Bob can ask Alice again within 5 seconds — 6",
           "meta": {
-            "source": [
-              "specs/friends/friend-profile.feature:44"
-            ],
+            "source": ["specs/friends/friend-profile.feature:44"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request",
@@ -120,14 +102,10 @@
         "description": "The person observes that alice is shown Bob's profile.",
         "snapshot": "the-person-observes-that-alice-is-shown-bob-s-profile",
         "recognize": [],
-        "checks": [
-          "Alice is shown Bob's profile"
-        ],
+        "checks": ["Alice is shown Bob's profile"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:13"
-        ],
+        "source": ["specs/friends/friend-profile.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -143,9 +121,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:17"
-        ],
+        "source": ["specs/friends/friend-profile.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -155,14 +131,10 @@
         "description": "The person observes that alice can cancel the request to Bob.",
         "snapshot": "the-person-observes-that-alice-can-cancel-the-request-to-bob",
         "recognize": [],
-        "checks": [
-          "Alice can cancel the request to Bob"
-        ],
+        "checks": ["Alice can cancel the request to Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:25"
-        ],
+        "source": ["specs/friends/friend-profile.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -177,9 +149,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:30"
-        ],
+        "source": ["specs/friends/friend-profile.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -197,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:35"
-        ],
+        "source": ["specs/friends/friend-profile.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -215,9 +183,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-profile.feature:44"
-        ],
+        "source": ["specs/friends/friend-profile.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,22 +24,16 @@
         "description": "The person is at the place where claim the win from a participant who stays away.",
         "snapshot": "the-person-is-at-the-place-where-claim-the-win-from-a-participant-who-stays-away",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-away.feature:2"]
       },
       "on": {
         "the connection comes back": {
           "target": "Bob sees the active Custom Game with White to move — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:8"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:8"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has been away from the Custom Game for 10 minutes"
@@ -50,9 +44,7 @@
         "60 seconds pass": {
           "target": "Bob wins the Custom Game on time — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:15"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:15"],
             "condition": [
               "Alice has an active Custom Game with 1 minute and 0 seconds increment",
               "Alice is away from the Custom Game"
@@ -63,9 +55,7 @@
         "Alice claims the win in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black and Bob has been away from the Custom Game for 60 seconds": {
           "target": "Alice wins the Custom Game because Bob stayed away — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:23"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:23"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has been away from the Custom Game for 60 seconds"
@@ -76,9 +66,7 @@
         "Alice claims the win in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black and Bob has been away from the Custom Game for 59 seconds": {
           "target": "Alice is told Bob may still return — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:29"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:29"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has been away from the Custom Game for 59 seconds"
@@ -89,9 +77,7 @@
         "Carol claims the win in the Custom Game": {
           "target": "Carol is told only a participant may claim the win — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:36"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:36"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has been away from the Custom Game for 60 seconds",
@@ -103,9 +89,7 @@
         "Alice claims the win in the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black and Bob is offline": {
           "target": "Alice is told the Custom Game has finished — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-away.feature:44"
-            ],
+            "source": ["specs/chess/custom-game-away.feature:44"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black",
               "Bob is offline"
@@ -126,9 +110,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:8"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -138,14 +120,10 @@
         "description": "The person observes that bob wins the Custom Game on time.",
         "snapshot": "the-person-observes-that-bob-wins-the-custom-game-on-time",
         "recognize": [],
-        "checks": [
-          "Bob wins the Custom Game on time"
-        ],
+        "checks": ["Bob wins the Custom Game on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:15"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -155,14 +133,10 @@
         "description": "The person observes that alice wins the Custom Game because Bob stayed away.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-because-bob-stayed-away",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game because Bob stayed away"
-        ],
+        "checks": ["Alice wins the Custom Game because Bob stayed away"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:23"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -178,9 +152,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:29"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -196,9 +168,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:36"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -214,9 +184,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-away.feature:44"
-        ],
+        "source": ["specs/chess/custom-game-away.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

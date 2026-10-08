@@ -24,22 +24,16 @@
         "description": "The person is at the place where the multiplayer clock.",
         "snapshot": "the-person-is-at-the-place-where-the-multiplayer-clock",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-clock.feature:2"]
       },
       "on": {
         "20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new 1+0 multiplayer game": {
           "target": "both people still see 60 seconds on White's multiplayer clock and 60 seconds on Black's — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:9"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:9"],
             "condition": [
               "Alice is White and Bob is Black in a new 1+0 multiplayer game"
             ],
@@ -49,9 +43,7 @@
         "20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5": {
           "target": "both people see 40 seconds on White's multiplayer clock and 60 seconds on Black's — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:14"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:14"],
             "condition": [
               "Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5"
             ],
@@ -61,9 +53,7 @@
         "Alice plays g1 to f3 as a multiplayer move when Alice is White and Bob is Black in a 2+1 multiplayer game after e4 and e5 and 5 seconds have passed in multiplayer chess": {
           "target": "both people see 116 seconds on White's multiplayer clock and 120 seconds on Black's — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:24"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:24"],
             "condition": [
               "Alice is White and Bob is Black in a 2+1 multiplayer game after e4 and e5",
               "5 seconds have passed in multiplayer chess"
@@ -74,9 +64,7 @@
         "Bob plays d7 to d5 as a multiplayer move": {
           "target": "Bob is told it is not his multiplayer turn — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:29"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:29"],
             "condition": [
               "Alice is White and Bob is Black in a 2+1 multiplayer game after e4 and e5"
             ],
@@ -86,9 +74,7 @@
         "60 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5": {
           "target": "both people see Bob won the multiplayer game because White ran out of time — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:39"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:39"],
             "condition": [
               "Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5"
             ],
@@ -98,9 +84,7 @@
         "Alice plays g1 to f3 as a multiplayer move when Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5 and White's multiplayer clock has run out": {
           "target": "Alice is told the multiplayer game is over — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:43"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:43"],
             "condition": [
               "Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5",
               "White's multiplayer clock has run out"
@@ -111,9 +95,7 @@
         "1 second passes in multiplayer chess when Bob has only his king left as Black in his 1+0 multiplayer game with Alice and Alice has 1 second left on White's multiplayer clock on her turn": {
           "target": "both people see the multiplayer game is drawn by White running out of time against a bare king — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:51"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:51"],
             "condition": [
               "Bob has only his king left as Black in his 1+0 multiplayer game with Alice",
               "Alice has 1 second left on White's multiplayer clock on her turn"
@@ -124,9 +106,7 @@
         "1 second passes in multiplayer chess when Bob has only his king and a knight left as Black in his 1+0 multiplayer game with Alice and Alice has 1 second left on White's multiplayer clock on her turn": {
           "target": "the multiplayer game is still won by Bob because White ran out of time — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:57"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:57"],
             "condition": [
               "Bob has only his king and a knight left as Black in his 1+0 multiplayer game with Alice",
               "Alice has 1 second left on White's multiplayer clock on her turn"
@@ -137,9 +117,7 @@
         "60 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5 and Alice's phone is offline": {
           "target": "Bob sees he won the multiplayer game because White ran out of time — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:69"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:69"],
             "condition": [
               "Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5",
               "Alice's phone is offline"
@@ -150,9 +128,7 @@
         "20 seconds pass in multiplayer chess when Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5 and Alice's phone is offline": {
           "target": "the multiplayer game is still unfinished — 10",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-clock.feature:73"
-            ],
+            "source": ["specs/chess/multiplayer-clock.feature:73"],
             "condition": [
               "Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5",
               "Alice's phone is offline"
@@ -172,9 +148,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -189,9 +163,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:14"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,9 +178,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:24"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -224,9 +194,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:29"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -241,9 +209,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:39"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -259,9 +225,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:43"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -276,9 +240,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:51"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -293,9 +255,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:57"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -310,9 +270,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:69"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:69"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -322,14 +280,10 @@
         "description": "The person observes that the multiplayer game is still unfinished.",
         "snapshot": "the-person-observes-that-the-multiplayer-game-is-still-unfinished",
         "recognize": [],
-        "checks": [
-          "the multiplayer game is still unfinished"
-        ],
+        "checks": ["the multiplayer game is still unfinished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-clock.feature:73"
-        ],
+        "source": ["specs/chess/multiplayer-clock.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

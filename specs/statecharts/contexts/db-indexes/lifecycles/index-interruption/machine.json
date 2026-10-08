@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/db-indexes/index-interruption.qnt"
-    ],
+    "quint": ["specs/db-indexes/index-interruption.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the index interruption view.",
         "snapshot": "the-person-is-opening-the-index-interruption-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ]
+        "source": ["specs/db-indexes/index-interruption.qnt"]
       },
       "on": {
         "Opens with waiting for an index": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:14"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:14"]
           }
         }
       }
@@ -51,14 +43,10 @@
         "description": "The person is waiting for an index.",
         "snapshot": "the-person-is-waiting-for-an-index",
         "recognize": [],
-        "checks": [
-          "Waiting for an index is shown accurately."
-        ],
+        "checks": ["Waiting for an index is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "absent",
@@ -87,9 +75,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         },
         "Recover resulting in seeing completed maintenance": {
@@ -107,9 +93,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:33"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
           }
         },
         "Attempt resulting in seeing unfinished invalid index work": {
@@ -127,9 +111,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         },
         "Attempt resulting in seeing unfinished valid index work": {
@@ -147,9 +129,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         },
         "Attempt resulting in seeing completed maintenance": {
@@ -167,9 +147,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         },
         "Attempt resulting in seeing failed maintenance": {
@@ -187,9 +165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         },
         "Attempt resulting in seeing deferred maintenance": {
@@ -207,9 +183,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         }
       }
@@ -219,14 +193,10 @@
         "description": "The person is seeing unfinished absent index work.",
         "snapshot": "the-person-is-seeing-unfinished-absent-index-work",
         "recognize": [],
-        "checks": [
-          "Seeing unfinished absent index work is shown accurately."
-        ],
+        "checks": ["Seeing unfinished absent index work is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "absent",
@@ -255,9 +225,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:33"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
           }
         }
       }
@@ -267,14 +235,10 @@
         "description": "The person is seeing completed maintenance.",
         "snapshot": "the-person-is-seeing-completed-maintenance",
         "recognize": [],
-        "checks": [
-          "Seeing completed maintenance is shown accurately."
-        ],
+        "checks": ["Seeing completed maintenance is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "valid",
@@ -304,9 +268,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:40"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:40"]
           }
         }
       }
@@ -316,14 +278,10 @@
         "description": "The person is seeing unfinished invalid index work.",
         "snapshot": "the-person-is-seeing-unfinished-invalid-index-work",
         "recognize": [],
-        "checks": [
-          "Seeing unfinished invalid index work is shown accurately."
-        ],
+        "checks": ["Seeing unfinished invalid index work is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "invalid",
@@ -352,9 +310,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:33"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
           }
         }
       }
@@ -364,14 +320,10 @@
         "description": "The person is seeing unfinished valid index work.",
         "snapshot": "the-person-is-seeing-unfinished-valid-index-work",
         "recognize": [],
-        "checks": [
-          "Seeing unfinished valid index work is shown accurately."
-        ],
+        "checks": ["Seeing unfinished valid index work is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "valid",
@@ -400,9 +352,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:33"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
           }
         }
       }
@@ -412,14 +362,10 @@
         "description": "The person is seeing failed maintenance.",
         "snapshot": "the-person-is-seeing-failed-maintenance",
         "recognize": [],
-        "checks": [
-          "Seeing failed maintenance is shown accurately."
-        ],
+        "checks": ["Seeing failed maintenance is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "absent",
@@ -448,9 +394,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:33"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:33"]
           }
         }
       }
@@ -460,14 +404,10 @@
         "description": "The person is seeing deferred maintenance.",
         "snapshot": "the-person-is-seeing-deferred-maintenance",
         "recognize": [],
-        "checks": [
-          "Seeing deferred maintenance is shown accurately."
-        ],
+        "checks": ["Seeing deferred maintenance is shown accurately."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-interruption.qnt"
-        ],
+        "source": ["specs/db-indexes/index-interruption.qnt"],
         "quintPredicates": [
           {
             "state": "absent",
@@ -496,9 +436,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-interruption.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-interruption.qnt:21"]
           }
         }
       }

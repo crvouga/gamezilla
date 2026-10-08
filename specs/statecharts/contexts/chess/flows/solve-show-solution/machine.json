@@ -18,22 +18,16 @@
         "description": "The person is at the place where showing the solution.",
         "snapshot": "the-person-is-at-the-place-where-showing-the-solution",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-show-solution.feature:2"
-        ]
+        "source": ["specs/chess/solve-show-solution.feature:2"]
       },
       "on": {
         "Alice shows the solution when Alice is signed in and Alice is solving the hook-mate puzzle": {
           "target": "Alice's board reaches checkmate at move 4 of the line within 20 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/solve-show-solution.feature:13"
-            ],
+            "source": ["specs/chess/solve-show-solution.feature:13"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the hook-mate puzzle"

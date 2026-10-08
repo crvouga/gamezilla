@@ -220,7 +220,7 @@ states:
       - specs/journeys/critical-journeys.feature:47
       scopeEnd: The agreed example ends at this observation; this is not a terminal account or game state.
       knownIssue:
-      - known-issues.md#ki-001
+      - KNOWN_ISSUES.md#ki-001
     type: final
   Plus is offered at its monthly and yearly prices — 9:
     meta:

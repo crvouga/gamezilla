@@ -18,22 +18,16 @@
         "description": "The person is at the place where waiting for a match.",
         "snapshot": "the-person-is-at-the-place-where-waiting-for-a-match",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:2"
-        ]
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:2"]
       },
       "on": {
         "Alice waits for a match with a rating of 1500 when Alice's wait shows her name and rating": {
           "target": "Alice is waiting — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:10"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:10"],
             "condition": [],
             "example": "Alice's wait shows her name and rating"
           }
@@ -41,21 +35,15 @@
         "Alice waits for a match with a rating of 1500 when Alice has been matched with Bob": {
           "target": "Alice is waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:15"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:15"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Once matched, Alice can wait for a match again"
           }
         },
         "Alice waits for a match with a rating of 1500 when Alice is waiting with a rating of 1000, accepting anyone within 200 points": {
           "target": "Alice is told she is already waiting — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:21"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:21"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 200 points"
             ],
@@ -65,36 +53,24 @@
         "Alice stops waiting when Alice is waiting for a match": {
           "target": "Alice sees she stopped waiting — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:29"
-            ],
-            "condition": [
-              "Alice is waiting for a match"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:29"],
+            "condition": ["Alice is waiting for a match"],
             "example": "Alice stops waiting and is no longer waiting"
           }
         },
         "Alice stops waiting when Alice has been matched with Bob": {
           "target": "Alice is told there was nothing to stop — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:35"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:35"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Alice cannot stop waiting once she is matched with Bob"
           }
         },
         "Alice stops waiting when Alice has stopped waiting": {
           "target": "Alice is told there was nothing to stop — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/waiting-for-a-match.feature:41"
-            ],
-            "condition": [
-              "Alice has stopped waiting"
-            ],
+            "source": ["specs/matchmaking/waiting-for-a-match.feature:41"],
+            "condition": ["Alice has stopped waiting"],
             "example": "Alice has nothing to stop once she has stopped waiting"
           }
         }
@@ -111,9 +87,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:10"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -129,9 +103,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:15"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -147,9 +119,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:21"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -165,9 +135,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:29"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -183,9 +151,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:35"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -201,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/waiting-for-a-match.feature:41"
-        ],
+        "source": ["specs/matchmaking/waiting-for-a-match.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/puzzle-attempt.qnt"
-    ],
+    "quint": ["specs/chess/puzzle-attempt.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the puzzle attempt view.",
         "snapshot": "the-person-is-opening-the-puzzle-attempt-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ]
+        "source": ["specs/chess/puzzle-attempt.qnt"]
       },
       "on": {
         "Opens with choosing a game": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:204"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:204"]
           }
         }
       }
@@ -67,9 +59,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "GameChoice",
@@ -116,9 +106,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Time passes resulting in choosing a game": {
@@ -142,9 +130,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Opens chess puzzles resulting in solving the puzzle": {
@@ -168,9 +154,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:225"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:225"]
           }
         },
         "Opens chess puzzles resulting in solving the puzzle while reviewing an earlier move": {
@@ -194,9 +178,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:225"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:225"]
           }
         },
         "Opens chess puzzles resulting in told the move is wrong": {
@@ -220,9 +202,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:225"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:225"]
           }
         },
         "Opens chess puzzles resulting in solving the puzzle after a correct continuation": {
@@ -246,9 +226,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:225"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:225"]
           }
         },
         "Mute assistant resulting in choosing a game": {
@@ -272,9 +250,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Opens chess puzzles resulting in solving the puzzle with the solution piece highlighted": {
@@ -298,9 +274,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:225"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:225"]
           }
         }
       }
@@ -326,9 +300,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -375,9 +347,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:249"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:249"]
           }
         },
         "Choose piece resulting in solving the puzzle": {
@@ -401,9 +371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:427"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:427"]
           }
         },
         "Mute assistant resulting in solving the puzzle": {
@@ -427,9 +395,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -453,9 +419,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Unmute assistant resulting in solving the puzzle": {
@@ -479,9 +443,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Choose review position resulting in solving the puzzle": {
@@ -505,9 +467,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
@@ -531,9 +491,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:263"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:263"]
           }
         },
         "Try illegal move resulting in solving the puzzle": {
@@ -557,9 +515,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:395"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:395"]
           }
         },
         "Skips the puzzle resulting in seeing the skipped puzzle": {
@@ -583,9 +539,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:300"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:300"]
           }
         },
         "Try retry while solving resulting in solving the puzzle": {
@@ -609,9 +563,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:382"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:382"]
           }
         },
         "Shows the complete puzzle solution resulting in seeing the full solution": {
@@ -635,9 +587,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:293"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:293"]
           }
         },
         "Suggest move resulting in solving the puzzle": {
@@ -661,9 +611,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:413"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:413"]
           }
         },
         "Try solution before hint resulting in solving the puzzle": {
@@ -687,9 +635,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:388"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:388"]
           }
         },
         "Plays a wrong puzzle move resulting in told the move is wrong": {
@@ -713,9 +659,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:256"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:256"]
           }
         },
         "Time passes resulting in solving the puzzle": {
@@ -739,9 +683,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Asks for the first hint resulting in solving the puzzle with the solution piece highlighted": {
@@ -765,9 +707,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:269"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:269"]
           }
         },
         "Connection returns resulting in solving the puzzle": {
@@ -791,9 +731,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Reopen app resulting in solving the puzzle": {
@@ -817,9 +755,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         }
       }
@@ -899,9 +835,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:340"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:340"]
           }
         },
         "Moves on to a different puzzle resulting in solving the puzzle": {
@@ -925,9 +859,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:314"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:314"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -951,9 +883,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Choose review position resulting in seeing the solved puzzle": {
@@ -977,9 +907,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -1003,9 +931,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Connection returns resulting in seeing the solved puzzle": {
@@ -1029,9 +955,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Reopen app resulting in seeing the solved puzzle": {
@@ -1055,9 +979,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Try hint after finish resulting in seeing the solved puzzle": {
@@ -1081,9 +1003,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:334"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:334"]
           }
         },
         "Try move after finish resulting in seeing the solved puzzle": {
@@ -1107,9 +1027,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:328"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:328"]
           }
         },
         "Requests the next puzzle twice at once resulting in solving the puzzle": {
@@ -1133,9 +1051,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:321"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:321"]
           }
         },
         "Mute assistant resulting in seeing the solved puzzle": {
@@ -1159,9 +1075,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Choose review position resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -1185,9 +1099,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Time passes resulting in seeing the solved puzzle": {
@@ -1211,9 +1123,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Try skip after finish resulting in seeing the solved puzzle": {
@@ -1237,9 +1147,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:346"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:346"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -1263,9 +1171,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Unmute assistant resulting in seeing the solved puzzle": {
@@ -1289,9 +1195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         }
       }
@@ -1317,9 +1221,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "ChessChoices",
@@ -1366,9 +1268,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:244"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:244"]
           }
         },
         "Returns to the puzzle board resulting in solving the puzzle after a correct continuation": {
@@ -1392,9 +1292,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         },
         "Time passes resulting in choosing chess play": {
@@ -1418,9 +1316,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Returns to the puzzle board resulting in solving the puzzle": {
@@ -1444,9 +1340,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         },
         "Returns to the puzzle board resulting in told the move is wrong": {
@@ -1470,9 +1364,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         },
         "Connection returns resulting in choosing chess play": {
@@ -1496,9 +1388,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Returns to the puzzle board resulting in solving the puzzle with the solution piece highlighted": {
@@ -1522,9 +1412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         },
         "Mute assistant resulting in choosing chess play": {
@@ -1548,9 +1436,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Unmute assistant resulting in choosing chess play": {
@@ -1574,9 +1460,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Returns to the puzzle board resulting in solving the puzzle while reviewing an earlier move": {
@@ -1600,9 +1484,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         },
         "Returns to the puzzle board resulting in solving the puzzle with a solution move shown": {
@@ -1626,9 +1508,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:232"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:232"]
           }
         }
       }
@@ -1654,9 +1534,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -1703,9 +1581,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Skips the puzzle resulting in seeing the skipped puzzle": {
@@ -1729,9 +1605,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:300"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:300"]
           }
         },
         "Connection returns resulting in solving the puzzle after a correct continuation": {
@@ -1755,9 +1629,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Try retry while solving resulting in solving the puzzle after a correct continuation": {
@@ -1781,9 +1653,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:382"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:382"]
           }
         },
         "Asks for the first hint resulting in solving the puzzle with the solution piece highlighted": {
@@ -1807,9 +1677,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:269"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:269"]
           }
         },
         "Shows the complete puzzle solution resulting in seeing the full solution": {
@@ -1833,9 +1701,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:293"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:293"]
           }
         },
         "Time passes resulting in solving the puzzle after a correct continuation": {
@@ -1859,9 +1725,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Suggest move resulting in solving the puzzle after a correct continuation": {
@@ -1885,9 +1749,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:413"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:413"]
           }
         },
         "Choose piece resulting in solving the puzzle after a correct continuation": {
@@ -1911,9 +1773,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:427"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:427"]
           }
         },
         "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
@@ -1937,9 +1797,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Plays a wrong puzzle move resulting in told the move is wrong": {
@@ -1963,9 +1821,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:256"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:256"]
           }
         },
         "Choose review position resulting in solving the puzzle after a correct continuation": {
@@ -1989,9 +1845,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Reopen app resulting in solving the puzzle after a correct continuation": {
@@ -2015,9 +1869,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Solves the puzzle resulting in seeing the solved puzzle": {
@@ -2041,9 +1893,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:249"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:249"]
           }
         },
         "Mute assistant resulting in solving the puzzle after a correct continuation": {
@@ -2067,9 +1917,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Unmute assistant resulting in solving the puzzle after a correct continuation": {
@@ -2093,9 +1941,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Try illegal move resulting in solving the puzzle after a correct continuation": {
@@ -2119,9 +1965,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:395"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:395"]
           }
         },
         "Try solution before hint resulting in solving the puzzle after a correct continuation": {
@@ -2145,9 +1989,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:388"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:388"]
           }
         },
         "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
@@ -2171,9 +2013,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         }
       }
@@ -2253,9 +2093,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Requests the next puzzle twice at once resulting in solving the puzzle": {
@@ -2279,9 +2117,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:321"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:321"]
           }
         },
         "Moves on to a different puzzle resulting in solving the puzzle": {
@@ -2305,9 +2141,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:314"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:314"]
           }
         },
         "Connection returns resulting in seeing the skipped puzzle": {
@@ -2331,9 +2165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Try hint after finish resulting in seeing the skipped puzzle": {
@@ -2357,9 +2189,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:334"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:334"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -2383,9 +2213,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Try show solution after finish resulting in seeing the skipped puzzle": {
@@ -2409,9 +2237,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:340"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:340"]
           }
         },
         "Unmute assistant resulting in seeing the skipped puzzle": {
@@ -2435,9 +2261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -2461,9 +2285,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Try review before retry resulting in seeing the skipped puzzle": {
@@ -2487,9 +2309,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:407"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:407"]
           }
         },
         "Mute assistant resulting in seeing the skipped puzzle": {
@@ -2513,9 +2333,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Time passes resulting in seeing the skipped puzzle": {
@@ -2539,9 +2357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Try move after finish resulting in seeing the skipped puzzle": {
@@ -2565,9 +2381,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:328"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:328"]
           }
         },
         "Try skip after finish resulting in seeing the skipped puzzle": {
@@ -2591,9 +2405,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:346"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:346"]
           }
         }
       }
@@ -2619,9 +2431,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -2668,9 +2478,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:293"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:293"]
           }
         },
         "Try retry while solving resulting in solving the puzzle with the solution piece highlighted": {
@@ -2694,9 +2502,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:382"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:382"]
           }
         },
         "Try earlier hint resulting in solving the puzzle with the solution piece highlighted": {
@@ -2720,9 +2526,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:401"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:401"]
           }
         },
         "Reopen app resulting in solving the puzzle with the solution piece highlighted": {
@@ -2746,9 +2550,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Try illegal move resulting in solving the puzzle with the solution piece highlighted": {
@@ -2772,9 +2574,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:395"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:395"]
           }
         },
         "Solves the puzzle resulting in seeing the solved puzzle": {
@@ -2798,9 +2598,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:249"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:249"]
           }
         },
         "Unmute assistant resulting in solving the puzzle with the solution piece highlighted": {
@@ -2824,9 +2622,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
@@ -2850,9 +2646,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:263"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:263"]
           }
         },
         "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
@@ -2876,9 +2670,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Plays a wrong puzzle move resulting in told the move is wrong": {
@@ -2902,9 +2694,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:256"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:256"]
           }
         },
         "Time passes resulting in solving the puzzle with the solution piece highlighted": {
@@ -2928,9 +2718,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Choose review position resulting in solving the puzzle with the solution piece highlighted": {
@@ -2954,9 +2742,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -2980,9 +2766,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Asks for the second hint resulting in solving the puzzle with a solution move shown": {
@@ -3006,9 +2790,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:275"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:275"]
           }
         },
         "Choose piece resulting in solving the puzzle with the solution piece highlighted": {
@@ -3032,9 +2814,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:427"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:427"]
           }
         },
         "Suggest move resulting in solving the puzzle with the solution piece highlighted": {
@@ -3058,9 +2838,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:413"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:413"]
           }
         },
         "Skips the puzzle resulting in seeing the skipped puzzle": {
@@ -3084,9 +2862,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:300"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:300"]
           }
         },
         "Connection returns resulting in solving the puzzle with the solution piece highlighted": {
@@ -3110,9 +2886,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Mute assistant resulting in solving the puzzle with the solution piece highlighted": {
@@ -3136,9 +2910,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
@@ -3162,9 +2934,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         }
       }
@@ -3244,9 +3014,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:346"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:346"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -3270,9 +3038,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Reopen app resulting in seeing the full solution": {
@@ -3296,9 +3062,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Connection returns resulting in seeing the full solution": {
@@ -3322,9 +3086,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Moves on to a different puzzle resulting in solving the puzzle": {
@@ -3348,9 +3110,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:314"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:314"]
           }
         },
         "Choose review position resulting in seeing the full solution while reviewing an earlier move": {
@@ -3374,9 +3134,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Requests the next puzzle twice at once resulting in solving the puzzle": {
@@ -3400,9 +3158,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:321"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:321"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -3426,9 +3182,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move": {
@@ -3452,9 +3206,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Time passes resulting in seeing the full solution": {
@@ -3478,9 +3230,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Try move after finish resulting in seeing the full solution": {
@@ -3504,9 +3254,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:328"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:328"]
           }
         },
         "Try hint after finish resulting in seeing the full solution": {
@@ -3530,9 +3278,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:334"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:334"]
           }
         },
         "Try show solution after finish resulting in seeing the full solution": {
@@ -3556,9 +3302,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:340"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:340"]
           }
         },
         "Mute assistant resulting in seeing the full solution": {
@@ -3582,9 +3326,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Unmute assistant resulting in seeing the full solution": {
@@ -3608,9 +3350,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Choose review position resulting in seeing the full solution": {
@@ -3634,9 +3374,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         }
       }
@@ -3662,9 +3400,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -3711,9 +3447,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         },
         "Unmute assistant resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3737,9 +3471,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -3763,9 +3495,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Choose review position resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3789,9 +3519,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Reopen app resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3815,9 +3543,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Mute assistant resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3841,9 +3567,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Time passes resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3867,9 +3591,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Choose review position resulting in seeing the solved puzzle": {
@@ -3893,9 +3615,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Try move after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3919,9 +3639,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:328"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:328"]
           }
         },
         "Reviews an earlier reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3945,9 +3663,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Try show solution after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3971,9 +3687,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:340"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:340"]
           }
         },
         "Reviews the next reached position resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -3997,9 +3711,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -4023,9 +3735,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Requests the next puzzle twice at once resulting in solving the puzzle": {
@@ -4049,9 +3759,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:321"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:321"]
           }
         },
         "Try hint after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -4075,9 +3783,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:334"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:334"]
           }
         },
         "Moves on to a different puzzle resulting in solving the puzzle": {
@@ -4101,9 +3807,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:314"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:314"]
           }
         },
         "Try skip after finish resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -4127,9 +3831,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:346"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:346"]
           }
         },
         "Connection returns resulting in seeing the solved puzzle while reviewing an earlier move": {
@@ -4153,9 +3855,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         }
       }
@@ -4235,9 +3935,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -4261,9 +3959,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -4287,9 +3983,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Try move before retry resulting in told the move is wrong": {
@@ -4313,9 +4007,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:376"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:376"]
           }
         },
         "Try review before retry resulting in told the move is wrong": {
@@ -4339,9 +4031,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:407"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:407"]
           }
         },
         "Skips the puzzle resulting in seeing the skipped puzzle": {
@@ -4365,9 +4055,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:300"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:300"]
           }
         },
         "Connection returns resulting in told the move is wrong": {
@@ -4391,9 +4079,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle after a correct continuation": {
@@ -4417,9 +4103,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Shows the complete puzzle solution resulting in seeing the full solution": {
@@ -4443,9 +4127,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:293"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:293"]
           }
         },
         "Try hint before retry resulting in told the move is wrong": {
@@ -4469,9 +4151,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:370"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:370"]
           }
         },
         "Mute assistant resulting in told the move is wrong": {
@@ -4495,9 +4175,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Time passes resulting in told the move is wrong": {
@@ -4521,9 +4199,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Unmute assistant resulting in told the move is wrong": {
@@ -4547,9 +4223,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         }
       }
@@ -4575,9 +4249,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -4624,9 +4296,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Try show solution after finish resulting in seeing the full solution while reviewing an earlier move": {
@@ -4650,9 +4320,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:340"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:340"]
           }
         },
         "Reviews the next reached position resulting in seeing the full solution": {
@@ -4676,9 +4344,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         },
         "Time passes resulting in seeing the full solution while reviewing an earlier move": {
@@ -4702,9 +4368,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Requests the next puzzle twice at once resulting in solving the puzzle": {
@@ -4728,9 +4392,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:321"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:321"]
           }
         },
         "Reviews the next reached position resulting in seeing the full solution while reviewing an earlier move": {
@@ -4754,9 +4416,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         },
         "Retries the same puzzle resulting in solving the puzzle": {
@@ -4780,9 +4440,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:307"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:307"]
           }
         },
         "Reopen app resulting in seeing the full solution while reviewing an earlier move": {
@@ -4806,9 +4464,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Moves on to a different puzzle resulting in solving the puzzle": {
@@ -4832,9 +4488,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:314"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:314"]
           }
         },
         "Choose review position resulting in seeing the full solution while reviewing an earlier move": {
@@ -4858,9 +4512,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Connection returns resulting in seeing the full solution while reviewing an earlier move": {
@@ -4884,9 +4536,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -4910,9 +4560,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Try move after finish resulting in seeing the full solution while reviewing an earlier move": {
@@ -4936,9 +4584,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:328"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:328"]
           }
         },
         "Choose review position resulting in seeing the full solution": {
@@ -4962,9 +4608,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Reviews an earlier reached position resulting in seeing the full solution while reviewing an earlier move": {
@@ -4988,9 +4632,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Try hint after finish resulting in seeing the full solution while reviewing an earlier move": {
@@ -5014,9 +4656,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:334"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:334"]
           }
         },
         "Try skip after finish resulting in seeing the full solution while reviewing an earlier move": {
@@ -5040,9 +4680,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:346"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:346"]
           }
         }
       }
@@ -5068,9 +4706,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -5117,9 +4753,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:358"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:358"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -5143,9 +4777,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         },
         "Try retry while solving resulting in solving the puzzle while reviewing an earlier move": {
@@ -5169,9 +4801,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:382"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:382"]
           }
         },
         "Skips the puzzle resulting in seeing the skipped puzzle": {
@@ -5195,9 +4825,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:300"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:300"]
           }
         },
         "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
@@ -5221,9 +4849,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Time passes resulting in solving the puzzle while reviewing an earlier move": {
@@ -5247,9 +4873,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Reviews the next reached position resulting in solving the puzzle after a correct continuation": {
@@ -5273,9 +4897,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         },
         "Connection returns resulting in solving the puzzle while reviewing an earlier move": {
@@ -5299,9 +4921,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:458"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:458"]
           }
         },
         "Try show solution from review resulting in solving the puzzle while reviewing an earlier move": {
@@ -5325,9 +4945,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:364"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:364"]
           }
         },
         "Reopen app resulting in solving the puzzle while reviewing an earlier move": {
@@ -5351,9 +4969,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Choose review position resulting in solving the puzzle while reviewing an earlier move": {
@@ -5377,9 +4993,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Try move from review resulting in solving the puzzle while reviewing an earlier move": {
@@ -5403,9 +5017,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:352"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:352"]
           }
         },
         "Choose review position resulting in solving the puzzle after a correct continuation": {
@@ -5429,9 +5041,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:419"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:419"]
           }
         },
         "Unmute assistant resulting in solving the puzzle while reviewing an earlier move": {
@@ -5455,9 +5065,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Mute assistant resulting in solving the puzzle while reviewing an earlier move": {
@@ -5481,9 +5089,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:469"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:469"]
           }
         },
         "Reviews the next reached position resulting in solving the puzzle while reviewing an earlier move": {
@@ -5507,9 +5113,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:287"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:287"]
           }
         }
       }
@@ -5535,9 +5139,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt.qnt"
-        ],
+        "source": ["specs/chess/puzzle-attempt.qnt"],
         "quintPredicates": [
           {
             "view.get(\"alice\")": "Board",
@@ -5584,9 +5186,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:249"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:249"]
           }
         },
         "Time passes resulting in solving the puzzle with a solution move shown": {
@@ -5610,9 +5210,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:433"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:433"]
           }
         },
         "Try retry while solving resulting in solving the puzzle with a solution move shown": {
@@ -5636,9 +5234,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:382"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:382"]
           }
         },
         "Plays a wrong puzzle move resulting in told the move is wrong": {
@@ -5662,9 +5258,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:256"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:256"]
           }
         },
         "Choose piece resulting in solving the puzzle with a solution move shown": {
@@ -5688,9 +5282,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:427"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:427"]
           }
         },
         "Unmute assistant resulting in solving the puzzle with a solution move shown": {
@@ -5714,9 +5306,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:479"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:479"]
           }
         },
         "Plays a correct continuation resulting in solving the puzzle after a correct continuation": {
@@ -5740,9 +5330,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:263"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:263"]
           }
         },
         "Reopen app resulting in solving the puzzle with a solution move shown": {
@@ -5766,9 +5354,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:438"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:438"]
           }
         },
         "Reviews an earlier reached position resulting in solving the puzzle while reviewing an earlier move": {
@@ -5792,9 +5378,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:281"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:281"]
           }
         },
         "Leaves the puzzle board resulting in choosing chess play": {
@@ -5818,9 +5402,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-attempt.qnt:238"
-            ]
+            "source": ["specs/chess/puzzle-attempt.qnt:238"]
           }
         }
       }

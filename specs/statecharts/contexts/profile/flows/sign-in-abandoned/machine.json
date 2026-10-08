@@ -18,22 +18,16 @@
         "description": "The person is at the place where abandon signing in.",
         "snapshot": "the-person-is-at-the-place-where-abandon-signing-in",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in-abandoned.feature:2"
-        ]
+        "source": ["specs/profile/sign-in-abandoned.feature:2"]
       },
       "on": {
         "Alice abandons signing in with Google": {
           "target": "Alice still has no account — 1",
           "meta": {
-            "source": [
-              "specs/profile/sign-in-abandoned.feature:9"
-            ],
+            "source": ["specs/profile/sign-in-abandoned.feature:9"],
             "condition": [
               "Alice is a guest",
               "Alice's username is @alice_guest"
@@ -44,9 +38,7 @@
         "Alice signs in with Google": {
           "target": "Alice has a signed-in account — 2",
           "meta": {
-            "source": [
-              "specs/profile/sign-in-abandoned.feature:16"
-            ],
+            "source": ["specs/profile/sign-in-abandoned.feature:16"],
             "condition": [
               "Alice is a guest",
               "Alice has abandoned signing in with Google"
@@ -67,9 +59,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in-abandoned.feature:9"
-        ],
+        "source": ["specs/profile/sign-in-abandoned.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -79,14 +69,10 @@
         "description": "The person observes that alice has a signed-in account.",
         "snapshot": "the-person-observes-that-alice-has-a-signed-in-account",
         "recognize": [],
-        "checks": [
-          "Alice has a signed-in account"
-        ],
+        "checks": ["Alice has a signed-in account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in-abandoned.feature:16"
-        ],
+        "source": ["specs/profile/sign-in-abandoned.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

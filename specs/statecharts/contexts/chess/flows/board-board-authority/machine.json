@@ -24,70 +24,48 @@
         "description": "The person is at the place where change chessboard settings safely.",
         "snapshot": "the-person-is-at-the-place-where-change-chessboard-settings-safely",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:2"
-        ]
+        "source": ["specs/chess-board/board-authority.feature:2"]
       },
       "on": {
         "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard": {
           "target": "Alice sees a White pawn on e4 — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:8"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:8"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An enabled chessboard accepts a legal move"
           }
         },
         "Alice's board settings disable interactivity when Alice is dragging the piece on e2": {
           "target": "Alice no longer holds a piece — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:15"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:15"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Disabling interactivity puts a held piece back"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has a chessboard with interactivity disabled": {
           "target": "Alice cannot move a piece while interactivity is disabled — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:22"
-            ],
-            "condition": [
-              "Alice has a chessboard with interactivity disabled"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:22"],
+            "condition": ["Alice has a chessboard with interactivity disabled"],
             "example": "A disabled chessboard refuses a move"
           }
         },
         "Alice's board settings disable interactivity when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice sees the White pawn remaining on a7 — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:29"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:29"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Disabling interactivity abandons a pending promotion choice"
           }
         },
         "Alice's board settings enable interactivity": {
           "target": "Alice can request promotion from a7 to a8 — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:36"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:36"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled"
             ],
@@ -97,45 +75,31 @@
         "Alice's activity replaces the position when Alice is dragging the piece on e2": {
           "target": "Alice no longer holds a piece — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:45"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:45"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "A replacement position puts a held piece back"
           }
         },
         "Alice's activity supplies the same position again": {
           "target": "Alice still has e2 selected — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:53"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:53"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Replacing the same position preserves selection"
           }
         },
         "Alice's activity replaces the position when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice sees the replacement position — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:59"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:59"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "A replacement position abandons a pending promotion choice"
           }
         },
         "Alice's activity replaces the position when Alice has a chessboard after White's move from e2 to e4 with e7 selected": {
           "target": "Alice sees the replacement position — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:66"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:66"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4 with e7 selected"
             ],
@@ -145,9 +109,7 @@
         "Alice's activity replaces the position when Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7": {
           "target": "Alice sees the replacement position — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:75"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:75"],
             "condition": [
               "Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7"
             ],
@@ -157,81 +119,55 @@
         "Alice changes the orientation": {
           "target": "Alice no longer holds a piece — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:84"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:84"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Turning a held chessboard puts the piece back"
           }
         },
         "Alice resizes the chessboard when Alice has selected the piece on e2": {
           "target": "Alice still has e2 selected — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:94"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:94"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "A resized chessboard keeps its selected piece"
           }
         },
         "Alice resizes the chessboard when Alice is dragging the piece on e2": {
           "target": "Alice no longer holds a piece — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:100"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:100"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Resizing while holding a piece cancels the drag"
           }
         },
         "Alice cancels the drag when Alice is dragging the piece on e2": {
           "target": "Alice no longer holds a piece — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:110"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:110"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Cancelling a held piece returns it to its square"
           }
         },
         "Alice switches away from the chessboard's activity": {
           "target": "Alice no longer holds a piece — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:118"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:118"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Switching away from the activity cancels a held piece"
           }
         },
         "Alice cancels the drag when Alice has an interactive chessboard": {
           "target": "Alice sees the White pawn remaining on e2 — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:125"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:125"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "Cancelling without a held piece preserves the position"
           }
         },
         "Alice's activity confirms the offered position": {
           "target": "Alice sees a White pawn on e4 — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:133"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:133"],
             "condition": [
               "Alice has a chessboard after offering White's move from e2 to e4"
             ],
@@ -241,9 +177,7 @@
         "Alice's activity refuses the offered move": {
           "target": "Alice sees White's offered move refused — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:141"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:141"],
             "condition": [
               "Alice has a chessboard after offering White's move from e2 to e4"
             ],
@@ -253,9 +187,7 @@
         "Alice's activity supplies Black's reply from e7 to e5": {
           "target": "Alice sees a Black pawn on e5 — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:152"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:152"],
             "condition": [
               "Alice has a chessboard after offering White's move from e2 to e4"
             ],
@@ -265,33 +197,23 @@
         "Alice's activity supplies an unusable position": {
           "target": "Alice still sees the position before White's first move — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:159"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:159"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An unusable supplied position keeps the last good position"
           }
         },
         "Alice's activity starts a chessboard with an unusable position": {
           "target": "Alice sees the position before White's first move — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:166"
-            ],
-            "condition": [
-              "Alice's activity has no chessboard yet"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:166"],
+            "condition": ["Alice's activity has no chessboard yet"],
             "example": "An unusable initial position starts normal chess"
           }
         },
         "Alice's board settings enable automatic queen promotion when Alice has a chessboard ready for White's promotion from a7 to a8": {
           "target": "Alice can request promotion from a7 to a8 automatically to a queen — 22",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:174"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:174"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8"
             ],
@@ -301,9 +223,7 @@
         "Alice's board settings disable automatic queen promotion": {
           "target": "Alice can request promotion from a7 to a8 with an explicit promotion choice — 23",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:180"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:180"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled"
             ],
@@ -313,12 +233,8 @@
         "Alice's board settings enable automatic queen promotion when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice is still offered queen, rook, bishop and knight as the promotion choice — 24",
           "meta": {
-            "source": [
-              "specs/chess-board/board-authority.feature:186"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-authority.feature:186"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Enabling automatic queen promotion preserves a pending explicit choice"
           }
         }
@@ -335,9 +251,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:8"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -354,9 +268,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:15"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -373,9 +285,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:22"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -392,9 +302,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:29"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -410,9 +318,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:36"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -429,9 +335,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:45"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -447,9 +351,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:53"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -466,9 +368,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:59"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -486,9 +386,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:66"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -504,9 +402,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:75"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:75"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -523,9 +419,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:84"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:84"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -541,9 +435,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:94"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:94"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -560,9 +452,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:100"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:100"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -579,9 +469,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:110"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:110"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -598,9 +486,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:118"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:118"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -616,9 +502,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:125"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:125"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -636,9 +520,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:133"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:133"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -656,9 +538,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:141"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:141"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -675,9 +555,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:152"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:152"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -694,9 +572,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:159"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:159"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -712,9 +588,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:166"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:166"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -730,9 +604,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:174"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:174"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -748,9 +620,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:180"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:180"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -767,9 +637,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-authority.feature:186"
-        ],
+        "source": ["specs/chess-board/board-authority.feature:186"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/multiplayer-spaces.qnt"
-    ],
+    "quint": ["specs/chess/multiplayer-spaces.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the multiplayer spaces view.",
         "snapshot": "the-person-is-opening-the-multiplayer-spaces-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-spaces.qnt"
-        ]
+        "source": ["specs/chess/multiplayer-spaces.qnt"]
       },
       "on": {
         "Opens with seeing multiplayer with no winner yet and allowed to play": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:28"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:28"]
           }
         }
       }
@@ -58,9 +50,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-spaces.qnt"
-        ],
+        "source": ["specs/chess/multiplayer-spaces.qnt"],
         "quintPredicates": [
           {
             "shownWinner.get(\"alice\")": "nobody",
@@ -94,9 +84,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:35"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:35"]
           }
         },
         "Play move resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -118,9 +106,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Lose connection resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -142,9 +128,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:60"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:60"]
           }
         },
         "Open multiplayer resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -166,9 +150,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:44"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:44"]
           }
         },
         "Play move resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -190,9 +172,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Resign play resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -214,9 +194,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         },
         "Leave space resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -238,9 +216,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:40"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:40"]
           }
         },
         "Resign play resulting in seeing multiplayer won by bob and unable to play": {
@@ -262,9 +238,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         },
         "Come back online resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -286,9 +260,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:65"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:65"]
           }
         },
         "Resign play resulting in seeing multiplayer won by alice and unable to play": {
@@ -310,9 +282,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         }
       }
@@ -329,9 +299,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-spaces.qnt"
-        ],
+        "source": ["specs/chess/multiplayer-spaces.qnt"],
         "quintPredicates": [
           {
             "shownWinner.get(\"alice\")": "nobody",
@@ -365,9 +333,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Resign play resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -389,9 +355,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         },
         "Open multiplayer resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -413,9 +377,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:44"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:44"]
           }
         },
         "Come back online resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -437,9 +399,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:65"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:65"]
           }
         },
         "Lose connection resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -461,9 +421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:60"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:60"]
           }
         },
         "Leave space resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -485,9 +443,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:40"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:40"]
           }
         },
         "Play move resulting in seeing multiplayer with no winner yet and allowed to play": {
@@ -509,9 +465,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Join space resulting in seeing multiplayer with no winner yet and unable to play": {
@@ -533,9 +487,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:35"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:35"]
           }
         }
       }
@@ -552,9 +504,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-spaces.qnt"
-        ],
+        "source": ["specs/chess/multiplayer-spaces.qnt"],
         "quintPredicates": [
           {
             "shownWinner.get(\"alice\")": "bob",
@@ -589,9 +539,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:44"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:44"]
           }
         },
         "Resign play resulting in seeing multiplayer won by bob and unable to play": {
@@ -613,9 +561,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         },
         "Play move resulting in seeing multiplayer won by bob and unable to play": {
@@ -637,9 +583,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Come back online resulting in seeing multiplayer won by bob and unable to play": {
@@ -661,9 +605,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:65"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:65"]
           }
         },
         "Lose connection resulting in seeing multiplayer won by bob and unable to play": {
@@ -685,9 +627,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:60"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:60"]
           }
         },
         "Leave space resulting in seeing multiplayer won by bob and unable to play": {
@@ -709,9 +649,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:40"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:40"]
           }
         },
         "Join space resulting in seeing multiplayer won by bob and unable to play": {
@@ -733,9 +671,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:35"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:35"]
           }
         }
       }
@@ -752,9 +688,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-spaces.qnt"
-        ],
+        "source": ["specs/chess/multiplayer-spaces.qnt"],
         "quintPredicates": [
           {
             "shownWinner.get(\"alice\")": "alice",
@@ -789,9 +723,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:46"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:46"]
           }
         },
         "Come back online resulting in seeing multiplayer won by alice and unable to play": {
@@ -813,9 +745,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:65"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:65"]
           }
         },
         "Lose connection resulting in seeing multiplayer won by alice and unable to play": {
@@ -837,9 +767,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:60"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:60"]
           }
         },
         "Open multiplayer resulting in seeing multiplayer won by alice and unable to play": {
@@ -861,9 +789,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:44"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:44"]
           }
         },
         "Resign play resulting in seeing multiplayer won by alice and unable to play": {
@@ -885,9 +811,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:54"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:54"]
           }
         },
         "Leave space resulting in seeing multiplayer won by alice and unable to play": {
@@ -909,9 +833,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:40"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:40"]
           }
         },
         "Join space resulting in seeing multiplayer won by alice and unable to play": {
@@ -933,9 +855,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/multiplayer-spaces.qnt:35"
-            ]
+            "source": ["specs/chess/multiplayer-spaces.qnt:35"]
           }
         }
       }

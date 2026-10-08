@@ -31,143 +31,100 @@
         "description": "The person is using a Chess surface.",
         "snapshot": "the-person-is-using-a-chess-surface",
         "recognize": [],
-        "checks": [
-          "The person is using a Chess surface."
-        ],
+        "checks": ["The person is using a Chess surface."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/README.md:1100"
-        ]
+        "source": ["specs/README.md:1100"]
       },
       "on": {
         "SignedIn": {
           "target": "Seeing account-bound choices become available only where the current permission decision allows them",
           "meta": {
-            "source": [
-              "specs/profile/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "SignedOut": {
           "target": "Seeing account-only choices are denied and the person sees the current identity",
           "meta": {
-            "source": [
-              "specs/profile/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "UsernameChanged": {
           "target": "Seeing the person’s current name replaces their earlier name on affected public surfaces",
           "meta": {
-            "source": [
-              "specs/profile/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "AccountDeletionConfirmed": {
           "target": "Seeing the deleted account cannot be used or shown; retained legal records confer no access",
           "meta": {
-            "source": [
-              "specs/profile/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PaidAccessStarted": {
           "target": "Seeing the next permission decision recognizes paid access",
           "meta": {
-            "source": [
-              "specs/billing/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PaidAccessEnded": {
           "target": "Seeing the next permission decision recognizes free limits; an already started puzzle may finish",
           "meta": {
-            "source": [
-              "specs/billing/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "SpaceOpened": {
           "target": "Seeing an open space becomes visible only to people entitled to find it",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PersonJoined": {
           "target": "Seeing current presence changes for people who can view that space",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PersonLeft": {
           "target": "Seeing the person no longer appears as present in that space",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "SpaceEnded": {
           "target": "Seeing the ended space is removed from live choices and an open participant view shows it ended",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "BecameFriends": {
           "target": "Seeing the new friendship appears and may make a friend’s open space discoverable",
           "meta": {
-            "source": [
-              "specs/friends/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "FriendshipEnded": {
           "target": "Seeing the relationship and any friend-derived discoverability are recomputed",
           "meta": {
-            "source": [
-              "specs/friends/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "MatchFormed": {
           "target": "Seeing the same complete match gives its participants one private multiplayer game",
           "meta": {
-            "source": [
-              "specs/matchmaking/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/matchmaking/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         }
@@ -183,19 +140,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -211,19 +163,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -239,19 +186,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -267,19 +209,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/profile/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -290,24 +227,17 @@
         "description": "The person sees that the next permission decision recognizes paid access.",
         "snapshot": "the-person-sees-that-the-next-permission-decision-recognizes-paid-access",
         "recognize": [],
-        "checks": [
-          "The next permission decision recognizes paid access."
-        ],
+        "checks": ["The next permission decision recognizes paid access."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -323,19 +253,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/billing/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -351,19 +276,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -379,19 +299,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -402,24 +317,17 @@
         "description": "The person sees that the person no longer appears as present in that space.",
         "snapshot": "the-person-sees-that-the-person-no-longer-appears-as-present-in-that-space",
         "recognize": [],
-        "checks": [
-          "The person no longer appears as present in that space."
-        ],
+        "checks": ["The person no longer appears as present in that space."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -435,19 +343,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -463,19 +366,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -491,19 +389,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -519,19 +412,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/matchmaking/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Chess with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }

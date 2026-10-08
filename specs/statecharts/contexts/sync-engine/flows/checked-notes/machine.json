@@ -18,22 +18,16 @@
         "description": "The person is at the place where checked notes.",
         "snapshot": "the-person-is-at-the-place-where-checked-notes",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:2"
-        ]
+        "source": ["specs/sync-engine/checked-notes.feature:2"]
       },
       "on": {
         "Alice writes the checked note 'Groceries' saying 'milk' when A checked note shows at once and is saving": {
           "target": "Alice sees the note \"Groceries\" at once — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/checked-notes.feature:10"
-            ],
+            "source": ["specs/sync-engine/checked-notes.feature:10"],
             "condition": [],
             "example": "A checked note shows at once and is saving"
           }
@@ -41,9 +35,7 @@
         "Alice writes the checked note 'Groceries' saying 'milk' when A checked note is saved once it is kept for everyone": {
           "target": "Alice's app says the note \"Groceries\" is saved — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/checked-notes.feature:16"
-            ],
+            "source": ["specs/sync-engine/checked-notes.feature:16"],
             "condition": [],
             "example": "A checked note is saved once it is kept for everyone"
           }
@@ -51,9 +43,7 @@
         "Alice writes the checked note 'Groceries' saying 'refused' when Alice and Bob have slow connections and Alice has written the checked note 'Groceries' saying 'milk' and the note 'Groceries' has reached Bob and Alice's app will not hear back about its next save": {
           "target": "Bob never sees the note \"Groceries\" saying \"refused\" — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/checked-notes.feature:24"
-            ],
+            "source": ["specs/sync-engine/checked-notes.feature:24"],
             "condition": [
               "Alice and Bob have slow connections",
               "Alice has written the checked note \"Groceries\" saying \"milk\"",
@@ -66,9 +56,7 @@
         "Alice writes the checked note 'Groceries' saying 'refused' when A checked note that breaks the rule is refused": {
           "target": "Alice's app says the note \"Groceries\" was refused — 4",
           "meta": {
-            "source": [
-              "specs/sync-engine/checked-notes.feature:33"
-            ],
+            "source": ["specs/sync-engine/checked-notes.feature:33"],
             "condition": [],
             "example": "A checked note that breaks the rule is refused"
           }
@@ -76,9 +64,7 @@
         "Alice writes the checked note 'Groceries' saying 'refused' when Alice has written the checked note 'Groceries' saying 'milk'": {
           "target": "the moment Alice's app says the note \"Groceries\" was refused, it shows the note saying \"milk\" — 5",
           "meta": {
-            "source": [
-              "specs/sync-engine/checked-notes.feature:40"
-            ],
+            "source": ["specs/sync-engine/checked-notes.feature:40"],
             "condition": [
               "Alice has written the checked note \"Groceries\" saying \"milk\""
             ],
@@ -98,9 +84,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:10"
-        ],
+        "source": ["specs/sync-engine/checked-notes.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -116,9 +100,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:16"
-        ],
+        "source": ["specs/sync-engine/checked-notes.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -128,14 +110,10 @@
         "description": "The person observes that bob never sees the note \"Groceries\" saying \"refused\".",
         "snapshot": "the-person-observes-that-bob-never-sees-the-note-groceries-saying-refused",
         "recognize": [],
-        "checks": [
-          "Bob never sees the note \"Groceries\" saying \"refused\""
-        ],
+        "checks": ["Bob never sees the note \"Groceries\" saying \"refused\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:24"
-        ],
+        "source": ["specs/sync-engine/checked-notes.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -152,9 +130,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:33"
-        ],
+        "source": ["specs/sync-engine/checked-notes.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -170,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/checked-notes.feature:40"
-        ],
+        "source": ["specs/sync-engine/checked-notes.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

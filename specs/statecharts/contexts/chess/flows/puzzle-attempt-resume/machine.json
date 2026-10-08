@@ -24,22 +24,16 @@
         "description": "The person is at the place where a puzzle attempt survives leaving the puzzle and closing the app.",
         "snapshot": "the-person-is-at-the-place-where-a-puzzle-attempt-survives-leaving-the-puzzle-and-clo",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-attempt-resume.feature:2"]
       },
       "on": {
         "Alice goes back to the puzzles when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move and Alice has left the puzzle for the chess choices": {
           "target": "Alice is on the same puzzle as before — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:12"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:12"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -52,9 +46,7 @@
         "Alice returns to their space": {
           "target": "Alice is asked to find the next move within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:19"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:19"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -66,9 +58,7 @@
         "Alice goes back to the puzzles when Alice is signed in and Alice is playing puzzles in their space and Alice has solved the puzzle and Alice has left the puzzle for the chess choices": {
           "target": "Alice is solving a different puzzle than the one before — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:25"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:25"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -81,9 +71,7 @@
         "Alice asks for the next puzzle twice in quick succession": {
           "target": "Alice is solving a different puzzle than the one before — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:35"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:35"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -95,9 +83,7 @@
         "Alice moves on to the next puzzle": {
           "target": "Alice is solving a different puzzle than the one before — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:40"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:40"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -110,9 +96,7 @@
         "Alice solves the puzzle": {
           "target": "Alice is on a different puzzle than the one before within 5 seconds — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:49"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:49"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -124,9 +108,7 @@
         "Alice goes back from the chess choices to the game choice": {
           "target": "Alice sees the space's game choice — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:58"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:58"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -138,9 +120,7 @@
         "Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by solving it cleanly": {
           "target": "Alice's puzzle remains solved — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:66"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -152,9 +132,7 @@
         "Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by showing the solution": {
           "target": "Alice's puzzle remains revealed — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:66"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -166,9 +144,7 @@
         "Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by skipping it": {
           "target": "Alice's puzzle remains skipped — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:66"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -180,9 +156,7 @@
         "Alice reopens the app on the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move": {
           "target": "Alice's puzzle remains wrong — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-attempt-resume.feature:77"
-            ],
+            "source": ["specs/chess/puzzle-attempt-resume.feature:77"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -204,9 +178,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:12"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -222,9 +194,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:19"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -240,9 +210,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:25"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -252,14 +220,10 @@
         "description": "The person observes that alice is solving a different puzzle than the one before.",
         "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
         "recognize": [],
-        "checks": [
-          "Alice is solving a different puzzle than the one before"
-        ],
+        "checks": ["Alice is solving a different puzzle than the one before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:35"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -269,14 +233,10 @@
         "description": "The person observes that alice is solving a different puzzle than the one before.",
         "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
         "recognize": [],
-        "checks": [
-          "Alice is solving a different puzzle than the one before"
-        ],
+        "checks": ["Alice is solving a different puzzle than the one before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:40"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -292,9 +252,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:49"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -304,14 +262,10 @@
         "description": "The person observes that alice sees the space's game choice.",
         "snapshot": "the-person-observes-that-alice-sees-the-space-s-game-choice",
         "recognize": [],
-        "checks": [
-          "Alice sees the space's game choice"
-        ],
+        "checks": ["Alice sees the space's game choice"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:58"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -321,14 +275,10 @@
         "description": "The person observes that alice's puzzle remains solved.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-remains-solved",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle remains solved"
-        ],
+        "checks": ["Alice's puzzle remains solved"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:66"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -338,14 +288,10 @@
         "description": "The person observes that alice's puzzle remains revealed.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-remains-revealed",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle remains revealed"
-        ],
+        "checks": ["Alice's puzzle remains revealed"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:66"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -355,14 +301,10 @@
         "description": "The person observes that alice's puzzle remains skipped.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-remains-skipped",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle remains skipped"
-        ],
+        "checks": ["Alice's puzzle remains skipped"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:66"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -372,14 +314,10 @@
         "description": "The person observes that alice's puzzle remains wrong.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-remains-wrong",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle remains wrong"
-        ],
+        "checks": ["Alice's puzzle remains wrong"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-attempt-resume.feature:77"
-        ],
+        "source": ["specs/chess/puzzle-attempt-resume.feature:77"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

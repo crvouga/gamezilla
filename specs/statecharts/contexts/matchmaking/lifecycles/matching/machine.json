@@ -6,14 +6,10 @@
     "kind": "lifecycle",
     "owner": "Matchmaking owner (not named in specs)",
     "tier": "critical",
-    "emits": [
-      "MatchFormed"
-    ],
+    "emits": ["MatchFormed"],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/matchmaking/matching.qnt"
-    ],
+    "quint": ["specs/matchmaking/matching.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
     "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
   },
@@ -23,14 +19,10 @@
         "description": "The person is opening the matching view.",
         "snapshot": "the-person-is-opening-the-matching-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/matching.qnt"
-        ]
+        "source": ["specs/matchmaking/matching.qnt"]
       },
       "on": {
         "Opens with not looking for a match": {
@@ -42,9 +34,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:156"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:156"]
           }
         }
       }
@@ -71,9 +61,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/matching.qnt"
-        ],
+        "source": ["specs/matchmaking/matching.qnt"],
         "quintPredicates": [
           {
             "standing.get(alice phone)": "NotWaiting"
@@ -192,9 +180,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:224"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:224"]
           }
         },
         "Stop waiting resulting in not looking for a match": {
@@ -292,9 +278,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:214"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:214"]
           }
         },
         "Seconds pass resulting in not looking for a match": {
@@ -392,9 +376,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:321"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:321"]
           }
         },
         "Allow pair resulting in not looking for a match": {
@@ -492,9 +474,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:333"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:333"]
           }
         },
         "Pair up resulting in not looking for a match": {
@@ -592,9 +572,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:266"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:266"]
           }
         },
         "Restrict pair resulting in not looking for a match": {
@@ -692,9 +670,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:327"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:327"]
           }
         },
         "Become available resulting in not looking for a match": {
@@ -792,9 +768,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:317"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:317"]
           }
         },
         "Wait for match resulting in waiting for a match": {
@@ -892,9 +866,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:182"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:182"]
           }
         },
         "Wait for match resulting in not looking for a match": {
@@ -992,9 +964,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:182"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:182"]
           }
         },
         "Lose connection resulting in not looking for a match": {
@@ -1092,9 +1062,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:339"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:339"]
           }
         },
         "Come back online resulting in not looking for a match": {
@@ -1192,9 +1160,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:351"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:351"]
           }
         },
         "Repeat request resulting in not looking for a match": {
@@ -1292,9 +1258,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:208"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:208"]
           }
         },
         "Become unavailable resulting in not looking for a match": {
@@ -1392,9 +1356,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:309"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:309"]
           }
         },
         "Repeat range change resulting in not looking for a match": {
@@ -1492,9 +1454,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:232"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:232"]
           }
         }
       }
@@ -1521,9 +1481,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/matching.qnt"
-        ],
+        "source": ["specs/matchmaking/matching.qnt"],
         "quintPredicates": [
           {
             "standing.get(alice phone)": "Waiting"
@@ -1642,9 +1600,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:266"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:266"]
           }
         },
         "Stop waiting resulting in waiting for a match": {
@@ -1742,9 +1698,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:214"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:214"]
           }
         },
         "Change range resulting in waiting for a match": {
@@ -1842,9 +1796,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:224"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:224"]
           }
         },
         "Seconds pass resulting in waiting for a match": {
@@ -1942,9 +1894,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:321"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:321"]
           }
         },
         "Lose connection resulting in waiting for a match": {
@@ -2042,9 +1992,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:339"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:339"]
           }
         },
         "Restrict pair resulting in waiting for a match": {
@@ -2142,9 +2090,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:327"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:327"]
           }
         },
         "Become available resulting in waiting for a match": {
@@ -2242,9 +2188,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:317"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:317"]
           }
         },
         "Wait for match resulting in waiting for a match": {
@@ -2342,9 +2286,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:182"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:182"]
           }
         },
         "Allow pair resulting in waiting for a match": {
@@ -2442,9 +2384,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:333"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:333"]
           }
         },
         "Repeat request resulting in waiting for a match": {
@@ -2542,9 +2482,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:208"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:208"]
           }
         },
         "Come back online resulting in waiting for a match": {
@@ -2642,9 +2580,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:351"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:351"]
           }
         },
         "Repeat range change resulting in waiting for a match": {
@@ -2742,9 +2678,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:232"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:232"]
           }
         },
         "Stop waiting resulting in not looking for a match": {
@@ -2842,9 +2776,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:214"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:214"]
           }
         },
         "Pair up resulting in seeing a complete match": {
@@ -2901,11 +2833,7 @@
                 "first": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "alice",
-                      "bob",
-                      "carol"
-                    ]
+                    "#set": ["alice", "bob", "carol"]
                   }
                 },
                 "groupSize": {
@@ -2946,9 +2874,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:266"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:266"]
           }
         },
         "Become unavailable resulting in waiting for a match": {
@@ -3046,9 +2972,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:309"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:309"]
           }
         },
         "Become unavailable resulting in not looking for a match": {
@@ -3146,9 +3070,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:309"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:309"]
           }
         }
       }
@@ -3175,9 +3097,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/matching.qnt"
-        ],
+        "source": ["specs/matchmaking/matching.qnt"],
         "quintPredicates": [
           {
             "standing.get(alice phone)": "Matched"
@@ -3296,9 +3216,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:321"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:321"]
           }
         },
         "Allow pair resulting in seeing a complete match": {
@@ -3396,9 +3314,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:333"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:333"]
           }
         },
         "Pair up resulting in seeing a complete match": {
@@ -3496,9 +3412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:266"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:266"]
           }
         },
         "Stop waiting resulting in seeing a complete match": {
@@ -3596,9 +3510,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:214"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:214"]
           }
         },
         "Wait for match resulting in waiting for a match": {
@@ -3696,9 +3608,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:182"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:182"]
           }
         },
         "Lose connection resulting in seeing a complete match": {
@@ -3796,9 +3706,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:339"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:339"]
           }
         },
         "Restrict pair resulting in seeing a complete match": {
@@ -3896,9 +3804,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:327"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:327"]
           }
         },
         "Become available resulting in seeing a complete match": {
@@ -3996,9 +3902,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:317"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:317"]
           }
         },
         "Repeat request resulting in seeing a complete match": {
@@ -4096,9 +4000,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:208"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:208"]
           }
         },
         "Change range resulting in seeing a complete match": {
@@ -4196,9 +4098,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:224"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:224"]
           }
         },
         "Wait for match resulting in seeing a complete match": {
@@ -4296,9 +4196,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:182"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:182"]
           }
         },
         "Come back online resulting in seeing a complete match": {
@@ -4396,9 +4294,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:351"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:351"]
           }
         },
         "Become unavailable resulting in seeing a complete match": {
@@ -4496,9 +4392,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:309"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:309"]
           }
         },
         "Repeat range change resulting in seeing a complete match": {
@@ -4596,9 +4490,7 @@
                 }
               }
             },
-            "source": [
-              "specs/matchmaking/matching.qnt:232"
-            ]
+            "source": ["specs/matchmaking/matching.qnt:232"]
           }
         }
       }

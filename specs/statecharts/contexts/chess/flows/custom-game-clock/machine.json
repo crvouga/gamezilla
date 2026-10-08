@@ -24,22 +24,16 @@
         "description": "The person is at the place where the Custom Game clock.",
         "snapshot": "the-person-is-at-the-place-where-the-custom-game-clock",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-clock.feature:2"]
       },
       "on": {
         "Alice chooses 180 minutes with 60 seconds increment for the Custom Game": {
           "target": "The Custom Game has 180 minutes with 60 seconds increment — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:7"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -49,9 +43,7 @@
         "Alice chooses 0 minutes with 0 seconds increment for the Custom Game": {
           "target": "Alice is told the time choice is outside the Custom Game limits — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:12"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -61,9 +53,7 @@
         "Alice chooses 181 minutes with 0 seconds increment for the Custom Game": {
           "target": "Alice is told the time choice is outside the Custom Game limits — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:12"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -73,9 +63,7 @@
         "Alice chooses 1 minutes with -1 seconds increment for the Custom Game": {
           "target": "Alice is told the time choice is outside the Custom Game limits — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:12"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -85,9 +73,7 @@
         "Alice chooses 1 minutes with 61 seconds increment for the Custom Game": {
           "target": "Alice is told the time choice is outside the Custom Game limits — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:12"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -97,9 +83,7 @@
         "Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game with 1 minute and 2 seconds increment and 5 seconds have passed in the Custom Game": {
           "target": "White has 57 seconds and Black has 60 seconds in the Custom Game — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:26"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:26"],
             "condition": [
               "Alice has an active Custom Game with 1 minute and 2 seconds increment",
               "5 seconds have passed in the Custom Game"
@@ -110,9 +94,7 @@
         "Bob plays e7-e5 in the Custom Game": {
           "target": "Bob is told only the participant to move may play — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:32"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:32"],
             "condition": [
               "Alice has an active Custom Game with 1 minute and 2 seconds increment",
               "5 seconds have passed in the Custom Game"
@@ -123,9 +105,7 @@
         "60 seconds pass": {
           "target": "Bob wins the Custom Game on time — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:41"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:41"],
             "condition": [
               "Alice has an active Custom Game with 1 minute and 0 seconds increment"
             ],
@@ -135,9 +115,7 @@
         "Alice plays e2-e4 in the Custom Game when Alice has an active Custom Game with 1 minute and 0 seconds increment and White's time has run out in the Custom Game": {
           "target": "Alice is told the Custom Game has finished — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:46"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:46"],
             "condition": [
               "Alice has an active Custom Game with 1 minute and 0 seconds increment",
               "White's time has run out in the Custom Game"
@@ -148,9 +126,7 @@
         "Alice chooses an untimed Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and The Custom Game has a timed choice": {
           "target": "The Custom Game is unrated and untimed — 10",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:55"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:55"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "The Custom Game has a timed choice"
@@ -161,9 +137,7 @@
         "Alice chooses an untimed Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told the Custom Game has already started — 11",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-clock.feature:61"
-            ],
+            "source": ["specs/chess/custom-game-clock.feature:61"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -177,14 +151,10 @@
         "description": "The person observes that the Custom Game has 180 minutes with 60 seconds increment.",
         "snapshot": "the-person-observes-that-the-custom-game-has-180-minutes-with-60-seconds-increment",
         "recognize": [],
-        "checks": [
-          "The Custom Game has 180 minutes with 60 seconds increment"
-        ],
+        "checks": ["The Custom Game has 180 minutes with 60 seconds increment"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -199,9 +169,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -216,9 +184,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -233,9 +199,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -250,9 +214,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -267,9 +229,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:26"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -285,9 +245,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:32"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -297,14 +255,10 @@
         "description": "The person observes that bob wins the Custom Game on time.",
         "snapshot": "the-person-observes-that-bob-wins-the-custom-game-on-time",
         "recognize": [],
-        "checks": [
-          "Bob wins the Custom Game on time"
-        ],
+        "checks": ["Bob wins the Custom Game on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:41"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -320,9 +274,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:46"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -332,14 +284,10 @@
         "description": "The person observes that the Custom Game is unrated and untimed.",
         "snapshot": "the-person-observes-that-the-custom-game-is-unrated-and-untimed",
         "recognize": [],
-        "checks": [
-          "The Custom Game is unrated and untimed"
-        ],
+        "checks": ["The Custom Game is unrated and untimed"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:55"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:55"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -349,14 +297,10 @@
         "description": "The person observes that alice is told the Custom Game has already started.",
         "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-has-already-started",
         "recognize": [],
-        "checks": [
-          "Alice is told the Custom Game has already started"
-        ],
+        "checks": ["Alice is told the Custom Game has already started"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-clock.feature:61"
-        ],
+        "source": ["specs/chess/custom-game-clock.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

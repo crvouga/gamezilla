@@ -24,46 +24,32 @@
         "description": "The person is at the place where what the billing plans offer.",
         "snapshot": "the-person-is-at-the-place-where-what-the-billing-plans-offer",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans.feature:2"
-        ]
+        "source": ["specs/billing/billing-plans.feature:2"]
       },
       "on": {
         "Alice views the billing plans when Alice has subscribed to Plus": {
           "target": "Alice is offered to manage their membership — 1",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans.feature:11"
-            ],
-            "condition": [
-              "Alice has subscribed to Plus"
-            ],
+            "source": ["specs/billing/billing-plans.feature:11"],
+            "condition": ["Alice has subscribed to Plus"],
             "example": "A Plus member is offered to manage their membership, not to subscribe again"
           }
         },
         "Alice leaves checkout without paying": {
           "target": "Alice has free access — 2",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans.feature:17"
-            ],
-            "condition": [
-              "Alice is signed in with Google"
-            ],
+            "source": ["specs/billing/billing-plans.feature:17"],
+            "condition": ["Alice is signed in with Google"],
             "example": "Leaving checkout without paying keeps free access"
           }
         },
         "Alice subscribes to Plus": {
           "target": "Alice's other device has paid access within 30 seconds — 3",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans.feature:23"
-            ],
+            "source": ["specs/billing/billing-plans.feature:23"],
             "condition": [
               "Alice is signed in with Google",
               "Alice is also signed in on another device"
@@ -74,13 +60,8 @@
         "Alice views the billing plans when Alice is signed in with Google and Alice is offline": {
           "target": "Alice is told subscribing needs a connection — 4",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans.feature:29"
-            ],
-            "condition": [
-              "Alice is signed in with Google",
-              "Alice is offline"
-            ],
+            "source": ["specs/billing/billing-plans.feature:29"],
+            "condition": ["Alice is signed in with Google", "Alice is offline"],
             "example": "Subscribing needs a connection and says so"
           }
         }
@@ -97,9 +78,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans.feature:11"
-        ],
+        "source": ["specs/billing/billing-plans.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -109,15 +88,10 @@
         "description": "The person observes that alice has free access.",
         "snapshot": "the-person-observes-that-alice-has-free-access",
         "recognize": [],
-        "checks": [
-          "Alice has free access",
-          "Alice is offered to subscribe"
-        ],
+        "checks": ["Alice has free access", "Alice is offered to subscribe"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans.feature:17"
-        ],
+        "source": ["specs/billing/billing-plans.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -127,14 +101,10 @@
         "description": "The person observes that alice's other device has paid access within 30 seconds.",
         "snapshot": "the-person-observes-that-alice-s-other-device-has-paid-access-within-30-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's other device has paid access within 30 seconds"
-        ],
+        "checks": ["Alice's other device has paid access within 30 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans.feature:23"
-        ],
+        "source": ["specs/billing/billing-plans.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -144,14 +114,10 @@
         "description": "The person observes that alice is told subscribing needs a connection.",
         "snapshot": "the-person-observes-that-alice-is-told-subscribing-needs-a-connection",
         "recognize": [],
-        "checks": [
-          "Alice is told subscribing needs a connection"
-        ],
+        "checks": ["Alice is told subscribing needs a connection"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans.feature:29"
-        ],
+        "source": ["specs/billing/billing-plans.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

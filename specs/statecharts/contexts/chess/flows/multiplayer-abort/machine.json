@@ -24,22 +24,16 @@
         "description": "The person is at the place where abort a multiplayer game before it begins.",
         "snapshot": "the-person-is-at-the-place-where-abort-a-multiplayer-game-before-it-begins",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-abort.feature:2"]
       },
       "on": {
         "Bob aborts the multiplayer game": {
           "target": "both people see the multiplayer game was aborted — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:8"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:8"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -49,21 +43,15 @@
         "Alice aborts the multiplayer game when Alice's multiplayer move e2 to e4 was accepted": {
           "target": "both people see the multiplayer game was aborted — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:13"
-            ],
-            "condition": [
-              "Alice's multiplayer move e2 to e4 was accepted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:13"],
+            "condition": ["Alice's multiplayer move e2 to e4 was accepted"],
             "example": "White aborts after her first move but before Black's"
           }
         },
         "Alice aborts the multiplayer game when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5": {
           "target": "Alice is told the multiplayer game can no longer be aborted — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:18"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:18"],
             "condition": [
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5"
             ],
@@ -73,21 +61,15 @@
         "Alice aborts the multiplayer game when Bob resigned multiplayer chess and Alice won": {
           "target": "Alice is told the multiplayer game is over — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:24"
-            ],
-            "condition": [
-              "Bob resigned multiplayer chess and Alice won"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:24"],
+            "condition": ["Bob resigned multiplayer chess and Alice won"],
             "example": "A game that is over cannot be aborted"
           }
         },
         "Bob resigns multiplayer chess when Alice is White and Bob is Black in a new multiplayer game": {
           "target": "Bob is told to abort the multiplayer game instead — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:32"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:32"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -97,21 +79,15 @@
         "Bob resigns multiplayer chess when Alice's multiplayer move e2 to e4 was accepted": {
           "target": "Bob is told to abort the multiplayer game instead — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:38"
-            ],
-            "condition": [
-              "Alice's multiplayer move e2 to e4 was accepted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:38"],
+            "condition": ["Alice's multiplayer move e2 to e4 was accepted"],
             "example": "Black cannot resign after only White's first move"
           }
         },
         "Bob resigns multiplayer chess when Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5": {
           "target": "both people see Alice won the multiplayer game — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:44"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:44"],
             "condition": [
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5"
             ],
@@ -121,9 +97,7 @@
         "30 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new multiplayer game": {
           "target": "both people see the multiplayer game was aborted — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:51"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:51"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -133,21 +107,15 @@
         "30 seconds pass in multiplayer chess when Alice's multiplayer move e2 to e4 was accepted": {
           "target": "both people see the multiplayer game was aborted — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:56"
-            ],
-            "condition": [
-              "Alice's multiplayer move e2 to e4 was accepted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:56"],
+            "condition": ["Alice's multiplayer move e2 to e4 was accepted"],
             "example": "Black misses the first move 30 seconds after White's"
           }
         },
         "29 seconds pass in multiplayer chess when Alice is White and Bob is Black in a new multiplayer game": {
           "target": "the multiplayer game is still unfinished — 10",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:61"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:61"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -157,9 +125,7 @@
         "29 seconds pass in multiplayer chess when Alice's multiplayer move e2 to e4 was accepted 25 seconds after the game started": {
           "target": "the multiplayer game is still unfinished — 11",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:66"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:66"],
             "condition": [
               "Alice's multiplayer move e2 to e4 was accepted 25 seconds after the game started"
             ],
@@ -169,9 +135,7 @@
         "30 seconds pass in multiplayer chess when Alice is White in a new 5+0 multiplayer game with Bob and her phone has been offline since they were matched": {
           "target": "both people see the multiplayer game was aborted — 12",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:73"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:73"],
             "condition": [
               "Alice is White in a new 5+0 multiplayer game with Bob and her phone has been offline since they were matched"
             ],
@@ -181,36 +145,24 @@
         "Alice finds a chess opponent for 5+0": {
           "target": "Alice is looking for a 5+0 chess opponent — 13",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:79"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:79"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "After an aborted game a person may find a chess opponent again"
           }
         },
         "Alice aborts the multiplayer game when Alice's 5+0 multiplayer game with Bob was aborted": {
           "target": "both people still see the multiplayer game was aborted — 14",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:84"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:84"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "Aborting an aborted game again changes nothing"
           }
         },
         "Bob resigns multiplayer chess when Alice's 5+0 multiplayer game with Bob was aborted": {
           "target": "Bob is told the multiplayer game is over — 15",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-abort.feature:89"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-abort.feature:89"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "An aborted game cannot be resigned"
           }
         }
@@ -221,14 +173,10 @@
         "description": "The person observes that both people see the multiplayer game was aborted.",
         "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-was-aborted",
         "recognize": [],
-        "checks": [
-          "both people see the multiplayer game was aborted"
-        ],
+        "checks": ["both people see the multiplayer game was aborted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:8"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -238,14 +186,10 @@
         "description": "The person observes that both people see the multiplayer game was aborted.",
         "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-was-aborted",
         "recognize": [],
-        "checks": [
-          "both people see the multiplayer game was aborted"
-        ],
+        "checks": ["both people see the multiplayer game was aborted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:13"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -261,9 +205,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:18"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -279,9 +221,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:24"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -297,9 +237,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:32"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -315,9 +253,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:38"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -327,14 +263,10 @@
         "description": "The person observes that both people see Alice won the multiplayer game.",
         "snapshot": "the-person-observes-that-both-people-see-alice-won-the-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "both people see Alice won the multiplayer game"
-        ],
+        "checks": ["both people see Alice won the multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:44"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -344,14 +276,10 @@
         "description": "The person observes that both people see the multiplayer game was aborted.",
         "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-was-aborted",
         "recognize": [],
-        "checks": [
-          "both people see the multiplayer game was aborted"
-        ],
+        "checks": ["both people see the multiplayer game was aborted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:51"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -361,14 +289,10 @@
         "description": "The person observes that both people see the multiplayer game was aborted.",
         "snapshot": "the-person-observes-that-both-people-see-the-multiplayer-game-was-aborted",
         "recognize": [],
-        "checks": [
-          "both people see the multiplayer game was aborted"
-        ],
+        "checks": ["both people see the multiplayer game was aborted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:56"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -378,14 +302,10 @@
         "description": "The person observes that the multiplayer game is still unfinished.",
         "snapshot": "the-person-observes-that-the-multiplayer-game-is-still-unfinished",
         "recognize": [],
-        "checks": [
-          "the multiplayer game is still unfinished"
-        ],
+        "checks": ["the multiplayer game is still unfinished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:61"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -395,14 +315,10 @@
         "description": "The person observes that the multiplayer game is still unfinished.",
         "snapshot": "the-person-observes-that-the-multiplayer-game-is-still-unfinished",
         "recognize": [],
-        "checks": [
-          "the multiplayer game is still unfinished"
-        ],
+        "checks": ["the multiplayer game is still unfinished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:66"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -418,9 +334,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:73"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -430,14 +344,10 @@
         "description": "The person observes that alice is looking for a 5+0 chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-5-0-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a 5+0 chess opponent"
-        ],
+        "checks": ["Alice is looking for a 5+0 chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:79"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -447,14 +357,10 @@
         "description": "The person observes that both people still see the multiplayer game was aborted.",
         "snapshot": "the-person-observes-that-both-people-still-see-the-multiplayer-game-was-aborted",
         "recognize": [],
-        "checks": [
-          "both people still see the multiplayer game was aborted"
-        ],
+        "checks": ["both people still see the multiplayer game was aborted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:84"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:84"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -470,9 +376,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-abort.feature:89"
-        ],
+        "source": ["specs/chess/multiplayer-abort.feature:89"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

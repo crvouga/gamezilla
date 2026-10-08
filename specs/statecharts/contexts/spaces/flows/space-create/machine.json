@@ -24,26 +24,17 @@
         "description": "The person is at the place where create a space.",
         "snapshot": "the-person-is-at-the-place-where-create-a-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-create.feature:2"
-        ]
+        "source": ["specs/spaces/space-create.feature:2"]
       },
       "on": {
         "Alice goes back to the lobby": {
           "target": "Alice's lobby lists Alice's space — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-create.feature:8"
-            ],
-            "condition": [
-              "Alice is signed in",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/spaces/space-create.feature:8"],
+            "condition": ["Alice is signed in", "Alice is hosting a space"],
             "example": "A host's space is listed in their lobby"
           }
         }
@@ -54,14 +45,10 @@
         "description": "The person observes that alice's lobby lists Alice's space.",
         "snapshot": "the-person-observes-that-alice-s-lobby-lists-alice-s-space",
         "recognize": [],
-        "checks": [
-          "Alice's lobby lists Alice's space"
-        ],
+        "checks": ["Alice's lobby lists Alice's space"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-create.feature:8"
-        ],
+        "source": ["specs/spaces/space-create.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

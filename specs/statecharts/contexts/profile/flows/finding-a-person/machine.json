@@ -18,22 +18,16 @@
         "description": "The person is at the place where finding a person's trouble.",
         "snapshot": "the-person-is-at-the-place-where-finding-a-person-s-trouble",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/finding-a-person.feature:2"
-        ]
+        "source": ["specs/profile/finding-a-person.feature:2"]
       },
       "on": {
         "the team follows the trail for 'Alice' in 'Gilbert, Arizona' at '6:33 in the evening Mountain time'": {
           "target": "the team sees what went wrong for \"Alice\" — 1",
           "meta": {
-            "source": [
-              "specs/profile/finding-a-person.feature:12"
-            ],
+            "source": ["specs/profile/finding-a-person.feature:12"],
             "condition": [
               "\"Alice\" ran into trouble in \"Gilbert, Arizona\" at \"6:33 in the evening Mountain time\""
             ],
@@ -43,9 +37,7 @@
         "the team follows the trail for 'Alice' in 'Gilbert, Arizona' at '9:00 in the morning Mountain time'": {
           "target": "the team is told nothing happened for \"Alice\" at that time — 2",
           "meta": {
-            "source": [
-              "specs/profile/finding-a-person.feature:16"
-            ],
+            "source": ["specs/profile/finding-a-person.feature:16"],
             "condition": [
               "\"Alice\" ran into trouble in \"Gilbert, Arizona\" at \"6:33 in the evening Mountain time\""
             ],
@@ -55,9 +47,7 @@
         "the team follows the trail for 'Alice' in 'Las Vegas' at '6:33 in the evening Mountain time'": {
           "target": "the team sees what went wrong for \"Alice\" — 3",
           "meta": {
-            "source": [
-              "specs/profile/finding-a-person.feature:23"
-            ],
+            "source": ["specs/profile/finding-a-person.feature:23"],
             "condition": [
               "\"Alice\" ran into trouble in \"Las Vegas\" at \"6:33 in the evening Mountain time\""
             ],
@@ -71,14 +61,10 @@
         "description": "The person observes that the team sees what went wrong for \"Alice\".",
         "snapshot": "the-person-observes-that-the-team-sees-what-went-wrong-for-alice",
         "recognize": [],
-        "checks": [
-          "the team sees what went wrong for \"Alice\""
-        ],
+        "checks": ["the team sees what went wrong for \"Alice\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/finding-a-person.feature:12"
-        ],
+        "source": ["specs/profile/finding-a-person.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -93,9 +79,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/finding-a-person.feature:16"
-        ],
+        "source": ["specs/profile/finding-a-person.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -105,14 +89,10 @@
         "description": "The person observes that the team sees what went wrong for \"Alice\".",
         "snapshot": "the-person-observes-that-the-team-sees-what-went-wrong-for-alice",
         "recognize": [],
-        "checks": [
-          "the team sees what went wrong for \"Alice\""
-        ],
+        "checks": ["the team sees what went wrong for \"Alice\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/finding-a-person.feature:23"
-        ],
+        "source": ["specs/profile/finding-a-person.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

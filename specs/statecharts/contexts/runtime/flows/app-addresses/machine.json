@@ -24,22 +24,16 @@
         "description": "The person is at the place where addresses that lead nowhere.",
         "snapshot": "the-person-is-at-the-place-where-addresses-that-lead-nowhere",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-addresses.feature:2"
-        ]
+        "source": ["specs/runtime/app-addresses.feature:2"]
       },
       "on": {
         "Alice opens an address the app does not have": {
           "target": "Alice is told there is nothing at that address — 1",
           "meta": {
-            "source": [
-              "specs/runtime/app-addresses.feature:9"
-            ],
+            "source": ["specs/runtime/app-addresses.feature:9"],
             "condition": [],
             "example": "An address the app does not have says so and offers the way back"
           }
@@ -47,12 +41,8 @@
         "Alice takes the way back to Spaces": {
           "target": "Alice is on Spaces — 2",
           "meta": {
-            "source": [
-              "specs/runtime/app-addresses.feature:14"
-            ],
-            "condition": [
-              "Alice has opened an address the app does not have"
-            ],
+            "source": ["specs/runtime/app-addresses.feature:14"],
+            "condition": ["Alice has opened an address the app does not have"],
             "example": "The way back from an address that leads nowhere reaches Spaces"
           }
         }
@@ -69,9 +59,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-addresses.feature:9"
-        ],
+        "source": ["specs/runtime/app-addresses.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -81,14 +69,10 @@
         "description": "The person observes that alice is on Spaces.",
         "snapshot": "the-person-observes-that-alice-is-on-spaces",
         "recognize": [],
-        "checks": [
-          "Alice is on Spaces"
-        ],
+        "checks": ["Alice is on Spaces"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-addresses.feature:14"
-        ],
+        "source": ["specs/runtime/app-addresses.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

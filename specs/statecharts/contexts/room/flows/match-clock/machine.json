@@ -18,34 +18,24 @@
         "description": "The person is at the place where timed match.",
         "snapshot": "the-person-is-at-the-place-where-timed-match",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:2"
-        ]
+        "source": ["specs/room/match-clock.feature:2"]
       },
       "on": {
         "White starts a match with 10 seconds for White and 8 seconds for Black": {
           "target": "White is to move — 1",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:10"
-            ],
-            "condition": [
-              "White and Black are in the room"
-            ],
+            "source": ["specs/room/match-clock.feature:10"],
+            "condition": ["White and Black are in the room"],
             "example": "Starting a match gives each player their time with White to move"
           }
         },
         "Black starts a match with 20 seconds for White and 20 seconds for Black": {
           "target": "the match is still playing with White to move — 2",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:16"
-            ],
+            "source": ["specs/room/match-clock.feature:16"],
             "condition": [
               "White and Black have started a match with 10 seconds for White and 10 seconds for Black",
               "3 seconds have passed"
@@ -56,9 +46,7 @@
         "White starts a match with 10 seconds for White and 10 seconds for Black": {
           "target": "White and Black still see Black win on time — 3",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:23"
-            ],
+            "source": ["specs/room/match-clock.feature:23"],
             "condition": [
               "White and Black have started a match with 4 seconds for White and 4 seconds for Black",
               "5 seconds have passed"
@@ -69,9 +57,7 @@
         "6 seconds pass": {
           "target": "White and Black both see Black win on time — 4",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:31"
-            ],
+            "source": ["specs/room/match-clock.feature:31"],
             "condition": [
               "White and Black have started a match with 5 seconds for White and 8 seconds for Black"
             ],
@@ -81,9 +67,7 @@
         "4 seconds pass when White and Black have started a match with 5 seconds for White and 8 seconds for Black": {
           "target": "the match is still playing with White to move — 5",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:36"
-            ],
+            "source": ["specs/room/match-clock.feature:36"],
             "condition": [
               "White and Black have started a match with 5 seconds for White and 8 seconds for Black"
             ],
@@ -93,9 +77,7 @@
         "11 seconds pass": {
           "target": "White and Black both see White win on time — 6",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:42"
-            ],
+            "source": ["specs/room/match-clock.feature:42"],
             "condition": [
               "White and Black have started a match with 10 seconds for White and 10 seconds for Black",
               "White has moved after 3 seconds"
@@ -106,9 +88,7 @@
         "4 seconds pass when White and Black have started a match with 10 seconds for White and 10 seconds for Black and White has moved after 3 seconds": {
           "target": "White has 7 seconds left and Black has 6 seconds left — 7",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:51"
-            ],
+            "source": ["specs/room/match-clock.feature:51"],
             "condition": [
               "White and Black have started a match with 10 seconds for White and 10 seconds for Black",
               "White has moved after 3 seconds"
@@ -119,9 +99,7 @@
         "White moves when White and Black have started a match with 10 seconds for White and 10 seconds for Black and 3 seconds have passed": {
           "target": "Black is to move — 8",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:59"
-            ],
+            "source": ["specs/room/match-clock.feature:59"],
             "condition": [
               "White and Black have started a match with 10 seconds for White and 10 seconds for Black",
               "3 seconds have passed"
@@ -132,9 +110,7 @@
         "Black moves": {
           "target": "the match is still playing with White to move — 9",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:66"
-            ],
+            "source": ["specs/room/match-clock.feature:66"],
             "condition": [
               "White and Black have started a match with 10 seconds for White and 10 seconds for Black"
             ],
@@ -144,21 +120,15 @@
         "White moves when White and Black are in the room": {
           "target": "the match has still not started — 10",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:71"
-            ],
-            "condition": [
-              "White and Black are in the room"
-            ],
+            "source": ["specs/room/match-clock.feature:71"],
+            "condition": ["White and Black are in the room"],
             "example": "Nobody can move before the match starts"
           }
         },
         "White moves when White and Black have started a match with 4 seconds for White and 4 seconds for Black and White's phone has been offline for 5 seconds": {
           "target": "White is told the move came too late — 11",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:76"
-            ],
+            "source": ["specs/room/match-clock.feature:76"],
             "condition": [
               "White and Black have started a match with 4 seconds for White and 4 seconds for Black",
               "White's phone has been offline for 5 seconds"
@@ -169,9 +139,7 @@
         "White's phone comes back online": {
           "target": "White and Black both see Black win on time — 12",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:85"
-            ],
+            "source": ["specs/room/match-clock.feature:85"],
             "condition": [
               "White and Black have started a match with 4 seconds for White and 4 seconds for Black",
               "White's phone has been offline for 5 seconds"
@@ -182,9 +150,7 @@
         "Black claims White has run out of time": {
           "target": "the match is still playing with White to move — 13",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:93"
-            ],
+            "source": ["specs/room/match-clock.feature:93"],
             "condition": [
               "White and Black have started a match with 8 seconds for White and 8 seconds for Black"
             ],
@@ -194,9 +160,7 @@
         "9 seconds pass": {
           "target": "White and Black both see Black win on time — 14",
           "meta": {
-            "source": [
-              "specs/room/match-clock.feature:98"
-            ],
+            "source": ["specs/room/match-clock.feature:98"],
             "condition": [
               "White and Black have started a match with 8 seconds for White and 8 seconds for Black",
               "Black has claimed White has run out of time"
@@ -217,9 +181,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:10"
-        ],
+        "source": ["specs/room/match-clock.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -235,9 +197,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:16"
-        ],
+        "source": ["specs/room/match-clock.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -247,14 +207,10 @@
         "description": "The person observes that white and Black still see Black win on time.",
         "snapshot": "the-person-observes-that-white-and-black-still-see-black-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black still see Black win on time"
-        ],
+        "checks": ["White and Black still see Black win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:23"
-        ],
+        "source": ["specs/room/match-clock.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -264,14 +220,10 @@
         "description": "The person observes that white and Black both see Black win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-black-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see Black win on time"
-        ],
+        "checks": ["White and Black both see Black win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:31"
-        ],
+        "source": ["specs/room/match-clock.feature:31"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -287,9 +239,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:36"
-        ],
+        "source": ["specs/room/match-clock.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -299,14 +249,10 @@
         "description": "The person observes that white and Black both see White win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-white-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see White win on time"
-        ],
+        "checks": ["White and Black both see White win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:42"
-        ],
+        "source": ["specs/room/match-clock.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -316,14 +262,10 @@
         "description": "The person observes that white has 7 seconds left and Black has 6 seconds left.",
         "snapshot": "the-person-observes-that-white-has-7-seconds-left-and-black-has-6-seconds-left",
         "recognize": [],
-        "checks": [
-          "White has 7 seconds left and Black has 6 seconds left"
-        ],
+        "checks": ["White has 7 seconds left and Black has 6 seconds left"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:51"
-        ],
+        "source": ["specs/room/match-clock.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -339,9 +281,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:59"
-        ],
+        "source": ["specs/room/match-clock.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -351,14 +291,10 @@
         "description": "The person observes that the match is still playing with White to move.",
         "snapshot": "the-person-observes-that-the-match-is-still-playing-with-white-to-move",
         "recognize": [],
-        "checks": [
-          "the match is still playing with White to move"
-        ],
+        "checks": ["the match is still playing with White to move"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:66"
-        ],
+        "source": ["specs/room/match-clock.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -368,14 +304,10 @@
         "description": "The person observes that the match has still not started.",
         "snapshot": "the-person-observes-that-the-match-has-still-not-started",
         "recognize": [],
-        "checks": [
-          "the match has still not started"
-        ],
+        "checks": ["the match has still not started"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:71"
-        ],
+        "source": ["specs/room/match-clock.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -385,14 +317,10 @@
         "description": "The person observes that white is told the move came too late.",
         "snapshot": "the-person-observes-that-white-is-told-the-move-came-too-late",
         "recognize": [],
-        "checks": [
-          "White is told the move came too late"
-        ],
+        "checks": ["White is told the move came too late"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:76"
-        ],
+        "source": ["specs/room/match-clock.feature:76"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -402,14 +330,10 @@
         "description": "The person observes that white and Black both see Black win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-black-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see Black win on time"
-        ],
+        "checks": ["White and Black both see Black win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:85"
-        ],
+        "source": ["specs/room/match-clock.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -419,14 +343,10 @@
         "description": "The person observes that the match is still playing with White to move.",
         "snapshot": "the-person-observes-that-the-match-is-still-playing-with-white-to-move",
         "recognize": [],
-        "checks": [
-          "the match is still playing with White to move"
-        ],
+        "checks": ["the match is still playing with White to move"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:93"
-        ],
+        "source": ["specs/room/match-clock.feature:93"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -436,14 +356,10 @@
         "description": "The person observes that white and Black both see Black win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-black-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see Black win on time"
-        ],
+        "checks": ["White and Black both see Black win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-clock.feature:98"
-        ],
+        "source": ["specs/room/match-clock.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

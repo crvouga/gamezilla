@@ -24,22 +24,16 @@
         "description": "The person is at the place where explore the app through its specs and automated evidence.",
         "snapshot": "the-person-is-at-the-place-where-explore-the-app-through-its-specs-and-automated-evid",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:2"
-        ]
+        "source": ["specs/developer-tools/report-explorer.feature:2"]
       },
       "on": {
         "the team explores that version's specs when a version of the app has specs with completed test reports": {
           "target": "the team can read each spec and open its test reports — 1",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:9"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:9"],
             "condition": [
               "a version of the app has specs with completed test reports"
             ],
@@ -49,9 +43,7 @@
         "the team explores that version's specs when a version of the app has a spec without a completed test report": {
           "target": "the team can read that spec — 2",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:15"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:15"],
             "condition": [
               "a version of the app has a spec without a completed test report"
             ],
@@ -61,9 +53,7 @@
         "the team explores that version's report parts when a version of the app has completed test reports and a newly completed UI quality check": {
           "target": "the team sees both the test reports and the UI quality check — 3",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:23"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:23"],
             "condition": [
               "a version of the app has completed test reports and a newly completed UI quality check"
             ],
@@ -73,9 +63,7 @@
         "the team explores the earlier version's report parts": {
           "target": "the team is told the earlier version has no completed performance check — 4",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:28"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:28"],
             "condition": [
               "a performance check belongs only to a later version of the app"
             ],
@@ -85,9 +73,7 @@
         "the team explores that version's report parts when a version of the app has a completed performance check": {
           "target": "the team sees the performance check's measured outcome — 5",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:35"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:35"],
             "condition": [
               "a version of the app has a completed performance check"
             ],
@@ -97,9 +83,7 @@
         "the team explores that version's report parts when a version of the app has no completed UI quality check": {
           "target": "the team is told the UI quality check has not been completed — 6",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:40"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:40"],
             "condition": [
               "a version of the app has no completed UI quality check"
             ],
@@ -109,21 +93,15 @@
         "the team investigates which test reports are available": {
           "target": "the team is told why the test reports are unavailable — 7",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:48"
-            ],
-            "condition": [
-              "the team's test reports are unavailable"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:48"],
+            "condition": ["the team's test reports are unavailable"],
             "example": "Unavailable test reports show an explanation"
           }
         },
         "the team asks to open the test reports again": {
           "target": "the team sees the available test reports — 8",
           "meta": {
-            "source": [
-              "specs/developer-tools/report-explorer.feature:54"
-            ],
+            "source": ["specs/developer-tools/report-explorer.feature:54"],
             "condition": [
               "the team's unavailable test reports have become available"
             ],
@@ -137,14 +115,10 @@
         "description": "The person observes that the team can read each spec and open its test reports.",
         "snapshot": "the-person-observes-that-the-team-can-read-each-spec-and-open-its-test-reports",
         "recognize": [],
-        "checks": [
-          "the team can read each spec and open its test reports"
-        ],
+        "checks": ["the team can read each spec and open its test reports"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:9"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -160,9 +134,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:15"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -177,9 +149,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:23"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -194,9 +164,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:28"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,14 +174,10 @@
         "description": "The person observes that the team sees the performance check's measured outcome.",
         "snapshot": "the-person-observes-that-the-team-sees-the-performance-check-s-measured-outcome",
         "recognize": [],
-        "checks": [
-          "the team sees the performance check's measured outcome"
-        ],
+        "checks": ["the team sees the performance check's measured outcome"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:35"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -228,9 +192,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:40"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -246,9 +208,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:48"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -258,14 +218,10 @@
         "description": "The person observes that the team sees the available test reports.",
         "snapshot": "the-person-observes-that-the-team-sees-the-available-test-reports",
         "recognize": [],
-        "checks": [
-          "the team sees the available test reports"
-        ],
+        "checks": ["the team sees the available test reports"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/report-explorer.feature:54"
-        ],
+        "source": ["specs/developer-tools/report-explorer.feature:54"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

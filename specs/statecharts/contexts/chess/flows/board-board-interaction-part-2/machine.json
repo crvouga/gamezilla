@@ -17,9 +17,7 @@
       "pkgs/chess-board-root-client/src/chess-board-squares.tsx"
     ],
     "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.",
-    "childCharts": [
-      "../board-board-interaction-part-1/machine.yaml"
-    ]
+    "childCharts": ["../board-board-interaction-part-1/machine.yaml"]
   },
   "states": {
     "Viewing Choose and complete chess moves": {
@@ -27,22 +25,16 @@
         "description": "The person is at the place where choose and complete chess moves.",
         "snapshot": "the-person-is-at-the-place-where-choose-and-complete-chess-moves",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:2"
-        ]
+        "source": ["specs/chess-board/board-interaction.feature:2"]
       },
       "on": {
         "Alice moves the piece from g6 to g7": {
           "target": "Alice is told Black is checkmated — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:239"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:239"],
             "condition": [
               "Alice has a silent chessboard ready for White to checkmate Black by moving the queen from g6 to g7"
             ],
@@ -52,9 +44,7 @@
         "Alice moves the piece from f5 to g6 when Alice has a chessboard ready for White to stalemate Black by moving the queen from f5 to g6": {
           "target": "Alice is told Black is stalemated — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:246"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:246"],
             "condition": [
               "Alice has a chessboard ready for White to stalemate Black by moving the queen from f5 to g6"
             ],
@@ -64,9 +54,7 @@
         "Alice moves the piece from f5 to g6 when Alice has a silent chessboard ready for White to stalemate Black by moving the queen from f5 to g6": {
           "target": "Alice is told Black is stalemated — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:254"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:254"],
             "condition": [
               "Alice has a silent chessboard ready for White to stalemate Black by moving the queen from f5 to g6"
             ],
@@ -76,24 +64,16 @@
         "Alice selects the piece on h8 when Alice has a chessboard with Black checkmated": {
           "target": "Alice is not offered another move because Black is checkmated — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:261"
-            ],
-            "condition": [
-              "Alice has a chessboard with Black checkmated"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:261"],
+            "condition": ["Alice has a chessboard with Black checkmated"],
             "example": "A checkmated chessboard refuses another move"
           }
         },
         "Alice selects the piece on h8 when Alice has a chessboard with Black stalemated": {
           "target": "Alice is not offered another move because Black is stalemated — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:269"
-            ],
-            "condition": [
-              "Alice has a chessboard with Black stalemated"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:269"],
+            "condition": ["Alice has a chessboard with Black stalemated"],
             "example": "A stalemated chessboard refuses another move"
           }
         }
@@ -110,9 +90,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:239"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:239"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -129,9 +107,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:246"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:246"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -147,9 +123,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:254"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:254"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -166,9 +140,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:261"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:261"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,9 +157,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:269"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:269"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

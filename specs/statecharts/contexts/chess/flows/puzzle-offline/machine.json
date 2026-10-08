@@ -24,22 +24,16 @@
         "description": "The person is at the place where puzzles offline.",
         "snapshot": "the-person-is-at-the-place-where-puzzles-offline",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-offline.feature:2"]
       },
       "on": {
         "Alice opens puzzles in their space": {
           "target": "Alice is told puzzles need a connection within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-offline.feature:12"
-            ],
+            "source": ["specs/chess/puzzle-offline.feature:12"],
             "condition": [
               "Alice is signed in",
               "Alice went offline before any puzzles reached their device"
@@ -50,9 +44,7 @@
         "the connection comes back": {
           "target": "Alice has a puzzle on the board within 30 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-offline.feature:18"
-            ],
+            "source": ["specs/chess/puzzle-offline.feature:18"],
             "condition": [
               "Alice is signed in",
               "Alice went offline before any puzzles reached their device",
@@ -74,9 +66,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline.feature:12"
-        ],
+        "source": ["specs/chess/puzzle-offline.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -86,14 +76,10 @@
         "description": "The person observes that alice has a puzzle on the board within 30 seconds.",
         "snapshot": "the-person-observes-that-alice-has-a-puzzle-on-the-board-within-30-seconds",
         "recognize": [],
-        "checks": [
-          "Alice has a puzzle on the board within 30 seconds"
-        ],
+        "checks": ["Alice has a puzzle on the board within 30 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline.feature:18"
-        ],
+        "source": ["specs/chess/puzzle-offline.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

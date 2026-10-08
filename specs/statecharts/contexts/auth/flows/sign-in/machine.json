@@ -24,22 +24,16 @@
         "description": "The person is at the place where signing in.",
         "snapshot": "the-person-is-at-the-place-where-signing-in",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:2"
-        ]
+        "source": ["specs/auth/sign-in.feature:2"]
       },
       "on": {
         "Opens the described view when People are offered Google sign-in and not Apple sign-in": {
           "target": "people are offered Google sign-in and not Apple sign-in — 1",
           "meta": {
-            "source": [
-              "specs/auth/sign-in.feature:9"
-            ],
+            "source": ["specs/auth/sign-in.feature:9"],
             "condition": [],
             "example": "People are offered Google sign-in and not Apple sign-in"
           }
@@ -47,9 +41,7 @@
         "Opens the described view when Starting a Google sign-in hands the person to Google with the way back": {
           "target": "starting a Google sign-in hands the person to Google with the way back to the app — 2",
           "meta": {
-            "source": [
-              "specs/auth/sign-in.feature:12"
-            ],
+            "source": ["specs/auth/sign-in.feature:12"],
             "condition": [],
             "example": "Starting a Google sign-in hands the person to Google with the way back"
           }
@@ -57,9 +49,7 @@
         "Opens the described view when Google agrees to send people back after they sign in": {
           "target": "Google agrees to send people back to the app after they sign in — 3",
           "meta": {
-            "source": [
-              "specs/auth/sign-in.feature:15"
-            ],
+            "source": ["specs/auth/sign-in.feature:15"],
             "condition": [],
             "example": "Google agrees to send people back after they sign in"
           }
@@ -67,9 +57,7 @@
         "a person on the web finishes signing in": {
           "target": "the app on the web knows whether they are signed in — 4",
           "meta": {
-            "source": [
-              "specs/auth/sign-in.feature:18"
-            ],
+            "source": ["specs/auth/sign-in.feature:18"],
             "condition": [],
             "example": "A person finishing signing in on the web knows whether it worked"
           }
@@ -77,9 +65,7 @@
         "Opens the described view when Google sign-ins started in another environment return to it": {
           "target": "Google sign-ins started in any other environment return to that environment — 5",
           "meta": {
-            "source": [
-              "specs/auth/sign-in.feature:22"
-            ],
+            "source": ["specs/auth/sign-in.feature:22"],
             "condition": [],
             "example": "Google sign-ins started in another environment return to it"
           }
@@ -91,14 +77,10 @@
         "description": "The person observes that people are offered Google sign-in and not Apple sign-in.",
         "snapshot": "the-person-observes-that-people-are-offered-google-sign-in-and-not-apple-sign-in",
         "recognize": [],
-        "checks": [
-          "people are offered Google sign-in and not Apple sign-in"
-        ],
+        "checks": ["people are offered Google sign-in and not Apple sign-in"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:9"
-        ],
+        "source": ["specs/auth/sign-in.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -113,9 +95,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:12"
-        ],
+        "source": ["specs/auth/sign-in.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -130,9 +110,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:15"
-        ],
+        "source": ["specs/auth/sign-in.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -142,14 +120,10 @@
         "description": "The person observes that the app on the web knows whether they are signed in.",
         "snapshot": "the-person-observes-that-the-app-on-the-web-knows-whether-they-are-signed-in",
         "recognize": [],
-        "checks": [
-          "the app on the web knows whether they are signed in"
-        ],
+        "checks": ["the app on the web knows whether they are signed in"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:18"
-        ],
+        "source": ["specs/auth/sign-in.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -164,9 +138,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/sign-in.feature:22"
-        ],
+        "source": ["specs/auth/sign-in.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

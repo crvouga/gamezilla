@@ -24,22 +24,16 @@
         "description": "The person is at the place where queue moves while waiting for the other side.",
         "snapshot": "the-person-is-at-the-place-where-queue-moves-while-waiting-for-the-other-side",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:2"
-        ]
+        "source": ["specs/chess-board/board-premoves.feature:2"]
       },
       "on": {
         "Alice queues the premove from d2 to d4 when Alice has a chessboard waiting for Black with premoves enabled": {
           "target": "Alice sees a translucent White pawn preview on d4 — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:8"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:8"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves enabled"
             ],
@@ -49,9 +43,7 @@
         "Alice drags a premove from d2 to d4": {
           "target": "Alice sees a translucent White pawn preview on d4 — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:15"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:15"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves enabled"
             ],
@@ -61,9 +53,7 @@
         "Alice queues the premove from d2 to d4 when Alice has the premove from d2 to d4 queued while waiting for Black": {
           "target": "Alice still sees exactly one translucent White pawn preview on d4 — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:23"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:23"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -73,9 +63,7 @@
         "Alice selects the piece on d2 when Alice has a chessboard waiting for Black with premoves enabled": {
           "target": "Alice has d2 selected — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:31"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:31"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves enabled"
             ],
@@ -85,9 +73,7 @@
         "Alice selects the piece on d2 when Alice has d2 selected while waiting for Black with premoves enabled": {
           "target": "Alice sees no selection or legal destinations — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:37"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:37"],
             "condition": [
               "Alice has d2 selected while waiting for Black with premoves enabled"
             ],
@@ -97,9 +83,7 @@
         "Alice selects the piece on g1": {
           "target": "Alice has g1 selected — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:44"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:44"],
             "condition": [
               "Alice has d2 selected while waiting for Black with premoves enabled"
             ],
@@ -109,9 +93,7 @@
         "Alice selects the piece on d2 when Alice has a chessboard waiting for Black with premoves disabled": {
           "target": "Alice cannot select White's pawn while Black is to move — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:51"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:51"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves disabled"
             ],
@@ -121,9 +103,7 @@
         "Alice queues the premove from d2 to d4 when Alice has a chessboard waiting for Black with premoves disabled": {
           "target": "Alice cannot queue a premove while premoves are disabled — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:58"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:58"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves disabled"
             ],
@@ -133,9 +113,7 @@
         "Alice's board settings enable premoves": {
           "target": "Alice can queue a premove while waiting for Black — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:66"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:66"],
             "condition": [
               "Alice has a chessboard waiting for Black with premoves disabled"
             ],
@@ -145,9 +123,7 @@
         "Alice's activity supplies Black's reply from e7 to e5 when Alice has the premove from d2 to d4 queued while waiting for Black": {
           "target": "Alice sees a White pawn on d4 — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:73"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:73"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -157,9 +133,7 @@
         "Alice's activity supplies Black's reply from e7 to e5 when Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black": {
           "target": "Alice sees a White pawn on d4 — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:80"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:80"],
             "condition": [
               "Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black"
             ],
@@ -169,9 +143,7 @@
         "Alice's activity supplies Black's reply from g8 to f6": {
           "target": "Alice sees a White knight on f3 — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:88"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:88"],
             "condition": [
               "Alice has completed the premove from d2 to d4 with g1 to f3 still queued"
             ],
@@ -181,9 +153,7 @@
         "Alice's activity supplies a reply that invalidates the premove": {
           "target": "Alice cannot complete the premove because it is no longer legal — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:95"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:95"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -193,9 +163,7 @@
         "Alice selects the empty square a3": {
           "target": "Alice sees no queued premoves — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:104"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:104"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -205,9 +173,7 @@
         "Alice cancels premoves with Escape": {
           "target": "Alice sees no queued premoves — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:111"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:111"],
             "condition": [
               "Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black with d2 selected"
             ],
@@ -217,9 +183,7 @@
         "Alice's activity supplies Black's reply from e7 to e5 when Alice has cancelled two queued premoves and her d2 selection with Escape while waiting for Black": {
           "target": "Alice sees a Black pawn on e5 — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:119"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:119"],
             "condition": [
               "Alice has cancelled two queued premoves and her d2 selection with Escape while waiting for Black"
             ],
@@ -229,9 +193,7 @@
         "Alice marks e4 with a personal circle": {
           "target": "Alice sees no queued premoves — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:127"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:127"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -241,9 +203,7 @@
         "Alice marks h6 with a personal circle": {
           "target": "Alice cannot add a personal annotation while they are disabled — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:134"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:134"],
             "condition": [
               "Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black",
               "Alice has personal annotations disabled"
@@ -254,9 +214,7 @@
         "Alice selects the empty square d2": {
           "target": "Alice sees no queued premoves — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:143"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:143"],
             "condition": [
               "Alice has completed the premove from d2 to d4 with g1 to f3 still queued"
             ],
@@ -266,9 +224,7 @@
         "Alice's board settings disable premoves": {
           "target": "Alice cannot keep a premove queued while premoves are disabled — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:150"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:150"],
             "condition": [
               "Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black"
             ],
@@ -278,9 +234,7 @@
         "Alice's activity replaces the position": {
           "target": "Alice sees the replacement position — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-premoves.feature:157"
-            ],
+            "source": ["specs/chess-board/board-premoves.feature:157"],
             "condition": [
               "Alice has the premove from d2 to d4 queued while waiting for Black"
             ],
@@ -301,9 +255,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:8"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -320,9 +272,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:15"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -340,9 +290,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:23"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -358,9 +306,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:31"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:31"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -377,9 +323,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:37"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -396,9 +340,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:44"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -415,9 +357,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:51"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -435,9 +375,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:58"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -447,14 +385,10 @@
         "description": "The person observes that alice can queue a premove while waiting for Black.",
         "snapshot": "the-person-observes-that-alice-can-queue-a-premove-while-waiting-for-black",
         "recognize": [],
-        "checks": [
-          "Alice can queue a premove while waiting for Black"
-        ],
+        "checks": ["Alice can queue a premove while waiting for Black"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:66"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -471,9 +405,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:73"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -491,9 +423,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:80"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:80"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -510,9 +440,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:88"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:88"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -529,9 +457,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:95"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:95"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -548,9 +474,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:104"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:104"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -568,9 +492,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:111"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:111"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -588,9 +510,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:119"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:119"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -607,9 +527,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:127"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:127"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -627,9 +545,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:134"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:134"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -646,9 +562,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:143"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:143"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -665,9 +579,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:150"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:150"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -684,9 +596,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-premoves.feature:157"
-        ],
+        "source": ["specs/chess-board/board-premoves.feature:157"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

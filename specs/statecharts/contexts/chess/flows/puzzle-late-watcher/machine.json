@@ -24,22 +24,16 @@
         "description": "The person is at the place where arriving while a puzzle is under way.",
         "snapshot": "the-person-is-at-the-place-where-arriving-while-a-puzzle-is-under-way",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-late-watcher.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-late-watcher.feature:2"]
       },
       "on": {
         "Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has played the next move of the solution": {
           "target": "Bob is watching Alice's puzzle within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-late-watcher.feature:15"
-            ],
+            "source": ["specs/chess/puzzle-late-watcher.feature:15"],
             "condition": [
               "Alice and Bob are guests",
               "Alice is hosting a space",
@@ -52,9 +46,7 @@
         "the connection comes back": {
           "target": "Alice's and Bob's boards agree within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-late-watcher.feature:21"
-            ],
+            "source": ["specs/chess/puzzle-late-watcher.feature:21"],
             "condition": [
               "Alice and Bob are guests",
               "Alice is hosting a space",
@@ -69,9 +61,7 @@
         "Bob joins the space from the link when Alice and Bob are guests and Alice is hosting a space and Alice is playing puzzles in their space and Alice has solved the puzzle and Alice has moved on to the next puzzle": {
           "target": "Alice's and Bob's boards agree within 15 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-late-watcher.feature:28"
-            ],
+            "source": ["specs/chess/puzzle-late-watcher.feature:28"],
             "condition": [
               "Alice and Bob are guests",
               "Alice is hosting a space",
@@ -95,9 +85,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-late-watcher.feature:15"
-        ],
+        "source": ["specs/chess/puzzle-late-watcher.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -107,14 +95,10 @@
         "description": "The person observes that alice's and Bob's boards agree within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-s-and-bob-s-boards-agree-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's and Bob's boards agree within 20 seconds"
-        ],
+        "checks": ["Alice's and Bob's boards agree within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-late-watcher.feature:21"
-        ],
+        "source": ["specs/chess/puzzle-late-watcher.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -124,14 +108,10 @@
         "description": "The person observes that alice's and Bob's boards agree within 15 seconds.",
         "snapshot": "the-person-observes-that-alice-s-and-bob-s-boards-agree-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's and Bob's boards agree within 15 seconds"
-        ],
+        "checks": ["Alice's and Bob's boards agree within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-late-watcher.feature:28"
-        ],
+        "source": ["specs/chess/puzzle-late-watcher.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,34 +24,24 @@
         "description": "The person is at the place where what the billing plans tell a person.",
         "snapshot": "the-person-is-at-the-place-where-what-the-billing-plans-tell-a-person",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans-details.feature:2"
-        ]
+        "source": ["specs/billing/billing-plans-details.feature:2"]
       },
       "on": {
         "Alice views the billing plans when Alice is signed in with Google": {
           "target": "Alice sees the monthly plan at $7 00 a month — 1",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans-details.feature:10"
-            ],
-            "condition": [
-              "Alice is signed in with Google"
-            ],
+            "source": ["specs/billing/billing-plans-details.feature:10"],
+            "condition": ["Alice is signed in with Google"],
             "example": "A signed-in person without a membership sees both prices and a 7-day free trial"
           }
         },
         "Alice views the billing plans when Alice has subscribed to Plus and Alice has 5 days left in the free trial": {
           "target": "Alice sees their free trial ends in 5 days — 2",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans-details.feature:20"
-            ],
+            "source": ["specs/billing/billing-plans-details.feature:20"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has 5 days left in the free trial"
@@ -62,21 +52,15 @@
         "Alice views the billing plans when Alice has subscribed to Plus": {
           "target": "Alice sees the monthly plan marked as their current plan — 3",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans-details.feature:32"
-            ],
-            "condition": [
-              "Alice has subscribed to Plus"
-            ],
+            "source": ["specs/billing/billing-plans-details.feature:32"],
+            "condition": ["Alice has subscribed to Plus"],
             "example": "A Plus member on the monthly plan sees it marked as their current plan"
           }
         },
         "Alice views the billing plans when Alice has subscribed to Plus and Alice has switched the membership to the yearly plan in the billing portal": {
           "target": "Alice sees the yearly plan marked as their current plan — 4",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans-details.feature:37"
-            ],
+            "source": ["specs/billing/billing-plans-details.feature:37"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has switched the membership to the yearly plan in the billing portal"
@@ -87,9 +71,7 @@
         "Alice views the billing plans when Alice has subscribed to Plus and Alice's payment has failed": {
           "target": "Alice is told their payment failed — 5",
           "meta": {
-            "source": [
-              "specs/billing/billing-plans-details.feature:48"
-            ],
+            "source": ["specs/billing/billing-plans-details.feature:48"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's payment has failed"
@@ -111,9 +93,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans-details.feature:10"
-        ],
+        "source": ["specs/billing/billing-plans-details.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -129,9 +109,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans-details.feature:20"
-        ],
+        "source": ["specs/billing/billing-plans-details.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -169,9 +147,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans-details.feature:37"
-        ],
+        "source": ["specs/billing/billing-plans-details.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -187,9 +163,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-plans-details.feature:48"
-        ],
+        "source": ["specs/billing/billing-plans-details.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

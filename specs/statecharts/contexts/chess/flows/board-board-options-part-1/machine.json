@@ -28,34 +28,24 @@
         "description": "The person is at the place where choose the chessboard's appearance.",
         "snapshot": "the-person-is-at-the-place-where-choose-the-chessboard-s-appearance",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:2"
-        ]
+        "source": ["specs/chess-board/board-options.feature:2"]
       },
       "on": {
         "Alice's activity narrows the available space when Alice has a chessboard without a fixed width": {
           "target": "Alice's chessboard fills the available width — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:8"
-            ],
-            "condition": [
-              "Alice has a chessboard without a fixed width"
-            ],
+            "source": ["specs/chess-board/board-options.feature:8"],
+            "condition": ["Alice has a chessboard without a fixed width"],
             "example": "Available space determines width when no fixed width is chosen"
           }
         },
         "Alice's activity narrows the available space when Alice has a chessboard with the activity's fixed width": {
           "target": "Alice's chessboard still has the activity's fixed width — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:14"
-            ],
+            "source": ["specs/chess-board/board-options.feature:14"],
             "condition": [
               "Alice has a chessboard with the activity's fixed width"
             ],
@@ -65,21 +55,15 @@
         "Alice's activity chooses a fixed width": {
           "target": "Alice's chessboard has the activity's fixed width — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:20"
-            ],
-            "condition": [
-              "Alice has a chessboard without a fixed width"
-            ],
+            "source": ["specs/chess-board/board-options.feature:20"],
+            "condition": ["Alice has a chessboard without a fixed width"],
             "example": "Choosing a fixed width takes effect on an existing chessboard"
           }
         },
         "Alice's activity removes the fixed width when Alice has a chessboard with the activity's fixed width": {
           "target": "Alice's chessboard fills the available width — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:26"
-            ],
+            "source": ["specs/chess-board/board-options.feature:26"],
             "condition": [
               "Alice has a chessboard with the activity's fixed width"
             ],
@@ -89,9 +73,7 @@
         "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 196 pixels wide": {
           "target": "Alice sees a White pawn on e4 — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:32"
-            ],
+            "source": ["specs/chess-board/board-options.feature:32"],
             "condition": [
               "Alice has an interactive chessboard 196 pixels wide"
             ],
@@ -101,9 +83,7 @@
         "Alice begins dragging the piece on e2 when Alice has an interactive chessboard 196 pixels wide": {
           "target": "Alice holds the piece from e2 — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:38"
-            ],
+            "source": ["specs/chess-board/board-options.feature:38"],
             "condition": [
               "Alice has an interactive chessboard 196 pixels wide"
             ],
@@ -113,21 +93,15 @@
         "Alice begins dragging the piece on d2": {
           "target": "Alice holds the piece from d2 — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:45"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:45"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Holding another piece clears the earlier selection before a move"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard 16384 pixels wide": {
           "target": "Alice sees a White pawn on e4 — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:53"
-            ],
+            "source": ["specs/chess-board/board-options.feature:53"],
             "condition": [
               "Alice has an interactive chessboard 16384 pixels wide"
             ],
@@ -137,57 +111,39 @@
         "Alice moves the piece from e2 to e4 when Alice has a chessboard 195 pixels wide": {
           "target": "Alice cannot move a piece while the chessboard is a preview — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:60"
-            ],
-            "condition": [
-              "Alice has a chessboard 195 pixels wide"
-            ],
+            "source": ["specs/chess-board/board-options.feature:60"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
             "example": "A narrow preview refuses a move while retaining the position"
           }
         },
         "Alice moves the piece from e2 to e4 with the keyboard": {
           "target": "Alice cannot move a piece while the chessboard is a preview — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:68"
-            ],
-            "condition": [
-              "Alice has a chessboard 195 pixels wide"
-            ],
+            "source": ["specs/chess-board/board-options.feature:68"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
             "example": "A narrow preview also refuses keyboard moves"
           }
         },
         "Alice selects the piece on e2 when Alice has a chessboard 195 pixels wide": {
           "target": "Alice cannot select a piece while the chessboard is a preview — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:75"
-            ],
-            "condition": [
-              "Alice has a chessboard 195 pixels wide"
-            ],
+            "source": ["specs/chess-board/board-options.feature:75"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
             "example": "A preview refuses selecting a piece"
           }
         },
         "Alice begins dragging the piece on e2 when Alice has a chessboard 195 pixels wide": {
           "target": "Alice cannot hold a piece while the chessboard is a preview — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:82"
-            ],
-            "condition": [
-              "Alice has a chessboard 195 pixels wide"
-            ],
+            "source": ["specs/chess-board/board-options.feature:82"],
+            "condition": ["Alice has a chessboard 195 pixels wide"],
             "example": "A preview refuses holding a piece"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
           "target": "Alice cannot move a piece while interactivity is disabled — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:89"
-            ],
+            "source": ["specs/chess-board/board-options.feature:89"],
             "condition": [
               "Alice has a chessboard 196 pixels wide with interactivity disabled"
             ],
@@ -197,9 +153,7 @@
         "Alice selects the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
           "target": "Alice cannot select a piece while interactivity is disabled — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:96"
-            ],
+            "source": ["specs/chess-board/board-options.feature:96"],
             "condition": [
               "Alice has a chessboard 196 pixels wide with interactivity disabled"
             ],
@@ -209,9 +163,7 @@
         "Alice begins dragging the piece on e2 when Alice has a chessboard 196 pixels wide with interactivity disabled": {
           "target": "Alice cannot hold a piece while interactivity is disabled — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:103"
-            ],
+            "source": ["specs/chess-board/board-options.feature:103"],
             "condition": [
               "Alice has a chessboard 196 pixels wide with interactivity disabled"
             ],
@@ -221,9 +173,7 @@
         "Alice moves the piece from a7 to a8": {
           "target": "Alice cannot move a piece while the chessboard is a preview — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:111"
-            ],
+            "source": ["specs/chess-board/board-options.feature:111"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8",
               "Alice has a chessboard 195 pixels wide"
@@ -234,21 +184,15 @@
         "Alice moves the piece from e2 to e4 when Alice has a chessboard 16385 pixels wide": {
           "target": "Alice cannot move a piece while the chessboard is a preview — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:121"
-            ],
-            "condition": [
-              "Alice has a chessboard 16385 pixels wide"
-            ],
+            "source": ["specs/chess-board/board-options.feature:121"],
+            "condition": ["Alice has a chessboard 16385 pixels wide"],
             "example": "A width beyond the supported range remains a preview"
           }
         },
         "Alice's activity chooses a fixed width of 195 pixels": {
           "target": "Alice cannot move a piece while the chessboard is a preview — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:128"
-            ],
+            "source": ["specs/chess-board/board-options.feature:128"],
             "condition": [
               "Alice has selected the piece on e2 with a fixed width and enough available space to move"
             ],
@@ -258,9 +202,7 @@
         "Alice's activity removes the fixed width when Alice has a chessboard with a fixed width of 195 pixels and enough available space to move": {
           "target": "Alice's chessboard fills the available width — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:136"
-            ],
+            "source": ["specs/chess-board/board-options.feature:136"],
             "condition": [
               "Alice has a chessboard with a fixed width of 195 pixels and enough available space to move"
             ],
@@ -270,57 +212,39 @@
         "Alice resizes the chessboard": {
           "target": "Alice is still offered queen, rook, bishop and knight as the promotion choice — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:143"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-options.feature:143"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Resizing within the supported range preserves a pending promotion"
           }
         },
         "Alice's activity narrows the chessboard to 195 pixels wide when Alice has selected the piece on e2": {
           "target": "Alice sees no selection or legal destinations — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:151"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:151"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Resizing into a preview abandons selection"
           }
         },
         "Alice's activity narrows the chessboard to 195 pixels wide when Alice is dragging the piece on e2": {
           "target": "Alice no longer holds a piece — 22",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:158"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:158"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Resizing into a preview puts down a held piece"
           }
         },
         "Alice's activity narrows the chessboard to 195 pixels wide when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice is not offered a promotion choice — 23",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:166"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-options.feature:166"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Resizing into a preview abandons a pending promotion"
           }
         },
         "Alice's activity widens the chessboard to 196 pixels wide": {
           "target": "Alice can select the piece on e2 — 24",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:173"
-            ],
+            "source": ["specs/chess-board/board-options.feature:173"],
             "condition": [
               "Alice has a chessboard 195 pixels wide after its selection was abandoned"
             ],
@@ -330,9 +254,7 @@
         "Alice's activity removes the fixed width when Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available and Alice's activity now has 320 pixels available": {
           "target": "Alice sees a square chessboard 320 pixels wide — 25",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:181"
-            ],
+            "source": ["specs/chess-board/board-options.feature:181"],
             "condition": [
               "Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available",
               "Alice's activity now has 320 pixels available"
@@ -343,21 +265,15 @@
         "Alice's board settings show coordinates when Alice has a chessboard with coordinates hidden": {
           "target": "Alice sees coordinates for all eight files and all eight ranks — 26",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:192"
-            ],
-            "condition": [
-              "Alice has a chessboard with coordinates hidden"
-            ],
+            "source": ["specs/chess-board/board-options.feature:192"],
+            "condition": ["Alice has a chessboard with coordinates hidden"],
             "example": "Shown coordinates name all eight files and ranks"
           }
         },
         "Alice's board settings show coordinates when Alice has a chessboard facing Black with coordinates hidden": {
           "target": "Alice sees coordinates for all eight files and all eight ranks — 27",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:198"
-            ],
+            "source": ["specs/chess-board/board-options.feature:198"],
             "condition": [
               "Alice has a chessboard facing Black with coordinates hidden"
             ],
@@ -367,45 +283,31 @@
         "Alice changes the orientation": {
           "target": "Alice still sees no coordinates — 28",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:205"
-            ],
-            "condition": [
-              "Alice has a chessboard with coordinates hidden"
-            ],
+            "source": ["specs/chess-board/board-options.feature:205"],
+            "condition": ["Alice has a chessboard with coordinates hidden"],
             "example": "Hidden coordinates stay hidden when orientation changes"
           }
         },
         "Alice's board settings hide coordinates": {
           "target": "Alice sees no coordinates — 29",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:212"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:212"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Hiding coordinates preserves a held piece"
           }
         },
         "Alice's board settings hide legal destination marks when Alice has selected the piece on e2": {
           "target": "Alice still has e2 selected — 30",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:220"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:220"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Hidden legal marks preserve the meaning of a selection"
           }
         },
         "Alice's board settings show legal destination marks": {
           "target": "Alice has e2 selected — 31",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:227"
-            ],
+            "source": ["specs/chess-board/board-options.feature:227"],
             "condition": [
               "Alice has selected the piece on e2 with legal destination marks hidden"
             ],
@@ -415,21 +317,15 @@
         "Alice's board settings hide legal destination marks when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice is still offered queen, rook, bishop and knight as the promotion choice — 32",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:233"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-options.feature:233"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Hiding legal marks preserves a pending promotion choice"
           }
         },
         "Alice's board settings hide last move marks": {
           "target": "Alice cannot see last move marks while they are hidden — 33",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:241"
-            ],
+            "source": ["specs/chess-board/board-options.feature:241"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4"
             ],
@@ -439,9 +335,7 @@
         "Alice's board settings show last move marks": {
           "target": "Alice sees e2 and e4 marked as the last move — 34",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:247"
-            ],
+            "source": ["specs/chess-board/board-options.feature:247"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4 with last move marks hidden"
             ],
@@ -461,9 +355,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:8"
-        ],
+        "source": ["specs/chess-board/board-options.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -479,9 +371,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:14"
-        ],
+        "source": ["specs/chess-board/board-options.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -497,9 +387,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:20"
-        ],
+        "source": ["specs/chess-board/board-options.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -515,9 +403,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:26"
-        ],
+        "source": ["specs/chess-board/board-options.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -533,9 +419,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:32"
-        ],
+        "source": ["specs/chess-board/board-options.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -552,9 +436,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:38"
-        ],
+        "source": ["specs/chess-board/board-options.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -572,9 +454,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:45"
-        ],
+        "source": ["specs/chess-board/board-options.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -590,9 +470,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:53"
-        ],
+        "source": ["specs/chess-board/board-options.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -609,9 +487,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:60"
-        ],
+        "source": ["specs/chess-board/board-options.feature:60"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -628,9 +504,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:68"
-        ],
+        "source": ["specs/chess-board/board-options.feature:68"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -647,9 +521,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:75"
-        ],
+        "source": ["specs/chess-board/board-options.feature:75"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -666,9 +538,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:82"
-        ],
+        "source": ["specs/chess-board/board-options.feature:82"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -685,9 +555,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:89"
-        ],
+        "source": ["specs/chess-board/board-options.feature:89"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -704,9 +572,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:96"
-        ],
+        "source": ["specs/chess-board/board-options.feature:96"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -723,9 +589,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:103"
-        ],
+        "source": ["specs/chess-board/board-options.feature:103"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -743,9 +607,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:111"
-        ],
+        "source": ["specs/chess-board/board-options.feature:111"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -762,9 +624,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:121"
-        ],
+        "source": ["specs/chess-board/board-options.feature:121"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -782,9 +642,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:128"
-        ],
+        "source": ["specs/chess-board/board-options.feature:128"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -801,9 +659,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:136"
-        ],
+        "source": ["specs/chess-board/board-options.feature:136"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -820,9 +676,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:143"
-        ],
+        "source": ["specs/chess-board/board-options.feature:143"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -839,9 +693,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:151"
-        ],
+        "source": ["specs/chess-board/board-options.feature:151"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -858,9 +710,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:158"
-        ],
+        "source": ["specs/chess-board/board-options.feature:158"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -877,9 +727,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:166"
-        ],
+        "source": ["specs/chess-board/board-options.feature:166"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -896,9 +744,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:173"
-        ],
+        "source": ["specs/chess-board/board-options.feature:173"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -916,9 +762,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:181"
-        ],
+        "source": ["specs/chess-board/board-options.feature:181"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -934,9 +778,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:192"
-        ],
+        "source": ["specs/chess-board/board-options.feature:192"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -953,9 +795,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:198"
-        ],
+        "source": ["specs/chess-board/board-options.feature:198"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -972,9 +812,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:205"
-        ],
+        "source": ["specs/chess-board/board-options.feature:205"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -990,9 +828,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:212"
-        ],
+        "source": ["specs/chess-board/board-options.feature:212"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1009,9 +845,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:220"
-        ],
+        "source": ["specs/chess-board/board-options.feature:220"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1027,9 +861,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:227"
-        ],
+        "source": ["specs/chess-board/board-options.feature:227"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1045,9 +877,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:233"
-        ],
+        "source": ["specs/chess-board/board-options.feature:233"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1063,9 +893,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:241"
-        ],
+        "source": ["specs/chess-board/board-options.feature:241"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1081,9 +909,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:247"
-        ],
+        "source": ["specs/chess-board/board-options.feature:247"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

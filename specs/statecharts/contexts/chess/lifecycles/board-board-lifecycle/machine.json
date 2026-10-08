@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess-board/board-lifecycle.qnt"
-    ],
+    "quint": ["specs/chess-board/board-lifecycle.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the board board lifecycle view.",
         "snapshot": "the-person-is-opening-the-board-board-lifecycle-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ]
+        "source": ["specs/chess-board/board-lifecycle.qnt"]
       },
       "on": {
         "Opens with viewing the settled chessboard": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:32"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:32"]
           }
         }
       }
@@ -63,9 +55,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": true,
@@ -125,9 +115,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:92"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
           }
         },
         "Resize board resulting in viewing the settled chessboard": {
@@ -167,9 +155,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:98"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
           }
         },
         "Switch away resulting in viewing the settled chessboard": {
@@ -209,9 +195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:52"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
           }
         },
         "Finish animation resulting in viewing the settled chessboard": {
@@ -251,9 +235,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:103"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
           }
         },
         "Begin drag resulting in holding a chess piece": {
@@ -293,9 +275,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:41"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:41"]
           }
         },
         "Replace position resulting in viewing the settled chessboard": {
@@ -335,9 +315,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:72"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
           }
         },
         "Cancel drag resulting in viewing the settled chessboard": {
@@ -377,9 +355,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:47"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
           }
         },
         "Set visibility resulting in viewing the settled chessboard": {
@@ -419,9 +395,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Select piece resulting in seeing a selected chess piece": {
@@ -461,9 +435,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:35"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
           }
         },
         "Supply unusable position resulting in viewing the settled chessboard": {
@@ -503,9 +475,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:80"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
           }
         },
         "Finish earlier animation resulting in viewing the settled chessboard": {
@@ -545,9 +515,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:108"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
           }
         },
         "Configure board resulting in viewing the settled chessboard": {
@@ -587,9 +555,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         },
         "Set visibility resulting in board hidden": {
@@ -629,9 +595,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Close board resulting in board closed": {
@@ -671,9 +635,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:119"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
           }
         },
         "Move piece resulting in seeing pieces move": {
@@ -713,9 +675,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
           }
         },
         "Move piece resulting in viewing the settled chessboard": {
@@ -755,9 +715,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
           }
         },
         "Receive reply resulting in viewing the settled chessboard": {
@@ -797,9 +755,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:64"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
           }
         },
         "Select piece resulting in viewing the settled chessboard": {
@@ -839,9 +795,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:35"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
           }
         },
         "Receive reply resulting in seeing pieces move": {
@@ -881,9 +835,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:64"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
           }
         }
       }
@@ -905,9 +857,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": true,
@@ -967,9 +917,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:119"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
           }
         },
         "Finish animation resulting in holding a chess piece": {
@@ -1009,9 +957,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:103"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
           }
         },
         "Switch away resulting in viewing the settled chessboard": {
@@ -1051,9 +997,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:52"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
           }
         },
         "Resize board resulting in viewing the settled chessboard": {
@@ -1093,9 +1037,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:98"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
           }
         },
         "Move piece resulting in seeing pieces move": {
@@ -1135,9 +1077,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
           }
         },
         "Configure board resulting in viewing the settled chessboard": {
@@ -1177,9 +1117,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         },
         "Flip board resulting in viewing the settled chessboard": {
@@ -1219,9 +1157,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:92"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
           }
         },
         "Configure board resulting in holding a chess piece": {
@@ -1261,9 +1197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         },
         "Cancel drag resulting in viewing the settled chessboard": {
@@ -1303,9 +1237,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:47"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
           }
         }
       }
@@ -1327,9 +1259,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": false,
@@ -1389,9 +1319,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:127"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:127"]
           }
         },
         "Start board resulting in viewing the settled chessboard": {
@@ -1431,9 +1359,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:127"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:127"]
           }
         },
         "Finish earlier animation resulting in board closed": {
@@ -1473,9 +1399,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:108"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
           }
         }
       }
@@ -1497,9 +1421,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": true,
@@ -1559,9 +1481,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:52"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
           }
         },
         "Begin drag resulting in holding a chess piece": {
@@ -1601,9 +1521,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:41"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:41"]
           }
         },
         "Set visibility resulting in seeing a selected chess piece": {
@@ -1643,9 +1561,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Close board resulting in board closed": {
@@ -1685,9 +1601,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:119"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
           }
         },
         "Finish animation resulting in seeing a selected chess piece": {
@@ -1727,9 +1641,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:103"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
           }
         },
         "Select piece resulting in viewing the settled chessboard": {
@@ -1769,9 +1681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:35"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:35"]
           }
         },
         "Move piece resulting in seeing pieces move": {
@@ -1811,9 +1721,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:57"]
           }
         },
         "Replace position resulting in seeing a selected chess piece": {
@@ -1853,9 +1761,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:72"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
           }
         },
         "Cancel drag resulting in seeing a selected chess piece": {
@@ -1895,9 +1801,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:47"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
           }
         },
         "Set visibility resulting in board hidden": {
@@ -1937,9 +1841,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Resize board resulting in seeing a selected chess piece": {
@@ -1979,9 +1881,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:98"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
           }
         }
       }
@@ -2003,9 +1903,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": true,
@@ -2065,9 +1963,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:80"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
           }
         },
         "Close board resulting in board closed": {
@@ -2107,9 +2003,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:119"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
           }
         },
         "Switch away resulting in seeing pieces move": {
@@ -2149,9 +2043,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:52"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
           }
         },
         "Cancel drag resulting in seeing pieces move": {
@@ -2191,9 +2083,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:47"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:47"]
           }
         },
         "Configure board resulting in seeing pieces move": {
@@ -2233,9 +2123,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         },
         "Replace position resulting in seeing pieces move": {
@@ -2275,9 +2163,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:72"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
           }
         },
         "Replace position resulting in viewing the settled chessboard": {
@@ -2317,9 +2203,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:72"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
           }
         },
         "Flip board resulting in viewing the settled chessboard": {
@@ -2359,9 +2243,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:92"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
           }
         },
         "Finish animation resulting in viewing the settled chessboard": {
@@ -2401,9 +2283,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:103"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
           }
         },
         "Resize board resulting in seeing pieces move": {
@@ -2443,9 +2323,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:98"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
           }
         },
         "Finish earlier animation resulting in seeing pieces move": {
@@ -2485,9 +2363,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:108"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
           }
         },
         "Set visibility resulting in board hidden": {
@@ -2527,9 +2403,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Set visibility resulting in seeing pieces move": {
@@ -2569,9 +2443,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Receive reply resulting in seeing pieces move": {
@@ -2611,9 +2483,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:64"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:64"]
           }
         },
         "Configure board resulting in viewing the settled chessboard": {
@@ -2653,9 +2523,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         }
       }
@@ -2677,9 +2545,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-lifecycle.qnt"
-        ],
+        "source": ["specs/chess-board/board-lifecycle.qnt"],
         "quintPredicates": [
           {
             "board.present": true,
@@ -2746,9 +2612,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:92"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:92"]
           }
         },
         "Switch away resulting in board hidden": {
@@ -2788,9 +2652,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:52"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:52"]
           }
         },
         "Finish animation resulting in board hidden": {
@@ -2830,9 +2692,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:103"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:103"]
           }
         },
         "Close board resulting in board closed": {
@@ -2872,9 +2732,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:119"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:119"]
           }
         },
         "Resize board resulting in board hidden": {
@@ -2914,9 +2772,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:98"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:98"]
           }
         },
         "Configure board resulting in board hidden": {
@@ -2956,9 +2812,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:84"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:84"]
           }
         },
         "Set visibility resulting in viewing the settled chessboard": {
@@ -2998,9 +2852,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Supply unusable position resulting in board hidden": {
@@ -3040,9 +2892,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:80"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:80"]
           }
         },
         "Replace position resulting in board hidden": {
@@ -3082,9 +2932,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:72"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:72"]
           }
         },
         "Set visibility resulting in board hidden": {
@@ -3124,9 +2972,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:112"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:112"]
           }
         },
         "Finish earlier animation resulting in board hidden": {
@@ -3166,9 +3012,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-lifecycle.qnt:108"
-            ]
+            "source": ["specs/chess-board/board-lifecycle.qnt:108"]
           }
         }
       }

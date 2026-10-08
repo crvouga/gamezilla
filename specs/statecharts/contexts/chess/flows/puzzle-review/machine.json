@@ -24,22 +24,16 @@
         "description": "The person is at the place where reviewing a puzzle's line.",
         "snapshot": "the-person-is-at-the-place-where-reviewing-a-puzzle-s-line",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-review.feature:2"]
       },
       "on": {
         "Alice opens the puzzle's review from their game log when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and Alice has solved the puzzle": {
           "target": "Alice's review is at move 4 of 4, reached without animation — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:20"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:20"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -51,9 +45,7 @@
         "Alice steps back one move in the review": {
           "target": "Alice's review is at move 3 of 4, reached with animation — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:26"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:26"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -65,9 +57,7 @@
         "Alice steps forward one move in the review": {
           "target": "Alice's review is at move 4 of 4, reached with animation — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:26"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:26"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -79,9 +69,7 @@
         "Alice jumps to the start of the review": {
           "target": "Alice's review is at move 1 of 4, reached without animation — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:36"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:36"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -93,9 +81,7 @@
         "Alice jumps to the end of the review": {
           "target": "Alice's review is at move 4 of 4, reached without animation — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:36"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:36"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -107,9 +93,7 @@
         "Alice chooses move 2 from the review's move list": {
           "target": "Alice's review is at move 2 of 4, reached without animation — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:46"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:46"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -121,9 +105,7 @@
         "Alice steps back one move in the review with the keyboard": {
           "target": "Alice's review is at move 3 of 4, reached with animation — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:51"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:51"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -135,9 +117,7 @@
         "Alice jumps to the start of the review with the keyboard": {
           "target": "Alice's review is at move 1 of 4, reached without animation — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:56"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:56"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -149,9 +129,7 @@
         "Alice flicks the review back one move": {
           "target": "Alice's review is at move 3 of 4, reached with animation — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -163,9 +141,7 @@
         "Alice opens the puzzle's review from their game log when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and Alice has played a wrong move and skipped the puzzle": {
           "target": "Alice's review is at move 4 of 4, reached without animation — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:66"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:66"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -177,9 +153,7 @@
         "Alice jumps to the start of the revealed line": {
           "target": "Alice's board is at move 1 of the line within 20 seconds — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:71"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:71"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -191,9 +165,7 @@
         "Alice opens the puzzle's review from their game log when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and Alice has solved the puzzle and the puzzle has since been retired": {
           "target": "Alice's review is at move 4 of 4, reached without animation — 12",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-review.feature:76"
-            ],
+            "source": ["specs/chess/puzzle-review.feature:76"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -216,9 +188,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:20"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -228,14 +198,10 @@
         "description": "The person observes that alice's review is at move 3 of 4, reached with animation.",
         "snapshot": "the-person-observes-that-alice-s-review-is-at-move-3-of-4-reached-with-animation",
         "recognize": [],
-        "checks": [
-          "Alice's review is at move 3 of 4, reached with animation"
-        ],
+        "checks": ["Alice's review is at move 3 of 4, reached with animation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:26"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -245,14 +211,10 @@
         "description": "The person observes that alice's review is at move 4 of 4, reached with animation.",
         "snapshot": "the-person-observes-that-alice-s-review-is-at-move-4-of-4-reached-with-animation",
         "recognize": [],
-        "checks": [
-          "Alice's review is at move 4 of 4, reached with animation"
-        ],
+        "checks": ["Alice's review is at move 4 of 4, reached with animation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:26"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -267,9 +229,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:36"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -284,9 +244,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:36"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -301,9 +259,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:46"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -313,14 +269,10 @@
         "description": "The person observes that alice's review is at move 3 of 4, reached with animation.",
         "snapshot": "the-person-observes-that-alice-s-review-is-at-move-3-of-4-reached-with-animation",
         "recognize": [],
-        "checks": [
-          "Alice's review is at move 3 of 4, reached with animation"
-        ],
+        "checks": ["Alice's review is at move 3 of 4, reached with animation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:51"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -335,9 +287,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:56"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -347,14 +297,10 @@
         "description": "The person observes that alice's review is at move 3 of 4, reached with animation.",
         "snapshot": "the-person-observes-that-alice-s-review-is-at-move-3-of-4-reached-with-animation",
         "recognize": [],
-        "checks": [
-          "Alice's review is at move 3 of 4, reached with animation"
-        ],
+        "checks": ["Alice's review is at move 3 of 4, reached with animation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -369,9 +315,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:66"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -381,14 +325,10 @@
         "description": "The person observes that alice's board is at move 1 of the line within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-s-board-is-at-move-1-of-the-line-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's board is at move 1 of the line within 20 seconds"
-        ],
+        "checks": ["Alice's board is at move 1 of the line within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:71"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -403,9 +343,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-review.feature:76"
-        ],
+        "source": ["specs/chess/puzzle-review.feature:76"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

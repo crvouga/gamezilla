@@ -18,22 +18,16 @@
         "description": "The person is at the place where a matchmaking pair play a lasting multiplayer game.",
         "snapshot": "the-person-is-at-the-place-where-a-matchmaking-pair-play-a-lasting-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:2"
-        ]
+        "source": ["specs/journeys/multiplayer-game.feature:2"]
       },
       "on": {
         "Bob starts finding a 5+0 multiplayer chess opponent": {
           "target": "Alice and Bob have the same multiplayer chess game within 5 seconds — 1 step 1",
           "meta": {
-            "source": [
-              "specs/journeys/multiplayer-game.feature:8"
-            ],
+            "source": ["specs/journeys/multiplayer-game.feature:8"],
             "condition": [
               "Alice and Bob have accounts on fresh devices",
               "Alice is finding a 5+0 multiplayer chess opponent"
@@ -44,9 +38,7 @@
         "Alice opens multiplayer chess with a connection again": {
           "target": "Alice sees the accepted multiplayer result — 2",
           "meta": {
-            "source": [
-              "specs/journeys/multiplayer-game.feature:17"
-            ],
+            "source": ["specs/journeys/multiplayer-game.feature:17"],
             "condition": [
               "Alice and Bob have accounts and an unfinished multiplayer chess game",
               "Alice's device went offline before Bob resigned"
@@ -57,12 +49,8 @@
         "Alice starts finding a 5+0 multiplayer chess opponent": {
           "target": "Alice is invited to sign in — 3",
           "meta": {
-            "source": [
-              "specs/journeys/multiplayer-game.feature:23"
-            ],
-            "condition": [
-              "Alice is a guest on a fresh device"
-            ],
+            "source": ["specs/journeys/multiplayer-game.feature:23"],
+            "condition": ["Alice is a guest on a fresh device"],
             "example": "A guest reaches the account invitation without starting a search"
           }
         }
@@ -78,17 +66,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:8"
-        ]
+        "source": ["specs/journeys/multiplayer-game.feature:8"]
       },
       "on": {
         "White and Black open with e4 and e5 in multiplayer chess": {
           "target": "The person remains at the described place until the next choice — 1 step 2",
           "meta": {
-            "source": [
-              "specs/journeys/multiplayer-game.feature:8"
-            ],
+            "source": ["specs/journeys/multiplayer-game.feature:8"],
             "condition": [],
             "example": "Two accounts are matched and can finish their multiplayer game"
           }
@@ -105,17 +89,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:8"
-        ]
+        "source": ["specs/journeys/multiplayer-game.feature:8"]
       },
       "on": {
         "Bob resigns multiplayer chess": {
           "target": "both people see Alice won the multiplayer game — 1 step 3",
           "meta": {
-            "source": [
-              "specs/journeys/multiplayer-game.feature:8"
-            ],
+            "source": ["specs/journeys/multiplayer-game.feature:8"],
             "condition": [],
             "example": "Two accounts are matched and can finish their multiplayer game"
           }
@@ -127,14 +107,10 @@
         "description": "The person observes that both people see Alice won the multiplayer game.",
         "snapshot": "the-person-observes-that-both-people-see-alice-won-the-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "both people see Alice won the multiplayer game"
-        ],
+        "checks": ["both people see Alice won the multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:8"
-        ],
+        "source": ["specs/journeys/multiplayer-game.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -144,14 +120,10 @@
         "description": "The person observes that alice sees the accepted multiplayer result.",
         "snapshot": "the-person-observes-that-alice-sees-the-accepted-multiplayer-result",
         "recognize": [],
-        "checks": [
-          "Alice sees the accepted multiplayer result"
-        ],
+        "checks": ["Alice sees the accepted multiplayer result"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:17"
-        ],
+        "source": ["specs/journeys/multiplayer-game.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -167,9 +139,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/multiplayer-game.feature:23"
-        ],
+        "source": ["specs/journeys/multiplayer-game.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

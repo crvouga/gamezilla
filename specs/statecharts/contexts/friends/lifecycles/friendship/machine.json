@@ -6,15 +6,10 @@
     "kind": "lifecycle",
     "owner": "Friends owner (not named in specs)",
     "tier": "standard",
-    "emits": [
-      "BecameFriends",
-      "FriendshipEnded"
-    ],
+    "emits": ["BecameFriends", "FriendshipEnded"],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/friends/friendship.qnt"
-    ],
+    "quint": ["specs/friends/friendship.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
     "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
   },
@@ -24,14 +19,10 @@
         "description": "The person is opening the friendship view.",
         "snapshot": "the-person-is-opening-the-friendship-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ]
+        "source": ["specs/friends/friendship.qnt"]
       },
       "on": {
         "Opens with viewing a person to ask": {
@@ -43,9 +34,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/friends/friendship.qnt:104"
-            ]
+            "source": ["specs/friends/friendship.qnt:104"]
           }
         }
       }
@@ -67,15 +56,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Stranger",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Stranger", []],
             "declined.contains((\"alice\",\"bob\"))": false
           }
         ],
@@ -111,9 +95,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Asks the other person to be friends resulting in waiting for a sent request": {
@@ -135,9 +117,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask": {
@@ -159,9 +139,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Blocks the other person resulting in viewing a person to ask": {
@@ -183,9 +161,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Blocks the other person resulting in viewing a person you blocked": {
@@ -207,9 +183,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Blocks the other person resulting in unable to find the other person": {
@@ -231,9 +205,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Declines the request from the profile resulting in viewing a person to ask": {
@@ -255,9 +227,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "The connection returns resulting in choosing whether to accept a request": {
@@ -279,9 +249,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Accepts the friend request resulting in viewing a person to ask": {
@@ -303,9 +271,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Removes the friend resulting in viewing a person to ask": {
@@ -327,9 +293,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         },
         "Asks the other person to be friends resulting in choosing whether to accept a request": {
@@ -351,9 +315,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Declines the friend request resulting in viewing a person to ask": {
@@ -375,9 +337,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "Cancels the pending choice resulting in viewing a person to ask": {
@@ -399,9 +359,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "The connection returns resulting in unable to find the other person": {
@@ -423,9 +381,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         }
       }
@@ -447,15 +403,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "RequestSent",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["RequestSent", []],
             "declined.contains((\"alice\",\"bob\"))": false
           }
         ],
@@ -491,9 +442,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Cancels the pending choice resulting in viewing a person to ask": {
@@ -515,9 +464,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Asks the other person to be friends resulting in waiting for a sent request": {
@@ -539,9 +486,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Blocks the other person resulting in waiting for a sent request": {
@@ -563,9 +508,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Unblocks the other person resulting in waiting for a sent request": {
@@ -587,9 +530,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Blocks the other person resulting in unable to find the other person": {
@@ -611,9 +552,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Accepts the friend request resulting in viewing a friend": {
@@ -635,9 +574,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Cancels the pending choice resulting in waiting for a sent request": {
@@ -659,9 +596,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Declines the friend request resulting in viewing a person to ask after a declined request": {
@@ -683,9 +618,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "Declines the request from the profile resulting in viewing a person to ask after a declined request": {
@@ -707,9 +640,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "Blocks the other person resulting in viewing a person you blocked": {
@@ -731,9 +662,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Accepts the friend request resulting in waiting for a sent request": {
@@ -755,9 +684,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Removes the friend resulting in waiting for a sent request": {
@@ -779,9 +706,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         },
         "Accepts the friend request from the profile resulting in waiting for a sent request": {
@@ -803,9 +728,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "The connection returns resulting in viewing a friend": {
@@ -827,9 +750,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         }
       }
@@ -851,15 +772,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Friend",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Friend", []],
             "declined.contains((\"alice\",\"bob\"))": false
           }
         ],
@@ -895,9 +811,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Blocks the other person resulting in viewing a friend": {
@@ -919,9 +833,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Removes the friend resulting in viewing a person to ask": {
@@ -943,9 +855,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         },
         "Unblocks the other person resulting in viewing a friend": {
@@ -967,9 +877,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Asks the other person to be friends resulting in viewing a friend": {
@@ -991,9 +899,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "The connection returns resulting in viewing a person to ask": {
@@ -1015,9 +921,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Blocks the other person resulting in viewing a person you blocked": {
@@ -1039,9 +943,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Removes the friend resulting in viewing a friend": {
@@ -1063,9 +965,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         }
       }
@@ -1087,15 +987,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Blocking",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Blocking", []],
             "declined.contains((\"alice\",\"bob\"))": false
           }
         ],
@@ -1131,9 +1026,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask": {
@@ -1155,9 +1048,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Asks the other person to be friends resulting in viewing a person you blocked": {
@@ -1179,9 +1070,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Cancels the pending choice resulting in viewing a person you blocked": {
@@ -1203,9 +1092,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Declines the request from the profile resulting in viewing a person you blocked": {
@@ -1227,9 +1114,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "Accepts the friend request resulting in viewing a person you blocked": {
@@ -1251,9 +1136,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Blocks the other person resulting in viewing a person you blocked": {
@@ -1275,9 +1158,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Accepts the friend request from the profile resulting in viewing a person you blocked": {
@@ -1299,9 +1180,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Removes the friend resulting in viewing a person you blocked": {
@@ -1323,9 +1202,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         },
         "Declines the friend request resulting in viewing a person you blocked": {
@@ -1347,9 +1224,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         }
       }
@@ -1371,15 +1246,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Hidden",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Hidden", []],
             "declined.contains((\"alice\",\"bob\"))": false
           }
         ],
@@ -1415,9 +1285,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Blocks the other person resulting in unable to find the other person": {
@@ -1439,9 +1307,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Unblocks the other person resulting in unable to find the other person": {
@@ -1463,9 +1329,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Declines the friend request resulting in unable to find the other person": {
@@ -1487,9 +1351,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "The connection returns resulting in viewing a person to ask": {
@@ -1511,9 +1373,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask": {
@@ -1535,9 +1395,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Declines the request from the profile resulting in unable to find the other person": {
@@ -1559,9 +1417,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "Cancels the pending choice resulting in unable to find the other person": {
@@ -1583,9 +1439,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Accepts the friend request resulting in unable to find the other person": {
@@ -1607,9 +1461,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Accepts the friend request from the profile resulting in unable to find the other person": {
@@ -1631,9 +1483,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Removes the friend resulting in unable to find the other person": {
@@ -1655,9 +1505,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         }
       }
@@ -1679,9 +1527,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
             "friendshipStatus.get((\"alice\",\"bob\"))": [
@@ -1723,9 +1569,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "Blocks the other person resulting in viewing a person you blocked": {
@@ -1747,9 +1591,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Asks the other person to be friends resulting in choosing whether to accept a request": {
@@ -1771,9 +1613,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Unblocks the other person resulting in choosing whether to accept a request": {
@@ -1795,9 +1635,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Accepts the friend request resulting in choosing whether to accept a request": {
@@ -1819,9 +1657,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         },
         "Blocks the other person resulting in choosing whether to accept a request": {
@@ -1843,9 +1679,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Accepts the friend request from the profile resulting in viewing a friend": {
@@ -1867,9 +1701,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Declines the request from the profile resulting in viewing a person to ask": {
@@ -1891,9 +1723,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "Declines the request from the profile resulting in choosing whether to accept a request": {
@@ -1915,9 +1745,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:180"
-            ]
+            "source": ["specs/friends/friendship.qnt:180"]
           }
         },
         "Blocks the other person resulting in unable to find the other person": {
@@ -1939,9 +1767,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Cancels the pending choice resulting in choosing whether to accept a request": {
@@ -1963,9 +1789,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "The connection returns resulting in viewing a person to ask": {
@@ -1987,9 +1811,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Declines the friend request resulting in viewing a person to ask": {
@@ -2011,9 +1833,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "Accepts the friend request resulting in viewing a friend": {
@@ -2035,9 +1855,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:147"
-            ]
+            "source": ["specs/friends/friendship.qnt:147"]
           }
         }
       }
@@ -2059,15 +1877,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Stranger",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Stranger", []],
             "declined.contains((\"alice\",\"bob\"))": true
           }
         ],
@@ -2103,9 +1916,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Asks the other person to be friends resulting in viewing a person to ask after a declined request": {
@@ -2127,9 +1938,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Blocks the other person resulting in viewing a person to ask after a declined request": {
@@ -2151,9 +1960,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "The connection returns resulting in choosing whether to accept a request after a declined request": {
@@ -2175,9 +1982,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Asks the other person to be friends resulting in choosing whether to accept a request after a declined request": {
@@ -2199,9 +2004,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask after a declined request": {
@@ -2223,9 +2026,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Declines the friend request resulting in viewing a person to ask after a declined request": {
@@ -2247,9 +2048,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "Blocks the other person resulting in unable to find the other person after a declined request": {
@@ -2271,9 +2070,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "The connection returns resulting in unable to find the other person after a declined request": {
@@ -2295,9 +2092,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Accepts the friend request from the profile resulting in viewing a person to ask after a declined request": {
@@ -2319,9 +2114,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Removes the friend resulting in viewing a person to ask after a declined request": {
@@ -2343,9 +2136,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         }
       }
@@ -2367,15 +2158,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Blocking",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Blocking", []],
             "declined.contains((\"alice\",\"bob\"))": true
           }
         ],
@@ -2411,9 +2197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask after a declined request": {
@@ -2435,9 +2219,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Unblocks the other person resulting in viewing a person you blocked after a declined request": {
@@ -2459,9 +2241,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         }
       }
@@ -2483,9 +2263,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
             "friendshipStatus.get((\"alice\",\"bob\"))": [
@@ -2527,9 +2305,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:158"
-            ]
+            "source": ["specs/friends/friendship.qnt:158"]
           }
         },
         "Unblocks the other person resulting in choosing whether to accept a request after a declined request": {
@@ -2551,9 +2327,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "Blocks the other person resulting in choosing whether to accept a request after a declined request": {
@@ -2575,9 +2349,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Declines the friend request resulting in viewing a person to ask after a declined request": {
@@ -2599,9 +2371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:169"
-            ]
+            "source": ["specs/friends/friendship.qnt:169"]
           }
         },
         "Cancels the pending choice resulting in choosing whether to accept a request after a declined request": {
@@ -2623,9 +2393,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:133"
-            ]
+            "source": ["specs/friends/friendship.qnt:133"]
           }
         },
         "The connection returns resulting in unable to find the other person after a declined request": {
@@ -2647,9 +2415,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         }
       }
@@ -2671,15 +2437,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Friend",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Friend", []],
             "declined.contains((\"alice\",\"bob\"))": true
           }
         ],
@@ -2715,9 +2476,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:191"
-            ]
+            "source": ["specs/friends/friendship.qnt:191"]
           }
         }
       }
@@ -2739,15 +2498,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friendship.qnt"
-        ],
+        "source": ["specs/friends/friendship.qnt"],
         "quintPredicates": [
           {
-            "friendshipStatus.get((\"alice\",\"bob\"))": [
-              "Hidden",
-              []
-            ],
+            "friendshipStatus.get((\"alice\",\"bob\"))": ["Hidden", []],
             "declined.contains((\"alice\",\"bob\"))": true
           }
         ],
@@ -2783,9 +2537,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:119"
-            ]
+            "source": ["specs/friends/friendship.qnt:119"]
           }
         },
         "Blocks the other person resulting in unable to find the other person after a declined request": {
@@ -2807,9 +2559,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:203"
-            ]
+            "source": ["specs/friends/friendship.qnt:203"]
           }
         },
         "Unblocks the other person resulting in unable to find the other person after a declined request": {
@@ -2831,9 +2581,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         },
         "The connection returns resulting in viewing a person to ask after a declined request": {
@@ -2855,9 +2603,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:239"
-            ]
+            "source": ["specs/friends/friendship.qnt:239"]
           }
         },
         "Unblocks the other person resulting in viewing a person to ask after a declined request": {
@@ -2879,9 +2625,7 @@
                 }
               }
             },
-            "source": [
-              "specs/friends/friendship.qnt:219"
-            ]
+            "source": ["specs/friends/friendship.qnt:219"]
           }
         }
       }

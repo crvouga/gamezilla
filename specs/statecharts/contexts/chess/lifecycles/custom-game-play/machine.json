@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/custom-game-play.qnt"
-    ],
+    "quint": ["specs/chess/custom-game-play.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the custom game play view.",
         "snapshot": "the-person-is-opening-the-custom-game-play-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ]
+        "source": ["specs/chess/custom-game-play.qnt"]
       },
       "on": {
         "Opens with playing a Custom Game": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:66"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:66"]
           }
         }
       }
@@ -65,9 +57,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ],
+        "source": ["specs/chess/custom-game-play.qnt"],
         "quintPredicates": [
           {
             "playStatus": "active",
@@ -116,9 +106,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         },
         "Play custom move resulting in playing a Custom Game": {
@@ -148,9 +136,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:79"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:79"]
           }
         },
         "Resign custom game resulting in seeing black wins by resignation": {
@@ -180,9 +166,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Cancel custom game resulting in playing a Custom Game": {
@@ -212,9 +196,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         },
         "Custom time passes resulting in playing a Custom Game": {
@@ -244,9 +226,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         },
         "Claim win resulting in playing a Custom Game": {
@@ -276,9 +256,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:98"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:98"]
           }
         },
         "Resign custom game resulting in playing a Custom Game": {
@@ -308,9 +286,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Resign custom game resulting in seeing white wins by resignation": {
@@ -340,9 +316,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Custom time passes resulting in seeing black wins on time": {
@@ -372,9 +346,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         }
       }
@@ -398,9 +370,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ],
+        "source": ["specs/chess/custom-game-play.qnt"],
         "quintPredicates": [
           {
             "playStatus": "cancelled",
@@ -450,9 +420,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         },
         "Claim win resulting in seeing a cancelled Custom Game": {
@@ -482,9 +450,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:98"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:98"]
           }
         },
         "Resign custom game resulting in seeing a cancelled Custom Game": {
@@ -514,9 +480,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Cancel custom game resulting in seeing a cancelled Custom Game": {
@@ -546,9 +510,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         },
         "Play custom move resulting in seeing a cancelled Custom Game": {
@@ -578,9 +540,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:79"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:79"]
           }
         }
       }
@@ -604,9 +564,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ],
+        "source": ["specs/chess/custom-game-play.qnt"],
         "quintPredicates": [
           {
             "playStatus": "completed",
@@ -656,9 +614,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:79"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:79"]
           }
         },
         "Resign custom game resulting in seeing black wins by resignation": {
@@ -688,9 +644,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Claim win resulting in seeing black wins by resignation": {
@@ -720,9 +674,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:98"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:98"]
           }
         },
         "Custom time passes resulting in seeing black wins by resignation": {
@@ -752,9 +704,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         },
         "Cancel custom game resulting in seeing black wins by resignation": {
@@ -784,9 +734,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         }
       }
@@ -810,9 +758,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ],
+        "source": ["specs/chess/custom-game-play.qnt"],
         "quintPredicates": [
           {
             "playStatus": "completed",
@@ -862,9 +808,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         },
         "Play custom move resulting in seeing white wins by resignation": {
@@ -894,9 +838,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:79"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:79"]
           }
         },
         "Custom time passes resulting in seeing white wins by resignation": {
@@ -926,9 +868,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         },
         "Resign custom game resulting in seeing white wins by resignation": {
@@ -958,9 +898,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         },
         "Claim win resulting in seeing white wins by resignation": {
@@ -990,9 +928,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:98"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:98"]
           }
         }
       }
@@ -1016,9 +952,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-play.qnt"
-        ],
+        "source": ["specs/chess/custom-game-play.qnt"],
         "quintPredicates": [
           {
             "playStatus": "completed",
@@ -1068,9 +1002,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:92"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:92"]
           }
         },
         "Play custom move resulting in seeing black wins on time": {
@@ -1100,9 +1032,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:79"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:79"]
           }
         },
         "Custom time passes resulting in seeing black wins on time": {
@@ -1132,9 +1062,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:107"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:107"]
           }
         },
         "Claim win resulting in seeing black wins on time": {
@@ -1164,9 +1092,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:98"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:98"]
           }
         },
         "Resign custom game resulting in seeing black wins on time": {
@@ -1196,9 +1122,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game-play.qnt:86"
-            ]
+            "source": ["specs/chess/custom-game-play.qnt:86"]
           }
         }
       }

@@ -24,22 +24,16 @@
         "description": "The person is at the place where the puzzle limit holds everywhere, and only for guests.",
         "snapshot": "the-person-is-at-the-place-where-the-puzzle-limit-holds-everywhere-and-only-for-guest",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:2"]
       },
       "on": {
         "Alice moves on to the next puzzle when Alice is signed in and Alice has played 25 puzzles today": {
           "target": "Alice has a puzzle on the board — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limits-by-kind.feature:12"
-            ],
+            "source": ["specs/chess/puzzle-limits-by-kind.feature:12"],
             "condition": [
               "Alice is signed in",
               "Alice has played 25 puzzles today"
@@ -50,9 +44,7 @@
         "Alice moves on to the next puzzle when Alice has subscribed to Plus and Alice has played 25 puzzles today": {
           "target": "Alice has a puzzle on the board — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limits-by-kind.feature:12"
-            ],
+            "source": ["specs/chess/puzzle-limits-by-kind.feature:12"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has played 25 puzzles today"
@@ -63,9 +55,7 @@
         "Alice asks for another puzzle when Alice is a guest who has finished today's last allowed puzzle and Alice is offline": {
           "target": "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limits-by-kind.feature:24"
-            ],
+            "source": ["specs/chess/puzzle-limits-by-kind.feature:24"],
             "condition": [
               "Alice is a guest who has finished today's last allowed puzzle",
               "Alice is offline"
@@ -76,9 +66,7 @@
         "Alice asks for another puzzle when Alice is a guest who has played 19 puzzles today and Alice is offline and Alice has solved the twentieth puzzle of the day": {
           "target": "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limits-by-kind.feature:31"
-            ],
+            "source": ["specs/chess/puzzle-limits-by-kind.feature:31"],
             "condition": [
               "Alice is a guest who has played 19 puzzles today",
               "Alice is offline",
@@ -90,9 +78,7 @@
         "Alice goes back to the puzzles": {
           "target": "Alice has a puzzle on the board within 30 seconds — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limits-by-kind.feature:38"
-            ],
+            "source": ["specs/chess/puzzle-limits-by-kind.feature:38"],
             "condition": [
               "Alice is a guest who has been shown today's puzzle limit",
               "the next day has begun"
@@ -113,9 +99,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:12"
-        ],
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -131,9 +115,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:12"
-        ],
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -149,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:24"
-        ],
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -166,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:31"
-        ],
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:31"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -184,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limits-by-kind.feature:38"
-        ],
+        "source": ["specs/chess/puzzle-limits-by-kind.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

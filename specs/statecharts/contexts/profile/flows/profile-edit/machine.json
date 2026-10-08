@@ -24,70 +24,48 @@
         "description": "The person is at the place where edit a profile.",
         "snapshot": "the-person-is-at-the-place-where-edit-a-profile",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:2"
-        ]
+        "source": ["specs/profile/profile-edit.feature:2"]
       },
       "on": {
         "Alice renames themselves to @knight_rider": {
           "target": "Alice's profile shows @knight_rider — 1",
           "meta": {
-            "source": [
-              "specs/profile/profile-edit.feature:8"
-            ],
-            "condition": [
-              "Alice is a guest"
-            ],
+            "source": ["specs/profile/profile-edit.feature:8"],
+            "condition": ["Alice is a guest"],
             "example": "A guest changes their username"
           }
         },
         "Alice renames themselves to @alice_w": {
           "target": "Alice's profile shows @alice_w — 2",
           "meta": {
-            "source": [
-              "specs/profile/profile-edit.feature:13"
-            ],
-            "condition": [
-              "Alice is signed in"
-            ],
+            "source": ["specs/profile/profile-edit.feature:13"],
+            "condition": ["Alice is signed in"],
             "example": "A signed-in person changes their username"
           }
         },
         "Alice saves an avatar with seed 'sunflower' and style 'Bottts'": {
           "target": "Alice's saved avatar has seed \"sunflower\" — 3",
           "meta": {
-            "source": [
-              "specs/profile/profile-edit.feature:18"
-            ],
-            "condition": [
-              "Alice is a guest"
-            ],
+            "source": ["specs/profile/profile-edit.feature:18"],
+            "condition": ["Alice is a guest"],
             "example": "A guest changes and saves their avatar"
           }
         },
         "Alice saves an avatar with seed 'moonbeam' and style 'Bottts'": {
           "target": "Alice's saved avatar has seed \"moonbeam\" — 4",
           "meta": {
-            "source": [
-              "specs/profile/profile-edit.feature:24"
-            ],
-            "condition": [
-              "Alice is signed in"
-            ],
+            "source": ["specs/profile/profile-edit.feature:24"],
+            "condition": ["Alice is signed in"],
             "example": "A signed-in person changes and saves their avatar"
           }
         },
         "Alice changes the avatar seed to 'discarded-seed' and leaves without saving": {
           "target": "Alice's saved avatar has seed \"kept-seed\" — 5",
           "meta": {
-            "source": [
-              "specs/profile/profile-edit.feature:30"
-            ],
+            "source": ["specs/profile/profile-edit.feature:30"],
             "condition": [
               "Alice has saved an avatar with seed \"kept-seed\" and style \"Bottts\""
             ],
@@ -101,14 +79,10 @@
         "description": "The person observes that alice's profile shows @knight_rider.",
         "snapshot": "the-person-observes-that-alice-s-profile-shows-knight-rider",
         "recognize": [],
-        "checks": [
-          "Alice's profile shows @knight_rider"
-        ],
+        "checks": ["Alice's profile shows @knight_rider"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:8"
-        ],
+        "source": ["specs/profile/profile-edit.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -118,14 +92,10 @@
         "description": "The person observes that alice's profile shows @alice_w.",
         "snapshot": "the-person-observes-that-alice-s-profile-shows-alice-w",
         "recognize": [],
-        "checks": [
-          "Alice's profile shows @alice_w"
-        ],
+        "checks": ["Alice's profile shows @alice_w"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:13"
-        ],
+        "source": ["specs/profile/profile-edit.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -141,9 +111,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:18"
-        ],
+        "source": ["specs/profile/profile-edit.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -159,9 +127,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:24"
-        ],
+        "source": ["specs/profile/profile-edit.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -171,14 +137,10 @@
         "description": "The person observes that alice's saved avatar has seed \"kept-seed\".",
         "snapshot": "the-person-observes-that-alice-s-saved-avatar-has-seed-kept-seed",
         "recognize": [],
-        "checks": [
-          "Alice's saved avatar has seed \"kept-seed\""
-        ],
+        "checks": ["Alice's saved avatar has seed \"kept-seed\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-edit.feature:30"
-        ],
+        "source": ["specs/profile/profile-edit.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

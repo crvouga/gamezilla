@@ -24,22 +24,16 @@
         "description": "The person is at the place where custom Games respect account deletion and personal-data export.",
         "snapshot": "the-person-is-at-the-place-where-custom-games-respect-account-deletion-and-personal-d",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-privacy.feature:2"]
       },
       "on": {
         "Alice confirms account deletion": {
           "target": "The Custom Game is cancelled with no winner — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:7"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has an active Custom Game between two bots"
@@ -50,9 +44,7 @@
         "Alice signs in with Google": {
           "target": "Alice cannot see the deleted account's Custom Game — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:14"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:14"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice's deleted account had a Custom Game"
@@ -63,9 +55,7 @@
         "Bob confirms account deletion when Bob has a recently proven account and Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob": {
           "target": "Black is an open place in the Custom Game — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:23"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:23"],
             "condition": [
               "Bob has a recently proven account",
               "Alice has a configuring Custom Game",
@@ -77,9 +67,7 @@
         "Bob confirms account deletion when Bob has a recently proven account and Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice wins the Custom Game by resignation — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:30"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:30"],
             "condition": [
               "Bob has a recently proven account",
               "Alice has an active Custom Game between Alice as White and Bob as Black"
@@ -90,9 +78,7 @@
         "Carol confirms account deletion": {
           "target": "The Custom Game remains active — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:37"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:37"],
             "condition": [
               "Carol has a recently proven account",
               "Alice has an active Custom Game between Alice as White and Bob as Black",
@@ -104,9 +90,7 @@
         "Alice's personal-data export becomes ready": {
           "target": "Alice's personal-data export includes the Custom Game choices moves and outcome — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:48"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:48"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has a completed Custom Game after White's e4",
@@ -118,9 +102,7 @@
         "Carol's personal-data export becomes ready": {
           "target": "Carol's personal-data export cannot include Alice's Custom Game — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-privacy.feature:55"
-            ],
+            "source": ["specs/chess/custom-game-privacy.feature:55"],
             "condition": [
               "Carol has a recently proven account",
               "Alice has a completed Custom Game between Alice as White and Bob as Black",
@@ -143,9 +125,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -155,14 +135,10 @@
         "description": "The person observes that alice cannot see the deleted account's Custom Game.",
         "snapshot": "the-person-observes-that-alice-cannot-see-the-deleted-account-s-custom-game",
         "recognize": [],
-        "checks": [
-          "Alice cannot see the deleted account's Custom Game"
-        ],
+        "checks": ["Alice cannot see the deleted account's Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:14"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -172,14 +148,10 @@
         "description": "The person observes that black is an open place in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-an-open-place-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is an open place in the Custom Game"
-        ],
+        "checks": ["Black is an open place in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:23"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -195,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:30"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -213,9 +183,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:37"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -230,9 +198,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:48"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -247,9 +213,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-privacy.feature:55"
-        ],
+        "source": ["specs/chess/custom-game-privacy.feature:55"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/spaces/space-recovery.qnt"
-    ],
+    "quint": ["specs/spaces/space-recovery.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the space recovery view.",
         "snapshot": "the-person-is-opening-the-space-recovery-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-recovery.qnt"
-        ]
+        "source": ["specs/spaces/space-recovery.qnt"]
       },
       "on": {
         "Opens with seeing In Space in an open space": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/spaces/space-recovery.qnt:32"
-            ]
+            "source": ["specs/spaces/space-recovery.qnt:32"]
           }
         }
       }
@@ -59,15 +51,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-recovery.qnt"
-        ],
+        "source": ["specs/spaces/space-recovery.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "InSpace",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["InSpace", []],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -95,9 +82,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-recovery.qnt:47"
-            ]
+            "source": ["specs/spaces/space-recovery.qnt:47"]
           }
         },
         "Leave resulting in seeing In Space in an open space": {
@@ -115,9 +100,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-recovery.qnt:41"
-            ]
+            "source": ["specs/spaces/space-recovery.qnt:41"]
           }
         },
         "Leave host resulting in seeing Ended after the space ended": {
@@ -135,9 +118,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-recovery.qnt:53"
-            ]
+            "source": ["specs/spaces/space-recovery.qnt:53"]
           }
         }
       }
@@ -155,15 +136,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-recovery.qnt"
-        ],
+        "source": ["specs/spaces/space-recovery.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Ended",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["Ended", []],
             "openSpaces.contains(\"alice\")": false
           }
         ],

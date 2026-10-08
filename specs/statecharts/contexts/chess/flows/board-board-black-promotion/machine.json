@@ -24,22 +24,16 @@
         "description": "The person is at the place where complete Black's promotion in either orientation.",
         "snapshot": "the-person-is-at-the-place-where-complete-black-s-promotion-in-either-orientation",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:2"
-        ]
+        "source": ["specs/chess-board/board-black-promotion.feature:2"]
       },
       "on": {
         "Alice moves the piece from a2 to a1 when Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:11"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:11"],
             "condition": [
               "Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1"
             ],
@@ -49,9 +43,7 @@
         "Alice moves the piece from a2 to a1 when Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:11"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:11"],
             "condition": [
               "Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1"
             ],
@@ -61,9 +53,7 @@
         "Alice moves the piece from a2 to b1 when Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:11"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:11"],
             "condition": [
               "Alice has a chessboard facing White with Black's pawn on a2 ready to promote and White's knight on b1"
             ],
@@ -73,9 +63,7 @@
         "Alice moves the piece from a2 to b1 when Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:11"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:11"],
             "condition": [
               "Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and White's knight on b1"
             ],
@@ -85,9 +73,7 @@
         "Alice moves the piece from a2 to a1 when Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and interactivity disabled": {
           "target": "Alice cannot request promotion while interactivity is disabled — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:26"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:26"],
             "condition": [
               "Alice has a chessboard facing Black with Black's pawn on a2 ready to promote and interactivity disabled"
             ],
@@ -97,9 +83,7 @@
         "Alice chooses the promotion to a queen when Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black queen on a1 — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:37"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:37"],
             "condition": [
               "Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -109,9 +93,7 @@
         "Alice chooses the promotion to a rook when Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black rook on a1 — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:37"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:37"],
             "condition": [
               "Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -121,9 +103,7 @@
         "Alice chooses the promotion to a bishop when Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black bishop on a1 — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:37"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:37"],
             "condition": [
               "Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -133,9 +113,7 @@
         "Alice chooses the promotion to a knight when Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black knight on a1 — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:37"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:37"],
             "condition": [
               "Alice has a chessboard facing White with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -145,9 +123,7 @@
         "Alice chooses the promotion to a queen when Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black queen on a1 — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:52"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:52"],
             "condition": [
               "Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -157,9 +133,7 @@
         "Alice chooses the promotion to a rook when Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black rook on a1 — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:52"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:52"],
             "condition": [
               "Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -169,9 +143,7 @@
         "Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black bishop on a1 — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:52"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:52"],
             "condition": [
               "Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -181,9 +153,7 @@
         "Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1": {
           "target": "Alice sees a Black knight on a1 — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:52"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:52"],
             "condition": [
               "Alice has a chessboard facing Black with Black's promotion from a2 to a1 pending and White's knight on b1"
             ],
@@ -193,9 +163,7 @@
         "Alice chooses the promotion to a queen when Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black queen on b1 — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:70"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:70"],
             "condition": [
               "Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -205,9 +173,7 @@
         "Alice chooses the promotion to a rook when Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black rook on b1 — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:70"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:70"],
             "condition": [
               "Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -217,9 +183,7 @@
         "Alice chooses the promotion to a bishop when Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black bishop on b1 — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:70"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:70"],
             "condition": [
               "Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -229,9 +193,7 @@
         "Alice chooses the promotion to a knight when Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black knight on b1 — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:70"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:70"],
             "condition": [
               "Alice has a chessboard facing White with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -241,9 +203,7 @@
         "Alice chooses the promotion to a queen when Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black queen on b1 — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:85"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:85"],
             "condition": [
               "Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -253,9 +213,7 @@
         "Alice chooses the promotion to a rook when Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black rook on b1 — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:85"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:85"],
             "condition": [
               "Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -265,9 +223,7 @@
         "Alice chooses the promotion to a bishop when Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black bishop on b1 — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:85"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:85"],
             "condition": [
               "Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -277,9 +233,7 @@
         "Alice chooses the promotion to a knight when Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight": {
           "target": "Alice sees a Black knight on b1 — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-black-promotion.feature:85"
-            ],
+            "source": ["specs/chess-board/board-black-promotion.feature:85"],
             "condition": [
               "Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight"
             ],
@@ -301,9 +255,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:11"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -321,9 +273,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:11"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -341,9 +291,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:11"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -361,9 +309,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:11"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -381,9 +327,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:26"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -401,9 +345,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:37"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -421,9 +363,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:37"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -441,9 +381,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:37"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -461,9 +399,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:37"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -481,9 +417,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:52"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -501,9 +435,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:52"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -569,9 +501,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:70"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -589,9 +519,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:70"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -609,9 +537,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:70"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -629,9 +555,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:70"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -649,9 +573,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:85"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -669,9 +591,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-black-promotion.feature:85"
-        ],
+        "source": ["specs/chess-board/board-black-promotion.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

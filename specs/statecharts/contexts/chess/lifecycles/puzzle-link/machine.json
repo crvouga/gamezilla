@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/puzzle-link.qnt"
-    ],
+    "quint": ["specs/chess/puzzle-link.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the puzzle link view.",
         "snapshot": "the-person-is-opening-the-puzzle-link-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ]
+        "source": ["specs/chess/puzzle-link.qnt"]
       },
       "on": {
         "Opens with viewing a puzzle link to share": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:56"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:56"]
           }
         }
       }
@@ -61,9 +53,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ],
+        "source": ["specs/chess/puzzle-link.qnt"],
         "quintPredicates": [
           {
             "puzzle": "none",
@@ -109,9 +99,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:90"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:90"]
           }
         },
         "Share puzzle link resulting in viewing a puzzle link to share": {
@@ -141,9 +129,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:68"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:68"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzles need a connection": {
@@ -173,9 +159,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Open puzzle link resulting in practicing the linked puzzle": {
@@ -205,9 +189,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Connection returns resulting in viewing a puzzle link to share": {
@@ -237,9 +219,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:104"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:104"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzle no longer available": {
@@ -269,9 +249,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Open puzzle link resulting in playing the linked puzzle rated": {
@@ -301,9 +279,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         }
       }
@@ -323,9 +299,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ],
+        "source": ["specs/chess/puzzle-link.qnt"],
         "quintPredicates": [
           {
             "puzzle": "none",
@@ -371,9 +345,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:68"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:68"]
           }
         },
         "Connection returns resulting in told the puzzle link is puzzles need a connection": {
@@ -403,9 +375,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:104"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:104"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzle no longer available": {
@@ -435,9 +405,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzles need a connection": {
@@ -467,9 +435,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Retire puzzle resulting in told the puzzle link is puzzles need a connection": {
@@ -499,9 +465,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:90"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:90"]
           }
         }
       }
@@ -521,9 +485,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ],
+        "source": ["specs/chess/puzzle-link.qnt"],
         "quintPredicates": [
           {
             "puzzle": "none",
@@ -569,9 +531,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:68"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:68"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzle no longer available": {
@@ -601,9 +561,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Open puzzle link resulting in told the puzzle link is puzzles need a connection": {
@@ -633,9 +591,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Connection returns resulting in told the puzzle link is puzzle no longer available": {
@@ -665,9 +621,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:104"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:104"]
           }
         }
       }
@@ -687,9 +641,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ],
+        "source": ["specs/chess/puzzle-link.qnt"],
         "quintPredicates": [
           {
             "puzzle": "linked",
@@ -736,9 +688,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:68"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:68"]
           }
         },
         "Open puzzle link resulting in practicing the linked puzzle": {
@@ -768,9 +718,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Connection returns resulting in practicing the linked puzzle": {
@@ -800,9 +748,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:104"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:104"]
           }
         },
         "Retire puzzle resulting in practicing the linked puzzle": {
@@ -832,9 +778,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:90"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:90"]
           }
         }
       }
@@ -854,9 +798,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-link.qnt"
-        ],
+        "source": ["specs/chess/puzzle-link.qnt"],
         "quintPredicates": [
           {
             "puzzle": "linked",
@@ -903,9 +845,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:72"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:72"]
           }
         },
         "Share puzzle link resulting in playing the linked puzzle rated": {
@@ -935,9 +875,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:68"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:68"]
           }
         },
         "Retire puzzle resulting in playing the linked puzzle rated": {
@@ -967,9 +905,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:90"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:90"]
           }
         },
         "Connection returns resulting in playing the linked puzzle rated": {
@@ -999,9 +935,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-link.qnt:104"
-            ]
+            "source": ["specs/chess/puzzle-link.qnt:104"]
           }
         }
       }

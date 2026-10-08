@@ -22,22 +22,16 @@
         "description": "The person is at the place where investigate people in a test world.",
         "snapshot": "the-person-is-at-the-place-where-investigate-people-in-a-test-world",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/test-world-views.feature:2"
-        ]
+        "source": ["specs/developer-tools/test-world-views.feature:2"]
       },
       "on": {
         "the team selects Bob's phone in the test world": {
           "target": "the team sees Bob's app — 1",
           "meta": {
-            "source": [
-              "specs/developer-tools/test-world-views.feature:9"
-            ],
+            "source": ["specs/developer-tools/test-world-views.feature:9"],
             "condition": [
               "the testing tool has a test world with Alice's phone and Bob's phone"
             ],
@@ -47,9 +41,7 @@
         "the team opens the test world's address for Bob's phone": {
           "target": "the team sees Alice's app — 2",
           "meta": {
-            "source": [
-              "specs/developer-tools/test-world-views.feature:15"
-            ],
+            "source": ["specs/developer-tools/test-world-views.feature:15"],
             "condition": [
               "the testing tool has a test world with Alice's phone only"
             ],
@@ -59,9 +51,7 @@
         "the team shows several devices in the test world": {
           "target": "the team sees Alice's app beside Bob's app — 3",
           "meta": {
-            "source": [
-              "specs/developer-tools/test-world-views.feature:23"
-            ],
+            "source": ["specs/developer-tools/test-world-views.feature:23"],
             "condition": [
               "the testing tool has a test world with Alice's phone and Bob's phone"
             ],
@@ -71,9 +61,7 @@
         "the team shows only Alice's phone in the test world": {
           "target": "Bob's phone still keeps Bob's place in the app — 4",
           "meta": {
-            "source": [
-              "specs/developer-tools/test-world-views.feature:28"
-            ],
+            "source": ["specs/developer-tools/test-world-views.feature:28"],
             "condition": [
               "the testing tool shows Alice's phone beside Bob's phone",
               "Bob's app has a place different from Alice's app"
@@ -94,9 +82,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/test-world-views.feature:9"
-        ],
+        "source": ["specs/developer-tools/test-world-views.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -106,14 +92,10 @@
         "description": "The person observes that the team sees Alice's app.",
         "snapshot": "the-person-observes-that-the-team-sees-alice-s-app",
         "recognize": [],
-        "checks": [
-          "the team sees Alice's app"
-        ],
+        "checks": ["the team sees Alice's app"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/test-world-views.feature:15"
-        ],
+        "source": ["specs/developer-tools/test-world-views.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -123,14 +105,10 @@
         "description": "The person observes that the team sees Alice's app beside Bob's app.",
         "snapshot": "the-person-observes-that-the-team-sees-alice-s-app-beside-bob-s-app",
         "recognize": [],
-        "checks": [
-          "the team sees Alice's app beside Bob's app"
-        ],
+        "checks": ["the team sees Alice's app beside Bob's app"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/test-world-views.feature:23"
-        ],
+        "source": ["specs/developer-tools/test-world-views.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -140,14 +118,10 @@
         "description": "The person observes that bob's phone still keeps Bob's place in the app.",
         "snapshot": "the-person-observes-that-bob-s-phone-still-keeps-bob-s-place-in-the-app",
         "recognize": [],
-        "checks": [
-          "Bob's phone still keeps Bob's place in the app"
-        ],
+        "checks": ["Bob's phone still keeps Bob's place in the app"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/test-world-views.feature:28"
-        ],
+        "source": ["specs/developer-tools/test-world-views.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

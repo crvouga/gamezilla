@@ -18,22 +18,16 @@
         "description": "The person is at the place where being matched.",
         "snapshot": "the-person-is-at-the-place-where-being-matched",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:2"
-        ]
+        "source": ["specs/matchmaking/being-matched.feature:2"]
       },
       "on": {
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points": {
           "target": "Alice and Bob are matched with each other — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:9"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:9"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 200 points",
               "Bob is waiting with a rating of 1050, accepting anyone within 200 points"
@@ -44,9 +38,7 @@
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points": {
           "target": "Alice is still waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:15"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:15"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 5 points",
               "Bob is waiting with a rating of 1050, accepting anyone within 200 points"
@@ -57,9 +49,7 @@
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 200 points": {
           "target": "Alice is still waiting — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:22"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:22"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 200 points"
             ],
@@ -69,9 +59,7 @@
         "Alice widens her range to 200 points when Alice is waiting with a rating of 1000, accepting anyone within 5 points": {
           "target": "Alice sees her change counted — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:29"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:29"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 5 points"
             ],
@@ -81,9 +69,7 @@
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points and Alice has widened her range to 200 points": {
           "target": "Alice and Bob are matched with each other — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:34"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:34"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 5 points",
               "Bob is waiting with a rating of 1050, accepting anyone within 200 points",
@@ -95,24 +81,16 @@
         "Alice widens her range to 200 points when Alice has been matched with Bob": {
           "target": "Alice is told her change did not count — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:41"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:41"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Alice cannot change her range once she is matched"
           }
         },
         "Alice widens her range to 200 points when Alice has stopped waiting": {
           "target": "Alice is told her change did not count — 7",
           "meta": {
-            "source": [
-              "specs/matchmaking/being-matched.feature:47"
-            ],
-            "condition": [
-              "Alice has stopped waiting"
-            ],
+            "source": ["specs/matchmaking/being-matched.feature:47"],
+            "condition": ["Alice has stopped waiting"],
             "example": "Alice cannot change her range once she has stopped waiting"
           }
         }
@@ -123,14 +101,10 @@
         "description": "The person observes that alice and Bob are matched with each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are matched with each other"
-        ],
+        "checks": ["Alice and Bob are matched with each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:9"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -140,15 +114,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is still waiting", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:15"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -158,14 +127,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting"
-        ],
+        "checks": ["Alice is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:22"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -175,14 +140,10 @@
         "description": "The person observes that alice sees her change counted.",
         "snapshot": "the-person-observes-that-alice-sees-her-change-counted",
         "recognize": [],
-        "checks": [
-          "Alice sees her change counted"
-        ],
+        "checks": ["Alice sees her change counted"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:29"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -192,14 +153,10 @@
         "description": "The person observes that alice and Bob are matched with each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are matched with each other"
-        ],
+        "checks": ["Alice and Bob are matched with each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:34"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -215,9 +172,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:41"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -233,9 +188,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/being-matched.feature:47"
-        ],
+        "source": ["specs/matchmaking/being-matched.feature:47"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

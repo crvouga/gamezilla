@@ -18,22 +18,16 @@
         "description": "The person is at the place where the devices on an account.",
         "snapshot": "the-person-is-at-the-place-where-the-devices-on-an-account",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/devices.feature:2"
-        ]
+        "source": ["specs/profile/devices.feature:2"]
       },
       "on": {
         "Alice opens their devices when Alice is signed in with Google and Alice is also signed in on another device": {
           "target": "Alice sees 2 devices on their account — 1",
           "meta": {
-            "source": [
-              "specs/profile/devices.feature:8"
-            ],
+            "source": ["specs/profile/devices.feature:8"],
             "condition": [
               "Alice is signed in with Google",
               "Alice is also signed in on another device"
@@ -44,9 +38,7 @@
         "Alice opens their devices when Alice is signed in with Google and Alice is also signed in on another device and Alice has signed out on their other device": {
           "target": "Alice sees 1 device on their account within 30 seconds — 2",
           "meta": {
-            "source": [
-              "specs/profile/devices.feature:15"
-            ],
+            "source": ["specs/profile/devices.feature:15"],
             "condition": [
               "Alice is signed in with Google",
               "Alice is also signed in on another device",
@@ -58,12 +50,8 @@
         "Alice opens their devices when Alice is a guest": {
           "target": "Alice is asked to sign in within 5 seconds — 3",
           "meta": {
-            "source": [
-              "specs/profile/devices.feature:22"
-            ],
-            "condition": [
-              "Alice is a guest"
-            ],
+            "source": ["specs/profile/devices.feature:22"],
+            "condition": ["Alice is a guest"],
             "example": "A guest looking for their devices is asked to sign in"
           }
         }
@@ -80,9 +68,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/devices.feature:8"
-        ],
+        "source": ["specs/profile/devices.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -92,14 +78,10 @@
         "description": "The person observes that alice sees 1 device on their account within 30 seconds.",
         "snapshot": "the-person-observes-that-alice-sees-1-device-on-their-account-within-30-seconds",
         "recognize": [],
-        "checks": [
-          "Alice sees 1 device on their account within 30 seconds"
-        ],
+        "checks": ["Alice sees 1 device on their account within 30 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/devices.feature:15"
-        ],
+        "source": ["specs/profile/devices.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -109,14 +91,10 @@
         "description": "The person observes that alice is asked to sign in within 5 seconds.",
         "snapshot": "the-person-observes-that-alice-is-asked-to-sign-in-within-5-seconds",
         "recognize": [],
-        "checks": [
-          "Alice is asked to sign in within 5 seconds"
-        ],
+        "checks": ["Alice is asked to sign in within 5 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/devices.feature:22"
-        ],
+        "source": ["specs/profile/devices.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

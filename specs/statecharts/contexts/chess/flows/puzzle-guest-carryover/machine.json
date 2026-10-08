@@ -24,22 +24,16 @@
         "description": "The person is at the place where guest puzzle progress carries over.",
         "snapshot": "the-person-is-at-the-place-where-guest-puzzle-progress-carries-over",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-guest-carryover.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-guest-carryover.feature:2"]
       },
       "on": {
         "the connection comes back": {
           "target": "Alice's game log records that puzzle as solved — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-guest-carryover.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-guest-carryover.feature:10"],
             "condition": [
               "Alice is a guest",
               "Alice is playing puzzles in their space",
@@ -52,9 +46,7 @@
         "Alice signs in with Google": {
           "target": "Alice's stats show 1 played, 1 solved, and 100% accuracy — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-guest-carryover.feature:19"
-            ],
+            "source": ["specs/chess/puzzle-guest-carryover.feature:19"],
             "condition": [
               "Alice is a guest",
               "Alice is playing puzzles in their space",
@@ -67,9 +59,7 @@
         "Alice's account opens on another device": {
           "target": "Alice's other device shows the same puzzle rating within 30 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-guest-carryover.feature:28"
-            ],
+            "source": ["specs/chess/puzzle-guest-carryover.feature:28"],
             "condition": [
               "Alice is a guest",
               "Alice is playing puzzles in their space",
@@ -92,9 +82,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-guest-carryover.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-guest-carryover.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -110,9 +98,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-guest-carryover.feature:19"
-        ],
+        "source": ["specs/chess/puzzle-guest-carryover.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -128,9 +114,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-guest-carryover.feature:28"
-        ],
+        "source": ["specs/chess/puzzle-guest-carryover.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

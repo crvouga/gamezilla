@@ -24,22 +24,16 @@
         "description": "The person is at the place where keep questions about a test world.",
         "snapshot": "the-person-is-at-the-place-where-keep-questions-about-a-test-world",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:2"
-        ]
+        "source": ["specs/developer-tools/data-notebook.feature:2"]
       },
       "on": {
         "the team opens the data notebook for Alice's phone": {
           "target": "the team sees Alice's saved data notebook question about her friends — 1",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:9"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:9"],
             "condition": [
               "Alice's phone has a saved data notebook question about her friends",
               "the team has been investigating Bob's phone"
@@ -50,9 +44,7 @@
         "the team opens the data notebook for Bob's phone": {
           "target": "the team sees Bob's saved data notebook question about his spaces — 2",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:15"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:15"],
             "condition": [
               "Alice's phone has a saved data notebook question about her friends",
               "Bob's phone has a saved data notebook question about his spaces"
@@ -63,9 +55,7 @@
         "the team duplicates the data notebook question about Alice's friends when the team's data notebook has a question about Alice's friends": {
           "target": "the team sees the copied question immediately after its original — 3",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:24"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:24"],
             "condition": [
               "the team's data notebook has a question about Alice's friends"
             ],
@@ -75,9 +65,7 @@
         "the team duplicates the data notebook question about Alice's friends when the team's data notebook question about Alice's friends answers automatically": {
           "target": "the copied question still waits for the team to ask for its answer — 4",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:29"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:29"],
             "condition": [
               "the team's data notebook question about Alice's friends answers automatically"
             ],
@@ -87,9 +75,7 @@
         "the team removes the data notebook question about Alice's friends when the team's data notebook has questions about Alice's friends and Alice's spaces": {
           "target": "the team sees only the data notebook question about Alice's spaces — 5",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:36"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:36"],
             "condition": [
               "the team's data notebook has questions about Alice's friends and Alice's spaces"
             ],
@@ -99,9 +85,7 @@
         "the team removes the data notebook question about Alice's friends when the team's data notebook has only a question about Alice's friends": {
           "target": "the data notebook still has that question because it is the last one — 6",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:41"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:41"],
             "condition": [
               "the team's data notebook has only a question about Alice's friends"
             ],
@@ -111,9 +95,7 @@
         "the team runs the data notebook question about Alice's friends": {
           "target": "the team sees the question's answer — 7",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:48"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:48"],
             "condition": [
               "the team's data notebook has a question about Alice's friends"
             ],
@@ -123,9 +105,7 @@
         "the team runs that data notebook question": {
           "target": "the team is told why the data notebook question failed — 8",
           "meta": {
-            "source": [
-              "specs/developer-tools/data-notebook.feature:53"
-            ],
+            "source": ["specs/developer-tools/data-notebook.feature:53"],
             "condition": [
               "the team has a data notebook question that cannot be answered"
             ],
@@ -144,9 +124,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:9"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -162,9 +140,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:15"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -179,9 +155,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:24"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -196,9 +170,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:29"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -213,9 +185,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:36"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -230,9 +200,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:41"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -242,14 +210,10 @@
         "description": "The person observes that the team sees the question's answer.",
         "snapshot": "the-person-observes-that-the-team-sees-the-question-s-answer",
         "recognize": [],
-        "checks": [
-          "the team sees the question's answer"
-        ],
+        "checks": ["the team sees the question's answer"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:48"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -259,14 +223,10 @@
         "description": "The person observes that the team is told why the data notebook question failed.",
         "snapshot": "the-person-observes-that-the-team-is-told-why-the-data-notebook-question-failed",
         "recognize": [],
-        "checks": [
-          "the team is told why the data notebook question failed"
-        ],
+        "checks": ["the team is told why the data notebook question failed"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/developer-tools/data-notebook.feature:53"
-        ],
+        "source": ["specs/developer-tools/data-notebook.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

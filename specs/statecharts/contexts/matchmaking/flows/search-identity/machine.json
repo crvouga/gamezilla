@@ -18,22 +18,16 @@
         "description": "The person is at the place where the same wait on every device.",
         "snapshot": "the-person-is-at-the-place-where-the-same-wait-on-every-device",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:2"
-        ]
+        "source": ["specs/matchmaking/search-identity.feature:2"]
       },
       "on": {
         "Alice opens matchmaking on another device": {
           "target": "Alice's other device shows the same wait — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:8"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:8"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 200 points"
             ],
@@ -43,9 +37,7 @@
         "Alice waits for a match with a rating of 1500 on another device": {
           "target": "Alice is told she is already waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:13"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:13"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 200 points"
             ],
@@ -55,21 +47,15 @@
         "Alice waits for a match with a rating of 1500": {
           "target": "Alice is waiting — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:21"
-            ],
-            "condition": [
-              "Alice has stopped waiting"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:21"],
+            "condition": ["Alice has stopped waiting"],
             "example": "Alice can wait again after stopping"
           }
         },
         "Alice stops her earlier wait": {
           "target": "Alice is told there was nothing to stop — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:27"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:27"],
             "condition": [
               "Alice has stopped waiting",
               "Alice is waiting again on another device"
@@ -80,69 +66,47 @@
         "Alice repeats her earlier request for a match when Alice is waiting for a match": {
           "target": "Alice has the same wait — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:36"
-            ],
-            "condition": [
-              "Alice is waiting for a match"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:36"],
+            "condition": ["Alice is waiting for a match"],
             "example": "Repeating a request for a waiting match keeps the same wait"
           }
         },
         "Alice repeats her earlier request for a match when Alice has stopped waiting": {
           "target": "Alice is not waiting for a match — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:41"
-            ],
-            "condition": [
-              "Alice has stopped waiting"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:41"],
+            "condition": ["Alice has stopped waiting"],
             "example": "Repeating a stopped request cannot start it again"
           }
         },
         "Alice repeats her earlier request for a match when Alice has been matched with Bob": {
           "target": "Alice is matched with Bob — 7",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:47"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:47"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Repeating a matched request cannot start another wait"
           }
         },
         "Alice stops waiting on another device": {
           "target": "Alice sees she stopped waiting — 8",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:55"
-            ],
-            "condition": [
-              "Alice is waiting for a match"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:55"],
+            "condition": ["Alice is waiting for a match"],
             "example": "Alice can stop her wait from another device"
           }
         },
         "Bob tries to stop Alice's wait": {
           "target": "Bob is told there was nothing to stop — 9",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:61"
-            ],
-            "condition": [
-              "Alice is waiting for a match"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:61"],
+            "condition": ["Alice is waiting for a match"],
             "example": "Bob cannot stop Alice's wait"
           }
         },
         "Bob tries to widen Alice's range to 200 points": {
           "target": "Bob is told his change did not count — 10",
           "meta": {
-            "source": [
-              "specs/matchmaking/search-identity.feature:67"
-            ],
+            "source": ["specs/matchmaking/search-identity.feature:67"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 5 points"
             ],
@@ -156,14 +120,10 @@
         "description": "The person observes that alice's other device shows the same wait.",
         "snapshot": "the-person-observes-that-alice-s-other-device-shows-the-same-wait",
         "recognize": [],
-        "checks": [
-          "Alice's other device shows the same wait"
-        ],
+        "checks": ["Alice's other device shows the same wait"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:8"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -179,9 +139,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:13"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -197,9 +155,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:21"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -215,9 +171,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:27"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -227,14 +181,10 @@
         "description": "The person observes that alice has the same wait.",
         "snapshot": "the-person-observes-that-alice-has-the-same-wait",
         "recognize": [],
-        "checks": [
-          "Alice has the same wait"
-        ],
+        "checks": ["Alice has the same wait"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:36"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -250,9 +200,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:41"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -268,9 +216,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:47"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:47"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -286,9 +232,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:55"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:55"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -304,9 +248,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:61"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -322,9 +264,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/search-identity.feature:67"
-        ],
+        "source": ["specs/matchmaking/search-identity.feature:67"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

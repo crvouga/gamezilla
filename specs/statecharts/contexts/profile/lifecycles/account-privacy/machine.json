@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/profile/account-privacy.qnt"
-    ],
+    "quint": ["specs/profile/account-privacy.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the account privacy view.",
         "snapshot": "the-person-is-opening-the-account-privacy-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ]
+        "source": ["specs/profile/account-privacy.qnt"]
       },
       "on": {
         "Opens with active account with No Export export": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:41"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:41"]
           }
         }
       }
@@ -60,19 +52,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Active",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "NoExport",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Active", []],
+            "exports.get(\"alice\")": ["NoExport", []]
           }
         ],
         "invariants": [
@@ -110,9 +94,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Confirms permanent account deletion resulting in active account with No Export export": {
@@ -140,9 +122,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Lose connection resulting in active account with No Export export": {
@@ -170,9 +150,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Connection returns resulting in active account with No Export export": {
@@ -200,9 +178,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Prove account resulting in active account with No Export export": {
@@ -230,9 +206,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Confirms permanent account deletion resulting in deleting account with Expired export": {
@@ -260,9 +234,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Requests a personal-data export resulting in active account with Preparing export": {
@@ -290,9 +262,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Personal-data export preparation fails resulting in active account with No Export export": {
@@ -320,9 +290,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:113"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:113"]
           }
         },
         "The personal-data export becomes ready resulting in active account with No Export export": {
@@ -350,9 +318,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:102"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:102"]
           }
         }
       }
@@ -371,19 +337,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Deleting",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "Expired",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Deleting", []],
+            "exports.get(\"alice\")": ["Expired", []]
           }
         ],
         "invariants": [
@@ -421,9 +379,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Connection returns resulting in deleting account with Expired export": {
@@ -451,9 +407,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Time reaches the stated deadline resulting in deleted account with Expired export": {
@@ -481,9 +435,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:145"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:145"]
           }
         },
         "Requests a personal-data export resulting in deleting account with Expired export": {
@@ -511,9 +463,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "The personal-data export becomes ready resulting in deleting account with Expired export": {
@@ -541,9 +491,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:102"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:102"]
           }
         },
         "Downloads the private export resulting in deleting account with Expired export": {
@@ -571,9 +519,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:121"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:121"]
           }
         },
         "Prove account resulting in deleting account with Expired export": {
@@ -601,9 +547,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         }
       }
@@ -622,19 +566,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Deleted",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "Expired",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Deleted", []],
+            "exports.get(\"alice\")": ["Expired", []]
           }
         ],
         "invariants": [
@@ -673,9 +609,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Connection returns resulting in deleted account with Expired export": {
@@ -703,9 +637,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Prove account resulting in deleted account with Expired export": {
@@ -733,9 +665,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Confirms permanent account deletion resulting in deleted account with Expired export": {
@@ -763,9 +693,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Requests a personal-data export resulting in deleted account with Expired export": {
@@ -793,9 +721,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Personal-data export preparation fails resulting in deleted account with Expired export": {
@@ -823,9 +749,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:113"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:113"]
           }
         },
         "The personal-data export becomes ready resulting in deleted account with Expired export": {
@@ -853,9 +777,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:102"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:102"]
           }
         }
       }
@@ -874,19 +796,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Active",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "Preparing",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Active", []],
+            "exports.get(\"alice\")": ["Preparing", []]
           }
         ],
         "invariants": [
@@ -924,9 +838,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Confirms permanent account deletion resulting in deleting account with Expired export": {
@@ -954,9 +866,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Prove account resulting in active account with Preparing export": {
@@ -984,9 +894,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Connection returns resulting in active account with Preparing export": {
@@ -1014,9 +922,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Personal-data export preparation fails resulting in active account with Export Failed export": {
@@ -1044,9 +950,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:113"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:113"]
           }
         },
         "The personal-data export becomes ready resulting in active account with Ready export": {
@@ -1074,9 +978,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:102"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:102"]
           }
         },
         "Requests a personal-data export resulting in active account with Preparing export": {
@@ -1104,9 +1006,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "The personal-data export becomes ready resulting in active account with Preparing export": {
@@ -1134,9 +1034,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:102"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:102"]
           }
         }
       }
@@ -1155,19 +1053,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Active",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "ExportFailed",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Active", []],
+            "exports.get(\"alice\")": ["ExportFailed", []]
           }
         ],
         "invariants": [
@@ -1205,9 +1095,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Prove account resulting in active account with Export Failed export": {
@@ -1235,9 +1123,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Connection returns resulting in active account with Export Failed export": {
@@ -1265,9 +1151,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Requests a personal-data export resulting in active account with Preparing export": {
@@ -1295,9 +1179,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Confirms permanent account deletion resulting in deleting account with Expired export": {
@@ -1325,9 +1207,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Requests a personal-data export resulting in active account with Export Failed export": {
@@ -1355,9 +1235,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Confirms permanent account deletion resulting in active account with Export Failed export": {
@@ -1385,9 +1263,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Personal-data export preparation fails resulting in active account with Export Failed export": {
@@ -1415,9 +1291,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:113"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:113"]
           }
         }
       }
@@ -1436,19 +1310,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Active",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "Ready",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Active", []],
+            "exports.get(\"alice\")": ["Ready", []]
           }
         ],
         "invariants": [
@@ -1486,9 +1352,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Connection returns resulting in active account with Ready export": {
@@ -1516,9 +1380,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Lose connection resulting in active account with Ready export": {
@@ -1546,9 +1408,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Confirms permanent account deletion resulting in deleting account with Expired export": {
@@ -1576,9 +1436,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Time reaches the stated deadline resulting in active account with Expired export": {
@@ -1606,9 +1464,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:145"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:145"]
           }
         },
         "Confirms permanent account deletion resulting in active account with Ready export": {
@@ -1636,9 +1492,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         },
         "Requests a personal-data export resulting in active account with Preparing export": {
@@ -1666,9 +1520,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Downloads the private export resulting in active account with Ready export": {
@@ -1696,9 +1548,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:121"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:121"]
           }
         }
       }
@@ -1717,19 +1567,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-privacy.qnt"
-        ],
+        "source": ["specs/profile/account-privacy.qnt"],
         "quintPredicates": [
           {
-            "deletion.get(\"alice\")": [
-              "Active",
-              []
-            ],
-            "exports.get(\"alice\")": [
-              "Expired",
-              []
-            ]
+            "deletion.get(\"alice\")": ["Active", []],
+            "exports.get(\"alice\")": ["Expired", []]
           }
         ],
         "invariants": [
@@ -1767,9 +1609,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:64"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:64"]
           }
         },
         "Requests a personal-data export resulting in active account with Preparing export": {
@@ -1797,9 +1637,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:88"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:88"]
           }
         },
         "Connection returns resulting in active account with Expired export": {
@@ -1827,9 +1665,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:137"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:137"]
           }
         },
         "Lose connection resulting in active account with Expired export": {
@@ -1857,9 +1693,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:130"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:130"]
           }
         },
         "Confirms permanent account deletion resulting in deleting account with Expired export": {
@@ -1887,9 +1721,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-privacy.qnt:74"
-            ]
+            "source": ["specs/profile/account-privacy.qnt:74"]
           }
         }
       }

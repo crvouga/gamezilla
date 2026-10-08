@@ -24,22 +24,16 @@
         "description": "The person is at the place where multiplayer ratings for each speed.",
         "snapshot": "the-person-is-at-the-place-where-multiplayer-ratings-for-each-speed",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-ratings.feature:2"]
       },
       "on": {
         "Bob resigns multiplayer chess when Alice's blitz rating is one rated multiplayer game from settling and Alice is White and Bob is Black in a 3+2 multiplayer game after e4 and e5": {
           "target": "Alice sees her blitz rating without the \"?\" — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:9"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:9"],
             "condition": [
               "Alice's blitz rating is one rated multiplayer game from settling",
               "Alice is White and Bob is Black in a 3+2 multiplayer game after e4 and e5"
@@ -50,9 +44,7 @@
         "Bob resigns multiplayer chess when Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5": {
           "target": "Alice's blitz rating is still shown with the \"?\" — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:15"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:15"],
             "condition": [
               "Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5"
             ],
@@ -62,9 +54,7 @@
         "Bob accepts the multiplayer draw": {
           "target": "Alice's blitz rating is still 1500 — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:30"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:30"],
             "condition": [
               "Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5",
               "Alice has offered Bob a multiplayer draw"
@@ -75,9 +65,7 @@
         "Bob resigns multiplayer chess again": {
           "target": "Alice still has 1 rated multiplayer game at blitz — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:36"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:36"],
             "condition": [
               "Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5",
               "Bob resigned multiplayer chess and Alice won"
@@ -88,9 +76,7 @@
         "Bob resigns multiplayer chess when Alice and Bob have new accounts and a 10+5 multiplayer game after e4 and e5": {
           "target": "Alice sees her rapid rating rise above 1500 — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:43"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:43"],
             "condition": [
               "Alice and Bob have new accounts and a 10+5 multiplayer game after e4 and e5"
             ],
@@ -100,9 +86,7 @@
         "Bob resigns multiplayer chess when Alice has a rapid rating of 1700 and Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5": {
           "target": "Alice's rapid rating is still 1700 — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:49"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:49"],
             "condition": [
               "Alice has a rapid rating of 1700",
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5"
@@ -113,9 +97,7 @@
         "matchmaking pairs people up when Alice has a blitz rating of 1800 and a rapid rating of 1200 and Bob has a blitz rating of 1820 and Alice and Bob are looking for 3+0 chess opponents": {
           "target": "Alice and Bob have the same multiplayer game — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:57"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:57"],
             "condition": [
               "Alice has a blitz rating of 1800 and a rapid rating of 1200",
               "Bob has a blitz rating of 1820",
@@ -127,9 +109,7 @@
         "matchmaking pairs people up when Alice has a blitz rating of 1200 and a rapid rating of 1800 and Bob has a blitz rating of 1820 and Alice and Bob are looking for 3+0 chess opponents": {
           "target": "Alice and Bob are still looking for other chess opponents — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-ratings.feature:64"
-            ],
+            "source": ["specs/chess/multiplayer-ratings.feature:64"],
             "condition": [
               "Alice has a blitz rating of 1200 and a rapid rating of 1800",
               "Bob has a blitz rating of 1820",
@@ -145,14 +125,10 @@
         "description": "The person observes that alice sees her blitz rating without the \"?\".",
         "snapshot": "the-person-observes-that-alice-sees-her-blitz-rating-without-the",
         "recognize": [],
-        "checks": [
-          "Alice sees her blitz rating without the \"?\""
-        ],
+        "checks": ["Alice sees her blitz rating without the \"?\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -189,9 +165,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:30"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -201,14 +175,10 @@
         "description": "The person observes that alice still has 1 rated multiplayer game at blitz.",
         "snapshot": "the-person-observes-that-alice-still-has-1-rated-multiplayer-game-at-blitz",
         "recognize": [],
-        "checks": [
-          "Alice still has 1 rated multiplayer game at blitz"
-        ],
+        "checks": ["Alice still has 1 rated multiplayer game at blitz"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:36"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -224,9 +194,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:43"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -236,14 +204,10 @@
         "description": "The person observes that alice's rapid rating is still 1700.",
         "snapshot": "the-person-observes-that-alice-s-rapid-rating-is-still-1700",
         "recognize": [],
-        "checks": [
-          "Alice's rapid rating is still 1700"
-        ],
+        "checks": ["Alice's rapid rating is still 1700"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:49"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -253,14 +217,10 @@
         "description": "The person observes that alice and Bob have the same multiplayer game.",
         "snapshot": "the-person-observes-that-alice-and-bob-have-the-same-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "Alice and Bob have the same multiplayer game"
-        ],
+        "checks": ["Alice and Bob have the same multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:57"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -270,14 +230,10 @@
         "description": "The person observes that alice and Bob are still looking for other chess opponents.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-still-looking-for-other-chess-opponents",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are still looking for other chess opponents"
-        ],
+        "checks": ["Alice and Bob are still looking for other chess opponents"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-ratings.feature:64"
-        ],
+        "source": ["specs/chess/multiplayer-ratings.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

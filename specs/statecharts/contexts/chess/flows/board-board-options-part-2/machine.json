@@ -28,58 +28,40 @@
         "description": "The person is at the place where choose the chessboard's appearance.",
         "snapshot": "the-person-is-at-the-place-where-choose-the-chessboard-s-appearance",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:2"
-        ]
+        "source": ["specs/chess-board/board-options.feature:2"]
       },
       "on": {
         "Alice's activity chooses green and cream board colors when Alice has selected the piece on e2": {
           "target": "Alice sees green and cream squares — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:256"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:256"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Chosen square colors take effect without moving a piece"
           }
         },
         "Alice's activity chooses green and cream board colors when Alice is dragging the piece on e2": {
           "target": "Alice sees green and cream squares — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:263"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-options.feature:263"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Changing colors preserves a held piece"
           }
         },
         "Alice's activity chooses green and cream board colors when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice sees green and cream squares — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:269"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-options.feature:269"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Changing colors preserves a pending promotion choice"
           }
         },
         "Alice's activity chooses brown and cream board colors": {
           "target": "Alice sees brown and cream squares — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-options.feature:275"
-            ],
+            "source": ["specs/chess-board/board-options.feature:275"],
             "condition": [
               "Alice has selected the piece on e2 with green and cream board colors"
             ],
@@ -100,9 +82,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:256"
-        ],
+        "source": ["specs/chess-board/board-options.feature:256"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -118,9 +98,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:263"
-        ],
+        "source": ["specs/chess-board/board-options.feature:263"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,9 +114,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:269"
-        ],
+        "source": ["specs/chess-board/board-options.feature:269"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -155,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-options.feature:275"
-        ],
+        "source": ["specs/chess-board/board-options.feature:275"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

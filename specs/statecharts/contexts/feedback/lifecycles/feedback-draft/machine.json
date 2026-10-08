@@ -17,22 +17,16 @@
         "description": "Writing feedback.",
         "snapshot": "writing-feedback",
         "recognize": [],
-        "checks": [
-          "Writing feedback."
-        ],
+        "checks": ["Writing feedback."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/controller.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/controller.ts"]
       },
       "on": {
         "Sends nonblank feedback": {
           "target": "Sending feedback",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/controller.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/controller.ts"]
           }
         }
       }
@@ -42,30 +36,22 @@
         "description": "Sending feedback.",
         "snapshot": "sending-feedback",
         "recognize": [],
-        "checks": [
-          "Sending feedback."
-        ],
+        "checks": ["Sending feedback."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/controller.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/controller.ts"]
       },
       "on": {
         "Reporting saves the feedback": {
           "target": "Feedback kept",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/controller.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/controller.ts"]
           }
         },
         "Reporting fails": {
           "target": "Told sending failed",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/controller.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/controller.ts"]
           }
         }
       }
@@ -75,22 +61,16 @@
         "description": "Feedback kept.",
         "snapshot": "feedback-kept",
         "recognize": [],
-        "checks": [
-          "Feedback kept."
-        ],
+        "checks": ["Feedback kept."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/controller.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/controller.ts"]
       },
       "on": {
         "Starts another draft": {
           "target": "Writing feedback",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/controller.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/controller.ts"]
           }
         }
       }
@@ -100,22 +80,16 @@
         "description": "Told sending failed.",
         "snapshot": "told-sending-failed",
         "recognize": [],
-        "checks": [
-          "Told sending failed."
-        ],
+        "checks": ["Told sending failed."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/controller.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/controller.ts"]
       },
       "on": {
         "Sends the preserved writing again": {
           "target": "Sending feedback",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/controller.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/controller.ts"]
           }
         }
       }

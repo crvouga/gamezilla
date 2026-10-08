@@ -7,11 +7,7 @@
     "owner": "Chess owner (not named in specs)",
     "tier": "critical",
     "emits": [],
-    "reactsTo": [
-      "SignedIn",
-      "SpaceEnded",
-      "SpaceOpened"
-    ],
+    "reactsTo": ["SignedIn", "SpaceEnded", "SpaceOpened"],
     "reviewStatus": "draft; owner approval and execution adapters pending"
   },
   "states": {
@@ -20,9 +16,7 @@
         "description": "The space offers chess choices.",
         "snapshot": "the-space-offers-chess-choices",
         "recognize": [],
-        "checks": [
-          "The space offers chess choices."
-        ],
+        "checks": ["The space offers chess choices."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -90,9 +84,7 @@
         "SpaceOpened": {
           "target": "Choosing chess play",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt"
-            ],
+            "source": ["specs/spaces/events.qnt"],
             "reaction": "The authorized participant has a space in which to choose chess; no puzzle is started by this fact alone.",
             "confidence": "assumed"
           }
@@ -104,9 +96,7 @@
         "description": "The board waits for an available puzzle.",
         "snapshot": "the-board-waits-for-an-available-puzzle",
         "recognize": [],
-        "checks": [
-          "The board waits for an available puzzle."
-        ],
+        "checks": ["The board waits for an available puzzle."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -138,9 +128,7 @@
       "meta": {
         "description": "The solver sees the board, guidance and remaining allowance.",
         "snapshot": "the-solver-sees-the-board-guidance-and-remaining-allowance",
-        "recognize": [
-          "[data-testid=\"chess-puzzle-board\"]"
-        ],
+        "recognize": ["[data-testid=\"chess-puzzle-board\"]"],
         "checks": [
           "The solver sees the board, guidance and remaining allowance."
         ],
@@ -363,9 +351,7 @@
         "description": "The solution move is shown without finishing the puzzle.",
         "snapshot": "the-solution-move-is-shown-without-finishing-the-puzzle",
         "recognize": [],
-        "checks": [
-          "The solution move is shown without finishing the puzzle."
-        ],
+        "checks": ["The solution move is shown without finishing the puzzle."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -433,9 +419,7 @@
         "description": "The solved board, result and rating change are shown.",
         "snapshot": "the-solved-board-result-and-rating-change-are-shown",
         "recognize": [],
-        "checks": [
-          "The solved board, result and rating change are shown."
-        ],
+        "checks": ["The solved board, result and rating change are shown."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -673,9 +657,7 @@
         "description": "The watcher keeps the last seen board while disconnected.",
         "snapshot": "the-watcher-keeps-the-last-seen-board-while-disconnected",
         "recognize": [],
-        "checks": [
-          "The watcher keeps the last seen board while disconnected."
-        ],
+        "checks": ["The watcher keeps the last seen board while disconnected."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -768,12 +750,8 @@
       "meta": {
         "description": "The ended space cannot continue admitting people.",
         "snapshot": "the-ended-space-cannot-continue-admitting-people",
-        "recognize": [
-          "[data-testid=\"space-ended\"]"
-        ],
-        "checks": [
-          "The ended space cannot continue admitting people."
-        ],
+        "recognize": ["[data-testid=\"space-ended\"]"],
+        "checks": ["The ended space cannot continue admitting people."],
         "events": [],
         "confidence": "assumed",
         "source": [

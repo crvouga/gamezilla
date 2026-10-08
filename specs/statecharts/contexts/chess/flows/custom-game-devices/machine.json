@@ -24,22 +24,16 @@
         "description": "The person is at the place where one Custom Game across a person's devices.",
         "snapshot": "the-person-is-at-the-place-where-one-custom-game-across-a-person-s-devices",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-devices.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-devices.feature:2"]
       },
       "on": {
         "Alice returns to the Custom Game on another device": {
           "target": "Black is to move on both of Alice's devices — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-devices.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-devices.feature:7"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has an active Custom Game after White's e4"
@@ -50,9 +44,7 @@
         "Alice plays e2-e4 on both devices at the same time": {
           "target": "The Custom Game move list shows e4 once — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-devices.feature:14"
-            ],
+            "source": ["specs/chess/custom-game-devices.feature:14"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has an active Custom Game between Alice as White and Bob as Black",
@@ -64,9 +56,7 @@
         "Alice's other device returns online": {
           "target": "Both of Alice's devices show Alice's win by resignation — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-devices.feature:24"
-            ],
+            "source": ["specs/chess/custom-game-devices.feature:24"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has an active Custom Game between Alice as White and Bob as Black",
@@ -79,9 +69,7 @@
         "Alice plays e2-e4 on the offline other device": {
           "target": "Alice is told Custom Games need a connection on the other device — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-devices.feature:32"
-            ],
+            "source": ["specs/chess/custom-game-devices.feature:32"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has an active Custom Game between Alice as White and Bob as Black",
@@ -104,9 +92,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-devices.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-devices.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -122,9 +108,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-devices.feature:14"
-        ],
+        "source": ["specs/chess/custom-game-devices.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -134,14 +118,10 @@
         "description": "The person observes that both of Alice's devices show Alice's win by resignation.",
         "snapshot": "the-person-observes-that-both-of-alice-s-devices-show-alice-s-win-by-resignation",
         "recognize": [],
-        "checks": [
-          "Both of Alice's devices show Alice's win by resignation"
-        ],
+        "checks": ["Both of Alice's devices show Alice's win by resignation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-devices.feature:24"
-        ],
+        "source": ["specs/chess/custom-game-devices.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -157,9 +137,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-devices.feature:32"
-        ],
+        "source": ["specs/chess/custom-game-devices.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

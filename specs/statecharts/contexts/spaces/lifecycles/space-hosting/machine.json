@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/spaces/space-hosting.qnt"
-    ],
+    "quint": ["specs/spaces/space-hosting.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the space hosting view.",
         "snapshot": "the-person-is-opening-the-space-hosting-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ]
+        "source": ["specs/spaces/space-hosting.qnt"]
       },
       "on": {
         "Opens with seeing Lobby": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:110"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:110"]
           }
         }
       }
@@ -61,15 +53,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Lobby",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["Lobby", []],
             "openSpaces.contains(\"alice\")": false
           }
         ],
@@ -103,9 +90,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "Create space resulting in seeing Lobby": {
@@ -127,9 +112,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "End space resulting in seeing Lobby": {
@@ -151,9 +134,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "Go back to lobby resulting in seeing Lobby": {
@@ -175,9 +156,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Step out resulting in seeing Lobby": {
@@ -199,9 +178,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "Return to space resulting in seeing Lobby": {
@@ -223,9 +200,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "View presence resulting in seeing Lobby": {
@@ -247,9 +222,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Stop viewing presence resulting in seeing Lobby": {
@@ -271,9 +244,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "Leave resulting in seeing Lobby": {
@@ -295,9 +266,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Join resulting in seeing In Space": {
@@ -319,9 +288,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:139"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:139"]
           }
         }
       }
@@ -341,22 +308,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "InSpace",
-              "alice"
-            ],
+            "whereabouts.get(\"alice\")": ["InSpace", "alice"],
             "openSpaces.contains(\"alice\")": true
           },
           {
-            "whereabouts.get(\"alice\")": [
-              "InSpace",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["InSpace", "bob"],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -390,9 +349,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "View presence resulting in seeing Viewing Presence while hosting an open space": {
@@ -414,9 +371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "End space resulting in seeing Ended": {
@@ -438,9 +393,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "Leave resulting in seeing Ended": {
@@ -462,9 +415,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Join resulting in seeing In Space while hosting an open space": {
@@ -486,9 +437,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:139"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:139"]
           }
         },
         "Leave resulting in seeing In Space while hosting an open space": {
@@ -510,9 +459,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Go back to lobby resulting in seeing In Space while hosting an open space": {
@@ -534,9 +481,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Return to space resulting in seeing In Space while hosting an open space": {
@@ -558,9 +503,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "End space resulting in seeing In Space while hosting an open space": {
@@ -582,9 +525,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "The connection returns resulting in seeing Ended while hosting an open space": {
@@ -606,9 +547,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:219"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:219"]
           }
         },
         "Create space resulting in seeing In Space while hosting an open space": {
@@ -630,9 +569,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "Step out resulting in seeing In Space while hosting an open space": {
@@ -654,9 +591,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "Stop viewing presence resulting in seeing In Space while hosting an open space": {
@@ -678,9 +613,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "End space resulting in seeing Ended while hosting an open space": {
@@ -702,9 +635,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "View presence resulting in seeing In Space while hosting an open space": {
@@ -726,9 +657,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Leave resulting in seeing Left while hosting an open space": {
@@ -750,9 +679,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Leave resulting in seeing Ended while hosting an open space": {
@@ -774,9 +701,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         }
       }
@@ -796,15 +721,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Lobby",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["Lobby", []],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -838,9 +758,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:139"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:139"]
           }
         },
         "Step out resulting in seeing Lobby while hosting an open space": {
@@ -862,9 +780,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "Create space resulting in seeing Lobby while hosting an open space": {
@@ -886,9 +802,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "Return to space resulting in seeing In Space while hosting an open space": {
@@ -910,9 +824,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "Leave resulting in seeing Lobby while hosting an open space": {
@@ -934,9 +846,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Go back to lobby resulting in seeing Lobby while hosting an open space": {
@@ -958,9 +868,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Return to space resulting in seeing Lobby while hosting an open space": {
@@ -982,9 +890,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "End space resulting in seeing Lobby while hosting an open space": {
@@ -1006,9 +912,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "View presence resulting in seeing Lobby while hosting an open space": {
@@ -1030,9 +934,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Stop viewing presence resulting in seeing Lobby while hosting an open space": {
@@ -1054,9 +956,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "Join resulting in seeing In Space while hosting an open space": {
@@ -1078,9 +978,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:139"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:139"]
           }
         }
       }
@@ -1100,22 +998,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "ViewingPresence",
-              "alice"
-            ],
+            "whereabouts.get(\"alice\")": ["ViewingPresence", "alice"],
             "openSpaces.contains(\"alice\")": true
           },
           {
-            "whereabouts.get(\"alice\")": [
-              "ViewingPresence",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["ViewingPresence", "bob"],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -1149,9 +1039,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "Go back to lobby resulting in seeing Viewing Presence while hosting an open space": {
@@ -1173,9 +1061,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Create space resulting in seeing Viewing Presence while hosting an open space": {
@@ -1197,9 +1083,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "End space resulting in seeing Viewing Presence while hosting an open space": {
@@ -1221,9 +1105,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "Leave resulting in seeing Viewing Presence while hosting an open space": {
@@ -1245,9 +1127,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Return to space resulting in seeing Viewing Presence while hosting an open space": {
@@ -1269,9 +1149,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "Step out resulting in seeing Viewing Presence while hosting an open space": {
@@ -1293,9 +1171,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "Stop viewing presence resulting in seeing Viewing Presence while hosting an open space": {
@@ -1317,9 +1193,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "View presence resulting in seeing Viewing Presence while hosting an open space": {
@@ -1341,9 +1215,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Join resulting in seeing Viewing Presence while hosting an open space": {
@@ -1365,9 +1237,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:139"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:139"]
           }
         }
       }
@@ -1387,15 +1257,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Ended",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["Ended", []],
             "openSpaces.contains(\"alice\")": false
           }
         ],
@@ -1429,9 +1294,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Go back to lobby resulting in seeing Lobby": {
@@ -1453,9 +1316,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Return to space resulting in seeing Ended": {
@@ -1477,9 +1338,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         },
         "Leave resulting in seeing Ended": {
@@ -1501,9 +1360,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "Create space resulting in seeing Ended": {
@@ -1525,9 +1382,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         },
         "Step out resulting in seeing Ended": {
@@ -1549,9 +1404,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "Stop viewing presence resulting in seeing Ended": {
@@ -1573,9 +1426,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "End space resulting in seeing Ended": {
@@ -1597,9 +1448,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "View presence resulting in seeing Ended": {
@@ -1621,9 +1470,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         }
       }
@@ -1643,15 +1490,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Ended",
-              []
-            ],
+            "whereabouts.get(\"alice\")": ["Ended", []],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -1685,9 +1527,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Go back to lobby resulting in seeing Lobby while hosting an open space": {
@@ -1709,9 +1549,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Create space resulting in seeing Ended while hosting an open space": {
@@ -1733,9 +1571,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:120"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:120"]
           }
         }
       }
@@ -1755,15 +1591,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "InSpace",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["InSpace", "bob"],
             "openSpaces.contains(\"alice\")": false
           }
         ],
@@ -1797,9 +1628,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Step out resulting in seeing Lobby": {
@@ -1821,9 +1650,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         },
         "View presence resulting in seeing In Space": {
@@ -1845,9 +1672,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Leave resulting in seeing Left": {
@@ -1869,9 +1694,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "End space resulting in seeing In Space": {
@@ -1893,9 +1716,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "The connection returns resulting in seeing Ended": {
@@ -1917,9 +1738,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:219"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:219"]
           }
         },
         "Leave resulting in seeing In Space": {
@@ -1941,9 +1760,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         },
         "End space resulting in seeing Ended": {
@@ -1965,9 +1782,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "Return to space resulting in seeing In Space": {
@@ -1989,9 +1804,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:131"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:131"]
           }
         }
       }
@@ -2011,15 +1824,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "ViewingPresence",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["ViewingPresence", "bob"],
             "openSpaces.contains(\"alice\")": false
           }
         ],
@@ -2053,9 +1861,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "End space resulting in seeing Ended": {
@@ -2077,9 +1883,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:192"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:192"]
           }
         },
         "Leave resulting in seeing Ended": {
@@ -2101,9 +1905,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         }
       }
@@ -2123,15 +1925,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Left",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["Left", "bob"],
             "openSpaces.contains(\"alice\")": false
           }
         ],
@@ -2165,9 +1962,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "View presence resulting in seeing Left": {
@@ -2189,9 +1984,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:172"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:172"]
           }
         },
         "Stop viewing presence resulting in seeing Left": {
@@ -2213,9 +2006,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "Step out resulting in seeing Left": {
@@ -2237,9 +2028,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:148"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:148"]
           }
         }
       }
@@ -2259,15 +2048,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-hosting.qnt"
-        ],
+        "source": ["specs/spaces/space-hosting.qnt"],
         "quintPredicates": [
           {
-            "whereabouts.get(\"alice\")": [
-              "Left",
-              "bob"
-            ],
+            "whereabouts.get(\"alice\")": ["Left", "bob"],
             "openSpaces.contains(\"alice\")": true
           }
         ],
@@ -2301,9 +2085,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:203"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:203"]
           }
         },
         "Stop viewing presence resulting in seeing Left while hosting an open space": {
@@ -2325,9 +2107,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:182"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:182"]
           }
         },
         "Leave resulting in seeing Ended while hosting an open space": {
@@ -2349,9 +2129,7 @@
                 }
               }
             },
-            "source": [
-              "specs/spaces/space-hosting.qnt:156"
-            ]
+            "source": ["specs/spaces/space-hosting.qnt:156"]
           }
         }
       }

@@ -24,22 +24,16 @@
         "description": "The person is at the place where find and return to your space.",
         "snapshot": "the-person-is-at-the-place-where-find-and-return-to-your-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-lifecycle.feature:2"
-        ]
+        "source": ["specs/spaces/space-lifecycle.feature:2"]
       },
       "on": {
         "Alice returns to their space": {
           "target": "Alice is in the space — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-lifecycle.feature:8"
-            ],
+            "source": ["specs/spaces/space-lifecycle.feature:8"],
             "condition": [
               "Alice is signed in",
               "Alice is hosting a space",
@@ -51,9 +45,7 @@
         "Bob goes back to the lobby": {
           "target": "Alice sees 1 person in the space within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-lifecycle.feature:19"
-            ],
+            "source": ["specs/spaces/space-lifecycle.feature:19"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link"
             ],
@@ -63,9 +55,7 @@
         "Bob joins Alice's space from the lobby": {
           "target": "Alice sees 2 people in the space within 20 seconds — 3",
           "meta": {
-            "source": [
-              "specs/spaces/space-lifecycle.feature:24"
-            ],
+            "source": ["specs/spaces/space-lifecycle.feature:24"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -81,14 +71,10 @@
         "description": "The person observes that alice is in the space.",
         "snapshot": "the-person-observes-that-alice-is-in-the-space",
         "recognize": [],
-        "checks": [
-          "Alice is in the space"
-        ],
+        "checks": ["Alice is in the space"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-lifecycle.feature:8"
-        ],
+        "source": ["specs/spaces/space-lifecycle.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -98,14 +84,10 @@
         "description": "The person observes that alice sees 1 person in the space within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-sees-1-person-in-the-space-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice sees 1 person in the space within 20 seconds"
-        ],
+        "checks": ["Alice sees 1 person in the space within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-lifecycle.feature:19"
-        ],
+        "source": ["specs/spaces/space-lifecycle.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -115,14 +97,10 @@
         "description": "The person observes that alice sees 2 people in the space within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-sees-2-people-in-the-space-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice sees 2 people in the space within 20 seconds"
-        ],
+        "checks": ["Alice sees 2 people in the space within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-lifecycle.feature:24"
-        ],
+        "source": ["specs/spaces/space-lifecycle.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

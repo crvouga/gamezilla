@@ -24,58 +24,40 @@
         "description": "The person is at the place where respect the activity's chessboard sound choice.",
         "snapshot": "the-person-is-at-the-place-where-respect-the-activity-s-chessboard-sound-choice",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:2"
-        ]
+        "source": ["specs/chess-board/board-sound.feature:2"]
       },
       "on": {
         "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard": {
           "target": "Alice hears one move sound — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:8"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:8"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An enabled move sounds once"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has a silent chessboard": {
           "target": "Alice cannot hear chessboard sounds while sound is disabled — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:14"
-            ],
-            "condition": [
-              "Alice has a silent chessboard"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:14"],
+            "condition": ["Alice has a silent chessboard"],
             "example": "A silent chessboard stays silent through a move"
           }
         },
         "Alice moves the piece from e4 to d5": {
           "target": "Alice hears no chessboard sounds — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:20"
-            ],
-            "condition": [
-              "Alice has a silent chessboard ready for a capture"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:20"],
+            "condition": ["Alice has a silent chessboard ready for a capture"],
             "example": "A silent capture stays silent"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has a silent chessboard and Alice has chessboard sound enabled": {
           "target": "Alice hears one move sound — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:28"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:28"],
             "condition": [
               "Alice has a silent chessboard",
               "Alice has chessboard sound enabled"
@@ -86,45 +68,31 @@
         "Alice's board settings disable sound": {
           "target": "Alice cannot hear chessboard sounds while sound is disabled — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:34"
-            ],
-            "condition": [
-              "Alice's capture from e4 to d5 is animating"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:34"],
+            "condition": ["Alice's capture from e4 to d5 is animating"],
             "example": "Disabling sound during a capture prevents its delayed sound"
           }
         },
         "Alice's activity replaces the position": {
           "target": "Alice hears no chessboard sounds — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:41"
-            ],
-            "condition": [
-              "Alice's capture from e4 to d5 is animating"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:41"],
+            "condition": ["Alice's capture from e4 to d5 is animating"],
             "example": "A replaced position prevents the old capture sound"
           }
         },
         "Alice closes the chessboard when Alice's capture from e4 to d5 is animating": {
           "target": "Alice hears no chessboard sounds — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:47"
-            ],
-            "condition": [
-              "Alice's capture from e4 to d5 is animating"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:47"],
+            "condition": ["Alice's capture from e4 to d5 is animating"],
             "example": "Closing the chessboard prevents its delayed sound"
           }
         },
         "Alice closes the chessboard when Alice has just checkmated Black by moving the queen from g6 to g7 while the piece is arriving": {
           "target": "Alice has heard one move sound and cannot hear its delayed check sound — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-sound.feature:52"
-            ],
+            "source": ["specs/chess-board/board-sound.feature:52"],
             "condition": [
               "Alice has just checkmated Black by moving the queen from g6 to g7 while the piece is arriving"
             ],
@@ -138,14 +106,10 @@
         "description": "The person observes that alice hears one move sound.",
         "snapshot": "the-person-observes-that-alice-hears-one-move-sound",
         "recognize": [],
-        "checks": [
-          "Alice hears one move sound"
-        ],
+        "checks": ["Alice hears one move sound"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:8"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -161,9 +125,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:14"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -179,9 +141,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:20"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -191,14 +151,10 @@
         "description": "The person observes that alice hears one move sound.",
         "snapshot": "the-person-observes-that-alice-hears-one-move-sound",
         "recognize": [],
-        "checks": [
-          "Alice hears one move sound"
-        ],
+        "checks": ["Alice hears one move sound"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:28"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -214,9 +170,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:34"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -232,9 +186,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:41"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -244,14 +196,10 @@
         "description": "The person observes that alice hears no chessboard sounds.",
         "snapshot": "the-person-observes-that-alice-hears-no-chessboard-sounds",
         "recognize": [],
-        "checks": [
-          "Alice hears no chessboard sounds"
-        ],
+        "checks": ["Alice hears no chessboard sounds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:47"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:47"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -266,9 +214,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-sound.feature:52"
-        ],
+        "source": ["specs/chess-board/board-sound.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

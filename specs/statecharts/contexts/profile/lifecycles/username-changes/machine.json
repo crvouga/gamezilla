@@ -6,14 +6,10 @@
     "kind": "lifecycle",
     "owner": "Identity owner (not named in specs)",
     "tier": "critical",
-    "emits": [
-      "UsernameChanged"
-    ],
+    "emits": ["UsernameChanged"],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/profile/username-changes.qnt"
-    ],
+    "quint": ["specs/profile/username-changes.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
     "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
   },
@@ -23,14 +19,10 @@
         "description": "The person is opening the username changes view.",
         "snapshot": "the-person-is-opening-the-username-changes-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ]
+        "source": ["specs/profile/username-changes.qnt"]
       },
       "on": {
         "Opens with seeing No Username Change with the saved username": {
@@ -42,9 +34,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/profile/username-changes.qnt:116"
-            ]
+            "source": ["specs/profile/username-changes.qnt:116"]
           }
         }
       }
@@ -65,15 +55,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "NoUsernameChange",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["NoUsernameChange", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -116,9 +101,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Connection returns resulting in seeing No Username Change with the saved username": {
@@ -148,9 +131,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Rename resulting in seeing No Username Change with the saved username": {
@@ -180,9 +161,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing No Username Change with the saved username": {
@@ -212,9 +191,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing No Username Change with the saved username": {
@@ -244,9 +221,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Start allowing resulting in seeing No Username Change with the saved username": {
@@ -276,9 +251,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -308,9 +281,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing No Username Change with a stand-in name": {
@@ -340,9 +311,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename resulting in seeing Username Taken with the saved username": {
@@ -372,9 +341,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Not Allowed with the saved username": {
@@ -404,9 +371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -436,9 +401,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Refused Offline with the saved username": {
@@ -468,9 +431,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -500,9 +461,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -523,15 +482,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "UsernameSaved",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["UsernameSaved", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -574,9 +528,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Stop allowing resulting in seeing Username Saved with the saved username": {
@@ -606,9 +558,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Lose connection resulting in seeing Username Saved with the saved username": {
@@ -638,9 +588,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename resulting in seeing Refused Offline with the saved username": {
@@ -670,9 +618,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -702,9 +648,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -734,9 +678,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Saved with the saved username": {
@@ -766,9 +708,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Username Taken with the saved username": {
@@ -798,9 +738,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -830,9 +768,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Connection returns resulting in seeing Username Saved with the saved username": {
@@ -862,9 +798,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Stop allowing resulting in seeing Username Saved with a stand-in name": {
@@ -894,9 +828,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename resulting in seeing Not Allowed with the saved username": {
@@ -926,9 +858,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Changed Recently with the saved username": {
@@ -958,9 +888,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with the saved username": {
@@ -990,9 +918,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -1013,15 +939,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "UsernameTaken",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["UsernameTaken", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -1064,9 +985,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Lose connection resulting in seeing Username Taken with the saved username": {
@@ -1096,9 +1015,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Connection returns resulting in seeing Username Taken with the saved username": {
@@ -1128,9 +1045,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Stop allowing resulting in seeing Username Taken with the saved username": {
@@ -1160,9 +1075,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with the saved username": {
@@ -1192,9 +1105,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing Username Taken with a stand-in name": {
@@ -1224,9 +1135,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename twice resulting in seeing Username Taken with the saved username": {
@@ -1256,9 +1165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Not Allowed with the saved username": {
@@ -1288,9 +1195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Taken with the saved username": {
@@ -1320,9 +1225,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename resulting in seeing Refused Offline with the saved username": {
@@ -1352,9 +1255,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -1384,9 +1285,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -1416,9 +1315,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -1439,15 +1336,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "RefusedOffline",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["RefusedOffline", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -1490,9 +1382,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename resulting in seeing Refused Offline with the saved username": {
@@ -1522,9 +1412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with the saved username": {
@@ -1554,9 +1442,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing Refused Offline with a stand-in name": {
@@ -1586,9 +1472,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Stop allowing resulting in seeing Refused Offline with the saved username": {
@@ -1618,9 +1502,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Connection returns resulting in seeing Refused Offline with the saved username": {
@@ -1650,9 +1532,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Rename resulting in seeing Not Allowed with the saved username": {
@@ -1682,9 +1562,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Taken with the saved username": {
@@ -1714,9 +1592,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Lose connection resulting in seeing Refused Offline with the saved username": {
@@ -1746,9 +1622,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -1778,9 +1652,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -1810,9 +1682,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Changed Recently with the saved username": {
@@ -1842,9 +1712,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -1874,9 +1742,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Username Taken with the saved username": {
@@ -1906,9 +1772,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -1929,15 +1793,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "RefusedOffline",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["RefusedOffline", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": true
           }
         ],
@@ -1980,9 +1839,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Connection returns resulting in seeing Refused Offline with a stand-in name": {
@@ -2012,9 +1869,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Stop allowing resulting in seeing Refused Offline with a stand-in name": {
@@ -2044,9 +1899,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Lose connection resulting in seeing Refused Offline with a stand-in name": {
@@ -2076,9 +1929,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename resulting in seeing Refused Offline with a stand-in name": {
@@ -2108,9 +1959,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with a stand-in name": {
@@ -2140,9 +1989,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Not Allowed with a stand-in name": {
@@ -2172,9 +2019,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Refused Offline with a stand-in name": {
@@ -2204,9 +2049,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Start allowing resulting in seeing Refused Offline with the saved username": {
@@ -2236,9 +2079,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -2268,9 +2109,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Username Taken with a stand-in name": {
@@ -2300,9 +2139,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Taken with a stand-in name": {
@@ -2332,9 +2169,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         }
       }
@@ -2355,15 +2190,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "NotAllowed",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["NotAllowed", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": true
           }
         ],
@@ -2406,9 +2236,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Start allowing resulting in seeing Not Allowed with a stand-in name": {
@@ -2438,9 +2266,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename resulting in seeing Not Allowed with a stand-in name": {
@@ -2470,9 +2296,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Taken with a stand-in name": {
@@ -2502,9 +2326,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Lose connection resulting in seeing Not Allowed with a stand-in name": {
@@ -2534,9 +2356,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with a stand-in name": {
@@ -2566,9 +2386,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing Not Allowed with a stand-in name": {
@@ -2598,9 +2416,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Start allowing resulting in seeing Not Allowed with the saved username": {
@@ -2630,9 +2446,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Username Taken with a stand-in name": {
@@ -2662,9 +2476,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Connection returns resulting in seeing Not Allowed with a stand-in name": {
@@ -2694,9 +2506,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Rename resulting in seeing Refused Offline with a stand-in name": {
@@ -2726,9 +2536,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -2758,9 +2566,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -2790,9 +2596,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -2813,15 +2617,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "UsernameTaken",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["UsernameTaken", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": true
           }
         ],
@@ -2864,9 +2663,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Taken with the saved username": {
@@ -2896,9 +2693,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Username Taken with a stand-in name": {
@@ -2928,9 +2723,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Not Allowed with a stand-in name": {
@@ -2960,9 +2753,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Connection returns resulting in seeing Username Taken with a stand-in name": {
@@ -2992,9 +2783,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Lose connection resulting in seeing Username Taken with a stand-in name": {
@@ -3024,9 +2813,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Stop allowing resulting in seeing Username Taken with a stand-in name": {
@@ -3056,9 +2843,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename resulting in seeing Refused Offline with a stand-in name": {
@@ -3088,9 +2873,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Taken with a stand-in name": {
@@ -3120,9 +2903,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with a stand-in name": {
@@ -3152,9 +2933,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with a stand-in name": {
@@ -3184,9 +2963,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -3207,15 +2984,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "NoUsernameChange",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["NoUsernameChange", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": true
           }
         ],
@@ -3258,9 +3030,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename twice resulting in seeing No Username Change with a stand-in name": {
@@ -3290,9 +3060,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Connection returns resulting in seeing No Username Change with a stand-in name": {
@@ -3322,9 +3090,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Stop allowing resulting in seeing No Username Change with a stand-in name": {
@@ -3354,9 +3120,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Lose connection resulting in seeing No Username Change with a stand-in name": {
@@ -3386,9 +3150,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Start allowing resulting in seeing No Username Change with a stand-in name": {
@@ -3418,9 +3180,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename resulting in seeing No Username Change with a stand-in name": {
@@ -3450,9 +3210,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -3482,9 +3240,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with a stand-in name": {
@@ -3514,9 +3270,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -3546,9 +3300,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Not Allowed with a stand-in name": {
@@ -3578,9 +3330,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with a stand-in name": {
@@ -3610,9 +3360,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Taken with a stand-in name": {
@@ -3642,9 +3390,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         }
       }
@@ -3665,15 +3411,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "NotAllowed",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["NotAllowed", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -3716,9 +3457,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Connection returns resulting in seeing Not Allowed with the saved username": {
@@ -3748,9 +3487,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Start allowing resulting in seeing Not Allowed with the saved username": {
@@ -3780,9 +3517,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Stop allowing resulting in seeing Not Allowed with the saved username": {
@@ -3812,9 +3547,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename resulting in seeing Not Allowed with the saved username": {
@@ -3844,9 +3577,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with the saved username": {
@@ -3876,9 +3607,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with the saved username": {
@@ -3908,9 +3637,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Stop allowing resulting in seeing Not Allowed with a stand-in name": {
@@ -3940,9 +3667,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename resulting in seeing Refused Offline with the saved username": {
@@ -3972,9 +3697,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -4004,9 +3727,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -4036,9 +3757,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Taken with the saved username": {
@@ -4068,9 +3787,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Username Taken with the saved username": {
@@ -4100,9 +3817,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -4123,15 +3838,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "UsernameSaved",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["UsernameSaved", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": true
           }
         ],
@@ -4174,9 +3884,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:208"
-            ]
+            "source": ["specs/profile/username-changes.qnt:208"]
           }
         },
         "Rename twice resulting in seeing Username Saved with a stand-in name": {
@@ -4206,9 +3914,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Not Allowed with a stand-in name": {
@@ -4238,9 +3944,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename resulting in seeing Username Saved with a stand-in name": {
@@ -4270,9 +3974,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Saved with the saved username": {
@@ -4302,9 +4004,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Lose connection resulting in seeing Username Saved with a stand-in name": {
@@ -4334,9 +4034,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename resulting in seeing Refused Offline with a stand-in name": {
@@ -4366,9 +4064,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Start allowing resulting in seeing Username Saved with a stand-in name": {
@@ -4398,9 +4094,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:180"
-            ]
+            "source": ["specs/profile/username-changes.qnt:180"]
           }
         },
         "Rename resulting in seeing Username Taken with a stand-in name": {
@@ -4430,9 +4124,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Stop allowing resulting in seeing Username Saved with a stand-in name": {
@@ -4462,9 +4154,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:163"
-            ]
+            "source": ["specs/profile/username-changes.qnt:163"]
           }
         },
         "Rename twice resulting in seeing Username Taken with a stand-in name": {
@@ -4494,9 +4184,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -4526,9 +4214,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename resulting in seeing Username Saved with the saved username": {
@@ -4558,9 +4244,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:128"
-            ]
+            "source": ["specs/profile/username-changes.qnt:128"]
           }
         },
         "Rename twice resulting in seeing Not Allowed with a stand-in name": {
@@ -4590,9 +4274,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }
@@ -4613,15 +4295,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/username-changes.qnt"
-        ],
+        "source": ["specs/profile/username-changes.qnt"],
         "quintPredicates": [
           {
-            "lastUsernameChange.get(\"alice\")": [
-              "ChangedRecently",
-              []
-            ],
+            "lastUsernameChange.get(\"alice\")": ["ChangedRecently", []],
             "shownName.get(\"alice\") != username.get(\"alice\")": false
           }
         ],
@@ -4664,9 +4341,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Rename twice resulting in seeing Username Saved with the saved username": {
@@ -4696,9 +4371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         },
         "Lose connection resulting in seeing Changed Recently with the saved username": {
@@ -4728,9 +4401,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:196"
-            ]
+            "source": ["specs/profile/username-changes.qnt:196"]
           }
         },
         "Rename twice resulting in seeing Refused Offline with the saved username": {
@@ -4760,9 +4431,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/username-changes.qnt:144"
-            ]
+            "source": ["specs/profile/username-changes.qnt:144"]
           }
         }
       }

@@ -17,22 +17,16 @@
         "description": "Activity unrecorded.",
         "snapshot": "activity-unrecorded",
         "recognize": [],
-        "checks": [
-          "Activity unrecorded."
-        ],
+        "checks": ["Activity unrecorded."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/recording.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/recording.ts"]
       },
       "on": {
         "Starts a reproduction recording": {
           "target": "Starting a recording",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         }
       }
@@ -42,30 +36,22 @@
         "description": "Starting a recording.",
         "snapshot": "starting-a-recording",
         "recognize": [],
-        "checks": [
-          "Starting a recording."
-        ],
+        "checks": ["Starting a recording."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/recording.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/recording.ts"]
       },
       "on": {
         "Recording becomes available": {
           "target": "Recording reproduction",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         },
         "Recording is unavailable": {
           "target": "Activity unrecorded",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         }
       }
@@ -75,22 +61,16 @@
         "description": "Recording reproduction.",
         "snapshot": "recording-reproduction",
         "recognize": [],
-        "checks": [
-          "Recording reproduction."
-        ],
+        "checks": ["Recording reproduction."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/recording.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/recording.ts"]
       },
       "on": {
         "Stops the reproduction": {
           "target": "Stopping a recording",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         }
       }
@@ -100,22 +80,16 @@
         "description": "Stopping a recording.",
         "snapshot": "stopping-a-recording",
         "recognize": [],
-        "checks": [
-          "Stopping a recording."
-        ],
+        "checks": ["Stopping a recording."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/recording.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/recording.ts"]
       },
       "on": {
         "Recorded steps are ready": {
           "target": "Reviewing a recording",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         }
       }
@@ -125,22 +99,16 @@
         "description": "Reviewing a recording.",
         "snapshot": "reviewing-a-recording",
         "recognize": [],
-        "checks": [
-          "Reviewing a recording."
-        ],
+        "checks": ["Reviewing a recording."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "pkgs/feedback-client/src/recording.ts"
-        ]
+        "source": ["pkgs/feedback-client/src/recording.ts"]
       },
       "on": {
         "Discards the recording": {
           "target": "Activity unrecorded",
           "meta": {
-            "source": [
-              "pkgs/feedback-client/src/recording.ts"
-            ]
+            "source": ["pkgs/feedback-client/src/recording.ts"]
           }
         }
       }

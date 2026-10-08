@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/room/tally-recovery.qnt"
-    ],
+    "quint": ["specs/room/tally-recovery.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the tally recovery view.",
         "snapshot": "the-person-is-opening-the-tally-recovery-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally-recovery.qnt"
-        ]
+        "source": ["specs/room/tally-recovery.qnt"]
       },
       "on": {
         "Opens with viewing a zero tally": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:31"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:31"]
           }
         }
       }
@@ -60,9 +52,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally-recovery.qnt"
-        ],
+        "source": ["specs/room/tally-recovery.qnt"],
         "quintPredicates": [
           {
             "tally == 0": true
@@ -97,9 +87,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:38"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:38"]
           }
         },
         "Room stops as change counts resulting in viewing a nonzero tally": {
@@ -121,9 +109,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:56"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:56"]
           }
         },
         "Take one resulting in viewing a zero tally": {
@@ -145,9 +131,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:44"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:44"]
           }
         },
         "Change reaches room resulting in viewing a nonzero tally": {
@@ -169,9 +153,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:50"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:50"]
           }
         }
       }
@@ -190,9 +172,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally-recovery.qnt"
-        ],
+        "source": ["specs/room/tally-recovery.qnt"],
         "quintPredicates": [
           {
             "tally == 0": false
@@ -227,9 +207,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:44"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:44"]
           }
         },
         "Change reaches room resulting in viewing a zero tally": {
@@ -251,9 +229,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:50"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:50"]
           }
         },
         "Add one resulting in viewing a nonzero tally": {
@@ -275,9 +251,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:38"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:38"]
           }
         },
         "Room stops as change counts resulting in viewing a zero tally": {
@@ -299,9 +273,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally-recovery.qnt:56"
-            ]
+            "source": ["specs/room/tally-recovery.qnt:56"]
           }
         }
       }

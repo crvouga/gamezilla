@@ -24,22 +24,16 @@
         "description": "The person is at the place where offer and accept a side.",
         "snapshot": "the-person-is-at-the-place-where-offer-and-accept-a-side",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-invitations.feature:2"]
       },
       "on": {
         "Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space": {
           "target": "Black is reserved for Bob in the Custom Game — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:7"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space"
@@ -50,21 +44,15 @@
         "Alice invites Carol to Black in the Custom Game": {
           "target": "Alice is told the person must be in the space — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:13"
-            ],
-            "condition": [
-              "Alice has a configuring Custom Game"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:13"],
+            "condition": ["Alice has a configuring Custom Game"],
             "example": "An outsider cannot be assigned a side"
           }
         },
         "Alice revokes Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob": {
           "target": "Bob does not see Alice's invitation to play Black — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:26"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:26"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob"
@@ -75,9 +63,7 @@
         "Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Carol is outside Alice's space": {
           "target": "Carol cannot see the Custom Game — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:32"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:32"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -89,9 +75,7 @@
         "Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob": {
           "target": "Black is Bob in the Custom Game — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:41"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:41"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob"
@@ -102,9 +86,7 @@
         "Carol accepts Black in the Custom Game": {
           "target": "Carol is told that side is not their invitation — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:48"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:48"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob",
@@ -116,9 +98,7 @@
         "Bob declines Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob": {
           "target": "Black is an open place in the Custom Game — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:57"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:57"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob"
@@ -129,9 +109,7 @@
         "Bob declines Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black": {
           "target": "Bob is told that side is not their invitation — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:63"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:63"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -141,9 +119,7 @@
         "Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Bob's invitation to Black has been revoked": {
           "target": "Bob is told that side is not their invitation — 11",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:76"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:76"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob's invitation to Black has been revoked"
@@ -154,9 +130,7 @@
         "Bob accepts Black while Alice revokes its invitation": {
           "target": "Black is either Bob or an open place in the Custom Game — 12",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:84"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:84"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob"
@@ -167,9 +141,7 @@
         "Bob accepts Black in the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob and Black has since been replaced by a bot": {
           "target": "Bob is told that side is not their invitation — 13",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-invitations.feature:91"
-            ],
+            "source": ["specs/chess/custom-game-invitations.feature:91"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob",
@@ -205,14 +177,10 @@
         "description": "The person observes that alice is told the person must be in the space.",
         "snapshot": "the-person-observes-that-alice-is-told-the-person-must-be-in-the-space",
         "recognize": [],
-        "checks": [
-          "Alice is told the person must be in the space"
-        ],
+        "checks": ["Alice is told the person must be in the space"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:13"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -242,14 +210,10 @@
         "description": "The person observes that carol cannot see the Custom Game.",
         "snapshot": "the-person-observes-that-carol-cannot-see-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Carol cannot see the Custom Game"
-        ],
+        "checks": ["Carol cannot see the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:32"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -265,9 +229,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:41"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -277,14 +239,10 @@
         "description": "The person observes that carol is told that side is not their invitation.",
         "snapshot": "the-person-observes-that-carol-is-told-that-side-is-not-their-invitation",
         "recognize": [],
-        "checks": [
-          "Carol is told that side is not their invitation"
-        ],
+        "checks": ["Carol is told that side is not their invitation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:48"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -294,14 +252,10 @@
         "description": "The person observes that black is an open place in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-an-open-place-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is an open place in the Custom Game"
-        ],
+        "checks": ["Black is an open place in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:57"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -311,14 +265,10 @@
         "description": "The person observes that bob is told that side is not their invitation.",
         "snapshot": "the-person-observes-that-bob-is-told-that-side-is-not-their-invitation",
         "recognize": [],
-        "checks": [
-          "Bob is told that side is not their invitation"
-        ],
+        "checks": ["Bob is told that side is not their invitation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:63"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:63"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -328,14 +278,10 @@
         "description": "The person observes that bob is told that side is not their invitation.",
         "snapshot": "the-person-observes-that-bob-is-told-that-side-is-not-their-invitation",
         "recognize": [],
-        "checks": [
-          "Bob is told that side is not their invitation"
-        ],
+        "checks": ["Bob is told that side is not their invitation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:76"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:76"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -351,9 +297,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:84"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:84"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -363,14 +307,10 @@
         "description": "The person observes that bob is told that side is not their invitation.",
         "snapshot": "the-person-observes-that-bob-is-told-that-side-is-not-their-invitation",
         "recognize": [],
-        "checks": [
-          "Bob is told that side is not their invitation"
-        ],
+        "checks": ["Bob is told that side is not their invitation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-invitations.feature:91"
-        ],
+        "source": ["specs/chess/custom-game-invitations.feature:91"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

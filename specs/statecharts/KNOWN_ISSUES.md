@@ -11,4 +11,4 @@ The outcome helper performs an additional user action. It cannot establish that 
 
 ## Unverified areas are questions
 
-Billing grace, refund and account-deletion reactions are intended outcomes drawn from specs. Context-model coverage gaps and unbound mid-flow reactions are in [spec-conflicts.md](spec-conflicts.md) and [open-questions.md](open-questions.md), rather than being mislabeled confirmed runtime defects. Existing repository regression records remain the historical bug register.
+Billing grace, refund and account-deletion reactions are intended outcomes drawn from specs. Context-model coverage gaps and unbound mid-flow reactions are in [SPEC_CONFLICTS.md](SPEC_CONFLICTS.md) and [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md), rather than being mislabeled confirmed runtime defects. Existing repository regression records remain the historical bug register.

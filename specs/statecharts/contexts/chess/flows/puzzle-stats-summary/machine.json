@@ -24,22 +24,16 @@
         "description": "The person is at the place where rating, puzzles solved, and accuracy.",
         "snapshot": "the-person-is-at-the-place-where-rating-puzzles-solved-and-accuracy",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-stats-summary.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-stats-summary.feature:2"]
       },
       "on": {
         "Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space": {
           "target": "Alice's stats show a rating of \"1500?\" — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-stats-summary.feature:11"
-            ],
+            "source": ["specs/chess/puzzle-stats-summary.feature:11"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -50,9 +44,7 @@
         "Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles and failed 1": {
           "target": "Alice's stats show 3 played, 2 solved, and 67% accuracy — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-stats-summary.feature:18"
-            ],
+            "source": ["specs/chess/puzzle-stats-summary.feature:18"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -74,9 +66,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-stats-summary.feature:11"
-        ],
+        "source": ["specs/chess/puzzle-stats-summary.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -576,7 +576,7 @@ states:
       - specs/billing/grace-ends.feature
       - specs/billing/refunds.feature
       conflicts:
-      - spec-conflicts.md#billing-grace-model
+      - SPEC_CONFLICTS.md#billing-grace-model
     'on':
       Seven-day grace expires:
         target: Viewing free access

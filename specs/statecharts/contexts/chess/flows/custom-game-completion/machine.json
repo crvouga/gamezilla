@@ -24,22 +24,16 @@
         "description": "The person is at the place where finish or cancel a Custom Game.",
         "snapshot": "the-person-is-at-the-place-where-finish-or-cancel-a-custom-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-completion.feature:2"]
       },
       "on": {
         "Bob resigns the Custom Game": {
           "target": "Alice wins the Custom Game by resignation — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:7"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -49,9 +43,7 @@
         "Carol resigns the Custom Game": {
           "target": "Carol is told only a participant may resign — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:12"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Carol is in Alice's space"
@@ -62,9 +54,7 @@
         "Alice cancels the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob": {
           "target": "The Custom Game is cancelled with no winner — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:20"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:20"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob"
@@ -75,9 +65,7 @@
         "Alice cancels the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game are bots and The Custom Game has started": {
           "target": "The Custom Game is cancelled with no winner — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:27"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:27"],
             "condition": [
               "Alice has a configuring Custom Game",
               "White and Black in the Custom Game are bots",
@@ -89,9 +77,7 @@
         "Carol cancels the Custom Game": {
           "target": "Carol is told only the creator cancels the Custom Game — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:34"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:34"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Carol is in Alice's space"
@@ -102,9 +88,7 @@
         "Bob cancels the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black": {
           "target": "Bob is told only the creator cancels the Custom Game — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:40"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:40"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -114,9 +98,7 @@
         "Alice cancels the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told the Custom Game has finished — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:45"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:45"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black"
             ],
@@ -126,21 +108,15 @@
         "Bob cancels the Custom Game when Alice has an active Custom Game after White's e4": {
           "target": "The Custom Game is cancelled with no winner — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:52"
-            ],
-            "condition": [
-              "Alice has an active Custom Game after White's e4"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:52"],
+            "condition": ["Alice has an active Custom Game after White's e4"],
             "example": "Black cancels before making a move"
           }
         },
         "Bob cancels the Custom Game when Alice has an active Custom Game after White's e4 and Black's e5": {
           "target": "Bob is told to resign instead of cancelling — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:57"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:57"],
             "condition": [
               "Alice has an active Custom Game after White's e4 and Black's e5"
             ],
@@ -150,9 +126,7 @@
         "Bob leaves the space when Alice has a Custom Game between Alice as White and Bob as Black": {
           "target": "Black is an open place in the Custom Game — 10",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:65"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:65"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -162,9 +136,7 @@
         "Bob leaves the space when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice wins the Custom Game by resignation — 11",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:70"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:70"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -174,9 +146,7 @@
         "Bob joins the space from the link": {
           "target": "Black is Carol in the Custom Game — 12",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:75"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:75"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob has left the space after releasing Black",
@@ -188,9 +158,7 @@
         "Alice leaves the space": {
           "target": "The Custom Game is cancelled with no winner — 13",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:86"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:86"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -200,9 +168,7 @@
         "Alice ends the space": {
           "target": "The Custom Game keeps its completed outcome — 14",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:91"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:91"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black"
             ],
@@ -212,9 +178,7 @@
         "Alice creates a rematch of the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black": {
           "target": "White is Bob and Black is Alice in the configuring Custom Game — 15",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:98"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:98"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black"
             ],
@@ -224,9 +188,7 @@
         "Alice creates a rematch of the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told the Custom Game must finish or be cancelled first — 16",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-completion.feature:104"
-            ],
+            "source": ["specs/chess/custom-game-completion.feature:104"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -240,14 +202,10 @@
         "description": "The person observes that alice wins the Custom Game by resignation.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-by-resignation",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game by resignation"
-        ],
+        "checks": ["Alice wins the Custom Game by resignation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -257,14 +215,10 @@
         "description": "The person observes that carol is told only a participant may resign.",
         "snapshot": "the-person-observes-that-carol-is-told-only-a-participant-may-resign",
         "recognize": [],
-        "checks": [
-          "Carol is told only a participant may resign"
-        ],
+        "checks": ["Carol is told only a participant may resign"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -280,9 +234,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:20"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -292,14 +244,10 @@
         "description": "The person observes that the Custom Game is cancelled with no winner.",
         "snapshot": "the-person-observes-that-the-custom-game-is-cancelled-with-no-winner",
         "recognize": [],
-        "checks": [
-          "The Custom Game is cancelled with no winner"
-        ],
+        "checks": ["The Custom Game is cancelled with no winner"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:27"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -309,14 +257,10 @@
         "description": "The person observes that carol is told only the creator cancels the Custom Game.",
         "snapshot": "the-person-observes-that-carol-is-told-only-the-creator-cancels-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Carol is told only the creator cancels the Custom Game"
-        ],
+        "checks": ["Carol is told only the creator cancels the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:34"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -326,14 +270,10 @@
         "description": "The person observes that bob is told only the creator cancels the Custom Game.",
         "snapshot": "the-person-observes-that-bob-is-told-only-the-creator-cancels-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Bob is told only the creator cancels the Custom Game"
-        ],
+        "checks": ["Bob is told only the creator cancels the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:40"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -343,14 +283,10 @@
         "description": "The person observes that alice is told the Custom Game has finished.",
         "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-has-finished",
         "recognize": [],
-        "checks": [
-          "Alice is told the Custom Game has finished"
-        ],
+        "checks": ["Alice is told the Custom Game has finished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:45"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -360,14 +296,10 @@
         "description": "The person observes that the Custom Game is cancelled with no winner.",
         "snapshot": "the-person-observes-that-the-custom-game-is-cancelled-with-no-winner",
         "recognize": [],
-        "checks": [
-          "The Custom Game is cancelled with no winner"
-        ],
+        "checks": ["The Custom Game is cancelled with no winner"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:52"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -383,9 +315,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:57"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -395,14 +325,10 @@
         "description": "The person observes that black is an open place in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-an-open-place-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is an open place in the Custom Game"
-        ],
+        "checks": ["Black is an open place in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:65"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:65"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -412,14 +338,10 @@
         "description": "The person observes that alice wins the Custom Game by resignation.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-by-resignation",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game by resignation"
-        ],
+        "checks": ["Alice wins the Custom Game by resignation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:70"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -435,9 +357,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:75"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:75"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -447,14 +367,10 @@
         "description": "The person observes that the Custom Game is cancelled with no winner.",
         "snapshot": "the-person-observes-that-the-custom-game-is-cancelled-with-no-winner",
         "recognize": [],
-        "checks": [
-          "The Custom Game is cancelled with no winner"
-        ],
+        "checks": ["The Custom Game is cancelled with no winner"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:86"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:86"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -464,14 +380,10 @@
         "description": "The person observes that the Custom Game keeps its completed outcome.",
         "snapshot": "the-person-observes-that-the-custom-game-keeps-its-completed-outcome",
         "recognize": [],
-        "checks": [
-          "The Custom Game keeps its completed outcome"
-        ],
+        "checks": ["The Custom Game keeps its completed outcome"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:91"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:91"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -487,9 +399,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:98"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -504,9 +414,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-completion.feature:104"
-        ],
+        "source": ["specs/chess/custom-game-completion.feature:104"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

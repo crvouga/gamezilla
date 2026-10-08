@@ -24,22 +24,16 @@
         "description": "The person is at the place where join a space from its link.",
         "snapshot": "the-person-is-at-the-place-where-join-a-space-from-its-link",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-guest-link-join.feature:2"
-        ]
+        "source": ["specs/spaces/space-guest-link-join.feature:2"]
       },
       "on": {
         "Bob joins the space from the link": {
           "target": "Bob is in the space — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-guest-link-join.feature:9"
-            ],
+            "source": ["specs/spaces/space-guest-link-join.feature:9"],
             "condition": [
               "Alice and Bob are guests",
               "Alice is hosting a space"
@@ -61,9 +55,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-guest-link-join.feature:9"
-        ],
+        "source": ["specs/spaces/space-guest-link-join.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

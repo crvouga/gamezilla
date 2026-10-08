@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "codeCandidates": [
-      "libs/billing-client/src/use-subscribe.ts"
-    ],
+    "codeCandidates": ["libs/billing-client/src/use-subscribe.ts"],
     "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
   },
   "states": {
@@ -20,37 +18,25 @@
         "description": "The person is at the place where subscribe to Plus.",
         "snapshot": "the-person-is-at-the-place-where-subscribe-to-plus",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/subscribe.feature:2"
-        ]
+        "source": ["specs/billing/subscribe.feature:2"]
       },
       "on": {
         "Alice views the billing plans": {
           "target": "Alice has free access — 1",
           "meta": {
-            "source": [
-              "specs/billing/subscribe.feature:9"
-            ],
-            "condition": [
-              "Alice is signed in with Google"
-            ],
+            "source": ["specs/billing/subscribe.feature:9"],
+            "condition": ["Alice is signed in with Google"],
             "example": "A signed-in person starts with free access"
           }
         },
         "Alice subscribes to Plus": {
           "target": "Alice has paid access — 2",
           "meta": {
-            "source": [
-              "specs/billing/subscribe.feature:14"
-            ],
-            "condition": [
-              "Alice is signed in with Google"
-            ],
+            "source": ["specs/billing/subscribe.feature:14"],
+            "condition": ["Alice is signed in with Google"],
             "example": "Subscribing gives paid access with a monthly trial"
           }
         }
@@ -61,14 +47,10 @@
         "description": "The person observes that alice has free access.",
         "snapshot": "the-person-observes-that-alice-has-free-access",
         "recognize": [],
-        "checks": [
-          "Alice has free access"
-        ],
+        "checks": ["Alice has free access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/subscribe.feature:9"
-        ],
+        "source": ["specs/billing/subscribe.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -84,9 +66,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/subscribe.feature:14"
-        ],
+        "source": ["specs/billing/subscribe.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

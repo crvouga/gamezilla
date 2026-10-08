@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/custom-game.qnt"
-    ],
+    "quint": ["specs/chess/custom-game.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,23 +18,17 @@
         "description": "The person is opening the custom game view.",
         "snapshot": "the-person-is-opening-the-custom-game-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ]
+        "source": ["specs/chess/custom-game.qnt"]
       },
       "on": {
         "Opens with playing a Custom Game": {
           "target": "Playing a Custom Game",
           "meta": {
             "action": "init",
-            "source": [
-              "specs/chess/custom-game.qnt:260"
-            ],
+            "source": ["specs/chess/custom-game.qnt:260"],
             "witness": {
               "trace": "custom-game_120.itf.json",
               "step": 0,
@@ -58,10 +50,7 @@
                   "value": {
                     "#set": [
                       {
-                        "#tup": [
-                          "carol",
-                          "alice"
-                        ]
+                        "#tup": ["carol", "alice"]
                       }
                     ]
                   }
@@ -128,9 +117,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "init",
-            "source": [
-              "specs/chess/custom-game.qnt:260"
-            ],
+            "source": ["specs/chess/custom-game.qnt:260"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 0,
@@ -220,9 +207,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/custom-game.qnt:260"
-            ]
+            "source": ["specs/chess/custom-game.qnt:260"]
           }
         }
       }
@@ -256,9 +241,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "active",
@@ -357,18 +340,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:379"
-            ]
+            "source": ["specs/chess/custom-game.qnt:379"]
           }
         },
         "Offer draw resulting in playing a Custom Game": {
           "target": "Playing a Custom Game",
           "meta": {
             "action": "offerDraw",
-            "source": [
-              "specs/chess/custom-game.qnt:365"
-            ],
+            "source": ["specs/chess/custom-game.qnt:365"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 1,
@@ -502,9 +481,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:461"
-            ]
+            "source": ["specs/chess/custom-game.qnt:461"]
           }
         },
         "Finish game resulting in seeing a finished Custom Game with white wins by checkmate": {
@@ -574,9 +551,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:379"
-            ]
+            "source": ["specs/chess/custom-game.qnt:379"]
           }
         },
         "Resign game resulting in seeing a finished Custom Game with black wins by resignation": {
@@ -646,9 +621,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:362"
-            ]
+            "source": ["specs/chess/custom-game.qnt:362"]
           }
         },
         "Cancel game resulting in seeing a cancelled Custom Game with cancelled": {
@@ -718,18 +691,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:359"
-            ]
+            "source": ["specs/chess/custom-game.qnt:359"]
           }
         },
         "Sign out resulting in viewing no Custom Game": {
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "_signOut",
-            "source": [
-              "specs/chess/custom-game.qnt:478"
-            ],
+            "source": ["specs/chess/custom-game.qnt:478"],
             "witness": {
               "trace": "custom-game_120.itf.json",
               "step": 1,
@@ -863,18 +832,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:435"
-            ]
+            "source": ["specs/chess/custom-game.qnt:435"]
           }
         },
         "Decline draw resulting in playing a Custom Game": {
           "target": "Playing a Custom Game",
           "meta": {
             "action": "declineDraw",
-            "source": [
-              "specs/chess/custom-game.qnt:371"
-            ],
+            "source": ["specs/chess/custom-game.qnt:371"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 2,
@@ -945,9 +910,7 @@
           "target": "Playing a Custom Game",
           "meta": {
             "action": "resignGame",
-            "source": [
-              "specs/chess/custom-game.qnt:362"
-            ],
+            "source": ["specs/chess/custom-game.qnt:362"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 10,
@@ -1018,9 +981,7 @@
           "target": "Playing a Custom Game",
           "meta": {
             "action": "rematch",
-            "source": [
-              "specs/chess/custom-game.qnt:311"
-            ],
+            "source": ["specs/chess/custom-game.qnt:311"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 12,
@@ -1091,9 +1052,7 @@
           "target": "Playing a Custom Game",
           "meta": {
             "action": "assignBot",
-            "source": [
-              "specs/chess/custom-game.qnt:317"
-            ],
+            "source": ["specs/chess/custom-game.qnt:317"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 16,
@@ -1164,9 +1123,7 @@
           "target": "Playing a Custom Game",
           "meta": {
             "action": "cancelGame",
-            "source": [
-              "specs/chess/custom-game.qnt:359"
-            ],
+            "source": ["specs/chess/custom-game.qnt:359"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 27,
@@ -1237,9 +1194,7 @@
           "target": "Seeing a cancelled Custom Game with cancelled",
           "meta": {
             "action": "_connectionReturns",
-            "source": [
-              "specs/chess/custom-game.qnt:411"
-            ],
+            "source": ["specs/chess/custom-game.qnt:411"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 76,
@@ -1337,9 +1292,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "completed",
@@ -1438,9 +1391,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ]
+            "source": ["specs/chess/custom-game.qnt:308"]
           }
         },
         "Rematch resulting in seeing configuring Custom Game": {
@@ -1510,9 +1461,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:311"
-            ]
+            "source": ["specs/chess/custom-game.qnt:311"]
           }
         }
       }
@@ -1546,9 +1495,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "configuring",
@@ -1584,9 +1531,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "swapSides",
-            "source": [
-              "specs/chess/custom-game.qnt:350"
-            ],
+            "source": ["specs/chess/custom-game.qnt:350"],
             "witness": {
               "trace": "custom-game_59.itf.json",
               "step": 90,
@@ -1720,9 +1665,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:359"
-            ]
+            "source": ["specs/chess/custom-game.qnt:359"]
           }
         },
         "The connection returns resulting in viewing no Custom Game": {
@@ -1792,18 +1735,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:411"
-            ]
+            "source": ["specs/chess/custom-game.qnt:411"]
           }
         },
         "Close side resulting in seeing configuring Custom Game": {
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "closeSide",
-            "source": [
-              "specs/chess/custom-game.qnt:323"
-            ],
+            "source": ["specs/chess/custom-game.qnt:323"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 34,
@@ -1874,9 +1813,7 @@
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "_personLeaves",
-            "source": [
-              "specs/chess/custom-game.qnt:461"
-            ],
+            "source": ["specs/chess/custom-game.qnt:461"],
             "witness": {
               "trace": "custom-game_1.itf.json",
               "step": 63,
@@ -1947,9 +1884,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "openSide",
-            "source": [
-              "specs/chess/custom-game.qnt:320"
-            ],
+            "source": ["specs/chess/custom-game.qnt:320"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 19,
@@ -2020,9 +1955,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "chooseClock",
-            "source": [
-              "specs/chess/custom-game.qnt:353"
-            ],
+            "source": ["specs/chess/custom-game.qnt:353"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 20,
@@ -2093,9 +2026,7 @@
           "target": "Seeing a cancelled Custom Game with cancelled",
           "meta": {
             "action": "cancelGame",
-            "source": [
-              "specs/chess/custom-game.qnt:359"
-            ],
+            "source": ["specs/chess/custom-game.qnt:359"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 38,
@@ -2166,9 +2097,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "assignBot",
-            "source": [
-              "specs/chess/custom-game.qnt:317"
-            ],
+            "source": ["specs/chess/custom-game.qnt:317"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 18,
@@ -2239,9 +2168,7 @@
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "_signOut",
-            "source": [
-              "specs/chess/custom-game.qnt:478"
-            ],
+            "source": ["specs/chess/custom-game.qnt:478"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 44,
@@ -2312,9 +2239,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "becomeReady",
-            "source": [
-              "specs/chess/custom-game.qnt:344"
-            ],
+            "source": ["specs/chess/custom-game.qnt:344"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 2,
@@ -2448,18 +2373,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:435"
-            ]
+            "source": ["specs/chess/custom-game.qnt:435"]
           }
         },
         "Take side resulting in seeing configuring Custom Game": {
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "takeSide",
-            "source": [
-              "specs/chess/custom-game.qnt:314"
-            ],
+            "source": ["specs/chess/custom-game.qnt:314"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 21,
@@ -2530,9 +2451,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "becomeUnready",
-            "source": [
-              "specs/chess/custom-game.qnt:347"
-            ],
+            "source": ["specs/chess/custom-game.qnt:347"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 25,
@@ -2666,9 +2585,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:341"
-            ]
+            "source": ["specs/chess/custom-game.qnt:341"]
           }
         },
         "Claim side resulting in seeing configuring Custom Game": {
@@ -2738,18 +2655,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:338"
-            ]
+            "source": ["specs/chess/custom-game.qnt:338"]
           }
         },
         "Invite resulting in seeing configuring Custom Game": {
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "invite",
-            "source": [
-              "specs/chess/custom-game.qnt:326"
-            ],
+            "source": ["specs/chess/custom-game.qnt:326"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 5,
@@ -2883,18 +2796,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:329"
-            ]
+            "source": ["specs/chess/custom-game.qnt:329"]
           }
         },
         "Revoke side resulting in seeing configuring Custom Game": {
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "revokeSide",
-            "source": [
-              "specs/chess/custom-game.qnt:335"
-            ],
+            "source": ["specs/chess/custom-game.qnt:335"],
             "witness": {
               "trace": "custom-game_1.itf.json",
               "step": 35,
@@ -2965,9 +2874,7 @@
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "declineSide",
-            "source": [
-              "specs/chess/custom-game.qnt:332"
-            ],
+            "source": ["specs/chess/custom-game.qnt:332"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 6,
@@ -3065,9 +2972,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "none",
@@ -3166,9 +3071,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:338"
-            ]
+            "source": ["specs/chess/custom-game.qnt:338"]
           }
         },
         "Become ready resulting in viewing no Custom Game": {
@@ -3238,9 +3141,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:344"
-            ]
+            "source": ["specs/chess/custom-game.qnt:344"]
           }
         },
         "Become unready resulting in viewing no Custom Game": {
@@ -3310,9 +3211,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:347"
-            ]
+            "source": ["specs/chess/custom-game.qnt:347"]
           }
         },
         "Swap sides resulting in viewing no Custom Game": {
@@ -3382,9 +3281,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:350"
-            ]
+            "source": ["specs/chess/custom-game.qnt:350"]
           }
         },
         "Create game resulting in viewing no Custom Game": {
@@ -3454,9 +3351,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ]
+            "source": ["specs/chess/custom-game.qnt:308"]
           }
         },
         "Choose clock resulting in viewing no Custom Game": {
@@ -3526,9 +3421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:353"
-            ]
+            "source": ["specs/chess/custom-game.qnt:353"]
           }
         },
         "Sign in resulting in seeing configuring Custom Game": {
@@ -3598,9 +3491,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:483"
-            ]
+            "source": ["specs/chess/custom-game.qnt:483"]
           }
         },
         "Assign bot resulting in viewing no Custom Game": {
@@ -3670,9 +3561,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:317"
-            ]
+            "source": ["specs/chess/custom-game.qnt:317"]
           }
         },
         "Create game resulting in seeing configuring Custom Game": {
@@ -3742,18 +3631,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ]
+            "source": ["specs/chess/custom-game.qnt:308"]
           }
         },
         "Cancel game resulting in viewing no Custom Game": {
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "cancelGame",
-            "source": [
-              "specs/chess/custom-game.qnt:359"
-            ],
+            "source": ["specs/chess/custom-game.qnt:359"],
             "witness": {
               "trace": "custom-game_120.itf.json",
               "step": 13,
@@ -3887,9 +3772,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:356"
-            ]
+            "source": ["specs/chess/custom-game.qnt:356"]
           }
         },
         "Sign in resulting in seeing a finished Custom Game with white wins by resignation": {
@@ -3959,9 +3842,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:483"
-            ]
+            "source": ["specs/chess/custom-game.qnt:483"]
           }
         },
         "Close side resulting in viewing no Custom Game": {
@@ -4031,18 +3912,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:323"
-            ]
+            "source": ["specs/chess/custom-game.qnt:323"]
           }
         },
         "Accept draw resulting in viewing no Custom Game": {
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "acceptDraw",
-            "source": [
-              "specs/chess/custom-game.qnt:368"
-            ],
+            "source": ["specs/chess/custom-game.qnt:368"],
             "witness": {
               "trace": "custom-game_120.itf.json",
               "step": 2,
@@ -4113,9 +3990,7 @@
           "target": "Viewing no Custom Game",
           "meta": {
             "action": "rematch",
-            "source": [
-              "specs/chess/custom-game.qnt:311"
-            ],
+            "source": ["specs/chess/custom-game.qnt:311"],
             "witness": {
               "trace": "custom-game_120.itf.json",
               "step": 3,
@@ -4213,9 +4088,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "cancelled",
@@ -4314,9 +4187,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:461"
-            ]
+            "source": ["specs/chess/custom-game.qnt:461"]
           }
         },
         "Rematch resulting in seeing configuring Custom Game": {
@@ -4386,9 +4257,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:311"
-            ]
+            "source": ["specs/chess/custom-game.qnt:311"]
           }
         },
         "Sign out resulting in viewing no Custom Game": {
@@ -4458,18 +4327,14 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:478"
-            ]
+            "source": ["specs/chess/custom-game.qnt:478"]
           }
         },
         "Create game resulting in seeing configuring Custom Game": {
           "target": "Seeing configuring Custom Game",
           "meta": {
             "action": "createGame",
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ],
+            "source": ["specs/chess/custom-game.qnt:308"],
             "witness": {
               "trace": "custom-game_97.itf.json",
               "step": 43,
@@ -4567,9 +4432,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "completed",
@@ -4668,9 +4531,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:311"
-            ]
+            "source": ["specs/chess/custom-game.qnt:311"]
           }
         },
         "Create game resulting in seeing configuring Custom Game": {
@@ -4740,9 +4601,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ]
+            "source": ["specs/chess/custom-game.qnt:308"]
           }
         }
       }
@@ -4776,9 +4635,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "completed",
@@ -4877,9 +4734,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:461"
-            ]
+            "source": ["specs/chess/custom-game.qnt:461"]
           }
         }
       }
@@ -4913,9 +4768,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game.qnt"
-        ],
+        "source": ["specs/chess/custom-game.qnt"],
         "quintPredicates": [
           {
             "statusShown.get(\"alice\")": "completed",
@@ -5014,9 +4867,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:478"
-            ]
+            "source": ["specs/chess/custom-game.qnt:478"]
           }
         },
         "Create game resulting in seeing configuring Custom Game": {
@@ -5086,9 +4937,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/custom-game.qnt:308"
-            ]
+            "source": ["specs/chess/custom-game.qnt:308"]
           }
         }
       }

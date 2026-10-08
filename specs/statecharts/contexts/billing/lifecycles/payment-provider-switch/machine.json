@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/billing/payment-provider-switch.qnt"
-    ],
+    "quint": ["specs/billing/payment-provider-switch.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the payment provider switch view.",
         "snapshot": "the-person-is-opening-the-payment-provider-switch-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ]
+        "source": ["specs/billing/payment-provider-switch.qnt"]
       },
       "on": {
         "Opens with viewing none membership": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:118"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:118"]
           }
         }
       }
@@ -62,9 +54,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "none",
@@ -108,9 +98,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Subscribes to Plus resulting in viewing none membership": {
@@ -138,9 +126,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "The billing period ends resulting in viewing none membership": {
@@ -168,9 +154,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "Ends membership immediately resulting in viewing none membership": {
@@ -198,9 +182,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the second provider": {
@@ -228,9 +210,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the first provider": {
@@ -258,9 +238,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         }
       }
@@ -281,9 +259,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "trialing",
@@ -327,9 +303,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the second provider": {
@@ -357,9 +331,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "The billing period ends resulting in viewing trialing membership at the second provider": {
@@ -387,9 +359,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "The billing period ends resulting in viewing active membership at the second provider": {
@@ -417,9 +387,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the second provider": {
@@ -447,9 +415,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Ends membership immediately resulting in viewing trialing membership at the second provider": {
@@ -477,9 +443,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         }
       }
@@ -500,9 +464,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "ended",
@@ -546,9 +508,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "The team switches new memberships to another provider resulting in viewing ended membership at the second provider": {
@@ -576,9 +536,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the second provider": {
@@ -606,9 +564,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the second provider": {
@@ -636,9 +592,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Subscribes to Plus resulting in viewing ended membership at the second provider": {
@@ -666,9 +620,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "The billing period ends resulting in viewing ended membership at the second provider": {
@@ -696,9 +648,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         }
       }
@@ -719,9 +669,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "trialing",
@@ -765,9 +713,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the first provider": {
@@ -795,9 +741,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the first provider": {
@@ -825,9 +769,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Ends membership immediately resulting in viewing trialing membership at the first provider": {
@@ -855,9 +797,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "The billing period ends resulting in viewing active membership at the first provider": {
@@ -885,9 +825,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "The billing period ends resulting in viewing trialing membership at the first provider": {
@@ -915,9 +853,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         }
       }
@@ -938,9 +874,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "ended",
@@ -984,9 +918,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the first provider": {
@@ -1014,9 +946,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Subscribes to Plus resulting in viewing ended membership at the first provider": {
@@ -1044,9 +974,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "Subscribes to Plus resulting in viewing trialing membership at the second provider": {
@@ -1074,9 +1002,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "The billing period ends resulting in viewing ended membership at the first provider": {
@@ -1104,9 +1030,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the first provider": {
@@ -1134,9 +1058,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         }
       }
@@ -1157,9 +1079,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "active",
@@ -1203,9 +1123,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "The team switches new memberships to another provider resulting in viewing active membership at the second provider": {
@@ -1233,9 +1151,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Ends membership immediately resulting in viewing active membership at the second provider": {
@@ -1263,9 +1179,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the second provider": {
@@ -1293,9 +1207,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Subscribes to Plus resulting in viewing active membership at the second provider": {
@@ -1323,9 +1235,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         }
       }
@@ -1346,9 +1256,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-provider-switch.qnt"
-        ],
+        "source": ["specs/billing/payment-provider-switch.qnt"],
         "quintPredicates": [
           {
             "membershipStatus.get(\"alice\")": "active",
@@ -1392,9 +1300,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:196"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:196"]
           }
         },
         "Ends membership immediately resulting in viewing ended membership at the first provider": {
@@ -1422,9 +1328,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         },
         "Subscribes to Plus resulting in viewing active membership at the first provider": {
@@ -1452,9 +1356,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:133"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:133"]
           }
         },
         "The billing period ends resulting in viewing active membership at the first provider": {
@@ -1482,9 +1384,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:180"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:180"]
           }
         },
         "Ends membership immediately resulting in viewing active membership at the first provider": {
@@ -1512,9 +1412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/billing/payment-provider-switch.qnt:189"
-            ]
+            "source": ["specs/billing/payment-provider-switch.qnt:189"]
           }
         }
       }

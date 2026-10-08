@@ -24,14 +24,10 @@
         "description": "The person is at the place where keep a multiplayer game after time away.",
         "snapshot": "the-person-is-at-the-place-where-keep-a-multiplayer-game-after-time-away",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:2"]
       },
       "on": {
         "Alice plays e2 to e4 as a multiplayer move": {
@@ -76,9 +72,7 @@
             "source": [
               "specs/chess/multiplayer-recovery-and-privacy.feature:25"
             ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "Disconnecting does not give up the game"
           }
         },
@@ -88,9 +82,7 @@
             "source": [
               "specs/chess/multiplayer-recovery-and-privacy.feature:32"
             ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "A matched person opens their board"
           }
         },
@@ -100,9 +92,7 @@
             "source": [
               "specs/chess/multiplayer-recovery-and-privacy.feature:37"
             ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "Another person cannot open the game"
           }
         },
@@ -112,9 +102,7 @@
             "source": [
               "specs/chess/multiplayer-recovery-and-privacy.feature:42"
             ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "Another person cannot move in the game"
           }
         },
@@ -124,9 +112,7 @@
             "source": [
               "specs/chess/multiplayer-recovery-and-privacy.feature:50"
             ],
-            "condition": [
-              "Alice is looking for a chess opponent"
-            ],
+            "condition": ["Alice is looking for a chess opponent"],
             "example": "Deleting an account removes its opponent search"
           }
         },
@@ -167,9 +153,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:8"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,9 +169,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:14"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -197,14 +179,10 @@
         "description": "The person observes that alice sees she won the multiplayer game.",
         "snapshot": "the-person-observes-that-alice-sees-she-won-the-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "Alice sees she won the multiplayer game"
-        ],
+        "checks": ["Alice sees she won the multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:20"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -214,14 +192,10 @@
         "description": "The person observes that alice and Bob keep the unfinished multiplayer game.",
         "snapshot": "the-person-observes-that-alice-and-bob-keep-the-unfinished-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "Alice and Bob keep the unfinished multiplayer game"
-        ],
+        "checks": ["Alice and Bob keep the unfinished multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:25"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -231,14 +205,10 @@
         "description": "The person observes that alice sees her multiplayer board and Bob's name.",
         "snapshot": "the-person-observes-that-alice-sees-her-multiplayer-board-and-bob-s-name",
         "recognize": [],
-        "checks": [
-          "Alice sees her multiplayer board and Bob's name"
-        ],
+        "checks": ["Alice sees her multiplayer board and Bob's name"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:32"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -248,14 +218,10 @@
         "description": "The person observes that carol is told no multiplayer game is available to her.",
         "snapshot": "the-person-observes-that-carol-is-told-no-multiplayer-game-is-available-to-her",
         "recognize": [],
-        "checks": [
-          "Carol is told no multiplayer game is available to her"
-        ],
+        "checks": ["Carol is told no multiplayer game is available to her"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:37"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -271,9 +237,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:42"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -289,9 +253,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:50"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -307,9 +269,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:56"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -325,9 +285,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-recovery-and-privacy.feature:62"
-        ],
+        "source": ["specs/chess/multiplayer-recovery-and-privacy.feature:62"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

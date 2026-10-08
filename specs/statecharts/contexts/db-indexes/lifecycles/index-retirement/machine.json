@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/db-indexes/index-retirement.qnt"
-    ],
+    "quint": ["specs/db-indexes/index-retirement.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the index retirement view.",
         "snapshot": "the-person-is-opening-the-index-retirement-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-retirement.qnt"
-        ]
+        "source": ["specs/db-indexes/index-retirement.qnt"]
       },
       "on": {
         "Opens with viewing no automatic indexes": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:21"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:21"]
           }
         }
       }
@@ -59,9 +51,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-retirement.qnt"
-        ],
+        "source": ["specs/db-indexes/index-retirement.qnt"],
         "quintPredicates": [
           {
             "retiring is empty": true,
@@ -99,16 +89,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:86"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:86"]
           }
         },
         "Tune resulting in viewing no automatic indexes": {
@@ -133,16 +119,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Days pass resulting in viewing no automatic indexes": {
@@ -167,16 +149,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:77"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:77"]
           }
         },
         "Declare resulting in viewing no automatic indexes": {
@@ -201,17 +179,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor",
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByAuthor", "notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:28"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:28"]
           }
         },
         "Tune resulting in viewing maintained indexes": {
@@ -236,16 +209,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         }
       }
@@ -263,9 +232,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-retirement.qnt"
-        ],
+        "source": ["specs/db-indexes/index-retirement.qnt"],
         "quintPredicates": [
           {
             "retiring is empty": true,
@@ -303,16 +270,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Use resulting in viewing maintained indexes": {
@@ -342,9 +305,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:67"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:67"]
           }
         },
         "Declare resulting in viewing maintained indexes": {
@@ -369,16 +330,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:28"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:28"]
           }
         },
         "Tune resulting in watching indexes retire": {
@@ -403,16 +360,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Days pass resulting in viewing maintained indexes": {
@@ -437,16 +390,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:77"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:77"]
           }
         },
         "Keep own index resulting in viewing maintained indexes": {
@@ -471,16 +420,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:86"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:86"]
           }
         }
       }
@@ -498,9 +443,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/db-indexes/index-retirement.qnt"
-        ],
+        "source": ["specs/db-indexes/index-retirement.qnt"],
         "quintPredicates": [
           {
             "retiring is empty": false,
@@ -538,16 +481,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Days pass resulting in watching indexes retire": {
@@ -577,9 +516,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:77"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:77"]
           }
         },
         "Declare resulting in watching indexes retire": {
@@ -604,16 +541,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:28"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:28"]
           }
         },
         "Use resulting in watching indexes retire": {
@@ -638,16 +571,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:67"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:67"]
           }
         },
         "Tune resulting in viewing maintained indexes": {
@@ -672,16 +601,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor"
-                    ]
+                    "#set": ["notesByAuthor"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Tune resulting in viewing no automatic indexes": {
@@ -706,17 +631,12 @@
                 "wanted": {
                   "tag": "Some",
                   "value": {
-                    "#set": [
-                      "notesByAuthor",
-                      "notesByOwner"
-                    ]
+                    "#set": ["notesByAuthor", "notesByOwner"]
                   }
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:37"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:37"]
           }
         },
         "Keep own index resulting in watching indexes retire": {
@@ -746,9 +666,7 @@
                 }
               }
             },
-            "source": [
-              "specs/db-indexes/index-retirement.qnt:86"
-            ]
+            "source": ["specs/db-indexes/index-retirement.qnt:86"]
           }
         }
       }

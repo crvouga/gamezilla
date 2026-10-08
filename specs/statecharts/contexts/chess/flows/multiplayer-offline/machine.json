@@ -24,22 +24,16 @@
         "description": "The person is at the place where multiplayer chess needs a connection to change anything.",
         "snapshot": "the-person-is-at-the-place-where-multiplayer-chess-needs-a-connection-to-change-anyth",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-offline.feature:2"]
       },
       "on": {
         "Alice opens multiplayer chess when Alice has a new multiplayer game and her phone is offline": {
           "target": "Alice's phone keeps its last known multiplayer board — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:9"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:9"],
             "condition": [
               "Alice has a new multiplayer game and her phone is offline"
             ],
@@ -49,9 +43,7 @@
         "Alice resigns multiplayer chess": {
           "target": "Alice is told multiplayer chess needs a connection — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:14"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:14"],
             "condition": [
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5",
               "Alice's phone is offline"
@@ -62,9 +54,7 @@
         "Alice aborts the multiplayer game": {
           "target": "Alice is told multiplayer chess needs a connection — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:21"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:21"],
             "condition": [
               "Alice has a new multiplayer game and her phone is offline"
             ],
@@ -74,9 +64,7 @@
         "Alice offers a multiplayer draw": {
           "target": "Alice is told multiplayer chess needs a connection — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:27"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:27"],
             "condition": [
               "Alice has a new multiplayer game and her phone is offline"
             ],
@@ -86,9 +74,7 @@
         "Alice accepts the multiplayer draw": {
           "target": "Alice is told multiplayer chess needs a connection — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:33"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:33"],
             "condition": [
               "Bob has offered Alice a multiplayer draw",
               "Alice's phone is offline"
@@ -99,9 +85,7 @@
         "Alice declines the multiplayer draw": {
           "target": "Alice is told multiplayer chess needs a connection — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:40"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:40"],
             "condition": [
               "Bob has offered Alice a multiplayer draw",
               "Alice's phone is offline"
@@ -112,9 +96,7 @@
         "Alice opens multiplayer chess when Alice is looking for a 5+0 chess opponent and her phone is offline": {
           "target": "Alice sees she is still looking for a 5+0 chess opponent — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:49"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:49"],
             "condition": [
               "Alice is looking for a 5+0 chess opponent and her phone is offline"
             ],
@@ -124,9 +106,7 @@
         "Alice stops finding a chess opponent": {
           "target": "Alice is told multiplayer chess needs a connection — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:54"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:54"],
             "condition": [
               "Alice is looking for a 5+0 chess opponent and her phone is offline"
             ],
@@ -136,9 +116,7 @@
         "Alice finds a new opponent": {
           "target": "Alice is told multiplayer chess needs a connection — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:60"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:60"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over and her phone is offline"
             ],
@@ -148,9 +126,7 @@
         "Alice offers a multiplayer rematch": {
           "target": "Alice is told multiplayer chess needs a connection — 10",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:66"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:66"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over and her phone is offline"
             ],
@@ -160,9 +136,7 @@
         "Alice accepts the multiplayer rematch": {
           "target": "Alice is told multiplayer chess needs a connection — 11",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:72"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:72"],
             "condition": [
               "Bob has offered Alice a multiplayer rematch",
               "Alice's phone is offline"
@@ -173,9 +147,7 @@
         "Alice declines the multiplayer rematch": {
           "target": "Alice is told multiplayer chess needs a connection — 12",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-offline.feature:79"
-            ],
+            "source": ["specs/chess/multiplayer-offline.feature:79"],
             "condition": [
               "Bob has offered Alice a multiplayer rematch",
               "Alice's phone is offline"
@@ -190,14 +162,10 @@
         "description": "The person observes that alice's phone keeps its last known multiplayer board.",
         "snapshot": "the-person-observes-that-alice-s-phone-keeps-its-last-known-multiplayer-board",
         "recognize": [],
-        "checks": [
-          "Alice's phone keeps its last known multiplayer board"
-        ],
+        "checks": ["Alice's phone keeps its last known multiplayer board"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -213,9 +181,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:14"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -231,9 +197,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:21"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -249,9 +213,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:27"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -267,9 +229,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:33"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -285,9 +245,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:40"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -297,14 +255,10 @@
         "description": "The person observes that alice sees she is still looking for a 5+0 chess opponent.",
         "snapshot": "the-person-observes-that-alice-sees-she-is-still-looking-for-a-5-0-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice sees she is still looking for a 5+0 chess opponent"
-        ],
+        "checks": ["Alice sees she is still looking for a 5+0 chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:49"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -320,9 +274,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:54"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:54"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -338,9 +290,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:60"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:60"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -356,9 +306,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:66"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -374,9 +322,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:72"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:72"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -392,9 +338,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-offline.feature:79"
-        ],
+        "source": ["specs/chess/multiplayer-offline.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

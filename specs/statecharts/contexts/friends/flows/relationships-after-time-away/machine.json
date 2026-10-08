@@ -18,14 +18,10 @@
         "description": "The person is at the place where relationships after time away.",
         "snapshot": "the-person-is-at-the-place-where-relationships-after-time-away",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/relationships-after-time-away.feature:2"
-        ]
+        "source": ["specs/friends/relationships-after-time-away.feature:2"]
       },
       "on": {
         "Alice opens their friends list": {
@@ -77,14 +73,10 @@
         "description": "The person observes that alice's friends list shows Bob.",
         "snapshot": "the-person-observes-that-alice-s-friends-list-shows-bob",
         "recognize": [],
-        "checks": [
-          "Alice's friends list shows Bob"
-        ],
+        "checks": ["Alice's friends list shows Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/relationships-after-time-away.feature:10"
-        ],
+        "source": ["specs/friends/relationships-after-time-away.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -100,9 +92,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/relationships-after-time-away.feature:20"
-        ],
+        "source": ["specs/friends/relationships-after-time-away.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -117,9 +107,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/relationships-after-time-away.feature:31"
-        ],
+        "source": ["specs/friends/relationships-after-time-away.feature:31"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

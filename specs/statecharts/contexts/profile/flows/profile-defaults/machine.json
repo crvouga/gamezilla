@@ -24,25 +24,17 @@
         "description": "The person is at the place where profile defaults.",
         "snapshot": "the-person-is-at-the-place-where-profile-defaults",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-defaults.feature:2"
-        ]
+        "source": ["specs/profile/profile-defaults.feature:2"]
       },
       "on": {
         "Alice and Bob open the app": {
           "target": "Alice and Bob have different usernames — 1",
           "meta": {
-            "source": [
-              "specs/profile/profile-defaults.feature:9"
-            ],
-            "condition": [
-              "Alice and Bob are on fresh devices"
-            ],
+            "source": ["specs/profile/profile-defaults.feature:9"],
+            "condition": ["Alice and Bob are on fresh devices"],
             "example": "Every newcomer gets a username and avatar of their own"
           }
         }
@@ -59,9 +51,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/profile-defaults.feature:9"
-        ],
+        "source": ["specs/profile/profile-defaults.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

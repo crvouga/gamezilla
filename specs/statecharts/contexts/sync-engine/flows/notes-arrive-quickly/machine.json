@@ -18,22 +18,16 @@
         "description": "The person is at the place where notes arrive quickly.",
         "snapshot": "the-person-is-at-the-place-where-notes-arrive-quickly",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-arrive-quickly.feature:2"
-        ]
+        "source": ["specs/sync-engine/notes-arrive-quickly.feature:2"]
       },
       "on": {
         "Alice writes the note 'Groceries' saying 'milk'": {
           "target": "Bob sees the note \"Groceries\" within a quarter of a second — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-arrive-quickly.feature:9"
-            ],
+            "source": ["specs/sync-engine/notes-arrive-quickly.feature:9"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice and Bob have slow connections"
@@ -44,9 +38,7 @@
         "Alice writes 20 notes one after another": {
           "target": "at least 19 of the 20 notes reach Bob within a fifth of a second each — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-arrive-quickly.feature:15"
-            ],
+            "source": ["specs/sync-engine/notes-arrive-quickly.feature:15"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice and Bob have slow connections"
@@ -66,9 +58,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-arrive-quickly.feature:9"
-        ],
+        "source": ["specs/sync-engine/notes-arrive-quickly.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -83,9 +73,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-arrive-quickly.feature:15"
-        ],
+        "source": ["specs/sync-engine/notes-arrive-quickly.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

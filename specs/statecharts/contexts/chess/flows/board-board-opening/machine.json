@@ -24,46 +24,32 @@
         "description": "The person is at the place where open a fresh chessboard for the activity.",
         "snapshot": "the-person-is-at-the-place-where-open-a-fresh-chessboard-for-the-activity",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-opening.feature:2"
-        ]
+        "source": ["specs/chess-board/board-opening.feature:2"]
       },
       "on": {
         "Alice's activity starts a chessboard facing White when Alice's activity has no chessboard yet": {
           "target": "Alice sees the position before White's first move — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-opening.feature:9"
-            ],
-            "condition": [
-              "Alice's activity has no chessboard yet"
-            ],
+            "source": ["specs/chess-board/board-opening.feature:9"],
+            "condition": ["Alice's activity has no chessboard yet"],
             "example": "Either orientation starts with the normal opening"
           }
         },
         "Alice's activity starts a chessboard facing Black when Alice's activity has no chessboard yet": {
           "target": "Alice sees the position before White's first move — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-opening.feature:9"
-            ],
-            "condition": [
-              "Alice's activity has no chessboard yet"
-            ],
+            "source": ["specs/chess-board/board-opening.feature:9"],
+            "condition": ["Alice's activity has no chessboard yet"],
             "example": "Either orientation starts with the normal opening"
           }
         },
         "Alice's activity starts a chessboard facing White when Alice's keyboard is on another activity's control and Alice's activity has no chessboard yet": {
           "target": "Alice cannot have her keyboard taken from the other activity's control by opening the chessboard — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-opening.feature:41"
-            ],
+            "source": ["specs/chess-board/board-opening.feature:41"],
             "condition": [
               "Alice's keyboard is on another activity's control",
               "Alice's activity has no chessboard yet"
@@ -74,9 +60,7 @@
         "Alice's activity starts a chessboard facing White when Alice's activity has closed its chessboard after the unconfirmed move from e2 to e4 with e7 selected": {
           "target": "Alice sees the position before White's first move — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-opening.feature:50"
-            ],
+            "source": ["specs/chess-board/board-opening.feature:50"],
             "condition": [
               "Alice's activity has closed its chessboard after the unconfirmed move from e2 to e4 with e7 selected"
             ],
@@ -144,9 +128,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-opening.feature:41"
-        ],
+        "source": ["specs/chess-board/board-opening.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -164,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-opening.feature:50"
-        ],
+        "source": ["specs/chess-board/board-opening.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -22,22 +22,16 @@
         "description": "The person is at the place where the app opens without a connection.",
         "snapshot": "the-person-is-at-the-place-where-the-app-opens-without-a-connection",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/offline-open.feature:2"
-        ]
+        "source": ["specs/runtime/offline-open.feature:2"]
       },
       "on": {
         "Alice closes and reopens the app": {
           "target": "Alice sees the tabs — 1",
           "meta": {
-            "source": [
-              "specs/runtime/offline-open.feature:9"
-            ],
+            "source": ["specs/runtime/offline-open.feature:9"],
             "condition": [
               "Alice has opened the app before",
               "Alice is offline"
@@ -48,9 +42,7 @@
         "Alice opens Settings": {
           "target": "Alice is on Settings — 2",
           "meta": {
-            "source": [
-              "specs/runtime/offline-open.feature:16"
-            ],
+            "source": ["specs/runtime/offline-open.feature:16"],
             "condition": [
               "Alice has opened the app before",
               "Alice is offline"
@@ -65,15 +57,10 @@
         "description": "The person observes that alice sees the tabs.",
         "snapshot": "the-person-observes-that-alice-sees-the-tabs",
         "recognize": [],
-        "checks": [
-          "Alice sees the tabs",
-          "Alice is on Spaces"
-        ],
+        "checks": ["Alice sees the tabs", "Alice is on Spaces"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/offline-open.feature:9"
-        ],
+        "source": ["specs/runtime/offline-open.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -83,14 +70,10 @@
         "description": "The person observes that alice is on Settings.",
         "snapshot": "the-person-observes-that-alice-is-on-settings",
         "recognize": [],
-        "checks": [
-          "Alice is on Settings"
-        ],
+        "checks": ["Alice is on Settings"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/offline-open.feature:16"
-        ],
+        "source": ["specs/runtime/offline-open.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

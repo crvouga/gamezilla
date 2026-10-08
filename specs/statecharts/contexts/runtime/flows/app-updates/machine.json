@@ -24,22 +24,16 @@
         "description": "The person is at the place where an app too old for the product.",
         "snapshot": "the-person-is-at-the-place-where-an-app-too-old-for-the-product",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-updates.feature:2"
-        ]
+        "source": ["specs/runtime/app-updates.feature:2"]
       },
       "on": {
         "the connection comes back": {
           "target": "Alice is asked to update the app within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/runtime/app-updates.feature:9"
-            ],
+            "source": ["specs/runtime/app-updates.feature:9"],
             "condition": [
               "Alice's app became outdated while Alice was offline"
             ],
@@ -49,9 +43,7 @@
         "Alice updates the app": {
           "target": "Alice's profile shows @alice_before — 2",
           "meta": {
-            "source": [
-              "specs/runtime/app-updates.feature:14"
-            ],
+            "source": ["specs/runtime/app-updates.feature:14"],
             "condition": [
               "Alice is signed in",
               "Alice's username is @alice_before",
@@ -67,14 +59,10 @@
         "description": "The person observes that alice is asked to update the app within 15 seconds.",
         "snapshot": "the-person-observes-that-alice-is-asked-to-update-the-app-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Alice is asked to update the app within 15 seconds"
-        ],
+        "checks": ["Alice is asked to update the app within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-updates.feature:9"
-        ],
+        "source": ["specs/runtime/app-updates.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -84,14 +72,10 @@
         "description": "The person observes that alice's profile shows @alice_before.",
         "snapshot": "the-person-observes-that-alice-s-profile-shows-alice-before",
         "recognize": [],
-        "checks": [
-          "Alice's profile shows @alice_before"
-        ],
+        "checks": ["Alice's profile shows @alice_before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-updates.feature:14"
-        ],
+        "source": ["specs/runtime/app-updates.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

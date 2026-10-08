@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/auth/outside-accounts.qnt"
-    ],
+    "quint": ["specs/auth/outside-accounts.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the outside accounts view.",
         "snapshot": "the-person-is-opening-the-outside-accounts-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/outside-accounts.qnt"
-        ]
+        "source": ["specs/auth/outside-accounts.qnt"]
       },
       "on": {
         "Opens with choosing a sign-in method": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:155"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:155"]
           }
         }
       }
@@ -60,9 +52,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/outside-accounts.qnt"
-        ],
+        "source": ["specs/auth/outside-accounts.qnt"],
         "quintPredicates": [
           {
             "signedInto.keys().contains(\"phone\")": false,
@@ -106,9 +96,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:169"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:169"]
           }
         },
         "Trouble starts resulting in choosing a sign-in method": {
@@ -138,9 +126,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:353"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:353"]
           }
         },
         "Lose connection resulting in choosing a sign-in method": {
@@ -170,9 +156,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:340"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:340"]
           }
         },
         "Connection returns resulting in choosing a sign-in method": {
@@ -202,9 +186,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:346"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:346"]
           }
         },
         "Sign out everywhere resulting in choosing a sign-in method": {
@@ -234,9 +216,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:317"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:317"]
           }
         },
         "Trouble ends resulting in choosing a sign-in method": {
@@ -266,9 +246,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:363"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:363"]
           }
         },
         "Sign out resulting in choosing a sign-in method": {
@@ -298,9 +276,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:307"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:307"]
           }
         },
         "Stop using sign in with apple resulting in choosing a sign-in method": {
@@ -330,9 +306,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:373"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:373"]
           }
         },
         "Sign in resulting in signed in on this device": {
@@ -362,9 +336,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:169"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:169"]
           }
         },
         "Delete apple account resulting in choosing a sign-in method": {
@@ -394,9 +366,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:390"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:390"]
           }
         },
         "Sign ins lapse resulting in choosing a sign-in method": {
@@ -426,9 +396,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:423"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:423"]
           }
         },
         "Keep separate resulting in choosing a sign-in method": {
@@ -458,9 +426,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:239"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:239"]
           }
         },
         "Remove sign in method resulting in choosing a sign-in method": {
@@ -490,9 +456,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:291"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:291"]
           }
         },
         "Connect sign in method resulting in choosing a sign-in method": {
@@ -522,9 +486,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:263"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:263"]
           }
         },
         "Steal sign in resulting in choosing a sign-in method": {
@@ -554,9 +516,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:328"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:328"]
           }
         },
         "Steal sign in resulting in signed in on this device": {
@@ -586,9 +546,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:328"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:328"]
           }
         },
         "Sign in resulting in confirming a matching account": {
@@ -618,9 +576,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:169"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:169"]
           }
         },
         "Chance to confirm lapses resulting in choosing a sign-in method": {
@@ -650,9 +606,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:412"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:412"]
           }
         },
         "Confirm matching account resulting in choosing a sign-in method": {
@@ -682,9 +636,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:209"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:209"]
           }
         }
       }
@@ -703,9 +655,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/outside-accounts.qnt"
-        ],
+        "source": ["specs/auth/outside-accounts.qnt"],
         "quintPredicates": [
           {
             "signedInto.keys().contains(\"phone\")": true,
@@ -749,9 +699,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:423"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:423"]
           }
         },
         "Lose connection resulting in signed in on this device": {
@@ -781,9 +729,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:340"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:340"]
           }
         },
         "Sign in resulting in signed in on this device": {
@@ -813,9 +759,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:169"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:169"]
           }
         },
         "Connect sign in method resulting in signed in on this device": {
@@ -845,9 +789,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:263"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:263"]
           }
         },
         "Trouble starts resulting in signed in on this device": {
@@ -877,9 +819,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:353"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:353"]
           }
         },
         "Connection returns resulting in signed in on this device": {
@@ -909,9 +849,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:346"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:346"]
           }
         },
         "Remove sign in method resulting in signed in on this device": {
@@ -941,9 +879,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:291"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:291"]
           }
         },
         "Sign out resulting in choosing a sign-in method": {
@@ -973,9 +909,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:307"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:307"]
           }
         },
         "Trouble ends resulting in signed in on this device": {
@@ -1005,9 +939,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:363"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:363"]
           }
         },
         "Steal sign in resulting in signed in on this device": {
@@ -1037,9 +969,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:328"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:328"]
           }
         },
         "Delete apple account resulting in choosing a sign-in method": {
@@ -1069,9 +999,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:390"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:390"]
           }
         },
         "Sign out everywhere resulting in signed in on this device": {
@@ -1101,9 +1029,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:317"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:317"]
           }
         },
         "Stop using sign in with apple resulting in signed in on this device": {
@@ -1133,9 +1059,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:373"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:373"]
           }
         },
         "Sign out everywhere resulting in choosing a sign-in method": {
@@ -1165,9 +1089,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:317"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:317"]
           }
         },
         "Delete apple account resulting in signed in on this device": {
@@ -1197,9 +1119,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:390"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:390"]
           }
         },
         "Sign out resulting in signed in on this device": {
@@ -1229,9 +1149,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:307"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:307"]
           }
         },
         "Steal sign in resulting in choosing a sign-in method": {
@@ -1261,9 +1179,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:328"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:328"]
           }
         },
         "Chance to confirm lapses resulting in signed in on this device": {
@@ -1293,9 +1209,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:412"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:412"]
           }
         }
       }
@@ -1314,9 +1228,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/outside-accounts.qnt"
-        ],
+        "source": ["specs/auth/outside-accounts.qnt"],
         "quintPredicates": [
           {
             "signedInto.keys().contains(\"phone\")": false,
@@ -1360,9 +1272,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:412"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:412"]
           }
         },
         "Keep separate resulting in choosing a sign-in method": {
@@ -1392,9 +1302,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:239"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:239"]
           }
         },
         "Trouble starts resulting in confirming a matching account": {
@@ -1424,9 +1332,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:353"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:353"]
           }
         },
         "Keep separate resulting in signed in on this device": {
@@ -1456,9 +1362,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:239"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:239"]
           }
         },
         "Connection returns resulting in confirming a matching account": {
@@ -1488,9 +1392,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:346"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:346"]
           }
         },
         "Sign in resulting in confirming a matching account": {
@@ -1520,9 +1422,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:169"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:169"]
           }
         },
         "Confirm matching account resulting in confirming a matching account": {
@@ -1552,9 +1452,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:209"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:209"]
           }
         },
         "Lose connection resulting in confirming a matching account": {
@@ -1584,9 +1482,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:340"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:340"]
           }
         },
         "Sign out resulting in confirming a matching account": {
@@ -1616,9 +1512,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:307"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:307"]
           }
         },
         "Trouble ends resulting in confirming a matching account": {
@@ -1648,9 +1542,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:363"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:363"]
           }
         },
         "Confirm matching account resulting in choosing a sign-in method": {
@@ -1680,9 +1572,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:209"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:209"]
           }
         },
         "Stop using sign in with apple resulting in confirming a matching account": {
@@ -1712,9 +1602,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:373"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:373"]
           }
         },
         "Delete apple account resulting in confirming a matching account": {
@@ -1744,9 +1632,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:390"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:390"]
           }
         },
         "Steal sign in resulting in confirming a matching account": {
@@ -1776,9 +1662,7 @@
                 }
               }
             },
-            "source": [
-              "specs/auth/outside-accounts.qnt:328"
-            ]
+            "source": ["specs/auth/outside-accounts.qnt:328"]
           }
         }
       }

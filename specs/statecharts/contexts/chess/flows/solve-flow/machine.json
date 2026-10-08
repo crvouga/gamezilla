@@ -18,34 +18,24 @@
         "description": "The person is at the place where the solve flow.",
         "snapshot": "the-person-is-at-the-place-where-the-solve-flow",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:2"
-        ]
+        "source": ["specs/chess/solve-flow.feature:2"]
       },
       "on": {
         "Alice opens the two-rook clearance puzzle": {
           "target": "Alice's board faces White — 1",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:13"
-            ],
-            "condition": [
-              "Alice is signed in"
-            ],
+            "source": ["specs/chess/solve-flow.feature:13"],
+            "condition": ["Alice is signed in"],
             "example": "The puzzle opens after the opponent's setup move, facing the solver"
           }
         },
         "Alice plays the move a1-a5": {
           "target": "the opponent replies h7-h6 by itself — 2",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:21"
-            ],
+            "source": ["specs/chess/solve-flow.feature:21"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle"
@@ -56,9 +46,7 @@
         "Alice plays the move h1-h5": {
           "target": "Alice's puzzle is solved within 20 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:29"
-            ],
+            "source": ["specs/chess/solve-flow.feature:29"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle",
@@ -70,9 +58,7 @@
         "Alice plays a wrong move": {
           "target": "Alice is told the move was wrong — 4",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:37"
-            ],
+            "source": ["specs/chess/solve-flow.feature:37"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle"
@@ -83,9 +69,7 @@
         "Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle": {
           "target": "Alice's puzzle is solved within 20 seconds — 5",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:44"
-            ],
+            "source": ["specs/chess/solve-flow.feature:44"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle"
@@ -96,9 +80,7 @@
         "Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling puzzle": {
           "target": "Alice's puzzle is solved within 20 seconds — 6",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:50"
-            ],
+            "source": ["specs/chess/solve-flow.feature:50"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle"
@@ -109,9 +91,7 @@
         "Alice castles by moving the king two squares when Alice is signed in and Alice is solving the castling puzzle and Alice has played a wrong move and retried": {
           "target": "Alice's puzzle is solved within 20 seconds — 7",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:56"
-            ],
+            "source": ["specs/chess/solve-flow.feature:56"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle",
@@ -123,9 +103,7 @@
         "Alice castles by moving the king onto its own rook when Alice is signed in and Alice is solving the castling puzzle and Alice has played a wrong move and retried": {
           "target": "Alice's puzzle is solved within 20 seconds — 8",
           "meta": {
-            "source": [
-              "specs/chess/solve-flow.feature:65"
-            ],
+            "source": ["specs/chess/solve-flow.feature:65"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the castling puzzle",
@@ -149,9 +127,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:13"
-        ],
+        "source": ["specs/chess/solve-flow.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -168,9 +144,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:21"
-        ],
+        "source": ["specs/chess/solve-flow.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -186,9 +160,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:29"
-        ],
+        "source": ["specs/chess/solve-flow.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -204,9 +176,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:37"
-        ],
+        "source": ["specs/chess/solve-flow.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -216,14 +186,10 @@
         "description": "The person observes that alice's puzzle is solved within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle is solved within 20 seconds"
-        ],
+        "checks": ["Alice's puzzle is solved within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:44"
-        ],
+        "source": ["specs/chess/solve-flow.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -233,14 +199,10 @@
         "description": "The person observes that alice's puzzle is solved within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-is-solved-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle is solved within 20 seconds"
-        ],
+        "checks": ["Alice's puzzle is solved within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:50"
-        ],
+        "source": ["specs/chess/solve-flow.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -257,9 +219,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:56"
-        ],
+        "source": ["specs/chess/solve-flow.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -276,9 +236,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/solve-flow.feature:65"
-        ],
+        "source": ["specs/chess/solve-flow.feature:65"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

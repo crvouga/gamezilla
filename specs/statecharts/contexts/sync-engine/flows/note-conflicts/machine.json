@@ -18,22 +18,16 @@
         "description": "The person is at the place where earlier saves preserve later edits.",
         "snapshot": "the-person-is-at-the-place-where-earlier-saves-preserve-later-edits",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:2"
-        ]
+        "source": ["specs/sync-engine/note-conflicts.feature:2"]
       },
       "on": {
         "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs'": {
           "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-conflicts.feature:13"
-            ],
+            "source": ["specs/sync-engine/note-conflicts.feature:13"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
@@ -45,9 +39,7 @@
         "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs' and Bob has deleted the note 'Groceries'": {
           "target": "Alice does not see the note \"Groceries\" — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-conflicts.feature:20"
-            ],
+            "source": ["specs/sync-engine/note-conflicts.feature:20"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
@@ -60,9 +52,7 @@
         "Alice's app hears back about its last save when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob is waiting to hear back about the note 'Groceries' saying 'eggs'": {
           "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-conflicts.feature:28"
-            ],
+            "source": ["specs/sync-engine/note-conflicts.feature:28"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
@@ -74,9 +64,7 @@
         "Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice is waiting to hear back about the note 'Groceries' saying 'milk' and Bob has written the note 'Groceries' saying 'eggs' and Alice's app has been signed out elsewhere": {
           "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 4",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-conflicts.feature:38"
-            ],
+            "source": ["specs/sync-engine/note-conflicts.feature:38"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice is waiting to hear back about the note \"Groceries\" saying \"milk\"",
@@ -89,9 +77,7 @@
         "Alice's app signs back in when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk' and Alice's app has been signed out elsewhere": {
           "target": "Alice does not see the note \"Groceries\" — 5",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-conflicts.feature:46"
-            ],
+            "source": ["specs/sync-engine/note-conflicts.feature:46"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice's app is offline",
@@ -114,9 +100,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:13"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -132,9 +116,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:20"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -150,9 +132,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:28"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -168,9 +148,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:38"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -186,9 +164,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.feature:46"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

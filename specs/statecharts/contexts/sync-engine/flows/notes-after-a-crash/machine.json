@@ -18,22 +18,16 @@
         "description": "The person is at the place where notes survive a crash.",
         "snapshot": "the-person-is-at-the-place-where-notes-survive-a-crash",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-after-a-crash.feature:2"
-        ]
+        "source": ["specs/sync-engine/notes-after-a-crash.feature:2"]
       },
       "on": {
         "Alice's app crashes and reopens when Alice and Bob are in the shared space 'Trip' and Alice has written the note 'Groceries' saying 'milk' and Bob has written the note 'Hotel' saying 'Main St' and the note 'Hotel' has reached Alice": {
           "target": "Alice sees the note \"Groceries\" saying \"milk\" — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-after-a-crash.feature:11"
-            ],
+            "source": ["specs/sync-engine/notes-after-a-crash.feature:11"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -46,9 +40,7 @@
         "Alice's app crashes and reopens when Alice and Bob are in the shared space 'Trip' and Alice's app is offline and Alice has written the note 'Groceries' saying 'milk'": {
           "target": "The person remains at the described place until the next choice — 2 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-after-a-crash.feature:19"
-            ],
+            "source": ["specs/sync-engine/notes-after-a-crash.feature:19"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice's app is offline",
@@ -70,9 +62,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-after-a-crash.feature:11"
-        ],
+        "source": ["specs/sync-engine/notes-after-a-crash.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -87,17 +77,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-after-a-crash.feature:19"
-        ]
+        "source": ["specs/sync-engine/notes-after-a-crash.feature:19"]
       },
       "on": {
         "Alice's app comes back online": {
           "target": "Alice sees the note \"Groceries\" saying \"milk\" — 2 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-after-a-crash.feature:19"
-            ],
+            "source": ["specs/sync-engine/notes-after-a-crash.feature:19"],
             "condition": [],
             "example": "A note written offline before a crash still reaches others"
           }
@@ -115,9 +101,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-after-a-crash.feature:19"
-        ],
+        "source": ["specs/sync-engine/notes-after-a-crash.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

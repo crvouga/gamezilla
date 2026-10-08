@@ -24,37 +24,25 @@
         "description": "The person is at the place where remove a friend.",
         "snapshot": "the-person-is-at-the-place-where-remove-a-friend",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-remove.feature:2"
-        ]
+        "source": ["specs/friends/friend-remove.feature:2"]
       },
       "on": {
         "Alice starts removing Bob but keeps them": {
           "target": "Alice sees Bob as a friend — 1",
           "meta": {
-            "source": [
-              "specs/friends/friend-remove.feature:12"
-            ],
-            "condition": [
-              "Alice and Bob are friends"
-            ],
+            "source": ["specs/friends/friend-remove.feature:12"],
+            "condition": ["Alice and Bob are friends"],
             "example": "Changing your mind at the confirmation keeps the friendship"
           }
         },
         "Alice removes Bob": {
           "target": "Alice's friends list does not show Bob — 2",
           "meta": {
-            "source": [
-              "specs/friends/friend-remove.feature:16"
-            ],
-            "condition": [
-              "Alice and Bob are friends"
-            ],
+            "source": ["specs/friends/friend-remove.feature:16"],
+            "condition": ["Alice and Bob are friends"],
             "example": "Removing a friend ends the friendship for both"
           }
         }
@@ -65,14 +53,10 @@
         "description": "The person observes that alice sees Bob as a friend.",
         "snapshot": "the-person-observes-that-alice-sees-bob-as-a-friend",
         "recognize": [],
-        "checks": [
-          "Alice sees Bob as a friend"
-        ],
+        "checks": ["Alice sees Bob as a friend"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-remove.feature:12"
-        ],
+        "source": ["specs/friends/friend-remove.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -90,9 +74,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-remove.feature:16"
-        ],
+        "source": ["specs/friends/friend-remove.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

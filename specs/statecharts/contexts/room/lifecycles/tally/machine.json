@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/room/tally.qnt"
-    ],
+    "quint": ["specs/room/tally.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the tally view.",
         "snapshot": "the-person-is-opening-the-tally-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.qnt"
-        ]
+        "source": ["specs/room/tally.qnt"]
       },
       "on": {
         "Opens with viewing a zero tally": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/room/tally.qnt:84"
-            ]
+            "source": ["specs/room/tally.qnt:84"]
           }
         }
       }
@@ -59,9 +51,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.qnt"
-        ],
+        "source": ["specs/room/tally.qnt"],
         "quintPredicates": [
           {
             "tally == 0": true
@@ -95,9 +85,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:201"
-            ]
+            "source": ["specs/room/tally.qnt:201"]
           }
         },
         "Go offline resulting in viewing a zero tally": {
@@ -119,9 +107,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:140"
-            ]
+            "source": ["specs/room/tally.qnt:140"]
           }
         },
         "Take one resulting in viewing a zero tally": {
@@ -143,9 +129,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:121"
-            ]
+            "source": ["specs/room/tally.qnt:121"]
           }
         },
         "Come back online resulting in viewing a zero tally": {
@@ -167,9 +151,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:145"
-            ]
+            "source": ["specs/room/tally.qnt:145"]
           }
         },
         "Room restarts resulting in viewing a nonzero tally": {
@@ -191,9 +173,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:179"
-            ]
+            "source": ["specs/room/tally.qnt:179"]
           }
         },
         "Reopen app resulting in viewing a zero tally": {
@@ -215,9 +195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:158"
-            ]
+            "source": ["specs/room/tally.qnt:158"]
           }
         },
         "Close unexpectedly resulting in viewing a zero tally": {
@@ -239,9 +217,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:152"
-            ]
+            "source": ["specs/room/tally.qnt:152"]
           }
         },
         "Add one resulting in viewing a nonzero tally": {
@@ -263,9 +239,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:119"
-            ]
+            "source": ["specs/room/tally.qnt:119"]
           }
         },
         "Add one resulting in viewing a zero tally": {
@@ -287,9 +261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:119"
-            ]
+            "source": ["specs/room/tally.qnt:119"]
           }
         },
         "Network recovers resulting in viewing a nonzero tally": {
@@ -311,9 +283,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:171"
-            ]
+            "source": ["specs/room/tally.qnt:171"]
           }
         },
         "Take one resulting in viewing a nonzero tally": {
@@ -335,9 +305,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:121"
-            ]
+            "source": ["specs/room/tally.qnt:121"]
           }
         },
         "Reopen app resulting in viewing a nonzero tally": {
@@ -359,9 +327,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:158"
-            ]
+            "source": ["specs/room/tally.qnt:158"]
           }
         },
         "App closes as change lands resulting in viewing a nonzero tally": {
@@ -383,9 +349,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:240"
-            ]
+            "source": ["specs/room/tally.qnt:240"]
           }
         }
       }
@@ -403,9 +367,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.qnt"
-        ],
+        "source": ["specs/room/tally.qnt"],
         "quintPredicates": [
           {
             "tally == 0": false
@@ -439,9 +401,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:121"
-            ]
+            "source": ["specs/room/tally.qnt:121"]
           }
         },
         "Close unexpectedly resulting in viewing a nonzero tally": {
@@ -463,9 +423,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:152"
-            ]
+            "source": ["specs/room/tally.qnt:152"]
           }
         },
         "Reopen app resulting in viewing a nonzero tally": {
@@ -487,9 +445,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:158"
-            ]
+            "source": ["specs/room/tally.qnt:158"]
           }
         },
         "App closes as change lands resulting in viewing a zero tally": {
@@ -511,9 +467,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:240"
-            ]
+            "source": ["specs/room/tally.qnt:240"]
           }
         },
         "Take one resulting in viewing a nonzero tally": {
@@ -535,9 +489,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:121"
-            ]
+            "source": ["specs/room/tally.qnt:121"]
           }
         },
         "Add one resulting in viewing a nonzero tally": {
@@ -559,9 +511,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:119"
-            ]
+            "source": ["specs/room/tally.qnt:119"]
           }
         },
         "Go offline resulting in viewing a nonzero tally": {
@@ -583,9 +533,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:140"
-            ]
+            "source": ["specs/room/tally.qnt:140"]
           }
         },
         "Come back online resulting in viewing a nonzero tally": {
@@ -607,9 +555,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:145"
-            ]
+            "source": ["specs/room/tally.qnt:145"]
           }
         },
         "Resend resulting in viewing a zero tally": {
@@ -631,9 +577,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:201"
-            ]
+            "source": ["specs/room/tally.qnt:201"]
           }
         },
         "Reopen app resulting in viewing a zero tally": {
@@ -655,9 +599,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:158"
-            ]
+            "source": ["specs/room/tally.qnt:158"]
           }
         },
         "Add one resulting in viewing a zero tally": {
@@ -679,9 +621,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:119"
-            ]
+            "source": ["specs/room/tally.qnt:119"]
           }
         },
         "Network recovers resulting in viewing a zero tally": {
@@ -703,9 +643,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/tally.qnt:171"
-            ]
+            "source": ["specs/room/tally.qnt:171"]
           }
         }
       }

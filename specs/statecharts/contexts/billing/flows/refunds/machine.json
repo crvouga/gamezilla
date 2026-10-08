@@ -18,22 +18,16 @@
         "description": "The person is at the place where refunds.",
         "snapshot": "the-person-is-at-the-place-where-refunds",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/refunds.feature:2"
-        ]
+        "source": ["specs/billing/refunds.feature:2"]
       },
       "on": {
         "Alice's payment is refunded when Alice has subscribed to Plus and Alice's free trial has ended": {
           "target": "Alice's membership has ended — 1",
           "meta": {
-            "source": [
-              "specs/billing/refunds.feature:14"
-            ],
+            "source": ["specs/billing/refunds.feature:14"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's free trial has ended"
@@ -44,9 +38,7 @@
         "Alice subscribes to Plus": {
           "target": "Alice has paid access — 3",
           "meta": {
-            "source": [
-              "specs/billing/refunds.feature:22"
-            ],
+            "source": ["specs/billing/refunds.feature:22"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's free trial has ended",
@@ -62,10 +54,7 @@
         "description": "The person observes that alice's membership has ended.",
         "snapshot": "the-person-observes-that-alice-s-membership-has-ended",
         "recognize": [],
-        "checks": [
-          "Alice's membership has ended",
-          "Alice has free access"
-        ],
+        "checks": ["Alice's membership has ended", "Alice has free access"],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -82,14 +71,10 @@
         "description": "The person observes that alice has paid access.",
         "snapshot": "the-person-observes-that-alice-has-paid-access",
         "recognize": [],
-        "checks": [
-          "Alice has paid access"
-        ],
+        "checks": ["Alice has paid access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/refunds.feature:22"
-        ],
+        "source": ["specs/billing/refunds.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

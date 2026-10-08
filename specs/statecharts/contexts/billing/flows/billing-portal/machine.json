@@ -24,34 +24,24 @@
         "description": "The person is at the place where manage a membership in the billing portal.",
         "snapshot": "the-person-is-at-the-place-where-manage-a-membership-in-the-billing-portal",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-portal.feature:2"
-        ]
+        "source": ["specs/billing/billing-portal.feature:2"]
       },
       "on": {
         "Alice cancels the membership in the billing portal": {
           "target": "Alice's membership is set to end at the period end — 1",
           "meta": {
-            "source": [
-              "specs/billing/billing-portal.feature:12"
-            ],
-            "condition": [
-              "Alice has subscribed to Plus"
-            ],
+            "source": ["specs/billing/billing-portal.feature:12"],
+            "condition": ["Alice has subscribed to Plus"],
             "example": "Canceling in the billing portal keeps paid access until the period end"
           }
         },
         "Alice renews the membership in the billing portal": {
           "target": "Alice's membership is no longer set to end at the period end — 2",
           "meta": {
-            "source": [
-              "specs/billing/billing-portal.feature:17"
-            ],
+            "source": ["specs/billing/billing-portal.feature:17"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice has canceled the membership in the billing portal"
@@ -62,12 +52,8 @@
         "Alice switches the membership to the yearly plan in the billing portal": {
           "target": "Alice's membership is on the yearly plan — 3",
           "meta": {
-            "source": [
-              "specs/billing/billing-portal.feature:23"
-            ],
-            "condition": [
-              "Alice has subscribed to Plus"
-            ],
+            "source": ["specs/billing/billing-portal.feature:23"],
+            "condition": ["Alice has subscribed to Plus"],
             "example": "Switching to yearly in the portal during the trial keeps the trial"
           }
         }
@@ -84,9 +70,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-portal.feature:12"
-        ],
+        "source": ["specs/billing/billing-portal.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -102,9 +86,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-portal.feature:17"
-        ],
+        "source": ["specs/billing/billing-portal.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -120,9 +102,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/billing-portal.feature:23"
-        ],
+        "source": ["specs/billing/billing-portal.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

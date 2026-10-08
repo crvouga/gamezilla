@@ -24,22 +24,16 @@
         "description": "The person is at the place where offer a draw in a Custom Game.",
         "snapshot": "the-person-is-at-the-place-where-offer-a-draw-in-a-custom-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-draws.feature:2"]
       },
       "on": {
         "Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Bob is offered a draw in the Custom Game — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:7"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -49,9 +43,7 @@
         "Alice offers a draw in the Custom Game when Alice has an active Custom Game against a bot as Black": {
           "target": "Alice is told draw agreement needs two people — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:12"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:12"],
             "condition": [
               "Alice has an active Custom Game against a bot as Black"
             ],
@@ -61,9 +53,7 @@
         "Bob declines the draw in the Custom Game": {
           "target": "The Custom Game remains active — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:19"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:19"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Alice has offered a draw in the Custom Game"
@@ -74,9 +64,7 @@
         "Alice declines the draw in the Custom Game": {
           "target": "Alice is told only the other participant may decline a draw — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:26"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:26"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Alice has offered a draw in the Custom Game"
@@ -87,9 +75,7 @@
         "Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black and Bob has declined Alice's draw offer in the Custom Game": {
           "target": "Alice is told she may offer a draw again after her next move — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:34"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:34"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has declined Alice's draw offer in the Custom Game"
@@ -100,9 +86,7 @@
         "Alice offers a draw in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black and Bob has declined Alice's draw offer in the Custom Game and Alice has since played e2-e4 in the Custom Game": {
           "target": "Bob is offered a draw in the Custom Game — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:41"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:41"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Bob has declined Alice's draw offer in the Custom Game",
@@ -114,9 +98,7 @@
         "Bob plays e7-e5 in the Custom Game when Alice has an active Custom Game after White's e4 and Alice has offered a draw in the Custom Game": {
           "target": "Neither person is offered a draw in the Custom Game — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:50"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:50"],
             "condition": [
               "Alice has an active Custom Game after White's e4",
               "Alice has offered a draw in the Custom Game"
@@ -127,9 +109,7 @@
         "Bob plays e7-e5 in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black and Alice has offered a draw in the Custom Game": {
           "target": "Bob is told only the participant to move may play — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:56"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:56"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black",
               "Alice has offered a draw in the Custom Game"
@@ -140,9 +120,7 @@
         "Bob plays f6-g8 in the Custom Game when Alice has a Custom Game one move before the third repetition": {
           "target": "The Custom Game is completed as a draw — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:66"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:66"],
             "condition": [
               "Alice has a Custom Game one move before the third repetition"
             ],
@@ -152,9 +130,7 @@
         "Bob plays f6-g8 in the Custom Game when Alice has a Custom Game one move before the second repetition": {
           "target": "The Custom Game remains active — 10",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-draws.feature:71"
-            ],
+            "source": ["specs/chess/custom-game-draws.feature:71"],
             "condition": [
               "Alice has a Custom Game one move before the second repetition"
             ],
@@ -168,14 +144,10 @@
         "description": "The person observes that bob is offered a draw in the Custom Game.",
         "snapshot": "the-person-observes-that-bob-is-offered-a-draw-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Bob is offered a draw in the Custom Game"
-        ],
+        "checks": ["Bob is offered a draw in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,14 +157,10 @@
         "description": "The person observes that alice is told draw agreement needs two people.",
         "snapshot": "the-person-observes-that-alice-is-told-draw-agreement-needs-two-people",
         "recognize": [],
-        "checks": [
-          "Alice is told draw agreement needs two people"
-        ],
+        "checks": ["Alice is told draw agreement needs two people"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -208,9 +176,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:19"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -225,9 +191,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:26"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -243,9 +207,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:34"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -255,14 +217,10 @@
         "description": "The person observes that bob is offered a draw in the Custom Game.",
         "snapshot": "the-person-observes-that-bob-is-offered-a-draw-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Bob is offered a draw in the Custom Game"
-        ],
+        "checks": ["Bob is offered a draw in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:41"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -272,14 +230,10 @@
         "description": "The person observes that neither person is offered a draw in the Custom Game.",
         "snapshot": "the-person-observes-that-neither-person-is-offered-a-draw-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Neither person is offered a draw in the Custom Game"
-        ],
+        "checks": ["Neither person is offered a draw in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:50"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -295,9 +249,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:56"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -307,14 +259,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:66"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -330,9 +278,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-draws.feature:71"
-        ],
+        "source": ["specs/chess/custom-game-draws.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

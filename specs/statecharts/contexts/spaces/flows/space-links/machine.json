@@ -24,22 +24,16 @@
         "description": "The person is at the place where what a space's link leads to.",
         "snapshot": "the-person-is-at-the-place-where-what-a-space-s-link-leads-to",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-links.feature:2"
-        ]
+        "source": ["specs/spaces/space-links.feature:2"]
       },
       "on": {
         "Bob joins the space from the link": {
           "target": "Bob sees the space has ended within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-links.feature:9"
-            ],
+            "source": ["specs/spaces/space-links.feature:9"],
             "condition": [
               "Alice and Bob are guests",
               "Alice has hosted a space and ended it"
@@ -50,21 +44,15 @@
         "Bob opens a link to a space that does not exist": {
           "target": "Bob is told the space cannot be found within 15 seconds — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-links.feature:17"
-            ],
-            "condition": [
-              "Bob is a guest"
-            ],
+            "source": ["specs/spaces/space-links.feature:17"],
+            "condition": ["Bob is a guest"],
             "example": "A link to a space that never existed says so"
           }
         },
         "Bob joins Alice's space from the lobby": {
           "target": "Bob is in the space — 3",
           "meta": {
-            "source": [
-              "specs/spaces/space-links.feature:23"
-            ],
+            "source": ["specs/spaces/space-links.feature:23"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -86,9 +74,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-links.feature:9"
-        ],
+        "source": ["specs/spaces/space-links.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -104,9 +90,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-links.feature:17"
-        ],
+        "source": ["specs/spaces/space-links.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -122,9 +106,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-links.feature:23"
-        ],
+        "source": ["specs/spaces/space-links.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

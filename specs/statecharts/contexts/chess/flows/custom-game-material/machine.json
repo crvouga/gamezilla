@@ -24,22 +24,16 @@
         "description": "The person is at the place where a win needs mating material.",
         "snapshot": "the-person-is-at-the-place-where-a-win-needs-mating-material",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-material.feature:2"]
       },
       "on": {
         "1 second passes when Alice has a timed Custom Game with a queen against Bob's bare king and White has one second left in the Custom Game": {
           "target": "The Custom Game is completed as a draw — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:8"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:8"],
             "condition": [
               "Alice has a timed Custom Game with a queen against Bob's bare king",
               "White has one second left in the Custom Game"
@@ -50,9 +44,7 @@
         "1 second passes when Alice has a timed Custom Game with a queen against Bob's bare king and Black has one second left in the Custom Game": {
           "target": "Alice wins the Custom Game on time — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:14"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:14"],
             "condition": [
               "Alice has a timed Custom Game with a queen against Bob's bare king",
               "Black has one second left in the Custom Game"
@@ -63,9 +55,7 @@
         "Alice resigns the Custom Game": {
           "target": "The Custom Game is completed as a draw — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:23"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:23"],
             "condition": [
               "Alice has an active Custom Game with a queen against Bob's bare king"
             ],
@@ -75,9 +65,7 @@
         "Bob resigns the Custom Game": {
           "target": "Alice wins the Custom Game by resignation — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:28"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:28"],
             "condition": [
               "Alice has an active Custom Game with a queen against Bob's bare king"
             ],
@@ -87,9 +75,7 @@
         "Bob claims the win in the Custom Game": {
           "target": "The Custom Game is completed as a draw — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:39"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:39"],
             "condition": [
               "Alice has an active Custom Game with a queen against Bob's bare king",
               "Alice has been away from the Custom Game for 60 seconds"
@@ -100,9 +86,7 @@
         "Alice claims the win in the Custom Game": {
           "target": "Alice wins the Custom Game because Bob stayed away — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-material.feature:44"
-            ],
+            "source": ["specs/chess/custom-game-material.feature:44"],
             "condition": [
               "Alice has an active Custom Game with a queen against Bob's bare king",
               "Bob has been away from the Custom Game for 60 seconds"
@@ -117,14 +101,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:8"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -134,14 +114,10 @@
         "description": "The person observes that alice wins the Custom Game on time.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-on-time",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game on time"
-        ],
+        "checks": ["Alice wins the Custom Game on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:14"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -151,14 +127,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:23"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -168,14 +140,10 @@
         "description": "The person observes that alice wins the Custom Game by resignation.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-by-resignation",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game by resignation"
-        ],
+        "checks": ["Alice wins the Custom Game by resignation"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:28"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,14 +153,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:39"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -202,14 +166,10 @@
         "description": "The person observes that alice wins the Custom Game because Bob stayed away.",
         "snapshot": "the-person-observes-that-alice-wins-the-custom-game-because-bob-stayed-away",
         "recognize": [],
-        "checks": [
-          "Alice wins the Custom Game because Bob stayed away"
-        ],
+        "checks": ["Alice wins the Custom Game because Bob stayed away"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-material.feature:44"
-        ],
+        "source": ["specs/chess/custom-game-material.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

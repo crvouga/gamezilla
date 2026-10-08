@@ -18,34 +18,24 @@
         "description": "The person is at the place where the shared tally.",
         "snapshot": "the-person-is-at-the-place-where-the-shared-tally",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:2"
-        ]
+        "source": ["specs/room/tally.feature:2"]
       },
       "on": {
         "Alice adds one to the tally when Alice and Bob are in the room": {
           "target": "everyone sees a tally of 1 — 1",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:13"
-            ],
-            "condition": [
-              "Alice and Bob are in the room"
-            ],
+            "source": ["specs/room/tally.feature:13"],
+            "condition": ["Alice and Bob are in the room"],
             "example": "Adding one shows for everyone"
           }
         },
         "Bob takes one off the tally": {
           "target": "everyone sees a tally of 1 — 2",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:17"
-            ],
+            "source": ["specs/room/tally.feature:17"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one to the tally 2 times"
@@ -56,9 +46,7 @@
         "Alice adds one to the tally when Alice and Bob are in the room and Alice has added one to the tally and Bob has added one to the tally": {
           "target": "everyone sees a tally of 3 — 3",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:22"
-            ],
+            "source": ["specs/room/tally.feature:22"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one to the tally",
@@ -70,9 +58,7 @@
         "Alice adds one to the tally when Alice and Bob are in the room and Alice's phone is offline": {
           "target": "Alice sees a tally of 1 — 4",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:30"
-            ],
+            "source": ["specs/room/tally.feature:30"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice's phone is offline"
@@ -83,9 +69,7 @@
         "Alice's phone comes back online": {
           "target": "everyone sees a tally of 1 — 5",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:36"
-            ],
+            "source": ["specs/room/tally.feature:36"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one to the tally while offline"
@@ -96,9 +80,7 @@
         "Alice reopens the app": {
           "target": "everyone sees a tally of 1 — 6",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:44"
-            ],
+            "source": ["specs/room/tally.feature:44"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one to the tally while offline",
@@ -110,9 +92,7 @@
         "the room is available again": {
           "target": "everyone sees a tally of 1 — 7",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:53"
-            ],
+            "source": ["specs/room/tally.feature:53"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one while the room became unavailable"
@@ -123,9 +103,7 @@
         "Bob adds one to the tally": {
           "target": "everyone sees a tally of 2 — 8",
           "meta": {
-            "source": [
-              "specs/room/tally.feature:58"
-            ],
+            "source": ["specs/room/tally.feature:58"],
             "condition": [
               "Alice and Bob are in the room",
               "Alice has added one while the room became unavailable",
@@ -141,14 +119,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:13"
-        ],
+        "source": ["specs/room/tally.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -158,14 +132,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:17"
-        ],
+        "source": ["specs/room/tally.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -175,14 +145,10 @@
         "description": "The person observes that everyone sees a tally of 3.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-3",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 3"
-        ],
+        "checks": ["everyone sees a tally of 3"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:22"
-        ],
+        "source": ["specs/room/tally.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -192,15 +158,10 @@
         "description": "The person observes that alice sees a tally of 1.",
         "snapshot": "the-person-observes-that-alice-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "Alice sees a tally of 1",
-          "Bob still sees a tally of 0"
-        ],
+        "checks": ["Alice sees a tally of 1", "Bob still sees a tally of 0"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:30"
-        ],
+        "source": ["specs/room/tally.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -210,14 +171,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:36"
-        ],
+        "source": ["specs/room/tally.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -227,14 +184,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:44"
-        ],
+        "source": ["specs/room/tally.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -244,14 +197,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:53"
-        ],
+        "source": ["specs/room/tally.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -261,14 +210,10 @@
         "description": "The person observes that everyone sees a tally of 2.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-2",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 2"
-        ],
+        "checks": ["everyone sees a tally of 2"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/tally.feature:58"
-        ],
+        "source": ["specs/room/tally.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

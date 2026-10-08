@@ -17,9 +17,7 @@
       "pkgs/chess-board-root-client/src/chess-board-squares.tsx"
     ],
     "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections.",
-    "childCharts": [
-      "../board-board-interaction-part-2/machine.yaml"
-    ]
+    "childCharts": ["../board-board-interaction-part-2/machine.yaml"]
   },
   "states": {
     "Viewing Choose and complete chess moves": {
@@ -27,22 +25,16 @@
         "description": "The person is at the place where choose and complete chess moves.",
         "snapshot": "the-person-is-at-the-place-where-choose-and-complete-chess-moves",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:2"
-        ]
+        "source": ["specs/chess-board/board-interaction.feature:2"]
       },
       "on": {
         "Alice selects the piece on e2 when Alice has a chessboard with a movable White pawn on e2": {
           "target": "Alice has e2 selected — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White pawn on e2"
             ],
@@ -52,9 +44,7 @@
         "Alice selects the piece on g1 when Alice has a chessboard with a movable White knight on g1": {
           "target": "Alice has g1 selected — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White knight on g1"
             ],
@@ -64,9 +54,7 @@
         "Alice selects the piece on c4": {
           "target": "Alice has c4 selected — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White bishop on c4"
             ],
@@ -76,9 +64,7 @@
         "Alice selects the piece on a1": {
           "target": "Alice has a1 selected — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White rook on a1"
             ],
@@ -88,9 +74,7 @@
         "Alice selects the piece on d1": {
           "target": "Alice has d1 selected — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White queen on d1"
             ],
@@ -100,9 +84,7 @@
         "Alice selects the piece on e1": {
           "target": "Alice has e1 selected — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:8"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:8"],
             "condition": [
               "Alice has a chessboard with a movable White king on e1"
             ],
@@ -112,9 +94,7 @@
         "Alice selects the piece on e7 when Alice has a chessboard after White's move from e2 to e4": {
           "target": "Alice has e7 selected — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:23"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:23"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4"
             ],
@@ -124,57 +104,39 @@
         "Alice selects the piece on e2 when Alice has selected the piece on e2": {
           "target": "Alice sees no selection or legal destinations — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:29"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:29"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Choosing a selected piece again puts the selection down"
           }
         },
         "Alice selects the piece on g1 when Alice has selected the piece on e2": {
           "target": "Alice has g1 selected — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:35"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:35"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "Choosing another own piece changes selection without sound"
           }
         },
         "Alice selects the piece on e7 when Alice has an interactive chessboard": {
           "target": "Alice cannot select e7 while White is to move — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:42"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:42"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An opposing piece cannot be selected"
           }
         },
         "Alice selects the piece on e4": {
           "target": "Alice cannot select the empty square e4 — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:49"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:49"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An empty square cannot be selected"
           }
         },
         "Alice selects the piece on e2 when Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8": {
           "target": "Alice is not offered a legal destination for the knight on e2 because it is pinned to its king — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:56"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:56"],
             "condition": [
               "Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8"
             ],
@@ -184,9 +146,7 @@
         "Alice selects the piece on a2": {
           "target": "Alice sees only e2 as a legal destination — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:62"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:62"],
             "condition": [
               "Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2"
             ],
@@ -196,33 +156,23 @@
         "Alice moves the piece from e2 to e4 when Alice has selected the piece on e2": {
           "target": "Alice sees a White pawn on e4 — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:69"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:69"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "A selected pawn completes one move and clears its selection"
           }
         },
         "Alice drags the piece from e2 to e4": {
           "target": "Alice sees a White pawn on e4 — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:78"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:78"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "Dragging a pawn completes the same move as selection"
           }
         },
         "Alice moves the piece from e7 to e5": {
           "target": "Alice sees a Black pawn on e5 — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:87"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:87"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4"
             ],
@@ -232,21 +182,15 @@
         "Alice drags the piece from d2 to d4": {
           "target": "Alice sees a White pawn on d4 — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:95"
-            ],
-            "condition": [
-              "Alice has selected the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:95"],
+            "condition": ["Alice has selected the piece on e2"],
             "example": "A newly held piece replaces the earlier selected source"
           }
         },
         "Alice moves the piece from d2 to d4": {
           "target": "Alice cannot move White's pawn while Black is to move — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:103"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:103"],
             "condition": [
               "Alice has a chessboard after White's move from e2 to e4"
             ],
@@ -256,21 +200,15 @@
         "Alice moves the piece from e4 to d5": {
           "target": "Alice sees a White pawn on d5 — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:113"
-            ],
-            "condition": [
-              "Alice has a chessboard ready for a capture"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:113"],
+            "condition": ["Alice has a chessboard ready for a capture"],
             "example": "A legal capture removes its victim and sounds once"
           }
         },
         "Alice moves the piece from e2 to e5 when Alice has selected the piece on e2 and Alice has chessboard sound enabled": {
           "target": "Alice sees the White pawn remaining on e2 — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:121"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:121"],
             "condition": [
               "Alice has selected the piece on e2",
               "Alice has chessboard sound enabled"
@@ -281,33 +219,23 @@
         "Alice drags the piece from e2 to e5": {
           "target": "Alice sees the White pawn remaining on e2 — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:130"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:130"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An illegal dragged destination returns the piece without a move"
           }
         },
         "Alice drags the piece from e2 to d2": {
           "target": "Alice cannot capture the White pawn on d2 — 22",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:139"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:139"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An own piece cannot be captured"
           }
         },
         "Alice moves the piece from a2 to a3": {
           "target": "Alice cannot move the rook because its king would remain in check — 23",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:148"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:148"],
             "condition": [
               "Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2"
             ],
@@ -317,9 +245,7 @@
         "Alice moves the piece from e2 to c3": {
           "target": "Alice cannot move the pinned knight because it would expose its king — 24",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:156"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:156"],
             "condition": [
               "Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8"
             ],
@@ -329,9 +255,7 @@
         "Alice moves the piece from a2 to e2 when Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2": {
           "target": "Alice sees a White rook on e2 — 25",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:163"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:163"],
             "condition": [
               "Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2"
             ],
@@ -341,81 +265,55 @@
         "Alice moves the piece from e2 to e5 when Alice has a silent chessboard": {
           "target": "Alice sees the White pawn remaining on e2 — 26",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:170"
-            ],
-            "condition": [
-              "Alice has a silent chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:170"],
+            "condition": ["Alice has a silent chessboard"],
             "example": "A silent illegal move preserves the position without sound"
           }
         },
         "Alice drops the held piece on e2": {
           "target": "Alice sees a White pawn on e2 — 27",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:179"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:179"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Dropping a piece on its own square puts it down without a move"
           }
         },
         "Alice drops the held piece outside the chessboard": {
           "target": "Alice sees the White pawn remaining on e2 — 28",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:187"
-            ],
-            "condition": [
-              "Alice is dragging the piece on e2"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:187"],
+            "condition": ["Alice is dragging the piece on e2"],
             "example": "Dropping outside the chessboard puts the piece back"
           }
         },
         "Alice drags the piece from e7 to e5": {
           "target": "Alice cannot move Black's pawn while White is to move — 29",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:194"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:194"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "Dragging an opposing piece cannot offer a move"
           }
         },
         "Alice drags the piece from e4 to e5": {
           "target": "Alice cannot move a piece from the empty square e4 — 30",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:202"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:202"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "Dragging an empty square cannot offer a move"
           }
         },
         "Alice moves the piece from e2 to e4 when Alice has an interactive chessboard": {
           "target": "Alice hears one move sound with no check or end sounds — 31",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:211"
-            ],
-            "condition": [
-              "Alice has an interactive chessboard"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:211"],
+            "condition": ["Alice has an interactive chessboard"],
             "example": "An ordinary move has no check or end sound"
           }
         },
         "Alice moves the piece from a2 to e2 when Alice has a chessboard ready for White to check Black by moving the rook from a2 to e2": {
           "target": "Alice sees Black's king on e8 marked as in check — 32",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:217"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:217"],
             "condition": [
               "Alice has a chessboard ready for White to check Black by moving the rook from a2 to e2"
             ],
@@ -425,9 +323,7 @@
         "Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by moving the queen from g6 to g7": {
           "target": "Alice is told Black is checkmated — 33",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:224"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:224"],
             "condition": [
               "Alice has a chessboard ready for White to checkmate Black by moving the queen from g6 to g7"
             ],
@@ -437,9 +333,7 @@
         "Alice moves the piece from g6 to g7 when Alice has a chessboard ready for White to checkmate Black by capturing the rook on g7 with the queen on g6": {
           "target": "Alice is told Black is checkmated — 34",
           "meta": {
-            "source": [
-              "specs/chess-board/board-interaction.feature:232"
-            ],
+            "source": ["specs/chess-board/board-interaction.feature:232"],
             "condition": [
               "Alice has a chessboard ready for White to checkmate Black by capturing the rook on g7 with the queen on g6"
             ],
@@ -459,9 +353,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -477,9 +369,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -495,9 +385,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -513,9 +401,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -531,9 +417,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -549,9 +433,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:8"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -567,9 +449,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:23"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -585,9 +465,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:29"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -604,9 +482,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:35"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -623,9 +499,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:42"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -642,9 +516,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:49"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -660,9 +532,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:56"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -672,14 +542,10 @@
         "description": "The person observes that alice sees only e2 as a legal destination.",
         "snapshot": "the-person-observes-that-alice-sees-only-e2-as-a-legal-destination",
         "recognize": [],
-        "checks": [
-          "Alice sees only e2 as a legal destination"
-        ],
+        "checks": ["Alice sees only e2 as a legal destination"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:62"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:62"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -698,9 +564,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:69"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:69"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -719,9 +583,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:78"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:78"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -739,9 +601,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:87"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:87"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -759,9 +619,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:95"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:95"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -779,9 +637,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:103"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:103"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -799,9 +655,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:113"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:113"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -819,9 +673,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:121"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:121"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -840,9 +692,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:130"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:130"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -861,9 +711,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:139"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:139"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -881,9 +729,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:148"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:148"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -900,9 +746,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:156"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:156"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -919,9 +763,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:163"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:163"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -938,9 +780,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:170"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:170"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -958,9 +798,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:179"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:179"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -977,9 +815,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:187"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:187"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -997,9 +833,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:194"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:194"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1016,9 +850,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:202"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:202"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1034,9 +866,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:211"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:211"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1053,9 +883,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:217"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:217"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1073,9 +901,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:224"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:224"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -1092,9 +918,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-interaction.feature:232"
-        ],
+        "source": ["specs/chess-board/board-interaction.feature:232"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

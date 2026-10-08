@@ -24,22 +24,16 @@
         "description": "The person is at the place where puzzles finished offline count once.",
         "snapshot": "the-person-is-at-the-place-where-puzzles-finished-offline-count-once",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-outcome-sync.feature:2"]
       },
       "on": {
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle offline by solving it cleanly": {
           "target": "Alice's game log records that puzzle as solved — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -51,9 +45,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle offline by taking a hint, then solving it": {
           "target": "Alice's game log records that puzzle as solved — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -65,9 +57,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle offline by playing a wrong move, retrying, then solving it": {
           "target": "Alice's game log records that puzzle as failed — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -79,9 +69,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle offline by showing the solution": {
           "target": "Alice's game log records that puzzle as failed — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -93,9 +81,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle offline by skipping it": {
           "target": "Alice's game log records that puzzle as abandoned — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -107,9 +93,7 @@
         "Alice's attempt finishes on two devices with clean solve reaching the account first": {
           "target": "Alice's stats show 1 played, 1 solved, and 100% accuracy — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:29"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:29"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -121,9 +105,7 @@
         "Alice's attempt finishes on two devices with wrong then solve reaching the account first": {
           "target": "Alice's stats show 1 played, 0 solved, and 0% accuracy — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:29"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:29"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -135,9 +117,7 @@
         "the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice is playing puzzles in their space and Alice's clean solve result reached the account before the other device's wrong then solve result": {
           "target": "Alice's game log records that puzzle as solved — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:42"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:42"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -150,9 +130,7 @@
         "the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice is playing puzzles in their space and Alice's wrong then solve result reached the account before the other device's clean solve result": {
           "target": "Alice's game log records that puzzle as failed — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:42"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:42"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -165,9 +143,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by solving it cleanly as the app closes": {
           "target": "Alice's game log records that puzzle as solved — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -179,9 +155,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by taking a hint, then solving it as the app closes": {
           "target": "Alice's game log records that puzzle as solved — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -193,9 +167,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes": {
           "target": "Alice's game log records that puzzle as failed — 12",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -207,9 +179,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by showing the solution as the app closes": {
           "target": "Alice's game log records that puzzle as failed — 13",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -221,9 +191,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by skipping it as the app closes": {
           "target": "Alice's game log records that puzzle as abandoned — 14",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -235,9 +203,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes and Alice is offline and Alice has returned to their space": {
           "target": "Alice's game log records that puzzle as failed — 15",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:79"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:79"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -251,9 +217,7 @@
         "the connection comes back when Alice is signed in and Alice is playing puzzles in their space and Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes and Alice is viewing their puzzle stats offline": {
           "target": "Alice's game log records that puzzle as failed — 16",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-outcome-sync.feature:89"
-            ],
+            "source": ["specs/chess/puzzle-outcome-sync.feature:89"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -276,9 +240,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -294,9 +256,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -312,9 +272,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -330,9 +288,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -348,9 +304,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -366,9 +320,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:29"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -384,9 +336,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:29"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -403,9 +353,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:42"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -422,9 +370,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:42"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -440,9 +386,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -458,9 +402,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -476,9 +418,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -494,9 +434,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -512,9 +450,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -530,9 +466,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:79"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -548,9 +482,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-outcome-sync.feature:89"
-        ],
+        "source": ["specs/chess/puzzle-outcome-sync.feature:89"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

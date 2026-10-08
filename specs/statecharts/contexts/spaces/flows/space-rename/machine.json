@@ -24,22 +24,16 @@
         "description": "The person is at the place where rename a space.",
         "snapshot": "the-person-is-at-the-place-where-rename-a-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:2"
-        ]
+        "source": ["specs/spaces/space-rename.feature:2"]
       },
       "on": {
         "Alice renames the space to 'Friday puzzles' when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby": {
           "target": "Bob sees the space is called \"Friday puzzles\" within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:13"
-            ],
+            "source": ["specs/spaces/space-rename.feature:13"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby"
@@ -50,9 +44,7 @@
         "Alice renames the space to 'Friday puzzles' when Alice and Bob are friends and Alice is hosting a space that Bob joined from the lobby and Bob has gone back to the lobby": {
           "target": "Bob's lobby lists Alice's space as \"Friday puzzles\" within 15 seconds — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:17"
-            ],
+            "source": ["specs/spaces/space-rename.feature:17"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -64,9 +56,7 @@
         "Opens the described view": {
           "target": "Alice can rename the space — 3",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:22"
-            ],
+            "source": ["specs/spaces/space-rename.feature:22"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby"
@@ -77,9 +67,7 @@
         "Alice clears the space name": {
           "target": "Bob sees the space is named after Alice within 15 seconds — 4",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:26"
-            ],
+            "source": ["specs/spaces/space-rename.feature:26"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -91,9 +79,7 @@
         "Alice renames the space to 'Assassin chess club'": {
           "target": "Bob sees the space is called \"Assassin chess club\" within 15 seconds — 5",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:33"
-            ],
+            "source": ["specs/spaces/space-rename.feature:33"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby"
@@ -104,9 +90,7 @@
         "Alice renames the space to 'free coins at spam.gg'": {
           "target": "Alice is told that space name is not allowed — 6",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:37"
-            ],
+            "source": ["specs/spaces/space-rename.feature:37"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -118,9 +102,7 @@
         "the team stops allowing the space name 'Cheater corner'": {
           "target": "Bob sees the space is named after Alice within 15 seconds — 7",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:48"
-            ],
+            "source": ["specs/spaces/space-rename.feature:48"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -132,9 +114,7 @@
         "the team starts allowing the space name 'Cheater corner' again": {
           "target": "Bob sees the space is called \"Cheater corner\" within 15 seconds — 8",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:52"
-            ],
+            "source": ["specs/spaces/space-rename.feature:52"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -147,9 +127,7 @@
         "Alice renames the space to 'Cheater corner'": {
           "target": "Alice is told that space name is not allowed — 9",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:57"
-            ],
+            "source": ["specs/spaces/space-rename.feature:57"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -162,9 +140,7 @@
         "the team stops allowing the username @chess_cheater": {
           "target": "Bob sees the space is named after Alice's stand-in name within 15 seconds — 10",
           "meta": {
-            "source": [
-              "specs/spaces/space-rename.feature:65"
-            ],
+            "source": ["specs/spaces/space-rename.feature:65"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is hosting a space that Bob joined from the lobby",
@@ -185,9 +161,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:13"
-        ],
+        "source": ["specs/spaces/space-rename.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -202,9 +176,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:17"
-        ],
+        "source": ["specs/spaces/space-rename.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -214,15 +186,10 @@
         "description": "The person observes that alice can rename the space.",
         "snapshot": "the-person-observes-that-alice-can-rename-the-space",
         "recognize": [],
-        "checks": [
-          "Alice can rename the space",
-          "Bob cannot rename the space"
-        ],
+        "checks": ["Alice can rename the space", "Bob cannot rename the space"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:22"
-        ],
+        "source": ["specs/spaces/space-rename.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -232,14 +199,10 @@
         "description": "The person observes that bob sees the space is named after Alice within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-sees-the-space-is-named-after-alice-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob sees the space is named after Alice within 15 seconds"
-        ],
+        "checks": ["Bob sees the space is named after Alice within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:26"
-        ],
+        "source": ["specs/spaces/space-rename.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -254,9 +217,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:33"
-        ],
+        "source": ["specs/spaces/space-rename.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -272,9 +233,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:37"
-        ],
+        "source": ["specs/spaces/space-rename.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -284,14 +243,10 @@
         "description": "The person observes that bob sees the space is named after Alice within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-sees-the-space-is-named-after-alice-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob sees the space is named after Alice within 15 seconds"
-        ],
+        "checks": ["Bob sees the space is named after Alice within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:48"
-        ],
+        "source": ["specs/spaces/space-rename.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -306,9 +261,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:52"
-        ],
+        "source": ["specs/spaces/space-rename.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -318,14 +271,10 @@
         "description": "The person observes that alice is told that space name is not allowed.",
         "snapshot": "the-person-observes-that-alice-is-told-that-space-name-is-not-allowed",
         "recognize": [],
-        "checks": [
-          "Alice is told that space name is not allowed"
-        ],
+        "checks": ["Alice is told that space name is not allowed"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:57"
-        ],
+        "source": ["specs/spaces/space-rename.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -340,9 +289,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-rename.feature:65"
-        ],
+        "source": ["specs/spaces/space-rename.feature:65"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

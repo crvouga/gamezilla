@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/sync-engine/note-conflicts.qnt"
-    ],
+    "quint": ["specs/sync-engine/note-conflicts.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the note conflicts view.",
         "snapshot": "the-person-is-opening-the-note-conflicts-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.qnt"
-        ]
+        "source": ["specs/sync-engine/note-conflicts.qnt"]
       },
       "on": {
         "Opens with seeing no note": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:85"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:85"]
           }
         }
       }
@@ -63,9 +55,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.qnt"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": false,
@@ -104,9 +94,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:118"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:118"]
           }
         },
         "Go offline resulting in seeing no note": {
@@ -128,9 +116,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:133"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:133"]
           }
         },
         "Write resulting in reading a saved note": {
@@ -152,9 +138,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:105"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:105"]
           }
         },
         "Signed out elsewhere resulting in seeing no note": {
@@ -176,9 +160,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:146"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:146"]
           }
         },
         "Delete note resulting in seeing no note": {
@@ -200,9 +182,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:111"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:111"]
           }
         },
         "Write unheard resulting in seeing no note": {
@@ -224,9 +204,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:118"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:118"]
           }
         },
         "Write resulting in seeing no note": {
@@ -248,9 +226,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:105"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:105"]
           }
         },
         "Go online resulting in seeing no note": {
@@ -272,9 +248,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -296,9 +270,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         },
         "Hear back resulting in seeing no note": {
@@ -320,9 +292,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:126"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:126"]
           }
         }
       }
@@ -344,9 +314,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.qnt"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": true,
@@ -385,9 +353,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:146"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:146"]
           }
         },
         "Go offline resulting in reading a saved note": {
@@ -409,9 +375,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:133"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:133"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -433,9 +397,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:118"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:118"]
           }
         },
         "Write resulting in reading a saved note": {
@@ -457,9 +419,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:105"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:105"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -481,9 +441,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         },
         "Delete note resulting in reading a saved note": {
@@ -505,9 +463,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:111"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:111"]
           }
         },
         "Hear back resulting in seeing a removed note": {
@@ -529,9 +485,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:126"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:126"]
           }
         },
         "Hear back resulting in reading a saved note": {
@@ -553,9 +507,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:126"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:126"]
           }
         },
         "Delete note resulting in seeing a removed note": {
@@ -577,9 +529,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:111"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:111"]
           }
         },
         "Signed out elsewhere resulting in seeing a removed note": {
@@ -601,9 +551,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:146"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:146"]
           }
         },
         "Go online resulting in seeing a removed note": {
@@ -625,9 +573,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         }
       }
@@ -649,9 +595,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-conflicts.qnt"
-        ],
+        "source": ["specs/sync-engine/note-conflicts.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": true,
@@ -690,9 +634,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -714,9 +656,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:118"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:118"]
           }
         },
         "Signed out elsewhere resulting in seeing a removed note": {
@@ -738,9 +678,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:146"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:146"]
           }
         },
         "Delete note resulting in seeing a removed note": {
@@ -762,9 +700,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:111"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:111"]
           }
         },
         "Write resulting in reading a saved note": {
@@ -786,9 +722,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:105"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:105"]
           }
         },
         "Go offline resulting in seeing a removed note": {
@@ -810,9 +744,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:133"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:133"]
           }
         },
         "Write unheard resulting in seeing a removed note": {
@@ -834,9 +766,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:118"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:118"]
           }
         },
         "Hear back resulting in seeing a removed note": {
@@ -858,9 +788,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:126"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:126"]
           }
         },
         "Signed out elsewhere resulting in reading a saved note": {
@@ -882,9 +810,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:146"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:146"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -906,9 +832,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:139"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:139"]
           }
         },
         "Write resulting in seeing a removed note": {
@@ -930,9 +854,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-conflicts.qnt:105"
-            ]
+            "source": ["specs/sync-engine/note-conflicts.qnt:105"]
           }
         }
       }

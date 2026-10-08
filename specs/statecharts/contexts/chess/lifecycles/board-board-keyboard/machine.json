@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess-board/board-keyboard.qnt"
-    ],
+    "quint": ["specs/chess-board/board-keyboard.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the board board keyboard view.",
         "snapshot": "the-person-is-opening-the-board-board-keyboard-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-keyboard.qnt"
-        ]
+        "source": ["specs/chess-board/board-keyboard.qnt"]
       },
       "on": {
         "Opens with keyboard moves unavailable": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:30"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:30"]
           }
         },
         "Opens with moving keyboard focus on the board": {
@@ -53,9 +45,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:30"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:30"]
           }
         }
       }
@@ -72,9 +62,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-keyboard.qnt"
-        ],
+        "source": ["specs/chess-board/board-keyboard.qnt"],
         "quintPredicates": [
           {
             "keyboardBoard.interactive": false,
@@ -133,9 +121,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:49"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:49"]
           }
         }
       }
@@ -152,9 +138,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-keyboard.qnt"
-        ],
+        "source": ["specs/chess-board/board-keyboard.qnt"],
         "quintPredicates": [
           {
             "keyboardBoard.interactive": true,
@@ -212,9 +196,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:38"]
           }
         },
         "Tap keyboard square resulting in moving keyboard focus on the board": {
@@ -260,9 +242,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:55"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:55"]
           }
         },
         "Choose keyboard square resulting in moving keyboard focus on the board": {
@@ -308,9 +288,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:49"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:49"]
           }
         },
         "Tap keyboard square resulting in choosing a keyboard destination": {
@@ -356,9 +334,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:55"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:55"]
           }
         },
         "Choose keyboard square resulting in choosing a keyboard destination": {
@@ -404,9 +380,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:49"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:49"]
           }
         }
       }
@@ -423,9 +397,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-keyboard.qnt"
-        ],
+        "source": ["specs/chess-board/board-keyboard.qnt"],
         "quintPredicates": [
           {
             "keyboardBoard.interactive": true,
@@ -487,9 +459,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:49"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:49"]
           }
         },
         "Move keyboard resulting in choosing a keyboard destination": {
@@ -535,9 +505,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:38"]
           }
         },
         "Tap keyboard square resulting in moving keyboard focus on the board": {
@@ -583,9 +551,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:55"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:55"]
           }
         },
         "Tap keyboard square resulting in choosing a keyboard destination": {
@@ -631,9 +597,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:55"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:55"]
           }
         },
         "Choose keyboard square resulting in choosing a keyboard destination": {
@@ -679,9 +643,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-keyboard.qnt:49"
-            ]
+            "source": ["specs/chess-board/board-keyboard.qnt:49"]
           }
         }
       }

@@ -18,22 +18,16 @@
         "description": "The person is at the place where notes across app updates.",
         "snapshot": "the-person-is-at-the-place-where-notes-across-app-updates",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:2"
-        ]
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:2"]
       },
       "on": {
         "Alice's app updates to a version that fetches every note again": {
           "target": "The person remains at the described place until the next choice — 1 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:9"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:9"],
             "condition": [
               "Bob has written the note \"Hotel\" saying \"Main St\"",
               "Alice's app is offline",
@@ -45,9 +39,7 @@
         "Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to a version that gives notes a colour and Alice has written the note 'Groceries' saying 'milk'": {
           "target": "Alice sees the note \"Groceries\" saying \"milk\" — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:21"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:21"],
             "condition": [
               "Alice and Bob use the app",
               "Alice's app has updated to a version that gives notes a colour",
@@ -59,9 +51,7 @@
         "Alice's app goes back to the earlier version when Alice and Bob use the app and Alice's app has updated to a version that tags notes and Alice has written the note 'Groceries' saying 'milk'": {
           "target": "Alice sees the note \"Groceries\" saying \"milk\" — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:21"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:21"],
             "condition": [
               "Alice and Bob use the app",
               "Alice's app has updated to a version that tags notes",
@@ -73,9 +63,7 @@
         "Alice's app goes back to the earlier version when Alice's app has updated to a version that gives notes a colour and Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the colour green": {
           "target": "The person remains at the described place until the next choice — 4 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:37"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
             "condition": [
               "Alice's app has updated to a version that gives notes a colour",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -87,9 +75,7 @@
         "Alice's app goes back to the earlier version when Alice's app has updated to a version that tags notes and Alice has written the note 'Groceries' saying 'milk' and Alice has given the note 'Groceries' the tag 'shopping'": {
           "target": "The person remains at the described place until the next choice — 5 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:37"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
             "condition": [
               "Alice's app has updated to a version that tags notes",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -101,9 +87,7 @@
         "Alice's app updates to a version that gives notes a colour": {
           "target": "Alice sees the note \"Groceries\" coloured green — 6",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:51"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:51"],
             "condition": [
               "Alice's app is on a version without colours",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -115,9 +99,7 @@
         "Bob writes the note 'Groceries' saying 'eggs'": {
           "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 7",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:59"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:59"],
             "condition": [
               "Alice's app has updated to a version that gives notes a colour",
               "Bob's app is still on the earlier version",
@@ -139,17 +121,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:9"
-        ]
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:9"]
       },
       "on": {
         "Alice's app comes back online": {
           "target": "Alice sees the note \"Groceries\" saying \"milk\" — 1 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:9"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:9"],
             "condition": [],
             "example": "A note written offline still reaches others after an update that fetches every note again"
           }
@@ -168,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:9"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -187,9 +163,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:21"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,9 +180,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:21"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -223,17 +195,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:37"
-        ]
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:37"]
       },
       "on": {
         "Alice's app updates to the version that gives notes a colour once more": {
           "target": "Alice sees the note \"Groceries\" coloured green — 4 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:37"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
             "condition": [],
             "example": "Going back to the earlier version keeps the colour a newer version gave a note"
           }
@@ -245,14 +213,10 @@
         "description": "The person observes that alice sees the note \"Groceries\" coloured green.",
         "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-coloured-green",
         "recognize": [],
-        "checks": [
-          "Alice sees the note \"Groceries\" coloured green"
-        ],
+        "checks": ["Alice sees the note \"Groceries\" coloured green"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:37"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -267,17 +231,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:37"
-        ]
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:37"]
       },
       "on": {
         "Alice's app updates to the version that tags notes once more": {
           "target": "Alice sees the note \"Groceries\" tagged \"shopping\" — 5 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-app-updates.feature:37"
-            ],
+            "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
             "condition": [],
             "example": "Going back to the earlier version keeps the tag a newer version gave a note"
           }
@@ -289,14 +249,10 @@
         "description": "The person observes that alice sees the note \"Groceries\" tagged \"shopping\".",
         "snapshot": "the-person-observes-that-alice-sees-the-note-groceries-tagged-shopping",
         "recognize": [],
-        "checks": [
-          "Alice sees the note \"Groceries\" tagged \"shopping\""
-        ],
+        "checks": ["Alice sees the note \"Groceries\" tagged \"shopping\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:37"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -312,9 +268,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:51"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -330,9 +284,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-app-updates.feature:59"
-        ],
+        "source": ["specs/sync-engine/notes-across-app-updates.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

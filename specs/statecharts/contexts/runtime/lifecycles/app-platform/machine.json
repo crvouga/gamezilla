@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/runtime/app-platform.qnt"
-    ],
+    "quint": ["specs/runtime/app-platform.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the app platform view.",
         "snapshot": "the-person-is-opening-the-app-platform-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ]
+        "source": ["specs/runtime/app-platform.qnt"]
       },
       "on": {
         "Opens with viewing spaces": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:102"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:102"]
           }
         }
       }
@@ -62,15 +54,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "OnTab",
-              "spaces"
-            ]
+            "place.get(\"alice\")": ["OnTab", "spaces"]
           }
         ],
         "invariants": [
@@ -114,9 +101,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -148,9 +133,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Host resulting in viewing spaces": {
@@ -182,9 +165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Look up resulting in viewing spaces": {
@@ -216,9 +197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Open settings resulting in viewing Settings": {
@@ -250,9 +229,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Open settings resulting in viewing spaces": {
@@ -284,9 +261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Look up resulting in viewing Search": {
@@ -318,9 +293,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Sign in resulting in viewing spaces": {
@@ -352,9 +325,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Cut off resulting in viewing spaces": {
@@ -386,9 +357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "End resulting in viewing spaces": {
@@ -420,9 +389,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -454,9 +421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Reconnect resulting in viewing spaces": {
@@ -488,9 +453,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -522,9 +485,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Leave settings resulting in viewing spaces": {
@@ -556,9 +517,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Open tab resulting in viewing profile": {
@@ -590,9 +549,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         }
       }
@@ -613,15 +570,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "Settings",
-              []
-            ]
+            "place.get(\"alice\")": ["Settings", []]
           }
         ],
         "invariants": [
@@ -665,9 +617,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -699,9 +649,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Leave settings resulting in viewing spaces": {
@@ -733,9 +681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Open tab resulting in viewing Settings": {
@@ -767,9 +713,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Cut off resulting in viewing Settings": {
@@ -801,9 +745,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Open settings resulting in viewing Settings": {
@@ -835,9 +777,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Reconnect resulting in viewing Settings": {
@@ -869,9 +809,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Open tab resulting in viewing profile": {
@@ -903,9 +841,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Host resulting in viewing Settings": {
@@ -937,9 +873,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Leave settings resulting in viewing profile": {
@@ -971,9 +905,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -1005,9 +937,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Sign in resulting in viewing Settings": {
@@ -1039,9 +969,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -1073,9 +1001,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Leave settings resulting in viewing notifications": {
@@ -1107,9 +1033,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Leave settings resulting in viewing Settings": {
@@ -1141,9 +1065,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Look up resulting in viewing Settings": {
@@ -1175,9 +1097,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Open resulting in viewing Settings": {
@@ -1209,9 +1129,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         }
       }
@@ -1232,15 +1150,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "InSpace",
-              []
-            ]
+            "place.get(\"alice\")": ["InSpace", []]
           }
         ],
         "invariants": [
@@ -1284,9 +1197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Cut off resulting in viewing In Space": {
@@ -1318,9 +1229,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -1352,9 +1261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Reconnect resulting in viewing In Space": {
@@ -1386,9 +1293,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "End resulting in viewing In Space": {
@@ -1420,9 +1325,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "End resulting in viewing Ended": {
@@ -1454,9 +1357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Open settings resulting in viewing In Space": {
@@ -1488,9 +1389,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Leave settings resulting in viewing In Space": {
@@ -1522,9 +1421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Sign in resulting in viewing In Space": {
@@ -1556,9 +1453,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Look up resulting in viewing In Space": {
@@ -1590,9 +1485,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Open resulting in viewing In Space": {
@@ -1624,9 +1517,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         }
       }
@@ -1647,15 +1538,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "Ended",
-              []
-            ]
+            "place.get(\"alice\")": ["Ended", []]
           }
         ],
         "invariants": [
@@ -1699,9 +1585,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "End resulting in viewing Ended": {
@@ -1733,9 +1617,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Open tab resulting in viewing Ended": {
@@ -1767,9 +1649,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Cut off resulting in viewing Ended": {
@@ -1801,9 +1681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Open settings resulting in viewing Ended": {
@@ -1835,9 +1713,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Leave settings resulting in viewing Ended": {
@@ -1869,9 +1745,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -1903,9 +1777,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Host resulting in viewing Ended": {
@@ -1937,9 +1809,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -1971,9 +1841,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -2005,9 +1873,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Open tab resulting in viewing profile": {
@@ -2039,9 +1905,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Sign in resulting in viewing Ended": {
@@ -2073,9 +1937,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Reconnect resulting in viewing Ended": {
@@ -2107,9 +1969,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Open resulting in viewing Ended": {
@@ -2141,9 +2001,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         }
       }
@@ -2164,15 +2022,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "OnTab",
-              "notifications"
-            ]
+            "place.get(\"alice\")": ["OnTab", "notifications"]
           }
         ],
         "invariants": [
@@ -2216,9 +2069,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Cut off resulting in viewing notifications": {
@@ -2250,9 +2101,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -2284,9 +2133,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -2318,9 +2165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Reconnect resulting in viewing notifications": {
@@ -2352,9 +2197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -2386,9 +2229,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Open settings resulting in viewing notifications": {
@@ -2420,9 +2261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Host resulting in viewing notifications": {
@@ -2454,9 +2293,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Look up resulting in viewing Search": {
@@ -2488,9 +2325,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "End resulting in viewing notifications": {
@@ -2522,9 +2357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Open tab resulting in viewing profile": {
@@ -2556,9 +2389,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Open settings resulting in viewing Settings": {
@@ -2590,9 +2421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Leave settings resulting in viewing notifications": {
@@ -2624,9 +2453,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Sign in resulting in viewing notifications": {
@@ -2658,9 +2485,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         }
       }
@@ -2681,15 +2506,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "Search",
-              []
-            ]
+            "place.get(\"alice\")": ["Search", []]
           }
         ],
         "invariants": [
@@ -2733,9 +2553,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Open resulting in viewing Search": {
@@ -2767,9 +2585,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         },
         "Reconnect resulting in viewing Search": {
@@ -2801,9 +2617,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Open settings resulting in viewing Search": {
@@ -2835,9 +2649,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -2869,9 +2681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Sign in resulting in viewing Search": {
@@ -2903,9 +2713,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -2937,9 +2745,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -2971,9 +2777,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Look up resulting in viewing Search": {
@@ -3005,9 +2809,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Cut off resulting in viewing Search": {
@@ -3039,9 +2841,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Host resulting in viewing Search": {
@@ -3073,9 +2873,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "End resulting in viewing Search": {
@@ -3107,9 +2905,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Open tab resulting in viewing profile": {
@@ -3141,9 +2937,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Leave settings resulting in viewing Search": {
@@ -3175,9 +2969,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         }
       }
@@ -3198,15 +2990,10 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-platform.qnt"
-        ],
+        "source": ["specs/runtime/app-platform.qnt"],
         "quintPredicates": [
           {
-            "place.get(\"alice\")": [
-              "OnTab",
-              "profile"
-            ]
+            "place.get(\"alice\")": ["OnTab", "profile"]
           }
         ],
         "invariants": [
@@ -3250,9 +3037,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Look up resulting in viewing profile": {
@@ -3284,9 +3069,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Host resulting in viewing In Space": {
@@ -3318,9 +3101,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Open settings resulting in viewing profile": {
@@ -3352,9 +3133,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "Open settings resulting in viewing Settings": {
@@ -3386,9 +3165,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:143"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:143"]
           }
         },
         "End resulting in viewing profile": {
@@ -3420,9 +3197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:194"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:194"]
           }
         },
         "Host resulting in viewing profile": {
@@ -3454,9 +3229,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:183"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:183"]
           }
         },
         "Reconnect resulting in viewing profile": {
@@ -3488,9 +3261,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:224"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:224"]
           }
         },
         "Open tab resulting in viewing notifications": {
@@ -3522,9 +3293,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Cut off resulting in viewing profile": {
@@ -3556,9 +3325,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:204"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:204"]
           }
         },
         "Open tab resulting in viewing spaces": {
@@ -3590,9 +3357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:137"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:137"]
           }
         },
         "Leave settings resulting in viewing profile": {
@@ -3624,9 +3389,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:153"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:153"]
           }
         },
         "Look up resulting in viewing Search": {
@@ -3658,9 +3421,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:173"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:173"]
           }
         },
         "Sign in resulting in viewing profile": {
@@ -3692,9 +3453,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:160"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:160"]
           }
         },
         "Open resulting in viewing profile": {
@@ -3726,9 +3485,7 @@
                 }
               }
             },
-            "source": [
-              "specs/runtime/app-platform.qnt:127"
-            ]
+            "source": ["specs/runtime/app-platform.qnt:127"]
           }
         }
       }

@@ -6,13 +6,8 @@
     "kind": "flow",
     "owner": "Identity owner (not named in specs)",
     "tier": "critical",
-    "emits": [
-      "AccountDeletionConfirmed",
-      "SignedOut"
-    ],
-    "reactsTo": [
-      "SignedIn"
-    ],
+    "emits": ["AccountDeletionConfirmed", "SignedOut"],
+    "reactsTo": ["SignedIn"],
     "reviewStatus": "draft; owner approval and execution adapters pending"
   },
   "states": {
@@ -20,12 +15,8 @@
       "meta": {
         "description": "The person sees deletion and export choices for their own account.",
         "snapshot": "the-person-sees-deletion-and-export-choices-for-their-own-account",
-        "recognize": [
-          "[data-screen=\"account-privacy\"]"
-        ],
-        "checks": [
-          "Private data belongs to this account."
-        ],
+        "recognize": ["[data-screen=\"account-privacy\"]"],
+        "checks": ["Private data belongs to this account."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -96,12 +87,8 @@
       "meta": {
         "description": "The person sees the recent sign-in requirement before a privacy operation.",
         "snapshot": "the-person-sees-the-recent-sign-in-requirement-before-a-privacy-operation",
-        "recognize": [
-          "[data-testid=\"privacy-delete-denial\"]"
-        ],
-        "checks": [
-          "Proof must be less than ten minutes old."
-        ],
+        "recognize": ["[data-testid=\"privacy-delete-denial\"]"],
+        "checks": ["Proof must be less than ten minutes old."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -134,9 +121,7 @@
         "description": "The person sees why the privacy operation cannot start offline.",
         "snapshot": "the-person-sees-why-the-privacy-operation-cannot-start-offline",
         "recognize": [],
-        "checks": [
-          "It is not queued for later."
-        ],
+        "checks": ["It is not queued for later."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -168,9 +153,7 @@
       "meta": {
         "description": "The person reviews permanent deletion and can confirm or cancel.",
         "snapshot": "the-person-reviews-permanent-deletion-and-can-confirm-or-cancel",
-        "recognize": [
-          "[data-testid=\"privacy-delete-modal\"]"
-        ],
+        "recognize": ["[data-testid=\"privacy-delete-modal\"]"],
         "checks": [
           "The consequences explain sign-out, spaces and future charges."
         ],
@@ -219,9 +202,7 @@
         "description": "The confirmation is busy while deletion is decided.",
         "snapshot": "the-confirmation-is-busy-while-deletion-is-decided",
         "recognize": [],
-        "checks": [
-          "A second submission cannot delete twice."
-        ],
+        "checks": ["A second submission cannot delete twice."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -267,9 +248,7 @@
         "description": "The person sees a retryable deletion failure.",
         "snapshot": "the-person-sees-a-retryable-deletion-failure",
         "recognize": [],
-        "checks": [
-          "Unconfirmed deletion does not claim erasure."
-        ],
+        "checks": ["Unconfirmed deletion does not claim erasure."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -301,16 +280,11 @@
       "meta": {
         "description": "The person sees confirmation, sign-out and the thirty-day erasure deadline.",
         "snapshot": "the-person-sees-confirmation-sign-out-and-the-thirty-day-erasure-deadline",
-        "recognize": [
-          "[data-testid=\"privacy-deletion-outcome\"]"
-        ],
+        "recognize": ["[data-testid=\"privacy-deletion-outcome\"]"],
         "checks": [
           "The profile is withdrawn; offline devices lose access when they return."
         ],
-        "events": [
-          "AccountDeletionConfirmed",
-          "SignedOut"
-        ],
+        "events": ["AccountDeletionConfirmed", "SignedOut"],
         "confidence": "confirmed",
         "source": [
           "libs/account-privacy-client/src/privacy-screen.tsx",
@@ -357,9 +331,7 @@
       "meta": {
         "description": "The deletion receipt says membership cancellation is still being completed.",
         "snapshot": "the-deletion-receipt-says-membership-cancellation-is-still-being-completed",
-        "recognize": [
-          "[data-testid=\"privacy-cancellation-outcome\"]"
-        ],
+        "recognize": ["[data-testid=\"privacy-cancellation-outcome\"]"],
         "checks": [
           "The account is already unavailable despite a provider delay."
         ],
@@ -394,12 +366,8 @@
       "meta": {
         "description": "The deletion receipt says membership cancellation has completed.",
         "snapshot": "the-deletion-receipt-says-membership-cancellation-has-completed",
-        "recognize": [
-          "[data-testid=\"privacy-cancellation-outcome\"]"
-        ],
-        "checks": [
-          "Future membership charges have stopped."
-        ],
+        "recognize": ["[data-testid=\"privacy-cancellation-outcome\"]"],
+        "checks": ["Future membership charges have stopped."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -532,9 +500,7 @@
         "description": "The person sees an export failure and can request another.",
         "snapshot": "the-person-sees-an-export-failure-and-can-request-another",
         "recognize": [],
-        "checks": [
-          "Their active account remains usable."
-        ],
+        "checks": ["Their active account remains usable."],
         "events": [],
         "confidence": "confirmed",
         "source": [
@@ -569,9 +535,7 @@
         "description": "The person sees that the export is no longer available.",
         "snapshot": "the-person-sees-that-the-export-is-no-longer-available",
         "recognize": [],
-        "checks": [
-          "Expired or deleted-account exports cannot be downloaded."
-        ],
+        "checks": ["Expired or deleted-account exports cannot be downloaded."],
         "events": [],
         "confidence": "confirmed",
         "source": [
@@ -606,9 +570,7 @@
         "description": "The owner receives their readable personal-data export.",
         "snapshot": "the-owner-receives-their-readable-personal-data-export",
         "recognize": [],
-        "checks": [
-          "No other person’s private data is included."
-        ],
+        "checks": ["No other person’s private data is included."],
         "events": [],
         "confidence": "assumed",
         "source": [

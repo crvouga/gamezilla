@@ -18,22 +18,16 @@
         "description": "The person is at the place where complete groups of people who accept one another.",
         "snapshot": "the-person-is-at-the-place-where-complete-groups-of-people-who-accept-one-another",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:2"
-        ]
+        "source": ["specs/matchmaking/complete-groups.feature:2"]
       },
       "on": {
         "matchmaking pairs people up when Alice, Bob and Carol are waiting for a group of 3 within each other's ranges": {
           "target": "Alice, Bob and Carol have the same match — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/complete-groups.feature:9"
-            ],
+            "source": ["specs/matchmaking/complete-groups.feature:9"],
             "condition": [
               "Alice, Bob and Carol are waiting for a group of 3 within each other's ranges"
             ],
@@ -43,9 +37,7 @@
         "matchmaking pairs people up when Alice, Bob and Carol are waiting for a group of 3 and Alice accepts Bob and Carol but Bob and Carol do not accept each other": {
           "target": "Alice, Bob and Carol are still waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/complete-groups.feature:14"
-            ],
+            "source": ["specs/matchmaking/complete-groups.feature:14"],
             "condition": [
               "Alice, Bob and Carol are waiting for a group of 3",
               "Alice accepts Bob and Carol but Bob and Carol do not accept each other"
@@ -56,9 +48,7 @@
         "matchmaking pairs people up when Alice, Bob, Carol and Dave are waiting for a group of 4 within each other's ranges": {
           "target": "Alice, Bob, Carol and Dave have the same match — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/complete-groups.feature:22"
-            ],
+            "source": ["specs/matchmaking/complete-groups.feature:22"],
             "condition": [
               "Alice, Bob, Carol and Dave are waiting for a group of 4 within each other's ranges"
             ],
@@ -68,9 +58,7 @@
         "matchmaking pairs people up when Alice and Bob are waiting for a group of 3 within each other's ranges": {
           "target": "Alice and Bob are still waiting — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/complete-groups.feature:27"
-            ],
+            "source": ["specs/matchmaking/complete-groups.feature:27"],
             "condition": [
               "Alice and Bob are waiting for a group of 3 within each other's ranges"
             ],
@@ -80,9 +68,7 @@
         "matchmaking pairs people up when Alice is waiting for a group of 2 and Bob is waiting for a group of 3": {
           "target": "Alice and Bob are still waiting — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/complete-groups.feature:32"
-            ],
+            "source": ["specs/matchmaking/complete-groups.feature:32"],
             "condition": [
               "Alice is waiting for a group of 2",
               "Bob is waiting for a group of 3"
@@ -97,14 +83,10 @@
         "description": "The person observes that alice, Bob and Carol have the same match.",
         "snapshot": "the-person-observes-that-alice-bob-and-carol-have-the-same-match",
         "recognize": [],
-        "checks": [
-          "Alice, Bob and Carol have the same match"
-        ],
+        "checks": ["Alice, Bob and Carol have the same match"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:9"
-        ],
+        "source": ["specs/matchmaking/complete-groups.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -114,14 +96,10 @@
         "description": "The person observes that alice, Bob and Carol are still waiting.",
         "snapshot": "the-person-observes-that-alice-bob-and-carol-are-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice, Bob and Carol are still waiting"
-        ],
+        "checks": ["Alice, Bob and Carol are still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:14"
-        ],
+        "source": ["specs/matchmaking/complete-groups.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -131,14 +109,10 @@
         "description": "The person observes that alice, Bob, Carol and Dave have the same match.",
         "snapshot": "the-person-observes-that-alice-bob-carol-and-dave-have-the-same-match",
         "recognize": [],
-        "checks": [
-          "Alice, Bob, Carol and Dave have the same match"
-        ],
+        "checks": ["Alice, Bob, Carol and Dave have the same match"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:22"
-        ],
+        "source": ["specs/matchmaking/complete-groups.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,14 +122,10 @@
         "description": "The person observes that alice and Bob are still waiting.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are still waiting"
-        ],
+        "checks": ["Alice and Bob are still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:27"
-        ],
+        "source": ["specs/matchmaking/complete-groups.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -165,14 +135,10 @@
         "description": "The person observes that alice and Bob are still waiting.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are still waiting"
-        ],
+        "checks": ["Alice and Bob are still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/complete-groups.feature:32"
-        ],
+        "source": ["specs/matchmaking/complete-groups.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

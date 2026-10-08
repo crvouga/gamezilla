@@ -24,22 +24,16 @@
         "description": "The person is at the place where an exhausted feed.",
         "snapshot": "the-person-is-at-the-place-where-an-exhausted-feed",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-exhaust.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-exhaust.feature:2"]
       },
       "on": {
         "Alice solves the puzzle": {
           "target": "Alice's stats show 3 played, 3 solved, and 100% accuracy — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-exhaust.feature:14"
-            ],
+            "source": ["specs/chess/puzzle-exhaust.feature:14"],
             "condition": [
               "the puzzle pool holds just three puzzles",
               "Alice is signed in",
@@ -53,9 +47,7 @@
         "Alice moves on to the next puzzle": {
           "target": "Alice's feed comes round to the first puzzle they played within 15 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-exhaust.feature:20"
-            ],
+            "source": ["specs/chess/puzzle-exhaust.feature:20"],
             "condition": [
               "the puzzle pool holds just three puzzles",
               "Alice is signed in",
@@ -68,9 +60,7 @@
         "Alice limits the feed to the 'zugzwang' theme": {
           "target": "Alice is told the feed is empty within 15 seconds — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-exhaust.feature:28"
-            ],
+            "source": ["specs/chess/puzzle-exhaust.feature:28"],
             "condition": [
               "the puzzle pool holds just three puzzles",
               "Alice is signed in",
@@ -82,9 +72,7 @@
         "Alice includes puzzles they have already played": {
           "target": "Alice's feed history shows \"Any\" — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-exhaust.feature:33"
-            ],
+            "source": ["specs/chess/puzzle-exhaust.feature:33"],
             "condition": [
               "the puzzle pool holds just three puzzles",
               "Alice is signed in",
@@ -102,14 +90,10 @@
         "description": "The person observes that alice's stats show 3 played, 3 solved, and 100% accuracy.",
         "snapshot": "the-person-observes-that-alice-s-stats-show-3-played-3-solved-and-100-accuracy",
         "recognize": [],
-        "checks": [
-          "Alice's stats show 3 played, 3 solved, and 100% accuracy"
-        ],
+        "checks": ["Alice's stats show 3 played, 3 solved, and 100% accuracy"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-exhaust.feature:14"
-        ],
+        "source": ["specs/chess/puzzle-exhaust.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -125,9 +109,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-exhaust.feature:20"
-        ],
+        "source": ["specs/chess/puzzle-exhaust.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -143,9 +125,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-exhaust.feature:28"
-        ],
+        "source": ["specs/chess/puzzle-exhaust.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -161,9 +141,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-exhaust.feature:33"
-        ],
+        "source": ["specs/chess/puzzle-exhaust.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

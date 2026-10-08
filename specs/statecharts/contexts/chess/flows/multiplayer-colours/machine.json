@@ -24,22 +24,16 @@
         "description": "The person is at the place where fair colours in multiplayer chess.",
         "snapshot": "the-person-is-at-the-place-where-fair-colours-in-multiplayer-chess",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-colours.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-colours.feature:2"]
       },
       "on": {
         "a matchmaking match is formed for Alice and Bob when Alice played White and Bob played Black in their only multiplayer games and Alice and Bob are looking for 5+0 chess opponents": {
           "target": "Alice is Black and Bob is White in their new multiplayer game — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-colours.feature:9"
-            ],
+            "source": ["specs/chess/multiplayer-colours.feature:9"],
             "condition": [
               "Alice played White and Bob played Black in their only multiplayer games",
               "Alice and Bob are looking for 5+0 chess opponents"
@@ -50,9 +44,7 @@
         "a matchmaking match is formed for Alice and Bob when Alice played White in her only multiplayer game and Bob has played none and Alice began looking for a 5+0 chess opponent before Bob did": {
           "target": "Alice is Black and Bob is White in their new multiplayer game — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-colours.feature:15"
-            ],
+            "source": ["specs/chess/multiplayer-colours.feature:15"],
             "condition": [
               "Alice played White in her only multiplayer game and Bob has played none",
               "Alice began looking for a 5+0 chess opponent before Bob did"
@@ -63,9 +55,7 @@
         "a matchmaking match is formed for Alice and Bob when Alice and Bob each played White in their only multiplayer game and Alice and Bob are looking for 5+0 chess opponents": {
           "target": "one is White and the other is Black — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-colours.feature:24"
-            ],
+            "source": ["specs/chess/multiplayer-colours.feature:24"],
             "condition": [
               "Alice and Bob each played White in their only multiplayer game",
               "Alice and Bob are looking for 5+0 chess opponents"
@@ -85,9 +75,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-colours.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-colours.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -102,9 +90,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-colours.feature:15"
-        ],
+        "source": ["specs/chess/multiplayer-colours.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -120,9 +106,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-colours.feature:24"
-        ],
+        "source": ["specs/chess/multiplayer-colours.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

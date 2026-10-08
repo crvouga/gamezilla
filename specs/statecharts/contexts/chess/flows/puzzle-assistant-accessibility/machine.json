@@ -24,22 +24,16 @@
         "description": "The person is at the place where puzzle Assistant without barriers.",
         "snapshot": "the-person-is-at-the-place-where-puzzle-assistant-without-barriers",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:2"]
       },
       "on": {
         "Alice mutes the Puzzle Assistant": {
           "target": "Alice can read the assistant's current observation — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-accessibility.feature:9"
-            ],
+            "source": ["specs/chess/puzzle-assistant-accessibility.feature:9"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -50,9 +44,7 @@
         "Alice unmutes the Puzzle Assistant": {
           "target": "Alice can hear the assistant speaking — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-accessibility.feature:17"
-            ],
+            "source": ["specs/chess/puzzle-assistant-accessibility.feature:17"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -64,9 +56,7 @@
         "Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice's speech is unavailable": {
           "target": "Alice's assistant stays readable when speech cannot play — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-accessibility.feature:26"
-            ],
+            "source": ["specs/chess/puzzle-assistant-accessibility.feature:26"],
             "condition": [
               "Alice is signed in",
               "Alice is hosting a space",
@@ -78,9 +68,7 @@
         "Alice opens puzzles in their space when Alice is signed in and Alice is hosting a space and Alice prefers reduced motion": {
           "target": "Alice's assistant stays readable with reduced motion — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-accessibility.feature:34"
-            ],
+            "source": ["specs/chess/puzzle-assistant-accessibility.feature:34"],
             "condition": [
               "Alice is signed in",
               "Alice is hosting a space",
@@ -92,9 +80,7 @@
         "Alice plays the move a7-a8": {
           "target": "Alice's puzzle is solved within 20 seconds — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-accessibility.feature:45"
-            ],
+            "source": ["specs/chess/puzzle-assistant-accessibility.feature:45"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move",
@@ -117,9 +103,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:9"
-        ],
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,9 +120,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:17"
-        ],
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -154,9 +136,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:26"
-        ],
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -172,9 +152,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:34"
-        ],
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -191,9 +169,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-accessibility.feature:45"
-        ],
+        "source": ["specs/chess/puzzle-assistant-accessibility.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

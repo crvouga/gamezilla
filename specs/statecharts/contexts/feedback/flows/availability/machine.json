@@ -18,118 +18,80 @@
         "description": "The person is at the place where report trouble even when the app is unusable.",
         "snapshot": "the-person-is-at-the-place-where-report-trouble-even-when-the-app-is-unusable",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:2"
-        ]
+        "source": ["specs/feedback/availability.feature:2"]
       },
       "on": {
         "the team submits feedback titled 'Chess board freezes' saying 'The board stopped after a move'": {
           "target": "the team can read the local feedback — 1",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:9"
-            ],
-            "condition": [
-              "the team's app is working"
-            ],
+            "source": ["specs/feedback/availability.feature:9"],
+            "condition": ["the team's app is working"],
             "example": "A working app lets the team keep feedback"
           }
         },
         "the team submits feedback titled 'Opening never finishes' saying 'The opening screen stays visible'": {
           "target": "the team can read the local feedback — 2",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:15"
-            ],
-            "condition": [
-              "the team's app stays loading"
-            ],
+            "source": ["specs/feedback/availability.feature:15"],
+            "condition": ["the team's app stays loading"],
             "example": "An app that stays loading lets the team keep feedback"
           }
         },
         "the team submits feedback titled 'Board disappeared' saying 'The app crashed during a game'": {
           "target": "the team can read the local feedback — 3",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:20"
-            ],
-            "condition": [
-              "the team's app has crashed"
-            ],
+            "source": ["specs/feedback/availability.feature:20"],
+            "condition": ["the team's app has crashed"],
             "example": "An app that crashes lets the team keep feedback"
           }
         },
         "the team submits feedback titled 'Settings cannot open' saying 'Choosing Settings leaves a blank screen'": {
           "target": "the team can read the local feedback — 4",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:25"
-            ],
-            "condition": [
-              "the team's app cannot open Settings"
-            ],
+            "source": ["specs/feedback/availability.feature:25"],
+            "condition": ["the team's app cannot open Settings"],
             "example": "Trouble opening Settings does not prevent feedback"
           }
         },
         "the team submits feedback titled 'Sign in stops' saying 'Signing in never finishes'": {
           "target": "the team can read the local feedback — 5",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:30"
-            ],
-            "condition": [
-              "the team's app cannot sign in"
-            ],
+            "source": ["specs/feedback/availability.feature:30"],
+            "condition": ["the team's app cannot sign in"],
             "example": "Trouble signing in does not prevent feedback"
           }
         },
         "the team submits feedback titled 'Board disappeared' saying 'The app went blank'": {
           "target": "the team can read the local feedback — 6",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:38"
-            ],
-            "condition": [
-              "some diagnostics are unavailable"
-            ],
+            "source": ["specs/feedback/availability.feature:38"],
+            "condition": ["some diagnostics are unavailable"],
             "example": "Unavailable diagnostics still keep useful feedback"
           }
         },
         "the team submits feedback titled 'App stopped responding' saying 'Nothing happens after a move'": {
           "target": "the team can read the local feedback — 7",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:44"
-            ],
-            "condition": [
-              "some diagnostics never arrive"
-            ],
+            "source": ["specs/feedback/availability.feature:44"],
+            "condition": ["some diagnostics never arrive"],
             "example": "Diagnostics that never arrive do not hold up feedback"
           }
         },
         "the team submits feedback titled 'Offline board freezes' saying 'The board stopped while offline'": {
           "target": "the team can read the local feedback — 8",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:52"
-            ],
-            "condition": [
-              "the team's device is offline"
-            ],
+            "source": ["specs/feedback/availability.feature:52"],
+            "condition": ["the team's device is offline"],
             "example": "The team keeps feedback while offline"
           }
         },
         "the team's app closes": {
           "target": "the team can read the local feedback — 9",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:57"
-            ],
+            "source": ["specs/feedback/availability.feature:57"],
             "condition": [
               "the team has kept local feedback titled \"Chess board freezes\""
             ],
@@ -139,12 +101,8 @@
         "the team submits feedback titled 'Board froze' saying 'Stopped after a move'": {
           "target": "the team can copy the feedback to keep for later — 10",
           "meta": {
-            "source": [
-              "specs/feedback/availability.feature:65"
-            ],
-            "condition": [
-              "the team cannot send feedback"
-            ],
+            "source": ["specs/feedback/availability.feature:65"],
+            "condition": ["the team cannot send feedback"],
             "example": "Unreachable reporting lets the team keep the feedback for later"
           }
         }
@@ -161,9 +119,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:9"
-        ],
+        "source": ["specs/feedback/availability.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -173,14 +129,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:15"
-        ],
+        "source": ["specs/feedback/availability.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -190,14 +142,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:20"
-        ],
+        "source": ["specs/feedback/availability.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -207,14 +155,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:25"
-        ],
+        "source": ["specs/feedback/availability.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -224,14 +168,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:30"
-        ],
+        "source": ["specs/feedback/availability.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -247,9 +187,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:38"
-        ],
+        "source": ["specs/feedback/availability.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -259,14 +197,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:44"
-        ],
+        "source": ["specs/feedback/availability.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -276,14 +210,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:52"
-        ],
+        "source": ["specs/feedback/availability.feature:52"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -293,14 +223,10 @@
         "description": "The person observes that the team can read the local feedback.",
         "snapshot": "the-person-observes-that-the-team-can-read-the-local-feedback",
         "recognize": [],
-        "checks": [
-          "the team can read the local feedback"
-        ],
+        "checks": ["the team can read the local feedback"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:57"
-        ],
+        "source": ["specs/feedback/availability.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -316,9 +242,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/availability.feature:65"
-        ],
+        "source": ["specs/feedback/availability.feature:65"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

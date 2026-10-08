@@ -24,22 +24,16 @@
         "description": "The person is at the place where puzzle play is a feed.",
         "snapshot": "the-person-is-at-the-place-where-puzzle-play-is-a-feed",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-play.feature:2"]
       },
       "on": {
         "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by solving it cleanly": {
           "target": "Alice is solving a different puzzle than the one before — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:13"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:13"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -51,9 +45,7 @@
         "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by showing the solution": {
           "target": "Alice is solving a different puzzle than the one before — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:13"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:13"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -65,9 +57,7 @@
         "Alice moves on to the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has finished this puzzle by skipping it": {
           "target": "Alice is solving a different puzzle than the one before — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:13"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:13"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -79,9 +69,7 @@
         "Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space": {
           "target": "Alice is not offered to move on — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:24"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:24"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -92,9 +80,7 @@
         "Alice asks for the next puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move": {
           "target": "Alice is not offered to move on — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:29"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:29"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -106,9 +92,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space": {
           "target": "Alice sees a rating change that raised their puzzle rating — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:37"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:37"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -119,9 +103,7 @@
         "Alice plays a wrong move": {
           "target": "Alice sees a rating change that lowered their puzzle rating — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:41"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:41"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -132,9 +114,7 @@
         "Alice skips the puzzle when Alice is signed in and Alice is playing puzzles in their space": {
           "target": "Alice sees a rating change that lowered their puzzle rating — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:45"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:45"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -145,9 +125,7 @@
         "Alice shows the solution": {
           "target": "Alice sees a rating change that lowered their puzzle rating — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:49"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:49"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -158,9 +136,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and the puzzle pool holds just three puzzles and Alice has solved 3 puzzles in a row and Alice's feed has come round to a puzzle they already played": {
           "target": "Alice is told the attempt is unrated — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:53"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:53"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -174,9 +150,7 @@
         "Alice solves the puzzle when Alice is signed in and Alice is playing puzzles in their space and Bob is watching Alice's puzzle": {
           "target": "Alice sees a rating change that raised their puzzle rating — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:61"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -188,9 +162,7 @@
         "Alice asks for a hint": {
           "target": "Alice cannot see the puzzle's own rating — 14",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-play.feature:79"
-            ],
+            "source": ["specs/chess/puzzle-play.feature:79"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space"
@@ -205,14 +177,10 @@
         "description": "The person observes that alice is solving a different puzzle than the one before.",
         "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
         "recognize": [],
-        "checks": [
-          "Alice is solving a different puzzle than the one before"
-        ],
+        "checks": ["Alice is solving a different puzzle than the one before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:13"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -222,14 +190,10 @@
         "description": "The person observes that alice is solving a different puzzle than the one before.",
         "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
         "recognize": [],
-        "checks": [
-          "Alice is solving a different puzzle than the one before"
-        ],
+        "checks": ["Alice is solving a different puzzle than the one before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:13"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -239,14 +203,10 @@
         "description": "The person observes that alice is solving a different puzzle than the one before.",
         "snapshot": "the-person-observes-that-alice-is-solving-a-different-puzzle-than-the-one-before",
         "recognize": [],
-        "checks": [
-          "Alice is solving a different puzzle than the one before"
-        ],
+        "checks": ["Alice is solving a different puzzle than the one before"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:13"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -262,9 +222,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:24"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -280,9 +238,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:29"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -318,9 +274,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:41"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -356,9 +310,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:49"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -374,9 +326,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:53"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -392,9 +342,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -410,9 +358,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-play.feature:79"
-        ],
+        "source": ["specs/chess/puzzle-play.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

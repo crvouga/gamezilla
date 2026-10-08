@@ -24,22 +24,16 @@
         "description": "The person is at the place where multiplayer chess follows the account across other changes.",
         "snapshot": "the-person-is-at-the-place-where-multiplayer-chess-follows-the-account-across-other-c",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-account-and-space.feature:2"]
       },
       "on": {
         "Alice opens multiplayer chess on another signed-in device": {
           "target": "Alice is looking for her same chess opponent — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-account-and-space.feature:8"
-            ],
+            "source": ["specs/chess/multiplayer-account-and-space.feature:8"],
             "condition": [
               "Alice signed out on her phone while looking for a chess opponent"
             ],
@@ -49,9 +43,7 @@
         "Alice finds a chess opponent for 5+0 on her phone": {
           "target": "Alice is invited to sign in — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-account-and-space.feature:13"
-            ],
+            "source": ["specs/chess/multiplayer-account-and-space.feature:13"],
             "condition": [
               "Alice signed out on her phone during a multiplayer game with Bob",
               "Alice is hosting a space"
@@ -62,9 +54,7 @@
         "Bob opens multiplayer chess when Alice renamed herself to 'alice_atlas' during her multiplayer game with Bob": {
           "target": "Bob sees his opponent's username is \"alice_atlas\" — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-account-and-space.feature:23"
-            ],
+            "source": ["specs/chess/multiplayer-account-and-space.feature:23"],
             "condition": [
               "Alice renamed herself to \"alice_atlas\" during her multiplayer game with Bob"
             ],
@@ -74,9 +64,7 @@
         "Alice opens multiplayer chess": {
           "target": "Alice keeps her same multiplayer game with Bob — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-account-and-space.feature:32"
-            ],
+            "source": ["specs/chess/multiplayer-account-and-space.feature:32"],
             "condition": [
               "Alice ended her space while playing multiplayer chess with Bob",
               "Alice is hosting another space"
@@ -87,9 +75,7 @@
         "Bob opens multiplayer chess when Alice removed Bob from her friends list during their multiplayer game": {
           "target": "Bob keeps his same multiplayer game with Alice — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-account-and-space.feature:38"
-            ],
+            "source": ["specs/chess/multiplayer-account-and-space.feature:38"],
             "condition": [
               "Alice removed Bob from her friends list during their multiplayer game"
             ],
@@ -103,14 +89,10 @@
         "description": "The person observes that alice is looking for her same chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-her-same-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for her same chess opponent"
-        ],
+        "checks": ["Alice is looking for her same chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:8"
-        ],
+        "source": ["specs/chess/multiplayer-account-and-space.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -126,9 +108,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:13"
-        ],
+        "source": ["specs/chess/multiplayer-account-and-space.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -144,9 +124,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:23"
-        ],
+        "source": ["specs/chess/multiplayer-account-and-space.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -156,14 +134,10 @@
         "description": "The person observes that alice keeps her same multiplayer game with Bob.",
         "snapshot": "the-person-observes-that-alice-keeps-her-same-multiplayer-game-with-bob",
         "recognize": [],
-        "checks": [
-          "Alice keeps her same multiplayer game with Bob"
-        ],
+        "checks": ["Alice keeps her same multiplayer game with Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:32"
-        ],
+        "source": ["specs/chess/multiplayer-account-and-space.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -173,14 +147,10 @@
         "description": "The person observes that bob keeps his same multiplayer game with Alice.",
         "snapshot": "the-person-observes-that-bob-keeps-his-same-multiplayer-game-with-alice",
         "recognize": [],
-        "checks": [
-          "Bob keeps his same multiplayer game with Alice"
-        ],
+        "checks": ["Bob keeps his same multiplayer game with Alice"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-account-and-space.feature:38"
-        ],
+        "source": ["specs/chess/multiplayer-account-and-space.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

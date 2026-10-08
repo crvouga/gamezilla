@@ -24,22 +24,16 @@
         "description": "The person is at the place where chess truth decides a solution.",
         "snapshot": "the-person-is-at-the-place-where-chess-truth-decides-a-solution",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-objective.feature:2"]
       },
       "on": {
         "Alice plays the move a7-a8": {
           "target": "Alice's puzzle is solved within 20 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:8"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:8"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move"
@@ -50,9 +44,7 @@
         "Alice plays the move b7-b8": {
           "target": "Alice's puzzle is solved within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:8"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:8"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move"
@@ -63,9 +55,7 @@
         "Alice plays the move a7-a6": {
           "target": "Alice is told the move was wrong — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:21"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:21"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move"
@@ -76,9 +66,7 @@
         "Alice tries the illegal move a1-a8": {
           "target": "Alice's board is unchanged — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:27"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:27"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle"
@@ -89,9 +77,7 @@
         "the connection comes back when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered the alternate checkmate offline": {
           "target": "Alice's game log records that puzzle as solved — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:37"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:37"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move",
@@ -103,9 +89,7 @@
         "the connection comes back when Alice is signed in and Alice is also signed in on another device and Alice is solving the puzzle with more than one mate on the final move and Alice has delivered different valid checkmates on both devices offline": {
           "target": "Alice's stats show 1 played, 1 solved, and 100% accuracy — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-objective.feature:46"
-            ],
+            "source": ["specs/chess/puzzle-objective.feature:46"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -129,9 +113,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:8"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,9 +130,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:8"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -160,14 +140,10 @@
         "description": "The person observes that alice is told the move was wrong.",
         "snapshot": "the-person-observes-that-alice-is-told-the-move-was-wrong",
         "recognize": [],
-        "checks": [
-          "Alice is told the move was wrong"
-        ],
+        "checks": ["Alice is told the move was wrong"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:21"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -183,9 +159,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:27"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -202,9 +176,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:37"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -221,9 +193,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-objective.feature:46"
-        ],
+        "source": ["specs/chess/puzzle-objective.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

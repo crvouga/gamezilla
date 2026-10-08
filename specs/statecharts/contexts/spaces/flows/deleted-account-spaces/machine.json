@@ -24,22 +24,16 @@
         "description": "The person is at the place where end a deleted account's place in spaces.",
         "snapshot": "the-person-is-at-the-place-where-end-a-deleted-account-s-place-in-spaces",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/deleted-account-spaces.feature:2"
-        ]
+        "source": ["specs/spaces/deleted-account-spaces.feature:2"]
       },
       "on": {
         "Alice confirms account deletion when Alice is hosting a space that Bob joined from the link and Alice has a recently proven account": {
           "target": "Bob sees the space has ended within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/spaces/deleted-account-spaces.feature:8"
-            ],
+            "source": ["specs/spaces/deleted-account-spaces.feature:8"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Alice has a recently proven account"
@@ -50,21 +44,15 @@
         "Bob opens Alice's space link": {
           "target": "Bob cannot join because the space has ended — 2",
           "meta": {
-            "source": [
-              "specs/spaces/deleted-account-spaces.feature:14"
-            ],
-            "condition": [
-              "Alice's account deletion has ended Alice's space"
-            ],
+            "source": ["specs/spaces/deleted-account-spaces.feature:14"],
+            "condition": ["Alice's account deletion has ended Alice's space"],
             "example": "The ended space's link cannot admit another person"
           }
         },
         "Alice confirms account deletion when Bob is hosting a space that Alice joined from the link and Alice has a recently proven account": {
           "target": "Bob sees only Bob in the space within 15 seconds — 3",
           "meta": {
-            "source": [
-              "specs/spaces/deleted-account-spaces.feature:21"
-            ],
+            "source": ["specs/spaces/deleted-account-spaces.feature:21"],
             "condition": [
               "Bob is hosting a space that Alice joined from the link",
               "Alice has a recently proven account"
@@ -75,12 +63,8 @@
         "Alice's other device attempts to join Bob's open space as the deleted account": {
           "target": "Alice is told to sign in again because the account was deleted — 4",
           "meta": {
-            "source": [
-              "specs/spaces/deleted-account-spaces.feature:28"
-            ],
-            "condition": [
-              "Alice's account deletion has been confirmed"
-            ],
+            "source": ["specs/spaces/deleted-account-spaces.feature:28"],
+            "condition": ["Alice's account deletion has been confirmed"],
             "example": "The deleted account cannot rejoin the open space"
           }
         }
@@ -91,14 +75,10 @@
         "description": "The person observes that bob sees the space has ended within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-sees-the-space-has-ended-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob sees the space has ended within 15 seconds"
-        ],
+        "checks": ["Bob sees the space has ended within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/deleted-account-spaces.feature:8"
-        ],
+        "source": ["specs/spaces/deleted-account-spaces.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -108,14 +88,10 @@
         "description": "The person observes that bob cannot join because the space has ended.",
         "snapshot": "the-person-observes-that-bob-cannot-join-because-the-space-has-ended",
         "recognize": [],
-        "checks": [
-          "Bob cannot join because the space has ended"
-        ],
+        "checks": ["Bob cannot join because the space has ended"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/deleted-account-spaces.feature:14"
-        ],
+        "source": ["specs/spaces/deleted-account-spaces.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -131,9 +107,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/deleted-account-spaces.feature:21"
-        ],
+        "source": ["specs/spaces/deleted-account-spaces.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,9 +122,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/deleted-account-spaces.feature:28"
-        ],
+        "source": ["specs/spaces/deleted-account-spaces.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

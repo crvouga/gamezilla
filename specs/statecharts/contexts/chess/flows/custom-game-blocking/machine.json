@@ -24,22 +24,16 @@
         "description": "The person is at the place where blocking in Custom Games.",
         "snapshot": "the-person-is-at-the-place-where-blocking-in-custom-games",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-blocking.feature:2"]
       },
       "on": {
         "Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Alice has blocked Carol": {
           "target": "Black is reserved for Bob in the Custom Game — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:11"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:11"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -51,9 +45,7 @@
         "Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Alice has blocked Bob": {
           "target": "Alice is told Bob cannot be invited — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:16"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:16"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -65,9 +57,7 @@
         "Alice invites Bob to Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Bob has blocked Alice": {
           "target": "Alice is told Bob cannot be invited — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:22"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:22"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -79,9 +69,7 @@
         "Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Bob has blocked Carol": {
           "target": "Black is Bob in the Custom Game — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:34"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:34"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -93,9 +81,7 @@
         "Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space and Alice has blocked Bob": {
           "target": "Bob is told that side is not available to him — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:39"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:39"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space",
@@ -107,9 +93,7 @@
         "Alice blocks Bob": {
           "target": "The Custom Game remains active — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-blocking.feature:48"
-            ],
+            "source": ["specs/chess/custom-game-blocking.feature:48"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -123,14 +107,10 @@
         "description": "The person observes that black is reserved for Bob in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-reserved-for-bob-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is reserved for Bob in the Custom Game"
-        ],
+        "checks": ["Black is reserved for Bob in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:11"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -146,9 +126,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:16"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -164,9 +142,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:22"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -176,14 +152,10 @@
         "description": "The person observes that black is Bob in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-bob-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is Bob in the Custom Game"
-        ],
+        "checks": ["Black is Bob in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:34"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -199,9 +171,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:39"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -217,9 +187,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-blocking.feature:48"
-        ],
+        "source": ["specs/chess/custom-game-blocking.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

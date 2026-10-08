@@ -18,22 +18,16 @@
         "description": "The person is at the place where erase a deleted account's puzzle progress.",
         "snapshot": "the-person-is-at-the-place-where-erase-a-deleted-account-s-puzzle-progress",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:2"
-        ]
+        "source": ["specs/chess/deleted-account-progress.feature:2"]
       },
       "on": {
         "Alice confirms account deletion": {
           "target": "Alice's other device cannot show the deleted account's puzzle rating, game log or stats within 30 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/deleted-account-progress.feature:10"
-            ],
+            "source": ["specs/chess/deleted-account-progress.feature:10"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -45,9 +39,7 @@
         "Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had saved a custom feed target": {
           "target": "Alice's feed targets 1500 automatically — 2",
           "meta": {
-            "source": [
-              "specs/chess/deleted-account-progress.feature:17"
-            ],
+            "source": ["specs/chess/deleted-account-progress.feature:17"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice's deleted account had saved a custom feed target"
@@ -58,9 +50,7 @@
         "Alice signs in with Google when Alice's account deletion has completed and Alice had a settled puzzle rating on the deleted account": {
           "target": "Alice's puzzle rating is 1500 and has not settled — 3",
           "meta": {
-            "source": [
-              "specs/chess/deleted-account-progress.feature:27"
-            ],
+            "source": ["specs/chess/deleted-account-progress.feature:27"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice had a settled puzzle rating on the deleted account"
@@ -71,9 +61,7 @@
         "Alice signs in with Google when Alice's account deletion has completed and Alice's deleted account had solved puzzles in its game log": {
           "target": "Alice's game log cannot show the deleted account's attempts — 4",
           "meta": {
-            "source": [
-              "specs/chess/deleted-account-progress.feature:33"
-            ],
+            "source": ["specs/chess/deleted-account-progress.feature:33"],
             "condition": [
               "Alice's account deletion has completed",
               "Alice's deleted account had solved puzzles in its game log"
@@ -84,9 +72,7 @@
         "the connection comes back": {
           "target": "Alice's game log cannot show the deleted account's attempts — 5",
           "meta": {
-            "source": [
-              "specs/chess/deleted-account-progress.feature:40"
-            ],
+            "source": ["specs/chess/deleted-account-progress.feature:40"],
             "condition": [
               "Alice is signed in",
               "Alice has solved a puzzle while offline",
@@ -107,9 +93,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:10"
-        ],
+        "source": ["specs/chess/deleted-account-progress.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -125,9 +109,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:17"
-        ],
+        "source": ["specs/chess/deleted-account-progress.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -137,14 +119,10 @@
         "description": "The person observes that alice's puzzle rating is 1500 and has not settled.",
         "snapshot": "the-person-observes-that-alice-s-puzzle-rating-is-1500-and-has-not-settled",
         "recognize": [],
-        "checks": [
-          "Alice's puzzle rating is 1500 and has not settled"
-        ],
+        "checks": ["Alice's puzzle rating is 1500 and has not settled"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:27"
-        ],
+        "source": ["specs/chess/deleted-account-progress.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -160,9 +138,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:33"
-        ],
+        "source": ["specs/chess/deleted-account-progress.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -177,9 +153,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/deleted-account-progress.feature:40"
-        ],
+        "source": ["specs/chess/deleted-account-progress.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

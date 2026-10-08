@@ -6,17 +6,8 @@
     "kind": "flow",
     "owner": "Spaces owner (not named in specs)",
     "tier": "critical",
-    "emits": [
-      "SpaceOpened",
-      "PersonJoined",
-      "PersonLeft",
-      "SpaceEnded"
-    ],
-    "reactsTo": [
-      "PaidAccessStarted",
-      "SpaceEnded",
-      "AccountDeletionConfirmed"
-    ],
+    "emits": ["SpaceOpened", "PersonJoined", "PersonLeft", "SpaceEnded"],
+    "reactsTo": ["PaidAccessStarted", "SpaceEnded", "AccountDeletionConfirmed"],
     "reviewStatus": "draft; owner approval and execution adapters pending"
   },
   "states": {
@@ -24,9 +15,7 @@
       "meta": {
         "description": "The lobby lists spaces the person hosts, joined or can find through friends.",
         "snapshot": "the-lobby-lists-spaces-the-person-hosts-joined-or-can-find-through-friends",
-        "recognize": [
-          "[data-testid=\"spaces-list-ready\"]"
-        ],
+        "recognize": ["[data-testid=\"spaces-list-ready\"]"],
         "checks": [
           "The lobby lists spaces the person hosts, joined or can find through friends."
         ],
@@ -120,9 +109,7 @@
         "description": "The create control shows that a space is being created.",
         "snapshot": "the-create-control-shows-that-a-space-is-being-created",
         "recognize": [],
-        "checks": [
-          "The create control shows that a space is being created."
-        ],
+        "checks": ["The create control shows that a space is being created."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -171,9 +158,7 @@
         "description": "The person sees a creation error and can try again.",
         "snapshot": "the-person-sees-a-creation-error-and-can-try-again",
         "recognize": [],
-        "checks": [
-          "The person sees a creation error and can try again."
-        ],
+        "checks": ["The person sees a creation error and can try again."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -207,12 +192,8 @@
       "meta": {
         "description": "The permission surface explains the hosting limit.",
         "snapshot": "the-permission-surface-explains-the-hosting-limit",
-        "recognize": [
-          "[data-testid=\"spaces-hosting-limit\"]"
-        ],
-        "checks": [
-          "The permission surface explains the hosting limit."
-        ],
+        "recognize": ["[data-testid=\"spaces-hosting-limit\"]"],
+        "checks": ["The permission surface explains the hosting limit."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -246,9 +227,7 @@
       "meta": {
         "description": "The person sees that creating or joining needs a connection.",
         "snapshot": "the-person-sees-that-creating-or-joining-needs-a-connection",
-        "recognize": [
-          "[data-testid=\"spaces-need-connection\"]"
-        ],
+        "recognize": ["[data-testid=\"spaces-need-connection\"]"],
         "checks": [
           "The person sees that creating or joining needs a connection."
         ],
@@ -286,9 +265,7 @@
         "description": "The join control is busy while the open space is joined.",
         "snapshot": "the-join-control-is-busy-while-the-open-space-is-joined",
         "recognize": [],
-        "checks": [
-          "The join control is busy while the open space is joined."
-        ],
+        "checks": ["The join control is busy while the open space is joined."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -336,12 +313,8 @@
       "meta": {
         "description": "The link says the space does not exist and offers Spaces.",
         "snapshot": "the-link-says-the-space-does-not-exist-and-offers-spaces",
-        "recognize": [
-          "[data-testid=\"space-not-found\"]"
-        ],
-        "checks": [
-          "The link says the space does not exist and offers Spaces."
-        ],
+        "recognize": ["[data-testid=\"space-not-found\"]"],
+        "checks": ["The link says the space does not exist and offers Spaces."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -379,9 +352,7 @@
         "checks": [
           "The host sees game choices and controls to rename, share, end or leave."
         ],
-        "events": [
-          "SpaceOpened"
-        ],
+        "events": ["SpaceOpened"],
         "confidence": "assumed",
         "source": [
           "libs/spaces-client/src/spaces-screen.tsx",
@@ -472,12 +443,8 @@
         "description": "The guest sees the host’s game and current people.",
         "snapshot": "the-guest-sees-the-host-s-game-and-current-people",
         "recognize": [],
-        "checks": [
-          "The guest sees the host’s game and current people."
-        ],
-        "events": [
-          "PersonJoined"
-        ],
+        "checks": ["The guest sees the host’s game and current people."],
+        "events": ["PersonJoined"],
         "confidence": "assumed",
         "source": [
           "libs/spaces-client/src/spaces-screen.tsx",
@@ -526,9 +493,7 @@
         "description": "The person sees the space link and can copy or share it.",
         "snapshot": "the-person-sees-the-space-link-and-can-copy-or-share-it",
         "recognize": [],
-        "checks": [
-          "The person sees the space link and can copy or share it."
-        ],
+        "checks": ["The person sees the space link and can copy or share it."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -563,9 +528,7 @@
         "description": "The host edits the name and can save or cancel.",
         "snapshot": "the-host-edits-the-name-and-can-save-or-cancel",
         "recognize": [],
-        "checks": [
-          "The host edits the name and can save or cancel."
-        ],
+        "checks": ["The host edits the name and can save or cancel."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -665,9 +628,7 @@
         "description": "The host can confirm or cancel ending the space.",
         "snapshot": "the-host-can-confirm-or-cancel-ending-the-space",
         "recognize": [],
-        "checks": [
-          "The host can confirm or cancel ending the space."
-        ],
+        "checks": ["The host can confirm or cancel ending the space."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -716,9 +677,7 @@
         "description": "The confirmation shows that ending is in progress.",
         "snapshot": "the-confirmation-shows-that-ending-is-in-progress",
         "recognize": [],
-        "checks": [
-          "The confirmation shows that ending is in progress."
-        ],
+        "checks": ["The confirmation shows that ending is in progress."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -804,9 +763,7 @@
         "description": "The person sees a leave confirmation and can cancel.",
         "snapshot": "the-person-sees-a-leave-confirmation-and-can-cancel",
         "recognize": [],
-        "checks": [
-          "The person sees a leave confirmation and can cancel."
-        ],
+        "checks": ["The person sees a leave confirmation and can cancel."],
         "events": [],
         "confidence": "assumed",
         "source": [
@@ -854,15 +811,9 @@
       "meta": {
         "description": "The space says it ended for everyone.",
         "snapshot": "the-space-says-it-ended-for-everyone",
-        "recognize": [
-          "[data-testid=\"space-ended\"]"
-        ],
-        "checks": [
-          "The space says it ended for everyone."
-        ],
-        "events": [
-          "SpaceEnded"
-        ],
+        "recognize": ["[data-testid=\"space-ended\"]"],
+        "checks": ["The space says it ended for everyone."],
+        "events": ["SpaceEnded"],
         "confidence": "assumed",
         "source": [
           "libs/spaces-client/src/spaces-screen.tsx",

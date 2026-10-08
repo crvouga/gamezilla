@@ -24,22 +24,16 @@
         "description": "The person is at the place where profile changes reach other people.",
         "snapshot": "the-person-is-at-the-place-where-profile-changes-reach-other-people",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:2"
-        ]
+        "source": ["specs/friends/friends-profile-changes.feature:2"]
       },
       "on": {
         "Bob renames themselves to @robert_1": {
           "target": "Alice sees @robert_1 appear in their friends list within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/friends/friends-profile-changes.feature:10"
-            ],
+            "source": ["specs/friends/friends-profile-changes.feature:10"],
             "condition": [
               "Alice and Bob are friends",
               "Alice is viewing their friends list with Bob in it"
@@ -50,9 +44,7 @@
         "Alice searches for 'robert_1'": {
           "target": "Alice's search shows @robert_1 — 2",
           "meta": {
-            "source": [
-              "specs/friends/friends-profile-changes.feature:17"
-            ],
+            "source": ["specs/friends/friends-profile-changes.feature:17"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob has renamed themselves to @robert_1"
@@ -63,9 +55,7 @@
         "Alice searches for 'bob'": {
           "target": "Alice's search shows nobody — 3",
           "meta": {
-            "source": [
-              "specs/friends/friends-profile-changes.feature:23"
-            ],
+            "source": ["specs/friends/friends-profile-changes.feature:23"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob has renamed themselves to @robert_1"
@@ -76,9 +66,7 @@
         "the team stops allowing the username @chess_cheater": {
           "target": "Alice's friends list shows Bob under a stand-in name within 15 seconds — 4",
           "meta": {
-            "source": [
-              "specs/friends/friends-profile-changes.feature:35"
-            ],
+            "source": ["specs/friends/friends-profile-changes.feature:35"],
             "condition": [
               "Alice and Bob are friends",
               "Bob has renamed themselves to @chess_cheater",
@@ -90,9 +78,7 @@
         "Alice searches for 'chess_cheater'": {
           "target": "Alice cannot find Bob by @chess_cheater — 5",
           "meta": {
-            "source": [
-              "specs/friends/friends-profile-changes.feature:41"
-            ],
+            "source": ["specs/friends/friends-profile-changes.feature:41"],
             "condition": [
               "Alice and Bob are friends",
               "Bob has renamed themselves to @chess_cheater",
@@ -114,9 +100,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:10"
-        ],
+        "source": ["specs/friends/friends-profile-changes.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -126,14 +110,10 @@
         "description": "The person observes that alice's search shows @robert_1.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-robert-1",
         "recognize": [],
-        "checks": [
-          "Alice's search shows @robert_1"
-        ],
+        "checks": ["Alice's search shows @robert_1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:17"
-        ],
+        "source": ["specs/friends/friends-profile-changes.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -143,14 +123,10 @@
         "description": "The person observes that alice's search shows nobody.",
         "snapshot": "the-person-observes-that-alice-s-search-shows-nobody",
         "recognize": [],
-        "checks": [
-          "Alice's search shows nobody"
-        ],
+        "checks": ["Alice's search shows nobody"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:23"
-        ],
+        "source": ["specs/friends/friends-profile-changes.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -166,9 +142,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:35"
-        ],
+        "source": ["specs/friends/friends-profile-changes.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -178,14 +152,10 @@
         "description": "The person observes that alice cannot find Bob by @chess_cheater.",
         "snapshot": "the-person-observes-that-alice-cannot-find-bob-by-chess-cheater",
         "recognize": [],
-        "checks": [
-          "Alice cannot find Bob by @chess_cheater"
-        ],
+        "checks": ["Alice cannot find Bob by @chess_cheater"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friends-profile-changes.feature:41"
-        ],
+        "source": ["specs/friends/friends-profile-changes.feature:41"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

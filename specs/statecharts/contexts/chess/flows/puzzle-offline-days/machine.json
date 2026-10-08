@@ -24,22 +24,16 @@
         "description": "The person is at the place where days of puzzles without a connection.",
         "snapshot": "the-person-is-at-the-place-where-days-of-puzzles-without-a-connection",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline-days.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-offline-days.feature:2"]
       },
       "on": {
         "Alice moves on to the next puzzle": {
           "target": "Alice has a puzzle on the board — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-offline-days.feature:16"
-            ],
+            "source": ["specs/chess/puzzle-offline-days.feature:16"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -53,9 +47,7 @@
         "the connection comes back": {
           "target": "Alice's stats show 30 played, 30 solved, and 100% accuracy — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-offline-days.feature:22"
-            ],
+            "source": ["specs/chess/puzzle-offline-days.feature:22"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device",
@@ -79,9 +71,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline-days.feature:16"
-        ],
+        "source": ["specs/chess/puzzle-offline-days.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -97,9 +87,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-offline-days.feature:22"
-        ],
+        "source": ["specs/chess/puzzle-offline-days.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

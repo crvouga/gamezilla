@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/sync-engine/note-recovery.qnt"
-    ],
+    "quint": ["specs/sync-engine/note-recovery.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the note recovery view.",
         "snapshot": "the-person-is-opening-the-note-recovery-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-recovery.qnt"
-        ]
+        "source": ["specs/sync-engine/note-recovery.qnt"]
       },
       "on": {
         "Opens with seeing no note": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:48"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:48"]
           }
         }
       }
@@ -60,9 +52,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-recovery.qnt"
-        ],
+        "source": ["specs/sync-engine/note-recovery.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": false,
@@ -98,9 +88,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:73"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:73"]
           }
         },
         "Write unheard resulting in seeing no note": {
@@ -122,9 +110,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:61"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:61"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -146,9 +132,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:79"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:79"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -170,9 +154,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:61"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:61"]
           }
         },
         "Go online resulting in seeing no note": {
@@ -194,9 +176,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:79"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:79"]
           }
         },
         "Hear back resulting in seeing no note": {
@@ -218,9 +198,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:67"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:67"]
           }
         }
       }
@@ -239,9 +217,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-recovery.qnt"
-        ],
+        "source": ["specs/sync-engine/note-recovery.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": true,
@@ -278,9 +254,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:67"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:67"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -302,9 +276,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:61"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:61"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -326,9 +298,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:79"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:79"]
           }
         },
         "Go offline resulting in reading a saved note": {
@@ -350,9 +320,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-recovery.qnt:73"
-            ]
+            "source": ["specs/sync-engine/note-recovery.qnt:73"]
           }
         }
       }

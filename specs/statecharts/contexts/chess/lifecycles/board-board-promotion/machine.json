@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess-board/board-promotion.qnt"
-    ],
+    "quint": ["specs/chess-board/board-promotion.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the board board promotion view.",
         "snapshot": "the-person-is-opening-the-board-board-promotion-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ]
+        "source": ["specs/chess-board/board-promotion.qnt"]
       },
       "on": {
         "Opens with playing before promotion": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:19"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:19"]
           }
         }
       }
@@ -60,9 +52,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": false,
@@ -106,9 +96,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         },
         "Try other promotion move resulting in playing before promotion": {
@@ -138,9 +126,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:40"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:40"]
           }
         },
         "Request promotion resulting in playing before promotion": {
@@ -170,9 +156,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Configure promotion input resulting in playing before promotion": {
@@ -202,9 +186,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Cancel promotion resulting in playing before promotion": {
@@ -234,9 +216,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Configure automatic queen resulting in playing before promotion": {
@@ -266,9 +246,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:50"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:50"]
           }
         },
         "Request promotion resulting in choosing a promotion piece": {
@@ -298,9 +276,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Request promotion resulting in seeing a promoted queen": {
@@ -330,9 +306,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         }
       }
@@ -351,9 +325,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": true,
@@ -397,9 +369,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:40"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:40"]
           }
         },
         "Cancel promotion resulting in playing before promotion": {
@@ -429,9 +399,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Configure promotion input resulting in playing before promotion": {
@@ -461,9 +429,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Replace promotion position resulting in playing before promotion": {
@@ -493,9 +459,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         },
         "Request promotion resulting in choosing a promotion piece": {
@@ -525,9 +489,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Configure automatic queen resulting in choosing a promotion piece": {
@@ -557,9 +519,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:50"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:50"]
           }
         },
         "Configure promotion input resulting in choosing a promotion piece": {
@@ -589,9 +549,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Choose promotion resulting in seeing a promoted knight": {
@@ -621,9 +579,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:31"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:31"]
           }
         },
         "Choose promotion resulting in seeing a promoted bishop": {
@@ -653,9 +609,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:31"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:31"]
           }
         },
         "Replace promotion position resulting in choosing a promotion piece": {
@@ -685,9 +639,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         },
         "Choose promotion resulting in seeing a promoted rook": {
@@ -717,9 +669,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:31"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:31"]
           }
         }
       }
@@ -738,9 +688,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": false,
@@ -784,9 +732,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Replace promotion position resulting in playing before promotion": {
@@ -816,9 +762,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         },
         "Configure automatic queen resulting in seeing a promoted queen": {
@@ -848,9 +792,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:50"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:50"]
           }
         },
         "Configure promotion input resulting in seeing a promoted queen": {
@@ -880,9 +822,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Cancel promotion resulting in seeing a promoted queen": {
@@ -912,9 +852,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Try other promotion move resulting in seeing a promoted queen": {
@@ -944,9 +882,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:40"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:40"]
           }
         }
       }
@@ -965,9 +901,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": false,
@@ -1011,9 +945,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Cancel promotion resulting in seeing a promoted knight": {
@@ -1043,9 +975,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Configure promotion input resulting in seeing a promoted knight": {
@@ -1075,9 +1005,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Try other promotion move resulting in seeing a promoted knight": {
@@ -1107,9 +1035,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:40"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:40"]
           }
         },
         "Replace promotion position resulting in playing before promotion": {
@@ -1139,9 +1065,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         }
       }
@@ -1160,9 +1084,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": false,
@@ -1206,9 +1128,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Configure promotion input resulting in seeing a promoted bishop": {
@@ -1238,9 +1158,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Cancel promotion resulting in seeing a promoted bishop": {
@@ -1270,9 +1188,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Replace promotion position resulting in playing before promotion": {
@@ -1302,9 +1218,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         },
         "Configure automatic queen resulting in seeing a promoted bishop": {
@@ -1334,9 +1248,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:50"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:50"]
           }
         }
       }
@@ -1355,9 +1267,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-promotion.qnt"
-        ],
+        "source": ["specs/chess-board/board-promotion.qnt"],
         "quintPredicates": [
           {
             "promotionBoard.choice": false,
@@ -1401,9 +1311,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:23"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:23"]
           }
         },
         "Try other promotion move resulting in seeing a promoted rook": {
@@ -1433,9 +1341,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:40"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:40"]
           }
         },
         "Cancel promotion resulting in seeing a promoted rook": {
@@ -1465,9 +1371,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:38"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:38"]
           }
         },
         "Configure automatic queen resulting in seeing a promoted rook": {
@@ -1497,9 +1401,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:50"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:50"]
           }
         },
         "Configure promotion input resulting in seeing a promoted rook": {
@@ -1529,9 +1431,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:45"]
           }
         },
         "Replace promotion position resulting in playing before promotion": {
@@ -1561,9 +1461,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-promotion.qnt:54"
-            ]
+            "source": ["specs/chess-board/board-promotion.qnt:54"]
           }
         }
       }

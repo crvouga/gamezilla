@@ -24,22 +24,16 @@
         "description": "The person is at the place where the Custom Game board faces the player's side.",
         "snapshot": "the-person-is-at-the-place-where-the-custom-game-board-faces-the-player-s-side",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-board.feature:2"]
       },
       "on": {
         "Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game": {
           "target": "Bob's board faces Black — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-board.feature:8"
-            ],
+            "source": ["specs/chess/custom-game-board.feature:8"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game"
@@ -50,9 +44,7 @@
         "Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game and Carol is in Alice's space": {
           "target": "Carol's board faces White — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-board.feature:15"
-            ],
+            "source": ["specs/chess/custom-game-board.feature:15"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game",
@@ -64,9 +56,7 @@
         "Alice starts the Custom Game when Alice has a configuring Custom Game and White and Black in the Custom Game are bots": {
           "target": "Alice's board faces White — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-board.feature:22"
-            ],
+            "source": ["specs/chess/custom-game-board.feature:22"],
             "condition": [
               "Alice has a configuring Custom Game",
               "White and Black in the Custom Game are bots"
@@ -77,9 +67,7 @@
         "Alice swaps White and Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black": {
           "target": "Alice's board faces Black — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-board.feature:30"
-            ],
+            "source": ["specs/chess/custom-game-board.feature:30"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -89,9 +77,7 @@
         "Alice swaps White and Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told the Custom Game has already started — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-board.feature:36"
-            ],
+            "source": ["specs/chess/custom-game-board.feature:36"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -105,15 +91,10 @@
         "description": "The person observes that bob's board faces Black.",
         "snapshot": "the-person-observes-that-bob-s-board-faces-black",
         "recognize": [],
-        "checks": [
-          "Bob's board faces Black",
-          "Alice's board faces White"
-        ],
+        "checks": ["Bob's board faces Black", "Alice's board faces White"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:8"
-        ],
+        "source": ["specs/chess/custom-game-board.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -123,14 +104,10 @@
         "description": "The person observes that carol's board faces White.",
         "snapshot": "the-person-observes-that-carol-s-board-faces-white",
         "recognize": [],
-        "checks": [
-          "Carol's board faces White"
-        ],
+        "checks": ["Carol's board faces White"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:15"
-        ],
+        "source": ["specs/chess/custom-game-board.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -140,14 +117,10 @@
         "description": "The person observes that alice's board faces White.",
         "snapshot": "the-person-observes-that-alice-s-board-faces-white",
         "recognize": [],
-        "checks": [
-          "Alice's board faces White"
-        ],
+        "checks": ["Alice's board faces White"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:22"
-        ],
+        "source": ["specs/chess/custom-game-board.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -157,15 +130,10 @@
         "description": "The person observes that alice's board faces Black.",
         "snapshot": "the-person-observes-that-alice-s-board-faces-black",
         "recognize": [],
-        "checks": [
-          "Alice's board faces Black",
-          "Bob's board faces White"
-        ],
+        "checks": ["Alice's board faces Black", "Bob's board faces White"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:30"
-        ],
+        "source": ["specs/chess/custom-game-board.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -181,9 +149,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-board.feature:36"
-        ],
+        "source": ["specs/chess/custom-game-board.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,22 +24,16 @@
         "description": "The person is at the place where block and unblock.",
         "snapshot": "the-person-is-at-the-place-where-block-and-unblock",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:2"
-        ]
+        "source": ["specs/friends/friend-block.feature:2"]
       },
       "on": {
         "Alice blocks Bob when Alice and Bob are signed in and Alice has sent Bob a friend request": {
           "target": "Bob's inbox stops showing the friend request from Alice within 5 seconds — 1",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:11"
-            ],
+            "source": ["specs/friends/friend-block.feature:11"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request"
@@ -50,46 +44,31 @@
         "Alice blocks Bob when Alice and Bob are signed in": {
           "target": "Bob's search for \"alice\" shows nobody within 15 seconds — 2",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:18"
-            ],
-            "condition": [
-              "Alice and Bob are signed in"
-            ],
+            "source": ["specs/friends/friend-block.feature:18"],
+            "condition": ["Alice and Bob are signed in"],
             "example": "Blocking a stranger hides the blocker without a friendship first"
           }
         },
         "Alice blocks Bob when Alice and Bob are friends": {
           "target": "Alice's friends list does not show Bob — 3",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:23"
-            ],
-            "condition": [
-              "Alice and Bob are friends"
-            ],
+            "source": ["specs/friends/friend-block.feature:23"],
+            "condition": ["Alice and Bob are friends"],
             "example": "Blocking a friend ends the friendship for both"
           }
         },
         "Bob searches for 'alice'": {
           "target": "Bob's search does not show Alice — 4",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:29"
-            ],
-            "condition": [
-              "Alice and Bob are friends",
-              "Alice has blocked Bob"
-            ],
+            "source": ["specs/friends/friend-block.feature:29"],
+            "condition": ["Alice and Bob are friends", "Alice has blocked Bob"],
             "example": "A blocked person cannot find the blocker"
           }
         },
         "the connection comes back when Alice and Bob are signed in and Bob is offline and Alice has blocked Bob": {
           "target": "Bob's search for \"alice\" shows nobody within 15 seconds — 5",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:36"
-            ],
+            "source": ["specs/friends/friend-block.feature:36"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob is offline",
@@ -101,9 +80,7 @@
         "Alice blocks Bob from their request when Alice and Bob are signed in and Bob has sent Alice a friend request": {
           "target": "Alice's inbox stops showing the friend request from Bob within 5 seconds — 6",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:43"
-            ],
+            "source": ["specs/friends/friend-block.feature:43"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob has sent Alice a friend request"
@@ -114,9 +91,7 @@
         "Alice blocks Bob from their request when Alice and Bob are signed in and Bob has sent Alice a friend request from Alice's profile": {
           "target": "Bob can ask Alice again within 5 seconds — 7",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:49"
-            ],
+            "source": ["specs/friends/friend-block.feature:49"],
             "condition": [
               "Alice and Bob are signed in",
               "Bob has sent Alice a friend request from Alice's profile"
@@ -127,9 +102,7 @@
         "the connection comes back when Alice and Bob are friends and Alice has blocked Bob and Bob is offline and Alice has unblocked Bob": {
           "target": "Bob's search offers to ask Alice again within 15 seconds — 8",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:59"
-            ],
+            "source": ["specs/friends/friend-block.feature:59"],
             "condition": [
               "Alice and Bob are friends",
               "Alice has blocked Bob",
@@ -142,26 +115,16 @@
         "Alice searches for 'bob'": {
           "target": "Alice can unblock Bob — 9",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:67"
-            ],
-            "condition": [
-              "Alice and Bob are friends",
-              "Alice has blocked Bob"
-            ],
+            "source": ["specs/friends/friend-block.feature:67"],
+            "condition": ["Alice and Bob are friends", "Alice has blocked Bob"],
             "example": "The blocker can still find the person they blocked"
           }
         },
         "Alice unblocks Bob": {
           "target": "Alice's search offers to ask Bob — 10",
           "meta": {
-            "source": [
-              "specs/friends/friend-block.feature:73"
-            ],
-            "condition": [
-              "Alice and Bob are friends",
-              "Alice has blocked Bob"
-            ],
+            "source": ["specs/friends/friend-block.feature:73"],
+            "condition": ["Alice and Bob are friends", "Alice has blocked Bob"],
             "example": "After unblocking, the blocker can ask them again"
           }
         }
@@ -177,9 +140,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:11"
-        ],
+        "source": ["specs/friends/friend-block.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -189,14 +150,10 @@
         "description": "The person observes that bob's search for \"alice\" shows nobody within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-s-search-for-alice-shows-nobody-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob's search for \"alice\" shows nobody within 15 seconds"
-        ],
+        "checks": ["Bob's search for \"alice\" shows nobody within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:18"
-        ],
+        "source": ["specs/friends/friend-block.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -212,9 +169,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:23"
-        ],
+        "source": ["specs/friends/friend-block.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -224,14 +179,10 @@
         "description": "The person observes that bob's search does not show Alice.",
         "snapshot": "the-person-observes-that-bob-s-search-does-not-show-alice",
         "recognize": [],
-        "checks": [
-          "Bob's search does not show Alice"
-        ],
+        "checks": ["Bob's search does not show Alice"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:29"
-        ],
+        "source": ["specs/friends/friend-block.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -241,14 +192,10 @@
         "description": "The person observes that bob's search for \"alice\" shows nobody within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-s-search-for-alice-shows-nobody-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob's search for \"alice\" shows nobody within 15 seconds"
-        ],
+        "checks": ["Bob's search for \"alice\" shows nobody within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:36"
-        ],
+        "source": ["specs/friends/friend-block.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -263,9 +210,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:43"
-        ],
+        "source": ["specs/friends/friend-block.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -281,9 +226,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:49"
-        ],
+        "source": ["specs/friends/friend-block.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -293,14 +236,10 @@
         "description": "The person observes that bob's search offers to ask Alice again within 15 seconds.",
         "snapshot": "the-person-observes-that-bob-s-search-offers-to-ask-alice-again-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Bob's search offers to ask Alice again within 15 seconds"
-        ],
+        "checks": ["Bob's search offers to ask Alice again within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:59"
-        ],
+        "source": ["specs/friends/friend-block.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -310,14 +249,10 @@
         "description": "The person observes that alice can unblock Bob.",
         "snapshot": "the-person-observes-that-alice-can-unblock-bob",
         "recognize": [],
-        "checks": [
-          "Alice can unblock Bob"
-        ],
+        "checks": ["Alice can unblock Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:67"
-        ],
+        "source": ["specs/friends/friend-block.feature:67"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -327,14 +262,10 @@
         "description": "The person observes that alice's search offers to ask Bob.",
         "snapshot": "the-person-observes-that-alice-s-search-offers-to-ask-bob",
         "recognize": [],
-        "checks": [
-          "Alice's search offers to ask Bob"
-        ],
+        "checks": ["Alice's search offers to ask Bob"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-block.feature:73"
-        ],
+        "source": ["specs/friends/friend-block.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

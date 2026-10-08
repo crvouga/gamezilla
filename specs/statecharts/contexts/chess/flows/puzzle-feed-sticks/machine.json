@@ -24,22 +24,16 @@
         "description": "The person is at the place where feed choices stick.",
         "snapshot": "the-person-is-at-the-place-where-feed-choices-stick",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-feed-sticks.feature:2"]
       },
       "on": {
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has saved a custom feed target raised by 1 step and Alice has closed and reopened the app": {
           "target": "Alice's feed targets a custom 1550 — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-sticks.feature:14"
-            ],
+            "source": ["specs/chess/puzzle-feed-sticks.feature:14"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -52,9 +46,7 @@
         "Alice's account opens on another device when Alice is signed in and Alice is playing puzzles in their space and Alice has saved a custom feed target raised by 1 step": {
           "target": "Alice's other device's feed targets a custom 1550 within 30 seconds — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-sticks.feature:20"
-            ],
+            "source": ["specs/chess/puzzle-feed-sticks.feature:20"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -66,9 +58,7 @@
         "Alice returns to their space when Alice is signed in and Alice is playing puzzles in their space and Alice has saved a custom feed target raised by 1 step and Alice has changed the feed history to 'Any' and saved the feed settings and Alice has closed and reopened the app": {
           "target": "Alice's feed history shows \"Any\" — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-sticks.feature:24"
-            ],
+            "source": ["specs/chess/puzzle-feed-sticks.feature:24"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -82,9 +72,7 @@
         "Alice returns to their space when Alice is signed in and the puzzle pool holds puzzles with and without the 'fork' theme and Alice is playing puzzles in their space and Alice has limited the feed to the 'fork' theme and Alice has closed and reopened the app": {
           "target": "Alice's feed is limited to the \"fork\" theme — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-sticks.feature:39"
-            ],
+            "source": ["specs/chess/puzzle-feed-sticks.feature:39"],
             "condition": [
               "Alice is signed in",
               "the puzzle pool holds puzzles with and without the \"fork\" theme",
@@ -98,9 +86,7 @@
         "Alice's account opens on another device when Alice is signed in and the puzzle pool holds puzzles with and without the 'fork' theme and Alice is playing puzzles in their space and Alice has limited the feed to the 'fork' theme": {
           "target": "Alice's other device's feed is limited to the \"fork\" theme within 30 seconds — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-sticks.feature:44"
-            ],
+            "source": ["specs/chess/puzzle-feed-sticks.feature:44"],
             "condition": [
               "Alice is signed in",
               "the puzzle pool holds puzzles with and without the \"fork\" theme",
@@ -117,14 +103,10 @@
         "description": "The person observes that alice's feed targets a custom 1550.",
         "snapshot": "the-person-observes-that-alice-s-feed-targets-a-custom-1550",
         "recognize": [],
-        "checks": [
-          "Alice's feed targets a custom 1550"
-        ],
+        "checks": ["Alice's feed targets a custom 1550"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:14"
-        ],
+        "source": ["specs/chess/puzzle-feed-sticks.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -139,9 +121,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:20"
-        ],
+        "source": ["specs/chess/puzzle-feed-sticks.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -151,14 +131,10 @@
         "description": "The person observes that alice's feed history shows \"Any\".",
         "snapshot": "the-person-observes-that-alice-s-feed-history-shows-any",
         "recognize": [],
-        "checks": [
-          "Alice's feed history shows \"Any\""
-        ],
+        "checks": ["Alice's feed history shows \"Any\""],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:24"
-        ],
+        "source": ["specs/chess/puzzle-feed-sticks.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -168,14 +144,10 @@
         "description": "The person observes that alice's feed is limited to the \"fork\" theme.",
         "snapshot": "the-person-observes-that-alice-s-feed-is-limited-to-the-fork-theme",
         "recognize": [],
-        "checks": [
-          "Alice's feed is limited to the \"fork\" theme"
-        ],
+        "checks": ["Alice's feed is limited to the \"fork\" theme"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:39"
-        ],
+        "source": ["specs/chess/puzzle-feed-sticks.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -190,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-sticks.feature:44"
-        ],
+        "source": ["specs/chess/puzzle-feed-sticks.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

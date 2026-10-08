@@ -18,22 +18,16 @@
         "description": "The person is at the place where delete a note.",
         "snapshot": "the-person-is-at-the-place-where-delete-a-note",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-deleting.feature:2"
-        ]
+        "source": ["specs/sync-engine/note-deleting.feature:2"]
       },
       "on": {
         "Alice deletes the note 'Groceries'": {
           "target": "Alice does not see the note \"Groceries\" — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-deleting.feature:12"
-            ],
+            "source": ["specs/sync-engine/note-deleting.feature:12"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -45,9 +39,7 @@
         "Bob deletes the note 'Groceries'": {
           "target": "Bob does not see the note \"Groceries\" — 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-deleting.feature:19"
-            ],
+            "source": ["specs/sync-engine/note-deleting.feature:19"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -59,9 +51,7 @@
         "Alice writes the note 'Groceries' saying 'eggs'": {
           "target": "Alice sees the note \"Groceries\" saying \"eggs\" — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-deleting.feature:28"
-            ],
+            "source": ["specs/sync-engine/note-deleting.feature:28"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Alice has written the note \"Groceries\" saying \"milk\"",
@@ -83,9 +73,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-deleting.feature:12"
-        ],
+        "source": ["specs/sync-engine/note-deleting.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -101,9 +89,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-deleting.feature:19"
-        ],
+        "source": ["specs/sync-engine/note-deleting.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -119,9 +105,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-deleting.feature:28"
-        ],
+        "source": ["specs/sync-engine/note-deleting.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

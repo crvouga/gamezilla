@@ -18,22 +18,16 @@
         "description": "The person is at the place where rating ranges as a wait grows older.",
         "snapshot": "the-person-is-at-the-place-where-rating-ranges-as-a-wait-grows-older",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:2"
-        ]
+        "source": ["specs/matchmaking/rating-ranges.feature:2"]
       },
       "on": {
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 50 points and Bob is waiting with a rating of 1050, accepting anyone within 50 points": {
           "target": "Alice and Bob are matched with each other — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:9"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:9"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 50 points",
               "Bob is waiting with a rating of 1050, accepting anyone within 50 points"
@@ -44,9 +38,7 @@
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 50 points and Bob is waiting with a rating of 1051, accepting anyone within 200 points": {
           "target": "Alice is still waiting — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:15"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:15"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 50 points",
               "Bob is waiting with a rating of 1051, accepting anyone within 200 points"
@@ -57,9 +49,7 @@
         "1 second passes": {
           "target": "Alice and Bob accept each other — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:24"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:24"],
             "condition": [
               "Alice and Bob have growing ranges and ratings 60 points apart"
             ],
@@ -69,9 +59,7 @@
         "matchmaking pairs people up when Alice and Bob have growing ranges and ratings 60 points apart": {
           "target": "Alice is still waiting — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:29"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:29"],
             "condition": [
               "Alice and Bob have growing ranges and ratings 60 points apart"
             ],
@@ -81,9 +69,7 @@
         "35 seconds pass": {
           "target": "Alice and Bob accept each other — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:35"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:35"],
             "condition": [
               "Alice and Bob have growing ranges and ratings 400 points apart"
             ],
@@ -93,9 +79,7 @@
         "matchmaking pairs people up when Alice and Bob have growing ranges and ratings 401 points apart and both have been waiting for 60 seconds": {
           "target": "Alice is still waiting — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:40"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:40"],
             "condition": [
               "Alice and Bob have growing ranges and ratings 401 points apart",
               "both have been waiting for 60 seconds"
@@ -106,21 +90,15 @@
         "Alice waits with a growing range again": {
           "target": "Alice accepts nobody more than 50 points away — 7",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:49"
-            ],
-            "condition": [
-              "Alice stopped a growing wait after 35 seconds"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:49"],
+            "condition": ["Alice stopped a growing wait after 35 seconds"],
             "example": "Alice's later growing range starts at 50 points"
           }
         },
         "matchmaking pairs people up when Alice stopped a growing wait after 35 seconds and Alice has a new growing wait and Bob is waiting with a rating 400 points above Alice": {
           "target": "Alice is still waiting — 8",
           "meta": {
-            "source": [
-              "specs/matchmaking/rating-ranges.feature:54"
-            ],
+            "source": ["specs/matchmaking/rating-ranges.feature:54"],
             "condition": [
               "Alice stopped a growing wait after 35 seconds",
               "Alice has a new growing wait",
@@ -136,14 +114,10 @@
         "description": "The person observes that alice and Bob are matched with each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are matched with each other"
-        ],
+        "checks": ["Alice and Bob are matched with each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:9"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -153,15 +127,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is still waiting", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:15"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -171,14 +140,10 @@
         "description": "The person observes that alice and Bob accept each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-accept-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob accept each other"
-        ],
+        "checks": ["Alice and Bob accept each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:24"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -188,15 +153,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is still waiting", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:29"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,14 +166,10 @@
         "description": "The person observes that alice and Bob accept each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-accept-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob accept each other"
-        ],
+        "checks": ["Alice and Bob accept each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:35"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -223,15 +179,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is still waiting", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:40"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -241,14 +192,10 @@
         "description": "The person observes that alice accepts nobody more than 50 points away.",
         "snapshot": "the-person-observes-that-alice-accepts-nobody-more-than-50-points-away",
         "recognize": [],
-        "checks": [
-          "Alice accepts nobody more than 50 points away"
-        ],
+        "checks": ["Alice accepts nobody more than 50 points away"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:49"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -258,15 +205,10 @@
         "description": "The person observes that alice is still waiting.",
         "snapshot": "the-person-observes-that-alice-is-still-waiting",
         "recognize": [],
-        "checks": [
-          "Alice is still waiting",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is still waiting", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/rating-ranges.feature:54"
-        ],
+        "source": ["specs/matchmaking/rating-ranges.feature:54"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

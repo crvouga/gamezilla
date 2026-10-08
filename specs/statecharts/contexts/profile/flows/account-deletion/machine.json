@@ -21,22 +21,16 @@
         "description": "The person is at the place where permanently delete an account.",
         "snapshot": "the-person-is-at-the-place-where-permanently-delete-an-account",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:2"
-        ]
+        "source": ["specs/profile/account-deletion.feature:2"]
       },
       "on": {
         "Alice confirms account deletion when Alice has a recently proven account and Alice has reviewed the consequences of account deletion": {
           "target": "Alice is signed out — 1",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:8"
-            ],
+            "source": ["specs/profile/account-deletion.feature:8"],
             "condition": [
               "Alice has a recently proven account",
               "Alice has reviewed the consequences of account deletion"
@@ -47,9 +41,7 @@
         "Alice cancels account deletion": {
           "target": "Alice still has the same account because deletion was not confirmed — 2",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:15"
-            ],
+            "source": ["specs/profile/account-deletion.feature:15"],
             "condition": [
               "Alice has reviewed the consequences of account deletion"
             ],
@@ -59,9 +51,7 @@
         "Alice confirms account deletion when Alice completed signing in more than 10 minutes ago": {
           "target": "Alice is told to prove the account again before deletion — 3",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:20"
-            ],
+            "source": ["specs/profile/account-deletion.feature:20"],
             "condition": [
               "Alice completed signing in more than 10 minutes ago"
             ],
@@ -71,33 +61,23 @@
         "Alice confirms account deletion when Alice completed signing in exactly 10 minutes ago": {
           "target": "Alice is told to prove the account again before deletion — 4",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:26"
-            ],
-            "condition": [
-              "Alice completed signing in exactly 10 minutes ago"
-            ],
+            "source": ["specs/profile/account-deletion.feature:26"],
+            "condition": ["Alice completed signing in exactly 10 minutes ago"],
             "example": "Proof exactly ten minutes old requires signing in again"
           }
         },
         "Alice asks for account deletion": {
           "target": "Alice is asked to sign in because deletion needs an account — 5",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:32"
-            ],
-            "condition": [
-              "Alice is a guest"
-            ],
+            "source": ["specs/profile/account-deletion.feature:32"],
+            "condition": ["Alice is a guest"],
             "example": "A guest cannot delete an account they do not have"
           }
         },
         "Alice confirms account deletion when Alice has a recently proven account and Alice is offline": {
           "target": "Alice is told account deletion needs a connection — 6",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:37"
-            ],
+            "source": ["specs/profile/account-deletion.feature:37"],
             "condition": [
               "Alice has a recently proven account",
               "Alice is offline"
@@ -108,9 +88,7 @@
         "Alice confirms account deletion when Alice has a recently proven account and Alice is also signed in on another device": {
           "target": "Alice's other device is signed out within 150 seconds — 7",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:46"
-            ],
+            "source": ["specs/profile/account-deletion.feature:46"],
             "condition": [
               "Alice has a recently proven account",
               "Alice is also signed in on another device"
@@ -121,9 +99,7 @@
         "Alice's phone comes back online": {
           "target": "Alice's phone is signed out — 8",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:53"
-            ],
+            "source": ["specs/profile/account-deletion.feature:53"],
             "condition": [
               "Alice's account deletion has been confirmed on another device",
               "Alice's phone is offline"
@@ -134,24 +110,16 @@
         "Alice signs in with Google": {
           "target": "Alice has a new account — 9",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:60"
-            ],
-            "condition": [
-              "Alice's account deletion has completed"
-            ],
+            "source": ["specs/profile/account-deletion.feature:60"],
+            "condition": ["Alice's account deletion has completed"],
             "example": "Signing in after deletion starts afresh"
           }
         },
         "Alice reviews account deletion": {
           "target": "Alice sees that account deletion is permanent and signs out every device — 10",
           "meta": {
-            "source": [
-              "specs/profile/account-deletion.feature:69"
-            ],
-            "condition": [
-              "Alice is signed in"
-            ],
+            "source": ["specs/profile/account-deletion.feature:69"],
+            "condition": ["Alice is signed in"],
             "example": "The person can make an informed deletion choice"
           }
         }
@@ -168,9 +136,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:8"
-        ],
+        "source": ["specs/profile/account-deletion.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,9 +151,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:15"
-        ],
+        "source": ["specs/profile/account-deletion.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -203,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:20"
-        ],
+        "source": ["specs/profile/account-deletion.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -221,9 +183,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:26"
-        ],
+        "source": ["specs/profile/account-deletion.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -238,9 +198,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:32"
-        ],
+        "source": ["specs/profile/account-deletion.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -256,9 +214,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:37"
-        ],
+        "source": ["specs/profile/account-deletion.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -274,9 +230,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:46"
-        ],
+        "source": ["specs/profile/account-deletion.feature:46"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -292,9 +246,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:53"
-        ],
+        "source": ["specs/profile/account-deletion.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -310,9 +262,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:60"
-        ],
+        "source": ["specs/profile/account-deletion.feature:60"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -329,9 +279,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-deletion.feature:69"
-        ],
+        "source": ["specs/profile/account-deletion.feature:69"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

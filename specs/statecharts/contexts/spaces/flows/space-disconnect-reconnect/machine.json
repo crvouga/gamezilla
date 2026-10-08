@@ -24,22 +24,16 @@
         "description": "The person is at the place where losing the connection in a space.",
         "snapshot": "the-person-is-at-the-place-where-losing-the-connection-in-a-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-disconnect-reconnect.feature:2"
-        ]
+        "source": ["specs/spaces/space-disconnect-reconnect.feature:2"]
       },
       "on": {
         "Bob loses the connection when Alice is hosting a space that Bob joined from the link": {
           "target": "Alice sees 1 person in the space within 20 seconds — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-disconnect-reconnect.feature:12"
-            ],
+            "source": ["specs/spaces/space-disconnect-reconnect.feature:12"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link"
             ],
@@ -49,9 +43,7 @@
         "Bob leaves the space": {
           "target": "Alice sees 1 person in the space within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-disconnect-reconnect.feature:16"
-            ],
+            "source": ["specs/spaces/space-disconnect-reconnect.feature:16"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Bob has come back to the space after closing the app"
@@ -62,9 +54,7 @@
         "the connection comes back when Alice is hosting a space that Bob joined from the link and Bob has lost the connection long enough to drop out of the space": {
           "target": "Alice sees 2 people in the space within 20 seconds — 3",
           "meta": {
-            "source": [
-              "specs/spaces/space-disconnect-reconnect.feature:23"
-            ],
+            "source": ["specs/spaces/space-disconnect-reconnect.feature:23"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Bob has lost the connection long enough to drop out of the space"
@@ -75,9 +65,7 @@
         "Bob opens the space link again": {
           "target": "Bob is in the space — 4",
           "meta": {
-            "source": [
-              "specs/spaces/space-disconnect-reconnect.feature:29"
-            ],
+            "source": ["specs/spaces/space-disconnect-reconnect.feature:29"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Bob has closed and reopened the app"
@@ -88,9 +76,7 @@
         "the connection comes back when Alice is hosting a space that Bob joined from the link and Bob has lost the connection long enough to drop out of the space and Alice has ended the space": {
           "target": "Bob sees the space has ended within 20 seconds — 5",
           "meta": {
-            "source": [
-              "specs/spaces/space-disconnect-reconnect.feature:37"
-            ],
+            "source": ["specs/spaces/space-disconnect-reconnect.feature:37"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Bob has lost the connection long enough to drop out of the space",
@@ -126,14 +112,10 @@
         "description": "The person observes that alice sees 1 person in the space within 20 seconds.",
         "snapshot": "the-person-observes-that-alice-sees-1-person-in-the-space-within-20-seconds",
         "recognize": [],
-        "checks": [
-          "Alice sees 1 person in the space within 20 seconds"
-        ],
+        "checks": ["Alice sees 1 person in the space within 20 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-disconnect-reconnect.feature:16"
-        ],
+        "source": ["specs/spaces/space-disconnect-reconnect.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -149,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-disconnect-reconnect.feature:23"
-        ],
+        "source": ["specs/spaces/space-disconnect-reconnect.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -167,9 +147,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-disconnect-reconnect.feature:29"
-        ],
+        "source": ["specs/spaces/space-disconnect-reconnect.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,9 +163,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-disconnect-reconnect.feature:37"
-        ],
+        "source": ["specs/spaces/space-disconnect-reconnect.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,22 +24,16 @@
         "description": "The person is at the place where the tabs and Settings.",
         "snapshot": "the-person-is-at-the-place-where-the-tabs-and-settings",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:2"
-        ]
+        "source": ["specs/runtime/app-shell.feature:2"]
       },
       "on": {
         "Alice opens the app": {
           "target": "Alice sees the tabs — 1",
           "meta": {
-            "source": [
-              "specs/runtime/app-shell.feature:9"
-            ],
+            "source": ["specs/runtime/app-shell.feature:9"],
             "condition": [],
             "example": "A person who opens the app lands on Spaces"
           }
@@ -47,9 +41,7 @@
         "Alice opens the Notifications tab": {
           "target": "Alice is on Notifications — 2",
           "meta": {
-            "source": [
-              "specs/runtime/app-shell.feature:17"
-            ],
+            "source": ["specs/runtime/app-shell.feature:17"],
             "condition": [],
             "example": "Opening Notifications lands on Notifications"
           }
@@ -57,9 +49,7 @@
         "Alice opens the Profile tab": {
           "target": "Alice is on Profile — 3",
           "meta": {
-            "source": [
-              "specs/runtime/app-shell.feature:21"
-            ],
+            "source": ["specs/runtime/app-shell.feature:21"],
             "condition": [],
             "example": "Opening Profile lands on Profile"
           }
@@ -67,24 +57,16 @@
         "Bob opens Settings when Bob is a guest": {
           "target": "Bob is on Settings — 4",
           "meta": {
-            "source": [
-              "specs/runtime/app-shell.feature:27"
-            ],
-            "condition": [
-              "Bob is a guest"
-            ],
+            "source": ["specs/runtime/app-shell.feature:27"],
+            "condition": ["Bob is a guest"],
             "example": "A guest can open Settings"
           }
         },
         "Bob opens Settings when Alice and Bob are guests": {
           "target": "Bob is on Settings — 5",
           "meta": {
-            "source": [
-              "specs/runtime/app-shell.feature:32"
-            ],
-            "condition": [
-              "Alice and Bob are guests"
-            ],
+            "source": ["specs/runtime/app-shell.feature:32"],
+            "condition": ["Alice and Bob are guests"],
             "example": "Each person's app keeps its own place"
           }
         }
@@ -95,15 +77,10 @@
         "description": "The person observes that alice sees the tabs.",
         "snapshot": "the-person-observes-that-alice-sees-the-tabs",
         "recognize": [],
-        "checks": [
-          "Alice sees the tabs",
-          "Alice is on Spaces"
-        ],
+        "checks": ["Alice sees the tabs", "Alice is on Spaces"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:9"
-        ],
+        "source": ["specs/runtime/app-shell.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -113,14 +90,10 @@
         "description": "The person observes that alice is on Notifications.",
         "snapshot": "the-person-observes-that-alice-is-on-notifications",
         "recognize": [],
-        "checks": [
-          "Alice is on Notifications"
-        ],
+        "checks": ["Alice is on Notifications"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:17"
-        ],
+        "source": ["specs/runtime/app-shell.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -130,14 +103,10 @@
         "description": "The person observes that alice is on Profile.",
         "snapshot": "the-person-observes-that-alice-is-on-profile",
         "recognize": [],
-        "checks": [
-          "Alice is on Profile"
-        ],
+        "checks": ["Alice is on Profile"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:21"
-        ],
+        "source": ["specs/runtime/app-shell.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -147,14 +116,10 @@
         "description": "The person observes that bob is on Settings.",
         "snapshot": "the-person-observes-that-bob-is-on-settings",
         "recognize": [],
-        "checks": [
-          "Bob is on Settings"
-        ],
+        "checks": ["Bob is on Settings"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:27"
-        ],
+        "source": ["specs/runtime/app-shell.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -164,15 +129,10 @@
         "description": "The person observes that bob is on Settings.",
         "snapshot": "the-person-observes-that-bob-is-on-settings",
         "recognize": [],
-        "checks": [
-          "Bob is on Settings",
-          "Alice is still on Spaces"
-        ],
+        "checks": ["Bob is on Settings", "Alice is still on Spaces"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/app-shell.feature:32"
-        ],
+        "source": ["specs/runtime/app-shell.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,35 +24,24 @@
         "description": "The person is at the place where multiplayer chess is played and watched within spaces.",
         "snapshot": "the-person-is-at-the-place-where-multiplayer-chess-is-played-and-watched-within-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-in-spaces.feature:2"]
       },
       "on": {
         "Alice finds a chess opponent when Alice is signed in and Alice is hosting a space": {
           "target": "Alice is looking for a chess opponent — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:8"
-            ],
-            "condition": [
-              "Alice is signed in",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:8"],
+            "condition": ["Alice is signed in", "Alice is hosting a space"],
             "example": "A host finds an opponent from the space's chess choices"
           }
         },
         "Alice finds a chess opponent when Alice has a free account and a connection and Alice is outside a space": {
           "target": "Alice is told multiplayer chess needs a space — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:15"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:15"],
             "condition": [
               "Alice has a free account and a connection",
               "Alice is outside a space"
@@ -63,9 +52,7 @@
         "Alice plays e2 to e4 as a multiplayer move when Alice and Bob have a multiplayer game in different spaces and Carol is a guest watching Alice's multiplayer game and Dave is a guest watching Bob's multiplayer game": {
           "target": "Carol and Dave see the multiplayer pawn on e4 — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:26"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:26"],
             "condition": [
               "Alice and Bob have a multiplayer game in different spaces",
               "Carol is a guest watching Alice's multiplayer game",
@@ -77,9 +64,7 @@
         "Carol joins Alice's space": {
           "target": "Carol sees the multiplayer pawn on e4 — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:34"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:34"],
             "condition": [
               "Alice's multiplayer move e2 to e4 was accepted",
               "Carol is a guest"
@@ -90,9 +75,7 @@
         "Alice plays e2 to e4 as a multiplayer move when Alice and Bob have a multiplayer game in different spaces": {
           "target": "both multiplayer boards show the white pawn on e4 — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:43"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:43"],
             "condition": [
               "Alice and Bob have a multiplayer game in different spaces"
             ],
@@ -102,9 +85,7 @@
         "Carol plays e2 to e4 in Alice's multiplayer game": {
           "target": "Carol is told only the matched people can move multiplayer pieces — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:48"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:48"],
             "condition": [
               "Alice and Bob have a multiplayer game in different spaces",
               "Carol is a guest watching Alice's multiplayer game"
@@ -115,9 +96,7 @@
         "Carol opens Alice's multiplayer game": {
           "target": "Carol is told no multiplayer game is available to her — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:56"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:56"],
             "condition": [
               "Alice and Bob have a multiplayer game in different spaces"
             ],
@@ -127,9 +106,7 @@
         "Bob resigns multiplayer chess": {
           "target": "Carol sees Alice won the multiplayer game — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:64"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:64"],
             "condition": [
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5",
               "Carol is a guest watching Alice's multiplayer game"
@@ -140,9 +117,7 @@
         "Carol leaves the space": {
           "target": "Carol has no multiplayer board — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-in-spaces.feature:71"
-            ],
+            "source": ["specs/chess/multiplayer-in-spaces.feature:71"],
             "condition": [
               "Alice and Bob have a multiplayer game in different spaces",
               "Carol is a guest watching Alice's multiplayer game"
@@ -157,14 +132,10 @@
         "description": "The person observes that alice is looking for a chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a chess opponent"
-        ],
+        "checks": ["Alice is looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:8"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -180,9 +151,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:15"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -198,9 +167,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:26"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -216,9 +183,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:34"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -228,14 +193,10 @@
         "description": "The person observes that both multiplayer boards show the white pawn on e4.",
         "snapshot": "the-person-observes-that-both-multiplayer-boards-show-the-white-pawn-on-e4",
         "recognize": [],
-        "checks": [
-          "both multiplayer boards show the white pawn on e4"
-        ],
+        "checks": ["both multiplayer boards show the white pawn on e4"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:43"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -251,9 +212,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:48"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -263,14 +222,10 @@
         "description": "The person observes that carol is told no multiplayer game is available to her.",
         "snapshot": "the-person-observes-that-carol-is-told-no-multiplayer-game-is-available-to-her",
         "recognize": [],
-        "checks": [
-          "Carol is told no multiplayer game is available to her"
-        ],
+        "checks": ["Carol is told no multiplayer game is available to her"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:56"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -286,9 +241,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:64"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -298,14 +251,10 @@
         "description": "The person observes that carol has no multiplayer board.",
         "snapshot": "the-person-observes-that-carol-has-no-multiplayer-board",
         "recognize": [],
-        "checks": [
-          "Carol has no multiplayer board"
-        ],
+        "checks": ["Carol has no multiplayer board"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-in-spaces.feature:71"
-        ],
+        "source": ["specs/chess/multiplayer-in-spaces.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

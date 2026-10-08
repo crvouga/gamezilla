@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess-board/board-annotations.qnt"
-    ],
+    "quint": ["specs/chess-board/board-annotations.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the board board annotations view.",
         "snapshot": "the-person-is-opening-the-board-board-annotations-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-annotations.qnt"
-        ]
+        "source": ["specs/chess-board/board-annotations.qnt"]
       },
       "on": {
         "Opens with viewing a board without personal marks": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:36"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:36"]
           }
         }
       }
@@ -60,9 +52,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-annotations.qnt"
-        ],
+        "source": ["specs/chess-board/board-annotations.qnt"],
         "quintPredicates": [
           {
             "pendingArrow": false,
@@ -118,9 +108,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:79"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:79"]
           }
         },
         "Set activity arrows resulting in viewing a board without personal marks": {
@@ -162,9 +150,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:75"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:75"]
           }
         },
         "Begin personal arrow resulting in drawing a personal arrow": {
@@ -206,9 +192,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:42"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:42"]
           }
         },
         "Clear activity annotations resulting in viewing a board without personal marks": {
@@ -250,9 +234,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:95"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:95"]
           }
         },
         "Toggle personal circle resulting in viewing personal board marks": {
@@ -294,9 +276,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:61"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:61"]
           }
         },
         "Choose activity arrow resulting in viewing a board without personal marks": {
@@ -338,9 +318,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:83"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:83"]
           }
         },
         "Flip annotation board resulting in viewing a board without personal marks": {
@@ -382,9 +360,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:104"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:104"]
           }
         },
         "Replace annotation position resulting in viewing a board without personal marks": {
@@ -426,9 +402,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:109"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:109"]
           }
         },
         "Cancel personal arrow resulting in viewing a board without personal marks": {
@@ -470,9 +444,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:57"]
           }
         },
         "Clear personal annotations resulting in viewing a board without personal marks": {
@@ -514,9 +486,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:69"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:69"]
           }
         },
         "Supply feedback marks resulting in viewing a board without personal marks": {
@@ -558,9 +528,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:88"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:88"]
           }
         },
         "Begin personal arrow resulting in viewing a board without personal marks": {
@@ -602,9 +570,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:42"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:42"]
           }
         },
         "Toggle personal circle resulting in viewing a board without personal marks": {
@@ -646,9 +612,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:61"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:61"]
           }
         },
         "Finish personal arrow resulting in viewing a board without personal marks": {
@@ -690,9 +654,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:48"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:48"]
           }
         },
         "Configure personal annotations resulting in viewing a board without personal marks": {
@@ -734,9 +696,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:99"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:99"]
           }
         }
       }
@@ -755,9 +715,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-annotations.qnt"
-        ],
+        "source": ["specs/chess-board/board-annotations.qnt"],
         "quintPredicates": [
           {
             "pendingArrow": true,
@@ -817,9 +775,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:95"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:95"]
           }
         },
         "Replace annotation position resulting in drawing a personal arrow": {
@@ -861,9 +817,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:109"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:109"]
           }
         },
         "Configure personal annotations resulting in drawing a personal arrow": {
@@ -905,9 +859,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:99"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:99"]
           }
         },
         "Flip annotation board resulting in viewing a board without personal marks": {
@@ -949,9 +901,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:104"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:104"]
           }
         },
         "Supply feedback marks resulting in drawing a personal arrow": {
@@ -993,9 +943,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:88"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:88"]
           }
         },
         "Configure personal annotations resulting in viewing a board without personal marks": {
@@ -1037,9 +985,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:99"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:99"]
           }
         },
         "Cancel personal arrow resulting in viewing a board without personal marks": {
@@ -1081,9 +1027,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:57"]
           }
         },
         "Finish personal arrow resulting in viewing personal board marks": {
@@ -1125,9 +1069,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:48"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:48"]
           }
         },
         "Choose activity arrow resulting in drawing a personal arrow": {
@@ -1169,9 +1111,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:83"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:83"]
           }
         },
         "Set activity square marks resulting in drawing a personal arrow": {
@@ -1213,9 +1153,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:79"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:79"]
           }
         },
         "Cancel personal arrow resulting in viewing personal board marks": {
@@ -1257,9 +1195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:57"]
           }
         },
         "Set activity arrows resulting in drawing a personal arrow": {
@@ -1301,9 +1237,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:75"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:75"]
           }
         },
         "Replace annotation position resulting in viewing a board without personal marks": {
@@ -1345,9 +1279,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:109"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:109"]
           }
         },
         "Flip annotation board resulting in viewing personal board marks": {
@@ -1389,9 +1321,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:104"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:104"]
           }
         },
         "Replace annotation position resulting in viewing personal board marks": {
@@ -1433,9 +1363,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:109"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:109"]
           }
         },
         "Configure personal annotations resulting in viewing personal board marks": {
@@ -1477,9 +1405,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:99"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:99"]
           }
         },
         "Finish personal arrow resulting in viewing a board without personal marks": {
@@ -1521,9 +1447,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:48"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:48"]
           }
         }
       }
@@ -1542,9 +1466,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-annotations.qnt"
-        ],
+        "source": ["specs/chess-board/board-annotations.qnt"],
         "quintPredicates": [
           {
             "pendingArrow": false,
@@ -1600,9 +1522,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:79"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:79"]
           }
         },
         "Cancel personal arrow resulting in viewing personal board marks": {
@@ -1644,9 +1564,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:57"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:57"]
           }
         },
         "Choose activity arrow resulting in viewing personal board marks": {
@@ -1688,9 +1606,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:83"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:83"]
           }
         },
         "Set activity arrows resulting in viewing personal board marks": {
@@ -1732,9 +1648,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:75"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:75"]
           }
         },
         "Clear personal annotations resulting in viewing a board without personal marks": {
@@ -1776,9 +1690,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:69"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:69"]
           }
         },
         "Configure personal annotations resulting in viewing personal board marks": {
@@ -1820,9 +1732,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:99"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:99"]
           }
         },
         "Replace annotation position resulting in viewing personal board marks": {
@@ -1864,9 +1774,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:109"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:109"]
           }
         },
         "Toggle personal circle resulting in viewing personal board marks": {
@@ -1908,9 +1816,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:61"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:61"]
           }
         },
         "Clear activity annotations resulting in viewing personal board marks": {
@@ -1952,9 +1858,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:95"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:95"]
           }
         },
         "Toggle personal circle resulting in viewing a board without personal marks": {
@@ -1996,9 +1900,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:61"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:61"]
           }
         },
         "Supply feedback marks resulting in viewing personal board marks": {
@@ -2040,9 +1942,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:88"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:88"]
           }
         },
         "Flip annotation board resulting in viewing personal board marks": {
@@ -2084,9 +1984,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:104"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:104"]
           }
         },
         "Begin personal arrow resulting in drawing a personal arrow": {
@@ -2128,9 +2026,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:42"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:42"]
           }
         },
         "Finish personal arrow resulting in viewing personal board marks": {
@@ -2172,9 +2068,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:48"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:48"]
           }
         },
         "Begin personal arrow resulting in viewing personal board marks": {
@@ -2216,9 +2110,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-annotations.qnt:42"
-            ]
+            "source": ["specs/chess-board/board-annotations.qnt:42"]
           }
         }
       }

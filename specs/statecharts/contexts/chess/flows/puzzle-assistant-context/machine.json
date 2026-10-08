@@ -24,22 +24,16 @@
         "description": "The person is at the place where commentary follows the current puzzle.",
         "snapshot": "the-person-is-at-the-place-where-commentary-follows-the-current-puzzle",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-assistant-context.feature:2"]
       },
       "on": {
         "Alice retries the puzzle when Alice is signed in and Alice is playing puzzles in their space and Alice has played a wrong move": {
           "target": "Alice's assistant encourages another look at the current position — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:9"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:9"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -51,9 +45,7 @@
         "Alice moves on to the next puzzle": {
           "target": "Alice's assistant introduces the current puzzle — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:17"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:17"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -65,9 +57,7 @@
         "Alice leaves the puzzle for the chess choices": {
           "target": "Alice cannot hear the old puzzle's assistant speaking — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:25"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:25"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -79,9 +69,7 @@
         "the connection comes back": {
           "target": "Alice's assistant acknowledges the current solved puzzle — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:32"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:32"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -94,9 +82,7 @@
         "Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has shown the solution": {
           "target": "Alice's assistant explains that they are reviewing an earlier position — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:43"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:43"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle",
@@ -108,9 +94,7 @@
         "Alice returns to the current puzzle move when Alice is signed in and Alice is solving the two-rook clearance puzzle and Alice has shown the solution and Alice is reviewing an earlier position in the puzzle": {
           "target": "Alice's assistant explains that the solution is shown — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:51"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:51"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle",
@@ -123,9 +107,7 @@
         "Alice goes back to the puzzles": {
           "target": "Alice is solving a different puzzle than the one before — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:60"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:60"],
             "condition": [
               "Alice is signed in",
               "Alice is playing puzzles in their space",
@@ -139,9 +121,7 @@
         "Alice returns to the current puzzle move when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has solved the puzzle and Alice is reviewing an earlier position in the puzzle": {
           "target": "Alice's assistant acknowledges checkmate — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:71"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:71"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move",
@@ -154,9 +134,7 @@
         "Alice plays the move a1-a5": {
           "target": "Alice's assistant acknowledges a correct continuation — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:83"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:83"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the two-rook clearance puzzle"
@@ -167,9 +145,7 @@
         "Alice retries the puzzle when Alice is signed in and Alice is solving the four-move mate-in-two puzzle and Alice has played g6-g5 and Alice has played a wrong move": {
           "target": "Alice's board is at move 3 of the line within 20 seconds — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:90"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:90"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -182,9 +158,7 @@
         "Alice steps back one move in the puzzle when Alice is signed in and Alice is solving the puzzle with more than one mate on the final move and Alice has solved the puzzle": {
           "target": "Alice's puzzle remains solved — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:102"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:102"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the puzzle with more than one mate on the final move",
@@ -196,9 +170,7 @@
         "Alice steps forward one move in the puzzle": {
           "target": "Alice's board is at move 3 of the line within 20 seconds — 12",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-assistant-context.feature:110"
-            ],
+            "source": ["specs/chess/puzzle-assistant-context.feature:110"],
             "condition": [
               "Alice is signed in",
               "Alice is solving the four-move mate-in-two puzzle",
@@ -221,9 +193,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:9"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -239,9 +209,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:17"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -251,14 +219,10 @@
         "description": "The person observes that alice cannot hear the old puzzle's assistant speaking.",
         "snapshot": "the-person-observes-that-alice-cannot-hear-the-old-puzzle-s-assistant-speaking",
         "recognize": [],
-        "checks": [
-          "Alice cannot hear the old puzzle's assistant speaking"
-        ],
+        "checks": ["Alice cannot hear the old puzzle's assistant speaking"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:25"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -274,9 +238,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:32"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -292,9 +254,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:43"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -304,14 +264,10 @@
         "description": "The person observes that alice's assistant explains that the solution is shown.",
         "snapshot": "the-person-observes-that-alice-s-assistant-explains-that-the-solution-is-shown",
         "recognize": [],
-        "checks": [
-          "Alice's assistant explains that the solution is shown"
-        ],
+        "checks": ["Alice's assistant explains that the solution is shown"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:51"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -327,9 +283,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:60"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:60"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -345,9 +299,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:71"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:71"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -363,9 +315,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:83"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:83"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -381,9 +331,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:90"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:90"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -399,9 +347,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:102"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:102"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -417,9 +363,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-assistant-context.feature:110"
-        ],
+        "source": ["specs/chess/puzzle-assistant-context.feature:110"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

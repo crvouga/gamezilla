@@ -24,34 +24,24 @@
         "description": "The person is at the place where presence in a space.",
         "snapshot": "the-person-is-at-the-place-where-presence-in-a-space",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-live-presence.feature:2"
-        ]
+        "source": ["specs/spaces/space-live-presence.feature:2"]
       },
       "on": {
         "Bob joins the space from the link": {
           "target": "Alice sees 2 people in the space within 20 seconds — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-live-presence.feature:8"
-            ],
-            "condition": [
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/spaces/space-live-presence.feature:8"],
+            "condition": ["Alice is hosting a space"],
             "example": "Everyone in a space sees who is there"
           }
         },
         "Bob leaves the space when Alice is hosting a space that Bob joined from the link": {
           "target": "Alice sees 1 person in the space within 20 seconds — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-live-presence.feature:14"
-            ],
+            "source": ["specs/spaces/space-live-presence.feature:14"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link"
             ],
@@ -61,9 +51,7 @@
         "Alice ends the space": {
           "target": "Bob sees the space has ended within 20 seconds — 4",
           "meta": {
-            "source": [
-              "specs/spaces/space-live-presence.feature:28"
-            ],
+            "source": ["specs/spaces/space-live-presence.feature:28"],
             "condition": [
               "Alice is hosting a space that Bob joined from the link",
               "Bob has left the space"
@@ -84,9 +72,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-live-presence.feature:8"
-        ],
+        "source": ["specs/spaces/space-live-presence.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -122,9 +108,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-live-presence.feature:28"
-        ],
+        "source": ["specs/spaces/space-live-presence.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

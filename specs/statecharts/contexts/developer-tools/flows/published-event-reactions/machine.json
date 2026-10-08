@@ -24,73 +24,51 @@
         "description": "The person is using a Developer tools surface.",
         "snapshot": "the-person-is-using-a-developer-tools-surface",
         "recognize": [],
-        "checks": [
-          "The person is using a Developer tools surface."
-        ],
+        "checks": ["The person is using a Developer tools surface."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/README.md:1100"
-        ]
+        "source": ["specs/README.md:1100"]
       },
       "on": {
         "SpaceOpened": {
           "target": "Seeing an open space becomes visible only to people entitled to find it",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PersonJoined": {
           "target": "Seeing current presence changes for people who can view that space",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "PersonLeft": {
           "target": "Seeing the person no longer appears as present in that space",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "SpaceEnded": {
           "target": "Seeing the ended space is removed from live choices and an open participant view shows it ended",
           "meta": {
-            "source": [
-              "specs/spaces/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "BecameFriends": {
           "target": "Seeing the new friendship appears and may make a friend’s open space discoverable",
           "meta": {
-            "source": [
-              "specs/friends/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         },
         "FriendshipEnded": {
           "target": "Seeing the relationship and any friend-derived discoverability are recomputed",
           "meta": {
-            "source": [
-              "specs/friends/events.qnt",
-              "specs/README.md:1112"
-            ],
+            "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
             "confidence": "assumed"
           }
         }
@@ -106,19 +84,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -134,19 +107,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -157,24 +125,17 @@
         "description": "The person sees that the person no longer appears as present in that space.",
         "snapshot": "the-person-sees-that-the-person-no-longer-appears-as-present-in-that-space",
         "recognize": [],
-        "checks": [
-          "The person no longer appears as present in that space."
-        ],
+        "checks": ["The person no longer appears as present in that space."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -190,19 +151,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/spaces/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -218,19 +174,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }
@@ -246,19 +197,14 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/events.qnt",
-          "specs/README.md:1112"
-        ],
+        "source": ["specs/friends/events.qnt", "specs/README.md:1112"],
         "question": "interaction-review"
       },
       "on": {
         "Continues using this context": {
           "target": "Viewing Developer tools with current information",
           "meta": {
-            "source": [
-              "specs/README.md:1092"
-            ],
+            "source": ["specs/README.md:1092"],
             "confidence": "assumed"
           }
         }

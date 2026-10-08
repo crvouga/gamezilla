@@ -24,22 +24,16 @@
         "description": "The person is at the place where add puzzles to an environment.",
         "snapshot": "the-person-is-at-the-place-where-add-puzzles-to-an-environment",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-ingest.feature:2"]
       },
       "on": {
         "Alice adds puzzles to this environment when Alice is signed in and on the team for this environment": {
           "target": "Alice sees that this environment is adding puzzles — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:8"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:8"],
             "condition": [
               "Alice is signed in and on the team for this environment"
             ],
@@ -49,9 +43,7 @@
         "Alice tries to add puzzles to this environment when Alice is signed in and not on the team for this environment": {
           "target": "Alice is told only the team can add puzzles — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:13"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:13"],
             "condition": [
               "Alice is signed in and not on the team for this environment"
             ],
@@ -61,9 +53,7 @@
         "Alice adds puzzles to this environment when Alice is on the team for this environment and this environment is ready to add puzzles": {
           "target": "Alice sees that this environment is adding puzzles — 3",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:21"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:21"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment is ready to add puzzles"
@@ -74,9 +64,7 @@
         "Alice tries to add puzzles to this environment when Alice is on the team for this environment and this environment is adding puzzles": {
           "target": "Alice is told this environment is already adding puzzles — 4",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:27"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:27"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment is adding puzzles"
@@ -87,9 +75,7 @@
         "Alice adds puzzles to this environment when Alice is on the team for this environment and this environment finished adding puzzles": {
           "target": "Alice sees that this environment is adding puzzles — 5",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:34"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:34"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment finished adding puzzles"
@@ -100,9 +86,7 @@
         "Alice adds puzzles to this environment when Alice is on the team for this environment and this environment failed to add puzzles": {
           "target": "Alice sees that this environment is adding puzzles — 6",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:40"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:40"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment failed to add puzzles"
@@ -113,21 +97,15 @@
         "Alice adds puzzles to this environment when Alice is on the team for this environment": {
           "target": "this environment's puzzle pool holds the added puzzles — 7",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:48"
-            ],
-            "condition": [
-              "Alice is on the team for this environment"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:48"],
+            "condition": ["Alice is on the team for this environment"],
             "example": "Adding puzzles changes this environment's puzzle pool"
           }
         },
         "Alice adds puzzles to this environment when Alice is on the team for this environment and another environment has its own puzzle pool": {
           "target": "the other environment's puzzle pool is still unchanged — 8",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:53"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:53"],
             "condition": [
               "Alice is on the team for this environment",
               "another environment has its own puzzle pool"
@@ -138,9 +116,7 @@
         "this environment finishes adding puzzles": {
           "target": "Alice sees how many puzzles were added — 9",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:61"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:61"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment is adding puzzles"
@@ -151,9 +127,7 @@
         "this environment fails to add puzzles": {
           "target": "Alice is told adding puzzles failed and why — 10",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:68"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:68"],
             "condition": [
               "Alice is on the team for this environment",
               "this environment is adding puzzles"
@@ -164,9 +138,7 @@
         "Alice's device comes back online": {
           "target": "Alice sees how many puzzles were added — 11",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:75"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:75"],
             "condition": [
               "Alice is on the team for this environment",
               "adding puzzles finished while Alice was offline"
@@ -177,9 +149,7 @@
         "Alice plays through every puzzle the feed offers": {
           "target": "none of the broken puzzles was served to Alice — 12",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-ingest.feature:85"
-            ],
+            "source": ["specs/chess/puzzle-ingest.feature:85"],
             "condition": [
               "the team has added seven puzzles, five of them broken",
               "Alice is a guest",
@@ -195,14 +165,10 @@
         "description": "The person observes that alice sees that this environment is adding puzzles.",
         "snapshot": "the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles",
         "recognize": [],
-        "checks": [
-          "Alice sees that this environment is adding puzzles"
-        ],
+        "checks": ["Alice sees that this environment is adding puzzles"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:8"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -218,9 +184,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:13"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -230,14 +194,10 @@
         "description": "The person observes that alice sees that this environment is adding puzzles.",
         "snapshot": "the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles",
         "recognize": [],
-        "checks": [
-          "Alice sees that this environment is adding puzzles"
-        ],
+        "checks": ["Alice sees that this environment is adding puzzles"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:21"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -253,9 +213,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:27"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:27"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -265,14 +223,10 @@
         "description": "The person observes that alice sees that this environment is adding puzzles.",
         "snapshot": "the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles",
         "recognize": [],
-        "checks": [
-          "Alice sees that this environment is adding puzzles"
-        ],
+        "checks": ["Alice sees that this environment is adding puzzles"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:34"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -282,14 +236,10 @@
         "description": "The person observes that alice sees that this environment is adding puzzles.",
         "snapshot": "the-person-observes-that-alice-sees-that-this-environment-is-adding-puzzles",
         "recognize": [],
-        "checks": [
-          "Alice sees that this environment is adding puzzles"
-        ],
+        "checks": ["Alice sees that this environment is adding puzzles"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:40"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -299,14 +249,10 @@
         "description": "The person observes that this environment's puzzle pool holds the added puzzles.",
         "snapshot": "the-person-observes-that-this-environment-s-puzzle-pool-holds-the-added-puzzles",
         "recognize": [],
-        "checks": [
-          "this environment's puzzle pool holds the added puzzles"
-        ],
+        "checks": ["this environment's puzzle pool holds the added puzzles"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:48"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -316,14 +262,10 @@
         "description": "The person observes that the other environment's puzzle pool is still unchanged.",
         "snapshot": "the-person-observes-that-the-other-environment-s-puzzle-pool-is-still-unchanged",
         "recognize": [],
-        "checks": [
-          "the other environment's puzzle pool is still unchanged"
-        ],
+        "checks": ["the other environment's puzzle pool is still unchanged"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:53"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:53"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -339,9 +281,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:61"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:61"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -357,9 +297,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:68"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:68"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -375,9 +313,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:75"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:75"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -387,14 +323,10 @@
         "description": "The person observes that none of the broken puzzles was served to Alice.",
         "snapshot": "the-person-observes-that-none-of-the-broken-puzzles-was-served-to-alice",
         "recognize": [],
-        "checks": [
-          "none of the broken puzzles was served to Alice"
-        ],
+        "checks": ["none of the broken puzzles was served to Alice"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-ingest.feature:85"
-        ],
+        "source": ["specs/chess/puzzle-ingest.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

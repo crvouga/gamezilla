@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/system/membership-machine.qnt"
-    ],
+    "quint": ["specs/system/membership-machine.qnt"],
     "abstraction": "Context-owned visible projection of a whole-product interpretation model; context-partition and hidden-data review remain required."
   },
   "states": {
@@ -20,23 +18,17 @@
         "description": "The person is opening the paid access view.",
         "snapshot": "the-person-is-opening-the-paid-access-view",
         "recognize": [],
-        "checks": [
-          "The person is opening the paid access view."
-        ],
+        "checks": ["The person is opening the paid access view."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/system/membership-machine.qnt"
-        ]
+        "source": ["specs/system/membership-machine.qnt"]
       },
       "on": {
         "Opens with viewing free access online with incomplete membership": {
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "init",
-            "source": [
-              "specs/system/membership-machine.qnt:12"
-            ],
+            "source": ["specs/system/membership-machine.qnt:12"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 0,
@@ -80,9 +72,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -105,9 +95,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 26,
@@ -137,9 +125,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 47,
@@ -169,9 +155,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 95,
@@ -201,9 +185,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 2,
@@ -233,9 +215,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 78,
@@ -265,9 +245,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 76,
@@ -297,9 +275,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 99,
@@ -329,9 +305,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 51,
@@ -361,9 +335,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 51,
@@ -393,9 +365,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 27,
@@ -425,9 +395,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_14.itf.json",
               "step": 15,
@@ -457,9 +425,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_16.itf.json",
               "step": 48,
@@ -489,9 +455,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_19.itf.json",
               "step": 30,
@@ -521,9 +485,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 16,
@@ -553,9 +515,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 61,
@@ -597,9 +557,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -629,9 +587,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 29,
@@ -661,9 +617,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 16,
@@ -693,9 +647,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 22,
@@ -725,9 +677,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 30,
@@ -757,9 +707,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 5,
@@ -789,9 +737,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 89,
@@ -821,9 +767,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 31,
@@ -853,9 +797,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 41,
@@ -885,9 +827,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 12,
@@ -917,9 +857,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 10,
@@ -961,9 +899,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -979,9 +915,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 16,
@@ -1011,9 +945,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 17,
@@ -1043,9 +975,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 31,
@@ -1075,9 +1005,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 17,
@@ -1107,9 +1035,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 30,
@@ -1139,9 +1065,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 18,
@@ -1171,9 +1095,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 33,
@@ -1203,9 +1125,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_19.itf.json",
               "step": 28,
@@ -1235,9 +1155,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 15,
@@ -1279,9 +1197,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -1304,9 +1220,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 33,
@@ -1336,9 +1250,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 82,
@@ -1368,9 +1280,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 68,
@@ -1400,9 +1310,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 89,
@@ -1432,9 +1340,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 90,
@@ -1464,9 +1370,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 27,
@@ -1496,9 +1400,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 100,
@@ -1528,9 +1430,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 39,
@@ -1560,9 +1460,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 17,
@@ -1592,9 +1490,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 56,
@@ -1624,9 +1520,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 62,
@@ -1656,9 +1550,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 92,
@@ -1688,9 +1580,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 74,
@@ -1720,9 +1610,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 29,
@@ -1752,9 +1640,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 27,
@@ -1784,9 +1670,7 @@
           "target": "Viewing free access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 48,
@@ -1816,9 +1700,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_2.itf.json",
               "step": 65,
@@ -1848,9 +1730,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 98,
@@ -1892,9 +1772,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -1917,9 +1795,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 7,
@@ -1949,9 +1825,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 43,
@@ -1981,9 +1855,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 42,
@@ -2013,9 +1885,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 11,
@@ -2045,9 +1915,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 98,
@@ -2077,9 +1945,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 64,
@@ -2109,9 +1975,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 30,
@@ -2141,9 +2005,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 55,
@@ -2173,9 +2035,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 36,
@@ -2205,9 +2065,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 44,
@@ -2237,9 +2095,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 3,
@@ -2269,9 +2125,7 @@
           "target": "Viewing free access offline with unreadable membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 61,
@@ -2301,9 +2155,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 41,
@@ -2333,9 +2185,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 55,
@@ -2365,9 +2215,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 99,
@@ -2397,9 +2245,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 40,
@@ -2441,9 +2287,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -2459,9 +2303,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 21,
@@ -2491,9 +2333,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 19,
@@ -2523,9 +2363,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_10.itf.json",
               "step": 38,
@@ -2555,9 +2393,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_10.itf.json",
               "step": 40,
@@ -2587,9 +2423,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 20,
@@ -2619,9 +2453,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_14.itf.json",
               "step": 31,
@@ -2651,9 +2483,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_19.itf.json",
               "step": 19,
@@ -2683,9 +2513,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 28,
@@ -2715,9 +2543,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 23,
@@ -2747,9 +2573,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 35,
@@ -2791,9 +2615,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -2816,9 +2638,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 58,
@@ -2848,9 +2668,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 57,
@@ -2880,9 +2698,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_17.itf.json",
               "step": 31,
@@ -2912,9 +2728,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 54,
@@ -2944,9 +2758,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 32,
@@ -2976,9 +2788,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 24,
@@ -3008,9 +2818,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_3.itf.json",
               "step": 85,
@@ -3040,9 +2848,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 59,
@@ -3072,9 +2878,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 50,
@@ -3104,9 +2908,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 56,
@@ -3148,9 +2950,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -3166,9 +2966,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 16,
@@ -3198,9 +2996,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 32,
@@ -3230,9 +3026,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 28,
@@ -3262,9 +3056,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 16,
@@ -3294,9 +3086,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 14,
@@ -3326,9 +3116,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_10.itf.json",
               "step": 23,
@@ -3358,9 +3146,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_16.itf.json",
               "step": 49,
@@ -3390,9 +3176,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 17,
@@ -3422,9 +3206,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 37,
@@ -3454,9 +3236,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 22,
@@ -3486,9 +3266,7 @@
           "target": "Viewing paid access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 18,
@@ -3518,9 +3296,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_19.itf.json",
               "step": 20,
@@ -3550,9 +3326,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 11,
@@ -3594,9 +3368,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -3619,9 +3391,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 88,
@@ -3651,9 +3421,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 29,
@@ -3683,9 +3451,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 93,
@@ -3715,9 +3481,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 96,
@@ -3747,9 +3511,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 58,
@@ -3779,9 +3541,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 97,
@@ -3811,9 +3571,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 25,
@@ -3843,9 +3601,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 92,
@@ -3875,9 +3631,7 @@
           "target": "Viewing free access offline with active membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_16.itf.json",
               "step": 92,
@@ -3907,9 +3661,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 33,
@@ -3951,9 +3703,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -3969,9 +3719,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 100,
@@ -4001,9 +3749,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 60,
@@ -4033,9 +3779,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 96,
@@ -4065,9 +3809,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 100,
@@ -4097,9 +3839,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_2.itf.json",
               "step": 72,
@@ -4129,9 +3869,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 64,
@@ -4161,9 +3899,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_2.itf.json",
               "step": 34,
@@ -4193,9 +3929,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 94,
@@ -4225,9 +3959,7 @@
           "target": "Viewing paid access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_3.itf.json",
               "step": 79,
@@ -4257,9 +3989,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 91,
@@ -4289,9 +4019,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 66,
@@ -4321,9 +4049,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 56,
@@ -4353,9 +4079,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 67,
@@ -4385,9 +4109,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_19.itf.json",
               "step": 8,
@@ -4417,9 +4139,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 53,
@@ -4461,9 +4181,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -4486,9 +4204,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 98,
@@ -4518,9 +4234,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 97,
@@ -4550,9 +4264,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 58,
@@ -4582,9 +4294,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 75,
@@ -4614,9 +4324,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 23,
@@ -4646,9 +4354,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 99,
@@ -4678,9 +4384,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 95,
@@ -4710,9 +4414,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 55,
@@ -4754,9 +4456,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -4772,9 +4472,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 13,
@@ -4804,9 +4502,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_0.itf.json",
               "step": 77,
@@ -4836,9 +4532,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 41,
@@ -4868,9 +4562,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 96,
@@ -4900,9 +4592,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 47,
@@ -4932,9 +4622,7 @@
           "target": "Viewing free access offline with unreadable membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_12.itf.json",
               "step": 51,
@@ -4964,9 +4652,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 42,
@@ -4996,9 +4682,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 91,
@@ -5028,9 +4712,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 32,
@@ -5060,9 +4742,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 97,
@@ -5092,9 +4772,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 59,
@@ -5124,9 +4802,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 42,
@@ -5156,9 +4832,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_4.itf.json",
               "step": 36,
@@ -5188,9 +4862,7 @@
           "target": "Viewing paid access online with delinquent membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 14,
@@ -5232,9 +4904,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": true,
@@ -5257,9 +4927,7 @@
           "target": "Viewing paid access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_10.itf.json",
               "step": 39,
@@ -5289,9 +4957,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "confirm",
-            "source": [
-              "specs/system/membership-machine.qnt:20"
-            ],
+            "source": ["specs/system/membership-machine.qnt:20"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 34,
@@ -5321,9 +4987,7 @@
           "target": "Viewing free access offline with unreadable membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 43,
@@ -5353,9 +5017,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_12.itf.json",
               "step": 43,
@@ -5385,9 +5047,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 57,
@@ -5417,9 +5077,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 31,
@@ -5449,9 +5107,7 @@
           "target": "Viewing free access offline with incomplete membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 22,
@@ -5481,9 +5137,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_2.itf.json",
               "step": 66,
@@ -5513,9 +5167,7 @@
           "target": "Viewing free access offline with delinquent membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 54,
@@ -5545,9 +5197,7 @@
           "target": "Viewing paid access offline with active membership",
           "meta": {
             "action": "disconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:18"
-            ],
+            "source": ["specs/system/membership-machine.qnt:18"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 32,
@@ -5577,9 +5227,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_8.itf.json",
               "step": 35,
@@ -5621,9 +5269,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -5653,9 +5299,7 @@
           "target": "Viewing free access offline with unreadable membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_21.itf.json",
               "step": 57,
@@ -5685,9 +5329,7 @@
           "target": "Viewing free access offline with unreadable membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 62,
@@ -5717,9 +5359,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_12.itf.json",
               "step": 53,
@@ -5749,9 +5389,7 @@
           "target": "Viewing free access online with unreadable membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_12.itf.json",
               "step": 64,
@@ -5781,9 +5419,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_23.itf.json",
               "step": 63,
@@ -5825,9 +5461,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -5850,9 +5484,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 51,
@@ -5882,9 +5514,7 @@
           "target": "Viewing free access offline with ended membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 62,
@@ -5914,9 +5544,7 @@
           "target": "Viewing free access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_10.itf.json",
               "step": 76,
@@ -5946,9 +5574,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 99,
@@ -5978,9 +5604,7 @@
           "target": "Viewing free access online with incomplete membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_5.itf.json",
               "step": 63,
@@ -6010,9 +5634,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 69,
@@ -6042,9 +5664,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 53,
@@ -6086,9 +5706,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -6111,9 +5729,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 65,
@@ -6143,9 +5759,7 @@
           "target": "Viewing free access offline with trialing membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 66,
@@ -6175,9 +5789,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_9.itf.json",
               "step": 67,
@@ -6207,9 +5819,7 @@
           "target": "Viewing paid access online with trialing membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_22.itf.json",
               "step": 74,
@@ -6239,9 +5849,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_6.itf.json",
               "step": 57,
@@ -6283,9 +5891,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -6301,9 +5907,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 51,
@@ -6333,9 +5937,7 @@
           "target": "Viewing free access offline with active membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 49,
@@ -6365,9 +5967,7 @@
           "target": "Viewing free access offline with active membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 50,
@@ -6397,9 +5997,7 @@
           "target": "Viewing free access online with delinquent membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_7.itf.json",
               "step": 44,
@@ -6441,9 +6039,7 @@
           "specs/system/membership-machine.qnt",
           "specs/system/membership.qnt"
         ],
-        "invariants": [
-          "invSafety"
-        ],
+        "invariants": ["invSafety"],
         "quintPredicates": [
           {
             "online": false,
@@ -6459,9 +6055,7 @@
           "target": "Viewing paid access offline with ended membership",
           "meta": {
             "action": "tick",
-            "source": [
-              "specs/system/membership-machine.qnt:17"
-            ],
+            "source": ["specs/system/membership-machine.qnt:17"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 24,
@@ -6491,9 +6085,7 @@
           "target": "Viewing paid access online with ended membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_18.itf.json",
               "step": 29,
@@ -6523,9 +6115,7 @@
           "target": "Viewing paid access offline with ended membership",
           "meta": {
             "action": "change",
-            "source": [
-              "specs/system/membership-machine.qnt:13"
-            ],
+            "source": ["specs/system/membership-machine.qnt:13"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 25,
@@ -6555,9 +6145,7 @@
           "target": "Viewing paid access online with active membership",
           "meta": {
             "action": "reconnect",
-            "source": [
-              "specs/system/membership-machine.qnt:19"
-            ],
+            "source": ["specs/system/membership-machine.qnt:19"],
             "witness": {
               "trace": "system--membership-machine_20.itf.json",
               "step": 26,

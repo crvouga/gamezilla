@@ -18,22 +18,16 @@
         "description": "The person is at the place where notes across devices.",
         "snapshot": "the-person-is-at-the-place-where-notes-across-devices",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-devices.feature:2"
-        ]
+        "source": ["specs/sync-engine/notes-across-devices.feature:2"]
       },
       "on": {
         "Alice writes the note 'Chores' on their tablet": {
           "target": "The person remains at the described place until the next choice — 1 step 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-devices.feature:9"
-            ],
+            "source": ["specs/sync-engine/notes-across-devices.feature:9"],
             "condition": [
               "Alice uses the app on a phone and a tablet",
               "Alice's tablet is offline",
@@ -54,17 +48,13 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-devices.feature:9"
-        ]
+        "source": ["specs/sync-engine/notes-across-devices.feature:9"]
       },
       "on": {
         "Alice's tablet comes back online": {
           "target": "Alice's phone shows the notes \"Groceries\" and \"Chores\" — 1 step 2",
           "meta": {
-            "source": [
-              "specs/sync-engine/notes-across-devices.feature:9"
-            ],
+            "source": ["specs/sync-engine/notes-across-devices.feature:9"],
             "condition": [],
             "example": "Notes written on two devices show on both"
           }
@@ -82,9 +72,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/notes-across-devices.feature:9"
-        ],
+        "source": ["specs/sync-engine/notes-across-devices.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

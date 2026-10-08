@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/sync-engine/note-replication.qnt"
-    ],
+    "quint": ["specs/sync-engine/note-replication.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the note replication view.",
         "snapshot": "the-person-is-opening-the-note-replication-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-replication.qnt"
-        ]
+        "source": ["specs/sync-engine/note-replication.qnt"]
       },
       "on": {
         "Opens with seeing no note": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:335"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:335"]
           }
         }
       }
@@ -58,9 +50,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-replication.qnt"
-        ],
+        "source": ["specs/sync-engine/note-replication.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": false,
@@ -126,9 +116,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:704"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:704"]
           }
         },
         "Delete folder resulting in seeing no note": {
@@ -182,9 +170,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:384"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:384"]
           }
         },
         "Write while full resulting in seeing no note": {
@@ -238,9 +224,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:401"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:401"]
           }
         },
         "Crash and reopen resulting in seeing no note": {
@@ -294,9 +278,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:501"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:501"]
           }
         },
         "App data damaged resulting in seeing no note": {
@@ -350,9 +332,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:551"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:551"]
           }
         },
         "Signed out elsewhere resulting in seeing no note": {
@@ -406,9 +386,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:590"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:590"]
           }
         },
         "App must update resulting in seeing no note": {
@@ -462,9 +440,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:539"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:539"]
           }
         },
         "App fails to open resulting in seeing no note": {
@@ -518,9 +494,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:508"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:508"]
           }
         },
         "App data cleared resulting in seeing no note": {
@@ -574,9 +548,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:577"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:577"]
           }
         },
         "Go offline resulting in seeing no note": {
@@ -630,9 +602,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:443"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:443"]
           }
         },
         "Live updates degrade resulting in seeing no note": {
@@ -686,9 +656,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:652"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:652"]
           }
         },
         "Sign in expires resulting in seeing no note": {
@@ -742,9 +710,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:617"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:617"]
           }
         },
         "Live updates garbled resulting in seeing no note": {
@@ -798,9 +764,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:660"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:660"]
           }
         },
         "Write while saves cut resulting in seeing no note": {
@@ -854,9 +818,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:479"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:479"]
           }
         },
         "Clock is wrong resulting in seeing no note": {
@@ -910,9 +872,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:603"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:603"]
           }
         },
         "Write resulting in seeing no note": {
@@ -966,9 +926,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:370"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:370"]
           }
         },
         "Live updates pause resulting in seeing no note": {
@@ -1022,9 +980,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:672"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:672"]
           }
         },
         "Team edit resulting in seeing no note": {
@@ -1078,9 +1034,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:694"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:694"]
           }
         },
         "Outage resulting in seeing no note": {
@@ -1134,9 +1088,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:681"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:681"]
           }
         },
         "Write folder resulting in seeing no note": {
@@ -1190,9 +1142,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:380"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:380"]
           }
         },
         "App updates resulting in seeing no note": {
@@ -1246,9 +1196,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:529"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:529"]
           }
         },
         "Join space resulting in seeing no note": {
@@ -1302,9 +1250,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:391"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:391"]
           }
         },
         "Write unheard resulting in seeing no note": {
@@ -1358,9 +1304,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:414"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:414"]
           }
         },
         "Hear back resulting in seeing no note": {
@@ -1414,9 +1358,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:427"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:427"]
           }
         },
         "Delete note resulting in seeing no note": {
@@ -1470,9 +1412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:377"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:377"]
           }
         },
         "Crash while saving resulting in seeing no note": {
@@ -1526,9 +1466,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:518"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:518"]
           }
         },
         "Live update lost resulting in seeing no note": {
@@ -1582,9 +1520,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:666"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:666"]
           }
         },
         "Leave space resulting in seeing no note": {
@@ -1638,9 +1574,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:394"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:394"]
           }
         },
         "Create space resulting in seeing no note": {
@@ -1694,9 +1628,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:387"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:387"]
           }
         },
         "Team tidies up resulting in seeing no note": {
@@ -1750,9 +1682,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:688"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:688"]
           }
         },
         "Signed out elsewhere resulting in reading a saved note": {
@@ -1806,9 +1736,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:590"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:590"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -1862,9 +1790,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:414"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:414"]
           }
         },
         "Second window resulting in seeing no note": {
@@ -1918,9 +1844,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:624"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:624"]
           }
         },
         "Connection flaky resulting in seeing no note": {
@@ -1974,9 +1898,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:644"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:644"]
           }
         },
         "Write while saves cut resulting in reading a saved note": {
@@ -2030,9 +1952,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:479"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:479"]
           }
         },
         "Network stalls resulting in seeing no note": {
@@ -2086,9 +2006,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:458"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:458"]
           }
         },
         "Write through hiccup resulting in reading a saved note": {
@@ -2142,9 +2060,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:436"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:436"]
           }
         },
         "Refresh hiccup resulting in seeing no note": {
@@ -2198,9 +2114,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:636"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:636"]
           }
         },
         "Live cut off resulting in seeing no note": {
@@ -2254,9 +2168,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:487"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:487"]
           }
         },
         "Write resulting in reading a saved note": {
@@ -2310,9 +2222,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:370"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:370"]
           }
         },
         "App must update resulting in reading a saved note": {
@@ -2366,9 +2276,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:539"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:539"]
           }
         },
         "Crash while saving resulting in reading a saved note": {
@@ -2422,9 +2330,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:518"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:518"]
           }
         },
         "Team adds note resulting in seeing no note": {
@@ -2478,9 +2384,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:704"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:704"]
           }
         },
         "App backgrounded resulting in seeing no note": {
@@ -2534,9 +2438,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:610"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:610"]
           }
         },
         "Live restored resulting in seeing no note": {
@@ -2590,9 +2492,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:494"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:494"]
           }
         },
         "Network recovers resulting in seeing no note": {
@@ -2646,9 +2546,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:467"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:467"]
           }
         },
         "Network recovers resulting in reading a saved note": {
@@ -2702,9 +2600,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:467"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:467"]
           }
         }
       }
@@ -2721,9 +2617,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-replication.qnt"
-        ],
+        "source": ["specs/sync-engine/note-replication.qnt"],
         "quintPredicates": [
           {
             "Alice sees a note": true,
@@ -2789,9 +2683,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:370"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:370"]
           }
         },
         "Second window resulting in reading a saved note": {
@@ -2845,9 +2737,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:624"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:624"]
           }
         },
         "Crash and reopen resulting in reading a saved note": {
@@ -2901,9 +2791,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:501"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:501"]
           }
         },
         "Crash while saving resulting in reading a saved note": {
@@ -2957,9 +2845,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:518"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:518"]
           }
         },
         "App data cleared resulting in reading a saved note": {
@@ -3013,9 +2899,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:577"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:577"]
           }
         },
         "Write folder resulting in reading a saved note": {
@@ -3069,9 +2953,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:380"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:380"]
           }
         },
         "Delete folder resulting in reading a saved note": {
@@ -3125,9 +3007,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:384"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:384"]
           }
         },
         "Leave space resulting in reading a saved note": {
@@ -3181,9 +3061,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:394"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:394"]
           }
         },
         "Write through hiccup resulting in reading a saved note": {
@@ -3237,9 +3115,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:436"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:436"]
           }
         },
         "Write while full resulting in reading a saved note": {
@@ -3293,9 +3169,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:401"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:401"]
           }
         },
         "Network stalls resulting in reading a saved note": {
@@ -3349,9 +3223,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:458"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:458"]
           }
         },
         "Team tidies up resulting in reading a saved note": {
@@ -3405,9 +3277,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:688"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:688"]
           }
         },
         "Live updates garbled resulting in reading a saved note": {
@@ -3461,9 +3331,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:660"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:660"]
           }
         },
         "Write while saves cut resulting in reading a saved note": {
@@ -3517,9 +3385,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:479"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:479"]
           }
         },
         "Refresh hiccup resulting in reading a saved note": {
@@ -3573,9 +3439,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:636"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:636"]
           }
         },
         "App fails to open resulting in reading a saved note": {
@@ -3629,9 +3493,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:508"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:508"]
           }
         },
         "Write unheard resulting in reading a saved note": {
@@ -3685,9 +3547,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:414"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:414"]
           }
         },
         "Hear back resulting in reading a saved note": {
@@ -3741,9 +3601,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:427"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:427"]
           }
         },
         "Delete note resulting in reading a saved note": {
@@ -3797,9 +3655,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:377"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:377"]
           }
         },
         "Live updates degrade resulting in reading a saved note": {
@@ -3853,9 +3709,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:652"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:652"]
           }
         },
         "Live update lost resulting in reading a saved note": {
@@ -3909,9 +3763,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:666"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:666"]
           }
         },
         "Create space resulting in reading a saved note": {
@@ -3965,9 +3817,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:387"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:387"]
           }
         },
         "Connection flaky resulting in reading a saved note": {
@@ -4021,9 +3871,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:644"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:644"]
           }
         },
         "Team edit resulting in reading a saved note": {
@@ -4077,9 +3925,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:694"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:694"]
           }
         },
         "App updates resulting in reading a saved note": {
@@ -4133,9 +3979,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:529"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:529"]
           }
         },
         "Join space resulting in reading a saved note": {
@@ -4189,9 +4033,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:391"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:391"]
           }
         },
         "Outage resulting in reading a saved note": {
@@ -4245,9 +4087,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:681"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:681"]
           }
         },
         "App data damaged resulting in reading a saved note": {
@@ -4301,9 +4141,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:551"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:551"]
           }
         },
         "Network recovers resulting in reading a saved note": {
@@ -4357,9 +4195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:467"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:467"]
           }
         },
         "App must update resulting in reading a saved note": {
@@ -4413,9 +4249,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:539"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:539"]
           }
         },
         "Live cut off resulting in reading a saved note": {
@@ -4469,9 +4303,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:487"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:487"]
           }
         },
         "Live updates pause resulting in reading a saved note": {
@@ -4525,9 +4357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:672"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:672"]
           }
         },
         "Sign in expires resulting in reading a saved note": {
@@ -4581,9 +4411,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:617"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:617"]
           }
         },
         "Live restored resulting in reading a saved note": {
@@ -4637,9 +4465,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:494"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:494"]
           }
         },
         "Signed out elsewhere resulting in reading a saved note": {
@@ -4693,9 +4519,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:590"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:590"]
           }
         },
         "App backgrounded resulting in reading a saved note": {
@@ -4749,9 +4573,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:610"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:610"]
           }
         },
         "Clock is wrong resulting in reading a saved note": {
@@ -4805,9 +4627,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:603"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:603"]
           }
         },
         "Go offline resulting in reading a saved note": {
@@ -4861,9 +4681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:443"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:443"]
           }
         },
         "Go online resulting in reading a saved note": {
@@ -4917,9 +4735,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:450"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:450"]
           }
         },
         "Delete note resulting in seeing no note": {
@@ -4973,9 +4789,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:377"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:377"]
           }
         },
         "Team adds note resulting in reading a saved note": {
@@ -5029,9 +4843,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:704"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:704"]
           }
         },
         "App data cleared resulting in seeing no note": {
@@ -5085,9 +4897,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:577"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:577"]
           }
         },
         "Unsent edit damaged resulting in reading a saved note": {
@@ -5141,9 +4951,7 @@
                 }
               }
             },
-            "source": [
-              "specs/sync-engine/note-replication.qnt:561"
-            ]
+            "source": ["specs/sync-engine/note-replication.qnt:561"]
           }
         }
       }

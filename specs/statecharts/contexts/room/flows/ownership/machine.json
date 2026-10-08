@@ -18,22 +18,16 @@
         "description": "The person is at the place where owning the room.",
         "snapshot": "the-person-is-at-the-place-where-owning-the-room",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:2"
-        ]
+        "source": ["specs/room/ownership.feature:2"]
       },
       "on": {
         "Alice claims the room": {
           "target": "everyone sees that Alice owns the room — 1",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:11"
-            ],
+            "source": ["specs/room/ownership.feature:11"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "nobody owns the room"
@@ -44,9 +38,7 @@
         "Bob claims the room": {
           "target": "Bob is told the room already has an owner — 2",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:16"
-            ],
+            "source": ["specs/room/ownership.feature:16"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice owns the room"
@@ -57,9 +49,7 @@
         "Alice turns Eve away": {
           "target": "everyone sees that Eve is turned away — 3",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:24"
-            ],
+            "source": ["specs/room/ownership.feature:24"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice owns the room"
@@ -70,9 +60,7 @@
         "Bob turns Eve away": {
           "target": "Bob is told only the owner can turn someone away — 4",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:29"
-            ],
+            "source": ["specs/room/ownership.feature:29"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice owns the room"
@@ -83,9 +71,7 @@
         "Alice turns Alice away": {
           "target": "Alice is told the owner cannot turn themselves away — 5",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:34"
-            ],
+            "source": ["specs/room/ownership.feature:34"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice owns the room"
@@ -96,9 +82,7 @@
         "Eve adds one to the tally": {
           "target": "Eve is told they have been turned away — 6",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:42"
-            ],
+            "source": ["specs/room/ownership.feature:42"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice has turned Eve away"
@@ -109,9 +93,7 @@
         "Bob adds one to the tally": {
           "target": "everyone sees a tally of 1 — 7",
           "meta": {
-            "source": [
-              "specs/room/ownership.feature:48"
-            ],
+            "source": ["specs/room/ownership.feature:48"],
             "condition": [
               "Alice, Bob and Eve are in the room",
               "Alice has turned Eve away"
@@ -126,14 +108,10 @@
         "description": "The person observes that everyone sees that Alice owns the room.",
         "snapshot": "the-person-observes-that-everyone-sees-that-alice-owns-the-room",
         "recognize": [],
-        "checks": [
-          "everyone sees that Alice owns the room"
-        ],
+        "checks": ["everyone sees that Alice owns the room"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:11"
-        ],
+        "source": ["specs/room/ownership.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -149,9 +127,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:16"
-        ],
+        "source": ["specs/room/ownership.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -161,14 +137,10 @@
         "description": "The person observes that everyone sees that Eve is turned away.",
         "snapshot": "the-person-observes-that-everyone-sees-that-eve-is-turned-away",
         "recognize": [],
-        "checks": [
-          "everyone sees that Eve is turned away"
-        ],
+        "checks": ["everyone sees that Eve is turned away"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:24"
-        ],
+        "source": ["specs/room/ownership.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -178,14 +150,10 @@
         "description": "The person observes that bob is told only the owner can turn someone away.",
         "snapshot": "the-person-observes-that-bob-is-told-only-the-owner-can-turn-someone-away",
         "recognize": [],
-        "checks": [
-          "Bob is told only the owner can turn someone away"
-        ],
+        "checks": ["Bob is told only the owner can turn someone away"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:29"
-        ],
+        "source": ["specs/room/ownership.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -201,9 +169,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:34"
-        ],
+        "source": ["specs/room/ownership.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -219,9 +185,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:42"
-        ],
+        "source": ["specs/room/ownership.feature:42"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -231,14 +195,10 @@
         "description": "The person observes that everyone sees a tally of 1.",
         "snapshot": "the-person-observes-that-everyone-sees-a-tally-of-1",
         "recognize": [],
-        "checks": [
-          "everyone sees a tally of 1"
-        ],
+        "checks": ["everyone sees a tally of 1"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.feature:48"
-        ],
+        "source": ["specs/room/ownership.feature:48"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

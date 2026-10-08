@@ -24,22 +24,16 @@
         "description": "The person is at the place where complete special chess moves.",
         "snapshot": "the-person-is-at-the-place-where-complete-special-chess-moves",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:2"
-        ]
+        "source": ["specs/chess-board/board-special-moves.feature:2"]
       },
       "on": {
         "Alice moves the piece from e1 to g1 when Alice has a chessboard ready for White kingside castling": {
           "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 1",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
             "condition": [
               "Alice has a chessboard ready for White kingside castling"
             ],
@@ -49,9 +43,7 @@
         "Alice moves the piece from e1 to c1": {
           "target": "Alice sees White castled queenside with the king on c1 and rook on d1 — 2",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
             "condition": [
               "Alice has a chessboard ready for White queenside castling"
             ],
@@ -61,9 +53,7 @@
         "Alice moves the piece from e8 to g8": {
           "target": "Alice sees Black castled kingside with the king on g8 and rook on f8 — 3",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
             "condition": [
               "Alice has a chessboard ready for Black kingside castling"
             ],
@@ -73,9 +63,7 @@
         "Alice moves the piece from e8 to c8": {
           "target": "Alice sees Black castled queenside with the king on c8 and rook on d8 — 4",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:8"],
             "condition": [
               "Alice has a chessboard ready for Black queenside castling"
             ],
@@ -85,9 +73,7 @@
         "Alice drags the piece from e1 to h1": {
           "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 5",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:23"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:23"],
             "condition": [
               "Alice has a chessboard ready for White kingside castling"
             ],
@@ -97,9 +83,7 @@
         "Alice drags the piece from e8 to a8": {
           "target": "Alice sees Black castled queenside with the king on c8 and rook on d8 — 6",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:23"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:23"],
             "condition": [
               "Alice has a chessboard ready for Black queenside castling"
             ],
@@ -109,9 +93,7 @@
         "Alice moves the piece from e1 to g1 when Alice has a chessboard where White's kingside castling crosses check": {
           "target": "Alice cannot castle kingside across check — 7",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:34"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:34"],
             "condition": [
               "Alice has a chessboard where White's kingside castling crosses check"
             ],
@@ -121,9 +103,7 @@
         "Alice drags the piece from e1 to g1": {
           "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 8",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:43"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:43"],
             "condition": [
               "Alice has a chessboard ready for White kingside castling"
             ],
@@ -133,9 +113,7 @@
         "Alice drags the piece from e1 to c1": {
           "target": "Alice sees White castled queenside with the king on c1 and rook on d1 — 9",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:43"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:43"],
             "condition": [
               "Alice has a chessboard ready for White queenside castling"
             ],
@@ -145,9 +123,7 @@
         "Alice moves the piece from e1 to g1 when Alice has a silent chessboard ready for White kingside castling": {
           "target": "Alice sees White castled kingside with the king on g1 and rook on f1 — 10",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:56"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:56"],
             "condition": [
               "Alice has a silent chessboard ready for White kingside castling"
             ],
@@ -157,9 +133,7 @@
         "Alice moves the piece from e5 to d6 when Alice has a chessboard ready for White to capture en passant from e5 to d6": {
           "target": "Alice sees a White pawn on d6 — 11",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:64"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:64"],
             "condition": [
               "Alice has a chessboard ready for White to capture en passant from e5 to d6"
             ],
@@ -169,9 +143,7 @@
         "Alice moves the piece from e5 to d6 when Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired": {
           "target": "Alice cannot capture en passant after its opportunity has expired — 12",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:73"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:73"],
             "condition": [
               "Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired"
             ],
@@ -181,9 +153,7 @@
         "Alice moves the piece from e5 to d6 when Alice has a silent chessboard ready for White to capture en passant from e5 to d6": {
           "target": "Alice sees a White pawn on d6 — 13",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:82"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:82"],
             "condition": [
               "Alice has a silent chessboard ready for White to capture en passant from e5 to d6"
             ],
@@ -193,9 +163,7 @@
         "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 14",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:91"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:91"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8"
             ],
@@ -205,57 +173,39 @@
         "Alice chooses the promotion to a queen": {
           "target": "Alice sees a White queen on a8 — 15",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:98"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Each promotion choice completes exactly one promoted move"
           }
         },
         "Alice chooses the promotion to a rook": {
           "target": "Alice sees a White rook on a8 — 16",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:98"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Each promotion choice completes exactly one promoted move"
           }
         },
         "Alice chooses the promotion to a bishop": {
           "target": "Alice sees a White bishop on a8 — 17",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:98"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Each promotion choice completes exactly one promoted move"
           }
         },
         "Alice chooses the promotion to a knight when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice sees a White knight on a8 — 18",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:98"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:98"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Each promotion choice completes exactly one promoted move"
           }
         },
         "Alice chooses the promotion to a knight when Alice has a chessboard facing Black with a pending Black capture-promotion from b2 to a1": {
           "target": "Alice sees a Black knight on a1 — 19",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:112"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:112"],
             "condition": [
               "Alice has a chessboard facing Black with a pending Black capture-promotion from b2 to a1"
             ],
@@ -265,33 +215,23 @@
         "Alice cancels the promotion": {
           "target": "Alice sees the White pawn remaining on a7 — 20",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:121"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:121"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Cancelling promotion keeps the pawn at its source"
           }
         },
         "Alice cancels the promotion with Escape": {
           "target": "Alice sees the White pawn remaining on a7 — 21",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:128"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:128"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Escape abandons promotion without offering a move"
           }
         },
         "Alice moves the piece from a7 to a8 when Alice has cancelled White's promotion from a7 to a8": {
           "target": "Alice is offered queen, rook, bishop and knight as the promotion choice — 22",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:135"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:135"],
             "condition": [
               "Alice has cancelled White's promotion from a7 to a8"
             ],
@@ -301,9 +241,7 @@
         "Alice moves the piece from h1 to h2 when Alice has a chessboard ready for White's promotion from a7 to a8": {
           "target": "Alice sees a White rook on h2 — 23",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:142"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:142"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8"
             ],
@@ -313,21 +251,15 @@
         "Alice moves the piece from h1 to h2 when Alice has a pending White promotion from a7 to a8": {
           "target": "Alice cannot move the rook on h1 until the promotion choice is decided or cancelled — 24",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:150"
-            ],
-            "condition": [
-              "Alice has a pending White promotion from a7 to a8"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:150"],
+            "condition": ["Alice has a pending White promotion from a7 to a8"],
             "example": "Another piece cannot move while the promotion choice waits"
           }
         },
         "Alice moves the piece from a7 to a8 when Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled": {
           "target": "Alice sees a White queen on a8 — 25",
           "meta": {
-            "source": [
-              "specs/chess-board/board-special-moves.feature:158"
-            ],
+            "source": ["specs/chess-board/board-special-moves.feature:158"],
             "condition": [
               "Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled"
             ],
@@ -349,9 +281,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:8"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -369,9 +299,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:8"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -389,9 +317,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:8"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -409,9 +335,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:8"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -427,9 +351,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:23"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -445,9 +367,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:23"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -466,9 +386,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:34"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -486,9 +404,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:43"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -506,9 +422,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:43"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -524,9 +438,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:56"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -545,9 +457,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:64"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -566,9 +476,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:73"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -585,9 +493,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:82"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:82"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -604,9 +510,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:91"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:91"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -623,9 +527,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:98"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -642,9 +544,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:98"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -661,9 +561,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:98"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -680,9 +578,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:98"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:98"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -701,9 +597,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:112"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:112"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -720,9 +614,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:121"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:121"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -739,9 +631,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:128"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:128"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -758,9 +648,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:135"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:135"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -778,9 +666,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:142"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:142"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -798,9 +684,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:150"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:150"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -817,9 +701,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-special-moves.feature:158"
-        ],
+        "source": ["specs/chess-board/board-special-moves.feature:158"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

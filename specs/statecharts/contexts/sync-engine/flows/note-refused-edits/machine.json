@@ -18,22 +18,16 @@
         "description": "The person is at the place where refused edits.",
         "snapshot": "the-person-is-at-the-place-where-refused-edits",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-refused-edits.feature:2"
-        ]
+        "source": ["specs/sync-engine/note-refused-edits.feature:2"]
       },
       "on": {
         "Bob's app comes back online when Alice and Bob are in the shared space 'Trip' and Bob has written the note 'Groceries' saying 'milk' and Bob's app is offline and Bob has deleted the note 'Groceries' and Alice has written the note 'Groceries' saying 'eggs'": {
           "target": "Bob sees the note \"Groceries\" saying \"eggs\" — 1",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-refused-edits.feature:10"
-            ],
+            "source": ["specs/sync-engine/note-refused-edits.feature:10"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has written the note \"Groceries\" saying \"milk\"",
@@ -47,9 +41,7 @@
         "Bob acknowledges the notice about the note 'Groceries'": {
           "target": "Bob has no notices — 3",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-refused-edits.feature:31"
-            ],
+            "source": ["specs/sync-engine/note-refused-edits.feature:31"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has been refused deleting the note \"Groceries\""
@@ -60,9 +52,7 @@
         "Bob's app updates to a version that fetches every note again": {
           "target": "Bob has a notice that deleting the note \"Groceries\" was refused — 4",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-refused-edits.feature:40"
-            ],
+            "source": ["specs/sync-engine/note-refused-edits.feature:40"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has been refused deleting the note \"Groceries\""
@@ -73,9 +63,7 @@
         "Bob's app has its data cleared": {
           "target": "Bob has a notice that deleting the note \"Groceries\" was refused — 5",
           "meta": {
-            "source": [
-              "specs/sync-engine/note-refused-edits.feature:40"
-            ],
+            "source": ["specs/sync-engine/note-refused-edits.feature:40"],
             "condition": [
               "Alice and Bob are in the shared space \"Trip\"",
               "Bob has been refused deleting the note \"Groceries\""
@@ -111,14 +99,10 @@
         "description": "The person observes that bob has no notices.",
         "snapshot": "the-person-observes-that-bob-has-no-notices",
         "recognize": [],
-        "checks": [
-          "Bob has no notices"
-        ],
+        "checks": ["Bob has no notices"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-refused-edits.feature:31"
-        ],
+        "source": ["specs/sync-engine/note-refused-edits.feature:31"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -133,9 +117,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-refused-edits.feature:40"
-        ],
+        "source": ["specs/sync-engine/note-refused-edits.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -150,9 +132,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/sync-engine/note-refused-edits.feature:40"
-        ],
+        "source": ["specs/sync-engine/note-refused-edits.feature:40"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

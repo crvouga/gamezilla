@@ -18,22 +18,16 @@
         "description": "The person is at the place where sign out everywhere.",
         "snapshot": "the-person-is-at-the-place-where-sign-out-everywhere",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:2"
-        ]
+        "source": ["specs/profile/sessions.feature:2"]
       },
       "on": {
         "Alice signs out everywhere": {
           "target": "Alice is signed out — 1",
           "meta": {
-            "source": [
-              "specs/profile/sessions.feature:9"
-            ],
+            "source": ["specs/profile/sessions.feature:9"],
             "condition": [
               "Alice is signed in with Google",
               "Alice is also signed in on another device"
@@ -44,21 +38,15 @@
         "Alice stops using Sign in with Apple for the app": {
           "target": "Alice is signed out within 150 seconds — 2",
           "meta": {
-            "source": [
-              "specs/profile/sessions.feature:16"
-            ],
-            "condition": [
-              "Alice is signed in with Apple"
-            ],
+            "source": ["specs/profile/sessions.feature:16"],
+            "condition": ["Alice is signed in with Apple"],
             "example": "Stopping Sign in with Apple for the app signs Alice out"
           }
         },
         "Alice signs in with Apple": {
           "target": "Alice is signed into the same account — 3",
           "meta": {
-            "source": [
-              "specs/profile/sessions.feature:21"
-            ],
+            "source": ["specs/profile/sessions.feature:21"],
             "condition": [
               "Alice has stopped using Sign in with Apple for the app"
             ],
@@ -68,24 +56,16 @@
         "Alice deletes their Apple account when Alice is signed in with Apple": {
           "target": "Alice is signed out within 150 seconds — 4",
           "meta": {
-            "source": [
-              "specs/profile/sessions.feature:26"
-            ],
-            "condition": [
-              "Alice is signed in with Apple"
-            ],
+            "source": ["specs/profile/sessions.feature:26"],
+            "condition": ["Alice is signed in with Apple"],
             "example": "Deleting the Apple account that is Alice's only sign-in method signs Alice out"
           }
         },
         "Alice deletes their Apple account when Alice has connected Apple to their account": {
           "target": "Alice is still signed into the same account — 5",
           "meta": {
-            "source": [
-              "specs/profile/sessions.feature:32"
-            ],
-            "condition": [
-              "Alice has connected Apple to their account"
-            ],
+            "source": ["specs/profile/sessions.feature:32"],
+            "condition": ["Alice has connected Apple to their account"],
             "example": "Deleting a connected Apple account makes Google the only sign-in method"
           }
         }
@@ -102,9 +82,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:9"
-        ],
+        "source": ["specs/profile/sessions.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -114,14 +92,10 @@
         "description": "The person observes that alice is signed out within 150 seconds.",
         "snapshot": "the-person-observes-that-alice-is-signed-out-within-150-seconds",
         "recognize": [],
-        "checks": [
-          "Alice is signed out within 150 seconds"
-        ],
+        "checks": ["Alice is signed out within 150 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:16"
-        ],
+        "source": ["specs/profile/sessions.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -131,14 +105,10 @@
         "description": "The person observes that alice is signed into the same account.",
         "snapshot": "the-person-observes-that-alice-is-signed-into-the-same-account",
         "recognize": [],
-        "checks": [
-          "Alice is signed into the same account"
-        ],
+        "checks": ["Alice is signed into the same account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:21"
-        ],
+        "source": ["specs/profile/sessions.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,14 +118,10 @@
         "description": "The person observes that alice is signed out within 150 seconds.",
         "snapshot": "the-person-observes-that-alice-is-signed-out-within-150-seconds",
         "recognize": [],
-        "checks": [
-          "Alice is signed out within 150 seconds"
-        ],
+        "checks": ["Alice is signed out within 150 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:26"
-        ],
+        "source": ["specs/profile/sessions.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -171,9 +137,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sessions.feature:32"
-        ],
+        "source": ["specs/profile/sessions.feature:32"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

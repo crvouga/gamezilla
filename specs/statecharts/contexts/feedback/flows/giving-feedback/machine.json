@@ -24,34 +24,24 @@
         "description": "The person is at the place where write feedback freely.",
         "snapshot": "the-person-is-at-the-place-where-write-feedback-freely",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:2"
-        ]
+        "source": ["specs/feedback/giving-feedback.feature:2"]
       },
       "on": {
         "the team submits feedback titled 'Board movement' saying '# Movement\\n\\n- Pieces feel slow\\n- Keep the last move visible'": {
           "target": "the team can read the local feedback — 1",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:8"
-            ],
-            "condition": [
-              "the team's app is working"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:8"],
+            "condition": ["the team's app is working"],
             "example": "Free-form feedback keeps the author's writing"
           }
         },
         "the team sends the feedback": {
           "target": "the team is told to write something before sending feedback — 2",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:14"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:14"],
             "condition": [
               "the team has a draft titled \"Board movement\" saying \"   \""
             ],
@@ -61,21 +51,15 @@
         "the team chooses the bug template": {
           "target": "the draft offers prompts for what happened, what was expected and reproduction steps — 3",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:23"
-            ],
-            "condition": [
-              "the team's app is working"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:23"],
+            "condition": ["the team's app is working"],
             "example": "A bug template offers a starting point"
           }
         },
         "the team chooses the polish template": {
           "target": "the draft includes \"Keep this observation\" — 4",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:28"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:28"],
             "condition": [
               "the team has a draft titled \"Board movement\" saying \"Keep this observation\""
             ],
@@ -85,9 +69,7 @@
         "the team makes 'Movement' a heading": {
           "target": "the draft shows \"Movement\" as a heading while writing — 5",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:37"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:37"],
             "condition": [
               "the team has a draft titled \"Board movement\" saying \"Movement\""
             ],
@@ -97,33 +79,23 @@
         "the team writes feedback saying '/pol'": {
           "target": "the team is offered the polish template — 6",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:44"
-            ],
-            "condition": [
-              "the team's app is working"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:44"],
+            "condition": ["the team's app is working"],
             "example": "A partial command offers the polish template"
           }
         },
         "the team writes feedback saying '/board'": {
           "target": "the team is not offered a template because no template matches — 7",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:49"
-            ],
-            "condition": [
-              "the team's app is working"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:49"],
+            "condition": ["the team's app is working"],
             "example": "An unknown command stays in the author's writing"
           }
         },
         "the team chooses the suggested bug template": {
           "target": "the draft includes \"Keep this observation\" — 8",
           "meta": {
-            "source": [
-              "specs/feedback/giving-feedback.feature:58"
-            ],
+            "source": ["specs/feedback/giving-feedback.feature:58"],
             "condition": [
               "the team has a draft titled \"Board movement\" saying \"Keep this observation /bug\""
             ],
@@ -143,9 +115,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:8"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -161,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:14"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -178,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:23"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -196,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:28"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -208,14 +172,10 @@
         "description": "The person observes that the draft shows \"Movement\" as a heading while writing.",
         "snapshot": "the-person-observes-that-the-draft-shows-movement-as-a-heading-while-writing",
         "recognize": [],
-        "checks": [
-          "the draft shows \"Movement\" as a heading while writing"
-        ],
+        "checks": ["the draft shows \"Movement\" as a heading while writing"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:37"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -225,14 +185,10 @@
         "description": "The person observes that the team is offered the polish template.",
         "snapshot": "the-person-observes-that-the-team-is-offered-the-polish-template",
         "recognize": [],
-        "checks": [
-          "the team is offered the polish template"
-        ],
+        "checks": ["the team is offered the polish template"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:44"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -248,9 +204,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:49"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -266,9 +220,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/feedback/giving-feedback.feature:58"
-        ],
+        "source": ["specs/feedback/giving-feedback.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

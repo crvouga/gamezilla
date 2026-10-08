@@ -23,58 +23,40 @@
         "description": "The person is at the place where when Google or Apple is having trouble.",
         "snapshot": "the-person-is-at-the-place-where-when-google-or-apple-is-having-trouble",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:2"
-        ]
+        "source": ["specs/auth/provider-trouble.feature:2"]
       },
       "on": {
         "Alice tries to sign in with Google": {
           "target": "Alice is told signing in with Google failed — 1",
           "meta": {
-            "source": [
-              "specs/auth/provider-trouble.feature:9"
-            ],
-            "condition": [
-              "Google is having trouble"
-            ],
+            "source": ["specs/auth/provider-trouble.feature:9"],
+            "condition": ["Google is having trouble"],
             "example": "Signing in while Google is having trouble keeps Alice signed out"
           }
         },
         "Dave tries to sign in with Apple": {
           "target": "Dave is told signing in with Apple failed — 2",
           "meta": {
-            "source": [
-              "specs/auth/provider-trouble.feature:15"
-            ],
-            "condition": [
-              "Apple is having trouble"
-            ],
+            "source": ["specs/auth/provider-trouble.feature:15"],
+            "condition": ["Apple is having trouble"],
             "example": "Signing in while Apple is having trouble keeps Dave signed out"
           }
         },
         "Alice signs in with their Apple account": {
           "target": "Alice is signed into a new account — 3",
           "meta": {
-            "source": [
-              "specs/auth/provider-trouble.feature:21"
-            ],
-            "condition": [
-              "Google is having trouble"
-            ],
+            "source": ["specs/auth/provider-trouble.feature:21"],
+            "condition": ["Google is having trouble"],
             "example": "Trouble at Google does not stop Alice signing in with Apple"
           }
         },
         "Alice signs in with their Google account": {
           "target": "Alice is signed into a new account — 4",
           "meta": {
-            "source": [
-              "specs/auth/provider-trouble.feature:29"
-            ],
+            "source": ["specs/auth/provider-trouble.feature:29"],
             "condition": [
               "Alice tried to sign in with Google while it was having trouble",
               "Google has recovered"
@@ -85,9 +67,7 @@
         "Dave signs in with their Apple account": {
           "target": "Dave is signed into a new account — 5",
           "meta": {
-            "source": [
-              "specs/auth/provider-trouble.feature:35"
-            ],
+            "source": ["specs/auth/provider-trouble.feature:35"],
             "condition": [
               "Dave tried to sign in with Apple while it was having trouble",
               "Apple has recovered"
@@ -108,9 +88,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:9"
-        ],
+        "source": ["specs/auth/provider-trouble.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -126,9 +104,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:15"
-        ],
+        "source": ["specs/auth/provider-trouble.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -138,14 +114,10 @@
         "description": "The person observes that alice is signed into a new account.",
         "snapshot": "the-person-observes-that-alice-is-signed-into-a-new-account",
         "recognize": [],
-        "checks": [
-          "Alice is signed into a new account"
-        ],
+        "checks": ["Alice is signed into a new account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:21"
-        ],
+        "source": ["specs/auth/provider-trouble.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -155,14 +127,10 @@
         "description": "The person observes that alice is signed into a new account.",
         "snapshot": "the-person-observes-that-alice-is-signed-into-a-new-account",
         "recognize": [],
-        "checks": [
-          "Alice is signed into a new account"
-        ],
+        "checks": ["Alice is signed into a new account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:29"
-        ],
+        "source": ["specs/auth/provider-trouble.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -172,14 +140,10 @@
         "description": "The person observes that dave is signed into a new account.",
         "snapshot": "the-person-observes-that-dave-is-signed-into-a-new-account",
         "recognize": [],
-        "checks": [
-          "Dave is signed into a new account"
-        ],
+        "checks": ["Dave is signed into a new account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/auth/provider-trouble.feature:35"
-        ],
+        "source": ["specs/auth/provider-trouble.feature:35"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

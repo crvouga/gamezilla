@@ -24,22 +24,16 @@
         "description": "The person is at the place where claim and release an open place.",
         "snapshot": "the-person-is-at-the-place-where-claim-and-release-an-open-place",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-open-places.feature:2"]
       },
       "on": {
         "Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob is in Alice's space": {
           "target": "Black is Bob in the Custom Game — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:7"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob is in Alice's space"
@@ -50,9 +44,7 @@
         "Carol claims Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Carol is in Alice's space": {
           "target": "Carol is told that side is not an open place — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:13"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:13"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Carol is in Alice's space"
@@ -63,9 +55,7 @@
         "Bob releases Black in the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black": {
           "target": "Black is an open place in the Custom Game — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:21"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:21"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -75,9 +65,7 @@
         "Alice releases Black in the Custom Game": {
           "target": "Alice is told only that participant may release the side — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:26"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:26"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black"
             ],
@@ -87,9 +75,7 @@
         "Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Bob has released Black in the Custom Game": {
           "target": "Black is Bob in the Custom Game — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:33"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:33"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob has released Black in the Custom Game"
@@ -100,9 +86,7 @@
         "Bob releases Black in the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Bob is told the Custom Game has already started — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:39"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:39"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -112,9 +96,7 @@
         "Carol claims Black in the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black and Carol is in Alice's space": {
           "target": "Carol is told the Custom Game has finished — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:44"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:44"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black",
               "Carol is in Alice's space"
@@ -125,9 +107,7 @@
         "Bob claims Black in the Custom Game when Alice has a cancelled Custom Game and Bob is in Alice's space": {
           "target": "Bob is told the Custom Game was cancelled — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:50"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:50"],
             "condition": [
               "Alice has a cancelled Custom Game",
               "Bob is in Alice's space"
@@ -138,9 +118,7 @@
         "Bob and Carol claim Black at the same time": {
           "target": "Black is either Bob or Carol in the Custom Game — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:58"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:58"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Bob and Carol are in Alice's space"
@@ -151,9 +129,7 @@
         "Bob claims Black in the Custom Game when Alice has a configuring Custom Game and Black has since been replaced by a bot": {
           "target": "Bob is told that side is not an open place — 10",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-open-places.feature:65"
-            ],
+            "source": ["specs/chess/custom-game-open-places.feature:65"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black has since been replaced by a bot"
@@ -168,14 +144,10 @@
         "description": "The person observes that black is Bob in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-bob-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is Bob in the Custom Game"
-        ],
+        "checks": ["Black is Bob in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -185,14 +157,10 @@
         "description": "The person observes that carol is told that side is not an open place.",
         "snapshot": "the-person-observes-that-carol-is-told-that-side-is-not-an-open-place",
         "recognize": [],
-        "checks": [
-          "Carol is told that side is not an open place"
-        ],
+        "checks": ["Carol is told that side is not an open place"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:13"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -202,14 +170,10 @@
         "description": "The person observes that black is an open place in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-an-open-place-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is an open place in the Custom Game"
-        ],
+        "checks": ["Black is an open place in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:21"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -219,14 +183,10 @@
         "description": "The person observes that alice is told only that participant may release the side.",
         "snapshot": "the-person-observes-that-alice-is-told-only-that-participant-may-release-the-side",
         "recognize": [],
-        "checks": [
-          "Alice is told only that participant may release the side"
-        ],
+        "checks": ["Alice is told only that participant may release the side"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:26"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:26"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -236,14 +196,10 @@
         "description": "The person observes that black is Bob in the Custom Game.",
         "snapshot": "the-person-observes-that-black-is-bob-in-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Black is Bob in the Custom Game"
-        ],
+        "checks": ["Black is Bob in the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:33"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -253,14 +209,10 @@
         "description": "The person observes that bob is told the Custom Game has already started.",
         "snapshot": "the-person-observes-that-bob-is-told-the-custom-game-has-already-started",
         "recognize": [],
-        "checks": [
-          "Bob is told the Custom Game has already started"
-        ],
+        "checks": ["Bob is told the Custom Game has already started"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:39"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:39"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -270,14 +222,10 @@
         "description": "The person observes that carol is told the Custom Game has finished.",
         "snapshot": "the-person-observes-that-carol-is-told-the-custom-game-has-finished",
         "recognize": [],
-        "checks": [
-          "Carol is told the Custom Game has finished"
-        ],
+        "checks": ["Carol is told the Custom Game has finished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:44"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -287,14 +235,10 @@
         "description": "The person observes that bob is told the Custom Game was cancelled.",
         "snapshot": "the-person-observes-that-bob-is-told-the-custom-game-was-cancelled",
         "recognize": [],
-        "checks": [
-          "Bob is told the Custom Game was cancelled"
-        ],
+        "checks": ["Bob is told the Custom Game was cancelled"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:50"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -310,9 +254,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:58"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:58"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -322,14 +264,10 @@
         "description": "The person observes that bob is told that side is not an open place.",
         "snapshot": "the-person-observes-that-bob-is-told-that-side-is-not-an-open-place",
         "recognize": [],
-        "checks": [
-          "Bob is told that side is not an open place"
-        ],
+        "checks": ["Bob is told that side is not an open place"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-open-places.feature:65"
-        ],
+        "source": ["specs/chess/custom-game-open-places.feature:65"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

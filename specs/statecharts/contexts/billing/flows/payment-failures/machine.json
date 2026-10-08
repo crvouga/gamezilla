@@ -18,34 +18,24 @@
         "description": "The person is at the place where failed payments.",
         "snapshot": "the-person-is-at-the-place-where-failed-payments",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-failures.feature:2"
-        ]
+        "source": ["specs/billing/payment-failures.feature:2"]
       },
       "on": {
         "Alice's payment fails": {
           "target": "Alice's membership is delinquent — 1",
           "meta": {
-            "source": [
-              "specs/billing/payment-failures.feature:14"
-            ],
-            "condition": [
-              "Alice has subscribed to Plus"
-            ],
+            "source": ["specs/billing/payment-failures.feature:14"],
+            "condition": ["Alice has subscribed to Plus"],
             "example": "A failed payment is delinquent but stays paid inside grace"
           }
         },
         "Alice's payment recovers": {
           "target": "Alice's membership is active — 2",
           "meta": {
-            "source": [
-              "specs/billing/payment-failures.feature:19"
-            ],
+            "source": ["specs/billing/payment-failures.feature:19"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's payment has failed"
@@ -56,9 +46,7 @@
         "the payment provider gives up on Alice's payment": {
           "target": "Alice's membership has ended — 3",
           "meta": {
-            "source": [
-              "specs/billing/payment-failures.feature:25"
-            ],
+            "source": ["specs/billing/payment-failures.feature:25"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's payment has failed"
@@ -73,15 +61,10 @@
         "description": "The person observes that alice's membership is delinquent.",
         "snapshot": "the-person-observes-that-alice-s-membership-is-delinquent",
         "recognize": [],
-        "checks": [
-          "Alice's membership is delinquent",
-          "Alice has paid access"
-        ],
+        "checks": ["Alice's membership is delinquent", "Alice has paid access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-failures.feature:14"
-        ],
+        "source": ["specs/billing/payment-failures.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -91,15 +74,10 @@
         "description": "The person observes that alice's membership is active.",
         "snapshot": "the-person-observes-that-alice-s-membership-is-active",
         "recognize": [],
-        "checks": [
-          "Alice's membership is active",
-          "Alice has paid access"
-        ],
+        "checks": ["Alice's membership is active", "Alice has paid access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-failures.feature:19"
-        ],
+        "source": ["specs/billing/payment-failures.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -109,14 +87,10 @@
         "description": "The person observes that alice's membership has ended.",
         "snapshot": "the-person-observes-that-alice-s-membership-has-ended",
         "recognize": [],
-        "checks": [
-          "Alice's membership has ended"
-        ],
+        "checks": ["Alice's membership has ended"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/payment-failures.feature:25"
-        ],
+        "source": ["specs/billing/payment-failures.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

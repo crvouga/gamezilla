@@ -24,22 +24,16 @@
         "description": "The person is at the place where customizing the feed is for people with an account.",
         "snapshot": "the-person-is-at-the-place-where-customizing-the-feed-is-for-people-with-an-account",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-gates.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-feed-gates.feature:2"]
       },
       "on": {
         "Alice starts editing the feed settings": {
           "target": "Alice cannot customize the feed without an account — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-gates.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-feed-gates.feature:10"],
             "condition": [
               "Alice is a guest",
               "Alice is playing puzzles in their space"
@@ -50,13 +44,8 @@
         "Alice opens puzzles in their space": {
           "target": "Alice's feed targets 1500 automatically — 2",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-feed-gates.feature:16"
-            ],
-            "condition": [
-              "Alice is a guest",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/chess/puzzle-feed-gates.feature:16"],
+            "condition": ["Alice is a guest", "Alice is hosting a space"],
             "example": "A guest's feed still serves puzzles at the seed rating"
           }
         }
@@ -67,14 +56,10 @@
         "description": "The person observes that alice cannot customize the feed without an account.",
         "snapshot": "the-person-observes-that-alice-cannot-customize-the-feed-without-an-account",
         "recognize": [],
-        "checks": [
-          "Alice cannot customize the feed without an account"
-        ],
+        "checks": ["Alice cannot customize the feed without an account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-gates.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-feed-gates.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -90,9 +75,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-feed-gates.feature:16"
-        ],
+        "source": ["specs/chess/puzzle-feed-gates.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

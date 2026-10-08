@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "codeCandidates": [
-      "libs/billing-client/src/billing-plan-card.tsx"
-    ],
+    "codeCandidates": ["libs/billing-client/src/billing-plan-card.tsx"],
     "scope": "Observable example branches; continuous navigation is in the context’s primary flows and lifecycle projections."
   },
   "states": {
@@ -20,22 +18,16 @@
         "description": "The person is at the place where an expired card.",
         "snapshot": "the-person-is-at-the-place-where-an-expired-card",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/expired-card.feature:2"
-        ]
+        "source": ["specs/billing/expired-card.feature:2"]
       },
       "on": {
         "Alice's billing period ends": {
           "target": "Alice's membership is delinquent — 1",
           "meta": {
-            "source": [
-              "specs/billing/expired-card.feature:14"
-            ],
+            "source": ["specs/billing/expired-card.feature:14"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's free trial has ended",
@@ -47,9 +39,7 @@
         "Alice pays with a new card in the billing portal": {
           "target": "Alice's membership is active — 2",
           "meta": {
-            "source": [
-              "specs/billing/expired-card.feature:19"
-            ],
+            "source": ["specs/billing/expired-card.feature:19"],
             "condition": [
               "Alice has subscribed to Plus",
               "Alice's free trial has ended",
@@ -66,15 +56,10 @@
         "description": "The person observes that alice's membership is delinquent.",
         "snapshot": "the-person-observes-that-alice-s-membership-is-delinquent",
         "recognize": [],
-        "checks": [
-          "Alice's membership is delinquent",
-          "Alice has paid access"
-        ],
+        "checks": ["Alice's membership is delinquent", "Alice has paid access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/expired-card.feature:14"
-        ],
+        "source": ["specs/billing/expired-card.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -84,15 +69,10 @@
         "description": "The person observes that alice's membership is active.",
         "snapshot": "the-person-observes-that-alice-s-membership-is-active",
         "recognize": [],
-        "checks": [
-          "Alice's membership is active",
-          "Alice has paid access"
-        ],
+        "checks": ["Alice's membership is active", "Alice has paid access"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/billing/expired-card.feature:19"
-        ],
+        "source": ["specs/billing/expired-card.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,22 +24,16 @@
         "description": "The person is at the place where play the same multiplayer board together.",
         "snapshot": "the-person-is-at-the-place-where-play-the-same-multiplayer-board-together",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:2"
-        ]
+        "source": ["specs/chess/play-multiplayer-chess.feature:2"]
       },
       "on": {
         "Alice plays e2 to e4 as a multiplayer move when Alice is White and Bob is Black in a new multiplayer game": {
           "target": "both multiplayer boards show the white pawn on e4 — 1",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:9"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:9"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -49,9 +43,7 @@
         "Bob plays e7 to e5 as a multiplayer move": {
           "target": "Bob is told it is not his multiplayer turn — 2",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:15"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:15"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -61,9 +53,7 @@
         "Alice plays e2 to e5 as a multiplayer move": {
           "target": "Alice is told that multiplayer move is illegal — 3",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:21"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:21"],
             "condition": [
               "Alice is White and Bob is Black in a new multiplayer game"
             ],
@@ -73,21 +63,15 @@
         "Alice repeats that multiplayer move": {
           "target": "both multiplayer boards show one move — 4",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:30"
-            ],
-            "condition": [
-              "Alice's multiplayer move e2 to e4 was accepted"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:30"],
+            "condition": ["Alice's multiplayer move e2 to e4 was accepted"],
             "example": "Repeating an accepted move keeps its one effect"
           }
         },
         "Alice plays d2 to d4 for her earlier multiplayer position": {
           "target": "Alice is told her multiplayer board has changed — 5",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:36"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:36"],
             "condition": [
               "Alice's multiplayer move e2 to e4 was accepted",
               "Bob's multiplayer move e7 to e5 was accepted"
@@ -98,9 +82,7 @@
         "Bob resigns multiplayer chess": {
           "target": "both people see Alice won the multiplayer game — 6",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:45"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:45"],
             "condition": [
               "Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5"
             ],
@@ -110,21 +92,15 @@
         "Bob resigns multiplayer chess again": {
           "target": "both people still see Alice won the multiplayer game — 7",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:50"
-            ],
-            "condition": [
-              "Bob resigned multiplayer chess and Alice won"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:50"],
+            "condition": ["Bob resigned multiplayer chess and Alice won"],
             "example": "Resigning again keeps the accepted multiplayer result"
           }
         },
         "Bob plays d8 to h4 as a multiplayer move": {
           "target": "both people see Bob won the multiplayer game by checkmate — 8",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:57"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:57"],
             "condition": [
               "Alice is White and Bob is Black after multiplayer moves f3, e5, g4"
             ],
@@ -134,21 +110,15 @@
         "Alice plays e2 to e4 as a multiplayer move when Bob resigned multiplayer chess and Alice won": {
           "target": "Alice is told the multiplayer game is over — 9",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:62"
-            ],
-            "condition": [
-              "Bob resigned multiplayer chess and Alice won"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:62"],
+            "condition": ["Bob resigned multiplayer chess and Alice won"],
             "example": "A move after resigning multiplayer chess is refused"
           }
         },
         "Alice plays g1 to f3 as a multiplayer move": {
           "target": "both people see the multiplayer move list \"1  e4 e5 2  Nf3\" — 10",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:70"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:70"],
             "condition": [
               "Alice's multiplayer move e2 to e4 was accepted",
               "Bob's multiplayer move e7 to e5 was accepted"
@@ -159,21 +129,15 @@
         "Bob plays e7 to e4 as a multiplayer move": {
           "target": "Bob is told that multiplayer move is illegal — 11",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:76"
-            ],
-            "condition": [
-              "Alice's multiplayer move e2 to e4 was accepted"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:76"],
+            "condition": ["Alice's multiplayer move e2 to e4 was accepted"],
             "example": "An illegal move never joins the multiplayer move list"
           }
         },
         "Alice opens multiplayer chess on another device": {
           "target": "Alice sees she won the multiplayer game — 12",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:82"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:82"],
             "condition": [
               "Bob resigned multiplayer chess after the multiplayer moves e4 and e5"
             ],
@@ -183,9 +147,7 @@
         "the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from stalemate": {
           "target": "both people see the multiplayer game is drawn by stalemate — 13",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:90"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:90"],
             "condition": [
               "Alice and Bob have a multiplayer position one move from stalemate"
             ],
@@ -195,9 +157,7 @@
         "the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from its third appearance": {
           "target": "both people see the multiplayer game is drawn by repetition — 14",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:95"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:95"],
             "condition": [
               "Alice and Bob have a multiplayer position one move from its third appearance"
             ],
@@ -207,9 +167,7 @@
         "the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from its second appearance": {
           "target": "the multiplayer game is still unfinished — 15",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:100"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:100"],
             "condition": [
               "Alice and Bob have a multiplayer position one move from its second appearance"
             ],
@@ -219,9 +177,7 @@
         "the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from insufficient mating material": {
           "target": "both people see the multiplayer game is drawn by insufficient mating material — 16",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:105"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:105"],
             "condition": [
               "Alice and Bob have a multiplayer position one move from insufficient mating material"
             ],
@@ -231,9 +187,7 @@
         "the person whose turn it is plays that multiplayer move when Alice and Bob have a multiplayer position one move from fifty moves without a pawn move or capture": {
           "target": "both people see the multiplayer game is drawn by fifty moves — 17",
           "meta": {
-            "source": [
-              "specs/chess/play-multiplayer-chess.feature:110"
-            ],
+            "source": ["specs/chess/play-multiplayer-chess.feature:110"],
             "condition": [
               "Alice and Bob have a multiplayer position one move from fifty moves without a pawn move or capture"
             ],
@@ -253,9 +207,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:9"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -271,9 +223,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:15"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -290,9 +240,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:21"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -308,9 +256,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:30"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -326,9 +272,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:36"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -338,14 +282,10 @@
         "description": "The person observes that both people see Alice won the multiplayer game.",
         "snapshot": "the-person-observes-that-both-people-see-alice-won-the-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "both people see Alice won the multiplayer game"
-        ],
+        "checks": ["both people see Alice won the multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:45"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -355,14 +295,10 @@
         "description": "The person observes that both people still see Alice won the multiplayer game.",
         "snapshot": "the-person-observes-that-both-people-still-see-alice-won-the-multiplayer-game",
         "recognize": [],
-        "checks": [
-          "both people still see Alice won the multiplayer game"
-        ],
+        "checks": ["both people still see Alice won the multiplayer game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:50"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -372,14 +308,10 @@
         "description": "The person observes that both people see Bob won the multiplayer game by checkmate.",
         "snapshot": "the-person-observes-that-both-people-see-bob-won-the-multiplayer-game-by-checkmate",
         "recognize": [],
-        "checks": [
-          "both people see Bob won the multiplayer game by checkmate"
-        ],
+        "checks": ["both people see Bob won the multiplayer game by checkmate"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:57"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -395,9 +327,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:62"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:62"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -412,9 +342,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:70"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:70"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -430,9 +358,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:76"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:76"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -448,9 +374,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:82"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:82"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -465,9 +389,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:90"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:90"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -482,9 +404,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:95"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:95"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -494,14 +414,10 @@
         "description": "The person observes that the multiplayer game is still unfinished.",
         "snapshot": "the-person-observes-that-the-multiplayer-game-is-still-unfinished",
         "recognize": [],
-        "checks": [
-          "the multiplayer game is still unfinished"
-        ],
+        "checks": ["the multiplayer game is still unfinished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:100"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:100"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -516,9 +432,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:105"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:105"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -533,9 +447,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/play-multiplayer-chess.feature:110"
-        ],
+        "source": ["specs/chess/play-multiplayer-chess.feature:110"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

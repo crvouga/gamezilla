@@ -24,22 +24,16 @@
         "description": "The person is at the place where become ready and start.",
         "snapshot": "the-person-is-at-the-place-where-become-ready-and-start",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-readiness.feature:2"]
       },
       "on": {
         "Bob becomes ready for the Custom Game": {
           "target": "The Custom Game is startable — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:7"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:7"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice is ready for the Custom Game"
@@ -50,9 +44,7 @@
         "Carol becomes ready for the Custom Game": {
           "target": "Carol is told only a participant may become ready — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:13"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:13"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Carol is in Alice's space"
@@ -63,9 +55,7 @@
         "Alice chooses 5 minutes with 2 seconds increment for the Custom Game": {
           "target": "Neither person is ready for the Custom Game — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:21"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:21"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game"
@@ -76,9 +66,7 @@
         "Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game and Bob is no longer ready for the Custom Game": {
           "target": "Alice is told every person must be ready — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:28"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:28"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game",
@@ -90,9 +78,7 @@
         "Alice starts the Custom Game when Alice has a Custom Game between Alice as White and Bob as Black and Alice and Bob are ready for the Custom Game": {
           "target": "The Custom Game is active with White to move — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:37"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:37"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game"
@@ -103,9 +89,7 @@
         "Alice starts the Custom Game when Alice has a configuring Custom Game and Alice is ready for the Custom Game": {
           "target": "Alice is told both sides need participants — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:43"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:43"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Alice is ready for the Custom Game"
@@ -116,9 +100,7 @@
         "Alice starts the Custom Game when Alice has a configuring Custom Game and Black in the Custom Game is reserved for Bob and Alice is ready for the Custom Game": {
           "target": "Alice is told both sides need participants — 7",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:49"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:49"],
             "condition": [
               "Alice has a configuring Custom Game",
               "Black in the Custom Game is reserved for Bob",
@@ -130,9 +112,7 @@
         "Bob starts the Custom Game": {
           "target": "Bob is told only the creator starts the Custom Game — 8",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:56"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:56"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game"
@@ -143,9 +123,7 @@
         "Alice starts the Custom Game when Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "The Custom Game remains active with no new game — 9",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:64"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:64"],
             "condition": [
               "Alice has an active Custom Game between Alice as White and Bob as Black"
             ],
@@ -155,9 +133,7 @@
         "Alice starts the Custom Game when Alice has a completed Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told the Custom Game has finished — 10",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:69"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:69"],
             "condition": [
               "Alice has a completed Custom Game between Alice as White and Bob as Black"
             ],
@@ -167,21 +143,15 @@
         "Alice starts the Custom Game when Alice has a cancelled Custom Game": {
           "target": "Alice is told the Custom Game was cancelled — 11",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:74"
-            ],
-            "condition": [
-              "Alice has a cancelled Custom Game"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:74"],
+            "condition": ["Alice has a cancelled Custom Game"],
             "example": "A cancelled game cannot restart"
           }
         },
         "Alice starts the Custom Game twice at the same time": {
           "target": "The Custom Game remains active with no new game — 12",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:81"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:81"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game"
@@ -192,9 +162,7 @@
         "Alice starts the Custom Game with the earlier choices": {
           "target": "Alice is told the Custom Game choices have changed — 13",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-readiness.feature:87"
-            ],
+            "source": ["specs/chess/custom-game-readiness.feature:87"],
             "condition": [
               "Alice has a Custom Game between Alice as White and Bob as Black",
               "Alice and Bob are ready for the Custom Game",
@@ -210,14 +178,10 @@
         "description": "The person observes that the Custom Game is startable.",
         "snapshot": "the-person-observes-that-the-custom-game-is-startable",
         "recognize": [],
-        "checks": [
-          "The Custom Game is startable"
-        ],
+        "checks": ["The Custom Game is startable"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -227,14 +191,10 @@
         "description": "The person observes that carol is told only a participant may become ready.",
         "snapshot": "the-person-observes-that-carol-is-told-only-a-participant-may-become-ready",
         "recognize": [],
-        "checks": [
-          "Carol is told only a participant may become ready"
-        ],
+        "checks": ["Carol is told only a participant may become ready"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:13"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -250,9 +210,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:21"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -262,14 +220,10 @@
         "description": "The person observes that alice is told every person must be ready.",
         "snapshot": "the-person-observes-that-alice-is-told-every-person-must-be-ready",
         "recognize": [],
-        "checks": [
-          "Alice is told every person must be ready"
-        ],
+        "checks": ["Alice is told every person must be ready"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:28"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -279,14 +233,10 @@
         "description": "The person observes that the Custom Game is active with White to move.",
         "snapshot": "the-person-observes-that-the-custom-game-is-active-with-white-to-move",
         "recognize": [],
-        "checks": [
-          "The Custom Game is active with White to move"
-        ],
+        "checks": ["The Custom Game is active with White to move"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:37"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:37"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -296,14 +246,10 @@
         "description": "The person observes that alice is told both sides need participants.",
         "snapshot": "the-person-observes-that-alice-is-told-both-sides-need-participants",
         "recognize": [],
-        "checks": [
-          "Alice is told both sides need participants"
-        ],
+        "checks": ["Alice is told both sides need participants"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:43"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:43"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -313,14 +259,10 @@
         "description": "The person observes that alice is told both sides need participants.",
         "snapshot": "the-person-observes-that-alice-is-told-both-sides-need-participants",
         "recognize": [],
-        "checks": [
-          "Alice is told both sides need participants"
-        ],
+        "checks": ["Alice is told both sides need participants"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:49"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:49"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -330,14 +272,10 @@
         "description": "The person observes that bob is told only the creator starts the Custom Game.",
         "snapshot": "the-person-observes-that-bob-is-told-only-the-creator-starts-the-custom-game",
         "recognize": [],
-        "checks": [
-          "Bob is told only the creator starts the Custom Game"
-        ],
+        "checks": ["Bob is told only the creator starts the Custom Game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:56"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:56"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -347,14 +285,10 @@
         "description": "The person observes that the Custom Game remains active with no new game.",
         "snapshot": "the-person-observes-that-the-custom-game-remains-active-with-no-new-game",
         "recognize": [],
-        "checks": [
-          "The Custom Game remains active with no new game"
-        ],
+        "checks": ["The Custom Game remains active with no new game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:64"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:64"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -364,14 +298,10 @@
         "description": "The person observes that alice is told the Custom Game has finished.",
         "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-has-finished",
         "recognize": [],
-        "checks": [
-          "Alice is told the Custom Game has finished"
-        ],
+        "checks": ["Alice is told the Custom Game has finished"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:69"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:69"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -381,14 +311,10 @@
         "description": "The person observes that alice is told the Custom Game was cancelled.",
         "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-was-cancelled",
         "recognize": [],
-        "checks": [
-          "Alice is told the Custom Game was cancelled"
-        ],
+        "checks": ["Alice is told the Custom Game was cancelled"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:74"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:74"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -398,14 +324,10 @@
         "description": "The person observes that the Custom Game remains active with no new game.",
         "snapshot": "the-person-observes-that-the-custom-game-remains-active-with-no-new-game",
         "recognize": [],
-        "checks": [
-          "The Custom Game remains active with no new game"
-        ],
+        "checks": ["The Custom Game remains active with no new game"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:81"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:81"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -415,14 +337,10 @@
         "description": "The person observes that alice is told the Custom Game choices have changed.",
         "snapshot": "the-person-observes-that-alice-is-told-the-custom-game-choices-have-changed",
         "recognize": [],
-        "checks": [
-          "Alice is told the Custom Game choices have changed"
-        ],
+        "checks": ["Alice is told the Custom Game choices have changed"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-readiness.feature:87"
-        ],
+        "source": ["specs/chess/custom-game-readiness.feature:87"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

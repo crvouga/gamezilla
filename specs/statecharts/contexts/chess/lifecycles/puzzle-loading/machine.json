@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess/puzzle-loading.qnt"
-    ],
+    "quint": ["specs/chess/puzzle-loading.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the puzzle loading view.",
         "snapshot": "the-person-is-opening-the-puzzle-loading-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ]
+        "source": ["specs/chess/puzzle-loading.qnt"]
       },
       "on": {
         "Opens with ready to add puzzles": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:24"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:24"]
           }
         }
       }
@@ -59,9 +51,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "ready",
@@ -94,9 +84,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:80"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:80"]
           }
         },
         "Add puzzles resulting in told adding puzzles is not allowed": {
@@ -116,9 +104,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Add puzzles resulting in waiting for puzzles to be added": {
@@ -138,9 +124,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         }
       }
@@ -158,9 +142,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "ready",
@@ -193,9 +175,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         },
         "Add puzzles resulting in ready to add puzzles with the last known result offline": {
@@ -215,9 +195,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         }
       }
@@ -235,9 +213,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "refused",
@@ -270,9 +246,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:80"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:80"]
           }
         },
         "Add puzzles resulting in told adding puzzles is not allowed": {
@@ -292,9 +266,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Add puzzles resulting in waiting for puzzles to be added": {
@@ -314,9 +286,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         }
       }
@@ -334,9 +304,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "refused",
@@ -369,9 +337,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Come back online resulting in told adding puzzles is not allowed": {
@@ -391,9 +357,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         }
       }
@@ -411,9 +375,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "adding",
@@ -446,9 +408,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:58"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:58"]
           }
         },
         "Lose connection resulting in waiting for puzzles to be added with the last known result offline": {
@@ -468,9 +428,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:80"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:80"]
           }
         },
         "Add puzzles resulting in told adding puzzles is not allowed": {
@@ -490,9 +448,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Fail adding puzzles resulting in told adding puzzles failed": {
@@ -512,9 +468,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:70"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:70"]
           }
         }
       }
@@ -532,9 +486,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "finished",
@@ -567,9 +519,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:80"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:80"]
           }
         },
         "Add puzzles resulting in waiting for puzzles to be added": {
@@ -589,9 +539,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         }
       }
@@ -609,9 +557,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "finished",
@@ -644,9 +590,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Come back online resulting in seeing accepted and broken puzzle counts": {
@@ -666,9 +610,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         }
       }
@@ -686,9 +628,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "adding",
@@ -721,9 +661,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         },
         "Fail adding puzzles resulting in waiting for puzzles to be added with the last known result offline": {
@@ -743,9 +681,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:70"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:70"]
           }
         },
         "Add puzzles resulting in waiting for puzzles to be added with the last known result offline": {
@@ -765,9 +701,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Come back online resulting in told adding puzzles failed": {
@@ -787,9 +721,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         },
         "Finish adding puzzles resulting in waiting for puzzles to be added with the last known result offline": {
@@ -809,9 +741,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:58"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:58"]
           }
         },
         "Come back online resulting in seeing accepted and broken puzzle counts": {
@@ -831,9 +761,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         }
       }
@@ -851,9 +779,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "failed",
@@ -886,9 +812,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:80"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:80"]
           }
         },
         "Add puzzles resulting in waiting for puzzles to be added": {
@@ -908,9 +832,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         }
       }
@@ -928,9 +850,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-loading.qnt"
-        ],
+        "source": ["specs/chess/puzzle-loading.qnt"],
         "quintPredicates": [
           {
             "puzzleLoading.status": "failed",
@@ -963,9 +883,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:38"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:38"]
           }
         },
         "Come back online resulting in told adding puzzles failed": {
@@ -985,9 +903,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess/puzzle-loading.qnt:87"
-            ]
+            "source": ["specs/chess/puzzle-loading.qnt:87"]
           }
         }
       }

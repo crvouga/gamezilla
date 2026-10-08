@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/chess-board/board-independence.qnt"
-    ],
+    "quint": ["specs/chess-board/board-independence.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the board board independence view.",
         "snapshot": "the-person-is-opening-the-board-board-independence-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.qnt"
-        ]
+        "source": ["specs/chess-board/board-independence.qnt"]
       },
       "on": {
         "Opens with viewing two independent boards": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:24"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:24"]
           }
         }
       }
@@ -58,9 +50,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.qnt"
-        ],
+        "source": ["specs/chess-board/board-independence.qnt"],
         "quintPredicates": [
           {
             "first.present": true,
@@ -99,9 +89,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:27"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:27"]
           }
         },
         "Begin separate drag resulting in holding a piece on the first board": {
@@ -127,9 +115,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:33"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:33"]
           }
         },
         "Configure separate input resulting in viewing two independent boards": {
@@ -155,9 +141,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:59"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:59"]
           }
         },
         "Replace separate position resulting in viewing two independent boards": {
@@ -183,9 +167,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         },
         "Configure separate sound resulting in viewing two independent boards": {
@@ -211,9 +193,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:66"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:66"]
           }
         },
         "Close separate board resulting in viewing two independent boards": {
@@ -239,9 +219,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:77"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:77"]
           }
         },
         "Move separate piece resulting in viewing two independent boards": {
@@ -267,9 +245,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:45"]
           }
         },
         "Close separate board resulting in first board closed": {
@@ -295,9 +271,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:77"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:77"]
           }
         },
         "Begin separate drag resulting in viewing two independent boards": {
@@ -323,9 +297,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:33"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:33"]
           }
         },
         "Cancel separate drag resulting in viewing two independent boards": {
@@ -351,9 +323,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:39"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:39"]
           }
         }
       }
@@ -370,9 +340,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.qnt"
-        ],
+        "source": ["specs/chess-board/board-independence.qnt"],
         "quintPredicates": [
           {
             "first.present": true,
@@ -411,9 +379,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:66"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:66"]
           }
         },
         "Replace separate position resulting in selecting a piece on the first board": {
@@ -439,9 +405,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         },
         "Configure separate input resulting in selecting a piece on the first board": {
@@ -467,9 +431,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:59"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:59"]
           }
         },
         "Close separate board resulting in selecting a piece on the first board": {
@@ -495,9 +457,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:77"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:77"]
           }
         },
         "Select separate piece resulting in viewing two independent boards": {
@@ -523,9 +483,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:27"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:27"]
           }
         },
         "Begin separate drag resulting in holding a piece on the first board": {
@@ -551,9 +509,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:33"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:33"]
           }
         },
         "Replace separate position resulting in viewing two independent boards": {
@@ -579,9 +535,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         },
         "Close separate board resulting in first board closed": {
@@ -607,9 +561,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:77"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:77"]
           }
         }
       }
@@ -626,9 +578,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.qnt"
-        ],
+        "source": ["specs/chess-board/board-independence.qnt"],
         "quintPredicates": [
           {
             "first.present": true,
@@ -667,9 +617,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:59"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:59"]
           }
         },
         "Configure separate sound resulting in holding a piece on the first board": {
@@ -695,9 +643,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:66"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:66"]
           }
         },
         "Configure separate input resulting in viewing two independent boards": {
@@ -723,9 +669,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:59"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:59"]
           }
         },
         "Cancel separate drag resulting in viewing two independent boards": {
@@ -751,9 +695,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:39"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:39"]
           }
         },
         "Close separate board resulting in first board closed": {
@@ -779,9 +721,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:77"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:77"]
           }
         },
         "Replace separate position resulting in holding a piece on the first board": {
@@ -807,9 +747,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         },
         "Replace separate position resulting in viewing two independent boards": {
@@ -835,9 +773,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         }
       }
@@ -854,9 +790,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess-board/board-independence.qnt"
-        ],
+        "source": ["specs/chess-board/board-independence.qnt"],
         "quintPredicates": [
           {
             "first.present": false,
@@ -896,9 +830,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:66"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:66"]
           }
         },
         "Configure separate input resulting in first board closed": {
@@ -924,9 +856,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:59"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:59"]
           }
         },
         "Replace separate position resulting in first board closed": {
@@ -952,9 +882,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:71"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:71"]
           }
         },
         "Move separate piece resulting in first board closed": {
@@ -980,9 +908,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:45"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:45"]
           }
         },
         "Select separate piece resulting in first board closed": {
@@ -1008,9 +934,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:27"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:27"]
           }
         },
         "Begin separate drag resulting in first board closed": {
@@ -1036,9 +960,7 @@
                 }
               }
             },
-            "source": [
-              "specs/chess-board/board-independence.qnt:33"
-            ]
+            "source": ["specs/chess-board/board-independence.qnt:33"]
           }
         }
       }

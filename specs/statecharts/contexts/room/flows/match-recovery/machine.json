@@ -18,22 +18,16 @@
         "description": "The person is at the place where timed matches keep their clocks after interruption.",
         "snapshot": "the-person-is-at-the-place-where-timed-matches-keep-their-clocks-after-interruption",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-recovery.feature:2"
-        ]
+        "source": ["specs/room/match-recovery.feature:2"]
       },
       "on": {
         "the room is available again when White and Black started a match as the room became unavailable and 2 seconds have passed": {
           "target": "White has 2 seconds left and Black has 4 seconds left — 1",
           "meta": {
-            "source": [
-              "specs/room/match-recovery.feature:9"
-            ],
+            "source": ["specs/room/match-recovery.feature:9"],
             "condition": [
               "White and Black started a match as the room became unavailable",
               "2 seconds have passed"
@@ -44,9 +38,7 @@
         "the room is available again when White and Black started a match as the room became unavailable and 4 seconds have passed": {
           "target": "White and Black both see Black win on time — 2",
           "meta": {
-            "source": [
-              "specs/room/match-recovery.feature:15"
-            ],
+            "source": ["specs/room/match-recovery.feature:15"],
             "condition": [
               "White and Black started a match as the room became unavailable",
               "4 seconds have passed"
@@ -57,9 +49,7 @@
         "the room is available again when White and Black have started a match with 4 seconds for White and 4 seconds for Black and White has moved as the room became unavailable and 4 seconds have passed": {
           "target": "White and Black both see White win on time — 3",
           "meta": {
-            "source": [
-              "specs/room/match-recovery.feature:21"
-            ],
+            "source": ["specs/room/match-recovery.feature:21"],
             "condition": [
               "White and Black have started a match with 4 seconds for White and 4 seconds for Black",
               "White has moved as the room became unavailable",
@@ -75,14 +65,10 @@
         "description": "The person observes that white has 2 seconds left and Black has 4 seconds left.",
         "snapshot": "the-person-observes-that-white-has-2-seconds-left-and-black-has-4-seconds-left",
         "recognize": [],
-        "checks": [
-          "White has 2 seconds left and Black has 4 seconds left"
-        ],
+        "checks": ["White has 2 seconds left and Black has 4 seconds left"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-recovery.feature:9"
-        ],
+        "source": ["specs/room/match-recovery.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -92,14 +78,10 @@
         "description": "The person observes that white and Black both see Black win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-black-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see Black win on time"
-        ],
+        "checks": ["White and Black both see Black win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-recovery.feature:15"
-        ],
+        "source": ["specs/room/match-recovery.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -109,14 +91,10 @@
         "description": "The person observes that white and Black both see White win on time.",
         "snapshot": "the-person-observes-that-white-and-black-both-see-white-win-on-time",
         "recognize": [],
-        "checks": [
-          "White and Black both see White win on time"
-        ],
+        "checks": ["White and Black both see White win on time"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/match-recovery.feature:21"
-        ],
+        "source": ["specs/room/match-recovery.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

@@ -24,22 +24,16 @@
         "description": "The person is at the place where every chess move in a Custom Game.",
         "snapshot": "the-person-is-at-the-place-where-every-chess-move-in-a-custom-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-chess-rules.feature:2"]
       },
       "on": {
         "Alice plays e7-e8 in the Custom Game": {
           "target": "Alice is asked which piece White promotes to on e8 — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-chess-rules.feature:11"
-            ],
+            "source": ["specs/chess/custom-game-chess-rules.feature:11"],
             "condition": [
               "Alice has an active Custom Game one move before White promotes on e8"
             ],
@@ -49,9 +43,7 @@
         "Alice plays e7-e8 and promotes to a knight in the Custom Game": {
           "target": "The Custom Game move list shows e8=N — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-chess-rules.feature:15"
-            ],
+            "source": ["specs/chess/custom-game-chess-rules.feature:15"],
             "condition": [
               "Alice has an active Custom Game one move before White promotes on e8"
             ],
@@ -61,9 +53,7 @@
         "Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game one move before White castles kingside": {
           "target": "The Custom Game move list shows O-O — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-chess-rules.feature:22"
-            ],
+            "source": ["specs/chess/custom-game-chess-rules.feature:22"],
             "condition": [
               "Alice has an active Custom Game one move before White castles kingside"
             ],
@@ -73,9 +63,7 @@
         "Alice plays e5-d6 in the Custom Game": {
           "target": "The Custom Game move list shows exd6 — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-chess-rules.feature:28"
-            ],
+            "source": ["specs/chess/custom-game-chess-rules.feature:28"],
             "condition": [
               "Alice has an active Custom Game one move before White captures en passant on d6"
             ],
@@ -85,9 +73,7 @@
         "Alice plays e1-g1 in the Custom Game when Alice has an active Custom Game where White's king would castle through check": {
           "target": "Alice is told the move is illegal — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-chess-rules.feature:34"
-            ],
+            "source": ["specs/chess/custom-game-chess-rules.feature:34"],
             "condition": [
               "Alice has an active Custom Game where White's king would castle through check"
             ],
@@ -101,14 +87,10 @@
         "description": "The person observes that alice is asked which piece White promotes to on e8.",
         "snapshot": "the-person-observes-that-alice-is-asked-which-piece-white-promotes-to-on-e8",
         "recognize": [],
-        "checks": [
-          "Alice is asked which piece White promotes to on e8"
-        ],
+        "checks": ["Alice is asked which piece White promotes to on e8"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:11"
-        ],
+        "source": ["specs/chess/custom-game-chess-rules.feature:11"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -124,9 +106,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:15"
-        ],
+        "source": ["specs/chess/custom-game-chess-rules.feature:15"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -142,9 +122,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:22"
-        ],
+        "source": ["specs/chess/custom-game-chess-rules.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -160,9 +138,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:28"
-        ],
+        "source": ["specs/chess/custom-game-chess-rules.feature:28"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -178,9 +154,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-chess-rules.feature:34"
-        ],
+        "source": ["specs/chess/custom-game-chess-rules.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

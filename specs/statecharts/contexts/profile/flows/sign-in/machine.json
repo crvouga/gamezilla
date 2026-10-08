@@ -18,22 +18,16 @@
         "description": "The person is at the place where sign in and out.",
         "snapshot": "the-person-is-at-the-place-where-sign-in-and-out",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:2"
-        ]
+        "source": ["specs/profile/sign-in.feature:2"]
       },
       "on": {
         "Alice signs in with Google when Alice is a guest and Alice's username is @alice_guest and Alice has saved an avatar with seed 'harbor' and style 'Bottts'": {
           "target": "Alice's profile shows @alice_guest — 1",
           "meta": {
-            "source": [
-              "specs/profile/sign-in.feature:10"
-            ],
+            "source": ["specs/profile/sign-in.feature:10"],
             "condition": [
               "Alice is a guest",
               "Alice's username is @alice_guest",
@@ -45,21 +39,15 @@
         "Alice signs out": {
           "target": "Alice is signed out — 2",
           "meta": {
-            "source": [
-              "specs/profile/sign-in.feature:18"
-            ],
-            "condition": [
-              "Alice is signed in with Google"
-            ],
+            "source": ["specs/profile/sign-in.feature:18"],
+            "condition": ["Alice is signed in with Google"],
             "example": "Signing out signs this device out"
           }
         },
         "Alice signs in with Google when Alice is signed in with Google and Alice's username is @alice_account and Alice has signed out": {
           "target": "Alice's profile shows @alice_account — 3",
           "meta": {
-            "source": [
-              "specs/profile/sign-in.feature:23"
-            ],
+            "source": ["specs/profile/sign-in.feature:23"],
             "condition": [
               "Alice is signed in with Google",
               "Alice's username is @alice_account",
@@ -71,9 +59,7 @@
         "Alice's account opens on another device": {
           "target": "Alice's other device shows @alice_laptop — 4",
           "meta": {
-            "source": [
-              "specs/profile/sign-in.feature:30"
-            ],
+            "source": ["specs/profile/sign-in.feature:30"],
             "condition": [
               "Alice is signed in",
               "Alice's username is @alice_laptop"
@@ -84,9 +70,7 @@
         "Alice renames themselves to @alice_second on their other device": {
           "target": "Alice's profile shows @alice_second within 15 seconds — 5",
           "meta": {
-            "source": [
-              "specs/profile/sign-in.feature:36"
-            ],
+            "source": ["specs/profile/sign-in.feature:36"],
             "condition": [
               "Alice is signed in",
               "Alice is also signed in on another device"
@@ -107,9 +91,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:10"
-        ],
+        "source": ["specs/profile/sign-in.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -119,14 +101,10 @@
         "description": "The person observes that alice is signed out.",
         "snapshot": "the-person-observes-that-alice-is-signed-out",
         "recognize": [],
-        "checks": [
-          "Alice is signed out"
-        ],
+        "checks": ["Alice is signed out"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:18"
-        ],
+        "source": ["specs/profile/sign-in.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,14 +114,10 @@
         "description": "The person observes that alice's profile shows @alice_account.",
         "snapshot": "the-person-observes-that-alice-s-profile-shows-alice-account",
         "recognize": [],
-        "checks": [
-          "Alice's profile shows @alice_account"
-        ],
+        "checks": ["Alice's profile shows @alice_account"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:23"
-        ],
+        "source": ["specs/profile/sign-in.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -153,14 +127,10 @@
         "description": "The person observes that alice's other device shows @alice_laptop.",
         "snapshot": "the-person-observes-that-alice-s-other-device-shows-alice-laptop",
         "recognize": [],
-        "checks": [
-          "Alice's other device shows @alice_laptop"
-        ],
+        "checks": ["Alice's other device shows @alice_laptop"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:30"
-        ],
+        "source": ["specs/profile/sign-in.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -170,14 +140,10 @@
         "description": "The person observes that alice's profile shows @alice_second within 15 seconds.",
         "snapshot": "the-person-observes-that-alice-s-profile-shows-alice-second-within-15-seconds",
         "recognize": [],
-        "checks": [
-          "Alice's profile shows @alice_second within 15 seconds"
-        ],
+        "checks": ["Alice's profile shows @alice_second within 15 seconds"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/sign-in.feature:36"
-        ],
+        "source": ["specs/profile/sign-in.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

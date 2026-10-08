@@ -24,58 +24,40 @@
         "description": "The person is at the place where a multiplayer rematch after the game.",
         "snapshot": "the-person-is-at-the-place-where-a-multiplayer-rematch-after-the-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:2"
-        ]
+        "source": ["specs/chess/multiplayer-rematch.feature:2"]
       },
       "on": {
         "Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over": {
           "target": "Alice is offered a multiplayer rematch — 1",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:9"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob is over"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:9"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob is over"],
             "example": "Bob offers Alice a multiplayer rematch after their game is over"
           }
         },
         "Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob was aborted": {
           "target": "Bob is told an aborted multiplayer game has no multiplayer rematch — 2",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:14"
-            ],
-            "condition": [
-              "Alice's 5+0 multiplayer game with Bob was aborted"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:14"],
+            "condition": ["Alice's 5+0 multiplayer game with Bob was aborted"],
             "example": "An aborted game has no multiplayer rematch"
           }
         },
         "Bob offers a multiplayer rematch when Alice has an unfinished multiplayer game with Bob": {
           "target": "Bob is told the multiplayer game is not over yet — 3",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:19"
-            ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:19"],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "A multiplayer rematch cannot be offered while the game is unfinished"
           }
         },
         "Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice has since started an unfinished multiplayer game with Carol": {
           "target": "Bob is told Alice is already playing another multiplayer game — 4",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:24"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:24"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Alice has since started an unfinished multiplayer game with Carol"
@@ -86,9 +68,7 @@
         "Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob is looking for a 5+0 chess opponent": {
           "target": "Bob is told he is already looking for a chess opponent — 5",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:30"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:30"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob is looking for a 5+0 chess opponent"
@@ -99,9 +79,7 @@
         "Bob offers a multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Alice is looking for a 5+0 chess opponent": {
           "target": "Bob is told Alice is already looking for a chess opponent — 6",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:36"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:36"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Alice is looking for a 5+0 chess opponent"
@@ -112,9 +90,7 @@
         "Alice accepts the multiplayer rematch when Alice was White and Bob was Black in their finished 5+0 multiplayer game and Bob has offered Alice a multiplayer rematch": {
           "target": "Alice is Black and Bob is White in their new multiplayer game — 7",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:44"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:44"],
             "condition": [
               "Alice was White and Bob was Black in their finished 5+0 multiplayer game",
               "Bob has offered Alice a multiplayer rematch"
@@ -125,9 +101,7 @@
         "Alice offers a multiplayer rematch": {
           "target": "Alice is Black and Bob is White in their new multiplayer game — 8",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:51"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:51"],
             "condition": [
               "Alice was White and Bob was Black in their finished 5+0 multiplayer game",
               "Bob has offered Alice a multiplayer rematch"
@@ -138,9 +112,7 @@
         "Bob accepts the multiplayer rematch": {
           "target": "Bob is told only Alice may answer his multiplayer rematch offer — 9",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:57"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:57"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob has offered Alice a multiplayer rematch"
@@ -151,9 +123,7 @@
         "Alice declines the multiplayer rematch": {
           "target": "neither person is offered a multiplayer rematch — 10",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:68"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:68"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob has offered Alice a multiplayer rematch"
@@ -164,9 +134,7 @@
         "Bob declines the multiplayer rematch": {
           "target": "Bob is told only Alice may answer his multiplayer rematch offer — 11",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:73"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:73"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob has offered Alice a multiplayer rematch"
@@ -177,9 +145,7 @@
         "Bob finds a new opponent": {
           "target": "neither person is offered a multiplayer rematch — 12",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:79"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:79"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob has offered Alice a multiplayer rematch"
@@ -190,9 +156,7 @@
         "Alice accepts the multiplayer rematch when Alice's 5+0 multiplayer game with Bob is over and Bob's multiplayer rematch offer ended when he found a new opponent": {
           "target": "Alice is told the multiplayer rematch offer has ended — 13",
           "meta": {
-            "source": [
-              "specs/chess/multiplayer-rematch.feature:85"
-            ],
+            "source": ["specs/chess/multiplayer-rematch.feature:85"],
             "condition": [
               "Alice's 5+0 multiplayer game with Bob is over",
               "Bob's multiplayer rematch offer ended when he found a new opponent"
@@ -207,14 +171,10 @@
         "description": "The person observes that alice is offered a multiplayer rematch.",
         "snapshot": "the-person-observes-that-alice-is-offered-a-multiplayer-rematch",
         "recognize": [],
-        "checks": [
-          "Alice is offered a multiplayer rematch"
-        ],
+        "checks": ["Alice is offered a multiplayer rematch"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:9"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -229,9 +189,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:14"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -241,14 +199,10 @@
         "description": "The person observes that bob is told the multiplayer game is not over yet.",
         "snapshot": "the-person-observes-that-bob-is-told-the-multiplayer-game-is-not-over-yet",
         "recognize": [],
-        "checks": [
-          "Bob is told the multiplayer game is not over yet"
-        ],
+        "checks": ["Bob is told the multiplayer game is not over yet"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:19"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:19"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -263,9 +217,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:24"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -275,14 +227,10 @@
         "description": "The person observes that bob is told he is already looking for a chess opponent.",
         "snapshot": "the-person-observes-that-bob-is-told-he-is-already-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Bob is told he is already looking for a chess opponent"
-        ],
+        "checks": ["Bob is told he is already looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:30"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:30"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -292,14 +240,10 @@
         "description": "The person observes that bob is told Alice is already looking for a chess opponent.",
         "snapshot": "the-person-observes-that-bob-is-told-alice-is-already-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Bob is told Alice is already looking for a chess opponent"
-        ],
+        "checks": ["Bob is told Alice is already looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:36"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:36"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -315,9 +259,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:44"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -332,9 +274,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:51"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -349,9 +289,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:57"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:57"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -361,14 +299,10 @@
         "description": "The person observes that neither person is offered a multiplayer rematch.",
         "snapshot": "the-person-observes-that-neither-person-is-offered-a-multiplayer-rematch",
         "recognize": [],
-        "checks": [
-          "neither person is offered a multiplayer rematch"
-        ],
+        "checks": ["neither person is offered a multiplayer rematch"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:68"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:68"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -384,9 +318,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:73"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:73"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -402,9 +334,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:79"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -414,14 +344,10 @@
         "description": "The person observes that alice is told the multiplayer rematch offer has ended.",
         "snapshot": "the-person-observes-that-alice-is-told-the-multiplayer-rematch-offer-has-ended",
         "recognize": [],
-        "checks": [
-          "Alice is told the multiplayer rematch offer has ended"
-        ],
+        "checks": ["Alice is told the multiplayer rematch offer has ended"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/multiplayer-rematch.feature:85"
-        ],
+        "source": ["specs/chess/multiplayer-rematch.feature:85"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

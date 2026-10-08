@@ -18,46 +18,32 @@
         "description": "The person is at the place where joining from a link, and opening with no connection.",
         "snapshot": "the-person-is-at-the-place-where-joining-from-a-link-and-opening-with-no-connection",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/join-and-offline.feature:2"
-        ]
+        "source": ["specs/journeys/join-and-offline.feature:2"]
       },
       "on": {
         "a guest joins the space from the link when a person is hosting a space": {
           "target": "the guest is in the space — 1",
           "meta": {
-            "source": [
-              "specs/journeys/join-and-offline.feature:9"
-            ],
-            "condition": [
-              "a person is hosting a space"
-            ],
+            "source": ["specs/journeys/join-and-offline.feature:9"],
+            "condition": ["a person is hosting a space"],
             "example": "A guest joins an open space from its link"
           }
         },
         "a guest joins the space from the link when a person has ended the space": {
           "target": "the guest is told the space has ended — 2",
           "meta": {
-            "source": [
-              "specs/journeys/join-and-offline.feature:14"
-            ],
-            "condition": [
-              "a person has ended the space"
-            ],
+            "source": ["specs/journeys/join-and-offline.feature:14"],
+            "condition": ["a person has ended the space"],
             "example": "A guest cannot join from a link to a space that has ended"
           }
         },
         "the app reopens": {
           "target": "the app gets past its opening screen onto the tabs — 3",
           "meta": {
-            "source": [
-              "specs/journeys/join-and-offline.feature:22"
-            ],
+            "source": ["specs/journeys/join-and-offline.feature:22"],
             "condition": [
               "the app has been opened on a fresh device",
               "the device is offline"
@@ -72,14 +58,10 @@
         "description": "The person observes that the guest is in the space.",
         "snapshot": "the-person-observes-that-the-guest-is-in-the-space",
         "recognize": [],
-        "checks": [
-          "the guest is in the space"
-        ],
+        "checks": ["the guest is in the space"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/join-and-offline.feature:9"
-        ],
+        "source": ["specs/journeys/join-and-offline.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -89,14 +71,10 @@
         "description": "The person observes that the guest is told the space has ended.",
         "snapshot": "the-person-observes-that-the-guest-is-told-the-space-has-ended",
         "recognize": [],
-        "checks": [
-          "the guest is told the space has ended"
-        ],
+        "checks": ["the guest is told the space has ended"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/join-and-offline.feature:14"
-        ],
+        "source": ["specs/journeys/join-and-offline.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -106,14 +84,10 @@
         "description": "The person observes that the app gets past its opening screen onto the tabs.",
         "snapshot": "the-person-observes-that-the-app-gets-past-its-opening-screen-onto-the-tabs",
         "recognize": [],
-        "checks": [
-          "the app gets past its opening screen onto the tabs"
-        ],
+        "checks": ["the app gets past its opening screen onto the tabs"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/journeys/join-and-offline.feature:22"
-        ],
+        "source": ["specs/journeys/join-and-offline.feature:22"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

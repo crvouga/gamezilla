@@ -24,22 +24,16 @@
         "description": "The person is at the place where use the complete app on every supported device.",
         "snapshot": "the-person-is-at-the-place-where-use-the-complete-app-on-every-supported-device",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/device-layouts.feature:2"
-        ]
+        "source": ["specs/runtime/device-layouts.feature:2"]
       },
       "on": {
         "Alice turns the phone from portrait to landscape": {
           "target": "Alice has the same place in the app and saved preferences — 1",
           "meta": {
-            "source": [
-              "specs/runtime/device-layouts.feature:9"
-            ],
+            "source": ["specs/runtime/device-layouts.feature:9"],
             "condition": [
               "Alice is using the app on a phone",
               "Alice has a place in the app and saved preferences"
@@ -50,9 +44,7 @@
         "Alice turns the tablet from landscape to portrait": {
           "target": "Alice has the same place in the app and saved preferences — 2",
           "meta": {
-            "source": [
-              "specs/runtime/device-layouts.feature:16"
-            ],
+            "source": ["specs/runtime/device-layouts.feature:16"],
             "condition": [
               "Alice is using the app on a tablet",
               "Alice has a place in the app and saved preferences"
@@ -63,9 +55,7 @@
         "Alice narrows the space available to the app": {
           "target": "Alice has the same place in the app and saved preferences — 3",
           "meta": {
-            "source": [
-              "specs/runtime/device-layouts.feature:23"
-            ],
+            "source": ["specs/runtime/device-layouts.feature:23"],
             "condition": [
               "Alice is using the app on a computer",
               "Alice has a place in the app and saved preferences"
@@ -86,9 +76,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/device-layouts.feature:9"
-        ],
+        "source": ["specs/runtime/device-layouts.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -104,9 +92,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/device-layouts.feature:16"
-        ],
+        "source": ["specs/runtime/device-layouts.feature:16"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -122,9 +108,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/runtime/device-layouts.feature:23"
-        ],
+        "source": ["specs/runtime/device-layouts.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

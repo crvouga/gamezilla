@@ -24,48 +24,32 @@
         "description": "The person is at the place where how many spaces a person can host.",
         "snapshot": "the-person-is-at-the-place-where-how-many-spaces-a-person-can-host",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-host-limit.feature:2"
-        ]
+        "source": ["specs/spaces/space-host-limit.feature:2"]
       },
       "on": {
         "Alice creates another space when Alice is signed in and Alice is hosting a space": {
           "target": "Alice is invited to get Plus to host more spaces — 1",
           "meta": {
-            "source": [
-              "specs/spaces/space-host-limit.feature:10"
-            ],
-            "condition": [
-              "Alice is signed in",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/spaces/space-host-limit.feature:10"],
+            "condition": ["Alice is signed in", "Alice is hosting a space"],
             "example": "A free account hosting a space is invited to Plus to host another"
           }
         },
         "Alice creates another space when Alice is a guest and Alice is hosting a space": {
           "target": "Alice is invited to get Plus to host more spaces — 2",
           "meta": {
-            "source": [
-              "specs/spaces/space-host-limit.feature:17"
-            ],
-            "condition": [
-              "Alice is a guest",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/spaces/space-host-limit.feature:17"],
+            "condition": ["Alice is a guest", "Alice is hosting a space"],
             "example": "A guest hosting a space is invited to Plus to host another"
           }
         },
         "Alice creates a space": {
           "target": "Alice is in the space — 3",
           "meta": {
-            "source": [
-              "specs/spaces/space-host-limit.feature:24"
-            ],
+            "source": ["specs/spaces/space-host-limit.feature:24"],
             "condition": [
               "Alice is signed in",
               "Alice has hosted a space and ended it"
@@ -76,13 +60,8 @@
         "Alice creates another space when Alice is a Plus member and Alice is hosting a space": {
           "target": "Alice is in the space — 4",
           "meta": {
-            "source": [
-              "specs/spaces/space-host-limit.feature:34"
-            ],
-            "condition": [
-              "Alice is a Plus member",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/spaces/space-host-limit.feature:34"],
+            "condition": ["Alice is a Plus member", "Alice is hosting a space"],
             "example": "A Plus member hosts a second space at once"
           }
         }
@@ -99,9 +78,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-host-limit.feature:10"
-        ],
+        "source": ["specs/spaces/space-host-limit.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -117,9 +94,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-host-limit.feature:17"
-        ],
+        "source": ["specs/spaces/space-host-limit.feature:17"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -129,15 +104,10 @@
         "description": "The person observes that alice is in the space.",
         "snapshot": "the-person-observes-that-alice-is-in-the-space",
         "recognize": [],
-        "checks": [
-          "Alice is in the space",
-          "Alice is not invited to get Plus"
-        ],
+        "checks": ["Alice is in the space", "Alice is not invited to get Plus"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-host-limit.feature:24"
-        ],
+        "source": ["specs/spaces/space-host-limit.feature:24"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -147,15 +117,10 @@
         "description": "The person observes that alice is in the space.",
         "snapshot": "the-person-observes-that-alice-is-in-the-space",
         "recognize": [],
-        "checks": [
-          "Alice is in the space",
-          "Alice hosts 2 spaces"
-        ],
+        "checks": ["Alice is in the space", "Alice hosts 2 spaces"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/spaces/space-host-limit.feature:34"
-        ],
+        "source": ["specs/spaces/space-host-limit.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

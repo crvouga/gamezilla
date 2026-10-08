@@ -24,22 +24,16 @@
         "description": "The person is at the place where the daily puzzle limit is an invitation.",
         "snapshot": "the-person-is-at-the-place-where-the-daily-puzzle-limit-is-an-invitation",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limit-upgrade.feature:2"
-        ]
+        "source": ["specs/chess/puzzle-limit-upgrade.feature:2"]
       },
       "on": {
         "Alice asks for another puzzle": {
           "target": "Alice is told no new puzzle can start because today's allowance is used within 15 seconds — 1",
           "meta": {
-            "source": [
-              "specs/chess/puzzle-limit-upgrade.feature:10"
-            ],
+            "source": ["specs/chess/puzzle-limit-upgrade.feature:10"],
             "condition": [
               "Alice is a guest who has finished today's last allowed puzzle"
             ],
@@ -59,9 +53,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/puzzle-limit-upgrade.feature:10"
-        ],
+        "source": ["specs/chess/puzzle-limit-upgrade.feature:10"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

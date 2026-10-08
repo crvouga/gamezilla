@@ -18,22 +18,16 @@
         "description": "The person is at the place where competing waits and keeping a match.",
         "snapshot": "the-person-is-at-the-place-where-competing-waits-and-keeping-a-match",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:2"
-        ]
+        "source": ["specs/matchmaking/competing-waits.feature:2"]
       },
       "on": {
         "matchmaking pairs people up when Alice, Bob and Carol are waiting in that order within each other's ranges": {
           "target": "Alice and Bob are matched with each other — 1",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:8"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:8"],
             "condition": [
               "Alice, Bob and Carol are waiting in that order within each other's ranges"
             ],
@@ -43,9 +37,7 @@
         "matchmaking pairs people up when Alice is waiting with a rating of 1000, accepting anyone within 5 points and Bob is waiting with a rating of 1050, accepting anyone within 200 points and Carol is waiting with a rating of 1100, accepting anyone within 200 points": {
           "target": "Bob and Carol are matched with each other — 2",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:13"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:13"],
             "condition": [
               "Alice is waiting with a rating of 1000, accepting anyone within 5 points",
               "Bob is waiting with a rating of 1050, accepting anyone within 200 points",
@@ -57,9 +49,7 @@
         "matchmaking pairs people up when Alice, Bob, Carol and Dave are waiting in that order within each other's ranges": {
           "target": "Alice and Bob are matched with each other — 3",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:23"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:23"],
             "condition": [
               "Alice, Bob, Carol and Dave are waiting in that order within each other's ranges"
             ],
@@ -69,9 +59,7 @@
         "matchmaking pairs people up when Alice has been matched with Bob and Carol is waiting for a match": {
           "target": "Alice and Bob keep the same match — 4",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:29"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:29"],
             "condition": [
               "Alice has been matched with Bob",
               "Carol is waiting for a match"
@@ -82,9 +70,7 @@
         "Alice stops waiting when Alice and Bob are waiting within each other's ranges": {
           "target": "Alice sees she stopped waiting — 5",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:38"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:38"],
             "condition": [
               "Alice and Bob are waiting within each other's ranges"
             ],
@@ -94,9 +80,7 @@
         "matchmaking pairs people up when Alice has stopped waiting and Bob is waiting for a match": {
           "target": "Alice is not waiting for a match — 6",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:44"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:44"],
             "condition": [
               "Alice has stopped waiting",
               "Bob is waiting for a match"
@@ -107,24 +91,16 @@
         "Alice stops waiting when Alice has been matched with Bob": {
           "target": "Alice is told there was nothing to stop — 7",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:51"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:51"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Alice cannot undo the match by stopping after it was made"
           }
         },
         "Alice waits for a match with a rating of 1500": {
           "target": "Alice is waiting — 8",
           "meta": {
-            "source": [
-              "specs/matchmaking/competing-waits.feature:60"
-            ],
-            "condition": [
-              "Alice has been matched with Bob"
-            ],
+            "source": ["specs/matchmaking/competing-waits.feature:60"],
+            "condition": ["Alice has been matched with Bob"],
             "example": "Bob keeps his match when Alice asks for a later one"
           }
         }
@@ -135,14 +111,10 @@
         "description": "The person observes that alice and Bob are matched with each other.",
         "snapshot": "the-person-observes-that-alice-and-bob-are-matched-with-each-other",
         "recognize": [],
-        "checks": [
-          "Alice and Bob are matched with each other"
-        ],
+        "checks": ["Alice and Bob are matched with each other"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:8"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:8"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -158,9 +130,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:13"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -176,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:23"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:23"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -194,9 +162,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:29"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,15 +172,10 @@
         "description": "The person observes that alice sees she stopped waiting.",
         "snapshot": "the-person-observes-that-alice-sees-she-stopped-waiting",
         "recognize": [],
-        "checks": [
-          "Alice sees she stopped waiting",
-          "Bob is waiting"
-        ],
+        "checks": ["Alice sees she stopped waiting", "Bob is waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:38"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -224,15 +185,10 @@
         "description": "The person observes that alice is not waiting for a match.",
         "snapshot": "the-person-observes-that-alice-is-not-waiting-for-a-match",
         "recognize": [],
-        "checks": [
-          "Alice is not waiting for a match",
-          "Bob is still waiting"
-        ],
+        "checks": ["Alice is not waiting for a match", "Bob is still waiting"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:44"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:44"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -248,9 +204,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:51"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:51"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -266,9 +220,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/matchmaking/competing-waits.feature:60"
-        ],
+        "source": ["specs/matchmaking/competing-waits.feature:60"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

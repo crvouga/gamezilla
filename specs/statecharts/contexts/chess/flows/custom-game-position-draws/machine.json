@@ -24,46 +24,32 @@
         "description": "The person is at the place where drawn positions finish the Custom Game.",
         "snapshot": "the-person-is-at-the-place-where-drawn-positions-finish-the-custom-game",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:2"
-        ]
+        "source": ["specs/chess/custom-game-position-draws.feature:2"]
       },
       "on": {
         "Alice plays c8-e6 in the Custom Game": {
           "target": "The Custom Game is completed as a draw — 1",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:7"
-            ],
-            "condition": [
-              "Alice has a Custom Game one move before stalemate"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:7"],
+            "condition": ["Alice has a Custom Game one move before stalemate"],
             "example": "White's move leaves Black with no legal move and no check"
           }
         },
         "Alice plays c8-e8 in the Custom Game": {
           "target": "Black is in check in the active Custom Game — 2",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:12"
-            ],
-            "condition": [
-              "Alice has a Custom Game one move before stalemate"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:12"],
+            "condition": ["Alice has a Custom Game one move before stalemate"],
             "example": "A king in check with a legal reply is not stalemated"
           }
         },
         "Bob plays e7-f6 in the Custom Game": {
           "target": "The Custom Game is completed as a draw — 3",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:20"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:20"],
             "condition": [
               "Alice has a Custom Game one move before only the two kings remain"
             ],
@@ -73,9 +59,7 @@
         "Bob plays e7-d7 in the Custom Game": {
           "target": "The Custom Game remains active — 4",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:25"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:25"],
             "condition": [
               "Alice has a Custom Game one move before only the two kings remain"
             ],
@@ -85,9 +69,7 @@
         "Bob plays a4-b6 in the Custom Game": {
           "target": "The Custom Game is completed as a draw — 5",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:33"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:33"],
             "condition": [
               "Alice has a Custom Game one move before fifty moves without a pawn move or capture"
             ],
@@ -97,9 +79,7 @@
         "Alice plays b1-a1 in the Custom Game": {
           "target": "The Custom Game remains active — 6",
           "meta": {
-            "source": [
-              "specs/chess/custom-game-position-draws.feature:38"
-            ],
+            "source": ["specs/chess/custom-game-position-draws.feature:38"],
             "condition": [
               "Alice has a Custom Game two moves before fifty moves without a pawn move or capture"
             ],
@@ -113,14 +93,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:7"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:7"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -136,9 +112,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:12"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:12"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -148,14 +122,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:20"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -171,9 +141,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:25"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:25"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -183,14 +151,10 @@
         "description": "The person observes that the Custom Game is completed as a draw.",
         "snapshot": "the-person-observes-that-the-custom-game-is-completed-as-a-draw",
         "recognize": [],
-        "checks": [
-          "The Custom Game is completed as a draw"
-        ],
+        "checks": ["The Custom Game is completed as a draw"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:33"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:33"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -206,9 +170,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/custom-game-position-draws.feature:38"
-        ],
+        "source": ["specs/chess/custom-game-position-draws.feature:38"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

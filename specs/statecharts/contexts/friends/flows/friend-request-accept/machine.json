@@ -24,22 +24,16 @@
         "description": "The person is at the place where friend request accepted.",
         "snapshot": "the-person-is-at-the-place-where-friend-request-accepted",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-accept.feature:2"
-        ]
+        "source": ["specs/friends/friend-request-accept.feature:2"]
       },
       "on": {
         "Bob accepts Alice's friend request": {
           "target": "Bob's friends list shows Alice — 1",
           "meta": {
-            "source": [
-              "specs/friends/friend-request-accept.feature:13"
-            ],
+            "source": ["specs/friends/friend-request-accept.feature:13"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request"
@@ -50,9 +44,7 @@
         "Alice opens the notice that Bob accepted": {
           "target": "Alice is shown Bob's profile — 2",
           "meta": {
-            "source": [
-              "specs/friends/friend-request-accept.feature:18"
-            ],
+            "source": ["specs/friends/friend-request-accept.feature:18"],
             "condition": [
               "Alice and Bob are signed in",
               "Alice has sent Bob a friend request",
@@ -74,9 +66,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-accept.feature:13"
-        ],
+        "source": ["specs/friends/friend-request-accept.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -92,9 +82,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-accept.feature:18"
-        ],
+        "source": ["specs/friends/friend-request-accept.feature:18"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

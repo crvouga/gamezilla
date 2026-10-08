@@ -24,14 +24,10 @@
         "description": "The person is at the place where friend request declined or cancelled.",
         "snapshot": "the-person-is-at-the-place-where-friend-request-declined-or-cancelled",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-decline-cancel.feature:2"
-        ]
+        "source": ["specs/friends/friend-request-decline-cancel.feature:2"]
       },
       "on": {
         "Bob declines Alice's friend request": {
@@ -103,9 +99,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-decline-cancel.feature:13"
-        ],
+        "source": ["specs/friends/friend-request-decline-cancel.feature:13"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -121,9 +115,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-decline-cancel.feature:20"
-        ],
+        "source": ["specs/friends/friend-request-decline-cancel.feature:20"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -139,9 +131,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-decline-cancel.feature:29"
-        ],
+        "source": ["specs/friends/friend-request-decline-cancel.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -156,9 +146,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/friends/friend-request-decline-cancel.feature:34"
-        ],
+        "source": ["specs/friends/friend-request-decline-cancel.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"

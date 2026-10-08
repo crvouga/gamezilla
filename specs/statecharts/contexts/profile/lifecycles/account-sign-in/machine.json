@@ -6,15 +6,10 @@
     "kind": "lifecycle",
     "owner": "Identity owner (not named in specs)",
     "tier": "critical",
-    "emits": [
-      "SignedIn",
-      "SignedOut"
-    ],
+    "emits": ["SignedIn", "SignedOut"],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/profile/account-sign-in.qnt"
-    ],
+    "quint": ["specs/profile/account-sign-in.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking.",
     "emissionReview": "The published fact accompanies the upstream domain change; reopening or reprojecting a screen must not emit it again."
   },
@@ -24,14 +19,10 @@
         "description": "The person is opening the account sign in view.",
         "snapshot": "the-person-is-opening-the-account-sign-in-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ]
+        "source": ["specs/profile/account-sign-in.qnt"]
       },
       "on": {
         "Opens with viewing the guest account": {
@@ -43,9 +34,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:104"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:104"]
           }
         }
       }
@@ -64,9 +53,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ],
+        "source": ["specs/profile/account-sign-in.qnt"],
         "quintPredicates": [
           {
             "showsSignedIn.contains(selected device)": false,
@@ -106,9 +93,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Connect sign in method resulting in viewing the guest account": {
@@ -134,9 +119,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         },
         "Remove sign in method resulting in viewing the guest account": {
@@ -162,9 +145,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Sign in resulting in signed in with apple": {
@@ -190,9 +171,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Reconnect resulting in viewing the guest account": {
@@ -218,9 +197,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Lose connection resulting in viewing the guest account": {
@@ -246,9 +223,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:236"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:236"]
           }
         },
         "Sign out resulting in viewing the guest account": {
@@ -274,9 +249,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Sign out everywhere resulting in viewing the guest account": {
@@ -302,9 +275,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Abandon sign in resulting in viewing the guest account": {
@@ -330,9 +301,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:159"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:159"]
           }
         },
         "Sign in resulting in signed in with apple and google": {
@@ -358,9 +327,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Sign in resulting in signed in with google": {
@@ -386,9 +353,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         }
       }
@@ -407,15 +372,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ],
+        "source": ["specs/profile/account-sign-in.qnt"],
         "quintPredicates": [
           {
             "showsSignedIn.contains(selected device)": true,
-            "signInMethodsShown.get(selected device)": [
-              "apple"
-            ]
+            "signInMethodsShown.get(selected device)": ["apple"]
           }
         ],
         "invariants": [
@@ -451,9 +412,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Lose connection resulting in signed in with apple": {
@@ -479,9 +438,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:236"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:236"]
           }
         },
         "Sign out resulting in viewing the guest account": {
@@ -507,9 +464,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Connect sign in method resulting in signed in with apple and google": {
@@ -535,9 +490,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         },
         "Reconnect resulting in signed in with apple": {
@@ -563,9 +516,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Sign in resulting in signed in with apple": {
@@ -591,9 +542,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Sign out everywhere resulting in viewing the guest account": {
@@ -619,9 +568,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Sign out everywhere resulting in signed in with apple": {
@@ -647,9 +594,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Remove sign in method resulting in signed in with apple": {
@@ -675,9 +620,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Abandon sign in resulting in signed in with apple": {
@@ -703,9 +646,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:159"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:159"]
           }
         },
         "Connect sign in method resulting in signed in with apple": {
@@ -731,9 +672,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         },
         "Sign in resulting in signed in with apple and google": {
@@ -759,9 +698,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Sign out everywhere resulting in signed in with account methods": {
@@ -787,9 +724,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Reconnect resulting in signed in with apple and google": {
@@ -815,9 +750,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         }
       }
@@ -836,16 +769,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ],
+        "source": ["specs/profile/account-sign-in.qnt"],
         "quintPredicates": [
           {
             "showsSignedIn.contains(selected device)": true,
-            "signInMethodsShown.get(selected device)": [
-              "apple",
-              "google"
-            ]
+            "signInMethodsShown.get(selected device)": ["apple", "google"]
           }
         ],
         "invariants": [
@@ -881,9 +809,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:236"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:236"]
           }
         },
         "Remove sign in method resulting in signed in with apple": {
@@ -909,9 +835,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Reconnect resulting in signed in with apple and google": {
@@ -937,9 +861,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Sign out everywhere resulting in viewing the guest account": {
@@ -965,9 +887,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Remove sign in method resulting in signed in with apple and google": {
@@ -993,9 +913,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Reconnect resulting in signed in with google": {
@@ -1021,9 +939,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Abandon sign in resulting in signed in with apple and google": {
@@ -1049,9 +965,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:159"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:159"]
           }
         },
         "Remove sign in method resulting in signed in with google": {
@@ -1077,9 +991,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Sign out resulting in viewing the guest account": {
@@ -1105,9 +1017,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Sign in resulting in signed in with apple and google": {
@@ -1133,9 +1043,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Sign out resulting in signed in with apple and google": {
@@ -1161,9 +1069,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Sign out everywhere resulting in signed in with apple and google": {
@@ -1189,9 +1095,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Sign out everywhere resulting in signed in with account methods": {
@@ -1217,9 +1121,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Reconnect resulting in signed in with apple": {
@@ -1245,9 +1147,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Connect sign in method resulting in signed in with apple and google": {
@@ -1273,9 +1173,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         }
       }
@@ -1294,15 +1192,11 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ],
+        "source": ["specs/profile/account-sign-in.qnt"],
         "quintPredicates": [
           {
             "showsSignedIn.contains(selected device)": true,
-            "signInMethodsShown.get(selected device)": [
-              "google"
-            ]
+            "signInMethodsShown.get(selected device)": ["google"]
           }
         ],
         "invariants": [
@@ -1338,9 +1232,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:236"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:236"]
           }
         },
         "Connect sign in method resulting in signed in with google": {
@@ -1366,9 +1258,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         },
         "Remove sign in method resulting in signed in with google": {
@@ -1394,9 +1284,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:197"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:197"]
           }
         },
         "Sign out resulting in signed in with google": {
@@ -1422,9 +1310,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Sign out resulting in viewing the guest account": {
@@ -1450,9 +1336,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Connect sign in method resulting in signed in with apple and google": {
@@ -1478,9 +1362,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:180"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:180"]
           }
         },
         "Reconnect resulting in signed in with google": {
@@ -1506,9 +1388,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Sign out everywhere resulting in viewing the guest account": {
@@ -1534,9 +1414,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Sign out everywhere resulting in signed in with google": {
@@ -1562,9 +1440,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:219"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:219"]
           }
         },
         "Sign in resulting in signed in with google": {
@@ -1590,9 +1466,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         },
         "Abandon sign in resulting in signed in with google": {
@@ -1618,9 +1492,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:159"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:159"]
           }
         },
         "Sign in resulting in signed in with apple and google": {
@@ -1646,9 +1518,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         }
       }
@@ -1667,9 +1537,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/profile/account-sign-in.qnt"
-        ],
+        "source": ["specs/profile/account-sign-in.qnt"],
         "quintPredicates": [
           {
             "showsSignedIn.contains(selected device)": true,
@@ -1709,9 +1577,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:242"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:242"]
           }
         },
         "Sign out resulting in viewing the guest account": {
@@ -1737,9 +1603,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:167"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:167"]
           }
         },
         "Sign in resulting in signed in with account methods": {
@@ -1765,9 +1629,7 @@
                 }
               }
             },
-            "source": [
-              "specs/profile/account-sign-in.qnt:140"
-            ]
+            "source": ["specs/profile/account-sign-in.qnt:140"]
           }
         }
       }

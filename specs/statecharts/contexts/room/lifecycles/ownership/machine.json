@@ -9,9 +9,7 @@
     "emits": [],
     "reactsTo": [],
     "reviewStatus": "draft; owner approval and execution adapters pending",
-    "quint": [
-      "specs/room/ownership.qnt"
-    ],
+    "quint": ["specs/room/ownership.qnt"],
     "abstraction": "Finite user-visible projection of sampled valid traces; merged predicates may over-approximate combinations of hidden preconditions. This is not exhaustive model checking."
   },
   "states": {
@@ -20,14 +18,10 @@
         "description": "The person is opening the ownership view.",
         "snapshot": "the-person-is-opening-the-ownership-view",
         "recognize": [],
-        "checks": [
-          "No final outcome is claimed before the opening result."
-        ],
+        "checks": ["No final outcome is claimed before the opening result."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.qnt"
-        ]
+        "source": ["specs/room/ownership.qnt"]
       },
       "on": {
         "Opens with viewing an unowned room": {
@@ -39,9 +33,7 @@
               "step": 0,
               "seed": 42
             },
-            "source": [
-              "specs/room/ownership.qnt:47"
-            ]
+            "source": ["specs/room/ownership.qnt:47"]
           }
         }
       }
@@ -59,9 +51,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.qnt"
-        ],
+        "source": ["specs/room/ownership.qnt"],
         "quintPredicates": [
           {
             "owner": "",
@@ -96,9 +86,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:50"
-            ]
+            "source": ["specs/room/ownership.qnt:50"]
           }
         },
         "Add one resulting in viewing an unowned room": {
@@ -120,9 +108,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:68"
-            ]
+            "source": ["specs/room/ownership.qnt:68"]
           }
         },
         "Turn away resulting in viewing an unowned room": {
@@ -144,9 +130,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:59"
-            ]
+            "source": ["specs/room/ownership.qnt:59"]
           }
         },
         "Claim resulting in owning the room": {
@@ -168,9 +152,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:50"
-            ]
+            "source": ["specs/room/ownership.qnt:50"]
           }
         }
       }
@@ -188,9 +170,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.qnt"
-        ],
+        "source": ["specs/room/ownership.qnt"],
         "quintPredicates": [
           {
             "owner": "bob",
@@ -229,9 +209,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:50"
-            ]
+            "source": ["specs/room/ownership.qnt:50"]
           }
         },
         "Add one resulting in viewing another person’s room": {
@@ -253,9 +231,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:68"
-            ]
+            "source": ["specs/room/ownership.qnt:68"]
           }
         },
         "Turn away resulting in viewing another person’s room": {
@@ -277,9 +253,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:59"
-            ]
+            "source": ["specs/room/ownership.qnt:59"]
           }
         },
         "Turn away resulting in turned away from the room": {
@@ -301,9 +275,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:59"
-            ]
+            "source": ["specs/room/ownership.qnt:59"]
           }
         }
       }
@@ -321,9 +293,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.qnt"
-        ],
+        "source": ["specs/room/ownership.qnt"],
         "quintPredicates": [
           {
             "owner": "bob",
@@ -363,9 +333,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:59"
-            ]
+            "source": ["specs/room/ownership.qnt:59"]
           }
         },
         "Claim resulting in turned away from the room": {
@@ -387,9 +355,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:50"
-            ]
+            "source": ["specs/room/ownership.qnt:50"]
           }
         },
         "Add one resulting in turned away from the room": {
@@ -411,9 +377,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:68"
-            ]
+            "source": ["specs/room/ownership.qnt:68"]
           }
         }
       }
@@ -431,9 +395,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/room/ownership.qnt"
-        ],
+        "source": ["specs/room/ownership.qnt"],
         "quintPredicates": [
           {
             "owner": "alice",
@@ -469,9 +431,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:50"
-            ]
+            "source": ["specs/room/ownership.qnt:50"]
           }
         },
         "Turn away resulting in owning the room": {
@@ -493,9 +453,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:59"
-            ]
+            "source": ["specs/room/ownership.qnt:59"]
           }
         },
         "Add one resulting in owning the room": {
@@ -517,9 +475,7 @@
                 }
               }
             },
-            "source": [
-              "specs/room/ownership.qnt:68"
-            ]
+            "source": ["specs/room/ownership.qnt:68"]
           }
         }
       }

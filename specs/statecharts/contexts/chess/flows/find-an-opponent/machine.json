@@ -21,83 +21,56 @@
         "description": "The person is at the place where find someone to play multiplayer chess.",
         "snapshot": "the-person-is-at-the-place-where-find-someone-to-play-multiplayer-chess",
         "recognize": [],
-        "checks": [
-          "The journey’s starting facts are in place."
-        ],
+        "checks": ["The journey’s starting facts are in place."],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:2"
-        ]
+        "source": ["specs/chess/find-an-opponent.feature:2"]
       },
       "on": {
         "Alice finds a chess opponent for 5+0 when Alice has a free account and a connection": {
           "target": "Alice is looking for a chess opponent — 1",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:9"
-            ],
-            "condition": [
-              "Alice has a free account and a connection"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:9"],
+            "condition": ["Alice has a free account and a connection"],
             "example": "A free account can find a chess opponent"
           }
         },
         "Alice finds a chess opponent for 5+0 when Alice is a guest and Alice is hosting a space": {
           "target": "Alice is invited to sign in — 2",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:14"
-            ],
-            "condition": [
-              "Alice is a guest",
-              "Alice is hosting a space"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:14"],
+            "condition": ["Alice is a guest", "Alice is hosting a space"],
             "example": "A guest is invited to sign in"
           }
         },
         "Alice finds a chess opponent for 5+0 when Alice has an account without a connection": {
           "target": "Alice is told finding an opponent needs a connection — 3",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:21"
-            ],
-            "condition": [
-              "Alice has an account without a connection"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:21"],
+            "condition": ["Alice has an account without a connection"],
             "example": "An offline account cannot ask for a chess opponent"
           }
         },
         "Alice finds a chess opponent for 5+0 when Alice's multiplayer game with Bob is over": {
           "target": "Alice is looking for a chess opponent — 4",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:29"
-            ],
-            "condition": [
-              "Alice's multiplayer game with Bob is over"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:29"],
+            "condition": ["Alice's multiplayer game with Bob is over"],
             "example": "A person may find a chess opponent again after their multiplayer game is over"
           }
         },
         "Alice finds a chess opponent for 5+0 on another device": {
           "target": "Alice is told to finish her multiplayer game first — 5",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:34"
-            ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:34"],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "Another device cannot seek a second unfinished game"
           }
         },
         "Alice finds a chess opponent when Alice has a free account and a connection and Alice has a completed Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is looking for a chess opponent — 6",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:45"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:45"],
             "condition": [
               "Alice has a free account and a connection",
               "Alice has a completed Custom Game between Alice as White and Bob as Black"
@@ -108,9 +81,7 @@
         "Alice finds a chess opponent when Alice has a free account and a connection and Alice has an active Custom Game between Alice as White and Bob as Black": {
           "target": "Alice is told to finish her Custom Game first — 7",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:50"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:50"],
             "condition": [
               "Alice has a free account and a connection",
               "Alice has an active Custom Game between Alice as White and Bob as Black"
@@ -121,21 +92,15 @@
         "a matchmaking match is formed for Alice and Bob": {
           "target": "Alice and Bob have the same multiplayer game — 8",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:59"
-            ],
-            "condition": [
-              "Alice and Bob are looking for 5+0 chess opponents"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:59"],
+            "condition": ["Alice and Bob are looking for 5+0 chess opponents"],
             "example": "A matched pair receive opposite sides of the same new game"
           }
         },
         "Alice opens multiplayer chess": {
           "target": "Alice and Bob keep the same multiplayer game and board — 9",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:66"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:66"],
             "condition": [
               "Alice and Bob have a multiplayer game from a matchmaking match"
             ],
@@ -145,48 +110,32 @@
         "Alice opens multiplayer chess on another device when Alice is looking for a chess opponent": {
           "target": "Alice sees her same opponent search on that device — 10",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:74"
-            ],
-            "condition": [
-              "Alice is looking for a chess opponent"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:74"],
+            "condition": ["Alice is looking for a chess opponent"],
             "example": "Another device opens the person's accepted opponent search"
           }
         },
         "Alice opens multiplayer chess on another device when Alice has an unfinished multiplayer game with Bob": {
           "target": "Alice sees the same multiplayer game and board on that device — 11",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:79"
-            ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:79"],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "Returning to multiplayer chess does not start a new game"
           }
         },
         "Alice stops finding a chess opponent when Alice is looking for a chess opponent": {
           "target": "Alice is not looking for a chess opponent — 12",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:86"
-            ],
-            "condition": [
-              "Alice is looking for a chess opponent"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:86"],
+            "condition": ["Alice is looking for a chess opponent"],
             "example": "A waiting person can stop finding a chess opponent"
           }
         },
         "Alice stops finding a chess opponent when Alice has an unfinished multiplayer game with Bob": {
           "target": "Alice is told she has no opponent search to stop — 13",
           "meta": {
-            "source": [
-              "specs/chess/find-an-opponent.feature:91"
-            ],
-            "condition": [
-              "Alice has an unfinished multiplayer game with Bob"
-            ],
+            "source": ["specs/chess/find-an-opponent.feature:91"],
+            "condition": ["Alice has an unfinished multiplayer game with Bob"],
             "example": "A person cannot stop a search that already became a game"
           }
         }
@@ -197,14 +146,10 @@
         "description": "The person observes that alice is looking for a chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a chess opponent"
-        ],
+        "checks": ["Alice is looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:9"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:9"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -220,9 +165,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:14"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:14"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -238,9 +181,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:21"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:21"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -250,14 +191,10 @@
         "description": "The person observes that alice is looking for a chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a chess opponent"
-        ],
+        "checks": ["Alice is looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:29"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:29"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -273,9 +210,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:34"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:34"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -285,14 +220,10 @@
         "description": "The person observes that alice is looking for a chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is looking for a chess opponent"
-        ],
+        "checks": ["Alice is looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:45"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:45"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -308,9 +239,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:50"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:50"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -327,9 +256,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:59"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:59"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -339,14 +266,10 @@
         "description": "The person observes that alice and Bob keep the same multiplayer game and board.",
         "snapshot": "the-person-observes-that-alice-and-bob-keep-the-same-multiplayer-game-and-board",
         "recognize": [],
-        "checks": [
-          "Alice and Bob keep the same multiplayer game and board"
-        ],
+        "checks": ["Alice and Bob keep the same multiplayer game and board"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:66"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:66"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -356,14 +279,10 @@
         "description": "The person observes that alice sees her same opponent search on that device.",
         "snapshot": "the-person-observes-that-alice-sees-her-same-opponent-search-on-that-device",
         "recognize": [],
-        "checks": [
-          "Alice sees her same opponent search on that device"
-        ],
+        "checks": ["Alice sees her same opponent search on that device"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:74"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:74"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -378,9 +297,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:79"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:79"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -390,14 +307,10 @@
         "description": "The person observes that alice is not looking for a chess opponent.",
         "snapshot": "the-person-observes-that-alice-is-not-looking-for-a-chess-opponent",
         "recognize": [],
-        "checks": [
-          "Alice is not looking for a chess opponent"
-        ],
+        "checks": ["Alice is not looking for a chess opponent"],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:86"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:86"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
@@ -413,9 +326,7 @@
         ],
         "events": [],
         "confidence": "assumed",
-        "source": [
-          "specs/chess/find-an-opponent.feature:91"
-        ],
+        "source": ["specs/chess/find-an-opponent.feature:91"],
         "scopeEnd": "The agreed example ends at this observation; this is not a terminal account or game state."
       },
       "type": "final"
