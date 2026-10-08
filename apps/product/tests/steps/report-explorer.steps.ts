@@ -59,7 +59,7 @@ When("the team explores that version's report parts", async (w) => {
 When("the team explores the earlier version's report parts", async (w) => {
   await w.s.apply(exploreParts);
 });
-When('the team opens the test reports', async (w) => {
+When('the team investigates which test reports are available', async (w) => {
   await w.s.apply(openExplorerReports);
 });
 When('the team asks to open the test reports again', async (w) => {
