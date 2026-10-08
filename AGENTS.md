@@ -55,6 +55,10 @@ credentials: [`README.md`](README.md#correctness-machinery).
 
 ## `@pkgs/ui` design system
 
+For frontend design, new screens, UI changes and visual consistency reviews,
+use [`frontend-design`](.agents/skills/frontend-design/SKILL.md), including
+mobile and native app surfaces.
+
 `@pkgs/ui` is the only design-system surface: every component, prop type,
 hook and theme helper is in-house under `pkgs/ui-root-client/src/*`,
 re-exported from individual module exports (`import { Button }
