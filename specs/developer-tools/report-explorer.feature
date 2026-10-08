@@ -11,6 +11,7 @@ Feature: Explore the app through its specs and automated evidence
       When the team explores that version's specs
       Then the team can read each spec and open its test reports
 
+    @regression:reports-local-empty
     Scenario: A spec without evidence explains what is missing
       Given a version of the app has a spec without a completed test report
       When the team explores that version's specs
@@ -43,6 +44,7 @@ Feature: Explore the app through its specs and automated evidence
 
   Rule: Unavailable test reports explain the problem and allow another attempt
 
+    @regression:reports-unavailable-hidden
     Scenario: Unavailable test reports show an explanation
       Given the team's test reports are unavailable
       When the team opens the test reports
