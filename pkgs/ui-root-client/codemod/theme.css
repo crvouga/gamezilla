@@ -11,34 +11,48 @@
  */
 
 @theme {
+  /* Locked vocabulary. Tailwind's stock palette, type scale, radii and
+     shadows are cleared, so `text-red-500`, `text-[13px]`-style sizes,
+     `rounded-3xl` and `shadow-lg` do not exist and cannot drift a screen.
+     Only the design tokens below generate utilities. */
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
   --font-sans: var(--ui-font-sans);
   --font-display: var(--ui-font-display);
   --font-mono: var(--ui-font-mono);
-  --font-serif: var(--ui-font-serif);
   --radius-xs: var(--ui-radius-xs);
   --radius-sm: var(--ui-radius-sm);
   --radius-md: var(--ui-radius-md);
   --radius-lg: var(--ui-radius-lg);
   --radius-xl: var(--ui-radius-xl);
   --radius-2xl: var(--ui-radius-2xl);
-  --radius-3xl: var(--ui-radius-2xl);
-  --radius-4xl: var(--ui-radius-full);
+  --radius-full: var(--ui-radius-full);
   --radius-control: var(--ui-radius-md);
   --radius-card: var(--ui-radius-lg);
-  --radius-panel: var(--ui-radius-lg);
   --radius-sheet: var(--ui-radius-xl);
-  --text-2xs: 11px;
-  --text-micro: 10px;
-  --text-nano: 9px;
-  --text-caption: 13px;
-  --text-caption--line-height: 18px;
-  --text-action: 15px;
-  --text-action--line-height: 20px;
-  --tracking-logo: -0.5px;
-  --tracking-button: 0.1px;
-  --tracking-section: 0.5px;
-  --tracking-caps: 1px;
+  --text-xs: var(--ui-font-size-xs);
+  --text-xs--line-height: var(--ui-leading-xs);
+  --text-sm: var(--ui-font-size-sm);
+  --text-sm--line-height: var(--ui-leading-sm);
+  --text-base: var(--ui-font-size-base);
+  --text-base--line-height: var(--ui-leading-base);
+  --text-lg: var(--ui-font-size-lg);
+  --text-lg--line-height: var(--ui-leading-lg);
+  --text-xl: var(--ui-font-size-xl);
+  --text-xl--line-height: var(--ui-leading-xl);
+  --text-2xl: var(--ui-font-size-2xl);
+  --text-2xl--line-height: var(--ui-leading-2xl);
+  --text-3xl: var(--ui-font-size-3xl);
+  --text-3xl--line-height: var(--ui-leading-3xl);
+  --text-4xl: var(--ui-font-size-4xl);
+  --text-4xl--line-height: var(--ui-leading-4xl);
   --opacity-muted: 55%;
+  --color-transparent: transparent;
+  --color-current: currentColor;
   --color-perf-background: rgba(0, 0, 0, 0.85);
   --color-perf-border: rgba(255, 255, 255, 0.12);
   --color-perf-divider: rgba(255, 255, 255, 0.1);

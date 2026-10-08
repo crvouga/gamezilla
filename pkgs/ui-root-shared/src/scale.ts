@@ -24,15 +24,21 @@ export const spacing = {
 
 export type SpacingKey = keyof typeof spacing;
 
+/**
+ * The classic typographic scale (12, 14, 16, 18, 21, 24, 36, 48), not a
+ * linear ramp. Nothing in the product renders below 12px. Screens never pick
+ * a size: they pick a role class (`textTitle`, `textCaption`, …) in
+ * `hosts.css`, and the role picks the step.
+ */
 export const fontSize = {
   xs: 12,
   sm: 14,
   base: 16,
   lg: 18,
-  xl: 20,
+  xl: 21,
   '2xl': 24,
-  '3xl': 30,
-  '4xl': 36,
+  '3xl': 36,
+  '4xl': 48,
 } as const;
 
 /**
@@ -45,31 +51,35 @@ export const lineHeight = {
   relaxed: 1.75,
 } as const;
 
-/** Per-step leading in px. Paired with `fontSize` as `--ui-leading-*`. */
+/**
+ * Per-step leading in px, on the 4px grid. Body steps breathe (1.5); display
+ * steps tighten as they grow. Paired with `fontSize` as `--ui-leading-*`.
+ */
 export const fontLeading = {
-  xs: 18,
-  sm: 22,
-  base: 26,
+  xs: 16,
+  sm: 20,
+  base: 24,
   lg: 24,
   xl: 28,
-  '2xl': 34,
-  '3xl': 38,
-  '4xl': 44,
+  '2xl': 28,
+  '3xl': 40,
+  '4xl': 52,
 } as const;
 
 /**
- * Chunky game radii. Controls and cards read as toys, not a dashboard.
- * `xs` is the tightest squircle (close buttons, inline chips); `lg` / `xl`
- * are cards and primary buttons; `full` is pills.
+ * Radius encodes hierarchy, so it is never one value everywhere:
+ * `sm` marks and inline chips, `md` controls (buttons, inputs, rows),
+ * `lg` panels that group controls, `xl` sheets and dialogs. `full` is only
+ * for things that are round by nature: avatars, pills, the FAB, dots.
  */
 export const borderRadius = {
   none: 0,
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 22,
+  xs: 6,
+  sm: 8,
+  md: 12,
+  lg: 20,
   xl: 28,
-  '2xl': 40,
+  '2xl': 36,
   full: 9999,
 } as const;
 

@@ -108,8 +108,6 @@ function themeFontStyle(
   if (overrides === undefined) return undefined;
   return {
     '--ui-font-sans': merged.sans,
-    '--ui-font-serif': merged.serif,
-    '--ui-font-rounded': merged.rounded,
     '--ui-font-display': merged.display,
     '--ui-font-mono': merged.mono,
   };

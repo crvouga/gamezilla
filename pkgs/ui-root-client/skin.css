@@ -1,4 +1,13 @@
-/* Component paint. One class + data-face / data-status. Colors are tokens. */
+/* Component paint. One class + data-face / data-status. Colors are tokens.
+ *
+ * Club room rules, so every screen agrees without trying:
+ * - Brass (`tint-active` fill, ink `on-primary` label) means "the thing to
+ *   do" or "the thing chosen": primary buttons, the FAB, selected chips, the
+ *   active tab. Never decoration.
+ * - Controls share `--ui-radius-md`. Pills are only for round things.
+ * - No shadows and no gradients: surfaces step up in tone instead, which is
+ *   also what a low-end phone can paint at 60fps.
+ * - Press feedback is a tone shift plus a small scale, never a bounce. */
 
 @layer components {
   .themeHost {
@@ -12,11 +21,7 @@
     font-family: var(--ui-font-sans);
     color: var(--ui-color-text);
     background-color: var(--ui-color-background);
-    background-image: radial-gradient(
-      120% 70% at 100% -20%,
-      var(--ui-color-tint-subtle),
-      transparent 60%
-    );
+    -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
@@ -27,29 +32,31 @@
   .text.appLogo {
     font-family: var(--ui-font-display);
     font-weight: 800;
-    letter-spacing: -0.04em;
-    color: var(--ui-color-tint);
+    letter-spacing: -0.035em;
+    color: var(--ui-color-text);
   }
 
-  .btn,
-  .fab {
+  /* Doubled with `.clickable` so the host reset (`border: 0`, later in the
+     same layer) never wins over the button's own border. */
+  .clickable.btn,
+  .clickable.fab {
     border-style: solid;
-    border-width: 0;
+    border-width: 1px;
     border-color: transparent;
     background: transparent;
     color: var(--ui-color-tint);
     font-family: var(--ui-font-display);
-    font-weight: 700;
-    letter-spacing: 0.01em;
+    font-weight: 650;
+    letter-spacing: -0.005em;
     --ui-on-fg: var(--ui-color-tint);
     --ui-on-fg-muted: var(--ui-color-tint);
     --ui-on-icon: var(--ui-color-tint);
-    transition: transform var(--ui-duration-fast) var(--ui-easing-playful);
+    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .btn:not(:disabled):active,
   .fab:not(:disabled):active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
   .btn .text,
@@ -70,33 +77,33 @@
   }
 
   .btn[data-size="md"] {
-    min-height: 44px;
-    padding: 10px 18px;
-    border-radius: var(--ui-radius-lg);
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: var(--ui-radius-md);
     font-size: 16px;
     line-height: 22px;
   }
 
   .btn[data-size="lg"] {
-    min-height: 52px;
-    padding: 12px 22px;
-    border-radius: var(--ui-radius-xl);
+    min-height: 56px;
+    padding: 14px 24px;
+    border-radius: var(--ui-radius-md);
     font-size: 17px;
     line-height: 24px;
-    font-weight: 800;
+    font-weight: 700;
   }
 
   .fab {
     height: 56px;
     min-height: 56px;
     border-radius: var(--ui-radius-full);
-    font-size: 15px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 22px;
   }
 
   .fab[data-extended="true"] {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 20px;
+    padding-right: 24px;
   }
 
   .btn[data-face="primary"],
@@ -115,7 +122,7 @@
 
   .btn[data-face="danger"],
   .fab[data-face="danger"] {
-    background: var(--ui-color-destructive);
+    background: var(--ui-color-destructive-active);
     color: var(--ui-color-on-destructive);
     --ui-on-fg: var(--ui-color-on-destructive);
     --ui-on-fg-muted: var(--ui-color-on-destructive);
@@ -133,28 +140,19 @@
 
   .btn[data-face="neutral"],
   .fab[data-face="neutral"] {
-    background: var(--ui-color-surface-elevated);
+    background: var(--ui-color-surface-muted);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
     --ui-on-fg-muted: var(--ui-color-text-secondary);
     --ui-on-icon: var(--ui-color-icon);
   }
 
-  .btn[data-face="neutral"] {
-    border-width: 1px;
-    border-color: var(--ui-color-outline);
-  }
-
   .btn[data-face="primary-outline"] {
-    background: transparent;
-    border-width: 1px;
     border-color: var(--ui-color-tint);
     color: var(--ui-color-tint);
   }
 
   .btn[data-face="danger-outline"] {
-    background: transparent;
-    border-width: 1px;
     border-color: var(--ui-color-destructive);
     color: var(--ui-color-destructive);
     --ui-on-fg: var(--ui-color-destructive);
@@ -163,8 +161,6 @@
   }
 
   .btn[data-face="success-outline"] {
-    background: transparent;
-    border-width: 1px;
     border-color: var(--ui-color-success);
     color: var(--ui-color-success);
     --ui-on-fg: var(--ui-color-success);
@@ -173,8 +169,6 @@
   }
 
   .btn[data-face="neutral-outline"] {
-    background: transparent;
-    border-width: 1px;
     border-color: var(--ui-color-outline);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
@@ -218,7 +212,6 @@
 
   .btn[data-face="disabled-outline"],
   .btn[data-face="disabled-ghost"] {
-    background: transparent;
     color: var(--ui-color-text-secondary);
     --ui-on-fg: var(--ui-color-text-secondary);
     --ui-on-fg-muted: var(--ui-color-text-secondary);
@@ -226,7 +219,6 @@
   }
 
   .btn[data-face="disabled-outline"] {
-    border-width: 1px;
     border-color: var(--ui-color-border);
   }
 
@@ -250,14 +242,15 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
+  /* Chips are choices. Chosen is brass, like every other "this one". */
   .chip {
-    height: 32px;
-    min-width: 56px;
-    padding-left: 12px;
-    padding-right: 12px;
+    height: 36px;
+    min-width: 48px;
+    padding-left: 14px;
+    padding-right: 14px;
     border-radius: var(--ui-radius-full);
-    border: 1px solid var(--ui-color-border);
-    background: var(--ui-color-surface);
+    border: 1px solid var(--ui-color-outline);
+    background: transparent;
     color: var(--ui-color-text);
     font-family: var(--ui-font-display);
     font-size: var(--ui-font-size-sm);
@@ -267,9 +260,11 @@
 
   .chip[aria-pressed="true"],
   .chip[aria-checked="true"] {
-    border-color: var(--ui-color-tint);
-    background: var(--ui-color-tint-highlight);
-    color: var(--ui-color-tint);
+    border-color: var(--ui-color-tint-active);
+    background: var(--ui-color-tint-active);
+    color: var(--ui-color-on-primary);
+    --ui-on-fg: var(--ui-color-on-primary);
+    --ui-on-icon: var(--ui-color-on-primary);
   }
 
   .chip:disabled {
@@ -278,21 +273,22 @@
 
   .badge {
     border-radius: var(--ui-radius-full);
-    padding: 3px 8px;
+    padding: 2px 8px;
     background: var(--ui-color-tint-subtle);
     color: var(--ui-color-tint);
     font-family: var(--ui-font-display);
-    font-size: 12px;
+    font-size: var(--ui-font-size-xs);
     font-weight: 700;
-    line-height: 14px;
+    line-height: var(--ui-leading-xs);
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
   .badge[data-size="sm"] {
-    padding: 2px 6px;
+    padding: 1px 6px;
     min-width: 18px;
     min-height: 18px;
-    font-size: 11px;
-    line-height: 13px;
+    font-size: var(--ui-font-size-xs);
+    line-height: 16px;
   }
 
   .badge[data-intent="neutral"][data-tone="subtle"] {
