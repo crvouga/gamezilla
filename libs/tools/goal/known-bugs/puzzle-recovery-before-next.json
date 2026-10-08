@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle-result-recovery trace 13 finished WrongMove as Alice closed, then Charlie opened the same account before that result had been recorded. The new-device picker cleared the completed board too early. Retain it until the result ledger is ready and contains the first result.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/puzzle-result-recovery.binding.ts"
+}

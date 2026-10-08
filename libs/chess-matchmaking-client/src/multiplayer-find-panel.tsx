@@ -36,7 +36,7 @@ export function MultiplayerFindPanel(props: {
           },
         }))}
       />
-      <p class="text-sm text-text-secondary">
+      <p class="text textCaption text-text-secondary">
         <Trans>Minutes per player + seconds added after each move.</Trans>
       </p>
       <GameActionButton

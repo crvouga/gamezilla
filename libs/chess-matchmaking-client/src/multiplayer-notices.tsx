@@ -32,7 +32,7 @@ export function MultiplayerNotices(props: {
         <p
           role="status"
           data-testid="multiplayer-offline"
-          class="rounded-xl bg-warning-surface p-4 text-sm"
+          class="text textCaption rounded-xl bg-warning-surface p-4"
         >
           <Trans>
             Multiplayer commands need a connection. Your accepted game stays

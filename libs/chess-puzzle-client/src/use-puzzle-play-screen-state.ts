@@ -35,6 +35,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  type Setter,
   untrack,
 } from 'solid-js';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
@@ -45,8 +46,9 @@ import {
   useIsPuzzleAlreadyRated,
 } from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';
-import { isFinishedPuzzleStatus } from './use-puzzle-player-handlers';
 import { usePuzzleAttemptMemory } from './use-puzzle-attempt-memory';
+import { isFinishedPuzzleStatus } from './use-puzzle-player-handlers';
+import { usePuzzleResultRecorded } from './use-puzzle-result-recorded';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 import type { RatedStartGate } from './use-rated-start-gate';
 import { useRatedStartGate } from './use-rated-start-gate';
@@ -159,16 +161,69 @@ type PuzzlePlacementInput = {
   clearRoomPuzzle: () => void;
 };
 
+function useAdvanceFinishedPuzzle(
+  args: PuzzlePlacementInput,
+  state: {
+    activePuzzleId: Accessor<string | null>;
+    attemptSeed: Accessor<number>;
+    recorded: Accessor<boolean>;
+    setAvoidFinishedId: Setter<string | null>;
+    setAttemptSeed: Setter<number>;
+  }
+): void {
+  createEffect(() => {
+    if (
+      !args.roomReady() ||
+      !state.recorded() ||
+      !args.canPick() ||
+      !args.roomFinished() ||
+      args.seenAttempt()
+    )
+      return;
+    if (state.activePuzzleId() !== null || state.attemptSeed() !== 0) return;
+    const finished = args.roomPuzzleId();
+    if (finished === null) return;
+    batch(() => {
+      state.setAvoidFinishedId(finished);
+      args.clearRoomPuzzle();
+      state.setAttemptSeed((seed) => seed + 1);
+    });
+  });
+}
+
+function createLinkedPuzzleRequest(state: {
+  activePuzzleId: Accessor<string | null>;
+  setActivePuzzleId: Setter<string | null>;
+  setLinked: Setter<string | null>;
+  setAttemptSeed: Setter<number>;
+  clearRoomPuzzle: () => void;
+}): PuzzlePlacement['requestLinked'] {
+  return (puzzleId, over) => {
+    const onBoard = untrack(state.activePuzzleId) === puzzleId;
+    if (onBoard && !over) return;
+    state.clearRoomPuzzle();
+    batch(() => {
+      if (onBoard) state.setActivePuzzleId(null);
+      state.setLinked(puzzleId);
+      state.setAttemptSeed((seed) => seed + 1);
+    });
+  };
+}
+
+function useAlreadyRatedPuzzle(): (puzzleId: string) => boolean {
+  const ratingEvents = useChessPuzzleRatingEvents();
+  return (puzzleId) =>
+    ratingEvents().some((event) => event.puzzleId === puzzleId);
+}
+
 function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
   const [linked, setLinked] = createSignal<string | null>(null);
   const [avoidFinishedId, setAvoidFinishedId] = createSignal<string | null>(
     null
   );
-  const ratingEvents = useChessPuzzleRatingEvents();
-  /** A puzzle that already moved the rating: its repeat starts free. */
-  const alreadyRated = (puzzleId: string): boolean =>
-    ratingEvents().some((event) => event.puzzleId === puzzleId);
+  const alreadyRated = useAlreadyRatedPuzzle();
+  const resultRecord = usePuzzleResultRecorded(args.roomPuzzleId);
   const [linkedDenied, setLinkedDenied] = createSignal(false);
   const [attemptSeed, setAttemptSeed] = createSignal(0);
   const [readyGeneration, setReadyGeneration] = createSignal(0);
@@ -190,26 +245,18 @@ function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
     poolReady: args.poolReady,
   });
 
-  createEffect(() => {
-    if (
-      !args.roomReady() ||
-      !args.canPick() ||
-      !args.roomFinished() ||
-      args.seenAttempt()
-    )
-      return;
-    if (activePuzzleId() !== null || attemptSeed() !== 0) return;
-    const finished = args.roomPuzzleId();
-    if (finished === null) return;
-    batch(() => {
-      setAvoidFinishedId(finished);
-      args.clearRoomPuzzle();
-      setAttemptSeed((seed) => seed + 1);
-    });
+  useAdvanceFinishedPuzzle(args, {
+    activePuzzleId,
+    attemptSeed,
+    recorded: resultRecord.recorded,
+    setAvoidFinishedId,
+    setAttemptSeed,
   });
 
   createEffect(() => {
     if (!args.roomReady()) return;
+    if (args.roomFinished() && !args.seenAttempt() && !resultRecord.ready())
+      return;
     applyPlacement({
       seed: attemptSeed(),
       decision: decidePuzzlePlacement({
@@ -243,18 +290,13 @@ function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
     readyGeneration,
     startNonce,
     onRequestNext: () => setAttemptSeed((s) => s + 1),
-    requestLinked: (puzzleId, over) => {
-      const onBoard = untrack(activePuzzleId) === puzzleId;
-      // The linked puzzle already being solved stays as it is.
-      if (onBoard && !over) return;
-      args.clearRoomPuzzle();
-      batch(() => {
-        // A finished attempt at it gives way to a fresh one.
-        if (onBoard) setActivePuzzleId(null);
-        setLinked(puzzleId);
-        setAttemptSeed((s) => s + 1);
-      });
-    },
+    requestLinked: createLinkedPuzzleRequest({
+      activePuzzleId,
+      setActivePuzzleId,
+      setLinked,
+      setAttemptSeed,
+      clearRoomPuzzle: args.clearRoomPuzzle,
+    }),
     linkedDenied,
     next,
   };

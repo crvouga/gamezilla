@@ -146,7 +146,7 @@ export function MultiplayerBoard(props: {
       </GameBoardStage>
       <GameSection title={t`Multiplayer move list`}>
         <p
-          class="textMono break-words text-sm text-text-secondary"
+          class="text textCaption textMono break-words text-text-secondary"
           data-testid="multiplayer-move-list"
         >
           {moveListText(props.game)}

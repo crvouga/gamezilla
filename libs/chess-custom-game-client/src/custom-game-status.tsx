@@ -153,7 +153,7 @@ export function CustomGameStatus(props: {
   return (
     <div class="box gap-2" data-component="CustomGameStatus">
       <p
-        class="text-sm text-text-secondary"
+        class="text textCaption text-text-secondary"
         role="status"
         aria-live="polite"
         data-testid="chess-custom-status"

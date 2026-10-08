@@ -16,8 +16,8 @@ import {
   signedInAccountOf as readAccount,
   signedInAccountOf,
 } from '@libs/harness/identity';
-import { partitioned } from '@libs/harness/observations';
 import { failNextHarnessObjectWrite } from '@libs/harness/mockingbird-object-store';
+import { partitioned } from '@libs/harness/observations';
 import { openAccount } from '@libs/harness/shell-actions';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import sql from '@pkgs/sql-root-shared/sql';

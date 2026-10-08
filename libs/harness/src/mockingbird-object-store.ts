@@ -34,11 +34,14 @@ export function createHarnessObjectStore(clock: Clock) {
 
 /** Fault the vendor's next PUT, while retaining the real S3 client path. */
 export function failNextHarnessObjectWrite(store: ObjectStore): void {
-  if (
-    !('failNextWrite' in store) ||
-    typeof store.failNextWrite !== 'function'
-  ) {
+  if (!hasWriteFaultControl(store)) {
     throw new Error('Object storage fault control is not mounted');
   }
   store.failNextWrite();
+}
+
+function hasWriteFaultControl(
+  store: ObjectStore
+): store is ObjectStore & { failNextWrite: () => void } {
+  return 'failNextWrite' in store && typeof store.failNextWrite === 'function';
 }
