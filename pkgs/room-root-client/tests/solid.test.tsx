@@ -78,18 +78,17 @@ describe('createRoomSnapshot', () => {
   test('one room update publishes all selectors together', () => {
     const source = createFakeRoom({ [COUNT]: 1, [TITLE]: 'First' });
     const seen: string[] = [];
-    let dispose = () => {};
-    createRoot((cleanup) => {
-      dispose = cleanup;
+    const dispose = createRoot((cleanup) => {
       const count = createRoomSelector(
         () => source,
-        (s) => s[COUNT]
+        (s) => Number(s[COUNT])
       );
       const title = createRoomSelector(
         () => source,
-        (s) => s[TITLE]
+        (s) => String(s[TITLE])
       );
       createEffect(() => seen.push(`${count()}:${title()}`));
+      return cleanup;
     });
     try {
       source.setState({ [COUNT]: 2, [TITLE]: 'Second' });
