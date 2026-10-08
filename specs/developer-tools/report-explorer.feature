@@ -47,7 +47,7 @@ Feature: Explore the app through its specs and automated evidence
     @regression:reports-unavailable-hidden
     Scenario: Unavailable test reports show an explanation
       Given the team's test reports are unavailable
-      When the team opens the test reports
+      When the team investigates which test reports are available
       Then the team is told why the test reports are unavailable
       And the team is offered another attempt
 
