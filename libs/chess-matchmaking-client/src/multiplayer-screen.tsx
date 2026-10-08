@@ -95,8 +95,7 @@ function MultiplayerContent(props: {
             when={
               props.data.game() === null &&
               props.data.search() === null &&
-              !props.data.loading() &&
-              props.data.hostId() !== props.data.myId()
+              !props.data.loading()
             }
           >
             <p role="status" data-testid="multiplayer-unavailable">
