@@ -1,0 +1,4 @@
+{
+  "summary": "Opening the puzzle screen advanced any finished room attempt, so reopening the app or returning from sound settings discarded solved, revealed and skipped results. Trace 30 with seed 0x67932 reopened a revealed puzzle at step 43 and replaced its board. Resume every existing attempt; advance only after the person's explicit choice.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/puzzle-attempt.binding.ts"
+}

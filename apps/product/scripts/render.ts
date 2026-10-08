@@ -83,7 +83,11 @@ function openPage(css: string, signal?: AbortSignal): SnapshotRenderer {
     backend: {
       type: 'chrome',
       url: false,
-      argv: ['--disable-background-networking', '--disable-component-update'],
+      argv: [
+        '--headless=new',
+        '--disable-background-networking',
+        '--disable-component-update',
+      ],
     },
   });
   const stop = () => view.close();

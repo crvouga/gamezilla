@@ -83,30 +83,6 @@ type PuzzlePlacement = {
   next: ReturnType<typeof useNextPuzzleId>;
 };
 
-/**
- * A driver opening a space whose puzzle is already finished moves on, the
- * same as Next: the played puzzle is not what their other device is served.
- */
-function useAdvanceFinishedRoom(args: {
-  canPick: Accessor<boolean>;
-  roomFinished: Accessor<boolean>;
-  roomPuzzleId: Accessor<string | null>;
-  active: Accessor<string | null>;
-  attemptSeed: Accessor<number>;
-  /** Remember the finished puzzle, clear it, and ask for the next one. */
-  advance: (finishedPuzzleId: string) => void;
-}): void {
-  const advanced: { current: boolean } = { current: false };
-  createEffect(() => {
-    if (advanced.current || !args.canPick()) return;
-    if (args.attemptSeed() !== 0 || args.active() !== null) return;
-    const finished = args.roomPuzzleId();
-    if (!args.roomFinished() || finished === null) return;
-    advanced.current = true;
-    args.advance(finished);
-  });
-}
-
 type PlacementCommit = {
   readonly seed: number;
   readonly decision: ReturnType<typeof decidePuzzlePlacement>;
@@ -164,13 +140,12 @@ function applyPlacement(args: PlacementCommit): void {
 
 /**
  * Owns which puzzle is on screen. The room's puzzle id wins for spectators
- * and rejoins of an unfinished puzzle; the local picker fills the slot after
- * Next, a finished puzzle, or feed edits.
+ * and rejoins, including a finished attempt; the local picker fills the slot
+ * after the person moves on or edits the feed.
  */
 type PuzzlePlacementInput = {
   myId: Accessor<string>;
   roomPuzzleId: Accessor<string | null>;
-  roomFinished: Accessor<boolean>;
   roomResumable: Accessor<boolean>;
   poolReady: Accessor<boolean>;
   canPick: Accessor<boolean>;
@@ -179,37 +154,9 @@ type PuzzlePlacementInput = {
   clearRoomPuzzle: () => void;
 };
 
-/** Opening a finished room moves on once, the same way Next does. */
-function useSkipFinishedOpening(
-  args: PuzzlePlacementInput,
-  session: {
-    active: Accessor<string | null>;
-    attemptSeed: Accessor<number>;
-    setAttemptSeed: (update: (seed: number) => number) => void;
-    setAvoidFinishedId: (puzzleId: string) => void;
-  }
-): void {
-  useAdvanceFinishedRoom({
-    canPick: args.canPick,
-    roomFinished: args.roomFinished,
-    roomPuzzleId: args.roomPuzzleId,
-    active: session.active,
-    attemptSeed: session.attemptSeed,
-    advance: (finishedPuzzleId) => {
-      session.setAvoidFinishedId(finishedPuzzleId);
-      args.clearRoomPuzzle();
-      session.setAttemptSeed((seed) => seed + 1);
-    },
-  });
-}
-
 function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
   const [linked, setLinked] = createSignal<string | null>(null);
-  /** Finished room puzzle kept out of the pick after it is cleared. */
-  const [avoidFinishedId, setAvoidFinishedId] = createSignal<string | null>(
-    null
-  );
   const ratingEvents = useChessPuzzleRatingEvents();
   /** A puzzle that already moved the rating: its repeat starts free. */
   const alreadyRated = (puzzleId: string): boolean =>
@@ -229,17 +176,9 @@ function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
   };
 
   const next = useNextPuzzleId({
-    currentPuzzleId: () =>
-      activePuzzleId() ?? args.roomPuzzleId() ?? avoidFinishedId(),
+    currentPuzzleId: () => activePuzzleId() ?? args.roomPuzzleId(),
     seed: () => `${args.myId()}-${attemptSeed()}`,
     poolReady: args.poolReady,
-  });
-
-  useSkipFinishedOpening(args, {
-    active: activePuzzleId,
-    attemptSeed,
-    setAttemptSeed,
-    setAvoidFinishedId,
   });
 
   createEffect(() => {
@@ -362,18 +301,14 @@ function useDriverPlacement(
   const canPick = useIsPuzzleDriver();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
-  const roomFinished = createMemo(() => isFinishedPuzzleStatus(roomStatus()));
   const roomResumable = createMemo(
-    () =>
-      roomStatus() === CHESS_PUZZLE_PLAY_STATUS.solving ||
-      roomStatus() === CHESS_PUZZLE_PLAY_STATUS.wrong
+    () => roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle
   );
   const requestNextRef: { current: () => void } = { current: () => {} };
   const gate = useRatedStartGate(() => requestNextRef.current());
   const placement = usePuzzlePlacement({
     myId,
     roomPuzzleId,
-    roomFinished,
     roomResumable,
     poolReady,
     canPick,

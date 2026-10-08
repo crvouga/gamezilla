@@ -1,6 +1,10 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
+  shownMultiplayerLineup,
+  shownMultiplayerSearch,
+} from '@libs/chess-matchmaking-harness/multiplayer-presentation';
+import {
   multiplayerView,
   shownMultiplayerText,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
@@ -21,17 +25,13 @@ async function matchedAs(
     async (s) =>
       (await shownMultiplayerText(s, viewer, 'multiplayer-opponent')) !== null
   );
-  const shown = (await w.s.read(
-    shownMultiplayerText,
-    viewer,
-    'multiplayer-opponent'
-  ))!;
+  const shown = await w.s.read(shownMultiplayerLineup, viewer);
   const game = (await w.s.read(multiplayerView, viewer)).game!;
   const white = game.white_id === (await ownerOf(w, viewer));
-  expect(shown).toContain(opponent);
-  expect(shown).toContain(`(${expected.rating})`);
-  expect(shown).toContain(expected.timeControl);
-  expect(shown).toContain(white ? 'You play White' : 'You play Black');
+  expect(shown.opponent).toContain(opponent);
+  expect(shown.opponent).toContain(`(${expected.rating})`);
+  expect(shown.timeControl).toBe(expected.timeControl);
+  expect(shown.colour).toBe(white ? 'You play White' : 'You play Black');
 }
 
 Then(
@@ -58,13 +58,9 @@ Then(
   '{actor} sees she has been looking for a {word} chess opponent for {int} seconds',
   async (w, actor: Actor, timeControl: string, seconds: number) => {
     await w.s.apply(openMultiplayerChess, actor);
-    const shown = await w.s.read(
-      shownMultiplayerText,
-      actor,
-      'multiplayer-waiting'
-    );
-    expect(shown).toContain(timeControl);
-    expect(shown).toContain(`for ${String(seconds)} seconds`);
+    const shown = await w.s.read(shownMultiplayerSearch, actor);
+    expect(shown.message).toContain(timeControl);
+    expect(shown.elapsedSeconds).toBe(seconds);
   }
 );
 
