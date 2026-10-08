@@ -58,11 +58,11 @@ describe('Switch', () => {
     const el = screen.getByRole('switch', { name: 'Sound' });
     expect(el).toHaveAttribute('aria-checked', 'false');
     const track = el.querySelector('[class*="rounded"]');
-    expect(track?.className).toMatch(/bg-disabled/);
+    expect(track?.className).toMatch(/bg-surface-muted/);
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
     expect(el.className).toMatch(/min-h-11/);
-    expect(track?.className).toMatch(/bg-tint/);
+    expect(track?.className).toMatch(/bg-tint-active/);
   });
 
   // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper

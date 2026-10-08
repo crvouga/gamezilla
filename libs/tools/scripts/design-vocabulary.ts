@@ -21,7 +21,7 @@ type Rule = {
 };
 
 const TYPE_UTILITY =
-  /^(text-(xs|sm|base|lg|xl|[2-9]xl|2xs|micro|nano|caption|action)|font-(thin|extralight|light|normal|medium|semibold|bold|extrabold|black|display|sans|mono)|leading-.+|tracking-.+|uppercase|lowercase|capitalize|italic)$/;
+  /^(text-(xs|sm|base|lg|xl|[2-9]xl|2xs|micro|nano|caption|action)|font-(thin|extralight|light|normal|medium|semibold|bold|extrabold|black|display|sans|mono)|leading-.+|tracking-.+|uppercase|italic)$/;
 
 const RULES: readonly Rule[] = [
   {

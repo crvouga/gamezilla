@@ -46,8 +46,12 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
           width: `${BOX_SIZE}px`,
           height: `${BOX_SIZE}px`,
           'border-width': '1.5px',
-          'border-color': filled() ? colorVar('tint') : colorVar('outline'),
-          'background-color': filled() ? colorVar('tint') : colorVar('surface'),
+          'border-color': filled()
+            ? colorVar('tintActive')
+            : colorVar('outline'),
+          'background-color': filled()
+            ? colorVar('tintActive')
+            : colorVar('surface'),
         }}
       >
         <Show when={filled()}>

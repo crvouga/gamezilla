@@ -173,6 +173,18 @@ function wordsOk(pkg: string, paths: readonly string[]): boolean {
   );
 }
 
+/** Product UI packages paint only through `@pkgs/ui-root-client`. */
+function designVocabularyOk(
+  pkg: string,
+  sources: readonly { path: string; text: string }[]
+): boolean {
+  return clean(
+    pkg,
+    'product screens use the design vocabulary — type roles, surfaces and color tokens come from @pkgs/ui-root-client (libs/tools/scripts/design-vocabulary.ts)',
+    PRODUCT_CLIENT.test(pkg) ? designVocabularyViolations(sources) : []
+  );
+}
+
 /** Every workspace package by name, with its declared workspace deps. */
 function workspacePackages(): ReadonlyMap<string, WorkspacePackage> {
   const packages = new Map<string, WorkspacePackage>();
@@ -331,11 +343,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
         specDomains: manifest.specDomains ?? [],
       })
     ),
-    clean(
-      pkg,
-      'product screens use the design vocabulary — type roles, surfaces and color tokens come from @pkgs/ui-root-client (libs/tools/scripts/design-vocabulary.ts)',
-      PRODUCT_CLIENT.test(pkg) ? designVocabularyViolations(sources) : []
-    ),
+    designVocabularyOk(pkg, sources),
     clean(
       pkg,
       'behavior tests are specs, and a package has one example app (README.md)',

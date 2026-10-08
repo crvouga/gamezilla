@@ -80,8 +80,9 @@ export function BillingScreen(): JSX.Element {
     <ScreenBase
       screenId="billing"
       surface="canvas"
+      scroll
       breadcrumbs={[
-        { name: <Trans>More</Trans>, href: '/more' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Billing</Trans> },
       ]}
       content={() => (

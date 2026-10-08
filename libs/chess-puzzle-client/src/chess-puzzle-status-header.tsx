@@ -56,12 +56,12 @@ export function ChessPuzzleStatusHeader(
 ): JSX.Element {
   return (
     <div
-      class="box flex-row items-center gap-2 self-stretch"
-      style={{ height: `${HEADER_ROW_HEIGHT}px` }}
+      class="box flex-row items-center gap-2 self-stretch mb-1"
+      style={{ 'min-height': `${HEADER_ROW_HEIGHT}px` }}
     >
       <ChessPuzzleStatusIcon kind={props.kind} />
       <p
-        class="text textBodyBold flex-1 text-text line-clamp-2"
+        class="text textLabel flex-1 line-clamp-2"
         data-testid="chess-puzzle-status-label"
       >
         <Show

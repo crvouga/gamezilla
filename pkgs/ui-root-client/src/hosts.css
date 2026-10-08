@@ -28,6 +28,52 @@
     background: var(--ui-color-surface);
   }
 
+  /* A panel groups related rows: one surface, the panel radius, hairlines
+     between items inset to the text column. Rows inside never carry their
+     own radius or border; the panel clips their press tint. Lists, menus,
+     settings and game pickers all use it, so every list reads the same. */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--ui-color-surface);
+  }
+
+  .panelItem {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    min-width: 0;
+  }
+
+  .panelItem + .panelItem::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: var(--ui-panel-inset, 16px);
+    right: 0;
+    height: 1px;
+    background: var(--ui-color-border);
+    pointer-events: none;
+  }
+
+  .panelPlain > .panelItem + .panelItem::before {
+    display: none;
+  }
+
+  /* A row with a leading icon starts its hairline at the text column
+     (16px inset + 28px leading slot + 12px gap). */
+  .panelItem:has(.panelLeading) {
+    --ui-panel-inset: 56px;
+  }
+
   .divider {
     width: 100%;
     border-bottom: 1px solid var(--ui-color-border);

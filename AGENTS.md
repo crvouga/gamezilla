@@ -60,6 +60,15 @@ hook and theme helper is in-house under `pkgs/ui-root-client/src/*`,
 re-exported from individual module exports (`import { Button }
 from '@pkgs/ui-root-client/button'`). No adapter layer, no third-party UI library.
 
+**How it looks** is decided once, in
+[`pkgs/ui-root-client/README.md`](pkgs/ui-root-client/README.md): the
+palette, the type roles, panels for lists, radius by hierarchy, brass only
+for what is chosen. Screens compose components and arrange them with layout
+utilities; they never pick a font size, weight, shadow, arbitrary value or
+raw color (`design-vocabulary.ts` in each product client's `lint`, plus the
+locked Tailwind theme). A need the components cannot express becomes a new
+component, not classes in a screen.
+
 **Adding a component:** `pkgs/ui-root-client/src/<name>.tsx`, exported through the
 package's `./*` mapping; style with `class` / `classList` / `style`; set
 `data-*` on the root via `dataAttrs({ component: '<PascalName>', ... })`.

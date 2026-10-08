@@ -15,11 +15,7 @@ import { parseCssColor, rgbaToRgb8 } from '@pkgs/ui-root-shared/css-color';
 const TEXT = 4.5;
 const GLYPH = 3;
 
-type Pair = readonly [
-  fg: ColorTokenName,
-  bg: ColorTokenName,
-  minimum: number,
-];
+type Pair = readonly [fg: ColorTokenName, bg: ColorTokenName, minimum: number];
 
 /**
  * Every foreground the design system paints, on every surface it paints it

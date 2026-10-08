@@ -1,10 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
- * `MenuList` -- full-bleed stack of {@link MenuRow}s (`role="menu"`).
+ * `MenuList` -- a panel of {@link MenuRow}s (`role="menu"`).
  *
- * Cancels the nearest shell's horizontal edge padding via
- * `useContentEdgePaddingStep` so rows span the full content width. Pass
- * `class` / `style` to forward screen-body layout (e.g. `flex-1`).
+ * One surface with the panel radius, hairlines between rows inset to the
+ * text column (`.panel` / `.panelItem` in `hosts.css`). It sits inside the
+ * screen's edge padding like every other block, so a list lines up with the
+ * copy around it. Pass `class` / `style` to forward screen-body layout (e.g.
+ * `flex-1`).
  *
  * @example
  * ```tsx
@@ -17,19 +19,12 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import {
   createMemo,
   For,
   type JSX,
   children as resolveChildren,
-  Show,
 } from 'solid-js';
-import {
-  CONTENT_EDGE_PADDING_STEP,
-  useContentEdgePaddingStep,
-} from './content-edge-padding';
-import { MENU_ROW_PX_STEP } from './menu-row';
 
 export type MenuListProps = {
   children: JSX.Element;
@@ -43,48 +38,25 @@ export type MenuListProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Separator inset matches `MenuRow`'s horizontal padding. */
-const SEPARATOR_INSET_STEP = MENU_ROW_PX_STEP;
-
 export function MenuList(props: MenuListProps): JSX.Element {
-  const edgeStep = useContentEdgePaddingStep() ?? CONTENT_EDGE_PADDING_STEP;
   const resolved = resolveChildren(() => props.children);
   const rows = createMemo(() =>
     resolved
       .toArray()
       .filter((node) => node !== null && node !== undefined && node !== false)
   );
-  const separator = () => props.separator ?? true;
-  const edgeBleed = (): JSX.CSSProperties | undefined => {
-    if (edgeStep === 0) return undefined;
-    const mx = `-${spacingScale(edgeStep)}px`;
-    return { 'margin-left': mx, 'margin-right': mx };
-  };
   return (
     <div
-      class="box"
-      classList={{ [String(props.class)]: true }}
+      class="panel"
+      classList={{
+        panelPlain: props.separator === false,
+        [String(props.class)]: props.class !== undefined,
+      }}
       {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
       role="menu"
-      style={{ ...edgeBleed(), ...props.style }}
+      style={props.style}
     >
-      <For each={rows()}>
-        {(child, index) => (
-          <div class="box">
-            {child}
-            <Show when={separator() && index() < rows().length - 1}>
-              <div
-                class="box border-b border-border"
-                aria-hidden="true"
-                style={{
-                  'margin-left': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
-                  'margin-right': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
-                }}
-              />
-            </Show>
-          </div>
-        )}
-      </For>
+      <For each={rows()}>{(child) => <div class="panelItem">{child}</div>}</For>
     </div>
   );
 }

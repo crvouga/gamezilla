@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * `AppLogo` -- in-house brand wordmark. Picks up the active theme's brand
- * color and the rounded font stack.
+ * `AppLogo` -- in-house brand wordmark in the display face. Ivory or ink by
+ * default: brass is kept for what a person has chosen, not for branding.
  *
  * @example
  * ```tsx
- * <AppLogo />                  // brand tinted
+ * <AppLogo />                  // theme text color
  * <AppLogo size={48} />        // larger for splash / hero
  * ```
  */
@@ -21,7 +21,7 @@ export type AppLogoProps = {
   size?: number | undefined;
   /** Kept for API parity; the wordmark is always rendered. */
   wordmark?: boolean | undefined;
-  /** Color token or raw color for the wordmark. Defaults to `tint`. */
+  /** Color token or raw color for the wordmark. Defaults to `text`. */
   color?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -33,7 +33,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
   const tokens = useThemeTokens();
   const size = () => props.size ?? 28;
   const fill = () =>
-    resolveColor(props.color, tokens.colors) ?? tokens.colors.tint;
+    resolveColor(props.color, tokens.colors) ?? tokens.colors.text;
   const fontSize = () => Math.round(size() * WORDMARK_HEIGHT_RATIO);
   return (
     <div
@@ -42,8 +42,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       style={{ gap: `${Math.max(1, Math.round(size() * 0.25) / 4) * 4}px` }}
     >
       <h1
-        class="text appLogo font-extrabold"
-        classList={{ 'text-tint': props.color === undefined }}
+        class="text appLogo"
         style={{
           ...(props.color !== undefined ? { color: fill() } : {}),
           'font-size': `${fontSize()}px`,

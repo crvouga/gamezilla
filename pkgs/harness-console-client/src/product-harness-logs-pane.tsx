@@ -56,12 +56,10 @@ function LogRow(props: { readonly entry: ProductHarnessLogEntry }) {
   };
   return (
     <div class="box flex-row gap-2 [padding-top:3px;padding-bottom:3px] border-b border-border items-start">
-      <p class={`text text-micro font-semibold w-10 shrink-0 ${levelClass()}`}>
+      <p class={`text textFootnote w-10 shrink-0 ${levelClass()}`}>
         {entry.level.toUpperCase()}
       </p>
-      <p class="text text-text-secondary text-micro w-18 shrink-0">
-        {formatTime(entry.at)}
-      </p>
+      <p class="text textFootnote w-18 shrink-0">{formatTime(entry.at)}</p>
       <p class="text text-text text-[11px] flex-1">{entry.msg}</p>
     </div>
   );

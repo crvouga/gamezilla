@@ -117,7 +117,7 @@ export function TopBar(props: TopBarProps): JSX.Element {
       {...dataAttrs({ component: 'TopBar', ...props.dataSet })}
     >
       <div
-        class="box flex-row items-center gap-2 px-3 w-full"
+        class="box flex-row items-center gap-2 px-4 w-full"
         style={{
           height: `${contentHeight()}px`,
           'min-height': `${contentHeight()}px`,

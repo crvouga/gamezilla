@@ -1,5 +1,6 @@
 import { puzzleNavIntentFromKey } from '@libs/chess-puzzle-shared/puzzle-nav';
 import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
+import { CLUB_BOARD_THEME } from '@libs/chess-root-shared/club-board-theme';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
@@ -33,6 +34,7 @@ function ReviewBoardSurface(props: {
             fallback={<ChessPuzzleBoardLoadingState size={size} />}
           >
             <ChessBoard
+              theme={CLUB_BOARD_THEME}
               sound={!sounds.muted()}
               dataSet={{ testid: 'chess-puzzle-review-board' }}
               size={size}

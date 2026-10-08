@@ -26,7 +26,6 @@ export type BillingActions = {
 
 type PlanCardProps = {
   readonly view: BillingView;
-  readonly productName: string;
   readonly trialDays: number;
   readonly formatDate: (ms: number) => string;
   readonly actions: BillingActions;
@@ -54,13 +53,12 @@ function TierChip(props: { readonly tier: BillingTier }): JSX.Element {
   );
 }
 
-function PlanTitle(props: {
-  readonly tier: BillingTier;
-  readonly productName: string;
-}): JSX.Element {
+function PlanTitle(props: { readonly tier: BillingTier }): JSX.Element {
   return (
     <Switch>
-      <Match when={props.tier === 'paid'}>{props.productName}</Match>
+      <Match when={props.tier === 'paid'}>
+        <Trans>Plus</Trans>
+      </Match>
       <Match when={props.tier === 'free'}>
         <Trans>Free plan</Trans>
       </Match>
@@ -243,19 +241,11 @@ function PlanActions(props: {
 
 export function BillingPlanCard(props: PlanCardProps): JSX.Element {
   return (
-    <section class="box gap-4 rounded-card border border-border bg-surface p-5">
-      <div class="box flex-row items-center gap-3">
-        <div class="box h-12 w-12 shrink-0 items-center justify-center rounded-full bg-tint-subtle">
-          <CreditCardIcon size={24} color="tint" />
-        </div>
-        <div class="box min-w-0 flex-1 gap-1">
-          <p class="text textCaption text-text-secondary">
-            <Trans>Your plan</Trans>
-          </p>
-          <p class="text textTitle">
-            <PlanTitle tier={props.view.tier} productName={props.productName} />
-          </p>
-        </div>
+    <section class="panel gap-4 p-5">
+      <div class="box flex-row items-start gap-3">
+        <h2 class="text textHeading min-w-0 flex-1">
+          <PlanTitle tier={props.view.tier} />
+        </h2>
         <TierChip tier={props.view.tier} />
       </div>
       <StatusLine view={props.view} formatDate={props.formatDate} />

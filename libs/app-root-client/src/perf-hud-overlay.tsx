@@ -11,25 +11,29 @@ import { createSignal, type JSX, Show } from 'solid-js';
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
 
-function fpsColor(fps: number): string {
-  if (fps >= 58) return '#22c55e';
-  if (fps >= 45) return '#eab308';
-  return '#ef4444';
+type MetricTone = 'good' | 'fair' | 'poor';
+
+function fpsTone(fps: number): MetricTone {
+  if (fps >= 58) return 'good';
+  if (fps >= 45) return 'fair';
+  return 'poor';
 }
 
 function MetricChip(props: {
   readonly label: string;
   readonly value: string;
-  readonly color?: string | undefined;
+  readonly tone?: MetricTone | undefined;
 }): JSX.Element {
   return (
     <div class="box flex-row gap-1 items-baseline shrink-0">
-      <p class="text text-micro text-perf-muted font-semibold uppercase tracking-wide">
-        {props.label}
-      </p>
+      <p class="text textFootnote">{props.label}</p>
       <p
-        class="text text-2xs font-bold tabular-nums"
-        style={{ color: props.color ?? '#fff' }}
+        class="text textFootnote textNumeral text-text"
+        classList={{
+          'text-success': props.tone === 'good',
+          'text-warning': props.tone === 'fair',
+          'text-destructive': props.tone === 'poor',
+        }}
       >
         {props.value}
       </p>
@@ -44,7 +48,7 @@ function ExpandedMetrics(props: {
   const heapLabel = () =>
     props.snap.heapMb === null ? '—' : `${String(props.snap.heapMb)}MB`;
   return (
-    <div class="box gap-1 px-3 pb-2 border-t border-perf-divider">
+    <div class="box gap-1 px-3 pb-2 border-t border-border">
       <div class="box flex-row flex-wrap gap-x-3 gap-y-0.5 pt-1.5">
         <MetricChip label="slow%" value={String(props.snap.slowFramePct)} />
         <MetricChip label="LTn" value={String(props.snap.longTaskCount)} />
@@ -52,13 +56,11 @@ function ExpandedMetrics(props: {
       </div>
       <Show when={props.snap.longestScript}>
         {(script) => (
-          <p class="text line-clamp-2 text-nano text-perf-text">{script()}</p>
+          <p class="text textFootnote line-clamp-2 text-text">{script()}</p>
         )}
       </Show>
       <Show when={props.snap.inpTarget}>
-        {(target) => (
-          <p class="text line-clamp-2 text-nano text-perf-muted">{target()}</p>
-        )}
+        {(target) => <p class="text textFootnote line-clamp-2">{target()}</p>}
       </Show>
       <button
         class="clickable clickableTint self-start py-0.5"
@@ -67,7 +69,7 @@ function ExpandedMetrics(props: {
         onClick={() => props.onHide()}
         aria-label="Hide performance monitor"
       >
-        <p class="text text-micro text-perf-accent font-semibold">{'Hide'}</p>
+        <p class="text textFootnote text-tint">{'Hide'}</p>
       </button>
     </div>
   );
@@ -86,7 +88,7 @@ export function PerfHudOverlay(): JSX.Element {
   return (
     <InFlowBanner position="top" visible={enabled()}>
       <div
-        class="box bg-perf-background border-b border-perf-border"
+        class="box bg-surface-sunken border-b border-border"
         style={{ 'padding-top': 'env(safe-area-inset-top, 0px)' }}
         data-component="PerfHudOverlay"
         data-testid="perf-hud"
@@ -101,7 +103,7 @@ export function PerfHudOverlay(): JSX.Element {
           <MetricChip
             label="FPS"
             value={String(snap().fps)}
-            color={fpsColor(snap().fps)}
+            tone={fpsTone(snap().fps)}
           />
           <MetricChip label="INP" value={inpLabel()} />
           <MetricChip label="maxLT" value={maxLtLabel()} />

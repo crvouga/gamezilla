@@ -8,11 +8,11 @@ import { TypingDots } from './typing-dots';
 const TAIL_SIZE = 12;
 const BUBBLE_PADDING_VERTICAL = 12;
 const BUBBLE_PADDING_HORIZONTAL = 16;
-/** Matches `text.tsx`'s `bodyBold` `lineHeight`. */
-const BUBBLE_LINE_HEIGHT = 26;
+/** Matches the body role's leading (`--ui-leading-base`). */
+const BUBBLE_LINE_HEIGHT = 24;
 const DEFAULT_NUMBER_OF_LINES = 2;
 
-/** Must match coach status header row height (e.g. chess puzzle status). */
+/** Minimum coach status header row height (e.g. chess puzzle status). */
 export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 22;
 
 export type SpeechBubbleProps = {
@@ -47,7 +47,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
         aria-hidden="true"
       />
       <div
-        class="box flex-1 bg-surface-muted rounded-control justify-start border border-solid border-border"
+        class="box flex-1 bg-surface-muted rounded-card justify-start"
         style={{
           'padding-top': `${BUBBLE_PADDING_VERTICAL}px`,
           'padding-bottom': `${BUBBLE_PADDING_VERTICAL}px`,
@@ -64,7 +64,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
               role="status"
               aria-live="polite"
               aria-atomic="true"
-              class="text textBodyBold text-text"
+              class="text text-text"
               style={{
                 'line-height': `${BUBBLE_LINE_HEIGHT}px`,
                 'overflow-wrap': 'anywhere',
