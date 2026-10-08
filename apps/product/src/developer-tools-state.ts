@@ -21,6 +21,7 @@ export type ToolsState = {
   notebook: SqlNotebookDoc | null;
   notebookRun: SqlCellRun | null;
   report: HtmlReportTest | null;
+  performanceHost: HTMLElement | null;
   route: Route;
   hit: string | null;
   catalogQuery: CatalogQuery;
@@ -46,6 +47,7 @@ export function tools(s: ProductHarness): ToolsState {
       notebook: null,
       notebookRun: null,
       report: null,
+      performanceHost: null,
       route: { view: 'list', params: {} },
       hit: null,
       catalogQuery: {

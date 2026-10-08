@@ -37,6 +37,12 @@ terms:
       What a test run captured at one point, shown for each participating person.
     forms: [recorded moments, recorded moment's]
 
+  - term: heatmap
+    definition: >-
+      A coloured view of a test report that shows which steps took the most
+      time and marks steps that took longer than the team's chosen allowance.
+    forms: [heatmaps, heatmap's]
+
   - term: data notebook
     definition: >-
       The team's saved questions about a selected test world's data and their answers.

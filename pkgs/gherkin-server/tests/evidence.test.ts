@@ -13,13 +13,20 @@ import { sha256 } from '@pkgs/conformance-shared/evidence';
 import { runFeature } from '@pkgs/gherkin-server/bun-test';
 import { recordScenario } from '@pkgs/gherkin-server/evidence';
 import { hostLimit, setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
+import type { RunReport } from '@pkgs/harness-root-shared/report-types';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 const reportDir = mkdtempSync(join(tmpdir(), 'gherkin-evidence-'));
 afterAll(() => rmSync(reportDir, { recursive: true, force: true }));
 
 const { Then } = stepsFor<object>();
+const store = new ObjectStoreImplInMemory();
+let measuredTime = 0;
 setWorld<object>({ create: async () => ({}), dispose: async () => {} });
-Then('the evidence world holds', () => {});
+Then('the evidence world holds', () => {
+  measuredTime += 60;
+});
 Then('the evidence world cannot run here', () => {
   throw hostLimit('this host cannot do that');
 });
@@ -37,9 +44,34 @@ runFeature(feature, {
   featureUri: 'specs/gherkin/evidence.feature',
   reportDir,
   layer: 'release',
+  report: {
+    store,
+    runId: 'measured',
+    frames: false,
+    performance: { clock: { now: () => measuredTime }, slowStepMs: 50 },
+  },
 });
 
-test('the passing scenario is recorded, the host-limited one is not', () => {
+test('a world without a recorder publishes a measured scenario timeline', async () => {
+  const text = await readUtf8(
+    store,
+    'runs/measured/tests/evidence.a-scenario-that-passes/report.json'
+  );
+  expect(text).not.toBeNull();
+  const report = JSON.parse(text!) as RunReport;
+  expect(report.meta.sourceFile).toBe('specs/gherkin/evidence.feature');
+  expect(report.meta.performance?.slowSteps).toBe(1);
+  expect(report.steps[0]?.performance?.selfMs).toBe(60);
+  expect(report.steps[0]?.title).toBe('Then the evidence world holds');
+});
+
+// regression: report-host-limit-evidence
+test('the passing scenario is recorded, the host-limited one is not', async () => {
+  expect(
+    await store.get(
+      'runs/measured/tests/evidence.a-scenario-the-host-cannot-finish/report.json'
+    )
+  ).toBeNull();
   const { records, malformed } = readEvidence(reportDir);
   expect(malformed).toEqual([]);
   expect(records).toEqual([

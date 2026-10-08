@@ -1,0 +1,4 @@
+{
+  "summary": "Independent room subscriptions recomputed puzzle visuals against mixed old and new attributes, multiplying synchronous work for each piece drop.",
+  "regressionTest": "pkgs/room-root-client/tests/solid.test.tsx"
+}

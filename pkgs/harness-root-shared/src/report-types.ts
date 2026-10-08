@@ -1,4 +1,26 @@
+import type { Clock } from '@pkgs/clock-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+
+/** Observed elapsed work, independent of the simulation clock. */
+export type ReportStepPerformance = {
+  readonly executionMs: number;
+  readonly selfMs: number;
+  readonly snapshotMs: number;
+};
+
+export type ReportPerformanceSummary = {
+  readonly executionMs: number;
+  readonly snapshotMs: number;
+  readonly measuredSteps: number;
+  readonly slowSteps: number;
+  readonly slowStepMs: number;
+};
+
+export type ReportPerformanceOptions = {
+  readonly clock: Clock;
+  /** Diagnostic threshold, not a portable CPU or paint-time assertion. */
+  readonly slowStepMs: number;
+};
 
 /** How a captured value is encoded on disk and rendered in the report. */
 export type SnapshotMedia = 'json' | 'html' | 'png' | 'text' | 'bytes';
@@ -58,6 +80,7 @@ export type ReportStep = {
   readonly startedAtMs: number;
   readonly endedAtMs: number;
   readonly durationMs: number;
+  readonly performance?: ReportStepPerformance;
   readonly actorId?: string;
   readonly selector?: string;
   readonly detail?: string;
@@ -76,6 +99,7 @@ export type RunReportMeta = {
   readonly startedAtMs: number;
   readonly endedAtMs: number;
   readonly durationMs: number;
+  readonly performance?: ReportPerformanceSummary;
   readonly status: ReportTestStatus;
   readonly runId: string;
   readonly testId: string;
@@ -145,6 +169,8 @@ export type RecordStepMeta = {
 export type ReportCaptureMode = 'apply' | 'none';
 
 export type RunReportOptions = {
+  /** Enable elapsed work measurement with a separate monotonic clock. */
+  readonly performance?: ReportPerformanceOptions;
   /** When false, reporting is disabled even if options object is passed. */
   readonly enabled?: boolean;
   /** Object store for this report bucket (required for persistence). */
