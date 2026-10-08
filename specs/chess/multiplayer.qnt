@@ -457,7 +457,9 @@ module multiplayer {
 
   /// Seconds pass for every game and search, whoever is online.
   action multiplayerTimePasses(seconds: int): bool = {
-    val ticked = NUMBERS.fold(_now, (w, n) => _record(w, n, _tick(w.games.get(n), seconds)))
+    val clocksStopped = NUMBERS.forall(n => _games.get(n).outcome != OngoingPlay)
+    val ticked = if (clocksStopped) _now
+      else NUMBERS.fold(_now, (w, n) => _record(w, n, _tick(w.games.get(n), seconds)))
     _show({ ...ticked,
       searchAge: PEOPLE.mapBy(p => if (_seeking.get(p) != NONE) _searchAge.get(p) + seconds else _searchAge.get(p)) })
   }
