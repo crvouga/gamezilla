@@ -1,5 +1,6 @@
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import { eachLimited } from './completion-order';
 import type { SpecEntry, SpecInventory } from './explorer-types';
 import { recordExplorerVersion } from './explorer-versions';
 import { isCommitSha } from './keys';
@@ -64,14 +65,14 @@ export async function publishInventory(
     .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   if (new Set(entries.map((entry) => entry.path)).size !== entries.length)
     throw new Error('Duplicate spec');
-  for (const doc of args.documents) {
+  await eachLimited(args.documents, 16, async (doc) => {
     await writeUtf8(
       store,
       documentKey(args.sha, doc.path),
       doc.content,
       'text/plain; charset=utf-8'
     );
-  }
+  });
   const inventory = { sha: args.sha, entries };
   await writeUtf8(
     store,

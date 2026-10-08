@@ -11,6 +11,8 @@ before writing `commits/<sha>/inventory.json`. Files retain their relative path,
 context, type and title, including features, models, health obligations and
 supporting documents. Reads validate commit identity and restrict document
 access to that inventory. Inventories are independent of test-run attempts.
+Document publication uses at most sixteen concurrent writes and drains them
+before publishing the inventory.
 
 ## Independent report parts
 
@@ -61,3 +63,8 @@ continue to own test-run publication. An empty closed run is `skipped`, never a
 successful result inferred from absent evidence. Retention preserves explorer
 records with the retained commit or current branch head and removes orphan
 version markers along with their evidence.
+
+Large bundles overlap at most four 4 MiB chunk uploads per source. Entry parts
+retain input order even when uploads complete out of order. Backpressure bounds
+buffered chunks, and failures drain started uploads without publishing an index
+that names incomplete content.
