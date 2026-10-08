@@ -1,8 +1,0 @@
-journeys:
-  Main outcome:
-    description: An address match waits for account proof
-    events:
-    - Chooses an available provider online
-    - Provider identifies an address match needing account proof
-    - Proves the matching account
-    endsIn: Signed in to the chosen account
