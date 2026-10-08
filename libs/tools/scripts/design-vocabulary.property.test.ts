@@ -74,7 +74,9 @@ const screen = fc.array(
   { minLength: 1, maxLength: 6 }
 );
 
-function render(lines: readonly { classes: string[]; filler: string }[]) {
+function render(
+  lines: readonly { classes: readonly string[]; filler: string }[]
+) {
   return lines.map(
     (line) => `${line.filler}<p class="${line.classes.join(' ')}" />`
   );
@@ -104,7 +106,7 @@ describe('designVocabularyViolations', () => {
         (lines, banned, lineSeed, slotSeed) => {
           const index = lineSeed % lines.length;
           const target = lines[index]!;
-          const classes = [...target.classes];
+          const classes: string[] = [...target.classes];
           classes.splice(slotSeed % (classes.length + 1), 0, banned);
           const rendered = render(lines);
           rendered[index] = render([{ ...target, classes }])[0]!;
