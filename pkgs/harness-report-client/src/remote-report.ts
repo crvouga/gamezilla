@@ -128,6 +128,7 @@ type Ctx = {
   readonly store: Store;
   readonly setStore: SetStoreFunction<Store>;
   readonly setCommit: (commit: CommitRecord | null) => void;
+  readonly commit: Accessor<CommitRecord | null>;
   readonly phase: Accessor<RemoteReportPhase>;
   readonly setPhase: (phase: RemoteReportPhase) => void;
   readonly frameCss: Accessor<string | undefined>;
@@ -172,15 +173,28 @@ function addSource(ctx: Ctx, record: SourceRecord, authoritative = true): void {
       for (const meta of record.tests) {
         data.tests.push(stubTest(record.source, meta));
       }
-      data.status = worstStatus(data.tests);
+      data.status = streamedStatus(ctx, data.tests);
       data.updatedAtMs = Math.max(data.updatedAtMs, record.updatedAtMs);
     })
   );
 }
 
+function streamedStatus(
+  ctx: Ctx,
+  tests: readonly HtmlReportTest[]
+): ReportTestStatus {
+  if (
+    ctx.commit()?.status === 'failed' ||
+    [...ctx.records.values()].some((record) => record.status === 'failed')
+  )
+    return 'failed';
+  return worstStatus(tests);
+}
+
 function onCommitEvent(ctx: Ctx, event: CommitEvent): void {
   if (event.type === 'commit') {
     ctx.setCommit(event.commit);
+    ctx.setStore('data', 'status', streamedStatus(ctx, ctx.store.data.tests));
     ctx.setStore('data', 'runId', reportLabel(ctx.args.sha, event.commit));
     if (event.commit?.endedAtMs != null) {
       ctx.setStore('data', 'updatedAtMs', event.commit.endedAtMs);
@@ -373,6 +387,7 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     store,
     setStore,
     setCommit,
+    commit,
     phase,
     setPhase,
     frameCss,

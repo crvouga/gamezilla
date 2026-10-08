@@ -2400,6 +2400,10 @@ msgstr "Open Reports"
 msgid "Open space {0}"
 msgstr "Open space {0}"
 
+#: pkgs/harness-report-client/src/report-outcome.tsx
+msgid "Open verification details"
+msgstr "Open verification details"
+
 #: libs/billing-client/src/billing-plan-card.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 msgid "Opening…"
@@ -2805,6 +2809,10 @@ msgstr "Recorded failure"
 #: pkgs/harness-report-client/src/entity-browser.tsx
 msgid "Recorded order"
 msgstr "Recorded order"
+
+#: pkgs/harness-report-client/src/report-outcome.tsx
+msgid "Recorded run"
+msgstr "Recorded run"
 
 #: pkgs/harness-report-client/src/performance-overview.tsx
 msgid "Recorded run timing"
@@ -3768,6 +3776,10 @@ msgstr "The other participant may still return. Wait before claiming the win."
 #: pkgs/harness-report-client/src/commit-list.tsx
 msgid "The reports service could not be reached or returned unreadable evidence. Refresh to try again."
 msgstr "The reports service could not be reached or returned unreadable evidence. Refresh to try again."
+
+#: pkgs/harness-report-client/src/report-outcome.tsx
+msgid "The run failed beyond its individual recorded test outcomes. Passing individual checks do not mean the run completed successfully. The verification details contain the remaining failures."
+msgstr "The run failed beyond its individual recorded test outcomes. Passing individual checks do not mean the run completed successfully. The verification details contain the remaining failures."
 
 #: pkgs/harness-report-client/src/spec-detail.tsx
 msgid "The selected version has no readable copy of this spec."

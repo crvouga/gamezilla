@@ -1,4 +1,4 @@
-/** Restore every independent report before reporting the aggregate verdict. */
+/** Restore, publish and release one independent report before the next. */
 export async function restoreReportQueue(
   ids: readonly string[],
   restore: (id: string) => Promise<void>
@@ -14,7 +14,7 @@ export async function restoreReportQueue(
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(16, ids.length) }, worker));
+  await worker();
   if (failures.length > 0)
     throw new AggregateError(failures, 'Report cache restoration failed');
 }

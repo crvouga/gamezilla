@@ -15,6 +15,7 @@ import type { RemoteReportPhase } from './remote-report';
 import type { ReportTestLoader } from './report-context';
 import { ReportProvider } from './report-context';
 import { ReportExplorer } from './report-explorer';
+import { ReportOutcome } from './report-outcome';
 import { TestView } from './test-view';
 import { useReportNav } from './use-report-nav';
 import './styles.css';
@@ -30,6 +31,7 @@ export type HarnessReportAppProps = {
   sources?: readonly SourceRecord[];
   sha?: string;
   phase?: RemoteReportPhase;
+  runUrl?: string | null | undefined;
   onRefresh?: () => void;
 };
 
@@ -84,6 +86,14 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
           ]}
           content={() => (
             <div class="box flex-1 min-h-0 min-w-0 gap-3">
+              <ReportOutcome
+                phase={props.phase}
+                status={props.data.status}
+                hasFailingTests={props.data.tests.some(
+                  (test) => test.report.meta.status === 'failed'
+                )}
+                runUrl={props.runUrl}
+              />
               <Show when={props.phase === 'error'}>
                 <Notice tone="error">{t`Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below.`}</Notice>
               </Show>

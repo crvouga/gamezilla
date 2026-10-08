@@ -108,8 +108,58 @@ test('authoritative streamed outcomes replace a late stale cached source', async
     () => remote.phase() === 'complete' && remote.frameCss() !== undefined
   );
   expect(remote.sources()).toEqual([current]);
+  // regression: report-failed-producer-pass
+  expect(remote.data.status).toBe('failed');
   remote.dispose();
   client.clear();
+});
+
+test('a failed verification without failed individual reports remains failed', async () => {
+  // regression: report-failed-producer-pass
+  const { timers } = createHarnessClock();
+  const events: CommitEvent[] = [
+    {
+      type: 'commit',
+      commit: {
+        sha: SHA,
+        branch: 'example',
+        state: 'complete',
+        status: 'failed',
+        startedAtMs: 0,
+        endedAtMs: 10,
+        runUrl: null,
+      },
+    },
+    { type: 'source', source: SOURCE },
+    { type: 'end', state: 'complete' },
+  ];
+  const http = {
+    fetch: async () => new Response(events.map(encodeSseEvent).join('')),
+  };
+  const client = reportQueryClient();
+  const fetcher = {
+    ...createHttpReportFetcher({
+      http,
+      client,
+      apiBase: API,
+      cache: memoryReportCache(),
+    }),
+    sources: async () => [SOURCE],
+    frameCss: async () => '',
+  };
+  const remote = createRoot(() =>
+    createRemoteReport({ http, timers, apiBase: API, sha: SHA, fetcher })
+  );
+  try {
+    await until(
+      () => remote.phase() === 'complete' && remote.frameCss() !== undefined
+    );
+    expect(remote.data.status).toBe('failed');
+    expect(remote.data.tests).toHaveLength(0);
+  } finally {
+    remote.dispose();
+    client.clear();
+  }
 });
 
 // regression: report-viewer-leaked-timer

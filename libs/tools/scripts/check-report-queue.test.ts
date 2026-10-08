@@ -57,7 +57,7 @@ test('each restoration is attempted once and every failure contributes to the ve
         }
         expect([...attempted].sort()).toEqual([...ids].sort());
         expect(active).toBe(0);
-        expect(peak).toBeLessThanOrEqual(16);
+        expect(peak).toBeLessThanOrEqual(1);
         const failures = ids.filter((id) => fails[Number(id)]);
         if (failures.length === 0) expect(verdict).toBeUndefined();
         else {

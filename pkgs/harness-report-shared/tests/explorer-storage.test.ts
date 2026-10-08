@@ -8,6 +8,7 @@ import {
   publishPart,
   readParts,
 } from '@pkgs/harness-report-shared/report-parts';
+import { sourcePart } from '@pkgs/harness-report-shared/source-part';
 import {
   publishInventory,
   readInventory,
@@ -19,6 +20,74 @@ import fc from 'fast-check';
 
 const SHA = '1'.repeat(40);
 const OTHER = '2'.repeat(40);
+
+test('producer failure dominates any collection of recorded check outcomes', async () => {
+  await assertProperty(
+    'failed producer preserves a failed part',
+    fc.property(
+      fc.array(fc.constantFrom('passed', 'failed', 'running', 'not-run'), {
+        maxLength: 20,
+      }),
+      (statuses) => {
+        const result = sourcePart(SHA, {
+          source: 'quality--all',
+          packageDir: 'pkgs/counter',
+          bucket: 'ui-quality',
+          status: 'failed',
+          updatedAtMs: 10,
+          tests: [],
+          evidence: [
+            {
+              kind: 'ui-quality',
+              title: 'Quality',
+              checks: statuses.map((status, index) => ({
+                id: String(index),
+                title: 'Recorded check',
+                status,
+                detail: '',
+                measurements: [],
+              })),
+            },
+          ],
+        });
+        expect(partStatus(result)).toBe('failed');
+        expect(
+          result.checks.slice(0, statuses.length).map((check) => check.status)
+        ).toEqual(statuses);
+      }
+    )
+  );
+});
+
+test('a failed producer cannot become passing evidence from its completed checks', () => {
+  // regression: report-failed-producer-pass
+  const result = sourcePart(SHA, {
+    source: 'quality--all',
+    packageDir: 'pkgs/counter',
+    bucket: 'ui-quality',
+    status: 'failed',
+    updatedAtMs: 10,
+    tests: [],
+    evidence: [
+      {
+        kind: 'ui-quality',
+        title: 'Quality',
+        checks: [
+          {
+            id: 'completed',
+            title: 'Completed check',
+            status: 'passed',
+            detail: '',
+            measurements: [{ name: 'Quality', value: 8.5, unit: 'score' }],
+          },
+        ],
+      },
+    ],
+  });
+  expect(partStatus(result)).toBe('failed');
+  expect(result.checks[0]?.measurements[0]?.value).toBe(8.5);
+  expect(result.checks.some((check) => check.status === 'passed')).toBe(true);
+});
 function part(
   id: string,
   time: number,

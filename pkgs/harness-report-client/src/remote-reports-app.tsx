@@ -118,6 +118,7 @@ function CommitReportContent(
       sources={remote.sources()}
       sha={props.sha}
       phase={remote.phase()}
+      runUrl={remote.commit()?.runUrl}
       onRefresh={props.refresh}
     />
   );
