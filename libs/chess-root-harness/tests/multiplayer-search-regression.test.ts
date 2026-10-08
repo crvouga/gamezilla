@@ -34,9 +34,10 @@ test('a literal accepted opponent request reaches its owner through ordinary syn
   expect((await s.read(multiplayerView, 'alice')).search).toEqual(
     expect.objectContaining({ standing: 'waiting' })
   );
-});
+}, 120_000);
 
 // regression: chess-offline-connection-state
+// regression: github-chess-harness-default-timeout
 test('an offline White device retains its accepted board and refuses e2e4 without a deferred move', async () => {
   await using s = await openHarness('offline-white-e2e4');
   await s.apply(signInWithGoogle, 'alice');
@@ -67,4 +68,4 @@ test('an offline White device retains its accepted board and refuses e2e4 withou
   expect(reply.result.ok).toBe(false);
   if (!reply.result.ok) expect(reply.result.failures[0]?.code).toBe('OFFLINE');
   expect((await s.read(multiplayerView, 'alice')).game).toEqual(game);
-});
+}, 120_000);
