@@ -1,0 +1,4 @@
+{
+  "summary": "Report parts written in the same millisecond to one producer key could overwrite a failure with a pass.",
+  "regressionTest": "pkgs/harness-report-shared/tests/explorer-storage.test.ts"
+}

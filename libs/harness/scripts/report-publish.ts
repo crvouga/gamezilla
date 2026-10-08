@@ -29,6 +29,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { openCommit } from '@pkgs/harness-report-shared/publish';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { publishBatch } from './report-batch';
+import { publishCheckoutInventory } from './report-inventory';
 import {
   createReportPlan,
   finishReport,
@@ -105,6 +106,7 @@ async function prepareReport(args: {
   const startedAtMs = wallClock.now();
   const prepared = createReportPlan(args.plan.tasks, startedAtMs, 30);
   writeFileSync(args.planPath, JSON.stringify(prepared));
+  await publishCheckoutInventory(args.store, REPO_ROOT, args.sha);
   const commit = await openCommit(args.store, {
     sha: args.sha,
     branch: branchName(),

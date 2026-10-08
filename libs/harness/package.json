@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./committed-specs": "./scripts/committed-specs.ts",
+    "./report-origin": "./scripts/report-origin.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",

@@ -222,7 +222,7 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared` (`assertProperty` only) |
-| Harness report UI | `@pkgs/harness-report` at `/reports` |
+| Harness report UI | [Reports explorer](pkgs/harness-report-client/README.md), `@pkgs/harness-report-client` at `/reports` |
 | Chess rules and board | `@pkgs/chess-rules-shared`, `@pkgs/chess-board-core-shared`, `@pkgs/chess-board` |
 | Rating math | `@pkgs/glicko2-shared` |
 | i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |

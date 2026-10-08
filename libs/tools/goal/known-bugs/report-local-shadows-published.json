@@ -1,0 +1,4 @@
+{
+  "summary": "Serving a collected local run by commit could hide other published producers and make their timelines unreadable.",
+  "regressionTest": "libs/app-root-server/tests/reports-explorer.test.ts"
+}

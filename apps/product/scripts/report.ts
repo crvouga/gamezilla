@@ -87,6 +87,32 @@ export async function writeQualityReports(
   diagnostics: ObjectStore,
   reports: ObjectStore
 ): Promise<void> {
+  await writeUtf8(
+    reports,
+    'part.json',
+    JSON.stringify({
+      kind: 'ui-quality',
+      title: 'Recorded UI quality',
+      checks: result.results.map((score) => ({
+        id: score.artifact.hash,
+        title: score.artifact.origins[0]!.title,
+        status: score.result.pass ? 'passed' : 'failed',
+        detail: score.result.summary,
+        ...(score.artifact.origins[0]!.source
+          ? { specPath: score.artifact.origins[0]!.source }
+          : {}),
+        measurements: [
+          {
+            name: 'Visual quality',
+            value: score.result.score,
+            unit: 'score',
+            limit: result.threshold,
+          },
+        ],
+      })),
+    }),
+    'application/json'
+  );
   for (const score of result.results) {
     const prefix = `runs/latest/tests/${score.artifact.hash}/`;
     await writeUtf8(

@@ -9,6 +9,11 @@ const NOTEBOOK_ACTIONS = [
   editNotebookQuestion,
 ];
 const REPORT_ACTIONS = [
+  provideExplorer,
+  exploreSpecs,
+  exploreParts,
+  openExplorerReports,
+  retryExplorerReports,
   provideRecordedReport,
   selectRecordedMoment,
   moveRecordedMoment,
@@ -83,12 +88,20 @@ import {
 } from '@apps/product/developer-checkpoints';
 
 import './report-catalog.steps';
+import './report-explorer.steps';
 import {
   filterCatalog,
   openCatalog,
   openCompletedReport,
   provideCatalog,
 } from '@apps/product/developer-catalog';
+import {
+  exploreParts,
+  exploreSpecs,
+  openExplorerReports,
+  provideExplorer,
+  retryExplorerReports,
+} from '@apps/product/developer-explorer';
 
 import './test-world-views.steps';
 import {

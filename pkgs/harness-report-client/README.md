@@ -1,117 +1,75 @@
-# `@pkgs/harness-report`
+# Reports explorer
 
-Reports of `@pkgs/harness-root-shared` runs, object store → API → client: a shared store
-keyed by commit, the read side an API serves from it as Server-Sent Events,
-and the SolidJS + TailwindCSS viewer that renders the stream as it lands.
+Behavior is defined in [the developer-tools specs](../../specs/developer-tools/).
+The explorer uses [the product design system](../ui-root-client/README.md).
 
-## Flow
+## Composition
 
-```ts
-// CI, after a suite ran (`@pkgs/harness-report/remote/publish`):
-await openCommit(store, { sha, branch, runUrl, frames, startedAtMs, frameCss });
-await publishSource(store, { sha, packageDir: 'libs/chess', bucket: 'part-0', local });
-await closeCommit(store, { sha, endedAtMs });
+`RemoteReportsApp` receives HTTP, timers, navigation, an optional cache, and
+commit selection from its host. Its host provides the standard i18n, clock,
+theme and overlay contexts. Storage failures do not gate initial rendering.
 
-// An API (`@pkgs/harness-report`): encode each event with `encodeSseEvent`.
-listCommits(store, { limit, cursor });
-commitEvents(store, sha, { clock, timers, pollMs, tailMs }); // commit, then sources
-listSourceRecords(store, sha); // cacheable once the commit is complete
-readTestReport(store, { sha, source, testId }); // timeline, no frame files
-readFrameBody(store, { sha, source, testId, file }); // one frame file
+`ScreenBase`, `FilterBar`, `ExplorerWorkspace`, `InspectionWorkspace`, `MetricStrip`, `DocumentPanel`,
+`MenuSection`, `MenuRow`, state components and the standard command palette
+compose the explorer. The compact layout opens the selected spec on its own;
+wide layouts retain the inventory alongside the detail. Inventories and check
+collections paginate before rendering. Documents are text, never injected HTML.
 
-// The browser (`@pkgs/harness-report/client`):
-<RemoteReportsApp
-  http={http}
-  timers={timers}
-  apiBase={apiBase}
-  sha={sha}
-  cache={cache}
-  onOpen={open}
-/>
+The API exposes a commit's inventory and independent report parts at
+`/api/reports/<sha>/explorer`, with individual documents at
+`/api/reports/<sha>/spec?path=<path>`. Existing source, timeline, stylesheet and
+frame endpoints remain lazy. Missing inventories, unavailable stores, failed
+reads and absent measurements have separate explanatory states and refresh.
+Navigation and playback belong to one mounted viewer and release their timers
+and listeners on disposal.
+
+## Producing evidence
+
+The shared storage and producer contract are documented in
+[@pkgs/harness-report-shared](../harness-report-shared/README.md).
+
+Full verification publishes every file in `specs/` before publishing the run.
+Behavior tasks publish their outcomes and a separate recorded-performance part.
+The UI quality task publishes measured scores and its configured threshold.
+Cached task reuse preserves those measurements under the new commit hash.
+Recorded action times include harness work and waits; they are diagnostics.
+Browser paint budgets require a producer of those actual measurements.
+
+Locally, Vite and the local stack serve the committed checkout inventory even
+without a shared-store read credential. The version list identifies dirty
+checkouts. Working edits are excluded from evidence attributed to a commit.
+
+After committing, run any package's `test:spec` and/or the product's
+`prepare:ui-quality`, `prepare:ui-quality-model`, and `check:ui-quality` tasks.
+Then run:
+
+```sh
+bun reports:collect
+bun reports:performance 50
 ```
 
-`store` is any `ObjectStore` scoped to `REPORTS_ROOT_PREFIX`; `local` is the
-bucket a `bun test` run wrote (`runs/latest/tests/<testId>/…`). A source's
-tests and snapshots are packed into compressed chunks (at most 4 MiB before
-compression), indexed by their logical file keys, and written before its record, so a reader that sees the record can read
-every test it names. A running commit's stream re-lists its sources and sends
-each new one as it lands; a reconnect passes the sources it holds and never
-gets them again. The key layout is in `../harness-report-shared/src/keys.ts`.
+Collection accepts only completed buckets whose origin records identify the
+same clean commit at the start and end of their run. The second command can
+recompute the diagnostic allowance from collected timelines independently.
+Local artifacts stay in `.cache/local-reports` and use the same read API.
 
-The list fills in source by source. Opening a test fetches its timeline only;
-each frame file is fetched when that frame is shown, and the ones just beside
-it, so a commit's reports never have to fit in one download. Commits, sources,
-timelines and the snapshot stylesheet go through a TanStack Query cache that
-persists across visits. Frame bytes live in a separate cache (IndexedDB in the
-product, a map in tests) and are not written into that document. A finished
-commit's JSON and frame files are immutable; a running commit is `no-store`.
+A separate automated producer can record a complete report part with
+`bun reports:part <repo-relative-path.json>`. Add `--publish` only when publishing
+to the shared store with its write credentials supplied in the environment.
+These commands produce evidence; they do not change the release decision
+specified in [the repository briefing](../../README.md#correctness-machinery).
 
-## Viewer
+## Investigating recorded runs
 
-The viewer is keyboard-first: `Ctrl/Cmd-K` opens a searchable command palette,
-`←` / `→` step frames, `↑` / `↓` jump between steps, `N` / `Shift+N` cycle
-failures, `Home` / `End` and `Space` (play) cover the rest. The timeline is a
-native range control with coalesced drag updates and failure / press markers;
-the URL hash follows on a trailing debounce.
+`Ctrl/Cmd-K` opens the design-system command palette. Arrow keys step through
+frames and steps; `N` selects failures, `Home`/`End` select the first/last frame,
+and `Space` controls playback. `?` opens the standard shortcut modal.
 
-Each client panel keeps **one** shadow tree for the whole session (no iframe):
-`frameCss` loads once, and every frame swaps the parsed snapshot DOM in place
-(`lib/snapshot-surface.ts`), so scrubbing never flashes. Panels are keyed by
-actor id; a client without a snapshot in the current frame shows its latest
-earlier one, dimmed.
+Snapshot clients retain one shadow tree per actor. Stylesheets are loaded once,
+frames arrive lazily, and recorded press paths resolve inside the snapshot.
+The performance inspector retains measured self time, execution time and
+snapshot time; missing measurements remain unavailable. Its heatmap is bounded
+and selecting a measured step opens that step's recorded moment.
 
-Press highlights come from `ReportFrame.hit`, set only on the frame captured
-right before a UI step acts. The viewer resolves `hit.path` against that
-snapshot with the driver's chained first-match semantics and draws a single
-overlay from real layout; if the target is absent it says so instead of
-guessing.
-
-Every frame paints in a phone panel. A UI snapshot (`html` / `png`) is that
-panel; a press overlay is drawn on the HTML. A frame with no UI snapshot —
-including a Quint step, which also keeps a model card beside any UI it
-captured — is painted from the step's recorded state (`name = value` as a
-table, plus the step and frame durations). Other captured blobs stay in the
-aside. The test list and the commit list share one catalog: search, status,
-group and sort, with duration on each row.
-
-## Performance evidence
-
-Spec runs collect elapsed action time with an injected monotonic clock. Product
-worlds keep their nested UI steps and snapshots; Gherkin worlds without a recorder
-receive a measured timeline from the runner. Reports preserve the measurements in
-the existing object-store publication path, including failed steps. Old reports
-show measurements as unavailable, rather than treating missing data as zero.
-
-The catalog's App performance view compares runs without downloading their frames.
-Each test's Performance heatmap ranks steps by own execution time, subtracting
-nested execution and snapshot work to avoid counting children again. Snapshot
-overhead is shown separately. The recorded diagnostic allowance is 50 ms; the
-viewer lets an investigator choose another allowance without changing the report.
-Red cells and explicit Slow labels identify candidates for investigation, and
-selecting a cell opens its recorded moment when one exists. Heatmaps paginate at
-128 cells so large reports do not create an unbounded DOM.
-
-Elapsed action time includes waits and harness work. It is diagnostic data,
-not a portable CPU benchmark, a browser input-to-paint measurement, or a release
-SLO. Virtual time remains separate. Automated correctness checks use deterministic
-work bounds; browser performance contracts remain the evidence for browser paint
-budgets. Passing scenarios only cover the paths and devices they exercised.
-
-## Entries
-
-| Import | Surface |
-| ------ | ------- |
-| `@pkgs/harness-report` | key layout, wire protocol + SSE codec, read side (Worker-safe) |
-| `@pkgs/harness-report/remote/publish` | `openCommit` / `publishSource` / `closeCommit` (CI) |
-| `@pkgs/harness-report/client` | `RemoteReportsApp`, `createRemoteReport`, `HarnessReportApp` |
-
-## Layout
-
-```
-src/
-  remote/        store keys, protocol, read + publish sides, streamed client
-  app/           Solid root + hash routing + keyboard
-  components/    header, steps, toolbar, scrubber, phone stage, catalog
-  views/         test list, one test
-  lib/           pure helpers (frames, format, hash, phone)
-```
+Replay, timeline and state share the inspection workspace. Wide layouts retain
+the replay beside the selected tool; compact layouts make every pane selectable.

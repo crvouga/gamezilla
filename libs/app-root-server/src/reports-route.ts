@@ -36,8 +36,6 @@ import {
 } from '@pkgs/harness-report-shared/protocol';
 import {
   commitEvents,
-  listCommits,
-  listSourceRecords,
   readCommit,
   readFrameBody,
   readFrameCss,
@@ -46,6 +44,16 @@ import {
 } from '@pkgs/harness-report-shared/read';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { type Context, Hono } from 'hono';
+import {
+  createReportsExplorerApp,
+  type ReportsExplorerDeps,
+} from './reports-explorer-route';
+import { reportsListRoute } from './reports-list-route';
+import {
+  reportsSources,
+  reportsStoreForCommit,
+  reportsStoreForSource,
+} from './reports-store';
 
 /** Commits per page of `GET /reports`. */
 export const REPORTS_PAGE_SIZE = 30;
@@ -54,7 +62,7 @@ export const REPORTS_POLL_MS = 2_000;
 /** A running commit's stream ends after this long; the client reconnects. */
 export const REPORTS_TAIL_MS = 5 * 60_000;
 
-export type ReportsAppDeps = {
+export type ReportsAppDeps = ReportsExplorerDeps & {
   /** The shared reports store; null when this deployment has no credential. */
   readonly store: ObjectStore | null;
   readonly clock: Clock;
@@ -125,13 +133,17 @@ function notFound(): Response {
   );
 }
 
-function storeOf(
+async function storeOf(
   deps: ReportsAppDeps,
-  sha: string
-): NonNullable<ReportsAppDeps['store']> | Response {
+  sha: string,
+  source?: string
+): Promise<NonNullable<ReportsAppDeps['store']> | Response> {
   if (!isCommitSha(sha)) return notFound();
-  if (deps.store === null) return unavailable();
-  return deps.store;
+  return (
+    (await (source === undefined
+      ? reportsStoreForCommit(deps, sha)
+      : reportsStoreForSource(deps, sha, source))) ?? unavailable()
+  );
 }
 
 function testParams(c: Context):
@@ -160,9 +172,9 @@ function testParams(c: Context):
 function sourcesRoute(deps: ReportsAppDeps) {
   return async (c: Context) => {
     const sha = c.req.param('sha') ?? '';
-    const store = storeOf(deps, sha);
+    const store = await storeOf(deps, sha);
     if (store instanceof Response) return store;
-    const sources = await listSourceRecords(store, sha);
+    const sources = await reportsSources(deps, sha);
     return c.json({ sources }, 200, NO_STORE);
   };
 }
@@ -171,7 +183,7 @@ function testRoute(deps: ReportsAppDeps) {
   return async (c: Context) => {
     const params = testParams(c);
     if (params instanceof Response) return params;
-    const store = storeOf(deps, params.sha);
+    const store = await storeOf(deps, params.sha, params.source);
     if (store instanceof Response) return store;
     const report = await readTestReport(store, params);
     if (report === null) return notFound();
@@ -197,7 +209,7 @@ function fileRoute(deps: ReportsAppDeps) {
     if (params instanceof Response) return params;
     const file = frameFileOf(c.req.url, params);
     if (file === null) return notFound();
-    const store = storeOf(deps, params.sha);
+    const store = await storeOf(deps, params.sha, params.source);
     if (store instanceof Response) return store;
     const body = await readFrameBody(store, { ...params, file });
     if (body === null) return notFound();
@@ -209,10 +221,10 @@ function fileRoute(deps: ReportsAppDeps) {
 }
 
 function testEventsRoute(deps: ReportsAppDeps) {
-  return (c: Context) => {
+  return async (c: Context) => {
     const params = testParams(c);
     if (params instanceof Response) return params;
-    const store = storeOf(deps, params.sha);
+    const store = await storeOf(deps, params.sha, params.source);
     if (store instanceof Response) return store;
     return eventStream(testEvents(store, params));
   };
@@ -221,27 +233,23 @@ function testEventsRoute(deps: ReportsAppDeps) {
 export function createReportsApp(deps: ReportsAppDeps) {
   return new Hono()
     .use('*', apiCors)
-    .get('/', async (c) => {
-      if (deps.store === null) return unavailable();
-      const page = await listCommits(deps.store, {
-        limit: REPORTS_PAGE_SIZE,
-        cursor: c.req.query('cursor') ?? null,
-      });
-      return c.json(page, 200, NO_STORE);
-    })
+    .route('/', createReportsExplorerApp(deps))
+    .get('/', reportsListRoute(deps))
     .get('/:sha', async (c) => {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
-      if (deps.store === null) return unavailable();
-      const commit = await readCommit(deps.store, sha);
+      const store = await storeOf(deps, sha);
+      if (store instanceof Response) return store;
+      const commit = await readCommit(store, sha);
       return commit === null ? notFound() : c.json(commit, 200, NO_STORE);
     })
-    .get('/:sha/events', (c) => {
+    .get('/:sha/events', async (c) => {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
-      if (deps.store === null) return unavailable();
+      const store = await storeOf(deps, sha);
+      if (store instanceof Response) return store;
       return eventStream(
-        commitEvents(deps.store, sha, {
+        commitEvents(store, sha, {
           clock: deps.clock,
           timers: deps.timers,
           have: haveSources(c.req.query('have')),
@@ -254,8 +262,9 @@ export function createReportsApp(deps: ReportsAppDeps) {
     .get('/:sha/frame.css', async (c) => {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
-      if (deps.store === null) return unavailable();
-      const css = await readFrameCss(deps.store, sha);
+      const store = await storeOf(deps, sha);
+      if (store instanceof Response) return store;
+      const css = await readFrameCss(store, sha);
       if (css === null) return notFound();
       return new Response(css.body, {
         status: 200,

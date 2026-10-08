@@ -397,6 +397,7 @@
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
+        "pkgs/harness-report-client/src/**/*.{ts,tsx}",
         "pkgs/ui-root-client/src/**/*.{ts,tsx}",
         "pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
         "lingui.config.ts",

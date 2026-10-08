@@ -1,17 +1,14 @@
+import { useTimers } from '@pkgs/clock-client/solid';
+import type { Timers } from '@pkgs/clock-shared/types';
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
 import { selectedFrame, testFrames } from '@pkgs/harness-report-shared/frames';
 import type { Route } from '@pkgs/harness-report-shared/hash';
 import { buildHash, parseHash } from '@pkgs/harness-report-shared/hash';
 import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
 import type { ReportData } from '@pkgs/harness-report-shared/types';
-import {
-  cancelHashWrite,
-  debounceHash,
-  startPlayTimer,
-  stopPlayTimer,
-} from '@pkgs/harness-report-shared/wall';
 import type { Accessor } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
+import type { ReportNavigation } from './navigation';
 
 export type ReportNav = {
   route: Accessor<Route>;
@@ -25,6 +22,7 @@ export type ReportNav = {
   goFrame: (frame: FlatFrame | null, node?: string | undefined) => void;
   stepFrame: (delta: number) => void;
   toggleHelp: () => void;
+  closeHelp: () => void;
   togglePalette: () => void;
   closePalette: () => void;
   togglePlay: () => void;
@@ -66,6 +64,8 @@ function advancePlay(
 
 function bindWindowListeners(opts: {
   data: ReportData;
+  navigation: ReportNavigation;
+  cancelHashWrite: () => void;
   route: Accessor<Route>;
   setRoute: (r: Route) => void;
   showHelp: Accessor<boolean>;
@@ -78,18 +78,15 @@ function bindWindowListeners(opts: {
   togglePlay: () => void;
   setParam: ReportNav['setParam'];
 }): void {
-  createEffect(() => {
-    const onHash = () => {
-      cancelHashWrite();
+  onCleanup(
+    opts.navigation.subscribeHash(() => {
+      opts.cancelHashWrite();
       opts.stopPlay();
-      opts.setRoute(parseHash());
-    };
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
-  });
-
-  createEffect(() => {
-    const onKey = (e: KeyboardEvent) =>
+      opts.setRoute(parseHash(opts.navigation.readHash()));
+    })
+  );
+  onCleanup(
+    opts.navigation.subscribeKeys((e) =>
       onReportKeyDown(e, opts.data, {
         toggleHelp: () => opts.setShowHelp((p) => !p),
         showHelp: opts.showHelp,
@@ -101,10 +98,9 @@ function bindWindowListeners(opts: {
         togglePlay: opts.togglePlay,
         setParam: opts.setParam,
         route: opts.route,
-      });
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
+      })
+    )
+  );
 
   createEffect(() => {
     const r = opts.route();
@@ -112,8 +108,9 @@ function bindWindowListeners(opts: {
       r.view === 'test'
         ? opts.data.tests.find((t) => t.report.meta.testId === r.testId)
         : null;
-    document.title =
-      (test ? `${test.report.meta.title} · ` : '') + opts.data.title;
+    opts.navigation.setTitle(
+      (test ? `${test.report.meta.title} · ` : '') + opts.data.title
+    );
   });
 }
 
@@ -128,6 +125,7 @@ function makeReportNav(state: {
   readonly goFrame: ReportNav['goFrame'];
   readonly stepFrame: ReportNav['stepFrame'];
   readonly toggleHelp: ReportNav['toggleHelp'];
+  readonly closeHelp: ReportNav['closeHelp'];
   readonly togglePalette: ReportNav['togglePalette'];
   readonly closePalette: ReportNav['closePalette'];
   readonly togglePlay: ReportNav['togglePlay'];
@@ -157,35 +155,44 @@ function navigateFrame(args: {
  * trailing debounce: rendering never waits on history, and rapid scrubbing
  * cannot trip replaceState rate limits.
  */
-function createHashRoute() {
-  const [route, setRoute] = createSignal<Route>(parseHash());
+function createHashRoute(navigation: ReportNavigation, timers: Timers) {
+  const [route, setRoute] = createSignal<Route>(
+    parseHash(navigation.readHash())
+  );
+  let hashTimer: ReturnType<Timers['setTimeout']> | null = null;
+  const cancelHashWrite = () => {
+    if (hashTimer !== null) timers.clearTimeout(hashTimer);
+    hashTimer = null;
+  };
   const commitHash = () => {
     cancelHashWrite();
-    const hash = buildHash(route());
-    if (location.hash !== hash) history.replaceState(null, '', hash);
+    navigation.writeHash(buildHash(route()), true);
   };
   const navigate = (next: Route, replace = false) => {
-    if (replace) {
-      setRoute(next);
-      debounceHash(commitHash, 200);
-    } else {
-      cancelHashWrite();
-      location.hash = buildHash(next);
-    }
+    cancelHashWrite();
+    setRoute(next);
+    if (replace) hashTimer = timers.setTimeout(commitHash, 200);
+    else navigation.writeHash(buildHash(next), false);
   };
-  return { route, setRoute, commitHash, navigate };
+  onCleanup(cancelHashWrite);
+  return { route, setRoute, commitHash, navigate, cancelHashWrite };
 }
 
-export function useReportNav(data: ReportData): ReportNav {
-  const { route, setRoute, commitHash, navigate } = createHashRoute();
+export function useReportNav(
+  data: ReportData,
+  navigation: ReportNavigation
+): ReportNav {
+  const timers = useTimers();
+  const { route, setRoute, commitHash, navigate, cancelHashWrite } =
+    createHashRoute(navigation, timers);
   const [showHelp, setShowHelp] = createSignal(false);
   const [showPalette, setShowPalette] = createSignal(false);
-  const [playing, setPlaying] = createSignal(false);
-
-  const stopPlay = () => {
-    stopPlayTimer();
-    setPlaying(false);
-  };
+  const { playing, stopPlay, togglePlay } = createPlayback(
+    data,
+    route,
+    navigate,
+    timers
+  );
 
   const goFrame = (frame: FlatFrame | null, node?: string) =>
     navigateFrame({
@@ -217,17 +224,10 @@ export function useReportNav(data: ReportData): ReportNav {
     goFrame(frames[next] ?? null);
   };
 
-  const togglePlay = () => {
-    if (playing()) {
-      stopPlay();
-      return;
-    }
-    setPlaying(true);
-    startPlayTimer(() => advancePlay(data, route, navigate, stopPlay));
-  };
-
   bindWindowListeners({
     data,
+    navigation,
+    cancelHashWrite,
     route,
     setRoute,
     showHelp,
@@ -252,9 +252,38 @@ export function useReportNav(data: ReportData): ReportNav {
     goFrame,
     stepFrame,
     toggleHelp: () => setShowHelp(!showHelp()),
+    closeHelp: () => setShowHelp(false),
     togglePalette: () => setShowPalette((open) => !open),
     closePalette: () => setShowPalette(false),
     togglePlay,
     stopPlay,
   });
+}
+
+function createPlayback(
+  data: ReportData,
+  route: Accessor<Route>,
+  navigate: ReportNav['navigate'],
+  timers: Timers
+) {
+  let timer: ReturnType<Timers['setInterval']> | null = null;
+  const [playing, setPlaying] = createSignal(false);
+  const stopPlay = () => {
+    if (timer !== null) timers.clearInterval(timer);
+    timer = null;
+    setPlaying(false);
+  };
+  const togglePlay = () => {
+    if (playing()) {
+      stopPlay();
+      return;
+    }
+    setPlaying(true);
+    timer = timers.setInterval(
+      () => advancePlay(data, route, navigate, stopPlay),
+      700
+    );
+  };
+  onCleanup(stopPlay);
+  return { playing, stopPlay, togglePlay };
 }

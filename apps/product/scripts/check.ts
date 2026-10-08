@@ -1,5 +1,6 @@
 // @io-wall-ok — offline gate entry; reads only the product's prepared artifact directory.
 import { isAbsolute, join, relative, resolve } from 'node:path';
+import { completedOrigin, reportOrigin } from '@libs/harness/report-origin';
 import { REPORT_READY } from '@libs/harness/report-ready';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
@@ -23,6 +24,7 @@ const INPUT = join(ROOT, '.cache/ui-quality-inputs');
 const OUTPUT = join(ROOT, '.cache/ui-quality');
 const MODEL = resolve(ROOT, '../../.cache/ui-quality-model');
 const REPORTS = join(ROOT, '.cache/harness-report/ui-quality');
+const REPORT_ORIGIN = reportOrigin(resolve(ROOT, '../..'));
 
 function store(rootDir: string) {
   return createNodeFsObjectStore({ rootDir, fs: wallNodeFs(), layout: 'tree' });
@@ -133,6 +135,14 @@ if (import.meta.main) {
         store(REPORTS),
         'complete.json',
         JSON.stringify({ status: process.exitCode ?? 2 }),
+        'application/json'
+      );
+      await writeUtf8(
+        store(REPORTS),
+        'origin.json',
+        JSON.stringify(
+          completedOrigin(REPORT_ORIGIN, reportOrigin(resolve(ROOT, '../..')))
+        ),
         'application/json'
       );
       console.log(REPORT_READY);
