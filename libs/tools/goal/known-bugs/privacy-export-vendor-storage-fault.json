@@ -1,0 +1,4 @@
+{
+  "summary": "Export failure scenarios used the obsolete in-memory storage fault control after the harness moved to the S3 simulator. Inject a one-shot PUT failure through the simulator instead.",
+  "regressionTest": "specs/profile/personal-data-export.feature"
+}

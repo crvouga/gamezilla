@@ -1,5 +1,6 @@
 import { createRuntime } from '@crvouga/mockingbird-service-s3';
 import type { Clock } from '@pkgs/clock-shared/types';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 import { mockingbirdClock } from './mockingbird-clock';
 
@@ -10,7 +11,7 @@ export function createHarnessObjectStore(clock: Clock) {
     buckets: ['harness'],
     credentials: { fixture: 'fixture' },
   });
-  return createS3ObjectStore({
+  const store = createS3ObjectStore({
     accessKeyId: 'fixture',
     secretAccessKey: 'fixture',
     bucket: 'harness',
@@ -19,4 +20,25 @@ export function createHarnessObjectStore(clock: Clock) {
     rootPrefix: 'harness/',
     http: { fetch: (input, init) => runtime.fetch(new Request(input, init)) },
   });
+  return Object.assign(store, {
+    failNextWrite: () =>
+      runtime.faults.add({
+        id: 'harness-next-object-write',
+        method: 'PUT',
+        status: 503,
+        count: 1,
+        body: 'Object storage unavailable',
+      }),
+  });
+}
+
+/** Fault the vendor's next PUT, while retaining the real S3 client path. */
+export function failNextHarnessObjectWrite(store: ObjectStore): void {
+  if (
+    !('failNextWrite' in store) ||
+    typeof store.failNextWrite !== 'function'
+  ) {
+    throw new Error('Object storage fault control is not mounted');
+  }
+  store.failNextWrite();
 }
