@@ -1,6 +1,5 @@
 // @io-wall-ok — isolated CI shard process composition root.
 
-import { spawnSync } from 'node:child_process';
 import {
   cpSync,
   existsSync,
@@ -11,6 +10,7 @@ import {
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness/report-ready';
 import { readLatestRunSummary } from './check-budget';
+import { packShardEvidence } from './check-evidence-pack';
 import { preserveInterruptedModels } from './check-interrupted-models';
 import { preserveInterruptedReports } from './check-interrupted-reports';
 import { copyModelEvidence } from './check-model-evidence';
@@ -112,14 +112,7 @@ function packEvidence(index: number, failed: boolean): void {
   }
   if (existsSync(join(DIRECTORY, 'failed-reports')))
     paths.push('.cache/check-ci/failed-reports');
-  const packed = spawnSync('tar', [
-    '-cf',
-    join(DIRECTORY, `evidence-${index}.tar`),
-    '-C',
-    ROOT,
-    ...paths,
-  ]);
-  if (packed.status !== 0) throw new Error('Cannot transfer shard evidence');
+  packShardEvidence(ROOT, index, paths);
 }
 
 function preserveFailedReports(results: readonly Result[]): void {

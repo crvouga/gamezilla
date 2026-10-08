@@ -76,7 +76,7 @@ export async function downloadEvidence(args: {
 
 async function consumeTransfer(directory: string): Promise<void> {
   for (const name of readdirSync(directory).filter((name) =>
-    /^evidence-\d+\.tar$/.test(name)
+    /^(?:evidence|results)-\d+\.tar\.gz$/.test(name)
   ))
     await consumeEvidence(join(directory, name), process.argv[5]!);
 }
