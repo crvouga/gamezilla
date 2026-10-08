@@ -6,22 +6,10 @@ import {
 } from '@libs/chess-matchmaking-shared/game-state';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
-import type { MutationButtonLabels } from '@pkgs/ui-root-client/use-mutation-button';
-import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
+import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
+import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { type JSX, Show } from 'solid-js';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
-
-function ActionButton(props: {
-  readonly operation: () => Promise<void>;
-  readonly labels: MutationButtonLabels;
-  readonly testid: string;
-}): JSX.Element {
-  const action = useMutationButton({
-    operation: () => props.operation(),
-    labels: props.labels,
-  });
-  return <Button {...action.buttonProps} dataSet={{ testid: props.testid }} />;
-}
 
 function DrawActions(props: {
   readonly game: MultiplayerGame;
@@ -34,25 +22,23 @@ function DrawActions(props: {
     <Show
       when={offered()}
       fallback={
-        <ActionButton
+        <GameActionButton
           operation={props.controls.offerDraw}
-          labels={{
-            idle: <Trans>Offer a multiplayer draw</Trans>,
-            success: <Trans>Multiplayer draw offered</Trans>,
-          }}
-          testid="multiplayer-offer-draw"
+          title={<Trans>Offer a multiplayer draw</Trans>}
+          successLabel={<Trans>Multiplayer draw offered</Trans>}
+          dataSet={{ testid: 'multiplayer-offer-draw' }}
         />
       }
     >
-      <ActionButton
+      <GameActionButton
         operation={props.controls.acceptDraw}
-        labels={{ idle: <Trans>Accept the multiplayer draw</Trans> }}
-        testid="multiplayer-accept-draw"
+        title={<Trans>Accept the multiplayer draw</Trans>}
+        dataSet={{ testid: 'multiplayer-accept-draw' }}
       />
-      <ActionButton
+      <GameActionButton
         operation={props.controls.declineDraw}
-        labels={{ idle: <Trans>Decline the multiplayer draw</Trans> }}
-        testid="multiplayer-decline-draw"
+        title={<Trans>Decline the multiplayer draw</Trans>}
+        dataSet={{ testid: 'multiplayer-decline-draw' }}
       />
     </Show>
   );
@@ -69,25 +55,23 @@ function RematchActions(props: {
     <Show
       when={offered()}
       fallback={
-        <ActionButton
+        <GameActionButton
           operation={props.controls.offerRematch}
-          labels={{
-            idle: <Trans>Offer a multiplayer rematch</Trans>,
-            success: <Trans>Multiplayer rematch offered</Trans>,
-          }}
-          testid="multiplayer-offer-rematch"
+          title={<Trans>Offer a multiplayer rematch</Trans>}
+          successLabel={<Trans>Multiplayer rematch offered</Trans>}
+          dataSet={{ testid: 'multiplayer-offer-rematch' }}
         />
       }
     >
-      <ActionButton
+      <GameActionButton
         operation={props.controls.acceptRematch}
-        labels={{ idle: <Trans>Accept the multiplayer rematch</Trans> }}
-        testid="multiplayer-accept-rematch"
+        title={<Trans>Accept the multiplayer rematch</Trans>}
+        dataSet={{ testid: 'multiplayer-accept-rematch' }}
       />
-      <ActionButton
+      <GameActionButton
         operation={props.controls.declineRematch}
-        labels={{ idle: <Trans>Decline the multiplayer rematch</Trans> }}
-        testid="multiplayer-decline-rematch"
+        title={<Trans>Decline the multiplayer rematch</Trans>}
+        dataSet={{ testid: 'multiplayer-decline-rematch' }}
       />
     </Show>
   );
@@ -104,52 +88,54 @@ export function MultiplayerGameActions(props: {
   const playing = () =>
     props.game.white_id === props.myId || props.game.black_id === props.myId;
   return (
-    <div
-      class="box flex-row flex-wrap gap-2"
-      data-component="MultiplayerGameActions"
-    >
-      <Show when={playing() && props.game.outcome === 'ongoing'}>
-        <Show
-          when={bothHaveMoved(props.game)}
-          fallback={
+    <GameSection title={<Trans>Game actions</Trans>}>
+      <div class="box flex-row flex-wrap gap-2">
+        <Show when={playing() && props.game.outcome === 'ongoing'}>
+          <Show
+            when={bothHaveMoved(props.game)}
+            fallback={
+              <Button
+                title={<Trans>Abort the multiplayer game</Trans>}
+                intent="danger"
+                variant="ghost"
+                onClick={() => props.onConfirm('abort')}
+                dataSet={{ testid: 'multiplayer-abort' }}
+              />
+            }
+          >
             <Button
-              title={<Trans>Abort the multiplayer game</Trans>}
-              onClick={() => props.onConfirm('abort')}
-              dataSet={{ testid: 'multiplayer-abort' }}
+              title={<Trans>Resign multiplayer chess</Trans>}
+              intent="danger"
+              variant="ghost"
+              onClick={() => props.onConfirm('resign')}
+              dataSet={{ testid: 'multiplayer-resign' }}
             />
-          }
-        >
-          <Button
-            title={<Trans>Resign multiplayer chess</Trans>}
-            onClick={() => props.onConfirm('resign')}
-            dataSet={{ testid: 'multiplayer-resign' }}
-          />
-        </Show>
-        <DrawActions
-          game={props.game}
-          myId={props.myId}
-          controls={props.controls}
-        />
-      </Show>
-      <Show
-        when={playing() && props.game.outcome !== 'ongoing' && !props.looking}
-      >
-        <Show when={isFinished(props.game.outcome)}>
-          <RematchActions
+          </Show>
+          <DrawActions
             game={props.game}
             myId={props.myId}
             controls={props.controls}
           />
         </Show>
-        <ActionButton
-          operation={props.controls.newOpponent}
-          labels={{
-            idle: <Trans>Find a new opponent</Trans>,
-            success: <Trans>Opponent search accepted</Trans>,
-          }}
-          testid="multiplayer-new-opponent"
-        />
-      </Show>
-    </div>
+        <Show
+          when={playing() && props.game.outcome !== 'ongoing' && !props.looking}
+        >
+          <Show when={isFinished(props.game.outcome)}>
+            <RematchActions
+              game={props.game}
+              myId={props.myId}
+              controls={props.controls}
+            />
+          </Show>
+          <GameActionButton
+            operation={props.controls.newOpponent}
+            title={<Trans>Find a new opponent</Trans>}
+            variant="solid"
+            successLabel={<Trans>Opponent search accepted</Trans>}
+            dataSet={{ testid: 'multiplayer-new-opponent' }}
+          />
+        </Show>
+      </div>
+    </GameSection>
   );
 }

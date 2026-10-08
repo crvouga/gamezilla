@@ -1,8 +1,8 @@
 import { otherCustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
+import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { type JSX, Show } from 'solid-js';
-import { CustomGameAction } from './custom-game-action';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /** The other participant, when they are a person who is away right now. */
@@ -26,9 +26,9 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
             <Trans>is away. After a minute away you may claim the win.</Trans>
           </p>
           <Show when={props.model.canPlay()}>
-            <CustomGameAction
+            <GameActionButton
               title={<Trans>Claim the win</Trans>}
-              testId="chess-custom-claim-win"
+              dataSet={{ testid: 'chess-custom-claim-win' }}
               operation={() => props.model.choose({ operation: 'claimWin' })}
             />
           </Show>
@@ -63,21 +63,21 @@ export function CustomGameActive(props: {
             </p>
           </Show>
           <Show when={twoPeople() && offer() === '' && !declined()}>
-            <CustomGameAction
+            <GameActionButton
               title={<Trans>Offer draw</Trans>}
-              testId="chess-custom-offer"
+              dataSet={{ testid: 'chess-custom-offer' }}
               operation={() => props.model.choose({ operation: 'offer' })}
             />
           </Show>
           <Show when={offer() !== '' && offer() !== props.model.myId()}>
-            <CustomGameAction
+            <GameActionButton
               title={<Trans>Agree draw</Trans>}
-              testId="chess-custom-agree"
+              dataSet={{ testid: 'chess-custom-agree' }}
               operation={() => props.model.choose({ operation: 'agree' })}
             />
-            <CustomGameAction
+            <GameActionButton
               title={<Trans>Decline draw</Trans>}
-              testId="chess-custom-reject"
+              dataSet={{ testid: 'chess-custom-reject' }}
               operation={() => props.model.choose({ operation: 'reject' })}
             />
           </Show>

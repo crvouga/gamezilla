@@ -164,6 +164,7 @@ export const confirmMultiplayerCommand = scenarioAction({
     const target = ui.get(`multiplayer-${kind}`);
     if (keyboard) await target.key('enter');
     else await target.tap();
+    if (kind === 'stop') return;
     if (keyboard) await ui.get('multiplayer-confirm').key('enter');
     else await ui.get('multiplayer-confirm').tap();
     await ui.get('multiplayer-dismiss').expect.visible();

@@ -3,6 +3,8 @@ import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { Button } from '@pkgs/ui-root-client/button';
+import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
+import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { Select } from '@pkgs/ui-root-client/select';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
@@ -116,7 +118,7 @@ export function CustomGameBoard(props: {
   };
   return (
     <div class="box gap-4" data-component="CustomGameBoard">
-      <div class="w-full max-w-lg self-center">
+      <GameBoardStage>
         <ChessBoard
           fen={props.review.fen()}
           fenSyncKey={reset()}
@@ -132,8 +134,10 @@ export function CustomGameBoard(props: {
           highlightLegalMoves
           dataSet={{ testid: 'chess-custom-board' }}
         />
-      </div>
-      <CustomGameReviewControls {...props} />
+      </GameBoardStage>
+      <GameSection title={<Trans>Game record</Trans>}>
+        <CustomGameReviewControls {...props} />
+      </GameSection>
     </div>
   );
 }

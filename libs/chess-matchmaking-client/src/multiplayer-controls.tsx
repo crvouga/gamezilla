@@ -7,14 +7,11 @@ import { MultiplayerWaiting } from './multiplayer-waiting';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 import type { MultiplayerData } from './use-multiplayer-data';
 
-type Confirm = 'stop' | 'resign' | 'abort';
+type Confirm = 'resign' | 'abort';
 
 function ConfirmTitle(props: { readonly kind: Confirm | null }): JSX.Element {
   return (
     <Switch fallback={<Trans>Resign multiplayer chess?</Trans>}>
-      <Match when={props.kind === 'stop'}>
-        <Trans>Stop finding an opponent?</Trans>
-      </Match>
       <Match when={props.kind === 'abort'}>
         <Trans>Abort the multiplayer game?</Trans>
       </Match>
@@ -25,9 +22,6 @@ function ConfirmTitle(props: { readonly kind: Confirm | null }): JSX.Element {
 function ConfirmMessage(props: { readonly kind: Confirm | null }): JSX.Element {
   return (
     <Switch fallback={<Trans>Your opponent will win this game.</Trans>}>
-      <Match when={props.kind === 'stop'}>
-        <Trans>Your search will end.</Trans>
-      </Match>
       <Match when={props.kind === 'abort'}>
         <Trans>The game ends with no result and no rating change.</Trans>
       </Match>
@@ -43,7 +37,6 @@ export function MultiplayerControls(props: {
   const looking = () => props.data.search()?.standing === 'waiting';
   const operation = () => {
     const kind = confirm();
-    if (kind === 'stop') return props.controls.stop();
     if (kind === 'abort') return props.controls.abort();
     return props.controls.resign();
   };
@@ -76,10 +69,7 @@ export function MultiplayerControls(props: {
         }
       >
         {(search) => (
-          <MultiplayerWaiting
-            search={search()}
-            onStop={() => setConfirm('stop')}
-          />
+          <MultiplayerWaiting search={search()} onStop={props.controls.stop} />
         )}
       </Show>
       <MutationModal
