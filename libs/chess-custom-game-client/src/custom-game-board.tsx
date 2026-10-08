@@ -1,3 +1,4 @@
+import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
 import { Trans } from '@lingui/solid/macro';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
@@ -120,6 +121,7 @@ export function CustomGameBoard(props: {
     <div class="box gap-4" data-component="CustomGameBoard">
       <GameBoardStage>
         <ChessBoard
+          theme={BOARD_THEME}
           fen={props.review.fen()}
           fenSyncKey={reset()}
           orientation={props.model.mySide() ?? 'white'}

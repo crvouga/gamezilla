@@ -2,8 +2,8 @@
 /**
  * `List` / `ListItem` -- structured list with leading, trailing, and separator support.
  *
- * `List` renders a `<ul>`; every resolved child is wrapped in an `<li>` with
- * an optional hairline separator. `ListItem` becomes a clickable `<button>`
+ * `List` renders a `<ul>` panel (the same `.panel` as `MenuList`); every
+ * resolved child is wrapped in an `<li>`, with hairlines between items. `ListItem` becomes a clickable `<button>`
  * when `onClick` is set so hover / press feedback and keyboard focus come for
  * free. Pass `selected` to render the row with a `tintSubtle` fill.
  *
@@ -41,19 +41,13 @@ export function List(props: ListProps): JSX.Element {
       .toArray()
       .filter((node) => node !== null && node !== undefined && node !== false)
   );
-  const separator = () => props.separator ?? true;
   return (
-    <ul class="box" {...dataAttrs({ component: 'List', ...props.dataSet })}>
-      <For each={items()}>
-        {(child, index) => (
-          <li class="box">
-            {child}
-            <Show when={separator() && index() < items().length - 1}>
-              <div class="box border-b border-border ml-4" aria-hidden="true" />
-            </Show>
-          </li>
-        )}
-      </For>
+    <ul
+      class="panel m-0 p-0 list-none"
+      classList={{ panelPlain: props.separator === false }}
+      {...dataAttrs({ component: 'List', ...props.dataSet })}
+    >
+      <For each={items()}>{(child) => <li class="panelItem">{child}</li>}</For>
     </ul>
   );
 }
@@ -79,12 +73,12 @@ function ListItemContent(props: {
   trailing: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-11">
+    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-14">
       {props.leading}
       <div class="box flex-1 min-w-0 items-start">
-        <p class="text text-text">{props.title}</p>
+        <p class="text textLabel">{props.title}</p>
         <Show when={props.subtitle}>
-          <p class="text textCaption text-text-secondary">{props.subtitle}</p>
+          <p class="text textCaption">{props.subtitle}</p>
         </Show>
       </div>
       {props.trailing}
@@ -93,7 +87,7 @@ function ListItemContent(props: {
 }
 
 function selectedClass(selected: boolean): string {
-  return selected ? 'bg-tint-subtle rounded-control' : '';
+  return selected ? 'bg-tint-subtle' : '';
 }
 
 export function ListItem(props: ListItemProps): JSX.Element {

@@ -1,6 +1,7 @@
 import {
   applyUci,
-  legalMoves,
+  hasMateInOne,
+  type PositionStatus,
   positionStatus,
 } from '@pkgs/chess-rules-shared/moves';
 import { hangingPieces, knightForks } from '@pkgs/chess-rules-shared/tactics';
@@ -34,48 +35,54 @@ const PIECES = {
   p: 'pawn',
 } as const;
 
-function diagnosis(input: CommentaryInput): {
+function diagnosis(
+  input: CommentaryInput,
+  board: PositionStatus
+): {
   kind: ObservationKind;
   text: string;
 } {
   const fen = input.fen!;
-  const board = positionStatus(fen);
+  const facts = {
+    status: 'wrong',
+    check: board.isCheck,
+    mate: false,
+    hanging: false,
+    fork: false,
+  } as const;
+  if (chooseObservation(facts) === 'check')
+    return {
+      kind: 'check',
+      text: 'Your king is in check. Find a legal way to escape it.',
+    };
+  if (
+    chooseObservation({ ...facts, mate: hasMateInOne(fen) }) === 'missed mate'
+  )
+    return {
+      kind: 'missed mate',
+      text: 'There is a checkmate available. Look for a move that leaves the king no escape.',
+    };
   const attempted =
     input.wrongUci === null ? null : applyUci(fen, input.wrongUci);
   const after = attempted?.ok === true ? attempted.fen : null;
-  const hanging = after === null ? [] : hangingPieces(after);
-  const forks = after === null ? [] : knightForks(after);
-  const mate = legalMoves(fen).some((move) => {
-    const played = applyUci(fen, move.uci);
-    return played.ok && played.isCheckmate;
-  });
-  const kind = chooseObservation({
-    status: 'wrong',
-    check: board?.isCheck ?? false,
-    mate,
-    hanging: hanging.length > 0,
-    fork: forks.length > 0,
-  });
-  if (kind === 'check')
+  const piece = after === null ? undefined : hangingPieces(after)[0];
+  if (
+    chooseObservation({ ...facts, hanging: piece !== undefined }) ===
+      'hanging piece' &&
+    piece !== undefined
+  )
     return {
-      kind,
-      text: 'Your king is in check. Find a legal way to escape it.',
-    };
-  if (kind === 'missed mate')
-    return {
-      kind,
-      text: 'There is a checkmate available. Look for a move that leaves the king no escape.',
-    };
-  const piece = hanging[0];
-  if (kind === 'hanging piece' && piece !== undefined)
-    return {
-      kind,
+      kind: 'hanging piece',
       text: `That move would leave your ${PIECES[piece.piece]} on ${piece.square} hanging: it can be captured without a recapture.`,
     };
-  const fork = forks[0];
-  if (kind === 'knight fork' && fork !== undefined)
+  const fork = after === null ? undefined : knightForks(after)[0];
+  if (
+    chooseObservation({ ...facts, fork: fork !== undefined }) ===
+      'knight fork' &&
+    fork !== undefined
+  )
     return {
-      kind,
+      kind: 'knight fork',
       text: `That move allows a knight fork on ${fork.square}, attacking your ${fork.targets.map((target) => `${PIECES[target.piece]} on ${target.square}`).join(' and ')}.`,
     };
   return {
@@ -85,7 +92,8 @@ function diagnosis(input: CommentaryInput): {
 }
 
 function observation(
-  input: CommentaryInput
+  input: CommentaryInput,
+  board: PositionStatus
 ): Pick<PuzzleCommentary, 'kind' | 'text'> {
   if (input.viewingHistory)
     return {
@@ -100,9 +108,9 @@ function observation(
           ? 'Correct continuation. Watch the opponent’s reply.'
           : 'Watch the opponent’s move, then find your continuation.',
     };
-  if (input.status === 'wrong') return diagnosis(input);
+  if (input.status === 'wrong') return diagnosis(input, board);
   if (input.status === 'solved')
-    return positionStatus(input.fen!)?.isCheckmate
+    return board.isCheckmate
       ? { kind: 'checkmate', text: 'Checkmate! You found a valid finish.' }
       : { kind: 'solved', text: 'Puzzle solved. Well played.' };
   if (input.status === 'revealed')
@@ -115,11 +123,12 @@ function observation(
       kind: 'skipped',
       text: 'Puzzle skipped. Move on when you are ready.',
     };
-  return ongoingObservation(input);
+  return ongoingObservation(input, board);
 }
 
 function ongoingObservation(
-  input: CommentaryInput
+  input: CommentaryInput,
+  board: PositionStatus
 ): Pick<PuzzleCommentary, 'kind' | 'text'> {
   if (input.hint !== 'none')
     return {
@@ -129,7 +138,7 @@ function ongoingObservation(
           ? 'The highlighted piece starts the solution move.'
           : 'The arrow shows the solution move.',
     };
-  if (positionStatus(input.fen!)?.isCheck)
+  if (board.isCheck)
     return {
       kind: 'check',
       text: 'Your king is in check. Find a legal way to escape it.',
@@ -149,15 +158,14 @@ export function puzzleCommentary(
   input: CommentaryInput
 ): PuzzleCommentary | null {
   if (input.status === 'loading' || input.status === 'idle') return null;
+  const board = input.fen === null ? null : positionStatus(input.fen);
   const result =
-    input.fen === null ||
-    positionStatus(input.fen) === null ||
-    input.status === 'invalid'
+    board === null || input.status === 'invalid'
       ? {
           kind: 'unavailable' as const,
           text: 'This puzzle cannot be played. Move on to another puzzle.',
         }
-      : observation(input);
+      : observation(input, board);
   const purpose = input.status === 'solving' ? 'ready' : input.status;
   return {
     ...result,

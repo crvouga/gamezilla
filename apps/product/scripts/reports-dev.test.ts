@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   profileNameForDomain,
-  reportsReadCredential,
+  reportsDevEnv,
   reportsSecretsFromRecord,
 } from './reports-dev-credentials';
 import { isReportsApiPath } from './reports-dev-plugin';
@@ -43,7 +43,7 @@ describe('local reports dev', () => {
 
   test('a complete read credential is the provisioned bucket', () => {
     expect(
-      reportsReadCredential(
+      reportsDevEnv(
         {
           REPORTS_BUCKET: ' gamezilla-reports ',
           REPORTS_ENDPOINT: ' https://example.r2.cloudflarestorage.com ',
@@ -61,20 +61,35 @@ describe('local reports dev', () => {
     });
   });
 
-  test('a read credential names every missing binding', () => {
-    expect(() =>
-      reportsReadCredential(
-        { REPORTS_BUCKET: 'gamezilla-reports' },
-        'gamezilla-reports'
-      )
-    ).toThrow(
-      'REPORTS_ENDPOINT, REPORTS_ACCESS_KEY_ID, REPORTS_SECRET_ACCESS_KEY'
-    );
+  test('missing reports credentials do not block local stack startup', () => {
+    // regression: local-stack-missing-reports-credentials
+    expect(reportsDevEnv({}, 'gamezilla-reports')).toEqual({
+      REPORTS_BUCKET: '',
+      REPORTS_ENDPOINT: '',
+      REPORTS_ACCESS_KEY_ID: '',
+      REPORTS_SECRET_ACCESS_KEY: '',
+    });
   });
 
-  test('a read credential has to be the provisioned bucket', () => {
-    expect(() =>
-      reportsReadCredential(
+  test('partial credentials are cleared, including inherited bindings', () => {
+    const inherited: Record<string, string> = {
+      REPORTS_BUCKET: 'gamezilla-reports',
+      REPORTS_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
+      REPORTS_ACCESS_KEY_ID: 'key',
+      REPORTS_SECRET_ACCESS_KEY: 'secret',
+    };
+    expect({
+      ...inherited,
+      ...reportsDevEnv(
+        { REPORTS_BUCKET: 'gamezilla-reports' },
+        'gamezilla-reports'
+      ),
+    }).toEqual(reportsDevEnv({}, 'gamezilla-reports'));
+  });
+
+  test('credentials for another bucket leave reports unavailable', () => {
+    expect(
+      reportsDevEnv(
         {
           REPORTS_BUCKET: 'other-bucket',
           REPORTS_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
@@ -83,7 +98,7 @@ describe('local reports dev', () => {
         },
         'gamezilla-reports'
       )
-    ).toThrow('provisioned reports bucket gamezilla-reports');
+    ).toEqual(reportsDevEnv({}, 'gamezilla-reports'));
   });
 
   test('the dev server claims /api/reports and leaves every other path', () => {

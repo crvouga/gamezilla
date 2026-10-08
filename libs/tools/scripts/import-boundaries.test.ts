@@ -424,6 +424,16 @@ const PROBES: readonly Probe[] = [
     message: 'Tests run on virtual time',
   },
   {
+    path: 'libs/zz/src/monotonic-default.ts',
+    source: 'const clock = monotonicClock;',
+    message: 'monotonicClock only in tests',
+  },
+  {
+    path: 'pkgs/zz-server/src/wall-reports-env.ts',
+    source: 'const clock = monotonicClock;',
+    message: null,
+  },
+  {
     path: 'pkgs/zz/tests/wall.test.ts',
     source: 'const clock = wallClock;',
     message: 'Tests run on virtual time',

@@ -6,6 +6,11 @@ export const wallClock: Clock = {
   now: () => Date.now(),
 };
 
+/** Elapsed-time measurements; never use this clock for domain timestamps. */
+export const monotonicClock: Clock = {
+  now: () => performance.now(),
+};
+
 /** Production timers backed by `globalThis` timer APIs. */
 export const wallTimers: Timers = {
   setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),

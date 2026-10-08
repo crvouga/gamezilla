@@ -92,8 +92,6 @@ function SegmentButton<K extends string>(props: {
         classList={{
           'text-text': props.isActive,
           'text-text-secondary': !props.isActive,
-          'font-semibold': props.isActive,
-          'font-medium': !props.isActive,
         }}
       >
         {props.segment.label}

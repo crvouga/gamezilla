@@ -92,11 +92,7 @@ function HeaderCell<T>(props: {
   };
   const label = () => `${props.column.header}${marker()}`;
   const justify = () => ALIGN_TO_JUSTIFY[props.column.align ?? 'start'];
-  const text = () => (
-    <p class="text line-clamp-1 text-text-secondary font-medium uppercase tracking-caps text-micro">
-      {label()}
-    </p>
-  );
+  const text = () => <p class="text textFootnote line-clamp-1">{label()}</p>;
   return (
     <th
       class={styles['cell']}

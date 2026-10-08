@@ -1,14 +1,16 @@
-/* Nunito latin variable, subset to the glyphs the English UI renders
-   (ASCII, Latin-1, typographic punctuation, arrows); everything else falls
+/* Bricolage Grotesque, instanced at the 24pt optical size and full width with
+   the weight axis kept (500–800), subset to the glyphs the English UI renders
+   (ASCII, Latin-1, typographic punctuation, arrows). Everything else falls
    back to the system stack. One file, swap so text paints with the fallback
-   stack before the font arrives. Raw size stays under the 40KB font budget. */
+   before the font arrives. Raw size stays under the 40KB font budget.
+   License: `bricolage-latin-ofl.txt` (SIL OFL 1.1). */
 
 @font-face {
-  font-family: Nunito;
+  font-family: "Bricolage Grotesque";
   font-style: normal;
-  font-weight: 200 1000;
+  font-weight: 500 800;
   font-display: swap;
-  src: url("./nunito-latin.woff2") format("woff2");
+  src: url("./bricolage-latin.woff2") format("woff2");
   unicode-range:
     U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201D, U+2022, U+2026,
     U+2039-203A, U+20AC, U+2122, U+2190-2193, U+2212;

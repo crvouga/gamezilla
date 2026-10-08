@@ -1,4 +1,5 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
 import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
@@ -130,6 +131,7 @@ export function MultiplayerBoard(props: {
       </Show>
       <GameBoardStage>
         <ChessBoard
+          theme={BOARD_THEME}
           fen={props.game.fen}
           fenSyncKey={props.syncKey}
           orientation={white() ? 'white' : 'black'}

@@ -76,7 +76,10 @@ const nonNegative = defineProperty({
 });
 
 export function exampleApp(
-  options: { readonly properties?: readonly CatalogProperty<ExampleApp>[] } = {}
+  options: {
+    readonly properties?: readonly CatalogProperty<ExampleApp>[];
+    readonly onCapture?: () => void;
+  } = {}
 ): System<ExampleApp> {
   return defineSystem({
     name: 'example-app',
@@ -93,7 +96,10 @@ export function exampleApp(
     snapshots: [
       defineSnapshot({
         name: 'store',
-        capture: (s: ExampleApp) => ({ ...s.values }),
+        capture: (s: ExampleApp) => {
+          options.onCapture?.();
+          return { ...s.values };
+        },
       }),
       defineSnapshot({
         name: 'html',

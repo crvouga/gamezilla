@@ -4,6 +4,7 @@ import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
 import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
+import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
 import { t } from '@lingui/core/macro';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
@@ -65,6 +66,7 @@ function PuzzleBoardSlot(props: {
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
       <ChessBoard
+        theme={BOARD_THEME}
         sound={!sounds.muted()}
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}

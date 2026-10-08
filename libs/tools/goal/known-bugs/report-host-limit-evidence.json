@@ -1,0 +1,4 @@
+{
+  "summary": "Collecting performance published an unfinished host-limited scenario as a failing report even though it provided no behavior evidence.",
+  "regressionTest": "pkgs/gherkin-server/tests/evidence.test.ts"
+}

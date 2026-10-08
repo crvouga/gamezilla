@@ -14,14 +14,12 @@ import { useUnlock } from '@libs/permissions-client/unlock';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
-import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client/external-url';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
-import { BillingScreenView } from './billing-screen-view';
+import { BillingScreenLayout } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
 import { useManageSubscription } from './use-manage-subscription';
@@ -77,26 +75,16 @@ export function BillingScreen(): JSX.Element {
   };
 
   return (
-    <ScreenBase
-      screenId="billing"
-      surface="canvas"
-      breadcrumbs={[
-        { name: <Trans>More</Trans>, href: '/more' },
-        { name: <Trans>Billing</Trans> },
-      ]}
-      content={() => (
-        <BillingScreenView
-          view={view()}
-          offer={PLUS_MEMBERSHIP_OFFER}
-          locale={i18n().locale}
-          formatDate={formatDate}
-          actions={{
-            subscribe: openCheckout,
-            manage,
-            unlock: () => unlock.run(subscribeDecision()),
-          }}
-        />
-      )}
+    <BillingScreenLayout
+      view={view()}
+      offer={PLUS_MEMBERSHIP_OFFER}
+      locale={i18n().locale}
+      formatDate={formatDate}
+      actions={{
+        subscribe: openCheckout,
+        manage,
+        unlock: () => unlock.run(subscribeDecision()),
+      }}
     />
   );
 }

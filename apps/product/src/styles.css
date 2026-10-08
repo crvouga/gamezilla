@@ -13,7 +13,7 @@ body,
 body {
   overflow: hidden;
   /* Avoid white flash before ThemeProvider paints (console chrome is dark). */
-  background: var(--ui-color-background, hsla(220, 8%, 9%, 1));
+  background: var(--ui-color-background, hsla(0, 0%, 0%, 1));
 }
 
 #root {

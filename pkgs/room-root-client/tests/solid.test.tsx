@@ -23,7 +23,7 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import { render, screen } from '@solidjs/testing-library';
-import { createRoot, createSignal } from 'solid-js';
+import { createEffect, createRoot, createSignal } from 'solid-js';
 
 const COUNT = asKeyword('room/count');
 const TITLE = asKeyword('room/title');
@@ -74,6 +74,31 @@ function createFakeRoom(initial: RoomState): FakeRoom {
 }
 
 describe('createRoomSnapshot', () => {
+  // regression: puzzle-room-selector-fanout
+  test('one room update publishes all selectors together', () => {
+    const source = createFakeRoom({ [COUNT]: 1, [TITLE]: 'First' });
+    const seen: string[] = [];
+    const dispose = createRoot((cleanup) => {
+      const count = createRoomSelector(
+        () => source,
+        (s) => Number(s[COUNT])
+      );
+      const title = createRoomSelector(
+        () => source,
+        (s) => String(s[TITLE])
+      );
+      createEffect(() => seen.push(`${count()}:${title()}`));
+      return cleanup;
+    });
+    try {
+      source.setState({ [COUNT]: 2, [TITLE]: 'Second' });
+      expect(seen).toEqual(['1:First', '2:Second']);
+      expect(source.listeners()).toBe(1);
+    } finally {
+      dispose();
+    }
+    expect(source.listeners()).toBe(0);
+  });
   test('reads synchronously, tracks notify, and swaps rooms', () => {
     createRoot((dispose) => {
       const a = createFakeRoom({ [COUNT]: 1 });
@@ -85,8 +110,8 @@ describe('createRoomSnapshot', () => {
       expect(snapshot()).toEqual({ [COUNT]: 1 });
       a.setState({ [COUNT]: 2 });
       expect(count()).toBe(2);
-      // one subscription per read primitive (snapshot + selector)
-      expect(a.listeners()).toBe(2);
+      // All read primitives share one subscription and one batched update.
+      expect(a.listeners()).toBe(1);
 
       setRoom(b);
       expect(snapshot()).toEqual({ [COUNT]: 10 });

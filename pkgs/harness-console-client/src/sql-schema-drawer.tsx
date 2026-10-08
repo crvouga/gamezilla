@@ -60,7 +60,7 @@ function TableBlock(props: {
         <code class="text textMono text-xs text-tint font-semibold">
           {props.name}
         </code>
-        <p class="text text-micro text-text-secondary">{props.type}</p>
+        <p class="text textFootnote">{props.type}</p>
       </button>
       <div class="box pl-3 gap-0.5">
         <For each={props.columns()}>

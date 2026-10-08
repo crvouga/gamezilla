@@ -5,7 +5,9 @@
  *
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button.
- *   - `center`   -> page title (from breadcrumbs).
+ *   - `center`   -> page title (from breadcrumbs), left-aligned after the
+ *                   back control so it lines up with the left-aligned body.
+ *                   A root screen (no back control) sets it as a heading.
  *   - `trailing` -> responsive action bar (header actions) + global chrome.
  */
 
@@ -66,7 +68,8 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   };
   return (
     <TopBar
-      centerAlign="center"
+      centerAlign="start"
+      trailingSize={(props.actions?.length ?? 0) > 0 ? 'fill' : 'fit'}
       dataSet={{ component: 'ScreenBaseHeader' }}
       leading={
         <>
@@ -82,7 +85,10 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
       }
       center={
         <Show when={hasTitle()}>
-          <TopBarTitle label={layout().title} />
+          <TopBarTitle
+            label={layout().title}
+            root={!layout().showBack && props.leading === undefined}
+          />
         </Show>
       }
       trailing={

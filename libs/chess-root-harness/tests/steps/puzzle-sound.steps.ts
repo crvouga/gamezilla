@@ -53,6 +53,7 @@ Then("{actor} hears the puzzle's move sounds", async (w, actor: Actor) =>
   expect(await recentPuzzleSounds(w, actor)).toEqual([
     'move',
     'puzzleCorrectMove',
+    'move',
   ])
 );
 Then("{actor} hears the puzzle's capture sound", async (w, actor: Actor) =>

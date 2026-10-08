@@ -456,7 +456,7 @@ msgstr "Best streak"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: libs/billing-client/src/billing-screen.tsx
+#: libs/billing-client/src/billing-screen-view.tsx
 msgid "Billing"
 msgstr "Billing"
 
@@ -1818,7 +1818,6 @@ msgstr "Model"
 msgid "Monthly"
 msgstr "Monthly"
 
-#: libs/billing-client/src/billing-screen.tsx
 #: pkgs/ui-root-client/src/action-bar-parts.tsx
 msgid "More"
 msgstr "More"
@@ -2328,6 +2327,10 @@ msgstr "Played"
 msgid "Playing"
 msgstr "Playing"
 
+#: libs/billing-client/src/billing-plan-card.tsx
+msgid "Plus"
+msgstr "Plus"
+
 #. placeholder {0}: amount()
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Plus credit · {0} left from your yearly plan"
@@ -2803,6 +2806,7 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-device-detail-screen.tsx
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
+#: libs/billing-client/src/billing-screen-view.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
@@ -3675,10 +3679,9 @@ msgstr "Watching multiplayer chess."
 msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
 msgstr "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
 
-#. placeholder {0}: props.productName
 #: libs/billing-client/src/billing-offer-sections.tsx
-msgid "What {0} includes"
-msgstr "What {0} includes"
+msgid "What Plus includes"
+msgstr "What Plus includes"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
@@ -3935,10 +3938,6 @@ msgstr "Your opponent's turn."
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
-
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Your plan"
-msgstr "Your plan"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "Your puzzle rating stayed at {after}."

@@ -4,7 +4,7 @@
  */
 
 import type { Client } from '@libs/app-root-client/create-client';
-import { wallClock } from '@pkgs/clock-shared/wall';
+import { monotonicClock, wallClock } from '@pkgs/clock-shared/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import type { Run } from '@pkgs/harness-root-shared/run-types';
@@ -117,6 +117,7 @@ export async function openHarness(
       runId: HARNESS_REPORT_RUN_ID,
       testId: named !== undefined ? testId : reportTestId(testId, callSite),
       now: () => wallClock.now(),
+      performance: { clock: monotonicClock, slowStepMs: 50 },
       ...(named !== undefined ? { title: named.title } : {}),
       ...(callSite ?? {}),
     },

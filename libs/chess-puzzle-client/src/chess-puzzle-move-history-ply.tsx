@@ -20,11 +20,7 @@ function MoveNumberLabel(props: {
   const label = props.ellipsis
     ? `${props.moveNumber}...`
     : `${props.moveNumber}.`;
-  return (
-    <p class="text textCaption text-text-secondary font-semibold pr-1">
-      {label}
-    </p>
-  );
+  return <p class="text textCaption tabular-nums pr-1">{label}</p>;
 }
 
 export function moveNumberPrefix(
@@ -45,8 +41,8 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
   };
   return (
     <button
-      class="clickable px-1.5 py-0.5 rounded-xs"
-      style={{ background: props.selected ? 'successSurface' : 'transparent' }}
+      class="clickable px-2 py-0.5 rounded-sm"
+      classList={{ 'bg-success-surface': props.selected }}
       data-testid={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
       type="button"
       disabled={!props.interactive || props.selected}
@@ -56,11 +52,8 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
       aria-label={props.ply.san}
     >
       <code
-        class="text textMono"
-        style={{
-          color: props.selected ? 'success' : 'text',
-          'font-weight': props.selected ? '700' : '600',
-        }}
+        class="text textLabel tabular-nums"
+        classList={{ 'text-success': props.selected }}
       >
         {formatSanNotation(props.ply.san, props.notation)}
       </code>

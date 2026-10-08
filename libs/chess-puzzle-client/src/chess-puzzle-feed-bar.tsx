@@ -77,16 +77,9 @@ function ratingSlot(rating: number): string {
   return '\u2007'.repeat(RATING_SLOT_DIGITS - digits.length) + digits;
 }
 
-function FeedBarSep(): JSX.Element {
-  return (
-    <p class="text textCaption shrink-0 whitespace-nowrap text-text-secondary">
-      {'·'}
-    </p>
-  );
-}
-
+/** Each fact is its own quiet tag, so the strip needs no separators. */
 const LABEL =
-  'text textCaption line-clamp-1 shrink-0 whitespace-nowrap text-text-secondary';
+  'text textFootnote line-clamp-1 shrink-0 whitespace-nowrap rounded-full bg-surface-muted px-2.5 py-1';
 const NUMERIC_LABEL = `${LABEL} tabular-nums`;
 
 function formatSignedDelta(delta: number): string {
@@ -114,7 +107,6 @@ function FeedBarRatingChange(props: { puzzleId: string }): JSX.Element {
   return (
     <>
       <Show when={change().kind === 'unrated'}>
-        <FeedBarSep />
         <p class={LABEL} data-testid="chess-puzzle-feed-unrated-label">
           {<Trans>Unrated</Trans>}
         </p>
@@ -122,7 +114,6 @@ function FeedBarRatingChange(props: { puzzleId: string }): JSX.Element {
       <Show when={delta()} keyed>
         {(value) => (
           <>
-            <FeedBarSep />
             <p
               class={NUMERIC_LABEL}
               data-testid="chess-puzzle-feed-rating-change"
@@ -152,7 +143,6 @@ function FeedBarPuzzleFacts(props: {
         testID="chess-puzzle-board-elo"
       />
       <Show when={props.over && props.themes.length > 0}>
-        <FeedBarSep />
         <p class={LABEL} data-testid="chess-puzzle-feed-puzzle-themes">
           {props.themes.map(formatChessPuzzleThemeLabel).join(', ')}
         </p>
@@ -180,19 +170,15 @@ function FeedBarFilters(props: {
     );
   return (
     <>
-      <FeedBarSep />
       <p class={NUMERIC_LABEL} data-testid="chess-puzzle-feed-target-label">
         {modeLabel()}
       </p>
-      <FeedBarSep />
       <p class={LABEL} data-testid="chess-puzzle-feed-history-label">
         {historyFilterLabel(props.config.historyFilter)}
       </p>
-      <FeedBarSep />
       <p class={LABEL} data-testid="chess-puzzle-feed-themes-label">
         {themesSummary(props.config.themes)}
       </p>
-      <FeedBarSep />
       <p class={NUMERIC_LABEL}>
         <Trans>
           {props.matched} / {props.total}
@@ -240,14 +226,13 @@ export function ChessPuzzleFeedBar(
         flushEdge={false}
         hideScrollbar
         class="self-stretch min-w-0"
-        contentClass="box flex-row flex-nowrap items-center justify-start gap-2 px-3 py-1"
+        contentClass="box flex-row flex-nowrap items-center justify-start gap-1.5 px-4 py-2"
         dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >
-        {/* Lichess puzzle ids are 5 characters; mono at caption size fits them in w-9, so every id takes the same width. */}
-        <p class="text textCaption shrink-0 text-text-secondary w-9 font-mono overflow-hidden whitespace-nowrap">
+        {/* Lichess puzzle ids are 5 characters; a fixed slot keeps every id the same width. */}
+        <p class="text textFootnote shrink-0 w-12 overflow-hidden whitespace-nowrap tabular-nums">
           {idLabel()}
         </p>
-        <FeedBarSep />
         <FeedBarPuzzleFacts
           rating={props.rating ?? 0}
           themes={props.themes ?? []}
@@ -264,7 +249,6 @@ export function ChessPuzzleFeedBar(
           />
         </Show>
         <Show when={allowance.remaining() !== null}>
-          <FeedBarSep />
           <p class={NUMERIC_LABEL} data-testid="chess-puzzle-remaining-today">
             {allowance.label()}
           </p>

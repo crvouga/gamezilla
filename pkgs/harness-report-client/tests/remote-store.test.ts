@@ -30,6 +30,7 @@ async function localBucket(
   titles: readonly { readonly testId: string; readonly line: number }[]
 ): Promise<ObjectStoreImplInMemory> {
   const store = new ObjectStoreImplInMemory();
+  let elapsed = 0;
   for (const t of titles) {
     await using s = await sys.run({
       seed: 3,
@@ -41,6 +42,7 @@ async function localBucket(
         sourceFile: 'tests/kv.test.ts',
         sourceLine: t.line,
         now: () => 5_000,
+        performance: { clock: { now: () => elapsed++ }, slowStepMs: 50 },
       },
     });
     await s.apply(put, 'x', 'hello');
@@ -131,7 +133,16 @@ describe('publish then read a commit', () => {
         testId: 'kv-put',
       })
     );
-    expect(test[0]?.type).toBe('report');
+    expect(test[0]).toMatchObject({
+      type: 'report',
+      report: {
+        meta: {
+          performance: { measuredSteps: 1, executionMs: 1, snapshotMs: 1 },
+        },
+        steps: [{ performance: { selfMs: 1, executionMs: 1, snapshotMs: 1 } }],
+      },
+    });
+    expect(sources[0]?.tests[0]?.performance?.measuredSteps).toBe(1);
     expect(test.at(-1)).toEqual({ type: 'end', found: true });
     const blobs = test.flatMap((e) => (e.type === 'blob' ? [e] : []));
     const html = blobs.find((b) => b.file.endsWith('.html'));

@@ -2,8 +2,9 @@
 import { cssPx } from '@pkgs/ui-root-shared/css-px';
 
 /**
- * `MainMenuScreen` -- centered card-list main menu: optional title / subtitle /
- * helper, a vertical stack of pressable surface cards, and an optional footer.
+ * `MainMenuScreen` -- a menu of destinations: optional title / subtitle /
+ * helper, one panel of rows (the same `.panel` every list uses), and an
+ * optional footer. Left-aligned like every screen.
  * Content is capped at {@link MAIN_MENU_SCREEN_MAX_WIDTH}. Fills the parent and
  * scrolls when the list exceeds the available height. Presentational; parents
  * own selection and navigation state. Back navigation belongs in the host's
@@ -56,19 +57,17 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
     <ScrollView
       class="flex-1 self-stretch w-full"
       dataSet={dataSet()}
-      contentClass="box px-4 pb-8 pt-4 gap-4 self-center w-full"
+      contentClass="box px-4 pb-8 pt-2 gap-4 self-center w-full"
       contentStyle={{ 'max-width': cssPx(MAIN_MENU_SCREEN_MAX_WIDTH) }}
     >
       <MainMenuScreenHeader title={props.title} subtitle={props.subtitle} />
       <Show when={props.helper}>
-        <p class="text text-text-secondary text-center opacity-75">
-          {props.helper}
-        </p>
+        <p class="text textCaption">{props.helper}</p>
       </Show>
-      <div class="box self-stretch gap-2" role="list">
+      <div class="panel self-stretch" role="list">
         <For each={props.items}>
           {(item) => (
-            <div class="box" role="listitem">
+            <div class="panelItem" role="listitem">
               <MainMenuItemRow item={item} />
             </div>
           )}

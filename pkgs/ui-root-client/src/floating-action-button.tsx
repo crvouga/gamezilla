@@ -63,11 +63,7 @@ export function fabLabelForPhase(
 }
 
 function FabLabelText(props: { label: JSX.Element }): JSX.Element {
-  return (
-    <p class="text textBodyBold text-action font-semibold whitespace-nowrap">
-      {props.label}
-    </p>
-  );
+  return <p class="text whitespace-nowrap">{props.label}</p>;
 }
 
 function FabContent(props: {

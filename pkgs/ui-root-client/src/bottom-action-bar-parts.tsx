@@ -48,7 +48,7 @@ export function BottomActionBarAction(props: {
         color={iconColor()}
       />
       <p
-        class="text textCaption line-clamp-1 text-center font-bold w-full text-caption"
+        class="text textFootnote line-clamp-1 text-center w-full"
         classList={{
           'text-tint': selected(),
           'text-text-secondary': !selected(),

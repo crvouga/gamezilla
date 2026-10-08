@@ -3,6 +3,11 @@
  * `MenuRow` -- a tappable navigation row with title, optional caption, and a
  * trailing disclosure chevron.
  *
+ * One anatomy for every row in the product: a 28px leading slot, a title in
+ * the display face, an optional caption, an optional right-aligned value,
+ * and a trailing chevron. Rows live inside a panel (`MenuList`), which owns
+ * the surface, the radius and the hairlines; a row never paints its own.
+ *
  * Interactive rows (`onClick`) are `Clickable`s with `role="menuitem"` (host
  * them inside `MenuList`, which is `role="menu"`); hover / press tints come
  * from the default `'tint'` feedback. Static rows (key/value detail, rows
@@ -28,7 +33,6 @@
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ChevronRightIcon } from './icons';
 
@@ -67,15 +71,6 @@ export type MenuRowProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Every row shares one height so toggles, chevrons, and values line up. */
-const MENU_ROW_MIN_HEIGHT = 60;
-/**
- * Horizontal inset. Matches the shell edge padding `MenuList` cancels
- * (`CONTENT_EDGE_PADDING_STEP`) so row text lines up with sibling copy.
- */
-export const MENU_ROW_PX_STEP = 4;
-/** Minimum leading slot so 18–24px icons share one text column. */
-const MENU_ROW_LEADING_WIDTH = 28;
 /** Cap so a long value never crowds the title out of the row. */
 const MENU_ROW_VALUE_MAX_WIDTH = '45%';
 
@@ -124,30 +119,23 @@ function MenuRowBody(
   const selected = () => props.selected === true;
   return (
     <div
-      class="box flex-row items-center py-3 gap-3"
-      style={{
-        'padding-left': `${spacingScale(MENU_ROW_PX_STEP)}px`,
-        'padding-right': `${spacingScale(MENU_ROW_PX_STEP)}px`,
-        'min-height': `${MENU_ROW_MIN_HEIGHT}px`,
-      }}
+      class="box flex-row items-center px-4 py-3 gap-3 min-h-14"
+      classList={{ panelLeading: props.leading !== undefined }}
     >
       <Show when={props.leading !== undefined}>
-        <div
-          class="box items-center"
-          style={{ 'min-width': `${MENU_ROW_LEADING_WIDTH}px` }}
-        >
+        <div class="box items-center justify-center w-7 shrink-0">
           {props.leading}
         </div>
       </Show>
       <div class="box flex-1 min-w-0 gap-0.5 items-start">
         <p
-          class="text textBodyBold text-text"
+          class="text textLabel text-text"
           classList={{ 'text-tint': selected() }}
         >
           {props.title}
         </p>
         <Show when={props.caption}>
-          <p class="text textCaption text-text-secondary">{props.caption}</p>
+          <p class="text textCaption">{props.caption}</p>
         </Show>
       </div>
       <MenuRowTrailing
@@ -161,7 +149,7 @@ function MenuRowBody(
 }
 
 function rowClass(selected: boolean): string {
-  return selected ? 'rounded-control bg-tint-subtle' : 'rounded-control';
+  return selected ? 'bg-tint-subtle' : '';
 }
 
 type MenuRowHost = 'static' | 'action' | 'link' | 'submit';

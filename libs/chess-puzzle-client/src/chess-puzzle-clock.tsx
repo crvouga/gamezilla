@@ -14,7 +14,7 @@ export function ChessPuzzleClock(props: {
         data-testid="chess-puzzle-clock"
       >
         <ClockIcon size={14} color="textSecondary" />
-        <span class="text textMono text-text">
+        <span class="text textNumeral">
           {formatPuzzleClock(props.elapsedMs() ?? 0)}
         </span>
       </p>

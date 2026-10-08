@@ -8,6 +8,7 @@ import type {
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { type Accessor, createMemo } from 'solid-js';
 import type { RoomClient } from './room-client';
+import { subscribeRoom } from './room-subscription';
 
 /** The read/dispatch surface of {@link RoomClient} the bindings depend on. */
 export type RoomReadable<
@@ -44,7 +45,7 @@ function createRoomRead<
     if (current === null) return () => empty;
     return createSubscriptionSignal({
       getSnapshot: () => read(current),
-      subscribe: (listener) => current.subscribe(listener),
+      subscribe: (listener) => subscribeRoom(current, listener),
     });
   });
   return () => source()();

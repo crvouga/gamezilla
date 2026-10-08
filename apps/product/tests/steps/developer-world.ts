@@ -13,6 +13,9 @@ const REPORT_ACTIONS = [
   selectRecordedMoment,
   moveRecordedMoment,
   showRecordedControl,
+  provideMeasuredReport,
+  openPerformanceHeatmap,
+  selectPerformanceStep,
 ];
 const TOOLS_SYSTEM = defineProductSystem({
   ...APP_COMPOSITION,
@@ -47,11 +50,17 @@ import { defineProductSystem } from '@libs/harness/define-product-system';
 import './notebook.steps';
 import './recorded-moments.steps';
 import './report-navigation.steps';
+import './report-performance.steps';
 import {
   editNotebookQuestion,
   openNotebook,
   saveNotebookQuestion,
 } from '@apps/product/developer-notebook';
+import {
+  openPerformanceHeatmap,
+  provideMeasuredReport,
+  selectPerformanceStep,
+} from '@apps/product/developer-performance';
 import {
   moveRecordedMoment,
   provideRecordedReport,

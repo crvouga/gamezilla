@@ -37,7 +37,7 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
     <button
       class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-full"
       classList={{
-        'bg-surface': props.item.active,
+        'bg-surface-muted': props.item.active,
         'bg-transparent': !props.item.active,
       }}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
@@ -58,8 +58,6 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
         classList={{
           'text-text': props.item.active,
           'text-text-secondary': !props.item.active,
-          'font-semibold': props.item.active,
-          'font-medium': !props.item.active,
         }}
       >
         {props.item.label}

@@ -1,18 +1,15 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 
 /**
- * One card row of `MainMenuScreen`: title, optional caption, and a trailing
- * chevron / selection check. Interactive rows are pressable surface cards.
+ * One row of `MainMenuScreen`: title, optional caption, and a trailing
+ * chevron / selection check. Same anatomy as `MenuRow`, a little taller
+ * because each row is a destination; the screen's panel owns the surface.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { resolveNeutralGradient } from '@pkgs/ui-root-shared/main-menu-gradient';
-import { createMemo, type JSX, Show } from 'solid-js';
-import { GradientBox } from './gradient-box';
+import { type JSX, Show } from 'solid-js';
 import { ChevronRightIcon, CircleCheckIcon } from './icons';
-import { useThemeTokens } from './theme-context';
 
 export type MainMenuItem = {
   /** Stable id for list keys. */
@@ -27,8 +24,6 @@ export type MainMenuItem = {
   /** DOM `data-*` identifiers for the row. */
   dataSet?: ComponentDataSet | undefined;
 };
-
-const MENU_ITEM_MIN_HEIGHT = 84;
 
 function DefaultTrailing(props: { selected: boolean }): JSX.Element {
   return (
@@ -63,48 +58,28 @@ function ItemBody(props: {
   item: MainMenuItem;
   interactive: boolean;
 }): JSX.Element {
-  const tokens = useThemeTokens();
-  const gradient = createMemo(() =>
-    resolveNeutralGradient(tokens.palette().surfaceElevated)
-  );
   const disabled = (): boolean => props.item.disabled === true;
   const captionInTrailing = (): boolean =>
     disabled() && props.item.caption !== undefined;
   return (
     <div
-      class="box py-4 px-4 justify-center rounded-card border border-solid border-border bg-surface-elevated overflow-hidden"
-      style={{
-        'min-height': cssPx(MENU_ITEM_MIN_HEIGHT),
-        opacity: disabled() ? 0.5 : 1,
-      }}
+      class="box flex-row items-center gap-3 px-4 py-4 min-h-18"
+      classList={{ 'opacity-50': disabled() }}
     >
-      <GradientBox
-        class="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        colors={[gradient().top, gradient().bottom]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      />
-      <div class="box relative z-1 flex-row items-center gap-3">
-        <div class="box flex-1 gap-1 items-start">
-          <p class="text textBodyBold">{props.item.title}</p>
-          <Show when={props.item.caption !== undefined && !captionInTrailing()}>
-            <p class="text textCaption text-text-secondary">
-              {props.item.caption}
-            </p>
-          </Show>
-        </div>
-        <Show
-          when={captionInTrailing()}
-          fallback={
-            <ItemTrailing item={props.item} interactive={props.interactive} />
-          }
-        >
-          <p class="text textCaption text-text-secondary italic">
-            {props.item.caption}
-          </p>
+      <div class="box flex-1 min-w-0 gap-0.5 items-start">
+        <p class="text textLabel">{props.item.title}</p>
+        <Show when={props.item.caption !== undefined && !captionInTrailing()}>
+          <p class="text textCaption">{props.item.caption}</p>
         </Show>
       </div>
+      <Show
+        when={captionInTrailing()}
+        fallback={
+          <ItemTrailing item={props.item} interactive={props.interactive} />
+        }
+      >
+        <p class="text textCaption">{props.item.caption}</p>
+      </Show>
     </div>
   );
 }
@@ -126,7 +101,7 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
     >
       {(onClick) => (
         <button
-          class="clickable clickableTint rounded-card items-stretch"
+          class="clickable clickableTint items-stretch"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
           type="button"
           onClick={() => onClick()()}

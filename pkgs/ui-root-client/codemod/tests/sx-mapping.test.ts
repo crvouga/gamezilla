@@ -185,12 +185,12 @@ describe('layout', () => {
 
 describe('effects', () => {
   test('radii never use the wrong default scale', () => {
-    expect(classes({ borderRadius: 'sm' })).toEqual(['rounded-[12px]']);
+    expect(classes({ borderRadius: 'sm' })).toEqual(['rounded-[8px]']);
     expect(classes({ borderRadius: 'full' })).toEqual(['rounded-[9999px]']);
     expect(classes({ borderRadius: 'none' })).toEqual(['rounded-none']);
     expect(classes({ borderRadius: 8 })).toEqual(['rounded-[8px]']);
     expect(classes({ borderTopLeftRadius: 'lg' })).toEqual([
-      'rounded-tl-[22px]',
+      'rounded-tl-[20px]',
     ]);
   });
   test('elevation maps to themed backgrounds', () => {
