@@ -19,8 +19,9 @@ export function ProfileEditScreen(): JSX.Element {
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Edit profile</Trans> },
       ]}
-      content={({ bodyClass }) => (
-        <MenuList class={bodyClass}>
+      scroll
+      content={() => (
+        <MenuList>
           <MenuRow
             title={t`Account privacy`}
             caption={t`Take an export or permanently delete your account`}

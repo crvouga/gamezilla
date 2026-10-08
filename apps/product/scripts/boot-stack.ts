@@ -7,9 +7,9 @@
  *
  * Every port is OS-assigned and every piece of state lives under one
  * instance directory, so several stacks run side by side with no
- * coordination beyond the manifest each one writes. Every API instance reads
- * the one reports bucket OpenTofu provisions (`gamezilla-reports`), the same
- * store every deployment reads.
+ * coordination beyond the manifest each one writes. With a reports credential,
+ * every API instance reads the one reports bucket OpenTofu provisions
+ * (`gamezilla-reports`), the same store every deployment reads.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -41,7 +41,7 @@ import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import {
   loadReportsDevSecrets,
-  reportsReadCredential,
+  reportsDevEnv,
 } from './reports-dev-credentials';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
@@ -154,10 +154,7 @@ async function stopChild(child: ChildProcess): Promise<void> {
  * handed to every API instance, so they list the same commits.
  */
 function reportsEnvForStack(): Readonly<Record<string, string>> {
-  return reportsReadCredential(
-    loadReportsDevSecrets(REPO_ROOT),
-    GLOBAL.reports.bucket
-  );
+  return reportsDevEnv(loadReportsDevSecrets(REPO_ROOT), GLOBAL.reports.bucket);
 }
 
 function startApiNode(args: {
@@ -262,7 +259,9 @@ async function startApiTier(args: {
   const reportsEnv = reportsEnvForStack();
   const roomServiceToken = crypto.randomUUID();
   process.stdout.write(
-    `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
+    reportsEnv['REPORTS_BUCKET']
+      ? `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
+      : '[stack] spec reports unavailable: shared read credentials are missing or invalid; continuing startup.\n'
   );
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];

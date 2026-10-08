@@ -255,7 +255,7 @@ describe('MenuRow / MenuList / MenuSection', () => {
     expect(item.querySelector('svg')).not.toBeNull();
     const body = item.firstElementChild;
     if (!(body instanceof HTMLElement)) throw new Error('missing body');
-    expect(cssOf(body)).toMatch(/min-height:60px/);
+    expect(body.className).toMatch(/\bmin-h-14\b/);
     fireEvent.click(item);
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByRole('menuitem')).toHaveLength(1);

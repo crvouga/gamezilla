@@ -37,6 +37,7 @@ import {
   scopedBiomeConfig,
   workspaceDeps,
 } from './biome-scope';
+import { designVocabularyViolations } from './design-vocabulary';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
@@ -46,6 +47,8 @@ import { unusedWorkspaceDependencies } from './unused-dependencies';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const PACKAGE_TIER = /^(apps|libs|pkgs)\//;
+/** Product UI packages: they compose `@pkgs/ui-root-client`, never paint. */
+const PRODUCT_CLIENT = /^libs\/[a-z0-9-]+-client$/;
 
 type SolidScope = {
   readonly dirs: readonly string[];
@@ -167,6 +170,18 @@ function wordsOk(pkg: string, paths: readonly string[]): boolean {
         text: readFileSync(join(REPO_ROOT, path), 'utf8'),
       })),
     })
+  );
+}
+
+/** Product UI packages paint only through `@pkgs/ui-root-client`. */
+function designVocabularyOk(
+  pkg: string,
+  sources: readonly { path: string; text: string }[]
+): boolean {
+  return clean(
+    pkg,
+    'product screens use the design vocabulary — type roles, surfaces and color tokens come from @pkgs/ui-root-client (libs/tools/scripts/design-vocabulary.ts)',
+    PRODUCT_CLIENT.test(pkg) ? designVocabularyViolations(sources) : []
   );
 }
 
@@ -328,6 +343,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
         specDomains: manifest.specDomains ?? [],
       })
     ),
+    designVocabularyOk(pkg, sources),
     clean(
       pkg,
       'behavior tests are specs, and a package has one example app (README.md)',

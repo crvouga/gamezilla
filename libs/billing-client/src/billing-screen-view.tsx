@@ -7,6 +7,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
@@ -27,7 +28,6 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   const prices = createMemo(() => summarizeOffer(props.offer));
   const trialDays = (): number =>
     props.offer.prices[props.offer.defaultPriceKey]?.trialPeriodDays ?? 0;
-  const productName = (): string => props.offer.portal.businessProfileHeadline;
   const creditAmount = (): string | null => {
     if (props.view.creditCents <= 0) return null;
     const currency =
@@ -36,12 +36,11 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   };
   return (
     <div
-      class="box w-full max-w-160 gap-6 self-center p-4"
+      class="box w-full max-w-160 gap-8 py-2"
       data-testid={Handles.billingScreen}
     >
       <BillingPlanCard
         view={props.view}
-        productName={productName()}
         trialDays={trialDays()}
         formatDate={props.formatDate}
         actions={props.actions}
@@ -54,14 +53,36 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
           currentPriceKey={props.view.priceKey}
           trialDays={trialDays()}
         />
-        <BillingBenefits productName={productName()} />
+        <BillingBenefits />
       </Show>
-      <p class="text textCaption text-center text-text-secondary">
+      <p class="text textCaption">
         <Trans>
           Payments are processed securely by our billing provider. We never see
           your card details.
         </Trans>
       </p>
     </div>
+  );
+}
+
+/**
+ * The billing screen's shell around its body: the Settings breadcrumb and a
+ * whole-body scroll, so the plan, pricing and benefits never clip on a short
+ * phone.
+ */
+export function BillingScreenLayout(
+  props: BillingScreenViewProps
+): JSX.Element {
+  return (
+    <ScreenBase
+      screenId="billing"
+      surface="canvas"
+      scroll
+      breadcrumbs={[
+        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Billing</Trans> },
+      ]}
+      content={() => <BillingScreenView {...props} />}
+    />
   );
 }

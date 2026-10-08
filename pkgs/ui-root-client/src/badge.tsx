@@ -77,7 +77,7 @@ export function Badge(props: BadgeProps): JSX.Element {
       })}
       style={paint()}
     >
-      <p class="text font-bold">{props.label}</p>
+      <p class="text">{props.label}</p>
     </span>
   );
 }

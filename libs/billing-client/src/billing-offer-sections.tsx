@@ -32,16 +32,16 @@ function PriceTile(props: {
     );
   return (
     <div
-      class="box min-w-0 flex-1 gap-1 rounded-sm border p-4"
+      class="box min-w-0 flex-1 gap-1 rounded-card border p-4"
       classList={{
-        'border-tint bg-tint-subtle': props.current,
+        'border-tint-active bg-tint-subtle': props.current,
         'border-border bg-surface': !props.current,
       }}
       data-testid={Handles.billingPrice(props.price.key)}
       aria-current={props.current ? 'true' : undefined}
     >
       <div class="box flex-row items-center justify-between gap-2">
-        <p class="text textLabel text-text-secondary">
+        <p class="text textLabel">
           <Switch>
             <Match when={props.price.interval === 'month'}>
               <Trans>Monthly</Trans>
@@ -62,13 +62,13 @@ function PriceTile(props: {
           )}
         </Show>
       </div>
-      <p class="text textHeading" data-testid={Handles.billingPriceAmount}>
+      <p
+        class="text textHeading textNumeral"
+        data-testid={Handles.billingPriceAmount}
+      >
         {amount()}
       </p>
-      <p
-        class="text textCaption text-text-secondary"
-        data-testid={Handles.billingPriceTerms}
-      >
+      <p class="text textCaption" data-testid={Handles.billingPriceTerms}>
         <Switch>
           <Match when={props.price.interval === 'month'}>
             <Trans>per month</Trans>
@@ -90,9 +90,9 @@ export function BillingPricing(props: {
 }): JSX.Element {
   return (
     <section class="box gap-3" data-testid={Handles.billingPricing}>
-      <p class="text textSubtitle">
+      <h2 class="text textSubtitle">
         <Trans>Pricing</Trans>
-      </p>
+      </h2>
       <div class="box flex-row flex-wrap gap-3">
         <For each={props.prices}>
           {(price) => (
@@ -105,7 +105,7 @@ export function BillingPricing(props: {
         </For>
       </div>
       <Show when={props.trialDays > 0}>
-        <p class="text textCaption text-text-secondary">
+        <p class="text textCaption">
           <Trans>
             Every plan starts with a {props.trialDays}-day free trial. Switch
             between monthly and yearly or cancel anytime.
@@ -119,25 +119,20 @@ export function BillingPricing(props: {
 function Benefit(props: { readonly children: JSX.Element }): JSX.Element {
   return (
     <li class="box flex-row items-start gap-3">
-      <div class="box h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-surface">
-        <CheckIcon size={14} color="success" />
+      <div class="box h-6 w-5 shrink-0 items-center justify-center">
+        <CheckIcon size={18} color="tint" />
       </div>
       <p class="text textBody flex-1">{props.children}</p>
     </li>
   );
 }
 
-export function BillingBenefits(props: {
-  readonly productName: string;
-}): JSX.Element {
+export function BillingBenefits(): JSX.Element {
   return (
-    <section
-      class="box gap-4 rounded-card border border-border bg-surface p-5"
-      data-testid={Handles.billingBenefits}
-    >
-      <p class="text textSubtitle">
-        <Trans>What {props.productName} includes</Trans>
-      </p>
+    <section class="box gap-3" data-testid={Handles.billingBenefits}>
+      <h2 class="text textSubtitle">
+        <Trans>What Plus includes</Trans>
+      </h2>
       <ul class="box gap-3">
         <Benefit>
           <Trans>Unlimited access to Gamezilla servers</Trans>

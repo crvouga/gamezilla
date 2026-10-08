@@ -44,7 +44,7 @@ function CrashDetails(props: {
           tabindex="0"
           aria-label="Error message"
         >
-          <pre class="m-0 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-text select-text">
+          <pre class="text textMono m-0 break-words select-text">
             {props.message}
           </pre>
         </ScrollView>
@@ -98,7 +98,7 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
       data-component="RootErrorBoundary"
     >
       <section
-        class="box w-full max-w-lg m-auto shrink-0 gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-surface-elevated shadow-sm"
+        class="box w-full max-w-lg m-auto shrink-0 gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-surface-elevated"
         aria-label="App recovery"
       >
         <div class="box w-14 h-14 items-center justify-center rounded-2xl bg-warning-surface">
@@ -106,7 +106,7 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
         </div>
         <div class="box gap-3">
           <h1 class="text textHeading">{CRASH_TITLE}</h1>
-          <p class="text leading-relaxed text-text-secondary">
+          <p class="text text-text-secondary">
             We couldn’t load this screen. Try again, or reload the app if the
             problem continues.
           </p>

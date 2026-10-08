@@ -50,7 +50,7 @@ export function Notice(props: NoticeProps): JSX.Element {
       }}
       {...dataAttrs({ component: 'Notice', ...props.dataSet })}
     >
-      <div class="box h-4.5 justify-center">
+      <div class="box h-5 justify-center">
         <Dynamic
           component={icon()}
           size={NOTICE_ICON_SIZE}

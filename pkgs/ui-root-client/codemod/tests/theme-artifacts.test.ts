@@ -53,7 +53,7 @@ describe('hosts.css coverage', () => {
     const required: Readonly<Record<string, readonly string[]>> = {
       '.box': ['display: flex', 'flex-direction: column', 'min-width: 0'],
       '.text': ['white-space: pre-wrap', 'font-size: var(--ui-font-size-base)'],
-      '.textHeading': ['font-weight: 800'],
+      '.textHeading': ['font-weight: 750'],
       '.textMono': ['var(--ui-font-mono)'],
       '.clickable': ['cursor: pointer', 'appearance: none'],
       '.clickableTint::after': ['pointer-events: none'],

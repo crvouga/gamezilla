@@ -61,32 +61,22 @@ export function reportsSecretsFromRecord(
 
 /**
  * The four read bindings for the one reports bucket OpenTofu provisions.
- * Every API instance — each node of a localhost stack, and every deployment —
- * reads that bucket, so a local `bun dev` lists the same commits as production.
+ * Local development uses the shared bucket when its credential is complete.
+ * Otherwise clear every binding (including inherited values), so the API
+ * boots with reports unavailable instead of blocking the localhost stack.
  */
-export function reportsReadCredential(
+export function reportsDevEnv(
   record: Readonly<Record<string, string>>,
   bucket: string
 ): Readonly<Record<string, string>> {
   const picked = reportsSecretsFromRecord(record);
-  const out: Record<string, string> = {};
-  const missing: string[] = [];
-  for (const key of REPORTS_KEYS) {
-    const value = picked[key];
-    if (value === undefined) missing.push(key);
-    else out[key] = value;
+  if (
+    REPORTS_KEYS.every((key) => picked[key] !== undefined) &&
+    picked['REPORTS_BUCKET'] === bucket
+  ) {
+    return picked;
   }
-  if (missing.length > 0) {
-    throw new Error(
-      `The read credential for ${bucket} must include ${missing.join(', ')}. The foundation stack writes it into the dev secrets environment.`
-    );
-  }
-  if (out['REPORTS_BUCKET'] !== bucket) {
-    throw new Error(
-      `REPORTS_BUCKET must be the provisioned reports bucket ${bucket} (got ${String(out['REPORTS_BUCKET'])}).`
-    );
-  }
-  return out;
+  return Object.fromEntries(REPORTS_KEYS.map((key) => [key, '']));
 }
 
 export function loadReportsDevSecrets(

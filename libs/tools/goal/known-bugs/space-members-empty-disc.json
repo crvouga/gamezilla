@@ -1,0 +1,4 @@
+{
+  "summary": "Before anyone else's presence arrived, the space members button showed an empty disc. Fixed by showing the people glyph until a face is present.",
+  "regressionTest": "libs/spaces-client/tests/space-presence-strip-empty.test.tsx"
+}

@@ -31,10 +31,13 @@ export function ChessPuzzleRatingChip(
 
   return (
     <div
-      class="box px-2 py-1 rounded-sm shrink-0"
-      classList={{ invisible: props.invisible === true }}
+      class="box px-2.5 py-1 rounded-full shrink-0"
+      classList={{
+        invisible: props.invisible === true,
+        'bg-tint-subtle': isPrimary(),
+        'bg-surface-muted': !isPrimary(),
+      }}
       aria-hidden={props.invisible === true ? true : undefined}
-      style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
       {...dataAttrs(
         props.testID !== undefined ? { testid: props.testID } : undefined
       )}
@@ -42,10 +45,9 @@ export function ChessPuzzleRatingChip(
       <p
         class="text min-w-8 tabular-nums text-center whitespace-nowrap"
         classList={{
-          textBodyBold: isPrimary(),
-          textCaption: !isPrimary(),
+          'textNumeral text-tint': isPrimary(),
+          textFootnote: !isPrimary(),
         }}
-        style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
       >
         {label()}
       </p>

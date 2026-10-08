@@ -24,8 +24,54 @@
     margin: 0;
     padding: 0;
     border: 1px solid var(--ui-color-border);
-    border-radius: 14px;
-    background: var(--ui-elevation-1);
+    border-radius: var(--ui-radius-lg);
+    background: var(--ui-color-surface);
+  }
+
+  /* A panel groups related rows: one surface, the panel radius, hairlines
+     between items inset to the text column. Rows inside never carry their
+     own radius or border; the panel clips their press tint. Lists, menus,
+     settings and game pickers all use it, so every list reads the same. */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--ui-color-surface);
+  }
+
+  .panelItem {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    min-width: 0;
+  }
+
+  .panelItem + .panelItem::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: var(--ui-panel-inset, 16px);
+    right: 0;
+    height: 1px;
+    background: var(--ui-color-border);
+    pointer-events: none;
+  }
+
+  .panelPlain > .panelItem + .panelItem::before {
+    display: none;
+  }
+
+  /* A row with a leading icon starts its hairline at the text column
+     (16px inset + 28px leading slot + 12px gap). */
+  .panelItem:has(.panelLeading) {
+    --ui-panel-inset: 56px;
   }
 
   .divider {
@@ -71,62 +117,93 @@
     color: var(--ui-color-text);
   }
 
+  /* Type roles. A screen picks a role, never a size or a weight: the role
+     picks the face (display = Bricolage Grotesque, body = the platform
+     face), the step on the classic scale, the weight and the tracking.
+     Display roles never wrap mid-word; long titles clamp instead. */
+
+  .textBody {
+    font-weight: 400;
+  }
+
   .textBodyBold {
     font-weight: 600;
   }
 
   .textCaption {
-    font-size: var(--ui-font-size-xs);
-    line-height: var(--ui-leading-xs);
-    letter-spacing: 0.01em;
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
     color: var(--ui-color-text-secondary);
   }
 
-  .textLabel {
-    font-family: var(--ui-font-display);
-    font-size: var(--ui-font-size-sm);
-    line-height: var(--ui-leading-sm);
-    font-weight: 600;
+  .textFootnote {
+    font-size: var(--ui-font-size-xs);
+    line-height: var(--ui-leading-xs);
+    font-weight: 500;
+    color: var(--ui-color-text-secondary);
   }
 
   .textTitle,
-  .textSubtitle,
   .textHeading,
-  .textNavigationTitle {
+  .textSubtitle,
+  .textNavigationTitle,
+  .textLabel,
+  .textLink,
+  .textNumeral {
     font-family: var(--ui-font-display);
     overflow-wrap: normal;
-    letter-spacing: -0.03em;
+    font-feature-settings: "kern" 1;
   }
 
   .textTitle {
-    font-size: var(--ui-font-size-4xl);
-    line-height: var(--ui-leading-4xl);
+    font-size: var(--ui-font-size-3xl);
+    line-height: var(--ui-leading-3xl);
     font-weight: 800;
-  }
-
-  .textSubtitle {
-    font-size: var(--ui-font-size-xl);
-    line-height: var(--ui-leading-xl);
-    font-weight: 800;
+    letter-spacing: -0.03em;
   }
 
   .textHeading {
     font-size: var(--ui-font-size-2xl);
     line-height: var(--ui-leading-2xl);
-    font-weight: 800;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  .textSubtitle {
+    font-size: var(--ui-font-size-xl);
+    line-height: var(--ui-leading-xl);
+    font-weight: 700;
+    letter-spacing: -0.015em;
   }
 
   .textNavigationTitle {
     font-size: var(--ui-font-size-lg);
     line-height: var(--ui-leading-lg);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+  }
+
+  .textLabel {
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: 600;
+    letter-spacing: -0.005em;
   }
 
   .textLink {
-    font-family: var(--ui-font-display);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--ui-color-tint);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Ratings, clocks, prices, counts: the scoreboard. A modifier on any
+     role (`text textHeading textNumeral`); alone it keeps the body size. */
+  .textNumeral {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
   }
 
   .textMono {
@@ -165,7 +242,7 @@
 
   .clickable:focus-visible {
     outline: 2px solid var(--ui-color-focus-ring);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
 
   /* Tint feedback: overlay layered above children. */
@@ -244,9 +321,9 @@
     outline: none;
     font: inherit;
     color: var(--ui-color-text);
-    background: var(--ui-color-surface);
-    border: 1px solid var(--ui-color-outline);
-    border-radius: var(--ui-radius-lg);
+    background: var(--ui-color-surface-muted);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-md);
     transition: border-color 0ms;
   }
 
@@ -262,7 +339,7 @@
   .inputError,
   .inputError:focus-visible {
     border-color: var(--ui-color-destructive);
-    box-shadow: none;
+    box-shadow: 0 0 0 1px var(--ui-color-destructive);
   }
 
   .inputTextarea {

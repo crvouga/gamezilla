@@ -113,12 +113,14 @@ function WideIslandBody(props: BodyProps): JSX.Element {
       <Island class="flex-1 min-h-0 p-0">
         <ScrollView
           // The island has `p: 0`; the scroller owns the padding itself, so it
-          // must not also cancel the island's edge step.
+          // must not also cancel the island's edge step. No side padding:
+          // the body's left edge is the page header's, so content lines up
+          // under the title.
           flushEdge={false}
           class="flex-1"
           contentStyle={{
             'flex-grow': 1,
-            padding: 'var(--ui-space-page)',
+            'padding-top': 'var(--ui-space-stack)',
             'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
           }}
           dataSet={{ component: 'ScreenBodyScroll' }}

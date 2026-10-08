@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * `BackIconButton` -- circular icon button rendering a mirrored chevron.
+ * `BackIconButton` -- icon button rendering a mirrored chevron, unfilled so
+ * the header stays quiet; the press tint shows the hit target.
  *
  * Centralizes the "back" affordance so every screen uses the same icon,
  * size, hit target, and accessible name.
@@ -21,7 +22,7 @@ export type BackIconButtonProps = {
   onClick: () => void;
   /** Diameter in pixels. Defaults to 40. */
   size?: number | undefined;
-  /** Background color token or raw color. Defaults to `'surface'`. */
+  /** Background color token or raw color. Defaults to transparent. */
   background?: string | undefined;
   /** Label override. Defaults to localized "Back". */
   label?: string | undefined;
@@ -38,7 +39,7 @@ export function BackIconButton(props: BackIconButtonProps): JSX.Element {
   return (
     <IconButton
       size={size()}
-      background={props.background ?? 'surface'}
+      background={props.background}
       onClick={() => props.onClick()}
       label={label()}
       aria-label={label()}

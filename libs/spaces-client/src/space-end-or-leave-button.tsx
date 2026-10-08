@@ -42,7 +42,7 @@ export function SpaceEndOrLeaveButton(
       role="button"
       aria-label={canEndSpace() ? t`End space` : t`Leave space`}
     >
-      <p class="text textCaption text-on-primary font-semibold">
+      <p class="text textFootnote text-on-primary">
         {
           <Show when={canEndSpace()} fallback={<Trans>Leave</Trans>}>
             <Trans>End</Trans>

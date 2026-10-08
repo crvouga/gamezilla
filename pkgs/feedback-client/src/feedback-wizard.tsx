@@ -54,7 +54,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
       role="dialog"
       aria-modal="false"
       aria-label="Feedback"
-      class="box fixed right-4 bottom-4 w-128 h-160 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
+      class="box fixed right-4 bottom-4 w-128 h-160 max-w-full rounded-2xl border border-border bg-surface pointer-events-auto overflow-hidden"
       style={{
         transform: `translate(${position().x}px, ${position().y}px)`,
         'max-height': `${Math.max(0, layout.layout().height - 48)}px`,

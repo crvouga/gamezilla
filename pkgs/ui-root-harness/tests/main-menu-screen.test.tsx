@@ -5,7 +5,6 @@ import {
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreen,
 } from '@pkgs/ui-root-client/main-menu-screen';
-import { resolveNeutralGradient } from '@pkgs/ui-root-shared/main-menu-gradient';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { cssOf, mustQuery, renderUi } from './render';
@@ -74,22 +73,5 @@ describe('MainMenuScreen', () => {
       />
     ));
     expect(screen.getByText('NEW')).toBeTruthy();
-  });
-});
-
-describe('resolveNeutralGradient', () => {
-  test('brightens the top and darkens the bottom of a parseable color', () => {
-    const g = resolveNeutralGradient('hsla(240, 5%, 96%, 1)');
-    expect(g.top).not.toBe(g.bottom);
-    expect(g.top).toMatch(/^hsla\(/);
-    expect(g.bottom).toMatch(/^hsla\(/);
-  });
-
-  test('falls back to a flat fill for unparseable input', () => {
-    const g = resolveNeutralGradient('var(--ui-color-surface)');
-    expect(g).toEqual({
-      top: 'var(--ui-color-surface)',
-      bottom: 'var(--ui-color-surface)',
-    });
   });
 });

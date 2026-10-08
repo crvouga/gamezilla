@@ -29,7 +29,7 @@ export type TextLinkProps = {
 export function TextLink(props: TextLinkProps): JSX.Element {
   return (
     <a
-      class="text textLink textLabel rounded-xs font-semibold underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tint"
+      class="text textLabel textLink rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tint"
       href={props.href}
       onClick={(event) => {
         if (props.onClick === undefined) return;

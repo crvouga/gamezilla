@@ -11,7 +11,7 @@ export type SerializeDomHtmlOptions = {
 const SNAPSHOT_BG = 'hsla(240, 5%, 4%, 1)';
 const SNAPSHOT_FG = 'hsla(0, 0%, 98%, 1)';
 const BODY_FONT =
-  "Nunito, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 const FRAME_W = MULTI_APP_ACTOR_FRAME.width;
 const FRAME_H = MULTI_APP_ACTOR_FRAME.height;
 
@@ -59,7 +59,7 @@ function escapeAttr(value: string): string {
 const FONT_LINKS = [
   '<link rel="preconnect" href="https://fonts.googleapis.com" />',
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" />',
+  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@24,500..800&display=swap" />',
 ];
 
 /**

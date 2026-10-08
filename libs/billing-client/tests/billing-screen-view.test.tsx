@@ -6,7 +6,10 @@
  */
 import { describe, expect, mock, test } from 'bun:test';
 import type { BillingActions } from '@libs/billing-client/billing-plan-card';
-import { BillingScreenView } from '@libs/billing-client/billing-screen-view';
+import {
+  BillingScreenLayout,
+  BillingScreenView,
+} from '@libs/billing-client/billing-screen-view';
 import type { BillingView } from '@libs/billing-client/billing-view-model';
 import { buildBillingView } from '@libs/billing-client/billing-view-model';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
@@ -15,6 +18,8 @@ import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import type { AppRouter } from '@pkgs/ui-root-client/app-router';
+import { StaticAppRouterProvider } from '@pkgs/ui-root-client/app-router';
 import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import type { RowKind } from './billing-matrix';
@@ -163,5 +168,48 @@ describe('billing screen: actions', () => {
     fireEvent.click(screen.getByTestId(Handles.billingSubscribe));
     expect(subscribe).toHaveBeenCalledTimes(1);
     cleanup();
+  });
+});
+
+/** A router that never navigates: the layout only needs one to exist. */
+const STILL_ROUTER: AppRouter = {
+  push: () => undefined,
+  replace: () => undefined,
+  back: () => undefined,
+  canGoBack: () => false,
+};
+
+describe('billing screen layout', () => {
+  test('the whole body scrolls, so a short phone never clips the plans', () => {
+    // regression: billing-screen-clips-on-short-phone
+    const harness = createHarnessClock();
+    const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
+    const view = buildBillingView(inputFor('guest', 'none', true, false));
+    render(() => (
+      <I18nProvider i18n={i18n}>
+        <ClockProvider clock={harness.clock} timers={harness.timers}>
+          <ThemeProvider
+            colorScheme="light"
+            fixedLayout={{ width: 390, height: 640 }}
+          >
+            <StaticAppRouterProvider router={STILL_ROUTER}>
+              <BillingScreenLayout
+                view={view}
+                offer={PLUS_MEMBERSHIP_OFFER}
+                locale="en-US"
+                formatDate={(ms) => new Date(ms).toISOString().slice(0, 10)}
+                actions={NO_ACTIONS}
+              />
+            </StaticAppRouterProvider>
+          </ThemeProvider>
+        </ClockProvider>
+      </I18nProvider>
+    ));
+    const shell = document.querySelector('[data-screen="billing"]');
+    expect(shell).not.toBeNull();
+    expect(
+      shell?.querySelector('[data-component="ScreenBodyScroll"]')
+    ).not.toBeNull();
+    expect(screen.getByTestId(Handles.billingScreen)).toBeTruthy();
   });
 });

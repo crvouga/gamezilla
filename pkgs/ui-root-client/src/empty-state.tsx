@@ -46,8 +46,7 @@ export type EmptyStateProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const FILL_ICON_SIZE = 28;
-const FILL_ICON_DISC = 64;
+const FILL_ICON_SIZE = 36;
 const COMPACT_ICON_SIZE = 24;
 /** Keeps body copy to a readable measure on wide layouts. */
 const BODY_MAX_WIDTH = 360;
@@ -57,27 +56,16 @@ function EmptyStateIcon(props: {
   variant: StateBlockVariant;
 }): JSX.Element {
   return (
-    <Show
-      when={props.variant === 'fill'}
-      fallback={
-        <Dynamic
-          component={props.icon}
-          size={COMPACT_ICON_SIZE}
-          color="textSecondary"
-        />
-      }
+    <div
+      class="box items-center"
+      classList={{ 'mb-1': props.variant === 'fill' }}
     >
-      <div
-        class="box rounded-full bg-surface-muted items-center justify-center mb-1"
-        style={{ width: cssPx(FILL_ICON_DISC), height: cssPx(FILL_ICON_DISC) }}
-      >
-        <Dynamic
-          component={props.icon}
-          size={FILL_ICON_SIZE}
-          color="textSecondary"
-        />
-      </div>
-    </Show>
+      <Dynamic
+        component={props.icon}
+        size={props.variant === 'fill' ? FILL_ICON_SIZE : COMPACT_ICON_SIZE}
+        color="textSecondary"
+      />
+    </div>
   );
 }
 
@@ -105,8 +93,8 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
       <p
         class={
           isFill()
-            ? 'text textSubtitle text-center w-full'
-            : 'text textBodyBold text-center w-full'
+            ? 'text textHeading text-center w-full'
+            : 'text textLabel text-center w-full'
         }
       >
         {props.title}
@@ -116,7 +104,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
           class={
             isFill()
               ? 'text text-text-secondary text-center w-full'
-              : 'text textCaption text-text-secondary text-center w-full'
+              : 'text textCaption text-center w-full'
           }
           style={{ 'max-width': cssPx(BODY_MAX_WIDTH) }}
         >
@@ -125,7 +113,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
       </Show>
       <Show when={props.action}>
         {(action) => (
-          <div class="box mt-2 items-center">
+          <div class="box mt-3 items-center">
             <Button
               title={action().label}
               intent="primary"

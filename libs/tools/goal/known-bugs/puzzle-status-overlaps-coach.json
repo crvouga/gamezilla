@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle status row had a fixed 22px height while its prompt wraps to two lines, so the prompt overlapped the coach's message below it. Fixed by making the height a minimum.",
+  "regressionTest": "libs/chess-puzzle-client/tests/puzzle-chrome-paint.test.tsx"
+}

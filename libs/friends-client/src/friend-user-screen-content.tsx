@@ -23,7 +23,7 @@ export function FriendUserScreenContent(props: {
   onBlock: () => Promise<void>;
 }): JSX.Element {
   return (
-    <div class={`box items-center gap-4 pt-[8px] ${props.class ?? ''}`.trim()}>
+    <div class={`box items-center gap-4 pt-2 ${props.class ?? ''}`.trim()}>
       <FriendProfileHeader profile={props.profile} />
       <div class="box self-stretch">
         <FriendActionPills

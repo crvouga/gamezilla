@@ -147,7 +147,7 @@ function DismissibleBannerPromptBody(props: {
   return (
     <div class="box flex-1 min-w-0 flex-row items-center gap-2 flex-wrap">
       <div class="box flex-1 min-w-0 gap-0.5">
-        <p class="text textLabel font-semibold">{props.title}</p>
+        <p class="text textLabel">{props.title}</p>
         <Show when={props.subtitle !== undefined && props.subtitle !== null}>
           <p class="text textCaption">{props.subtitle}</p>
         </Show>
