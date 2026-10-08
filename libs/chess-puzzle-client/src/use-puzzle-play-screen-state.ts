@@ -22,6 +22,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import type { Decision } from '@pkgs/permissions-shared/decision';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   useLocalSearchParams,
@@ -45,6 +46,7 @@ import {
 } from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import { isFinishedPuzzleStatus } from './use-puzzle-player-handlers';
+import { usePuzzleAttemptMemory } from './use-puzzle-attempt-memory';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 import type { RatedStartGate } from './use-rated-start-gate';
 import { useRatedStartGate } from './use-rated-start-gate';
@@ -147,6 +149,9 @@ type PuzzlePlacementInput = {
   myId: Accessor<string>;
   roomPuzzleId: Accessor<string | null>;
   roomResumable: Accessor<boolean>;
+  roomReady: Accessor<boolean>;
+  roomFinished: Accessor<boolean>;
+  seenAttempt: Accessor<boolean>;
   poolReady: Accessor<boolean>;
   canPick: Accessor<boolean>;
   gate: RatedStartGate;
@@ -157,6 +162,9 @@ type PuzzlePlacementInput = {
 function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
   const [linked, setLinked] = createSignal<string | null>(null);
+  const [avoidFinishedId, setAvoidFinishedId] = createSignal<string | null>(
+    null
+  );
   const ratingEvents = useChessPuzzleRatingEvents();
   /** A puzzle that already moved the rating: its repeat starts free. */
   const alreadyRated = (puzzleId: string): boolean =>
@@ -176,12 +184,32 @@ function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
   };
 
   const next = useNextPuzzleId({
-    currentPuzzleId: () => activePuzzleId() ?? args.roomPuzzleId(),
+    currentPuzzleId: () =>
+      activePuzzleId() ?? args.roomPuzzleId() ?? avoidFinishedId(),
     seed: () => `${args.myId()}-${attemptSeed()}`,
     poolReady: args.poolReady,
   });
 
   createEffect(() => {
+    if (
+      !args.roomReady() ||
+      !args.canPick() ||
+      !args.roomFinished() ||
+      args.seenAttempt()
+    )
+      return;
+    if (activePuzzleId() !== null || attemptSeed() !== 0) return;
+    const finished = args.roomPuzzleId();
+    if (finished === null) return;
+    batch(() => {
+      setAvoidFinishedId(finished);
+      args.clearRoomPuzzle();
+      setAttemptSeed((seed) => seed + 1);
+    });
+  });
+
+  createEffect(() => {
+    if (!args.roomReady()) return;
     applyPlacement({
       seed: attemptSeed(),
       decision: decidePuzzlePlacement({
@@ -301,6 +329,9 @@ function useDriverPlacement(
   const canPick = useIsPuzzleDriver();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const { status: syncStatus } = useSyncEngine();
+  const memory = usePuzzleAttemptMemory();
   const roomResumable = createMemo(
     () => roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle
   );
@@ -310,6 +341,13 @@ function useDriverPlacement(
     myId,
     roomPuzzleId,
     roomResumable,
+    roomReady: () =>
+      memory.ready() &&
+      (roomSynced() ||
+        roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle ||
+        !syncStatus().online),
+    roomFinished: () => isFinishedPuzzleStatus(roomStatus()),
+    seenAttempt: memory.seen,
     poolReady,
     canPick,
     gate,
