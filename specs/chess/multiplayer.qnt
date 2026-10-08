@@ -47,6 +47,12 @@ module multiplayer {
     whiteClock: int, blackClock: int, drawOffer: str, rematchOffer: str,
     ratedGames: str -> int
   }
+  type PlayWorld = {
+    games: int -> PlayGame, sequence: int -> int, received: Set[int],
+    current: str -> int, seeking: str -> str, searchAge: str -> int,
+    accounts: Set[str], offline: Set[PlayDevice], balance: str -> int,
+    rated: str -> (str -> int)
+  }
 
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val DEVICES = PEOPLE.map(p => Set("phone", "computer").map(d => { person: p, place: d })).flatten()
@@ -116,7 +122,7 @@ module multiplayer {
   var _rated: str -> (str -> int)
   var _lastKnown: PlayDevice -> LastKnownPlay
 
-  val _now = {
+  val _now: PlayWorld = {
     games: _games, sequence: _sequence, received: _received, current: _current,
     seeking: _seeking, searchAge: _searchAge, accounts: _accounts, offline: _offline,
     balance: _balance, rated: _rated
@@ -136,7 +142,7 @@ module multiplayer {
   def _canAct(d: PlayDevice): bool = not(_offline.contains(d)) and _accounts.contains(d.person)
 
   /// What one person sees on an online device.
-  pure def _view(w, p) = {
+  pure def _view(w: PlayWorld, p: str): LastKnownPlay = {
     val n = w.current.get(p)
     val g = w.games.get(n)
     val looking = w.seeking.get(p) != NONE
@@ -155,7 +161,7 @@ module multiplayer {
 
   /// Records a game's new state. A game that just finished counts once
   /// toward both people's rated games at its speed and their colour balance.
-  pure def _record(w, n, changed) = {
+  pure def _record(w: PlayWorld, n: int, changed: PlayGame): PlayWorld = {
     val before = w.games.get(n)
     val settled = if (changed.outcome == OngoingPlay) changed else { ...changed, drawBy: NOBODY }
     val games = w.games.set(n, settled)
@@ -172,7 +178,7 @@ module multiplayer {
 
   /// Starts a search at a time control, ending any rematch offer of the
   /// person's last game.
-  pure def _search(w, p, control) = {
+  pure def _search(w: PlayWorld, p: str, control: str): PlayWorld = {
     val n = w.current.get(p)
     { ...w,
       seeking: w.seeking.set(p, control), searchAge: w.searchAge.set(p, 0),
@@ -181,7 +187,7 @@ module multiplayer {
 
   /// A rematch of a finished matchmaking game: same people and time
   /// control, colours swapped, numbered two after the earlier game.
-  pure def _rematch(w, number) = {
+  pure def _rematch(w: PlayWorld, number: int): PlayWorld = {
     val g = w.games.get(number)
     val n = number + 2
     { ...w,
@@ -210,7 +216,7 @@ module multiplayer {
       else { ...g, blackLeft: g.blackLeft - s }
     }
 
-  action _show(w) = {
+  action _show(w: PlayWorld): bool = {
     val shown = DEVICES.mapBy(d => if (w.offline.contains(d)) _lastKnown.get(d) else _view(w, d.person))
     all {
       _games' = w.games, _sequence' = w.sequence, _received' = w.received,
