@@ -10,6 +10,7 @@ import { dirname, join } from 'node:path';
 import { reportTask } from '@libs/harness/report-ready';
 import { extractEvidence } from './check-evidence-archive';
 import { reportCommand } from './check-report-command';
+import { processReportQueue } from './check-report-queue';
 
 export function reportOutputPath(id: string): string {
   const task = reportTask(id);
@@ -29,33 +30,35 @@ export async function consumeReportEvidence(
   root: string
 ): Promise<void> {
   const missing = new Set(missingReports(process.env));
-  const failures: unknown[] = [];
-  for (const id of missing) {
-    const relative = reportOutputPath(id);
-    const archived = `.cache/check-ci/failed-reports/${relative}`;
-    if (!entries.includes(`${archived}/complete.json`)) continue;
-    try {
-      extractEvidence(
-        archive,
-        entries.filter((entry) => entry.startsWith(`${archived}/`)),
-        root
-      );
-      const destination = join(root, relative);
-      mkdirSync(dirname(destination), { recursive: true });
-      renameSync(join(root, archived), destination);
-      reportCommand(root, process.env, ['task', id]);
-      missing.delete(id);
-      writeFileSync(
-        `${process.env['CHECK_REPORT_PLAN_PATH']}.missing.json`,
-        JSON.stringify([...missing])
-      );
-    } catch (error) {
-      failures.push(error);
-    } finally {
-      rmSync(join(root, relative), { recursive: true, force: true });
-      rmSync(join(root, archived), { recursive: true, force: true });
-    }
+  const ids = [...missing].filter((id) =>
+    entries.includes(
+      `.cache/check-ci/failed-reports/${reportOutputPath(id)}/complete.json`
+    )
+  );
+  try {
+    await processReportQueue(ids, async (id) => {
+      const relative = reportOutputPath(id);
+      const archived = `.cache/check-ci/failed-reports/${relative}`;
+      try {
+        extractEvidence(
+          archive,
+          entries.filter((entry) => entry.startsWith(`${archived}/`)),
+          root
+        );
+        const destination = join(root, relative);
+        mkdirSync(dirname(destination), { recursive: true });
+        renameSync(join(root, archived), destination);
+        await reportCommand(root, process.env, ['task', id]);
+        missing.delete(id);
+      } finally {
+        rmSync(join(root, relative), { recursive: true, force: true });
+        rmSync(join(root, archived), { recursive: true, force: true });
+      }
+    });
+  } finally {
+    writeFileSync(
+      `${process.env['CHECK_REPORT_PLAN_PATH']}.missing.json`,
+      JSON.stringify([...missing])
+    );
   }
-  if (failures.length)
-    throw new AggregateError(failures, 'Failed report publication');
 }

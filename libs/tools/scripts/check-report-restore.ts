@@ -4,7 +4,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPORT_COMPLETION, reportTask } from '@libs/harness/report-ready';
 import { reportOutputPath } from './check-report-evidence';
-import { restoreReportQueue } from './check-report-queue';
+import { processReportQueue } from './check-report-queue';
 import type { CheckPlan } from './check-shards';
 import { artifactUrl } from './turbo-preflight';
 
@@ -22,7 +22,7 @@ export async function restoreReportOutputs(args: {
   readonly publish: (id: string) => Promise<void>;
 }): Promise<void> {
   const { ids, plan, root, env, request, publish } = args;
-  await restoreReportQueue(ids, async (id) => {
+  await processReportQueue(ids, async (id) => {
     try {
       const task = plan.tasks.find((task) => task.taskId === id)!;
       const report = reportTask(id)!;

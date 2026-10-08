@@ -42,8 +42,8 @@ async function publish(): Promise<void> {
     reportPlan,
     JSON.stringify({ generation: 0, tasks: plan.tasks })
   );
-  reportCommand(ROOT, env, ['prepare']);
-  // Every failed bucket is published and removed before downloading the next archive.
+  await reportCommand(ROOT, env, ['prepare']);
+  // Drain and release each archive's bounded publication pool before downloading the next.
   const transferred = spawnSync(
     'bun',
     [
@@ -75,15 +75,13 @@ async function publish(): Promise<void> {
       root: ROOT,
       env,
       request: fetch,
-      publish: async (id) => {
-        reportCommand(ROOT, env, ['task', id]);
-      },
+      publish: (id) => reportCommand(ROOT, env, ['task', id]),
     });
   } catch (error) {
     failed = true;
     console.error(error);
   }
-  reportCommand(ROOT, env, ['close', ...(failed ? ['failed'] : [])]);
+  await reportCommand(ROOT, env, ['close', ...(failed ? ['failed'] : [])]);
 }
 
 if (import.meta.main) await publish();

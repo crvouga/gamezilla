@@ -1,7 +1,25 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import { restoreReportQueue } from './check-report-queue';
+import { processReportQueue } from './check-report-queue';
+
+// regression: reports-publisher-serial-deadline
+test('four independent publications can start before the first one completes', async () => {
+  const ids = Array.from({ length: 214 }, (_, index) => String(index));
+  const attempted: string[] = [];
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const pending = processReportQueue(ids, async (id) => {
+    attempted.push(id);
+    if (Number(id) < 4) await held;
+  });
+  expect(attempted).toEqual(ids.slice(0, 4));
+  release();
+  await pending;
+  expect(attempted).toEqual(ids);
+});
 
 // regression: ci-report-restore-aborts-independent-outputs
 test('a missing chess artifact cannot abandon queued friends reports', async () => {
@@ -18,7 +36,7 @@ test('a missing chess artifact cannot abandon queued friends reports', async () 
   );
   let verdict: unknown;
   try {
-    await restoreReportQueue(ids, async (id) => {
+    await processReportQueue(ids, async (id) => {
       attempted.push(id);
       if (id === ids[0]) throw failure;
       await Promise.resolve();
@@ -45,7 +63,7 @@ test('each restoration is attempted once and every failure contributes to the ve
         let peak = 0;
         let verdict: unknown;
         try {
-          await restoreReportQueue(ids, async (id) => {
+          await processReportQueue(ids, async (id) => {
             attempted.push(id);
             peak = Math.max(peak, ++active);
             await Promise.resolve();
@@ -57,7 +75,7 @@ test('each restoration is attempted once and every failure contributes to the ve
         }
         expect([...attempted].sort()).toEqual([...ids].sort());
         expect(active).toBe(0);
-        expect(peak).toBeLessThanOrEqual(1);
+        expect(peak).toBeLessThanOrEqual(4);
         const failures = ids.filter((id) => fails[Number(id)]);
         if (failures.length === 0) expect(verdict).toBeUndefined();
         else {

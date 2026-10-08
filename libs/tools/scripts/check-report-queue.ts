@@ -1,5 +1,5 @@
-/** Restore, publish and release one independent report before the next. */
-export async function restoreReportQueue(
+/** Drain independent reports with a bounded number of live producer buckets. */
+export async function processReportQueue(
   ids: readonly string[],
   restore: (id: string) => Promise<void>
 ): Promise<void> {
@@ -14,7 +14,7 @@ export async function restoreReportQueue(
       }
     }
   }
-  await worker();
+  await Promise.all(Array.from({ length: Math.min(4, ids.length) }, worker));
   if (failures.length > 0)
-    throw new AggregateError(failures, 'Report cache restoration failed');
+    throw new AggregateError(failures, 'Report processing failed');
 }

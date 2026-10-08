@@ -1,4 +1,4 @@
 {
-  "summary": "Full Check run 37740414175 exhausted the GitHub runner disk while consumers, verdict and reports downloaded and restored the entire 32-shard evidence set. Consume one archive at a time, extract only each job's required evidence, and publish and release one report bucket before restoring the next.",
+  "summary": "Full Check run 37740414175 exhausted the GitHub runner disk while consumers, verdict and reports downloaded and restored the entire 32-shard evidence set. Consume one archive at a time, extract only each job's required evidence, and publish and release report buckets through a bounded pool, draining each archive before downloading the next.",
   "regressionTest": "libs/tools/scripts/check-artifact-download.test.ts"
 }

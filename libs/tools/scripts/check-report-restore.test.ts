@@ -17,7 +17,10 @@ import { restoreReportOutputs } from './check-report-restore';
 test('cached sources publish and release separately, including a publication failure', async () => {
   const fixture = mkdtempSync(join(tmpdir(), 'report-restore-'));
   const root = join(fixture, 'destination');
-  const ids = ['@apps/product#test:spec:0', '@apps/product#test:spec:1'];
+  const ids = Array.from(
+    { length: 9 },
+    (_, index) => `@apps/product#test:spec:${index}`
+  );
   const files = ids.map((id) => `${reportOutputPath(id)}/complete.json`);
   const unrelated = 'apps/product/.cache/large-unrelated-output';
   try {
@@ -34,6 +37,7 @@ test('cached sources publish and release separately, including a publication fai
     const compressed = Bun.zstdCompressSync(readFileSync(archive));
     mkdirSync(root);
     const attempted: string[] = [];
+    let peak = 0;
     const request = async () => new Response(new Uint8Array(compressed));
     let verdict: unknown;
     try {
@@ -54,15 +58,16 @@ test('cached sources publish and release separately, including a publication fai
         },
         publish: async (id) => {
           attempted.push(id);
+          const live = ids.filter((other) =>
+            existsSync(join(root, reportOutputPath(other)))
+          ).length;
+          peak = Math.max(peak, live);
+          expect(live).toBeLessThanOrEqual(4);
           expect(
             existsSync(join(root, reportOutputPath(id), 'complete.json'))
           ).toBe(true);
-          expect(
-            existsSync(
-              join(root, reportOutputPath(ids.find((other) => other !== id)!))
-            )
-          ).toBe(false);
           expect(existsSync(join(root, unrelated))).toBe(false);
+          await Promise.resolve();
           if (id === ids[0]) throw new Error('publication unavailable');
         },
       });
@@ -70,6 +75,7 @@ test('cached sources publish and release separately, including a publication fai
       verdict = error;
     }
     expect(attempted).toEqual(ids);
+    expect(peak).toBeGreaterThan(1);
     expect(verdict).toBeInstanceOf(AggregateError);
     expect((verdict as AggregateError).errors).toHaveLength(1);
     for (const id of ids)
