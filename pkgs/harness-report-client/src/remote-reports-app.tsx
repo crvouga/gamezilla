@@ -18,6 +18,7 @@ import { attachReportCache } from './persist';
 import { createRemoteReport } from './remote-report';
 import { HarnessReportApp } from './report-app';
 import { resilientReportCache } from './resilient-cache';
+import { RevisionPicker } from './revision-picker';
 import './styles.css';
 
 export type RemoteReportsAppProps = {
@@ -84,6 +85,7 @@ function CommitReportContent(
     readonly refresh: () => void;
   }
 ) {
+  const [choosingRevision, setChoosingRevision] = createSignal(false);
   const remote = createRemoteReport({
     http: props.http,
     timers: props.timers,
@@ -102,24 +104,41 @@ function CommitReportContent(
     () => remote.phase() === 'connecting' && remote.data.tests.length === 0
   );
   return (
-    <HarnessReportApp
-      navigation={props.navigation}
-      data={remote.data}
-      frameCss={remote.frameCss()}
-      loader={remote.loader}
-      pending={pending()}
-      home={{ label: 'Reports', onOpen: () => props.onOpen(null) }}
-      explorer={{
-        data: () => query.data,
-        pending: () => query.isPending,
-        error: () => query.error,
-        readSpec: (path) => props.fetcher.spec(props.sha, path),
-      }}
-      sources={remote.sources()}
-      sha={props.sha}
-      phase={remote.phase()}
-      runUrl={remote.commit()?.runUrl}
-      onRefresh={props.refresh}
-    />
+    <>
+      <HarnessReportApp
+        navigation={{
+          ...props.navigation,
+          subscribeKeys: (listener) =>
+            props.navigation.subscribeKeys((event) => {
+              if (!choosingRevision()) listener(event);
+            }),
+        }}
+        data={remote.data}
+        frameCss={remote.frameCss()}
+        loader={remote.loader}
+        pending={pending()}
+        onOpenReports={() => props.onOpen(null)}
+        explorer={{
+          data: () => query.data,
+          pending: () => query.isPending,
+          error: () => query.error,
+          readSpec: (path) => props.fetcher.spec(props.sha, path),
+        }}
+        sources={remote.sources()}
+        sha={props.sha}
+        phase={remote.phase()}
+        runUrl={remote.commit()?.runUrl}
+        onRefresh={props.refresh}
+        onChooseRevision={() => setChoosingRevision(true)}
+      />
+      <Show when={choosingRevision()}>
+        <RevisionPicker
+          fetcher={props.fetcher}
+          selectedSha={props.sha}
+          onOpen={props.onOpen}
+          onClose={() => setChoosingRevision(false)}
+        />
+      </Show>
+    </>
   );
 }

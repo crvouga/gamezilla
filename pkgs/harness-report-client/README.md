@@ -12,8 +12,11 @@ theme and overlay contexts. Storage failures do not gate initial rendering.
 `ScreenBase`, `FilterBar`, `ExplorerWorkspace`, `InspectionWorkspace`, `MetricStrip`, `DocumentPanel`,
 `MenuSection`, `MenuRow`, state components and the standard command palette
 compose the explorer. The compact layout opens the selected spec on its own;
-wide layouts retain the inventory alongside the detail. Inventories and check
-collections paginate before rendering. Documents are text, never injected HTML.
+wide layouts retain the spec inventory alongside the detail. Code revisions
+open in a searchable, dismissible dialog on demand, leaving the full workspace
+for evidence on both layouts. An explicit All reports control returns to the
+catalog even from a deep-linked test. Inventories and check collections paginate before rendering.
+Documents are text, never injected HTML.
 
 The API exposes a commit's inventory and independent report parts at
 `/api/reports/<sha>/explorer`, with individual documents at

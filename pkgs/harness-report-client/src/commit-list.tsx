@@ -14,6 +14,7 @@ import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { Notice } from '@pkgs/ui-root-client/notice';
 import { PaginationControls } from '@pkgs/ui-root-client/pagination-controls';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 import type { ReportFetcher } from './fetcher';
@@ -23,6 +24,7 @@ import { ReportStatus } from './report-status';
 
 function VersionRow(props: {
   readonly commit: CommitRecord;
+  readonly selected: boolean;
   readonly onOpen: (sha: string | null) => void;
 }) {
   return (
@@ -43,7 +45,9 @@ function VersionRow(props: {
           }
         />
       }
+      selected={props.selected}
       onClick={() => props.onOpen(props.commit.sha)}
+      dataSet={{ testid: 'report-version', sha: props.commit.sha }}
     />
   );
 }
@@ -53,102 +57,117 @@ export function CommitList(props: {
   readonly onOpen: (sha: string | null) => void;
 }) {
   const { t } = useLingui();
-  const { search, setSearch, query, commits, shown, refresh } =
-    useCommitCatalog(() => props.fetcher);
   return (
     <ScreenBase
       screenId="reports"
       breadcrumbs={[{ name: t`Reports` }]}
-      scroll
-      actions={[
-        {
-          type: 'secondary',
-          label: t`Refresh`,
-          onClick: refresh,
-          loading: query.isFetching,
-        },
-      ]}
       content={() => (
-        <div class="box gap-6">
-          <ExplorerIntro />
-          <Show when={query.data?.pages[0]?.workspace}>
-            {(workspace) => (
-              <WorkspaceVersionSection
-                workspace={workspace()}
-                onOpen={props.onOpen}
-              />
-            )}
-          </Show>
-          <EvidenceVersions
-            versions={query.data?.pages[0]?.evidenceVersions ?? []}
-            exclude={commits().map((commit) => commit.sha)}
-            search={search()}
-            onOpen={props.onOpen}
-          />
-          <Show when={query.data?.pages[0]?.notice}>
-            {(notice) => <Notice>{notice()}</Notice>}
-          </Show>
-          <Show when={query.isError}>
-            <ReportsError error={query.error} onRetry={refresh} />
-          </Show>
-          <FilterBar
-            label={t`Find a version`}
-            value={search()}
-            onChange={setSearch}
-            placeholder={t`Commit hash or branch`}
-          />
-          <Show
-            when={!query.isPending}
-            fallback={
-              <LoadingState variant="compact" caption={t`Loading versions…`} />
-            }
-          >
-            <Show
-              when={shown().length > 0}
-              fallback={
-                <Show when={!query.isError}>
-                  <EmptyState
-                    variant="compact"
-                    title={
-                      commits().length > 0
-                        ? t`No versions match`
-                        : t`No published reports yet`
-                    }
-                    body={
-                      commits().length > 0
-                        ? t`Try another commit hash or branch.`
-                        : t`Published evidence appears after automated verification. The current checkout's specs remain available above when running locally.`
-                    }
-                  />
-                </Show>
-              }
-            >
-              <MenuSection title={t`Published versions`}>
-                <For each={shown()}>
-                  {(commit) => (
-                    <VersionRow commit={commit} onOpen={props.onOpen} />
-                  )}
-                </For>
-              </MenuSection>
-            </Show>
-          </Show>
-          <Show when={query.hasNextPage}>
-            <Button
-              title={t`Load older versions`}
-              loading={query.isFetchingNextPage}
-              onClick={() => {
-                void query.fetchNextPage();
-              }}
-            />
-          </Show>
-        </div>
+        <CommitNavigator
+          fetcher={props.fetcher}
+          selectedSha={null}
+          onOpen={props.onOpen}
+        />
       )}
     />
   );
 }
 
+export function CommitNavigator(props: {
+  readonly fetcher: ReportFetcher;
+  readonly selectedSha: string | null;
+  readonly onOpen: (sha: string | null) => void;
+}) {
+  const { t } = useLingui();
+  const { search, setSearch, query, commits, shown, refresh } =
+    useCommitCatalog(() => props.fetcher);
+  return (
+    <div class="box flex-1 min-h-0 min-w-0 gap-4" data-testid="report-versions">
+      <ExplorerIntro refreshing={query.isFetching} onRefresh={refresh} />
+      <FilterBar
+        label={t`Find a version`}
+        value={search()}
+        onChange={setSearch}
+        placeholder={t`Commit hash or branch`}
+      />
+      <ScrollView class="flex-1" contentClass="gap-6">
+        <Show when={query.data?.pages[0]?.workspace}>
+          {(workspace) => (
+            <WorkspaceVersionSection
+              workspace={workspace()}
+              selectedSha={props.selectedSha}
+              onOpen={props.onOpen}
+            />
+          )}
+        </Show>
+        <EvidenceVersions
+          versions={query.data?.pages[0]?.evidenceVersions ?? []}
+          exclude={commits().map((commit) => commit.sha)}
+          search={search()}
+          selectedSha={props.selectedSha}
+          onOpen={props.onOpen}
+        />
+        <Show when={query.data?.pages[0]?.notice}>
+          {(notice) => <Notice>{notice()}</Notice>}
+        </Show>
+        <Show when={query.isError}>
+          <ReportsError error={query.error} onRetry={refresh} />
+        </Show>
+        <Show
+          when={!query.isPending}
+          fallback={
+            <LoadingState variant="compact" caption={t`Loading versions…`} />
+          }
+        >
+          <Show
+            when={shown().length > 0}
+            fallback={
+              <Show when={!query.isError}>
+                <EmptyState
+                  variant="compact"
+                  title={
+                    commits().length > 0
+                      ? t`No versions match`
+                      : t`No published reports yet`
+                  }
+                  body={
+                    commits().length > 0
+                      ? t`Try another commit hash or branch.`
+                      : t`Published evidence appears after automated verification. The current checkout's specs remain available above when running locally.`
+                  }
+                />
+              </Show>
+            }
+          >
+            <MenuSection title={t`Published versions`}>
+              <For each={shown()}>
+                {(commit) => (
+                  <VersionRow
+                    commit={commit}
+                    selected={props.selectedSha === commit.sha}
+                    onOpen={props.onOpen}
+                  />
+                )}
+              </For>
+            </MenuSection>
+          </Show>
+        </Show>
+        <Show when={query.hasNextPage}>
+          <Button
+            title={t`Load older versions`}
+            loading={query.isFetchingNextPage}
+            onClick={() => {
+              void query.fetchNextPage();
+            }}
+          />
+        </Show>
+      </ScrollView>
+    </div>
+  );
+}
+
 function WorkspaceVersionSection(props: {
   workspace: WorkspaceVersion;
+  selectedSha: string | null;
   onOpen: (sha: string | null) => void;
 }) {
   const { t } = useLingui();
@@ -165,7 +184,12 @@ function WorkspaceVersionSection(props: {
         title={props.workspace.branch}
         caption={props.workspace.sha.slice(0, 9)}
         trailing={<Badge intent="neutral" label={t`Specs available`} />}
+        selected={props.selectedSha === props.workspace.sha}
         onClick={() => props.onOpen(props.workspace.sha)}
+        dataSet={{
+          testid: 'report-version',
+          sha: props.workspace.sha,
+        }}
       />
     </MenuSection>
   );
@@ -175,6 +199,7 @@ function EvidenceVersions(props: {
   versions: readonly string[];
   exclude: readonly string[];
   search: string;
+  selectedSha: string | null;
   onOpen: (sha: string | null) => void;
 }) {
   const { t } = useLingui();
@@ -198,7 +223,9 @@ function EvidenceVersions(props: {
             <MenuRow
               title={sha.slice(0, 9)}
               caption={t`Specs and report parts`}
+              selected={props.selectedSha === sha}
               onClick={() => props.onOpen(sha)}
+              dataSet={{ testid: 'report-version', sha }}
             />
           )}
         </For>
@@ -233,12 +260,21 @@ function ReportsError(props: { error: unknown; onRetry: () => void }) {
   );
 }
 
-function ExplorerIntro() {
+function ExplorerIntro(props: { refreshing: boolean; onRefresh: () => void }) {
   const { t } = useLingui();
   return (
-    <div class="box gap-2">
-      <h1 class="text textHeading">{t`Explore the app`}</h1>
-      <p class="text textCaption">{t`Every spec, recorded outcome, and quality check belongs to a version. Choose a commit to investigate its evidence.`}</p>
+    <div class="box flex-row items-start gap-3">
+      <div class="box flex-1 min-w-0 gap-1">
+        <h2 class="text textNavigationTitle">{t`Code revisions`}</h2>
+        <p class="text textCaption">{t`Choose a commit to explore its specs, test runs, and quality evidence.`}</p>
+      </div>
+      <Button
+        title={t`Refresh`}
+        variant="ghost"
+        size="sm"
+        loading={props.refreshing}
+        onClick={props.onRefresh}
+      />
     </div>
   );
 }
