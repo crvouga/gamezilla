@@ -108,6 +108,7 @@ Feature: Rename a space
     Background:
       Given Alice is hosting a space that Bob joined from the link
 
+    @regression:space-link-host-profile-missing
     Scenario: A space named after its host follows their new username
       When Alice renames themselves to @alice_w
       Then Bob sees the space is named after Alice within 15 seconds

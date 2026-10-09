@@ -12,6 +12,17 @@ Feature: Presence in a space
       Then Alice sees 2 people in the space within 20 seconds
       And Bob sees 2 people in the space within 20 seconds
 
+    @regression:space-link-member-profile-missing
+    Scenario: The host can identify someone who joined from the link
+      Given Alice is hosting a space that Bob joined from the link
+      When Alice views the space's presence
+      Then Alice sees Bob in the space's presence within 20 seconds
+
+    Scenario: Someone who joined from the link can identify the host
+      Given Alice is hosting a space that Bob joined from the link
+      When Bob views the space's presence
+      Then Bob sees Alice in the space's presence within 20 seconds
+
     Scenario: Someone stops showing as there after leaving
       Given Alice is hosting a space that Bob joined from the link
       When Bob leaves the space
