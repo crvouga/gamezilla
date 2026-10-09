@@ -19,6 +19,7 @@ import type {
   FeatureServerCtx,
   PubSubTopicCtx,
   RoomGrantsCtx,
+  SessionAdmissionCtx,
 } from './server';
 
 export type ComposedFeatureServers = {
@@ -33,6 +34,7 @@ export type ComposedFeatureServers = {
   readonly roomGrants: (ctx: RoomGrantsCtx) => Promise<readonly string[]>;
   /** Every composed feature's server-only mutation check, in feature order. */
   readonly authorizeMutation: MutationAuthorize;
+  readonly authorizeSession: (ctx: SessionAdmissionCtx) => Promise<void>;
 };
 
 /**
@@ -82,6 +84,9 @@ export function composeFeatureServers(
     roomGrants: composeRoomGrants(servers),
     authorizeMutation: async (ctx) => {
       for (const server of servers) await server.authorizeMutation?.(ctx);
+    },
+    authorizeSession: async (ctx) => {
+      for (const server of servers) await server.authorizeSession?.(ctx);
     },
   };
 }

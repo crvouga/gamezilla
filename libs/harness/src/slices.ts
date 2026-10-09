@@ -69,6 +69,7 @@ export const SLICE_ORDER = [
   'chess',
   'billing',
   'permissions',
+  'population',
 ] as const;
 
 export type SliceName = (typeof SLICE_ORDER)[number];

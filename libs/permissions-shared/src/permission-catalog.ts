@@ -2,6 +2,11 @@ import { defineCatalog } from '@pkgs/permissions-shared/catalog';
 
 /** Every boolean capability the product asks about. */
 export const PERMISSION = defineCatalog({
+  populationView: 'population:view',
+  populationInspect: 'population:inspect',
+  populationConfigure: 'population:configure',
+  populationControl: 'population:control',
+  populationReplay: 'population:replay',
   friendsUse: 'friends:use',
   peopleSearch: 'people:search',
   notificationsReceive: 'notifications:receive',
@@ -77,6 +82,7 @@ export function isQuotaAction(action: string): action is AppQuota {
  * a role, so no caller can branch on one.
  */
 export const ROLE = defineCatalog({
+  populationOperator: 'population:operator',
   baseline: 'baseline',
   planGuest: 'plan:guest',
   planFree: 'plan:free',

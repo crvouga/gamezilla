@@ -13,6 +13,7 @@
  */
 
 import type { Clock } from '@pkgs/clock-shared/types';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
@@ -26,6 +27,7 @@ export type FeatureServerCtx = {
   readonly getSqlClient: () => SqlClient;
   readonly clock: Clock;
   readonly createId: CreateId;
+  readonly authServer: AuthServerPort;
 };
 
 /** Who the subscription is for. */
@@ -47,6 +49,13 @@ export type RoomGrantsCtx = {
     readonly deviceId: string;
     readonly accountId: string | null;
   };
+  readonly nowMs: number;
+};
+
+export type SessionAdmissionCtx = {
+  readonly db: SqlClient;
+  readonly accountId: string | null;
+  readonly deviceId: string;
   readonly nowMs: number;
 };
 
@@ -95,6 +104,8 @@ export type FeatureServer = {
    * transaction before the body. Throws a `MutationError` to refuse.
    */
   readonly authorizeMutation?: MutationAuthorize;
+  /** Additional server-owned session constraints, checked on every authenticated request. */
+  readonly authorizeSession?: (ctx: SessionAdmissionCtx) => Promise<void>;
 };
 
 export function defineFeatureServer(server: FeatureServer): FeatureServer {

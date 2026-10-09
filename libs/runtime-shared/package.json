@@ -24,6 +24,7 @@
     "@libs/friends-shared": "workspace:*",
     "@libs/notifications-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
+    "@libs/population-shared": "workspace:*",
     "@libs/profile-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/db-indexes-root-shared": "workspace:*",

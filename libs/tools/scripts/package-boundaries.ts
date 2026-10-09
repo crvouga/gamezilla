@@ -219,7 +219,14 @@ export function categoryViolations(
       const spec = reference.specifier;
       const dep = /^(@(?:apps|libs|pkgs)\/[^/]+)/.exec(spec)?.[1];
       const depCategory = dep === undefined ? undefined : categoryOfName(dep);
-      if (depCategory !== undefined && !ALLOWED[category].includes(depCategory))
+      // Hono RPC clients infer contracts from server routes through erased imports.
+      const rpcType =
+        reference.typeOnly && category === 'client' && depCategory === 'server';
+      if (
+        depCategory !== undefined &&
+        !ALLOWED[category].includes(depCategory) &&
+        !rpcType
+      )
         out.push(
           `${file.path}: ${category} source imports ${depCategory} ${dep}`
         );

@@ -1,0 +1,69 @@
+{
+  "name": "@libs/population-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+  },
+  "dependencies": {
+    "@libs/account-privacy-harness": "workspace:*",
+    "@libs/app-config-shared": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
+    "@libs/billing-harness": "workspace:*",
+    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-matchmaking-harness": "workspace:*",
+    "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/chess-root-client": "workspace:*",
+    "@libs/chess-root-harness": "workspace:*",
+    "@libs/friends-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/notifications-harness": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/population-client": "workspace:*",
+    "@libs/population-server": "workspace:*",
+    "@libs/population-shared": "workspace:*",
+    "@libs/profile-harness": "workspace:*",
+    "@libs/search-harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/dmn-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/permissions-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
+    "@pkgs/ui-testing-solid-dom-client": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "specDomains": [
+    "population"
+  ],
+  "specParts": 1
+}

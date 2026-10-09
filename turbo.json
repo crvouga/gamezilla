@@ -394,6 +394,7 @@
         "libs/notifications-client/src/**/*.{ts,tsx}",
         "libs/permissions-client/src/**/*.{ts,tsx}",
         "libs/profile-client/src/**/*.{ts,tsx}",
+        "libs/population-client/src/**/*.{ts,tsx}",
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",

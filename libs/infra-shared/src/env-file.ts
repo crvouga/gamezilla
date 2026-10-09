@@ -29,6 +29,7 @@ export const envFileSchema = z
           .optional(),
         retire: z.array(slug).default([]),
         puzzle_manager_account_ids: z.array(id).default([]),
+        population_operator_account_ids: z.array(id).default([]),
       })
       .strict(),
     protection: z.enum(['production', 'standard']),
@@ -187,6 +188,9 @@ export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
     BILLING_PROVIDER: env.billing.provider,
     PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(
       env.worker.puzzle_manager_account_ids
+    ),
+    POPULATION_OPERATOR_ACCOUNT_IDS: JSON.stringify(
+      env.worker.population_operator_account_ids
     ),
   };
 }

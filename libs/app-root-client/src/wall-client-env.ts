@@ -104,7 +104,6 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     seed: mintWallSeed(),
     server,
     events: createInMemoryPubSub({ logger: pubsubLogger }),
-    createPubSub: () => createInMemoryPubSub({ logger: pubsubLogger }),
     openSqlClient: async (openArgs) => {
       return openMainSqlClient(
         openArgs?.userId ?? 'pending',

@@ -15,6 +15,7 @@ import type { FeatureServer } from '@libs/feature-shared/server';
 import { FRIENDS_SERVER } from '@libs/friends-server/feature-server';
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications-server/feature-server';
+import { POPULATION_SERVER } from '@libs/population-server/feature-server';
 import { APP } from '@libs/runtime-shared/app-features';
 import { createSpacesServer } from '@libs/spaces-server/feature-server';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
@@ -36,6 +37,7 @@ export function appFeatureServers(
     // composed before the inbox that serves them.
     FRIENDS_SERVER,
     NOTIFICATIONS_SERVER,
+    POPULATION_SERVER,
     createBillingServer(deps.billing),
   ];
 }

@@ -27,6 +27,10 @@ import {
   TOFU_STATE_SECRET_ACCESS_KEY,
 } from '@libs/secrets-shared/infra-secrets';
 import {
+  POPULATION_CREDENTIAL_SECRET,
+  POPULATION_WORKER_TOKEN,
+} from '@libs/secrets-shared/population-secrets';
+import {
   EMQX_JWT_SECRET,
   EMQX_WSS_URL,
 } from '@libs/secrets-shared/pubsub-emqx-secrets';
@@ -68,6 +72,8 @@ export const SECRETS: readonly Secret[] = [
   HYPERDRIVE_ID,
   AUTH_SECRET,
   SYNTHETIC_MONITOR_TOKEN,
+  POPULATION_CREDENTIAL_SECRET,
+  POPULATION_WORKER_TOKEN,
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   ...BILLING_VENDOR_SECRETS,

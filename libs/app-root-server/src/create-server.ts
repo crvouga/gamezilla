@@ -22,6 +22,7 @@ import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
+import { withPopulationOperators } from '@libs/permissions-shared/population-permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { SpanStatusCode } from '@opentelemetry/api';
@@ -218,6 +219,7 @@ async function buildDesiredClientConfig(args: {
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
   readonly puzzleManagerAccountIds: readonly string[];
+  readonly populationOperatorAccountIds: readonly string[];
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
   const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
@@ -234,8 +236,9 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    permissionPolicy: permissionPolicyForPuzzleManagers(
-      args.puzzleManagerAccountIds
+    permissionPolicy: withPopulationOperators(
+      permissionPolicyForPuzzleManagers(args.puzzleManagerAccountIds),
+      args.populationOperatorAccountIds
     ),
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
@@ -383,6 +386,7 @@ function createServerRouter(args: {
       createRequestDbMiddleware(secrets, {
         objectStore: env.blob,
         authServer: auth.server,
+        authorizeSession: servers.authorizeSession,
         apiUrlOverride: env.serverUrl,
         protection,
         clock: env.clock,
@@ -428,6 +432,7 @@ function createServerRouter(args: {
   // Whatever the composed features contribute, in feature order. The shell
   // mounts them; it does not know what any of them serves.
   const featureRouters = servers.routers({
+    authServer: auth.server,
     getSqlClient: () => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'feature routes: request store missing');
@@ -507,6 +512,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
     puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
+    populationOperatorAccountIds: env.populationOperatorAccountIds ?? [],
     ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
   });
 

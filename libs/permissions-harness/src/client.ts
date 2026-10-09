@@ -280,6 +280,8 @@ function caseAuthClient(c: ServerCase): AuthClientPort {
       refresh: outsideFixture,
     },
     signIn: outsideFixture,
+    signInWithPassword: outsideFixture,
+    registerWithPassword: outsideFixture,
     signOut: outsideFixture,
     signOutEverywhere: outsideFixture,
     listIdentities: outsideFixture,

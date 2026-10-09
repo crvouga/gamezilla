@@ -20,6 +20,7 @@ import { NOTIFICATIONS_FEATURE } from '@libs/notifications-shared/feature';
 import { PERMISSIONS_FEATURE } from '@libs/permissions-shared/feature';
 import { PROFILE_FEATURE } from '@libs/profile-shared/feature';
 import { SPACES_FEATURE } from '@libs/spaces-shared/feature';
+import { POPULATION_FEATURE } from '@libs/population-shared/feature';
 
 /** Every bounded context the product ships. */
 export const APP_FEATURES: readonly FeatureManifest[] = [
@@ -33,6 +34,7 @@ export const APP_FEATURES: readonly FeatureManifest[] = [
   CHESS_FEATURE,
   BILLING_FEATURE,
   PERMISSIONS_FEATURE,
+  POPULATION_FEATURE,
 ];
 
 /** The folded app: schema, queries, topic map, mutations. */
