@@ -23,6 +23,14 @@ export async function requestSharingDiagnostics(
         SELECT name, seq, deleted_at FROM sync_engine_mutations
         WHERE name IN ('sendFriendRequest', 'declineFriendRequest')
       `),
+        markers: await db?.query(sql<Record<string, unknown>>`
+          SELECT table_name, row_id, mutation_id, deleted_at
+          FROM sync_engine_optimistic_peer_rows
+          WHERE table_name = 'friends_requests'
+        `),
+        refusals: await db?.query(sql<Record<string, unknown>>`
+          SELECT mutation_id, code, deleted_at FROM sync_engine_write_rejections
+        `),
       };
     })
   );

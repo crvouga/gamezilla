@@ -1,5 +1,6 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { openTab } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { showKnownPerson } from './known-person-view';
 
@@ -31,16 +32,11 @@ export async function friendRequestCardVisible(
   actorId: string,
   fromUsername: string
 ): Promise<boolean> {
-  try {
-    const ui = await actorUi(s, actorId);
-    // Tapping focuses the actor (a parked actor's screen reads as empty).
-    await ui.get(Handles.tabNotifications).tap({ timeoutMs: 2_000 });
-    return await ui
-      .get(Handles.notificationsFriendRequestCard(fromUsername))
-      .isVisible();
-  } catch {
-    return false;
-  }
+  await Promise.resolve(openTab.act(s, actorId, Handles.tabNotifications));
+  const ui = await actorUi(s, actorId);
+  return await ui
+    .get(Handles.notificationsFriendRequestCard(fromUsername))
+    .isVisible();
 }
 
 /**
@@ -52,15 +48,10 @@ export async function friendRequestCardText(
   actorId: string,
   fromUsername: string
 ): Promise<string | null> {
-  try {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.tabNotifications).tap({ timeoutMs: 2_000 });
-    return await ui
-      .get(Handles.notificationsFriendRequestCard(fromUsername))
-      .text();
-  } catch {
-    return null;
-  }
+  await Promise.resolve(openTab.act(s, actorId, Handles.tabNotifications));
+  const ui = await actorUi(s, actorId);
+  const card = ui.get(Handles.notificationsFriendRequestCard(fromUsername));
+  return (await card.isVisible()) ? await card.text() : null;
 }
 
 /** A search result row for `username` offers Add (no friendship, no pending request). */

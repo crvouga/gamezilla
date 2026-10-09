@@ -22,6 +22,8 @@ import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs } from '@libs/harness/shell-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import declineAfterReopening from './fixtures/friend-request-decline-after-reopening.itf.json';
+import localRefusalReopening from './fixtures/friend-request-local-refusal-lost-on-reopen.itf.json';
+import rejectedInsertReopening from './fixtures/friend-request-rejected-insert-after-reopen.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'offline-friend-requests',
@@ -31,6 +33,20 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 12,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: friend-request-rejected-insert-after-reopen
+      id: 'friend-request-rejected-insert-after-reopen',
+      title: 'A refused request is removed after reopening before reconnecting',
+      seed: '0x67932',
+      itf: rejectedInsertReopening,
+    },
+    {
+      // regression: friend-request-local-refusal-lost-on-reopen
+      id: 'friend-request-local-refusal-lost-on-reopen',
+      title: 'A known decline refusal remains visible after reopening',
+      seed: '0x67932',
+      itf: localRefusalReopening,
+    },
     {
       // regression: friend-request-decline-after-reopening
       id: 'friend-request-decline-after-reopening',

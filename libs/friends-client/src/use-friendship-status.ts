@@ -45,6 +45,7 @@ function friendshipStatusSql(
         WHERE from_user_id = ${myId}
           AND to_user_id = ${targetUserId}
           AND status = 'pending'
+          AND deleted_at IS NULL
       ) THEN 'pending_outgoing'
       WHEN EXISTS (
         SELECT from_user_id
@@ -52,6 +53,7 @@ function friendshipStatusSql(
         WHERE from_user_id = ${targetUserId}
           AND to_user_id = ${myId}
           AND status = 'pending'
+          AND deleted_at IS NULL
       ) THEN 'pending_incoming'
       ELSE 'none'
     END AS status

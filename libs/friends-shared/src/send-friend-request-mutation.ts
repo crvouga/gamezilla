@@ -73,6 +73,7 @@ async function hasPendingRequest(
     WHERE from_user_id = ${fromUserId}
       AND to_user_id = ${toUserId}
       AND status = 'pending'
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   return rows.length > 0;

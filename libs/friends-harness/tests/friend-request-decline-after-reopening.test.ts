@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { friendRequestCardVisible, withdrawOffered } from '@libs/friends-harness/friends-ui-reads';
+import {
+  friendRequestCardVisible,
+  withdrawOffered,
+} from '@libs/friends-harness/friends-ui-reads';
 import { requestSharingDiagnostics } from '@libs/friends-harness/request-sharing-diagnostics';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
@@ -35,7 +38,9 @@ test('a request declined after repeated reopening stops being requested', async 
     ]) {
       await binding.actions[action]!(w, { person: 'alice' });
       if (action === 'ask')
-        expect(await w.s.read(friendRequestCardVisible, 'bob', 'alice')).toBe(true);
+        expect(await w.s.read(friendRequestCardVisible, 'bob', 'alice')).toBe(
+          true
+        );
     }
     try {
       await w.s.until((s) => withdrawOffered(s, 'alice', 'bob'), {

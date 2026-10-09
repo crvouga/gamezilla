@@ -1,0 +1,4 @@
+{
+  "summary": "Alice asked offline, reopened twice while Bob blocked her, and returned online. The refused request was correctly tombstoned, but profile queries still showed Cancel and later local validation treated the deleted request as pending. Literal model trace 20 pins the original sequence; the example also checks a fresh private request after the block ends.",
+  "regressionTest": "libs/friends-harness/tests/friend-request-rejected-insert-after-reopen.test.ts"
+}
