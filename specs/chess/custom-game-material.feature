@@ -33,15 +33,14 @@ Feature: A win needs mating material
   Rule: Claiming the win draws when the claimant cannot mate with the remaining material
     No counter-example: the remaining material decides the result, and nobody can choose a win it cannot give.
 
-    Background:
-      Given Alice has an active Custom Game with a queen against Bob's bare king
-
     Scenario: A bare king's claim draws
-      Given Alice has been away from the Custom Game for 60 seconds
+      Given Bob hosts an active Custom Game with Alice's queen against Bob's bare king
+      And Alice has been away from the Custom Game for 60 seconds
       When Bob claims the win in the Custom Game
       Then The Custom Game is completed as a draw
 
     Scenario: The queen's claim wins
-      Given Bob has been away from the Custom Game for 60 seconds
+      Given Alice has an active Custom Game with a queen against Bob's bare king
+      And Bob has been away from the Custom Game for 60 seconds
       When Alice claims the win in the Custom Game
       Then Alice wins the Custom Game because Bob stayed away
