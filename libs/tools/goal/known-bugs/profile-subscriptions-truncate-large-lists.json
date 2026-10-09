@@ -1,0 +1,4 @@
+{
+  "summary": "Profile subscriptions silently dropped every requested identifier after the first 200, leaving additional people without locally synchronized names. Requests must cover the complete set while retaining the existing per-query bound and disposing every former subscription.",
+  "regressionTest": "libs/profile-client/tests/use-synced-profiles.test.tsx"
+}

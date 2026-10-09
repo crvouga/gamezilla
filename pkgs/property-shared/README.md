@@ -13,7 +13,8 @@ are banned elsewhere (`no-unpinned-property.grit`). Policy:
 [`README.md`](../../README.md#correctness-machinery).
 
 ```ts
-import { assertProperty, fc } from '@pkgs/property-shared';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 assertProperty(
   'reverse is an involution',
