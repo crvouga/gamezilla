@@ -13,18 +13,18 @@ not another product definition. No manual testing supplies evidence.
 | Complete shared-notes specification suite | 974 passed, 0 failed | Current saved-once and checked-note examples; 75 assertions across 50 files; c9190a19d with setup bindings committed as cb57fd0d9 |
 | Complete profile specification suite | 130 passed, 0 failed | Local execution |
 | Complete runtime specification suite | 62 passed, 0 failed | Local execution |
-| Complete friend-and-space specification suite | 418 passed, 0 failed | Rejoining, the pinned recovery failure and four navigation examples included; 148 assertions across 83 files; source fabd3657b with the observer changes committed as 0dbb06404 |
+| Complete friend-and-space specification suite after both profile fixes | 420 passed, 0 failed | 148 assertions across 84 files; 423.35 seconds; includes the two named-presence examples of c01abc3c8 and their binding and profile subscription committed as fedb06c88 |
 | Guest departure while the host is offline | 4 passed, 0 failed | Offer, departure, both people offline, and departure retained after reconnection |
 | Host identity and ended-friendship reactions | 20 passed, 0 failed | Host-named space follows a username change; a space left by a former friend leaves their lobby |
 | Departure and ending offers | 15 passed, 0 failed | Positive ending offer; no further leave after leaving or ending; no further end after reconnection to an ended space |
 | Host departure and naming features | 23 passed, 0 failed | Includes the three later examples: repeated refusal, offline host leaving, and learning that end on return |
-| Space live-presence feature | 5 scenarios passed in the complete context run | Includes leaving, the rejoining offer, an explicit successful rejoin and the refusal after ending |
+| Space live-presence feature | 7 scenarios passed in the focused run | Includes named host and joined-person observations, leaving, the rejoining offer, an explicit successful rejoin and the refusal after ending |
 | Space authorization tests | 12 passed, 0 failed | Host is connected in the positive participant control |
 | Simulated Postgres contracts | 47 passed, 0 failed | Includes overlapping transactions and callback queries |
 | Quint framework tests | 74 passed, 0 failed | Includes counterexamples after equivalent compiler sharing |
 | All registered formal models | 44 passed | Chess 12; friends and spaces 5; framework contexts 21; billing, profile and runtime 6. Original bounds and deadlines retained |
 | Sync storage and continuity contracts | 24 package tests passed, including 11 replacement checks | Breaking incremental updates rejected two cases; duplicating the initial connection rejected five; duplicate note rows rejected both lost-save cases; four checked-write controls detected draft leakage, missing completion, unrolled server writes and an early refusal verdict |
-| Strict specification gate | Passed: 1,722 scenarios, 44 models, 2,233 definitions | Only the automated subset of the audit standard |
+| Strict specification gate | Passed: 1,724 scenarios, 44 models, 2,234 definitions | Only the automated subset of the audit standard |
 | Focused local launch gate of 99c463cca and its ending-offer bindings | 20 tasks passed; 2 cached | Source snapshot included the bindings committed as fea97a51b; two-check ceiling retained; proof task 230 seconds against 420 seconds |
 | Focused local gate of f5ffff795 | 18 tasks passed; 72 other plan tasks already cached | Source snapshot before the link-model draft; product proof 204 seconds against 420 seconds; includes sync storage contracts, four note spec parts and four note models |
 | Affected chess models after the room lifecycle fix | 501 passed, 0 failed | Multiplayer, multiplayer spaces and three Custom Game models; 40 files; predates the new lobby-card observer |
@@ -41,12 +41,44 @@ not another product definition. No manual testing supplies evidence.
 | Visual run of c9190a19d with pending bindings | Cancelled: no verdict | Its 211 misses exposed a scratch-run cache handoff error. The passed groups were in the shared repository cache; the handoff had looked in the worktree cache. The corrected handoff uses the repository resolver and all four completed summaries; partial cancelled-run artifacts supply no passing evidence |
 | Visual run of cb57fd0d9 | Cancelled: no verdict | Other composition reports were reused; chess reports had different current task hashes. The run stopped to generate those leaves in bounded groups. Cancelled-run artifacts supply no passing evidence |
 | Full release verification of d8e6f3a5a | Not executed | [Actions run](https://github.com/crvouga/gamezilla/actions/runs/37903939539): Actions budget prevented jobs from starting |
+| Visual source parts of 37f7ca33f | 190 passed; 2,266 checks, no failures or skips | Report completions and JUnit records: product 65, billing 88, chess 1,503, friends/spaces 418, profile 130, runtime 62. Refreshed chess groups took 265.0, 238.6, 398.4 and 414.5 seconds; original budgets retained. Later naming and profile-subscription changes require fresh evidence |
+| Touched-package tasks of 37f7ca33f | 61 passed across 34 packages | Every declared type-check and test task appears in a successful run summary. All 34 packages declare type checks; 27 declare separate tests. Seven rely on harness coverage and do not declare a test script, so the literal every-package-test attestation remains unchecked |
+| PR Check of 37f7ca33f | Not executed | [Actions run](https://github.com/crvouga/gamezilla/actions/runs/37954014738): every job had zero steps; its failure annotation states that the Actions budget prevented starting |
+| Visual-quality and product gate of 37f7ca33f | Failed: original 600-second deadline | Preparation was still running after 444 seconds; 27,143 inputs had been written, but no manifest or visual verdict existed. Individually completed model and renderer logs do not make the failed run a passing gate |
+| Reusable stylesheet analysis of 8df24f5c5 | Product unit suite, type check and lint passed | 175 tests, 1,004 assertions, 24 files; the literal frame preserves its original fingerprint |
+| Visual-quality and product gate of 8df24f5c5 | Failed: original 600-second deadline | Preparation completed with 2,091 reports, 545,469 references and 42,018 unique inputs. Scoring was still running after 151 seconds when the enclosing run timed out. No full visual verdict or successful run summary was produced; partial artifacts were not published as passing evidence |
+| Link-joined host-name regression | Literal example failed before the product fix and passed afterward; 16 naming scenarios passed | The relevant-background rewrite initially exposed four failing outcomes: clear name, moderate space name, change host username and moderate host username. The guest rendered “Space” because the host's profile was absent locally. The existing profile subscription now keeps it synchronized; the complete 418-check context passed |
+| Link-joined presence-name regression | Literal example and the host's named-presence Then failed before the fix; 23 focused checks and the complete 420-check context passed afterward | The host counted two people, but the joined person's row had no name. Connected people now keep their profiles synchronized. Eight friends-harness tests, 15 client tests, 12 spaces-harness tests, four affected type checks and lint passed |
+| Local full check of ee238af5d with the host-profile fix | Failed: original 600-second deadline | Four model tasks were still active; three had spent over nine minutes in the run. The documented default allows only one solver. No complete run summary was produced, so partial cached artifacts were not published as passing evidence |
+| Local full check of c01abc3c8 with the named-presence fix, four solver slots | Failed: native EMQX startup | 410 tasks succeeded before the broker contract failed; 170.4 seconds total. The installation's physical path on OWC Express 1M2 was split by EMQX's launcher, which rejected Express as an Erlang environment argument. Original proof bounds and deadlines were retained |
+| Native broker path regression | Two literal runtime tests and 19 live pubsub contracts passed | A release under the literal OWC Express 1M2 path is staged without whitespace, retains relative links, and disposes only its temporary runtime. Existing broker data and logs remain at the source. The unchanged real-broker contracts, including the offline session buffer, passed in 8.02 seconds; type check and lint passed. A fresh complete check remains required |
+| Local full check of 0cdf542d1 with the broker fix | Failed: original 600-second deadline | The 1,093-task plan included all full-check leaves; 760 were misses. The chess proof task, product contract task and two billing parts were still running at the deadline. No complete run summary or passing full verdict was produced; partial artifacts were not published as passing evidence |
+| Relevant offline-departure setup of 2c198c153 | Five focused scenarios, strict specifications and ownership passed | The outsider's refusal no longer depends on Bob's account or participation. Every action and outcome remains; the complete 420-check context passed with 148 assertions across 84 files in 393.08 seconds |
+| Fast local PR gate of 2c198c153 with the pending audit | Passed: 844 tasks, 312 cached | The PR scope alone; 272.0 seconds total, including 264.179 seconds of Turbo execution. Original deadlines and budgets retained; this is local evidence and does not make the remote CI attestation true |
+| Declared touched-package tasks in that PR summary | 63 passed across 35 packages | All 35 type checks and 28 declared tests have successful task records. Seven touched packages have no separate test script; the literal every-package-test attestation remains unchecked |
+| Hosting-limit description of 57bbe7e81 | Five focused scenarios, strict specifications and the complete 420-check context passed | Only the duplicated description was removed. Both Rule headings, every limit and all five actions and outcomes are unchanged; the complete context had 148 assertions across 84 files in 390.40 seconds |
+| Complete profile-subscription regression of 39ee511d7 | Literal 201-profile example failed before the fix; all four profile-client tests, type check and lint passed afterward | Requests previously discarded every identifier after the first 200. Batches now cover every requested profile within the unchanged query bound; generated inputs and subscription disposal are checked. The complete affected context passed 420 tests with 148 assertions across 84 files in 433.81 seconds |
+| Fast local PR gate including 39ee511d7 | Passed: 844 tasks, 489 cached | Snapshot of 57bbe7e81 with the pending profile fix and audit; profile sources were then committed as 39ee511d7. The PR scope alone; 253.6 seconds total, including 245.183 seconds of Turbo execution. Original deadlines and budgets retained; remote CI and full verification remain required |
+| Declared touched-package tasks after the batching fix | 67 passed across 37 packages | All 37 type checks and 30 declared tests have successful records in the fresh PR summary: 29 executed and 38 cache hits. The same seven packages have no separate test script; the literal every-package-test attestation remains unchecked |
 
 Equivalent proof compilation preserves model guarantees, search bounds,
 concurrency ceilings and deadlines. Serialized execution measured 435 seconds
 and failed its budget; the supported two-check configuration measured 218
 seconds and passed. Full release verification remains outstanding. Later changes require current
 evidence; earlier runs cannot attest a later artifact.
+
+The on-demand visual gate is outside the required full verification, as
+documented in [`README.md`](../../../README.md#correctness-machinery).
+Its partial scoring produced 601 below-threshold results among 2,863 completed
+image results. These are experimental model preferences, not 601 confirmed
+product defects or a complete visual verdict; the detector's measured limits
+are in [`EVALUATION.md`](../../../pkgs/ui-quality-check-server/EVALUATION.md).
+
+The complete local product scenarios above use the in-process host. The
+[`harness host contract`](../../../libs/harness/README.md#hosts) states that
+real and stack browser modes have no partition capability. These local
+results do not supply an offline browser-matrix or live-production verdict;
+those obligations remain unproven. No browser was driven by hand.
 
 ## Confirmed coverage: space hosting
 
@@ -61,7 +93,7 @@ review.
 | command | returnToSpace | return to a space | space-lifecycle.feature:13,20 | covered |
 | command | join | join | space-friend-join.feature:17; space-guest-link-join.feature:13 | covered |
 | command | stepOut | step out | space-lifecycle.feature:26 | covered |
-| command | leave | leave | space-live-presence.feature:25; space-host-leaves.feature:15 | covered |
+| command | leave | leave | space-live-presence.feature:28; space-host-leaves.feature:15 | covered |
 | command | viewPresence | presence | space-presence-navigation.feature:11,17,23 | covered |
 | command | stopViewingPresence | presence | space-presence-navigation.feature:32,39,47,55 | covered |
 | command | endSpace | end a space | space-end.feature:12; space-needs-connection.feature:102 | covered |
@@ -74,38 +106,42 @@ review.
 | invariant | invGuestsFollowHost | drop out | space-host-leaves.feature:51 | covered |
 | event | SpaceOpened | open space | space-needs-connection.feature:14,15 | covered |
 | event | PersonJoined | join | space-guest-link-join.feature:13 | covered |
-| event | PersonLeft | leave | space-live-presence.feature:26 | covered |
+| event | PersonLeft | leave | space-live-presence.feature:37 | covered |
 | event | SpaceEnded | end a space | space-host-leaves.feature:15 | covered |
 | transition | Lobby → InSpace, creation | create a space | space-needs-connection.feature:24 | covered |
 | transition | Lobby → InSpace, return | return to a space | space-lifecycle.feature:9 | covered |
 | transition | Lobby → InSpace, join | join | space-friend-join.feature:15 | covered |
 | transition | InSpace → ViewingPresence | presence | space-presence-navigation.feature:9 | covered |
 | transition | ViewingPresence → InSpace | presence | space-presence-navigation.feature:29,36; host and joined person | covered |
+| transition | InSpace → Lobby | step out | space-lifecycle.feature:23,43 | covered: host and joined person |
 | transition | DroppedOut → Lobby | step out | space-lifecycle.feature:55,62; host offline or joined person offline | covered: both new examples pass |
 | transition | Closing presence while host offline → DroppedOut | presence | space-presence-navigation.feature:43 | covered: new example passes |
-| transition | InSpace → Left | leave | space-live-presence.feature:23 | covered |
-| transition | Left → InSpace | join | space-live-presence.feature:31; original hosting trace 61 and its pinned prefix pass | covered |
+| transition | InSpace → Left | leave | space-live-presence.feature:34 | covered |
+| transition | Left → InSpace | join | space-live-presence.feature:42; original hosting trace 61 and its pinned prefix pass | covered |
 | transition | InSpace → Ended, host leaves | leave | space-host-leaves.feature:13,32 | covered |
 | transition | InSpace → Ended, host ends | end a space | space-end.feature:9 | covered |
-| transition | Left → Ended | end a space | space-live-presence.feature:38 | covered |
+| transition | Left → Ended | end a space | space-live-presence.feature:49 | covered |
 | transition | ViewingPresence → Ended | end a space | space-presence-navigation.feature:62 | covered |
 | transition | Ended → Lobby | go back to the lobby | space-presence-navigation.feature:72 | covered |
 | transition | Left → Lobby | go back to the lobby | space-presence-navigation.feature:78 | covered |
 | illegal | joining while the host is offline | join | space-guest-link-join.feature:17 | covered |
 | illegal | joining without one's own connection | join | space-needs-connection.feature:61,69 | covered |
 | illegal | joining an ended space | join | space-friend-join.feature:28; space-links.feature:9 | covered |
-| illegal | Leaving again after Left | leave | space-live-presence.feature:28 | covered |
+| illegal | Leaving again after Left | leave | space-live-presence.feature:39 | covered |
 | illegal | Leaving after Ended | leave | space-host-leaves.feature:17,18,77,78 | covered |
 | illegal | Ending again after Ended | end a space | space-host-leaves.feature:72 | covered |
 | policy | AccountDeletionConfirmed → ended host's spaces | account deletion | deleted-account-spaces.feature:8 | covered |
 | policy | AccountDeletionConfirmed → joined person leaves | account deletion | deleted-account-spaces.feature:21 | covered |
-| policy | PaidAccessStarted → hosting limit | Plus member | space-host-limit.feature:34; space-needs-connection.feature:52 | covered |
+| policy | PaidAccessStarted → hosting limit | Plus member | space-host-limit.feature:33; space-needs-connection.feature:52 | covered |
 | world | loseConnection | connection | space-host-leaves.feature:52; space-disconnect-reconnect.feature:14 | covered |
 | world | connectionReturns | connection | space-host-leaves.feature:20,41,60 | covered |
-| policy | PaidAccessEnded → hosting limit with one existing space | paid access | space-host-limit.feature:24 | covered |
+| policy | PaidAccessEnded → hosting limit with one existing space | paid access | space-host-limit.feature:23 | covered |
 | policy | PaidAccessEnded with several existing spaces | paid access | Product decision about existing spaces is pending | MISSING |
+| policy | SignedIn → host can create and find their space | sign in | space-create.feature:10,12; signed-in fact and visible lobby outcome | covered |
+| policy | SignedOut → hosting and participation | sign out | The identity relationship is declared in specs/README.md:1120; no Spaces reaction or borrowed sign-out term is evidenced | MISSING |
+| policy | BecameFriends → friend can find the host's space | friend | space-friend-join.feature:7,12; settled friendship fact and visible lobby outcome | covered |
 | policy | FriendshipEnded → unjoined person's lobby | friend | space-friend-join.feature:20; former participant has left and is no longer a friend | covered |
-| consistency | Creating another space with paid access | hosting limit | space-host-limit.feature:42; createSpace guard space-hosting.qnt:133 | MISSING: model does not distinguish paid access |
+| consistency | Creating another space with paid access | hosting limit | space-host-limit.feature:41; createSpace guard space-hosting.qnt:133 | MISSING: model does not distinguish paid access |
 | consistency | Opening a space link | space link | space-links.qnt:49; space-links.feature:9,14,28,46 | covered by link aggregate |
 
 ## Confirmed coverage: space names
@@ -116,25 +152,25 @@ coverage and the complete feature-language review remain separate checks.
 
 | Kind | Model name | Term | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| command | rename | rename a space | space-rename.feature:14,40,46,51 | covered |
-| world | stopAllowing | stop allowing | space-rename.feature:60 | covered |
-| world | startAllowing | start allowing | space-rename.feature:65 | covered |
+| command | rename | rename a space | space-rename.feature:11,43,50,56 | covered |
+| world | stopAllowing | stop allowing | space-rename.feature:64 | covered |
+| world | startAllowing | start allowing | space-rename.feature:71 | covered |
 | world | loseConnection | connection | space-host-leaves.feature:52; offline naming shown in space-needs-connection.feature:85 | covered |
-| world | connectionReturns | connection | space-rename.feature:93 | covered |
-| invariant | invNotAllowedNeverShown | not allowed | space-rename.feature:61,71 | covered |
+| world | connectionReturns | connection | space-rename.feature:102 | covered |
+| invariant | invNotAllowedNeverShown | not allowed | space-rename.feature:65,79 | covered |
 | invariant | invHostSeesGivenName | space name | space-needs-connection.feature:85; space-rename.feature:91 | covered |
-| invariant | invAlwaysRefusedNeverGiven | not allowed | space-rename.feature:38 | covered |
-| invariant | invSavedRenameGivesTypedName | rename a space | space-rename.feature:13,44 | covered |
-| invariant | invConnectedKnowsRules | no longer allowed | space-rename.feature:91 | covered |
+| invariant | invAlwaysRefusedNeverGiven | not allowed | space-rename.feature:44,45 | covered |
+| invariant | invSavedRenameGivesTypedName | rename a space | space-rename.feature:12,51 | covered |
+| invariant | invConnectedKnowsRules | no longer allowed | space-rename.feature:103 | covered |
 | invariant | invStandingRulesKnown | not allowed | space-needs-connection.feature:90 | covered |
-| invariant | invConnectedAgree | space name | space-rename.feature:13,18 | covered |
-| transition | NoRename → NameSaved | rename a space | space-rename.feature:13 | covered |
+| invariant | invConnectedAgree | space name | space-rename.feature:12,19 | covered |
+| transition | NoRename → NameSaved | rename a space | space-rename.feature:12 | covered |
 | transition | NoRename → NameNotAllowed | rename a space | space-needs-connection.feature:90 | covered |
-| transition | NameSaved → NameSaved | rename a space | space-rename.feature:27 | covered |
-| transition | NameSaved → NameNotAllowed | rename a space | space-rename.feature:38 | covered |
-| transition | NameNotAllowed → NameSaved | rename a space | space-rename.feature:44 | covered |
-| transition | NameNotAllowed → NameNotAllowed | rename a space | space-rename.feature:49 | covered |
-| policy | UsernameChanged → space named after host | rename themselves | space-rename.feature:99 | covered |
+| transition | NameSaved → NameSaved | rename a space | space-rename.feature:31 | covered |
+| transition | NameSaved → NameNotAllowed | rename a space | space-rename.feature:44,45 | covered |
+| transition | NameNotAllowed → NameSaved | rename a space | space-rename.feature:51 | covered |
+| transition | NameNotAllowed → NameNotAllowed | rename a space | space-rename.feature:57 | covered |
+| policy | UsernameChanged → space named after host | rename themselves | space-rename.feature:114 | covered |
 
 ## Confirmed coverage: space recovery
 
@@ -144,30 +180,30 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
 
 | Kind | Model name | Term | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| command | leave | leave | space-live-presence.feature:23; space-leave-without-host.feature:23,27 | covered |
+| command | leave | leave | space-live-presence.feature:34; space-leave-without-host.feature:27,35 | covered |
 | command | endSpace | end a space | space-needs-connection.feature:99 | covered |
 | command | leaveHost | leave | space-host-leaves.feature:13,32 | covered |
 | world | loseConnection | connection | space-host-leaves.feature:51; space-disconnect-reconnect.feature:13 | covered |
 | world | connectionReturns | connection | space-host-leaves.feature:38,58,65 | covered |
 | invariant | invEndedHasNobodyInside | end a space | space-host-leaves.feature:65; space-disconnect-reconnect.feature:40 | covered |
-| invariant | invOpenHasItsHost | host | space-leave-without-host.feature:33 | covered |
+| invariant | invOpenHasItsHost | host | space-leave-without-host.feature:46 | covered |
 | invariant | invConnectedPeopleKnow | whereabouts | space-host-leaves.feature:58 | covered |
 | invariant | invOfflineHostKeepsTheirSpace | space | space-host-leaves.feature:51 | covered |
 | invariant | invGuestsFollowHost | drop out | space-host-leaves.feature:51 | covered |
-| invariant | invPresenceIsCurrent | presence | space-disconnect-reconnect.feature:25; space-leave-without-host.feature:33 | covered |
-| transition | InSpace → Left | leave | space-live-presence.feature:23 | covered |
-| transition | DroppedOut → Left | leave | space-leave-without-host.feature:23,27; space-guest-leave.feature:18,23 | covered |
-| transition | Left → Left, reconnecting | connection | space-leave-without-host.feature:33; space-guest-leave.feature:30 | covered |
+| invariant | invPresenceIsCurrent | presence | space-disconnect-reconnect.feature:25; space-leave-without-host.feature:46 | covered |
+| transition | InSpace → Left | leave | space-live-presence.feature:34 | covered |
+| transition | DroppedOut → Left | leave | space-leave-without-host.feature:27,35; space-guest-leave.feature:18,23 | covered |
+| transition | Left → Left, reconnecting | connection | space-leave-without-host.feature:45; space-guest-leave.feature:30 | covered |
 | transition | Host InSpace → Ended, ending offline | end a space | space-needs-connection.feature:99 | covered |
 | transition | Host InSpace → Ended, leaving offline | leave | space-host-leaves.feature:32 | covered |
 | transition | DroppedOut → Ended, offline host ended | connection | space-host-leaves.feature:65 | covered |
 | transition | DroppedOut → Ended, offline host left | connection | space-host-leaves.feature:38 | covered |
-| transition | Left → Ended | end a space | space-live-presence.feature:38 | covered |
+| transition | Left → Ended | end a space | space-live-presence.feature:49 | covered |
 | illegal | Ended → leave or end again | leave; end a space | space-host-leaves.feature:72 | covered |
 
 ## Blocking findings and triage
 
-- C5 block space-host-limit.feature:24 — “paid access has ended” — the
+- C5 block space-host-limit.feature:23 — “paid access has ended” — the
   one-space boundary is covered; what happens to several existing spaces is
   undefined. Owner: product decision, then spec-upsert and spec-implement.
 - C6 block specs/README.md:45 — “adding and removing people” — the offered
@@ -180,6 +216,22 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
   paid-access-ending decision instead of inventing it.
 - C4: the complete hosting exclusion matrix remains under review. The
   explicit Left and Ended refusals below close those rows only.
+- B2 closed by 57bbe7e81: the hosting-limit description is one job story;
+  the free and paid boundaries remain in its two Rule headings and all five
+  examples. No vocabulary, limit or expected outcome changed. The five
+  scenarios and strict specifications pass through existing bindings.
+- B11 closed by 2c198c153: the outsider example at
+  space-leave-without-host.feature:17 needs only Alice's space and her offline
+  connection. Bob's account and participation now appear only in the four
+  examples that use them. Every original action and visible outcome remains;
+  all five scenarios pass through existing bindings. Repeated opening setup
+  is retained as a warning because the outsider does not share it.
+- B11 closed by ee238af5d: friendship is confined to the lobby-name example
+  at space-rename.feature:15. Alice-only refusals at lines 53 and 74 no longer
+  arrange Bob's participation. The offline and host-identity rule backgrounds
+  at lines 83 and 108 contain only facts every example in their rule needs.
+  All 16 naming examples pass after correcting the missing host-profile
+  subscription exposed by the link-joined setup.
 
 ## Confirmed coverage: space links
 
@@ -329,6 +381,37 @@ decision; no target has been invented. Nothing here attests launch readiness.
 The offline behavior of username changes and cached-profile friend requests
 is also awaiting clarification; their current specs require a connection.
 
+## Current Spaces shape checks
+
+A fresh scan of all 19 Spaces features found 114 scenarios. B3 (every scenario
+under a Rule) and B5 (one When in each non-synthetic scenario) pass. B16
+has 25 warnings and no scenario over the eight-step blocking boundary.
+The five synthetic probes have no When, as permitted by the standard.
+This scan does not replace the outstanding language, background-relevance,
+binding or aggregate reviews.
+
+| Feature | Scenarios | B16 warnings: scenario line (steps including Background) |
+| --- | --- | --- |
+| deleted-account-spaces.feature | 4 | none |
+| live-updates.feature | 4 | none |
+| space-create.feature | 1 | none |
+| space-disconnect-reconnect.feature | 6 | 40 (6) |
+| space-end.feature | 2 | 16 (7) |
+| space-friend-join.feature | 4 | 20 (6) |
+| space-guest-host.feature | 2 | none |
+| space-guest-leave.feature | 4 | 22 (6), 27 (8) |
+| space-guest-link-join.feature | 4 | 9 (6) |
+| space-host-leaves.feature | 9 | 13 (6), 38 (6), 51 (6), 58 (6), 65 (6), 72 (7) |
+| space-host-limit.feature | 5 | 23 (6) |
+| space-leave-without-host.feature | 5 | 9 (6), 30 (6), 38 (8) |
+| space-lifecycle.feature | 8 | none |
+| space-links.feature | 9 | 34 (6), 65 (6) |
+| space-live-presence.feature | 7 | 34 (6) |
+| space-needs-connection.feature | 13 | 69 (6), 99 (6) |
+| space-presence-navigation.feature | 10 | 43 (6), 51 (6) |
+| space-rename.feature | 16 | 93 (6), 99 (6) |
+| spaces.feature | 1 | none |
+
 ## Recent per-feature review
 
 These entries record the language, one-action structure, visible outcomes and
@@ -341,17 +424,19 @@ copy (B9). Each current example has one When action (B5).
 | --- | --- | --- |
 | space-guest-leave.feature | A0/B17: Left and presence are visible; B4: leaving needs no other person's agreement; B5: one action; B11: three background facts | B16 warnings: lines 22 and 27 have six and eight steps. C6 link opening is covered by space-links.qnt |
 | space-friend-join.feature | A4/C5: published friend and the settled end; B6: no-longer-friends is a fact; B5: going from Left to lobby is one action | B16 warning: line 20 has six steps |
-| space-rename.feature | A4/C5: published rename-themselves term; B9: names supplied by Alice; C4: all six rename-result transitions are illustrated | B16 warnings: lines 38, 63, 68, 79, 84 and 90 have six or seven steps |
+| space-rename.feature | A4/C5: published rename-themselves term; B9: names supplied by Alice; C4: all six rename-result transitions are illustrated; B11: each rule background is relevant to every example using it, and host-only refusals arrange only Alice | B16 warnings: lines 93 and 99 each have six steps; offline naming needs both the prior allowed name and the person's connection history |
 | space-host-leaves.feature | A0/B17: host retains space, other person drops out, ending is visible; C4: ended people are no longer offered leave or end | B16 warnings: lines 13, 38, 51, 58, 65 and 72 have six or seven steps |
-| space-live-presence.feature | B4: line 23 allows leaving and rejoining; line 38 removes joining after the host ends the space; line 31 proves an explicit rejoin; C4: Left no longer offers leave | B16 warning: line 23 has six steps |
+| space-live-presence.feature | A0/A1: presence names who is there, not just how many; B5/B8: the two named-presence examples at lines 16 and 21 each have one view-presence action and a visible name; B4: line 34 allows leaving and rejoining, line 49 removes joining after ending, and line 42 proves explicit rejoining; C4: Left no longer offers leave; D2: named outcomes read the displayed name through the harness | B16 warning: line 34 has six steps; the named examples each have three |
+| space-host-limit.feature | B2: the description states the motivation; limits remain under Rules; B4: the free boundary has accepted and refused cases, and the unlimited paid rule explains its absent counter-example; all five scenarios pass | B16 warning: line 23 has six steps; C5/C6: several previously hosted spaces after paid access ends and the paid creation guard remain unresolved |
+| space-leave-without-host.feature | A0/B17: departure and the Leave offer are visible; B4: the joined person can leave and the outsider is refused; B5: one action; B11: account and participation facts appear only where needed; all five examples pass | B16 warnings: lines 9 and 30 have six steps, line 38 has eight; the four joined-person examples repeat setup explicitly because the outsider does not need it |
 | space-lifecycle.feature | C4: joined people can step out while the host or their own device is offline; both remain able to find the retained space in the lobby | The complete hosting exclusion matrix remains open |
 | space-presence-navigation.feature | C4: joined people return from presence; closing presence while the host is offline keeps them disconnected | B16 warning: the offline closing example at line 43 has six steps |
 | space-guest-host.feature | C2: the guest host sees the ending offer; positive control for the ended-space denial observer | No new language, shape or length finding recorded in this review |
 | checked-notes.feature | A0/A1/A4: supplied note names and writing, saving and refusal resolve in sync-engine and kernel language; A2/A3/A5/A6: no new terms or avoided words, named people act; B1–B3: capability title, job story and every scenario under a rule; B4: each unconditional rule explains its absent counter-example; B5–B13/B15/B17: one action, factual setup, visible outcomes and refusal reason, supplied literals, valid cast/tag, one background fact and no outlines; B14: strict gate has no duplicate warning; D1: no implementation names | B16 warning: scenario at line 27 has seven steps including the background. D2: the current harness reads note rows, not a rendered example app; the feature wording and passing API checks do not close that observation gap |
 
-The scratch scan's B4 candidate at space-live-presence.feature:20 is not a
-refused departure: line 26 says the person left and line 27 offers joining.
-The additional refusal at line 28 concerns leaving again after that accepted
+The earlier scratch scan's B4 candidate is now at space-live-presence.feature:31.
+It is not a refused departure: line 37 says the person left and line 38 offers
+joining. The additional refusal at line 39 concerns leaving again after that accepted
 departure. The command-under-test distinction is the standard's definition of
 refusal; it preserves the rule's positive and negative examples.
 
