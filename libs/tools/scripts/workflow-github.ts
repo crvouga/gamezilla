@@ -19,35 +19,9 @@ export type GitHubTarget = {
   readonly workflow: string;
   readonly branch: string;
   readonly sha: string;
-  readonly automatic: boolean;
   /** `workflow_dispatch` inputs, passed as `-f name=value`. */
   readonly inputs: Readonly<Record<string, string>>;
 };
-
-/** Fork checkouts must discover PRs on the configured repository, not its upstream. */
-export function hasAutomaticCheck(
-  target: Pick<GitHubTarget, 'repository' | 'branch' | 'sha'>,
-  ports: Pick<GitHubPorts, 'run'>
-): boolean {
-  const prs = JSON.parse(
-    ports.run([
-      'gh',
-      'pr',
-      'list',
-      '--repo',
-      target.repository,
-      '--head',
-      target.branch,
-      '--base',
-      'main',
-      '--state',
-      'open',
-      '--json',
-      'headRefOid',
-    ])
-  ) as readonly { headRefOid: string }[];
-  return prs.some((pr) => pr.headRefOid === target.sha);
-}
 
 export function selectWorkflow(
   workflows: readonly GitHubWorkflow[],
@@ -85,38 +59,7 @@ export async function startWorkflow(
   target: GitHubTarget,
   ports: GitHubPorts
 ): Promise<GitHubWorkflow> {
-  let existing = selectWorkflow(listWorkflows(target, ports), target.sha);
-  if (target.workflow === 'check.yml' && target.automatic) {
-    for (let attempt = 0; existing === undefined && attempt < 30; attempt++) {
-      await ports.sleep(2000);
-      existing = selectWorkflow(listWorkflows(target, ports), target.sha);
-    }
-    if (existing === undefined)
-      throw new Error(
-        `No PR Check run appeared for ${target.sha.slice(0, 9)}.`
-      );
-  }
-  // A full verification is always a fresh dispatch: a PR's run on the same
-  // commit is the fast gate, not the release verdict.
-  if (
-    target.workflow === 'check.yml' &&
-    existing !== undefined &&
-    target.inputs['scope'] !== 'full'
-  ) {
-    ports.onWorkflow(existing);
-    if (existing.conclusion === 'cancelled') {
-      ports.run([
-        'gh',
-        'run',
-        'rerun',
-        String(existing.databaseId),
-        '--repo',
-        target.repository,
-      ]);
-      await ports.sleep(2000);
-    }
-    return existing;
-  }
+  const existing = selectWorkflow(listWorkflows(target, ports), target.sha);
   ports.run([
     'gh',
     'workflow',
@@ -176,12 +119,6 @@ export async function watchWorkflow(
     const summary = `${status.status}: ${status.jobs.map((job) => `${job.name}=${job.conclusion || job.status}`).join(', ')}`;
     if (summary !== previous) ports.log(summary);
     previous = summary;
-    const gate =
-      target.workflow === 'check.yml'
-        ? status.jobs.find((job) => job.name === 'check')
-        : undefined;
-    if (gate?.status === 'completed')
-      return gate.conclusion === 'success' ? 0 : 1;
     if (status.conclusion === 'cancelled') {
       const next = selectWorkflow(
         listWorkflows(target, ports).filter(

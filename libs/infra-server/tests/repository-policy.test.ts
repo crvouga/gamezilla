@@ -14,23 +14,21 @@ const actions = readFileSync(
 );
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
-test('main policy requires verified current-main CI with no bypass or approval ceremony', () => {
-  // GitHub Actions owns the check status.
-  expect(GLOBAL.github.check_integration_id).toBe(15368);
+test('main policy requires a PR with no status checks, bypass, or approval ceremony', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of [
     'deletion',
     'non_fast_forward',
     'required_linear_history',
     'required_review_thread_resolution',
-    'strict_required_status_checks_policy',
   ]) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
   }
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
   expect(repository).toMatch(/enforcement\s*=\s*"active"/);
   expect(repository).toMatch(/required_approving_review_count\s*=\s*0/);
-  expect(repository).toMatch(/integration_id\s*=\s*var.check_integration_id/);
+  expect(repository).not.toMatch(/required_status_checks/);
+  expect(repository).not.toMatch(/required_check/);
   expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
