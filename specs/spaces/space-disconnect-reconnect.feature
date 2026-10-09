@@ -44,7 +44,7 @@ Feature: Losing the connection in a space
       Then Bob sees the space has ended within 20 seconds
       And Bob is not offered to join
 
-  Rule: Presence is unavailable to someone without a connection
+  Rule: Presence in someone else's space is unavailable without a connection
     No counter-example: someone in another person's space never sees old presence described as current.
 
     @regression:space-offline-presence-stale
