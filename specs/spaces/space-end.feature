@@ -5,6 +5,7 @@ Feature: End a space
 
   Rule: Ending a space removes it from the lobby of everyone who could find it
 
+    @regression:space-ended-friend-lobby-stale
     Scenario: When the host ends the space, a friend's lobby stops listing it
       Given Alice and Bob are friends
       And Alice is hosting a space that Bob joined from the lobby
