@@ -4,6 +4,7 @@ Feature: Notes survive a crash
   reopens, so their writing survives even before anyone else has seen it.
 
   Rule: A note already shown on a device survives the app closing unexpectedly
+    No counter-example: closing the app never removes writing already shown.
 
     Background:
       Given Alice and Bob are in the shared space "Trip"
@@ -19,7 +20,7 @@ Feature: Notes survive a crash
     Scenario: A note written offline before a crash still reaches others
       Given Alice's app is offline
       And Alice has written the note "Groceries" saying "milk"
-      When Alice's app crashes and reopens
-      And Alice's app comes back online
+      And Alice's app has crashed and reopened
+      When Alice's app comes back online
       Then Alice sees the note "Groceries" saying "milk"
       And Bob sees the note "Groceries" saying "milk"

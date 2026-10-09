@@ -23,6 +23,6 @@ Feature: Online-only actions
 
     Scenario: An announcement can be written once the connection is back
       Given Alice has tried to write the announcement "Fire drill" saying "at noon"
-      When Alice's app comes back online
-      And Alice writes the announcement "Fire drill" saying "at noon"
+      And Alice's app has come back online
+      When Alice writes the announcement "Fire drill" saying "at noon"
       Then Bob sees the note "Fire drill" saying "at noon"
