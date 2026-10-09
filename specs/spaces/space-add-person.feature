@@ -22,6 +22,13 @@ Feature: Add a person to a space
 
   Rule: An added person explicitly chooses Join
 
+    Scenario: Adding a removed person again never restores their old participation
+      Given Bob has joined the space from the link
+      And Alice has removed Bob from the space
+      When Alice adds Bob to the space
+      Then Bob is not in a space
+      And Bob is offered to join
+
     Scenario: An added person joins from their lobby
       Given Alice has added Bob to the space
       When Bob joins Alice's space from the lobby
@@ -36,6 +43,11 @@ Feature: Add a person to a space
 
   Rule: A host can add a known person with or without a connection
     No counter-example: the host's choice is kept locally; lobby access reaches the other person when both connections are available.
+
+    Scenario: An offline host is offered to add a known person
+      Given Alice is offline
+      When Alice views the space's presence
+      Then Alice can add Bob to the space without a connection
 
     Scenario: An offline host sees their addition accepted
       Given Alice is offline
