@@ -60,6 +60,9 @@ not another product definition. No manual testing supplies evidence.
 | Complete profile-subscription regression of 39ee511d7 | Literal 201-profile example failed before the fix; all four profile-client tests, type check and lint passed afterward | Requests previously discarded every identifier after the first 200. Batches now cover every requested profile within the unchanged query bound; generated inputs and subscription disposal are checked. The complete affected context passed 420 tests with 148 assertions across 84 files in 433.81 seconds |
 | Fast local PR gate including 39ee511d7 | Passed: 844 tasks, 489 cached | Snapshot of 57bbe7e81 with the pending profile fix and audit; profile sources were then committed as 39ee511d7. The PR scope alone; 253.6 seconds total, including 245.183 seconds of Turbo execution. Original deadlines and budgets retained; remote CI and full verification remain required |
 | Declared touched-package tasks after the batching fix | 67 passed across 37 packages | All 37 type checks and 30 declared tests have successful records in the fresh PR summary: 29 executed and 38 cache hits. The same seven packages have no separate test script; the literal every-package-test attestation remains unchecked |
+| PR Check of 3e47f6065 | Not executed | [Actions run](https://github.com/crvouga/gamezilla/actions/runs/37975904169): all six jobs ran zero steps; the failure annotation says an Actions budget prevented starting |
+| Full local check of 3e47f6065 | Failed: original 600-second deadline | The 1,093-task plan had 862 cache hits and 231 tasks to execute. The chess proof task and three friend-specification parts were still running at the deadline; no complete summary or passing aggregate verdict was produced |
+| Isolated chess proof task of 3e47f6065, two model workers | All 12 proofs passed; task gate failed its unchanged budget | The task took 451 seconds against 300 seconds. This confirms the outstanding verification-time limit; successful safety proofs do not turn a failed task gate into a pass |
 
 Equivalent proof compilation preserves model guarantees, search bounds,
 concurrency ceilings and deadlines. Serialized execution measured 435 seconds
@@ -114,7 +117,7 @@ review.
 | transition | InSpace → ViewingPresence | presence | space-presence-navigation.feature:9 | covered |
 | transition | ViewingPresence → InSpace | presence | space-presence-navigation.feature:29,36; host and joined person | covered |
 | transition | InSpace → Lobby | step out | space-lifecycle.feature:23,43 | covered: host and joined person |
-| transition | DroppedOut → Lobby | step out | space-lifecycle.feature:55,62; host offline or joined person offline | covered: both new examples pass |
+| transition | DroppedOut → Lobby | step out | space-lifecycle.feature:56,63; host offline or joined person offline | covered: both new examples pass |
 | transition | Closing presence while host offline → DroppedOut | presence | space-presence-navigation.feature:43 | covered: new example passes |
 | transition | InSpace → Left | leave | space-live-presence.feature:34 | covered |
 | transition | Left → InSpace | join | space-live-presence.feature:42; original hosting trace 61 and its pinned prefix pass | covered |
@@ -142,7 +145,7 @@ review.
 | policy | BecameFriends → friend can find the host's space | friend | space-friend-join.feature:7,12; settled friendship fact and visible lobby outcome | covered |
 | policy | FriendshipEnded → unjoined person's lobby | friend | space-friend-join.feature:20; former participant has left and is no longer a friend | covered |
 | consistency | Creating another space with paid access | hosting limit | space-host-limit.feature:41; createSpace guard space-hosting.qnt:133 | MISSING: model does not distinguish paid access |
-| consistency | Opening a space link | space link | space-links.qnt:49; space-links.feature:9,14,28,46 | covered by link aggregate |
+| consistency | Opening a space link | space link | space-links.qnt:49; space-links.feature:9,14,28,38 | covered by link aggregate |
 
 ## Confirmed coverage: space names
 
@@ -260,10 +263,10 @@ with 142 assertions before the rejoining contract. The later complete run passed
 | transition | none → ended | space-links.feature:14 | covered |
 | transition | none → not found | space-links.feature:28 | covered |
 | transition | none → host offline | space-guest-link-join.feature:17 | covered |
-| transition | open → open | space-links.feature:46 | covered |
-| transition | ended → ended | space-links.feature:52 | covered |
-| transition | not found → not found | space-links.feature:59 | covered |
-| transition | host offline → host offline | space-links.feature:65 | covered |
+| transition | open → open | space-links.feature:38 | covered |
+| transition | ended → ended | space-links.feature:44 | covered |
+| transition | not found → not found | space-links.feature:51 | covered |
+| transition | host offline → host offline | space-links.feature:57 | covered |
 | transition | open → host offline | space-guest-link-join.feature:24 | covered |
 | transition | host offline → open | space-guest-link-join.feature:31 | covered |
 | transition | joining offered false → true / true → false | space-links.feature:9; space-guest-link-join.feature:24,31 | covered |
@@ -277,7 +280,7 @@ every example is under a Rule with both outcomes or its stated reason for no
 counter-example; setup is factual; each When is one command or event; all
 Thens read visible outcomes with refusal reasons; tags and actors remain
 valid; there are no outlines or quoted app copy. Catalog phrases are reused
-except the missing-link setup fact. B16 warnings remain at space-links.feature:34,65
+except the missing-link setup fact. B16 warnings remain at space-links.feature:57
 and space-guest-link-join.feature:9: six steps preserve both people or the
 previous opening and its visible consequences. D2–D6 for the new binding:
 actions and reads use exported harness modules; initial choices select setup
@@ -383,7 +386,7 @@ is also awaiting clarification; their current specs require a connection.
 
 ## Current Spaces shape checks
 
-A fresh scan of all 19 Spaces features found 114 scenarios. B3 (every scenario
+A fresh scan of all 19 Spaces features found 113 scenarios. B3 (every scenario
 under a Rule) and B5 (one When in each non-synthetic scenario) pass. B16
 has 25 warnings and no scenario over the eight-step blocking boundary.
 The five synthetic probes have no When, as permitted by the standard.
@@ -404,8 +407,8 @@ binding or aggregate reviews.
 | space-host-leaves.feature | 9 | 13 (6), 38 (6), 51 (6), 58 (6), 65 (6), 72 (7) |
 | space-host-limit.feature | 5 | 23 (6) |
 | space-leave-without-host.feature | 5 | 9 (6), 30 (6), 38 (8) |
-| space-lifecycle.feature | 8 | none |
-| space-links.feature | 9 | 34 (6), 65 (6) |
+| space-lifecycle.feature | 8 | 48 (6) |
+| space-links.feature | 8 | 57 (6) |
 | space-live-presence.feature | 7 | 34 (6) |
 | space-needs-connection.feature | 13 | 69 (6), 99 (6) |
 | space-presence-navigation.feature | 10 | 43 (6), 51 (6) |
@@ -443,3 +446,50 @@ refusal; it preserves the rule's positive and negative examples.
 The earlier redundant “joining needs a connection” glossary term was removed
 in 88358ff57; the boundary now belongs to the existing join definition. No
 confirmation of a new term is inferred from the offline requirement (A3).
+
+## Rejoining example consolidation
+
+B14 closed: the rejoining examples previously at space-links.feature:34 and
+space-lifecycle.feature:48 used the same three starting facts and the same
+join action. The link example also checked that Bob was in the space. That
+stronger example is retained verbatim at space-lifecycle.feature:48; its
+presence count and Bob's visible whereabouts both remain. The overlapping
+weaker example is removed, with no goal or regression tag involved.
+
+The link aggregate retains its command, all three observable invariants,
+first and repeated opening outcomes, and both host connection transitions
+in the map above. No model, language entry, step or product rule changes.
+A0–A6, B1–B15, B17 and D1 were checked for the two touched features; names,
+actors, factual setup, single actions and visible outcomes use the existing
+Spaces, borrowed friends/profile and kernel language. B16 retains one
+six-step warning in each feature: the lifecycle example needs the prior
+participation and stepping out, and the offline-host link example needs
+the prior opening. This closes the duplicate finding only; other aggregate
+and whole-tree findings remain blocking.
+
+Strict specifications after consolidation pass with 1,723 scenarios, 44
+models and 2,234 definitions; ownership passes. The moved example had
+already passed in the complete 420-check context in its original location.
+A fresh run of both affected features passes: 16 scenarios, 13 assertions
+across four files in 6.44 seconds. The strict and ownership gates also pass.
+
+## Bounded proof performance
+
+The opt-in multiplayer proof groups keep all twelve named invariants and
+the original two-step bound, native encoding and total 480-second model
+deadline. The existing two-phase pool and its lower-concurrency setting
+remain unchanged. Grouping is not enabled for other models.
+
+The literal twelve-target scheduling input failed before grouping and
+passes after it. The complete verifier package passes 87 tests with 185
+assertions, including an actual violating door transition in the later
+group and independently completed safe groups. The binding metadata tests,
+four affected type checks, lint and the known-bug gate pass.
+
+The complete chess model task passes in 278 seconds against the unchanged
+300-second task budget, using the documented four-model configuration. Its
+completed summary records task hash 092a38acbcfd9e3c and exit code zero. Only
+that successful task's artifacts were published into the local check cache.
+This snapshot includes the grouping implementation before commit and
+predates the rejoining example consolidation; the model text is unchanged.
+A fresh full check and remote full verification remain required.
