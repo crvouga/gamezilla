@@ -16,16 +16,22 @@ module space_recovery {
   var whereabouts: Person -> RecoveryWhereabouts
   /// Each person's view of who is present, unavailable while away.
   var presence: Person -> int
+  /// The end has become known to people who reconnect.
+  var _sharedEnded: bool
   var _whereabouts: Person -> RecoveryWhereabouts
   var _online: Person -> bool
 
-  action _update(where: Person -> RecoveryWhereabouts, connected: Person -> bool, open: Set[Person]): bool = all {
+  action _update(where: Person -> RecoveryWhereabouts, connected: Person -> bool, open: Set[Person]): bool = {
+    val sharedEnded = _sharedEnded or (connected.get(HOST) and open == Set())
+    all {
+    _sharedEnded' = sharedEnded,
     _whereabouts' = where,
     _online' = connected,
     _openSpaces' = open,
     whereabouts' = PEOPLE.mapBy(p =>
       if (p == HOST) where.get(p)
       else if (where.get(p) == Left and _whereabouts.get(p) != Left) Left
+      else if (connected.get(p) and sharedEnded) Ended
       else if (not(connected.get(p)) or not(connected.get(HOST))) {
         if (whereabouts.get(p) == InSpace) DroppedOut else whereabouts.get(p)
       } else if (where.get(p) == InSpace and not(connected.get(HOST))) DroppedOut
@@ -35,10 +41,11 @@ module space_recovery {
       else if (connected.get(p) and connected.get(HOST) and where.get(p) == InSpace)
         PEOPLE.filter(q => connected.get(q) and where.get(q) == InSpace).size()
       else 0),
+    }
   }
 
   action init = all {
-    _openSpaces' = Set(HOST),
+    _openSpaces' = Set(HOST), _sharedEnded' = false,
     whereabouts' = PEOPLE.mapBy(_ => InSpace),
     presence' = PEOPLE.mapBy(_ => PEOPLE.size()),
     _whereabouts' = PEOPLE.mapBy(_ => InSpace),
@@ -106,7 +113,7 @@ module space_recovery {
     else if (_online.get(p) and _online.get(HOST) and _whereabouts.get(p) == InSpace)
       PEOPLE.filter(q => _online.get(q) and _whereabouts.get(q) == InSpace).size() else 0))
 
-  val _state = (_openSpaces, whereabouts, presence, _whereabouts, _online)
+  val _state = (_openSpaces, whereabouts, presence, _whereabouts, _online, _sharedEnded)
   temporal _connectionsStay = eventually(always(PEOPLE.forall(p => _online.get(p))))
 
   /// Someone away at the end eventually learns the space ended once back.
