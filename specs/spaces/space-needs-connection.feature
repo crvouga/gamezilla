@@ -102,3 +102,4 @@ Feature: Use your own space without a connection
       When Alice ends the space
       Then Alice is not in a space
       And Alice hosts 0 spaces
+      And Alice sees the space has ended within 20 seconds
