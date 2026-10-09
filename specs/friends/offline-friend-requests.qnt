@@ -7,12 +7,11 @@
 module offline_friend_requests {
   type Person = str
   pure val PEOPLE = Set("alice", "bob")
-  type _Facts = {
+  var _facts: {
     local: bool, shared: bool, queued: bool, refused: bool,
     blocked: bool, declined: bool,
     knownDeclined: bool, knownBlocked: bool,
   }
-  var _facts: _Facts
   var _offline: Set[Person]
   /// The request each person can see: sent by Alice, received by Bob.
   var requestShown: Person -> bool
@@ -21,11 +20,11 @@ module offline_friend_requests {
   /// Alice is told that her request was refused, with no block revealed.
   var requestRefused: bool
 
-  action _keep(after) = all {
-    _facts' = { local: after.local, shared: after.shared, queued: after.queued,
-      refused: after.refused, blocked: after.blocked,
-      declined: after.declined, knownDeclined: after.knownDeclined,
-      knownBlocked: after.knownBlocked },
+  action _keep(after: {
+    local: bool, shared: bool, queued: bool, refused: bool,
+    blocked: bool, declined: bool, knownDeclined: bool, knownBlocked: bool,
+  }): bool = all {
+    _facts' = after,
     requestShown' = Map("alice" -> after.local, "bob" -> after.shared),
     waitingToShare' = after.queued,
     requestRefused' = after.refused,
@@ -114,13 +113,19 @@ module offline_friend_requests {
   val invOwnChoiceIsKept = _offline.contains("alice") and _facts.queued implies requestShown.get("alice")
 
   val _inductive = all {
-    _offline.subseteq(Set("alice")),
+    _offline.in(Set("alice").powerset()),
+    _facts.in(tuples(Set(false, true), Set(false, true), Set(false, true),
+      Set(false, true), Set(false, true), Set(false, true), Set(false, true),
+      Set(false, true)).map(t => { local: t._1, shared: t._2, queued: t._3,
+        refused: t._4, blocked: t._5, declined: t._6,
+        knownDeclined: t._7, knownBlocked: t._8 })),
     requestShown == Map("alice" -> _facts.local, "bob" -> _facts.shared),
     waitingToShare == _facts.queued,
     requestRefused == _facts.refused,
     not(_offline.contains("alice")) implies
       _facts.knownDeclined == _facts.declined and _facts.knownBlocked == _facts.blocked,
     _facts.shared implies not(_facts.blocked) and not(_facts.declined),
+    _facts.shared implies _facts.local,
     invPendingRequestIsPrivate, invSharedRequestAgrees, invBlockEndsSharedRequest,
     invRefusalEndsPendingChoice, invOwnChoiceIsKept,
   }

@@ -142,9 +142,11 @@ module hosting_limits {
   // The promises hold however many spaces Alice hosts and however often access changes.
   val _inductive = all {
     whereabouts.in(Set(Lobby, InSpace, Ended)),
-    _offline.subseteq(Set("alice")),
-    _count >= 0, _countBeforePaidEnding >= 0,
-    _count == _chosenCount, whereabouts == _chosenPlace,
+    _offline.in(Set("alice").powerset()),
+    _paid.in(Set(false, true)), _lastPaidEnding.in(Set(false, true)),
+    invitedToPlus.in(Set(false, true)),
+    _count.in(Nat), _countBeforePaidEnding.in(Nat),
+    _chosenCount == _count, _chosenPlace == whereabouts,
     invNonnegativeCount, invLobbyListsAllHosted,
     invInsideAnOpenSpace, invPaidEndingKeepsSpaces,
     invInvitationAtLimit,

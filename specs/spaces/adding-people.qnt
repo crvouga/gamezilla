@@ -120,7 +120,15 @@ module adding_people {
     whereabouts.get("alice") == Ended and whereabouts.get("bob") != InSpace
 
   val _inductive = and {
-    _offline.subseteq(PEOPLE),
+    _offline.in(PEOPLE.powerset()),
+    _open.in(Set(false, true)), _added.in(Set(false, true)),
+    _joined.in(Set(false, true)), _atLink.in(Set(false, true)),
+    _knownAdded.in(Set(false, true)), _knownOpen.in(Set(false, true)),
+    _knownJoined.in(Set(false, true)), _sharedOpen.in(Set(false, true)),
+    _sharedAdded.in(Set(false, true)), _sharedJoined.in(Set(false, true)),
+    _joined implies _atLink and _added,
+    _sharedJoined implies _sharedOpen and _sharedAdded,
+    _knownJoined implies _knownOpen and _knownAdded,
     whereabouts == _show(_knownOpen, _knownJoined, _atLink, _offline).set("alice", if (_open) InSpace else Ended),
     not(_open) implies not(_joined),
     _offline == Set() implies _knownAdded == _added,
