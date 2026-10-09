@@ -6,7 +6,7 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { collectArtifacts } from './collect';
-import { snapshotFingerprint } from './fingerprint';
+import { createSnapshotFingerprint } from './fingerprint';
 import sources from './ui-quality/sources.json';
 
 const ROOT = resolve(import.meta.dir, '../../..');
@@ -31,7 +31,7 @@ export async function prepareInputs(): Promise<void> {
       }))
     ),
     output,
-    (html) => snapshotFingerprint(html, stylesheet)
+    createSnapshotFingerprint(stylesheet)
   );
   const font = await readFile(
     join(ROOT, 'pkgs/ui-root-shared/src/bricolage-latin.woff2')
