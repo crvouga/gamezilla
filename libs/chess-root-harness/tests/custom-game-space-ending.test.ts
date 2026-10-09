@@ -1,12 +1,17 @@
 import { expect, test } from 'bun:test';
 import { CustomGamesChanged } from '@libs/chess-custom-game-shared/custom-game-commands';
 import {
+  BOT_CUSTOM_GAME_SIDE,
   type CustomGame,
   CustomGamesAttr,
   newCustomGame,
 } from '@libs/chess-custom-game-shared/custom-game-state';
 import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
 import { SpaceEnded } from '@libs/spaces-shared/space-log-messages';
+import {
+  CancelScheduleEffect,
+  ScheduleEffect,
+} from '@pkgs/room-root-shared/builtin';
 
 const active: CustomGame = {
   ...newCustomGame('friday-game', 'alice'),
@@ -14,6 +19,7 @@ const active: CustomGame = {
   black: { kind: 'person', person: 'bob' },
   ready: ['white', 'black'],
   startedAt: 0,
+  turnStartedAt: 0,
 };
 
 function endSpace(game: CustomGame): CustomGame {
@@ -53,4 +59,24 @@ test('ending a space preserves a completed result verbatim', () => {
     endedAt: 5_000,
   };
   expect(endSpace(completed)).toEqual(completed);
+});
+
+// regression: custom-game-ended-space-unobservable
+test('ending a two-bot game cancels it and leaves no bot wake', () => {
+  const game = {
+    ...active,
+    white: BOT_CUSTOM_GAME_SIDE,
+    black: BOT_CUSTOM_GAME_SIDE,
+  };
+  const result = endSpace(game);
+  expect(result.status).toBe('cancelled');
+  expect(result.outcome).toBe('cancelled');
+  const state = CustomGamesAttr({ current: result, history: [] });
+  for (const effects of [
+    chessGameShared.recoverEffects(state),
+    chessGameShared.recoverLocalEffects?.(state) ?? [],
+  ]) {
+    expect(effects.some(ScheduleEffect.is)).toBe(false);
+    expect(effects.some(CancelScheduleEffect.is)).toBe(true);
+  }
 });
