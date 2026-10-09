@@ -4,6 +4,7 @@ Feature: Presence in a space
   as it changes, so they know who they are with.
 
   Rule: Presence shows everyone in the space and stops showing someone who leaves
+    No counter-example: people choose to join or leave, but never choose to keep showing as present after leaving.
 
     Scenario: Everyone in a space sees who is there
       Given Alice is hosting a space

@@ -1,8 +1,8 @@
 @domain:spaces
 Feature: Rename a space
-  When a host wants a space's name to say what it is for, they rename the
-  space, so everyone in it and every friend whose lobby lists it sees the new
-  name, and never a space name that is not allowed.
+  When a space's name needs to say what it is for, its host wants to rename
+  the space, so everyone in it and every friend whose lobby lists it sees the
+  new name, and never a space name that is not allowed.
 
   Background:
     Given Alice and Bob are friends
@@ -20,6 +20,7 @@ Feature: Rename a space
       Then Bob's lobby lists Alice's space as "Friday puzzles" within 15 seconds
 
     Scenario: Only the host can rename the space
+      When Alice renames the space to "Friday puzzles"
       Then Alice can rename the space
       And Bob cannot rename the space
 

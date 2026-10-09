@@ -8,6 +8,7 @@ Feature: Losing the connection in a space
     Given Alice is hosting a space that Bob joined from the link
 
   Rule: Nobody lingers after they have gone
+    No counter-example: leaving or losing the connection always stops showing the person as present.
 
     Scenario: Someone stops showing as there after losing the connection
       When Bob loses the connection
@@ -19,6 +20,7 @@ Feature: Losing the connection in a space
       Then Alice sees 1 person in the space within 20 seconds
 
   Rule: Nobody appears twice
+    No counter-example: presence counts each person once; returning does not create another person.
 
     Scenario: Someone whose connection comes back is there once
       Given Bob has lost the connection long enough to drop out of the space

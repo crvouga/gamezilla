@@ -11,14 +11,14 @@ Feature: How many spaces a person can host
       Given Alice is signed in
       And Alice is hosting a space
       When Alice creates another space
-      Then Alice is invited to get Plus to host more spaces
+      Then Alice is told their hosting limit is reached and invited to get Plus
       And Alice hosts 1 space
 
     Scenario: A guest hosting a space is invited to Plus to host another
       Given Alice is a guest
       And Alice is hosting a space
       When Alice creates another space
-      Then Alice is invited to get Plus to host more spaces
+      Then Alice is told their hosting limit is reached and invited to get Plus
       And Alice hosts 1 space
 
     Scenario: Ending a space frees the place for a new one

@@ -46,7 +46,7 @@ Feature: Use your own space without a connection
       Given Alice is hosting a space
       And Alice is offline
       When Alice creates another space
-      Then Alice is invited to get Plus to host more spaces
+      Then Alice is told their hosting limit is reached and invited to get Plus
       And Alice hosts 1 space
 
     Scenario: An offline Plus member can host another space

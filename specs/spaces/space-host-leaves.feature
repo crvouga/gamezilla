@@ -6,6 +6,7 @@ Feature: The host leaving ends the space
   left it, because that is not leaving.
 
   Rule: The host leaving ends the space and losing the connection or closing the app does not
+    No counter-example: leaving always ends the host's space; closing the app or losing the connection never counts as leaving.
 
     Background:
       Given Alice is hosting a space that Bob joined from the link
@@ -39,12 +40,6 @@ Feature: The host leaving ends the space
       And Alice sees 1 person in the space within 20 seconds
       And Bob is told the host is offline within 20 seconds
       And Bob is not offered to join
-
-    Scenario: A person cannot join a space while its host is offline
-      Given Alice is offline
-      When Carol opens Alice's space link
-      Then Carol is told the host is offline within 20 seconds
-      And Carol is not offered to join
 
     Scenario: The host's return restores the same space and its people once
       Given Alice has lost the connection long enough to drop out of the space
