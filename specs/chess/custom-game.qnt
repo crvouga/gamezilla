@@ -49,6 +49,9 @@ module custom_game {
 
   /// The agreed game remains itself when no person can currently see it.
   /// Each person observes their own picture below, including its result and readiness.
+  /// Bookkeeping distinguishes separate games whose starting choices happen to match.
+  var _gameId: int
+  var _gameIdShown: Person -> int
   var _status: str
   var _creator: str
   var _white: Participant
@@ -228,6 +231,8 @@ module custom_game {
     _declinedOffers' = if (g.status == "active") declined else Set(),
     _blocks' = blocks,
     _blockIgnored' = blockIgnored,
+    _gameId' = if (fresh) _gameId + 1 else _gameId,
+    _gameIdShown' = DEVICES.mapBy(p => if (offline.contains(p)) _gameIdShown.get(p) else if (_visible(p,members,offline,signedOut)) (if (fresh) _gameId + 1 else _gameId) else 0),
     _status' = g.status,
     _creator' = g.creator,
     _white' = g.white,
@@ -285,6 +290,8 @@ module custom_game {
       else if (beginning == "playing" or beginning == "offering") {...people, status: "active", starts: 1, drawOfferedBy: if(beginning == "offering") "alice" else ""}
       else _BEGIN
     all {
+      _gameId' = if (g.status == "none") 0 else 1,
+      _gameIdShown' = DEVICES.mapBy(p => if (p == "carol" or g.status == "none") 0 else 1),
       _status' = g.status,
     _creator' = g.creator,
     _white' = g.white,
@@ -453,14 +460,26 @@ module custom_game {
   /// Readiness and starting do not replace those choices; each ready person
   /// can agree, and two starts keep the same game.
   action _competingChoices(actor: Person, other: Person, command: str, otherCommand: str, side: Side, otherSide: Side, person: Person): bool = {
-    val connection = _connectionReason(_choicePicture(actor),actor,command)
-    val firstReason = if (connection != "") connection else _reason(_choicePicture(actor),actor,command,side,person,1,0)
+    val referenceDevice = if (not(_offline.contains(actor)) and _visible(actor,_members,_offline,_signedOut)) actor else other
+    val reference = gameShown.get(referenceDevice)
+    val referenceId = _gameIdShown.get(referenceDevice)
+    val picture = _choicePicture(actor)
+    val pictureId = if (_offline.contains(actor)) _gameIdShown.get(actor) else _gameId
+    val firstPriority = _priorityReason(picture,actor,command)
+    val connection = _connectionReason(picture,actor,command)
+    val firstEarlier = pictureId != referenceId or
+      ((_settingCommand(command) or Set("start","cancel").contains(command)) and _config(picture) != _config(reference))
+    val firstReason = if (connection != "") connection else if (firstPriority != "") firstPriority else if (firstEarlier) "choices changed" else _reason(picture,actor,command,side,person,1,0)
     val first = if (firstReason != "") customGame else _next(customGame,actor,command,side,person,1,0)
+    val firstFresh = first != customGame and Set("create","rematch").contains(command)
     val firstDeclined = if (firstReason != "") _declinedOffers else _declinedAfter(customGame,command,_declinedOffers)
-    val priority = _priorityReason(first,other,otherCommand)
-    val choicesChanged = (_config(first) != _config(customGame) and (_settingCommand(otherCommand) or Set("start","cancel").contains(otherCommand))) or (first != customGame and Set("create","rematch").contains(command))
-    val otherConnection = _connectionReason(_choicePicture(other),other,otherCommand)
-    val secondReason = if (otherConnection != "") otherConnection else if(priority != "") priority else if (choicesChanged) "choices changed" else _reasonWith(first,firstDeclined,other,otherCommand,otherSide,person,1,0)
+    val otherPicture = if (_offline.contains(other)) gameShown.get(other) else first
+    val otherPictureId = if (_offline.contains(other)) _gameIdShown.get(other) else _gameId + (if (firstFresh) 1 else 0)
+    val priority = _priorityReason(otherPicture,other,otherCommand)
+    val choicesChanged = otherPictureId != referenceId or
+      ((_settingCommand(otherCommand) or Set("start","cancel").contains(otherCommand)) and _config(otherPicture) != _config(reference))
+    val otherConnection = _connectionReason(otherPicture,other,otherCommand)
+    val secondReason = if (otherConnection != "") otherConnection else if(priority != "") priority else if (choicesChanged) "choices changed" else _reasonWith(otherPicture,firstDeclined,other,otherCommand,otherSide,person,1,0)
     val second = if (secondReason != "") first else _next(first,other,otherCommand,otherSide,person,1,0)
     val secondDeclined = if (secondReason != "") firstDeclined else _declinedAfter(first,otherCommand,firstDeclined)
     val crossed = (firstReason == "" and _crossesBlock(command,actor,person)) or (secondReason == "" and _crossesBlock(otherCommand,other,person))
@@ -617,6 +636,11 @@ module custom_game {
   pure val _TIME_PAIRS = tuples(TIMES,INCREMENTS)
   // These promises survive any number of choices, departures and returns.
   val _inductive = all {
+    _gameId >= 0,
+    _gameIdShown.keys() == DEVICES,
+    DEVICES.forall(p => _gameIdShown.get(p) >= 0 and _gameIdShown.get(p) <= _gameId),
+    DEVICES.forall(p => not(_offline.contains(p)) implies _gameIdShown.get(p) == (if (_visible(p,_members,_offline,_signedOut)) _gameId else 0)),
+    (_status == "none") == (_gameId == 0),
     _status.in(Set("none","configuring","active","completed","cancelled")),
     statusShown.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
     _cutOffStatus.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
