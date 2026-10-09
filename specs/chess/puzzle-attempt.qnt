@@ -144,12 +144,14 @@ module puzzle_attempt {
       else if (newAttempt == "solved") "checkmate" else newAttempt,
     assistantMuted' = muted,
     commentary' = PEOPLE.mapBy(p => {
-      val at = if (p == HOST) newAt else watcherView
+      val at = if (p == HOST) newAt
+        else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) Elsewhere else watcherView
       val result = if (p == HOST) newAttempt else watcherState
       if (at != Board) "none" else if (result == "solving") "ready" else result
     }),
     commentaryPuzzle' = PEOPLE.mapBy(p =>
-      if (p == HOST) _hostPuzzle(newAt, newServed) else watcherPuzzle
+      if (p == HOST) _hostPuzzle(newAt, newServed)
+        else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) -1 else watcherPuzzle
     ),
     _at' = newAt,
     _attempt' = newAttempt,
