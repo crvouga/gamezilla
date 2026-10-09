@@ -12,6 +12,7 @@ Feature: Observe and control the Synthetic Population
       When Alice opens the Bot Observatory
       Then Alice sees a desired population of 4
 
+    @regression:population-denial-removes-shell
     Scenario: An ordinary person cannot inspect Synthetic Users
       Given Bob is not authorized to view the Bot Observatory
       When Bob opens the Bot Observatory
