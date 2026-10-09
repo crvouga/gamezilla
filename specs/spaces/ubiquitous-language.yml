@@ -198,7 +198,7 @@ terms:
       they can host more spaces, instead of an error.
     forms: [invited to get Plus, invitation to Plus]
 
-  - term: spaces need a connection
+  - term: joining needs a connection
     definition: >-
       Joining someone else's space needs both people to have a connection.
       Creating and using one's own space never needs a connection.
