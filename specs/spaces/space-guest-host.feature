@@ -10,6 +10,7 @@ Feature: A guest can host
       Given Alice is a guest
       When Alice creates a space
       Then Alice is in the space
+      And Alice can end the space
 
     Scenario: A guest host can end their own space
       Given Alice is a guest
