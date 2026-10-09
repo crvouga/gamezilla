@@ -21,7 +21,8 @@ Feature: Choose a username offline
       And Alice's profile still shows @alice_one
 
     Scenario: An offline choice keeps another device on the last shared username
-      Given Alice's username is @alice_one
+      Given Alice is signed in
+      And Alice's username is @alice_one
       And Alice is also signed in on another device
       And Alice is offline
       When Alice tries to use username "alice_two"
@@ -38,7 +39,8 @@ Feature: Choose a username offline
   Rule: Returning shares an offline choice or clearly refuses it under the shared username rules
 
     Scenario: An offline username is shared with another device on return
-      Given Alice's username is @alice_one
+      Given Alice is signed in
+      And Alice's username is @alice_one
       And Alice is also signed in on another device
       And Alice is offline
       And Alice has renamed themselves to @alice_two
