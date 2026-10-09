@@ -1,7 +1,7 @@
-// Two people each write one checked note, online or offline. Their writing
-// may be kept or refused. Lost word about either answer must not change
-// later writing, leave refused writing behind, or keep its author waiting
-// once connections stay back and answers can reach them.
+// Two people each write a checked note, online or offline, over either an
+// empty note or writing they already share. Their writing may be kept or
+// refused. Refusal restores the shared writing; accepted writing reaches
+// everyone. A writer sees the answer once their connection stays back.
 module note_refusal_recovery {
   type Person = str
   type Note = { body: str, owner: Person }
@@ -46,14 +46,17 @@ module note_refusal_recovery {
     }
   }
 
-  action init = all {
-    notes' = PEOPLE.mapBy(_ => EMPTY).put("shared", EMPTY),
-    answers' = PEOPLE.mapBy(_ => "ready"),
-    rejections' = PEOPLE.mapBy(_ => 0),
-    online' = PEOPLE.mapBy(_ => true),
-    _shared' = EMPTY, _snapshot' = PEOPLE.mapBy(_ => EMPTY),
-    _body' = PEOPLE.mapBy(_ => ""), _processed' = Set(),
-    _previous' = EMPTY, _unchanged' = false,
+  action init = {
+    nondet earlierNote = Set(EMPTY, { body: "milk", owner: "alice" }, { body: "eggs", owner: "bob" }).oneOf()
+    all {
+      notes' = PEOPLE.mapBy(_ => earlierNote).put("shared", earlierNote),
+      answers' = PEOPLE.mapBy(_ => "ready"),
+      rejections' = PEOPLE.mapBy(_ => 0),
+      online' = PEOPLE.mapBy(_ => true),
+      _shared' = earlierNote, _snapshot' = PEOPLE.mapBy(_ => earlierNote),
+      _body' = PEOPLE.mapBy(_ => ""), _processed' = Set(),
+      _previous' = earlierNote, _unchanged' = false,
+    }
   }
 
   /// Write once; word about a kept or refused save may be lost.
