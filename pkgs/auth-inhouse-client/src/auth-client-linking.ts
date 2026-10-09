@@ -13,8 +13,11 @@ import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
+import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { apiUrl, buildOauthLaunchUrl, postJson } from './auth-client-http';
 import type { SignInCtx } from './auth-client-oauth';
@@ -32,7 +35,7 @@ export type LinkingOps = {
   listIdentities(): Promise<readonly AuthIdentity[]>;
   prepareLink(): Promise<void>;
   linkProvider(provider: OauthProviderId): Promise<void>;
-  unlinkProvider(provider: OauthProviderId): Promise<readonly AuthIdentity[]>;
+  unlinkProvider(provider: SignInMethodId): Promise<readonly AuthIdentity[]>;
   createSeparateAccount(pendingLinkToken: string): Promise<void>;
   signOutEverywhere(): Promise<void>;
 };
@@ -54,7 +57,7 @@ function identitiesOf(body: unknown): readonly AuthIdentity[] {
     (row): row is AuthIdentity =>
       row !== null &&
       typeof row === 'object' &&
-      isOauthProviderId(String((row as AuthIdentity).provider))
+      isSignInMethodId(String((row as AuthIdentity).provider))
   );
 }
 

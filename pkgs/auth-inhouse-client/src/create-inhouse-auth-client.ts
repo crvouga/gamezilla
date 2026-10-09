@@ -20,6 +20,7 @@ import { createLinkingOps } from './auth-client-linking';
 import type { AuthClientAdapterConfig, SignInCtx } from './auth-client-oauth';
 import { codeOrThrow, exchangeCode, signInOauth } from './auth-client-oauth';
 import { readCallbackOutcome } from './auth-errors';
+import { passwordAuthentication } from './password-auth-client';
 
 /** Verify the stored bearer against `/auth/session`; null when absent / dead. */
 async function loadSessionState(args: {
@@ -163,6 +164,10 @@ export function createInhouseAuthClient(
   return {
     provider: IDP_PROVIDER_LABEL,
     session,
+    signInWithPassword: (email, password, options) =>
+      passwordAuthentication(ctx, 'sign-in', email, password, options),
+    registerWithPassword: (email, password) =>
+      passwordAuthentication(ctx, 'register', email, password),
     async signIn(provider, options) {
       await signInOauth(ctx, provider, options);
     },

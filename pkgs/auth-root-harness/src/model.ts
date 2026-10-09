@@ -20,11 +20,11 @@
 import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 
 /** What the relying party learns about one provider identity. */
 export type SeenIdentity = {
-  readonly provider: OauthProviderId;
+  readonly provider: SignInMethodId;
   readonly sub: string;
   readonly email: string | null;
   readonly verified: boolean;
@@ -49,6 +49,7 @@ export type Prediction =
   | { readonly kind: 'error'; readonly code: AuthErrorCode };
 
 export type AuthModel = {
+  readonly passwords: Map<string, { userId: string; password: string }>;
   readonly identities: Map<string, ModelIdentity>;
   readonly users: Set<string>;
   /**
@@ -68,6 +69,7 @@ export type AuthModel = {
 
 export function createAuthModel(): AuthModel {
   return {
+    passwords: new Map(),
     identities: new Map(),
     users: new Set(),
     sessions: new Map(),
@@ -89,7 +91,7 @@ export function identitiesOf(
 function hasProvider(
   model: AuthModel,
   userId: string,
-  provider: OauthProviderId
+  provider: SignInMethodId
 ): boolean {
   return identitiesOf(model, userId).some((row) => row.provider === provider);
 }

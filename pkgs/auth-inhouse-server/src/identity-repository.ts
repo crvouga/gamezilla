@@ -6,8 +6,8 @@
  * an unverified one are not the same claim, and linking depends on that.
  */
 
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql, { raw } from '@pkgs/sql-root-shared/sql';
@@ -18,7 +18,7 @@ import type { ProviderIdentity } from './provider-identity';
 export type IdentityRow = {
   readonly id: string;
   readonly userId: string;
-  readonly provider: OauthProviderId;
+  readonly provider: SignInMethodId;
   readonly providerUserId: string;
   readonly email: string | null;
   readonly emailVerified: boolean;
@@ -60,7 +60,7 @@ function iso(value: unknown): string | null {
 
 function mapRow(row: RawIdentityRow): IdentityRow {
   // Only the linker writes this column, and only with a provider id.
-  if (!isOauthProviderId(row.provider)) {
+  if (!isSignInMethodId(row.provider)) {
     throw new Error(`idp_accounts: unknown provider ${row.provider}`);
   }
   return {
@@ -179,11 +179,15 @@ export class IdentityRepository {
     `);
   }
 
-  async remove(userId: string, provider: OauthProviderId): Promise<void> {
+  async remove(userId: string, provider: SignInMethodId): Promise<void> {
     await this.db.run(sql`
       DELETE FROM idp_accounts
       WHERE user_id = ${userId} AND provider = ${provider}
     `);
+    if (provider === 'password')
+      await this.db.run(
+        sql`DELETE FROM idp_passwords WHERE user_id = ${userId}`
+      );
   }
 
   async removeIdentity(

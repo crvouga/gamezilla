@@ -7,6 +7,7 @@
 import { AUTH_PENDING_LINK_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 
 import { runClient } from './actor';
 import {
@@ -82,7 +83,7 @@ async function settleLinkRequired(
   const proofs = identitiesOf(s.model, target);
   actor.pendingLink = {
     token: outcome.token,
-    providers: proofs.map((row) => row.provider),
+    providers: proofs.map((row) => row.provider).filter(isOauthProviderId),
     emails: proofs.flatMap((row) => (row.email === null ? [] : [row.email])),
   };
 }

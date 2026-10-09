@@ -17,6 +17,7 @@ import {
 import { handleOauthCallback, handleOauthLaunch } from './oauth-handlers';
 import { createOauthProviders } from './registry';
 import { handleSyntheticMonitorCode } from './synthetic-monitor';
+import { createPasswordAuthApp } from './password-auth';
 
 /**
  * Application-agnostic IdP Hono app. Runtime mounts with `.route('/', app)`.
@@ -32,6 +33,7 @@ export function createAuthApp(deps: CreateAuthAppDeps): Hono {
     }),
   };
   const app = new Hono();
+  app.route('/auth/password', createPasswordAuthApp(deps));
 
   app.get('/auth/providers', (c) => c.json({ providers: ctx.oauth.enabled }));
   app.get('/auth/oauth/launch', (c) => handleOauthLaunch(c, ctx));

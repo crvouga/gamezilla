@@ -132,11 +132,13 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
           onSeparate={(token) => {
             trigger(props.onCreateSeparate, token);
           }}
+          startPassword={lifecycle.start}
           idleBody={
             <SignInIdleBody
               methodsLoading={props.methodsLoading}
               providers={props.providers}
               signInUnavailableReason={props.signInUnavailableReason}
+              startPassword={lifecycle.start}
               onPress={(provider) => {
                 trigger(props.onSignIn, provider);
               }}
@@ -157,6 +159,7 @@ function SignInPhaseContent(props: {
   onRetry: () => void;
   onProveLink: (provider: OauthProviderId, token: string) => void;
   onSeparate: (token: string) => void;
+  startPassword: (runner: () => Promise<void>) => Promise<void>;
   idleBody: JSX.Element;
   idleFooter: JSX.Element;
 }): JSX.Element {
@@ -209,6 +212,7 @@ function SignInPhaseContent(props: {
               onProve={(provider) => props.onProveLink(provider, link().token)}
               onSeparate={() => props.onSeparate(link().token)}
               onClose={props.onClose}
+              startPassword={props.startPassword}
             />
           )}
         </Show>
