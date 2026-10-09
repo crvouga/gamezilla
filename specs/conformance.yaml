@@ -21,6 +21,7 @@ product:
     - journeys
     - matchmaking
     - profile
+    - population
     - room
     - runtime
     - spaces
@@ -35,6 +36,11 @@ product:
   # Everything a person may or may not be allowed to do. Each is answered by
   # exactly one decision table, named by its decision.
   capabilities:
+    - { id: view the Bot Observatory, context: population, decided by: population-access }
+    - { id: inspect a Synthetic User, context: population, decided by: population-access }
+    - { id: configure the Synthetic Population, context: population, decided by: population-access }
+    - { id: control a Synthetic User, context: population, decided by: population-access }
+    - { id: replay Synthetic User decisions, context: population, decided by: population-access }
     - { id: delete their account, context: profile, decided by: privacy-access }
     - { id: take a personal-data export, context: profile, decided by: privacy-access }
     - { id: keep a friends list, context: friends, decided by: access }

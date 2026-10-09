@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="population-access-decisions" name="Bot Observatory access" namespace="https://gamezilla.dev/decisions">
+  <decision id="population-access" name="May this person use the Bot Observatory?">
+    <description>Each Observatory capability requires authorization for that capability.</description>
+    <decisionTable id="population-access-table" hitPolicy="UNIQUE">
+      <input id="authorized" label="authorized for this capability">
+        <inputExpression id="authorized-expression" typeRef="string"><text>authorized for this capability</text></inputExpression>
+        <inputValues id="authorized-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <input id="capability" label="what they want to do">
+        <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
+        <inputValues id="capability-values"><text>"view the Bot Observatory","inspect a Synthetic User","configure the Synthetic Population","control a Synthetic User","replay Synthetic User decisions"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string"><outputValues id="answer-values"><text>"yes","no"</text></outputValues></output>
+      <output id="reason" name="reason" typeRef="string"><outputValues id="reason-values"><text>"none","permission required"</text></outputValues></output>
+      <rule id="authorized-person">
+        <description>An authorized person may use the capability.</description>
+        <inputEntry id="authorized-person-in-1"><text>"yes"</text></inputEntry>
+        <inputEntry id="authorized-person-in-2"><text>-</text></inputEntry>
+        <outputEntry id="authorized-person-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="authorized-person-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="permission-required">
+        <description>A person without authorization is told permission is required.</description>
+        <inputEntry id="permission-required-in-1"><text>"no"</text></inputEntry>
+        <inputEntry id="permission-required-in-2"><text>-</text></inputEntry>
+        <outputEntry id="permission-required-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="permission-required-out-2"><text>"permission required"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
