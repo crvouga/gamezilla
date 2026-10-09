@@ -147,6 +147,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         module: args.module,
         kv: args.kv,
         myId: args.bootstrap.myId,
+        hostsSpace: args.bootstrap.hostsSpace,
         installId: args.bootstrap.installId,
         clientId: args.bootstrap.clientId,
         getSessionToken: args.getSessionToken,
@@ -273,7 +274,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const bootstrapKey = createMemo((): string | null => {
     const current = bootstrap();
     if (current === null) return null;
-    return `${current.spaceId}:${current.myId}:${current.installId}:${current.clientId}`;
+    return `${current.spaceId}:${current.myId}:${current.installId}:${current.clientId}:${String(current.hostsSpace)}`;
   });
   const hasBearerOrAnon = createMemo(() => {
     const hasBearer = normalizeSessionToken(sessionToken()) !== null;

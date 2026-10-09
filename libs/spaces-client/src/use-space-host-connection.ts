@@ -28,8 +28,9 @@ export function useSpaceHostConnection(): Accessor<
     if (hostId === myId()) return 'ready';
     if (!engine.status().online)
       return hostOfflineKnown ? 'host-offline' : 'offline';
-    if (!connected() || !synced()) return 'loading';
+    if (!connected()) return 'loading';
     hostOfflineKnown = !roster().some((actor) => actor.id === hostId);
-    return hostOfflineKnown ? 'host-offline' : 'ready';
+    if (hostOfflineKnown) return 'host-offline';
+    return synced() ? 'ready' : 'loading';
   });
 }

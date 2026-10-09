@@ -70,6 +70,10 @@ const PRESENCE_SETTLES_MS = 20 * SECOND_MS;
 /** A link to a space that was never created. */
 const NO_SUCH_SPACE_LINK = '/space/no-such-space';
 const SPACE_LINK = 'spaceLink';
+
+export function rememberedSpaceLink(w: HarnessWorld): string {
+  return recall(w, SPACE_LINK) as string;
+}
 const SPACE_HOST = 'spaceHost';
 
 /**
@@ -173,7 +177,7 @@ Given('{actor} has hosted a space and ended it', async (w, actor: Actor) => {
 });
 
 Then(
-  '{actor} is invited to get Plus to host more spaces',
+  '{actor} is told their hosting limit is reached and invited to get Plus',
   async (w, actor: Actor) => {
     expect(await w.s.read(hostingLimitShown, actor)).toBe(true);
   }

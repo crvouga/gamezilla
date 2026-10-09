@@ -16,7 +16,7 @@ export function useSpaceCan(
   return useCan(permission, () => {
     const current = presence();
     return {
-      spacePresence: current.status === 'active' ? current.role : null,
+      spacePresence: current.status === 'loading' ? null : current.role,
     };
   });
 }

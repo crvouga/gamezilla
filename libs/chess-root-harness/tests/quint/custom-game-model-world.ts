@@ -2,9 +2,13 @@ import {
   attemptCustomGameChoice,
   changeCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
+import { attemptCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { CUSTOM_GAME_FOOLS_MATE } from '@libs/chess-custom-game-harness/custom-game-histories';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type {
+  CustomGameChoice,
+  CustomGameInput,
+} from '@libs/chess-custom-game-shared/custom-game-choice';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
   customFact,
@@ -44,14 +48,29 @@ export async function prepareCustomGameModel(
   await customStart(w);
 }
 
-export async function customModelGame(
-  w: QuintHarnessWorld,
-  actor = CUSTOM_MODEL_OBSERVER
-) {
+export async function customModelGame(w: QuintHarnessWorld, actor = 'alice') {
   const game = (await w.quiet.read(readCustomGameProbe, actor))?.current;
   if (game === null || game === undefined)
     throw new Error(`${actor} sees no Custom Game`);
   return game;
+}
+
+/** An unavailable screen also refuses a modified device's attempted choice. */
+export async function changeCustomModelChoice(
+  w: QuintHarnessWorld,
+  actor: string,
+  input: CustomGameInput
+): Promise<void> {
+  if ((await w.s.read(readCustomGameProbe, actor)) !== null) {
+    await w.s.apply(changeCustomGame, actor, input);
+    return;
+  }
+  const game = await customModelGame(w);
+  const spaceId = String(w.memo.get('custom-link')).slice('/space/'.length);
+  await w.s.apply(attemptCustomGameBoundary, actor, {
+    spaceId,
+    choice: { ...input, gameId: game.id, revision: game.revision },
+  });
 }
 
 export async function playCustomModelMove(
@@ -93,8 +112,13 @@ export async function readCustomModelShown(
 ) {
   const shown = new Map<string, [string, number, string]>();
   for (const actor of people) {
-    const game = await customModelGame(w, actor);
-    shown.set(actor, [game.status, game.moves.length, game.outcome]);
+    const game = (await w.quiet.read(readCustomGameProbe, actor))?.current;
+    shown.set(
+      actor,
+      game === null || game === undefined
+        ? ['unavailable', 0, '']
+        : [game.status, game.moves.length, game.outcome]
+    );
   }
   return shown;
 }

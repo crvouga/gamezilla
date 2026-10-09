@@ -36,7 +36,6 @@
     "@pkgs/kv-root-shared": "workspace:*",
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
-    "@pkgs/message-shared": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
     "@pkgs/room-adapter-web-shared": "workspace:*",
     "@pkgs/room-root-client": "workspace:*",

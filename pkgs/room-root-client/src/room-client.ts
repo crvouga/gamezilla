@@ -59,6 +59,7 @@ export type RoomClientConfig<
   storage: ClientRoomStorage;
   transport: ClientTransport;
   identity: Identity;
+  onDestroy?: () => void;
   onError?: (err: RoomError | Error) => void;
   clock: Clock;
   timers: Timers;
@@ -178,11 +179,13 @@ export class RoomClient<
 
   private roster: readonly RoomActor[] = EMPTY_ROSTER;
   private lastError: RoomError | Error | null = null;
+  private readonly onDestroy: (() => void) | undefined;
   private destroyed = false;
   private unsubTransport: (() => void) | null = null;
   private unsubHandlers: (() => void) | null = null;
 
   private constructor(config: RoomClientConfig<S, C, E, Identity>) {
+    this.onDestroy = config.onDestroy;
     this.storage = config.storage;
     this.transport = config.transport;
     this.onError = config.onError;
@@ -433,6 +436,7 @@ export class RoomClient<
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.onDestroy?.();
     this.unsubTransport?.();
     this.unsubTransport = null;
     this.unsubHandlers?.();

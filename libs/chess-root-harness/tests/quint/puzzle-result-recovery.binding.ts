@@ -32,6 +32,7 @@ import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import competingRatingTrace from './fixtures/puzzle-competing-equal-rating.itf.json';
 import unrecordedResultTrace from './fixtures/puzzle-recovery-before-next.itf.json';
 import watcherReadyTrace from './fixtures/puzzle-recovery-watcher-not-ready.itf.json';
+import personalStatsTrace from './fixtures/puzzle-result-after-close-personal-stats.itf.json';
 
 const FINISH = {
   CleanSolve: 'clean',
@@ -63,6 +64,14 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 32,
   timeoutMs: 180_000,
   regressions: [
+    // regression: puzzle-result-after-close-personal-stats
+    {
+      id: 'puzzle-result-after-close-personal-stats',
+      title:
+        'A closed solver records its result while personal stats are shown',
+      seed: '0x67932',
+      itf: personalStatsTrace,
+    },
     // regression: puzzle-recovery-before-next
     {
       id: 'puzzle-recovery-before-next',

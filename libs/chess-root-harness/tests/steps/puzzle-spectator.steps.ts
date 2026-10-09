@@ -36,6 +36,7 @@ import { joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import {
   activePuzzle,
+  ensureOnPuzzle,
   rememberBoard,
   required,
   SECOND_MS,
@@ -112,6 +113,7 @@ Given(
     if ((await w.s.read(readPuzzleStatus, watcher)) === null) {
       // Not in the host's space yet: join it from the host's link.
       await w.s.apply(focusActor, host);
+      await ensureOnPuzzle(w, host);
       const link = required(await w.s.read(readSpaceLink, host), 'a space');
       await w.s.apply(joinViaLink, watcher, link);
     }

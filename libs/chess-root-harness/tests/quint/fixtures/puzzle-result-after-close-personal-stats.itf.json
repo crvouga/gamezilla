@@ -1,0 +1,1269 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/chess/puzzle-result-recovery.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Thu Oct 08 2026 22:36:42 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1791524202683
+  },
+  "vars": [
+    "_joined",
+    "_firstResult",
+    "_open",
+    "_recorded",
+    "gameLog",
+    "_online",
+    "_localResult",
+    "_readingStats",
+    "_firstDecision",
+    "ratedResult",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_firstDecision": { "tag": "Unfinished", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "Unfinished", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "Unfinished", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": false,
+      "_recorded": false,
+      "gameLog": { "#map": [] },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": { "tag": "None", "value": { "#tup": [] } },
+        "otherResult": { "tag": "None", "value": { "#tup": [] } },
+        "result": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "ratedResult": { "#map": [] }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "Unfinished", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": false,
+      "_recorded": false,
+      "gameLog": { "#map": [] },
+      "mbt::actionTaken": "finishAsAppCloses",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": { "#map": [] }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "Unfinished", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", false], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": false,
+      "_recorded": false,
+      "gameLog": { "#map": [] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": { "#map": [] }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "Unfinished", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", false], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": false,
+      "_recorded": false,
+      "gameLog": { "#map": [] },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": { "#map": [] }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", false], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": {
+        "#map": [
+          ["alice", "unfinished"],
+          ["bob", "unfinished"],
+          ["charlie", "failed"]
+        ]
+      },
+      "mbt::actionTaken": "readStatsOnOtherDevice",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": {
+        "#map": [
+          ["alice", "failed"],
+          ["bob", "unfinished"],
+          ["charlie", "failed"]
+        ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": {
+        "#map": [
+          ["alice", "failed"],
+          ["bob", "unfinished"],
+          ["charlie", "failed"]
+        ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": {
+        "#map": [
+          ["alice", "failed"],
+          ["bob", "unfinished"],
+          ["charlie", "failed"]
+        ]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": {
+        "#map": [
+          ["alice", "failed"],
+          ["bob", "unfinished"],
+          ["charlie", "failed"]
+        ]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", true], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", false], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["alice", "failed"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "closeApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", true], ["bob", false], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["alice", "failed"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["alice", "failed"]] },
+      "mbt::actionTaken": "closeApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["alice", { "tag": "WrongMove", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["alice", "failed"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["alice", { "tag": "WrongMove", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", false], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [] },
+      "mbt::actionTaken": "closeApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": { "#map": [] }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 17 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 18 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 19 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", true]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 20 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", true]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 21 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 22 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 23 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "closeApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 24 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 25 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 26 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 27 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "Skipped", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 28 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 29 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": {
+        "#map": [["alice", false], ["bob", true], ["charlie", false]]
+      },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [["bob", { "tag": "Unfinished", "value": { "#tup": [] } }]]
+      }
+    },
+    {
+      "#meta": { "index": 30 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", false]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 31 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "ShownSolution", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "CleanSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 32 },
+      "_firstDecision": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_firstResult": { "tag": "WrongMove", "value": { "#tup": [] } },
+      "_joined": { "#set": ["alice", "bob", "charlie"] },
+      "_localResult": {
+        "#map": [
+          ["alice", { "tag": "WrongMove", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      },
+      "_online": {
+        "#map": [["alice", true], ["bob", false], ["charlie", true]]
+      },
+      "_open": { "#map": [["alice", false], ["bob", true], ["charlie", true]] },
+      "_readingStats": true,
+      "_recorded": true,
+      "gameLog": { "#map": [["bob", "unfinished"], ["charlie", "failed"]] },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "charlie" },
+        "otherResult": {
+          "tag": "Some",
+          "value": { "tag": "WrongMove", "value": { "#tup": [] } }
+        },
+        "result": {
+          "tag": "Some",
+          "value": { "tag": "HintedSolve", "value": { "#tup": [] } }
+        }
+      },
+      "ratedResult": {
+        "#map": [
+          ["bob", { "tag": "Unfinished", "value": { "#tup": [] } }],
+          ["charlie", { "tag": "WrongMove", "value": { "#tup": [] } }]
+        ]
+      }
+    }
+  ]
+}

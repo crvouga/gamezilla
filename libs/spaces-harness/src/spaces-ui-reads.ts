@@ -1,8 +1,29 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { actorLocalSql } from '@libs/harness/identity';
+import { actorLocalSql, deviceMemberIdOf } from '@libs/harness/identity';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
+
+/** Each person's own retained space, including changes made offline. */
+export async function openSpaceHosts(
+  s: ProductHarness,
+  people: readonly string[]
+): Promise<Set<string>> {
+  const hosts = new Set<string>();
+  for (const person of people) {
+    if (!s.actors.has(person)) continue;
+    const db = actorLocalSql(s, person);
+    const member = await deviceMemberIdOf(s, person);
+    if (db === null || member === null) continue;
+    const rows = await db.query(sql<{ readonly id: string }>`
+      SELECT id FROM spaces
+      WHERE COALESCE(host_account_id, host_member_id) = ${member}
+        AND ended_at IS NULL AND deleted_at IS NULL
+    `);
+    if (rows.length > 0) hosts.add(person);
+  }
+  return hosts;
+}
 
 export async function lobbyCardVisible(
   s: ProductHarness,
@@ -164,6 +185,14 @@ export function spaceHostOfflineShown(
   actorId: string
 ): Promise<boolean> {
   return shows(s, actorId, Handles.spaceHostOffline);
+}
+
+/** A joined person can remove their own account's membership. */
+export function leaveOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceLeave);
 }
 
 /** A refused join stays available as an explicit retry. */

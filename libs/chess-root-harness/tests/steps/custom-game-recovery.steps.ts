@@ -93,6 +93,28 @@ Given(
   }
 );
 
+Given(
+  '{actor} has played e2-e4 in the Custom Game while offline',
+  async (w, actor: Actor) => {
+    await cutConnection(w, actor);
+    await w.s.apply(changeCustomGame, actor, {
+      operation: 'move',
+      uci: 'e2e4',
+      ply: 0,
+    });
+    await w.s.until(
+      async () =>
+        (await w.s.read(readCustomGameProbe, actor))?.current?.moves.length ===
+        2,
+      { maxMs: 5000 }
+    );
+    w.memo.set(
+      'offline-custom-moves',
+      (await w.s.read(readCustomGameProbe, actor))?.current?.moves
+    );
+  }
+);
+
 When(
   '{actor} reviews move {int} of the Custom Game',
   async (w, actor: string, ply: number) =>
@@ -198,3 +220,12 @@ Then(
     expect(game.moves.slice(0, before.moves.length)).toEqual(before.moves);
   }
 );
+
+Then('The Custom Game keeps the opening move and the bot reply', async (w) => {
+  const game = await customGame(w);
+  expect(game.moves).toHaveLength(2);
+  expect(game.moves[0]?.san).toBe('e4');
+  expect(game.moves).toEqual(
+    w.memo.get('offline-custom-moves') as CustomGame['moves']
+  );
+});

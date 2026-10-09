@@ -97,6 +97,11 @@ When(
     await w.s.apply(findChessOpponent, actor, timeControl);
   }
 );
+Given(
+  '{actor} has found a chess opponent for {word}',
+  (w, actor: Actor, timeControl: string) =>
+    w.s.apply(findChessOpponent, actor, timeControl)
+);
 When(
   '{actor} finds a chess opponent for {word} on another device',
   async (w, actor: Actor, timeControl: string) => {

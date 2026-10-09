@@ -46,12 +46,16 @@ export type VerifyOptions = {
   readonly inductiveInvariant?: string;
   /** Opt into fresh solver phases, without rechecking the assumed initial candidate. */
   readonly separateInduction?: boolean;
+  /** Preserve every induction case, sharing a solver phase across this many. */
+  readonly inductionCaseGroupSize?: number;
   /** Apalache's working directory and QUINT_HOME (emptied first). */
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
   readonly timeoutMs: number;
   /** Opt into array-encoded maps for models supported by that encoding. */
   readonly encoding?: 'fun-arrays';
+  /** Use concrete inference for models that have no polymorphic operators. */
+  readonly inferPolymorphicTypes?: boolean;
 };
 
 export type VerifyResult =
@@ -83,11 +87,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   const elapsed = wallStopwatch();
   const prepared = {
     ...options,
-    specPath:
-      options.inductiveInvariant === undefined ||
-      options.encoding === 'fun-arrays'
-        ? cachedVerifyInput(options.specPath, options.outDir)
-        : options.specPath,
+    specPath: cachedVerifyInput(options.specPath, options.outDir),
   };
   const runPhase = async (
     phase: VerifyPhase
@@ -213,7 +213,15 @@ function verifyConfig(options: VerifyOptions, phase: VerifyPhase): string {
         : {}),
     },
   };
-  writeFileSync(path, JSON.stringify({ checker }));
+  writeFileSync(
+    path,
+    JSON.stringify({
+      checker,
+      ...(options.inferPolymorphicTypes === undefined
+        ? {}
+        : { typechecker: { inferpoly: options.inferPolymorphicTypes } }),
+    })
+  );
   return path;
 }
 /**

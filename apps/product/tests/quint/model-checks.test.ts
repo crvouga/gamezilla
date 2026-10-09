@@ -22,6 +22,7 @@ for (const model of MODELS) {
             specPath: path,
             invariants: ['invSafety'],
             maxSteps: model.verifySteps,
+            inferPolymorphicTypes: false,
             outDir: join(REPORT_DIR, model.name),
             timeoutMs: CLI_TIMEOUT_MS,
           });

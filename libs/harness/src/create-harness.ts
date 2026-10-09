@@ -57,6 +57,7 @@ import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
 } from './server-nodes';
+import { sessionSeed, sessionSql } from './session-defaults';
 import {
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
@@ -98,7 +99,7 @@ export type Harness = {
   readonly idps: HarnessIdps;
   /** The payment providers, when the composition sells something. */
   readonly billing: HarnessBillingProviders | null;
-  /** The team's moderation rules every device and API instance runs with. */
+  /** Releases of the team's rules, installed on connected devices. */
   readonly teamRules: HarnessTeamRules;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
@@ -143,17 +144,6 @@ export type Harness = {
   readonly serverSql: HarnessSql;
   clientSql(id: string): HarnessSql | undefined;
 };
-
-function sessionSeed(session: Session): bigint {
-  const rng = session.ports.rng as {
-    readonly _seeded?: { readonly seed: bigint };
-  };
-  return rng._seeded?.seed ?? 1n;
-}
-
-function portSql(session: Session): HarnessSql | undefined {
-  return (session.ports as { readonly sql?: HarnessSql }).sql;
-}
 
 /**
  * Services a production fleet shares across API instances. Per-instance copies
@@ -267,7 +257,7 @@ async function openServerSql(
 ): Promise<HarnessSql> {
   const clock = session.ports.clock;
   if (opts.serverSql !== undefined) return opts.serverSql;
-  const fromPorts = portSql(session);
+  const fromPorts = sessionSql(session);
   if (fromPorts !== undefined) return fromPorts;
   if (opts.serverSqlSeedBytes !== undefined) {
     return openHarnessServerSqlFromSeedBytes(
@@ -419,6 +409,7 @@ async function disposeHarness(args: {
   kernel.disposed.value = true;
   kernel.servers.stopAll();
   kernel.roomNode.dispose();
+  kernel.teamRules.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
   await kernel.billing?.dispose();

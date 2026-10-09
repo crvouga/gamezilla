@@ -77,6 +77,10 @@ export type QuintBinding<W> = {
   readonly inductiveInvariant?: string;
   /** Opt into independent solver phases for the same induction obligations. */
   readonly separateInduction?: boolean;
+  /** Share solver setup while retaining every alternative and its guards. */
+  readonly inductionCaseGroupSize?: number;
+  /** Concrete inference still type-checks models without polymorphic operators. */
+  readonly inferPolymorphicTypes?: boolean;
   /**
    * The models check's deadline for this model, in milliseconds. Default
    * {@link DEFAULT_VERIFY_TIMEOUT_MS}. Raise it only for a proof whose cost

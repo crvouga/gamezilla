@@ -34,7 +34,7 @@ function endSpace(game: CustomGame): CustomGame {
     SpaceEnded({})
   );
   if (result == null) return game;
-  if (!result.ok) throw new Error(result.error.reason);
+  if (!result.ok) throw new Error(JSON.stringify(result.error));
   const changed = result.events.find(CustomGamesChanged.is);
   if (changed === undefined) throw new Error('game ending has no outcome');
   const current = changed.payload.games.current;

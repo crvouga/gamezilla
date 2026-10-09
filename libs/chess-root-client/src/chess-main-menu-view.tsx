@@ -4,7 +4,6 @@ import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
 import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
-import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
 import { useIsPuzzleDriver } from '@libs/chess-puzzle-client/use-puzzle-space-role';
 import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
 import type { ChessMainMenuScreen } from '@libs/chess-root-shared/chess-main-menu';
@@ -103,7 +102,6 @@ function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
 export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
   return (
     <ChessPuzzleFeedProvider>
-      <ReconcilePuzzleResult />
       <div class="box flex-1 min-h-0 self-stretch">
         <ChessScreenSwitch onBackToGames={props.onBackToGames} />
       </div>

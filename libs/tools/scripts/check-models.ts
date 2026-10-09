@@ -60,6 +60,8 @@ const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
 const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
 const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
+const INDUCTION_CASE_GROUP_SIZE = /\binductionCaseGroupSize:\s*(\d+)/;
+const CONCRETE_TYPES = /\binferPolymorphicTypes:\s*false\b/;
 const VERIFY_TIMEOUT_MS = /\bverifyTimeoutMs:\s*([\d_]+)/;
 
 export type ModelCheck = {
@@ -69,6 +71,8 @@ export type ModelCheck = {
   readonly inductiveInvariant: string | null;
   readonly encoding?: 'fun-arrays';
   readonly separateInduction?: true;
+  readonly inductionCaseGroupSize?: number;
+  readonly inferPolymorphicTypes?: false;
   /** A timeout is a failed obligation; improve the abstraction or proof strategy. */
   readonly timeoutMs: number;
 };
@@ -125,6 +129,10 @@ export function modelChecksFromBindings(
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
       const binding = texts.get(stem) ?? null;
       const encoding = modelEncodingOf(binding);
+      const groupSize =
+        binding === null
+          ? undefined
+          : INDUCTION_CASE_GROUP_SIZE.exec(binding)?.[1];
       return {
         specUri,
         steps: verifyStepsOf(binding),
@@ -134,6 +142,12 @@ export function modelChecksFromBindings(
             ? null
             : (INDUCTIVE_INVARIANT.exec(binding)?.[1] ?? null),
         ...(encoding === undefined ? {} : { encoding }),
+        ...(groupSize === undefined
+          ? {}
+          : { inductionCaseGroupSize: Number(groupSize) }),
+        ...(binding !== null && CONCRETE_TYPES.test(binding)
+          ? { inferPolymorphicTypes: false as const }
+          : {}),
         ...(binding !== null && SEPARATE_INDUCTION.test(binding)
           ? { separateInduction: true as const }
           : {}),
@@ -216,6 +230,12 @@ async function checkModel(
           ...(check.separateInduction === true
             ? { separateInduction: true }
             : {}),
+          ...(check.inductionCaseGroupSize === undefined
+            ? {}
+            : { inductionCaseGroupSize: check.inductionCaseGroupSize }),
+          ...(check.inferPolymorphicTypes === undefined
+            ? {}
+            : { inferPolymorphicTypes: check.inferPolymorphicTypes }),
           ...(check.inductiveInvariant === null
             ? {}
             : { inductiveInvariant: check.inductiveInvariant }),

@@ -35,7 +35,7 @@ import {
 import { onScreen } from '@libs/harness/ui-reads';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import { createSpace, endSpace } from '@libs/spaces-harness/space-actions';
-import { openSpaceHosts } from '@libs/spaces-harness/space-state-reads';
+import { openSpaceHosts } from '@libs/spaces-harness/spaces-ui-reads';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';

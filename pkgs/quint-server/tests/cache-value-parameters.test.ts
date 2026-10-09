@@ -7,6 +7,29 @@ import { cacheValueParameters } from '@pkgs/quint-server/cache-value-parameters'
 import { typecheck } from '@pkgs/quint-server/typecheck';
 import { verify } from '@pkgs/quint-server/verify';
 
+// regression: quint-untyped-record-parameters-expanded
+test('record field reads cache inferred values while operator parameters remain callable', () => {
+  const source = `module inferred {
+    pure def advance(view) = view.count + (view.count - view.count) + 1
+    pure def applyTwice(transform, value) = transform(transform(value))
+    pure val example = applyTwice(x => advance({ count: x }), 1)
+  }`;
+  const dir = mkdtempSync(join(tmpdir(), 'quint-inferred-record-'));
+  const path = join(dir, 'inferred.qnt');
+  try {
+    const cached = cacheValueParameters(source);
+    expect(cached).toContain('pure val view = cached_input_');
+    // regression: quint-repeated-record-fields-inference
+    expect(cached.match(/view\.count/g)).toHaveLength(1);
+    expect(cached).toContain('applyTwice(transform, value)');
+    expect(cacheValueParameters(cached)).toBe(cached);
+    writeFileSync(path, cached);
+    expect(typecheck(path)).toEqual({ ok: true });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 // regression: quint-cached-sum-type-syntax
 test('cached value parameters preserve sum constructors and local shadowing', () => {
   const source = `module choice {
@@ -60,6 +83,7 @@ test('cached verification retains imported rules and refutes the same violating 
       specPath,
       invariants: ['invAtMostOne'],
       maxSteps: 2,
+      inferPolymorphicTypes: false,
       outDir: join(dir, 'proof'),
       timeoutMs: 120_000,
     });

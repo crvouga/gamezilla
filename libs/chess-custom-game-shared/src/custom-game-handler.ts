@@ -8,13 +8,14 @@ import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import type { CustomGameChoice } from './custom-game-choice';
-import type { CustomGameWake } from './custom-game-commands';
+import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
 import { CustomGamesChanged } from './custom-game-commands';
 import {
   configureCustomGame,
   rematchCustomGame,
 } from './custom-game-configuration';
 import { customGameEffects } from './custom-game-effects';
+import { soloCustomGame } from './custom-game-local';
 import {
   expireCustomGame,
   playCustomGameChoice,
@@ -100,24 +101,34 @@ function currentWake(
 export function handleCustomGameWake(
   state: RoomState,
   ctx: GameCommandContext,
-  wake: CustomGameWake,
+  wake: CustomGameBotWake | (CustomGameWake & { at: number }),
   bot: boolean
 ): HandleResult {
-  if (ctx.identity !== ROOM_SCHEDULER_IDENTITY)
-    return refuseCustomGame('only the game may move a bot or end a clock');
   const games = CustomGamesAttr.from(state);
   const game = games.current;
+  if (
+    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
+    !(
+      game?.creator === ctx.identity &&
+      'at' in wake &&
+      (bot || soloCustomGame(game))
+    )
+  )
+    return refuseCustomGame('only the game may move a bot or end a clock');
   if (!currentWake(game, wake)) return changedCustomGames(games, ctx);
-  const expired = expireCustomGame(game, ctx.ts);
+  const at = 'at' in wake ? Math.min(ctx.ts, wake.at) : ctx.ts;
+  if (game.turnStartedAt !== null && at < game.turnStartedAt)
+    return refuseCustomGame('choices changed');
+  const expired = expireCustomGame(game, at);
   if (expired !== game)
     return changedCustomGames({ ...games, current: expired }, ctx);
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx);
   const moves = customGameLegalMoves(game);
-  const index = Math.floor(ctx.random() * moves.length);
-  const move = moves[index];
+  const move =
+    'move' in wake ? wake.move : moves[Math.floor(ctx.random() * moves.length)];
   if (move === undefined) throw new Error('active bot game has no legal move');
-  const next = playCustomGameMove(game, move, ctx.ts);
-  if (next === null) throw new Error('generated bot move is illegal');
+  const next = playCustomGameMove(game, move, at);
+  if (next === null) return refuseCustomGame('move is illegal');
   return changedCustomGames({ ...games, current: next }, ctx);
 }

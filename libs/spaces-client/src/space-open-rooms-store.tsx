@@ -191,3 +191,10 @@ export function useSpaceOpenRoomEntry(
   const entries = useContext(SpaceOpenRoomsEntriesContext);
   return createMemo(() => entries().get(resolveSpaceId(spaceId)) ?? null);
 }
+
+/** Open local rooms, independently of which detail screen is being viewed. */
+export function useSpaceOpenRoomEntries(): Accessor<
+  ReadonlyMap<string, SpaceOpenRoomEntry>
+> {
+  return useContext(SpaceOpenRoomsEntriesContext);
+}

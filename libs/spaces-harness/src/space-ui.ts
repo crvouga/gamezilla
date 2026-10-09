@@ -226,6 +226,10 @@ export async function tapChromeOrOverflow(
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (await ui.get(handle).isVisible()) {
+    await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
+    return;
+  }
   await ui
     .get(Handles.spaceClose)
     .expect.visible({ timeoutMs: SPACE_WAIT_MS })

@@ -6,6 +6,7 @@ import { hashRoomState } from '@pkgs/room-root-shared/hash-room-state';
 import type {
   HandleResult,
   RoomCommand,
+  RoomEffect,
   RoomError,
   RoomModule,
   RoomModuleName,
@@ -43,6 +44,15 @@ import {
   spaceServiceCmdNs,
   spaceServiceCommandRouter,
 } from './space-service-command';
+
+export type SpaceModule = RoomModule<RoomState, Message, Message, string> & {
+  readonly recoverLocalEffects: (state: RoomState) => readonly RoomEffect[];
+  readonly prepareLocalCommand: (
+    state: RoomState,
+    payload: Message,
+    now: number
+  ) => Message;
+};
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -144,7 +154,7 @@ export function createSpaceModule(
   games: readonly GameDefinition[],
   now: () => number,
   random: Random
-): RoomModule<RoomState, Message, Message, string> {
+): SpaceModule {
   assertUniqueGameIds(games);
   const commandRouter = buildCommandRouter(games);
   const eventReducer = buildEventReducer(games, now);
@@ -153,11 +163,22 @@ export function createSpaceModule(
 
   return {
     name,
-    connectionView: (grants) =>
-      grants.includes(PERMISSION.spacesLeave)
-        ? { mode: 'full' }
-        : { mode: 'presence', reason: 'not in the space' },
+    connectionView: (grants) => {
+      if (grants.includes(PERMISSION.spacesSelectGame))
+        return { mode: 'authority' };
+      return grants.includes(PERMISSION.spacesLeave)
+        ? { mode: 'dependent', reason: 'the host is offline' }
+        : { mode: 'presence', reason: 'not in the space' };
+    },
     initialState: (): RoomState => buildInitialState(games),
+    recoverLocalEffects: (state) =>
+      games.flatMap((game) => [...(game.recoverLocalEffects?.(state) ?? [])]),
+    prepareLocalCommand: (state, payload, at) =>
+      games.reduce(
+        (command, game) =>
+          game.prepareLocalCommand?.(state, command, at, random) ?? command,
+        payload
+      ),
     recoverEffects: (state) =>
       games.flatMap((game) => [...game.recoverEffects(state)]),
 

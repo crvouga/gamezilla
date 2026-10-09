@@ -1,7 +1,13 @@
-import { rememberCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
+import {
+  customGameAcknowledgementTip,
+  rememberCustomGameAcknowledgement,
+} from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
 import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import {
+  readCustomGameProbe,
+  waitCustomGameAvailability,
+} from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import {
   returnToTabs,
@@ -58,6 +64,8 @@ export async function reopenConfiguration(
     !signedOut.has(actor)
   ) {
     await w.s.apply(reopenSpaceLink, actor, configurationLink(w));
+    if ((await w.s.read(waitCustomGameAvailability, actor)) === 'host offline')
+      return;
     await w.s.apply(openCustomGame, actor);
     if (!(w.memo.get('configuration-offline') as Set<string>).has(actor))
       await w.s.until(
@@ -78,12 +86,10 @@ async function fact(
     gameId: game?.id ?? null,
     revision: game?.revision ?? 0,
   };
+  const spaceId = configurationLink(w).split('/space/')[1] ?? '';
+  const before = await w.quiet.read(customGameAcknowledgementTip, spaceId);
   await customFact(w, actor, input);
-  await w.s.read(
-    rememberCustomGameAcknowledgement,
-    configurationLink(w).split('/space/')[1] ?? '',
-    choice
-  );
+  await w.s.read(rememberCustomGameAcknowledgement, spaceId, choice, before);
 }
 
 export async function prepareConfiguration(
@@ -122,4 +128,9 @@ export async function prepareConfiguration(
   if (beginning === 'offering') await fact(w, 'alice', { operation: 'offer' });
   const probe = await w.s.read(readCustomGameProbe, 'alice');
   if (probe === null) throw new Error('Host has no Custom Game picture');
+  for (const actor of ['alice', 'bob', 'alice-other'])
+    await w.s.until(
+      async (s) => (await readCustomGameProbe(s, actor))?.connected === true,
+      { maxMs: 5000 }
+    );
 }

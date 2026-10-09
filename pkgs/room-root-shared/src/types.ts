@@ -115,6 +115,12 @@ export function assertRoomModuleName(raw: string): RoomModuleName {
   return parsed;
 }
 
+export type RoomConnectionView =
+  | { readonly mode: 'full' }
+  | { readonly mode: 'authority' }
+  | { readonly mode: 'dependent'; readonly reason: string }
+  | { readonly mode: 'presence'; readonly reason: string };
+
 export type RoomModule<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
@@ -123,12 +129,8 @@ export type RoomModule<
 > = {
   /** Wire id for DO routing (`module` query) and uniqueness in multi-module hosts. */
   readonly name: RoomModuleName;
-  /** A presence connection receives availability, never domain events. */
-  connectionView?(
-    grants: readonly string[]
-  ):
-    | { readonly mode: 'full' }
-    | { readonly mode: 'presence'; readonly reason: string };
+  /** Presence sees availability; dependent participants wait for authority. */
+  connectionView?(grants: readonly string[]): RoomConnectionView;
   initialState(): S;
   handle(
     state: S,

@@ -4,6 +4,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth-client/use-fresh-auth-token';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { spacePresenceClientId } from '@libs/spaces-shared/space-presence-client-id';
 import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useKv } from '@pkgs/kv-root-client/solid';
@@ -20,6 +21,7 @@ import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSpaceOpenRooms } from './space-open-rooms-store';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
+import { useSpaceCan } from './use-space-can';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -45,6 +47,10 @@ function resolveId(spaceId: string | Accessor<string>): string {
 export function useSpaceRoom(
   spaceId: string | Accessor<string>
 ): SpaceRoomUiState {
+  const hostsSpace = useSpaceCan(
+    () => resolveId(spaceId),
+    PERMISSION.spacesSelectGame
+  );
   const deviceId = useMyDeviceId();
   const memberId = useMyId();
   const configService = useConfigService();
@@ -82,6 +88,7 @@ export function useSpaceRoom(
     return {
       spaceId: id,
       myId: member,
+      hostsSpace: hostsSpace(),
       installId: device,
       clientId: client,
     };

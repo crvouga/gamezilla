@@ -32,7 +32,15 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared/wire';
-import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
+import {
+  hasAuthority,
+  participates,
+  refuseConnectionCommand,
+} from './room-server-connections';
+import {
+  broadcastToConnections,
+  sendConnectionWelcome,
+} from './room-server-fanout';
 
 const crash: Assert = Assert.crash();
 
@@ -71,6 +79,7 @@ export class RoomServer<
   private readonly clock: Clock;
   private readonly effectHandlers: readonly RoomEffectHandler[];
   private readonly connections = new Map<string, RoomConnection>();
+  private authorityAvailable = false;
   private chain: Promise<void> = Promise.resolve();
   private committedState: S;
   private lastSeq = 0;
@@ -206,18 +215,29 @@ export class RoomServer<
 
   getRoster(): readonly RoomActor[] {
     const out: RoomActor[] = [];
+    const authority = hasAuthority(this.connections);
     for (const conn of this.connections.values())
-      if (conn.view.mode === 'full') out.push(conn.actor);
+      if (participates(conn, authority)) out.push(conn.actor);
     return out;
   }
 
   broadcastRoster(): void {
+    const authority = hasAuthority(this.connections);
+    const returned = authority && !this.authorityAvailable;
+    this.authorityAvailable = authority;
     this.broadcast({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.roster,
       clients: this.getRoster(),
     });
     this.notePresence();
+    if (returned) this.enqueue(() => this.resumeDependents()).catch(noop);
+  }
+
+  private async resumeDependents(): Promise<void> {
+    for (const conn of this.connections.values())
+      if (conn.view.mode === 'dependent')
+        await this.sendWelcomeSerial(conn.id, 0);
   }
 
   /**
@@ -245,11 +265,12 @@ export class RoomServer<
   }
 
   private broadcast(frame: unknown): void {
+    const authority = hasAuthority(this.connections);
     broadcastToConnections(
       this.connections,
       frame,
       (conn) =>
-        conn.view.mode === 'full' ||
+        participates(conn, authority) ||
         (frame as { kind: string }).kind === ROOM_WIRE_KIND.roster
     );
   }
@@ -275,26 +296,12 @@ export class RoomServer<
   ): Promise<void> {
     const conn = this.connections.get(connectionId);
     if (conn === undefined) return;
-    if (conn.view.mode === 'presence') {
-      conn.send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.welcome,
-        fromSeq: 0,
-        lastSeq: 0,
-        entries: [],
-      });
-      conn.send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.roster,
-        clients: this.getRoster(),
-      });
-      return;
-    }
-    await sendWelcomeFrame({
+    await sendConnectionWelcome({
+      connection: conn,
       storage: this.storage,
       topic: this.topic,
       fromSeq,
-      send: conn.send,
+      available: () => participates(conn, hasAuthority(this.connections)),
       roster: this.getRoster(),
       tip: () => this.tip(),
     });
@@ -472,15 +479,7 @@ export class RoomServer<
     if (conn === undefined) return;
     const send = conn.send;
     const commandId = parsed.id;
-    if (conn.view.mode === 'presence') {
-      send(
-        rejectedFrame(commandId, {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: conn.view.reason,
-        })
-      );
-      return;
-    }
+    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
       this.sendDedupReplay(send, commandId, prior);
@@ -503,6 +502,7 @@ export class RoomServer<
       payload: parsed.payload as C,
     };
     const denied = await this.authorizeOrNull(identity, command, conn.grants);
+    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
     if (denied !== null) {
       await this.reject(commandId, denied, send);
       return;

@@ -24,8 +24,15 @@ export const refreshMultiplayerConnection = scenarioAction({
   name: 'refreshMultiplayerConnection',
   act: async (s, actor: string) => {
     const { engine } = await multiplayerClient(s, actor);
-    void engine.refreshQueries();
-    await s.session.waitForIdle();
+    let drained = false;
+    void engine.refreshQueries().then(() => {
+      drained = true;
+    });
+    await pollUntil(s, async () => (drained ? true : null), {
+      maxMs: 5000,
+      stepMs: 1,
+      description: 'multiplayer connection refresh',
+    });
   },
 });
 
@@ -41,7 +48,18 @@ export const setMultiplayerConnection = scenarioAction({
       await Promise.resolve(restoreActorConnection.act(s, `${actor}:events`));
       await Promise.resolve(restoreActorConnection.act(s, actor));
       const { env } = await multiplayerClient(s, actor);
-      void env.createAuthClient().session.refresh();
+      let refreshed = false;
+      void env
+        .createAuthClient()
+        .session.refresh()
+        .finally(() => {
+          refreshed = true;
+        });
+      await pollUntil(s, async () => (refreshed ? true : null), {
+        maxMs: 5000,
+        stepMs: 1,
+        description: 'multiplayer returning session',
+      });
     } else {
       await Promise.resolve(partition.act(s, actor));
       await Promise.resolve(partition.act(s, `${actor}:events`));

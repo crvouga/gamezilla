@@ -3,8 +3,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 
 /**
  * The team stops allowing `name` as a space name. The rules ship with the
- * app, so every device and API instance has them at once, connected or not;
- * a space given the name keeps it.
+ * app: disconnected devices keep their installed rules until they return.
+ * A space given the name keeps it.
  */
 export const stopAllowingSpaceName = scenarioAction({
   name: 'stopAllowingSpaceName',

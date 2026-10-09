@@ -15,6 +15,7 @@ import '@libs/profile-harness/auth.steps';
 import '@libs/billing-harness/access.steps';
 import '@libs/friends-harness/friends.steps';
 import '@libs/friends-harness/spaces.steps';
+import '@libs/friends-harness/space-offline.steps';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openSpecHarness } from '../open-chess-harness';
 

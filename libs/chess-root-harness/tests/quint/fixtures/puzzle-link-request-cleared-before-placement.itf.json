@@ -1,0 +1,96 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Volumes/OWC Express 1M2/super.engineering/worktrees/gamezilla/sc-flux-niobium-7361/specs/chess/puzzle-link.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Fri Oct 09 2026 00:04:23 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1791529463495
+  },
+  "vars": [
+    "puzzle",
+    "rated",
+    "puzzleStarts",
+    "linkShared",
+    "linkRefusal",
+    "_playedBefore",
+    "_retired",
+    "_offline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_playedBefore": true,
+      "_retired": false,
+      "linkRefusal": "none",
+      "linkShared": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "playedBefore": {
+          "tag": "Some",
+          "value": true
+        },
+        "starts": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "19"
+          }
+        }
+      },
+      "puzzle": "none",
+      "puzzleStarts": {
+        "#bigint": "19"
+      },
+      "rated": false
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_playedBefore": true,
+      "_retired": true,
+      "linkRefusal": "none",
+      "linkShared": false,
+      "mbt::actionTaken": "retirePuzzle",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "playedBefore": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "starts": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "puzzle": "none",
+      "puzzleStarts": {
+        "#bigint": "19"
+      },
+      "rated": false
+    }
+  ]
+}

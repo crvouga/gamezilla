@@ -156,7 +156,7 @@ export function makeHarnessClientEnv(
     createId: createSeededCreateId(
       createSeededRng(`${seed.toString()}:client:${ns}`).random
     ),
-    random: session.ports.random,
+    random: roomNode.clientRandom ?? session.ports.random,
     seed,
     server: serverFetch,
     get events() {
@@ -195,8 +195,10 @@ export function makeHarnessClientEnv(
     openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,
-    // The app ships the team's rules: every device has them, online or not.
-    moderation: deps.teamRules.moderation,
+    moderation: deps.teamRules.forDevice({
+      reachable: () => net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
+      subscribeReachability: net.subscribe,
+    }),
   };
   setOriginAvailability(env, server.availability);
   return { env, browser };

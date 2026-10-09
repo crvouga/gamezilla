@@ -5,7 +5,11 @@
 export type SpacePresence =
   | { readonly status: 'loading' }
   | { readonly status: 'active'; readonly role: 'host' | 'guest' }
-  | { readonly status: 'join'; readonly ended: boolean };
+  | {
+      readonly status: 'join';
+      readonly ended: boolean;
+      readonly role: 'host' | 'guest' | null;
+    };
 
 type SpaceRow = {
   readonly host_member_id: string | null;
@@ -44,7 +48,7 @@ export function resolveSpacePresence(args: {
   }
   const endedAt = args.spaceRow?.ended_at ?? null;
   if (endedAt != null) {
-    return { status: 'join', ended: true };
+    return { status: 'join', ended: true, role: null };
   }
   if (args.spaceLoading && args.spaceRow === null) {
     return { status: 'loading' };
@@ -55,5 +59,13 @@ export function resolveSpacePresence(args: {
       role: isViewerSpaceHost(args.spaceRow, args.myId) ? 'host' : 'guest',
     };
   }
-  return { status: 'join', ended: false };
+  return {
+    status: 'join',
+    ended: false,
+    role: args.isMember
+      ? isViewerSpaceHost(args.spaceRow, args.myId)
+        ? 'host'
+        : 'guest'
+      : null,
+  };
 }

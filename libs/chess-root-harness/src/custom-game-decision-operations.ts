@@ -181,7 +181,19 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
   );
   const host = spacePresenceOf(c.input) === 'host' ? memberIdOf(c) : OTHER_HOST;
   const w = { node, timers, c, nextId, host };
+  const hosting = node.createTransport({
+    topic: `space:${SPACE_ID}`,
+    module: 'space',
+    identity: host,
+    installId: host === memberIdOf(c) ? c.env.deviceId : `${host}-device`,
+    clientId: nextId(),
+    apiUrl: '',
+    timers,
+    random: () => 0.5,
+    getSessionToken: () => null,
+  });
   try {
+    await hosting.connect();
     const capability = capabilityOf(c.input);
     await prepare(w, capability);
     const input = inputFor(capability);
@@ -210,6 +222,7 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
       }
     }
   } finally {
+    hosting.destroy();
     node.dispose();
   }
 };

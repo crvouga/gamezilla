@@ -1,4 +1,5 @@
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import reconnectionTrace from './fixtures/multiplayer-reconnection-before-auth-refresh.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
   abortPlay,
@@ -38,6 +39,14 @@ bindQuintModel<PlayTrace>({
   // settling in 100 ms steps would let the product's time run past it.
   settleStepMs: 1,
   regressions: [
+    {
+      // regression: multiplayer-reconnection-before-auth-refresh
+      id: 'multiplayer-reconnection-before-auth-refresh',
+      title:
+        'A returning player can make the legal move on their current board',
+      seed: '0x67932',
+      itf: reconnectionTrace,
+    },
     // regression: chess-deletion-refreshes-connected-devices
     {
       id: 'multiplayer-third-device-deletion',

@@ -2,7 +2,12 @@ import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Message } from '@pkgs/message-shared/message';
 import type { CustomGameOperation } from './custom-game-choice';
-import { ChangeCustomGame } from './custom-game-commands';
+import {
+  ChangeCustomGame,
+  ChangeLocalCustomGame,
+  EndLocalCustomGameOnTime,
+  PlayCustomGameBot,
+} from './custom-game-commands';
 
 export const CUSTOM_GAME_GRANT_KEYS = [
   PERMISSION.chessCustomCreate,
@@ -54,8 +59,23 @@ export function customGamePermission(
 export function customGameCommandPermission(
   command: Message
 ): { readonly key: AppGrantKey; readonly reason: string } | null {
-  if (!ChangeCustomGame.is(command)) return null;
-  const key = customGamePermission(command.payload.operation);
+  if (PlayCustomGameBot.is(command) && 'move' in command.payload)
+    return {
+      key: PERMISSION.chessCustomBot,
+      reason: 'only the creator moves a bot',
+    };
+  if (EndLocalCustomGameOnTime.is(command))
+    return {
+      key: PERMISSION.chessCustomCreate,
+      reason: 'only the creator runs a solo clock',
+    };
+  const choice = ChangeLocalCustomGame.is(command)
+    ? command.payload.choice
+    : ChangeCustomGame.is(command)
+      ? command.payload
+      : null;
+  if (choice === null) return null;
+  const key = customGamePermission(choice.operation);
   const reason =
     key === PERMISSION.chessCustomCreate
       ? 'only the host creates a Custom Game'

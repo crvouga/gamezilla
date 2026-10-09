@@ -6,7 +6,7 @@ import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
-import type { Timers } from '@pkgs/clock-shared/types';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { readCustomGameIdentity } from './custom-game-identity';
 
 type Reply = { readonly reason: string; readonly disclosed: boolean };
@@ -23,11 +23,12 @@ function rememberReply(s: ProductHarness, actor: string, reply: Reply): void {
 
 async function disconnectedReason(
   timers: Timers,
+  clock: Clock,
   choice?: CustomGameChoice
 ): Promise<string> {
   try {
     await confirmCustomGameChoice(
-      { room: undefined, timers, pending: new Set() },
+      { room: undefined, timers, clock, canHost: false, pending: new Set() },
       choice ?? { operation: 'create', gameId: null, revision: 0 }
     );
   } catch (failure) {
@@ -100,7 +101,7 @@ export const attemptCustomGameBoundary = scenarioAction({
         cause.message === 'harness room: server unreachable'
       ) {
         rememberReply(s, actor, {
-          reason: await disconnectedReason(env.timers, args.choice),
+          reason: await disconnectedReason(env.timers, env.clock, args.choice),
           disclosed: false,
         });
         return;

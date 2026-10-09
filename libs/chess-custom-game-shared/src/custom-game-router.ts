@@ -5,16 +5,20 @@ import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { z } from 'zod';
 import {
   ChangeCustomGame,
+  ChangeLocalCustomGame,
   CustomGamesChanged,
   customGameCmdNs,
   customGameEvtNs,
   EndCustomGameOnTime,
+  EndLocalCustomGameOnTime,
   PlayCustomGameBot,
 } from './custom-game-commands';
 import {
   handleCustomGameChoice,
   handleCustomGameWake,
+  refuseCustomGame,
 } from './custom-game-handler';
+import { localCustomGameChoiceAllowed } from './custom-game-local';
 import { CustomGamesAttr, EMPTY_CUSTOM_GAMES } from './custom-game-state';
 
 const noticeSchema = z
@@ -33,8 +37,23 @@ export const customGameCommandRouter = createMessageRouter<
   .on(ChangeCustomGame, (state, ctx, command) =>
     handleCustomGameChoice(state, ctx, command.payload)
   )
+  .on(ChangeLocalCustomGame, (state, ctx, command) =>
+    localCustomGameChoiceAllowed(
+      CustomGamesAttr.from(state).current,
+      command.payload.choice
+    )
+      ? handleCustomGameChoice(
+          state,
+          { ...ctx, ts: Math.min(ctx.ts, command.payload.at) },
+          command.payload.choice
+        )
+      : refuseCustomGame('connection needed')
+  )
   .on(PlayCustomGameBot, (state, ctx, command) =>
     handleCustomGameWake(state, ctx, command.payload, true)
+  )
+  .on(EndLocalCustomGameOnTime, (state, ctx, command) =>
+    handleCustomGameWake(state, ctx, command.payload, false)
   )
   .on(EndCustomGameOnTime, (state, ctx, command) =>
     handleCustomGameWake(state, ctx, command.payload, false)

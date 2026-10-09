@@ -25,6 +25,7 @@ export function verifyPhases(input: {
   readonly maxSteps: number;
   readonly inductiveInvariant?: string;
   readonly separateInduction?: boolean;
+  readonly inductionCaseGroupSize?: number;
 }): readonly VerifyPhase[] {
   const candidate = input.inductiveInvariant;
   if (candidate === undefined)
@@ -52,24 +53,26 @@ export function verifyPhases(input: {
     ];
   return [
     { name: 'initial', invariants: [candidate], maxSteps: 0 },
-    ...inductionSteps(input).flatMap((step, index) => {
-      const invariants =
-        step === undefined
-          ? [candidate]
-          : preservationTargets({ ...input, candidate, step });
-      return invariants.length === 0
-        ? []
-        : [
-            {
-              name: 'preservation' as const,
-              invariants,
-              maxSteps: 1,
-              init: candidate,
-              ...(step === undefined ? {} : { step }),
-              case: index,
-            },
-          ];
-    }),
+    ...groupSteps(inductionSteps(input), input.inductionCaseGroupSize).flatMap(
+      (step, index) => {
+        const invariants =
+          step === undefined
+            ? [candidate]
+            : preservationTargets({ ...input, candidate, step });
+        return invariants.length === 0
+          ? []
+          : [
+              {
+                name: 'preservation' as const,
+                invariants,
+                maxSteps: 1,
+                init: candidate,
+                ...(step === undefined ? {} : { step }),
+                case: index,
+              },
+            ];
+      }
+    ),
     ...(targets.length === 0
       ? []
       : [
@@ -81,4 +84,22 @@ export function verifyPhases(input: {
           },
         ]),
   ];
+}
+
+/** Regroup every alternative; a group's shared frame is their intersection. */
+function groupSteps(
+  steps: readonly (string | undefined)[],
+  requestedSize: number | undefined
+): readonly (string | undefined)[] {
+  const size = Math.max(1, Math.floor(requestedSize ?? 1));
+  if (
+    !Number.isFinite(size) ||
+    size === 1 ||
+    steps.some((step) => step === undefined)
+  )
+    return steps;
+  const groups: string[] = [];
+  for (let index = 0; index < steps.length; index += size)
+    groups.push(`any { ${steps.slice(index, index + size).join(', ')} }`);
+  return groups;
 }
