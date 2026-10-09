@@ -1,7 +1,6 @@
 import {
   observeMembership,
   openBilling,
-  providerEvent,
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
@@ -92,7 +91,6 @@ bindQuintModel<QuintHarnessWorld>({
     PaidAccessEnded: async (w) => {
       await changeAccess(w, async () => {
         await w.s.apply(observeMembership, ACTOR, 'cancel_now');
-        await w.s.apply(providerEvent, ACTOR, 'run_out_period');
         await w.s.apply(letTimePass, 8 * DAY_MS);
         await w.s.apply(openBilling, ACTOR);
         await w.s.until((s) => billingTier(s, ACTOR), {

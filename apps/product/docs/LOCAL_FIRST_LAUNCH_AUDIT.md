@@ -15,10 +15,13 @@ can support launch.
 
 All eight current Friends and Spaces models passed their formal checks with
 the original bounds and deadlines. The full behavior replay is still running.
-A separate settled-screen regression for repeated Plus access fails: both
-subscriptions ended at the provider and in the shared account record, while
-the device retains the second trial and offers no new subscription. The cause
-is under investigation; this is not passing launch evidence.
+A separate settled-screen regression found an extra wait in the hosting
+replay: immediate cancellation waited for the original trial period as well
+as access grace, crossing the independent sign-in lifetime on the second
+cycle. Waiting only for the remaining grace fixes that driver error. The
+literal sequence now passes all three assertions, including a third checkout
+and a newly hosted space. Sign-in lapse and its downstream reactions remain
+a separate audit obligation.
 
 ## Verification
 

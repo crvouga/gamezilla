@@ -32,13 +32,6 @@ export async function billingMembershipDiagnostics(
       localAccount: env.secureStorage.getValue(LAST_LOCAL_ACCOUNT_ID_KEY),
       expiresAt: env.secureStorage.getValue(SESSION_EXPIRES_AT_KEY),
     },
-    scopes:
-      local === null
-        ? null
-        : await local.query(sql<Record<string, unknown>>`
-      SELECT scope_hash, last_checkpoint, last_active_at, deleted_at
-      FROM sync_engine_scope_meta
-    `),
     providers: providers.map(({ provider, subscriptions }) => ({
       provider: provider.id,
       now: provider.now(),

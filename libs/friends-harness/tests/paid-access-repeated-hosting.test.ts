@@ -7,12 +7,20 @@ import { billingMembershipDiagnostics } from '@libs/billing-harness/billing-memb
 import { billingButtonEnabled } from '@libs/billing-harness/billing-reads';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs } from '@libs/harness/shell-actions';
-import { openSpacesTab, startSpace } from '@libs/spaces-harness/space-actions';
-import { hostedSpaceCount } from '@libs/spaces-harness/spaces-ui-reads';
+import {
+  openSpacesTab,
+  returnToLobby,
+  startSpace,
+} from '@libs/spaces-harness/space-actions';
+import {
+  activeSpaceVisible,
+  hostedSpaceCount,
+} from '@libs/spaces-harness/spaces-ui-reads';
 import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
 import './quint/index';
 
 test('paid access can start again after two completed hosting cycles', async () => {
+  // regression: hosting-cancellation-waits-past-sign-in
   const world = quintWorld();
   const model = 'hosting-limits';
   const binding = quintBinding(model);
@@ -60,6 +68,8 @@ test('paid access can start again after two completed hosting cycles', async () 
     await w.s.apply(backToTabs, 'alice');
     await w.s.apply(openSpacesTab, 'alice');
     await w.s.apply(startSpace, 'alice');
+    expect(await w.s.read(activeSpaceVisible, 'alice')).toBe(true);
+    await w.s.apply(returnToLobby, 'alice');
     expect(await w.s.read(hostedSpaceCount, 'alice')).toBe(1);
   } catch (error) {
     throw new Error(
