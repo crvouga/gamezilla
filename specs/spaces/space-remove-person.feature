@@ -18,6 +18,10 @@ Feature: Remove a person from a space
       When Bob views the space's presence
       Then Bob cannot remove Alice from the space because only the host can remove a person
 
+    Scenario: The host uses Leave instead of removing themselves
+      When Alice views the space's presence
+      Then Alice cannot remove themselves from the space because leaving ends their space
+
   Rule: A host can remove a person with or without a connection
     No counter-example: removal is the host's choice; the other person learns it once both connections are back.
 
@@ -49,6 +53,7 @@ Feature: Remove a person from a space
 
   Rule: A removed person chooses whether to join again through the public space link
 
+    @regression:space-removed-person-rejoins-with-stale-grants
     Scenario: A removed person joins the open space again
       Given Alice has removed Bob from the space
       When Bob joins the space from the link
