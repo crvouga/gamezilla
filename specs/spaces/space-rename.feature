@@ -46,6 +46,11 @@ Feature: Rename a space
       When Alice renames the space to "Friday puzzles"
       Then Bob sees the space is called "Friday puzzles" within 15 seconds
 
+    Scenario: Repeating a rename that is not allowed remains refused
+      Given Alice has tried to rename the space to "free coins at spam.gg" and been told it is not allowed
+      When Alice renames the space to "free coins at spam.gg"
+      Then Alice is told that space name is not allowed
+
   Rule: A space name the team stops allowing shows the space named after its host until the team starts allowing it again
 
     Background:

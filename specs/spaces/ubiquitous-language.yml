@@ -129,7 +129,7 @@ terms:
       are in, that is stepping out; from a space that has ended, it is all
       there is left to do.
     forms: [goes back to the lobby, gone back to the lobby, went back to the lobby]
-    model: [goBackToLobby]
+    model: [goBackToLobby, stepOut]
 
   - term: drop out
     definition: >-

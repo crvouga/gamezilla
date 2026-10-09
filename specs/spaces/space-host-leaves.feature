@@ -1,9 +1,8 @@
 @domain:spaces
 Feature: The host leaving ends the space
-  When a host leaves their space, everyone in it wants the space to end, so
-  nobody waits in a space its host has left. When a host only loses the
-  connection or closes the app, they want to come back to their space as they
-  left it, because that is not leaving.
+  When a host leaves their space, loses the connection or closes the app,
+  everyone in it wants to know whether the space is still open, so people
+  can tell leaving from being away.
 
   Rule: The host leaving ends the space and losing the connection or closing the app does not
     No counter-example: leaving always ends the host's space; closing the app or losing the connection never counts as leaving.
@@ -27,6 +26,19 @@ Feature: The host leaving ends the space
       When Alice returns to their space
       Then Alice is in the space
       And Bob sees 2 people in the space within 20 seconds
+
+    Scenario: An offline host sees their space end when they leave
+      Given Alice is offline
+      When Alice leaves the space
+      Then Alice sees the space has ended within 20 seconds
+      And Bob is told the host is offline within 20 seconds
+
+    Scenario: Returning after the offline host left tells the other person the space ended
+      Given Alice is offline
+      And Alice has left the space
+      When the connection comes back
+      Then Bob sees the space has ended within 20 seconds
+      And Bob is not offered to join
 
   Rule: Other people are disconnected while the host is offline and the host keeps their space
 

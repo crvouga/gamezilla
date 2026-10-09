@@ -48,8 +48,9 @@ terms:
     definition: >-
       Whether a device can reach everyone else. A device with no connection is
       offline; once it has one again it is back online. What a person does
-      offline shows for them at once; what needs other people waits for the
-      connection, with nothing for the person to do.
+      offline and the app accepts shows for them at once; sharing those
+      accepted changes waits for the connection, with nothing for the person
+      to do. A choice refused while offline does not happen later on its own.
     forms: [offline, online, back online, connected, disconnected]
     avoid: [network error, socket]
 
