@@ -636,11 +636,8 @@ module custom_game {
   pure val _TIME_PAIRS = tuples(TIMES,INCREMENTS)
   // These promises survive any number of choices, departures and returns.
   val _inductive = all {
-    _gameId >= 0,
-    _gameIdShown.keys() == DEVICES,
-    DEVICES.forall(p => _gameIdShown.get(p) >= 0 and _gameIdShown.get(p) <= _gameId),
-    DEVICES.forall(p => not(_offline.contains(p)) implies _gameIdShown.get(p) == (if (_visible(p,_members,_offline,_signedOut)) _gameId else 0)),
-    (_status == "none") == (_gameId == 0),
+    _gameId.in(Nat),
+    _gameIdShown.in(DEVICES.setOfMaps(Nat)),
     _status.in(Set("none","configuring","active","completed","cancelled")),
     statusShown.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
     _cutOffStatus.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
@@ -677,6 +674,9 @@ module custom_game {
     _sealed.in(Set(false,true)), _spaceEnded.in(Set(false,true)),
     _moves.in(0.to(3)), _declinedOffers.in(PEOPLE.powerset()),
     _blocks.in(_BLOCK_PAIRS.powerset()), _blockIgnored.in(Set(false,true)),
+    DEVICES.forall(p => _gameIdShown.get(p) <= _gameId),
+    DEVICES.forall(p => not(_offline.contains(p)) implies _gameIdShown.get(p) == (if (_visible(p,_members,_offline,_signedOut)) _gameId else 0)),
+    (_status == "none") == (_gameId == 0),
     _spaceEnded == not(_members.contains("alice")),
     _sealed == _terminal(customGame),
     customGame.status == "none" implies customGame == _INITIAL,
