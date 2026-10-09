@@ -21,6 +21,14 @@ Feature: How many spaces a person can host
       Then Alice is told their hosting limit is reached and invited to get Plus
       And Alice hosts 1 space
 
+    Scenario: After paid access ends, Alice is invited to Plus to host another space
+      Given Alice is a Plus member
+      And Alice is hosting a space
+      And Alice's paid access has ended
+      When Alice creates another space
+      Then Alice is told their hosting limit is reached and invited to get Plus
+      And Alice hosts 1 space
+
     Scenario: Ending a space frees the place for a new one
       Given Alice is signed in
       And Alice has hosted a space and ended it

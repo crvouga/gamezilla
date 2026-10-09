@@ -243,6 +243,8 @@ terms:
     from: billing
   - term: free account
     from: billing
+  - term: paid access
+    from: billing
   - term: friend
     from: friends
     model: [friend]
