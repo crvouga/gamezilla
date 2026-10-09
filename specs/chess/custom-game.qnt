@@ -231,13 +231,16 @@ module custom_game {
   action _update(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool): bool =
     _updateAll(g, offline, members, signedOut, reasons, fresh, _moves, _declinedOffers, _blocks, _blockIgnored)
 
-  action _updateAll(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool, moves: int, declined: Set[Person], blocks: Set[(Person, Person)], blockIgnored: bool): bool = all {
+  action _updateAll(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool, moves: int, declined: Set[Person], blocks: Set[(Person, Person)], blockIgnored: bool): bool = {
+    val visible = DEVICES.filter(p => _visible(p,members,offline,signedOut))
+    val newlyOffline = offline.exclude(_offline)
+    all {
     _moves' = if (g.status == "active") moves else 0,
     _declinedOffers' = if (g.status == "active") declined else Set(),
     _blocks' = blocks,
     _blockIgnored' = blockIgnored,
     _gameId' = if (fresh) _gameId + 1 else _gameId,
-    _gameIdShown' = DEVICES.mapBy(p => if (offline.contains(p)) _gameIdShown.get(p) else if (_visible(p,members,offline,signedOut)) (if (fresh) _gameId + 1 else _gameId) else 0),
+    _gameIdShown' = DEVICES.mapBy(p => if (offline.contains(p)) _gameIdShown.get(p) else if (visible.contains(p)) (if (fresh) _gameId + 1 else _gameId) else 0),
     _status' = g.status,
     _creator' = g.creator,
     _white' = g.white,
@@ -251,30 +254,31 @@ module custom_game {
     _offline' = offline,
     _signedOut' = signedOut,
     refusal' = reasons,
-    statusShown' = DEVICES.mapBy(p => if (offline.contains(p)) statusShown.get(p) else if (_visible(p,members,offline,signedOut)) g.status else _INITIAL.status),
-    creatorShown' = DEVICES.mapBy(p => if (offline.contains(p)) creatorShown.get(p) else if (_visible(p,members,offline,signedOut)) g.creator else _INITIAL.creator),
-    whiteShown' = DEVICES.mapBy(p => if (offline.contains(p)) whiteShown.get(p) else if (_visible(p,members,offline,signedOut)) g.white else _INITIAL.white),
-    blackShown' = DEVICES.mapBy(p => if (offline.contains(p)) blackShown.get(p) else if (_visible(p,members,offline,signedOut)) g.black else _INITIAL.black),
-    readyShown' = DEVICES.mapBy(p => if (offline.contains(p)) readyShown.get(p) else if (_visible(p,members,offline,signedOut)) g.ready else _INITIAL.ready),
-    minutesShown' = DEVICES.mapBy(p => if (offline.contains(p)) minutesShown.get(p) else if (_visible(p,members,offline,signedOut)) g.minutes else _INITIAL.minutes),
-    incrementShown' = DEVICES.mapBy(p => if (offline.contains(p)) incrementShown.get(p) else if (_visible(p,members,offline,signedOut)) g.increment else _INITIAL.increment),
-    startsShown' = DEVICES.mapBy(p => if (offline.contains(p)) startsShown.get(p) else if (_visible(p,members,offline,signedOut)) g.starts else _INITIAL.starts),
-    outcomeShown' = DEVICES.mapBy(p => if (offline.contains(p)) outcomeShown.get(p) else if (_visible(p,members,offline,signedOut)) g.outcome else _INITIAL.outcome),
-    drawOfferedByShown' = DEVICES.mapBy(p => if (offline.contains(p)) drawOfferedByShown.get(p) else if (_visible(p,members,offline,signedOut)) g.drawOfferedBy else _INITIAL.drawOfferedBy),
+    statusShown' = DEVICES.mapBy(p => if (offline.contains(p)) statusShown.get(p) else if (visible.contains(p)) g.status else _INITIAL.status),
+    creatorShown' = DEVICES.mapBy(p => if (offline.contains(p)) creatorShown.get(p) else if (visible.contains(p)) g.creator else _INITIAL.creator),
+    whiteShown' = DEVICES.mapBy(p => if (offline.contains(p)) whiteShown.get(p) else if (visible.contains(p)) g.white else _INITIAL.white),
+    blackShown' = DEVICES.mapBy(p => if (offline.contains(p)) blackShown.get(p) else if (visible.contains(p)) g.black else _INITIAL.black),
+    readyShown' = DEVICES.mapBy(p => if (offline.contains(p)) readyShown.get(p) else if (visible.contains(p)) g.ready else _INITIAL.ready),
+    minutesShown' = DEVICES.mapBy(p => if (offline.contains(p)) minutesShown.get(p) else if (visible.contains(p)) g.minutes else _INITIAL.minutes),
+    incrementShown' = DEVICES.mapBy(p => if (offline.contains(p)) incrementShown.get(p) else if (visible.contains(p)) g.increment else _INITIAL.increment),
+    startsShown' = DEVICES.mapBy(p => if (offline.contains(p)) startsShown.get(p) else if (visible.contains(p)) g.starts else _INITIAL.starts),
+    outcomeShown' = DEVICES.mapBy(p => if (offline.contains(p)) outcomeShown.get(p) else if (visible.contains(p)) g.outcome else _INITIAL.outcome),
+    drawOfferedByShown' = DEVICES.mapBy(p => if (offline.contains(p)) drawOfferedByShown.get(p) else if (visible.contains(p)) g.drawOfferedBy else _INITIAL.drawOfferedBy),
     _frozen' = if (fresh) _config(_INITIAL) else if (g.starts == 1 and customGame.starts == 0) _config(g) else _frozen,
     _sealed' = (if (fresh) false else _sealed or _terminal(g)),
     _members' = members,
     _spaceEnded' = (_spaceEnded or not(members.contains("alice"))),
-    _cutOffStatus' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) statusShown.get(p) else _cutOffStatus.get(p)),
-    _cutOffCreator' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) creatorShown.get(p) else _cutOffCreator.get(p)),
-    _cutOffWhite' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) whiteShown.get(p) else _cutOffWhite.get(p)),
-    _cutOffBlack' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) blackShown.get(p) else _cutOffBlack.get(p)),
-    _cutOffReady' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) readyShown.get(p) else _cutOffReady.get(p)),
-    _cutOffMinutes' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) minutesShown.get(p) else _cutOffMinutes.get(p)),
-    _cutOffIncrement' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) incrementShown.get(p) else _cutOffIncrement.get(p)),
-    _cutOffStarts' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) startsShown.get(p) else _cutOffStarts.get(p)),
-    _cutOffOutcome' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) outcomeShown.get(p) else _cutOffOutcome.get(p)),
-    _cutOffDrawofferedby' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) drawOfferedByShown.get(p) else _cutOffDrawofferedby.get(p)),
+    _cutOffStatus' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) statusShown.get(p) else _cutOffStatus.get(p)),
+    _cutOffCreator' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) creatorShown.get(p) else _cutOffCreator.get(p)),
+    _cutOffWhite' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) whiteShown.get(p) else _cutOffWhite.get(p)),
+    _cutOffBlack' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) blackShown.get(p) else _cutOffBlack.get(p)),
+    _cutOffReady' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) readyShown.get(p) else _cutOffReady.get(p)),
+    _cutOffMinutes' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) minutesShown.get(p) else _cutOffMinutes.get(p)),
+    _cutOffIncrement' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) incrementShown.get(p) else _cutOffIncrement.get(p)),
+    _cutOffStarts' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) startsShown.get(p) else _cutOffStarts.get(p)),
+    _cutOffOutcome' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) outcomeShown.get(p) else _cutOffOutcome.get(p)),
+    _cutOffDrawofferedby' = DEVICES.mapBy(p => if (newlyOffline.contains(p)) drawOfferedByShown.get(p) else _cutOffDrawofferedby.get(p)),
+  }
   }
 
   // Accepted choices have already met their connection and refusal rules.
