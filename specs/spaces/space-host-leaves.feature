@@ -14,6 +14,8 @@ Feature: The host leaving ends the space
       When Alice leaves the space
       Then Bob sees the space has ended within 15 seconds
       And Alice is not in a space
+      And Alice is not offered to leave the space
+      And Bob is not offered to leave the space
 
     Scenario: A host who loses the connection still hosts the space when it comes back
       Given Alice has been without a connection for 5 minutes
@@ -66,3 +68,11 @@ Feature: The host leaving ends the space
       When the connection comes back
       Then Bob sees the space has ended within 20 seconds
       And Bob is not offered to join
+
+    Scenario: Returning to an ended space offers no second departure or end
+      Given Alice has ended the space
+      And Alice is offline
+      When the connection comes back
+      Then Alice is not offered to end the space
+      And Alice is not offered to leave the space
+      And Bob is not offered to leave the space

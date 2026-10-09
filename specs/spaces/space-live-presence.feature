@@ -25,6 +25,7 @@ Feature: Presence in a space
       When Bob leaves the space
       Then Bob sees they have left the space
       And Bob is offered to join
+      And Bob is not offered to leave the space
       And Alice sees 1 person in the space within 20 seconds
 
     Scenario: Someone who left stops being offered to join when the space ends
