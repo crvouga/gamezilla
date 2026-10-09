@@ -31,6 +31,7 @@ import {
   readUsernameSaveFace,
   standInNameOf,
   standInNoticeShown,
+  usernameWaitingToShareShown,
 } from './profile-ui-reads';
 import { usernameKey } from './remembered-username';
 import {
@@ -203,6 +204,23 @@ Then(
         pred: (shown) => shown === username,
       }
     );
+  }
+);
+
+Then(
+  "{actor}'s other device shows {username} within {int} seconds",
+  async (w, actor: Actor, username: string, seconds: number) => {
+    await w.s.until(
+      (harness) => readProfileTabUsername(harness, otherDevice(actor)),
+      { pred: (shown) => shown === username, maxMs: seconds * SECOND_MS }
+    );
+  }
+);
+
+Then(
+  '{actor} is told their username change will be shared when the connection returns',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => usernameWaitingToShareShown(harness, actor));
   }
 );
 

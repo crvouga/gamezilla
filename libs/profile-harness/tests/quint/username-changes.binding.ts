@@ -12,7 +12,7 @@
  * connection waits until the device has noticed, as a person would.
  */
 
-import { partition, restoreNetwork } from '@libs/harness/actions';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -29,7 +29,9 @@ import {
   readProfileUsernameShown,
   readSavedProfileUsername,
   readUsernameSaveFace,
+  readUsernameSharedRefusalFace,
   standInNameOf,
+  usernameWaitingToShareShown,
 } from '@libs/profile-harness/profile-ui-reads';
 import {
   startAllowingUsername,
@@ -53,7 +55,6 @@ const USERNAME_CHANGE_RESULTS: Readonly<Record<string, string>> = {
   Saved: 'UsernameSaved',
   'Username is taken': 'UsernameTaken',
   'Username was changed recently': 'ChangedRecently',
-  "You're offline": 'RefusedOffline',
   'That username is not allowed': 'NotAllowed',
 };
 
@@ -80,6 +81,20 @@ async function save(w: QuintHarnessWorld, actor: string, typed: string) {
   const face = await w.s.read(readUsernameSaveFace, actor);
   w.memo.set(lastUsernameChangeKey(actor), face);
   await w.s.apply(leaveUsernameEditor, actor);
+  const away = await w.quiet.read(partitioned);
+  if (
+    face === 'Saved' &&
+    !away.some((pair) => pair.split('|').includes(actor))
+  ) {
+    await w.quiet.until(
+      (s: ProductHarness) => usernameWaitingToShareShown(s, actor),
+      {
+        pred: (waiting) => !waiting,
+      }
+    );
+    const refusal = await w.quiet.read(readUsernameSharedRefusalFace, actor);
+    if (refusal !== null) w.memo.set(lastUsernameChangeKey(actor), refusal);
+  }
 }
 
 function asModelUsername(
@@ -134,9 +149,24 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(partition, person(picks));
       await w.s.advanceTime(NOTICE_MS);
     },
-    connectionReturns: async (w) => {
-      await w.s.apply(restoreNetwork);
+    connectionReturns: async (w, picks) => {
+      const actor = person(picks);
+      const waiting = await w.quiet.read(usernameWaitingToShareShown, actor);
+      await w.s.apply(restoreActorConnection, actor);
       await w.s.advanceTime(NOTICE_MS);
+      if (waiting) {
+        await w.quiet.until(
+          (s: ProductHarness) => usernameWaitingToShareShown(s, actor),
+          {
+            pred: (pending) => !pending,
+          }
+        );
+        const refusal = await w.quiet.read(
+          readUsernameSharedRefusalFace,
+          actor
+        );
+        if (refusal !== null) w.memo.set(lastUsernameChangeKey(actor), refusal);
+      }
     },
     stopAllowing: async (w, picks) => {
       await w.s.apply(stopAllowingUsername, String(picks['name']));
@@ -152,7 +182,6 @@ bindQuintModel<QuintHarnessWorld>({
     for (const actor of PEOPLE) {
       const saved = await w.quiet.read(readSavedProfileUsername, actor);
       usernames.set(actor, asModelUsername(w, actor, saved));
-      await w.s.apply(focusActor, actor);
       const standIn = await w.quiet.read(standInNameOf, actor);
       const onDevice = await w.quiet.until(
         (s: ProductHarness) => readProfileUsernameShown(s, actor),

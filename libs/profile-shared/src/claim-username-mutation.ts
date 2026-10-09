@@ -118,8 +118,8 @@ async function seedProfile(
 export const claimUsernameMutation = defineMutation({
   name: 'claimUsername',
   args: z.object({ username: z.string() }),
-  pendingUx: 'pending',
-  requiresOnline: true,
+  pendingUx: 'local',
+  contentRulesTime: 'replayed',
   constraintErrors: {
     [USERNAME_NORM_UNIQUE_INDEX]: USERNAME_TAKEN_CONSTRAINT_ERROR,
   },

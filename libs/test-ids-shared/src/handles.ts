@@ -52,6 +52,15 @@ export const Handles = {
   spaceEnd: 'space-end',
   spaceLeaveConfirm: 'space-leave-confirm',
   spaceEndConfirm: 'space-end-confirm',
+  spaceShare: 'space-share',
+  spaceShareClose: 'space-share-close',
+  spaceAddTrigger: 'space-add-trigger',
+  spaceAddQuery: 'space-add-query',
+  spaceAddPerson: (memberId: string) => `space-add-person-${memberId}`,
+  spaceAddSuccess: 'space-add-success',
+  spaceRemovePerson: (memberId: string) => `space-remove-person-${memberId}`,
+  spaceRemoveConfirm: 'space-remove-confirm',
+  spaceRemoveSuccess: 'space-remove-success',
   /** Bottom miniplayer bar while a space is open locally. */
   spaceMiniplayer: 'space-miniplayer',
   spaceMiniplayerOpen: (spaceId: string) => `space-miniplayer-open-${spaceId}`,
@@ -184,6 +193,8 @@ export const Handles = {
   profileUsernameInput: 'profile-username-input',
   profileUsernameSave: 'profile-username-save',
   profileUsernameCancel: 'profile-username-cancel',
+  profileUsernamePending: 'profile-username-pending',
+  profileUsernameRefusal: 'profile-username-refusal',
   profileDisplayUsername: 'profile-display-username',
   /** The profile tells its person which stand-in name others see them by. */
   profileStandInNotice: 'profile-stand-in-notice',
@@ -227,7 +238,8 @@ export const Handles = {
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
   /** Why an Add did nothing offline: friend requests need a connection. */
-  friendRequestNeedsConnection: 'friend-request-needs-connection',
+  friendRequestPending: 'friend-request-pending',
+  friendRequestRefusal: 'friend-request-refusal',
   /** Confirm (accept incoming request) pill scoped by peer username. */
   friendConfirm: (username: string) => `friend-confirm-${username}`,
   /** Disabled Friends status pill scoped by peer username. */

@@ -8,6 +8,7 @@ import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
 import { ProfileAvatarFigure } from './profile-avatar-figure';
 import { StandInNotice } from './stand-in-notice';
+import { UsernameChangeFeedback } from './username-change-feedback';
 
 export type ProfileScreenProps = {
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
@@ -49,6 +50,9 @@ function ProfileScreenContent(props: {
         <div class="box items-center gap-1 self-stretch min-w-0">
           <MyUsername variant="heading" numberOfLines={1} class="text-center" />
           <StandInNotice />
+          <UsernameChangeFeedback
+            onChoose={() => router.push('/profile/handle')}
+          />
         </div>
         <div class="box flex-row gap-2 self-stretch mt-2">
           <Button

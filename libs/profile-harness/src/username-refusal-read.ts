@@ -1,5 +1,5 @@
 import type { ProductHarness } from '@libs/harness/harness';
-import { readUsernameSaveFace } from './profile-ui-reads';
+import { readProfileUsernameShown, readUsernameSaveFace } from './profile-ui-reads';
 
 const REFUSAL_FACES: Readonly<Record<string, string>> = {
   'it is too short': 'Username is too short',
@@ -8,7 +8,6 @@ const REFUSAL_FACES: Readonly<Record<string, string>> = {
     'Username can only use letters, numbers, and _',
   'the name is not allowed': 'That username is not allowed',
   'their username was changed recently': 'Username was changed recently',
-  'their device is offline': "You're offline",
   'another person already has that name': 'Username is taken',
 };
 
@@ -21,5 +20,8 @@ export async function usernameRefusalShown(
   const expected = REFUSAL_FACES[reason];
   if (expected === undefined)
     throw new Error(`unknown username refusal: ${reason}`);
+  const editor = await readUsernameSaveFace(s, actorId);
+  if (editor !== null) return editor === expected;
+  await readProfileUsernameShown(s, actorId);
   return (await readUsernameSaveFace(s, actorId)) === expected;
 }
