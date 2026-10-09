@@ -44,20 +44,19 @@ function presenceSql(
       CASE
         WHEN s.host_member_id = ${memberId}
           OR s.host_account_id = ${memberId}
-          OR EXISTS (
-            SELECT 1 FROM spaces_users AS u
-            WHERE u.space_id = s.id
-              AND u.user_id = ${memberId}
-              AND u.deleted_at IS NULL
-          )
+          OR u.space_id IS NOT NULL
         THEN 1
         ELSE 0
       END AS is_member
     FROM spaces AS s
+    LEFT JOIN spaces_users AS u
+      ON u.space_id = s.id AND u.user_id = ${memberId}
+      AND u.deleted_at IS NULL AND u.joined = ${true}
     LEFT JOIN spaces_open_sessions AS o
       ON o.space_id = s.id
       AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
+      AND o.participation_revision = u.participation_revision
     WHERE s.id = ${spaceId}
   `;
 }

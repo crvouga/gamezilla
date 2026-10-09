@@ -8,6 +8,7 @@ import {
 } from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
+  openSpaceLink,
   openSpaceMembers,
 } from '@libs/spaces-harness/space-actions';
 import { presenceShown } from '@libs/spaces-harness/space-presence-reads';
@@ -16,12 +17,15 @@ import {
   readSpacePresenceCount,
   spaceMemberName,
 } from '@libs/spaces-harness/spaces-ui-reads';
+import { rememberedSpaceLink } from './spaces.steps';
 
 Given("{actor} is viewing the space's presence", async (w, actor: Actor) => {
   await w.s.apply(openSpaceMembers, actor);
 });
 
 When("{actor} views the space's presence", async (w, actor: Actor) => {
+  if ((await w.s.read(spaceScreenOf, actor)) === 'elsewhere')
+    await w.s.apply(openSpaceLink, actor, rememberedSpaceLink(w));
   await w.s.apply(openSpaceMembers, actor);
 });
 

@@ -2361,6 +2361,7 @@
         "@libs/test-ids-shared": "workspace:*",
         "@libs/user-search-client": "workspace:*",
         "@lingui/solid": "catalog:",
+        "@pkgs/async-root-client": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/collab-root-shared": "workspace:*",

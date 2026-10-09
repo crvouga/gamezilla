@@ -1,0 +1,4 @@
+{
+  "summary": "Alice hosts a space, adds Bob, and Bob explicitly joins from its public link. The preview treats an empty roster during the initial room synchronization as proof that Alice is offline, so the offered join disappears prematurely. Literal adding-people trace 20 fails at addPerson followed by join.",
+  "regressionTest": "libs/friends-harness/tests/added-link-join.test.ts"
+}

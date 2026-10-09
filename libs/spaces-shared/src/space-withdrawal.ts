@@ -28,7 +28,8 @@ export const spaceRoomMembershipChanged = createMessageNamespace(
 export async function changeSpaceRoomMembership(
   ctx: MutationCtx,
   spaceId: string,
-  change: 'joined' | 'left' | 'ended'
+  change: 'joined' | 'left' | 'ended',
+  memberId: string
 ): Promise<void> {
   const id = ctx.env.createId();
   await new Outbox(ctx).send({
@@ -36,7 +37,7 @@ export async function changeSpaceRoomMembership(
     message: spaceRoomMembershipChanged({
       id,
       spaceId,
-      memberId: ctx.env.accountId ?? ctx.env.actorId,
+      memberId,
       change,
     }),
   });

@@ -20,8 +20,8 @@ export async function openMultiplayerQueryFixture() {
     INSERT INTO spaces (id, host_id, host_member_id, deleted_at)
     VALUES (${SPACE}, ${DEVICE}, ${HOST}, ${null})`);
   await db.run(sql`
-    INSERT INTO spaces_users (id, space_id, user_id, deleted_at)
-    VALUES (${spaceUserEntityId(SPACE, 'watcher')}, ${SPACE}, ${'watcher'}, ${null})`);
+    INSERT INTO spaces_users (id, space_id, user_id, joined, participation_revision, deleted_at)
+    VALUES (${spaceUserEntityId(SPACE, 'watcher')}, ${SPACE}, ${'watcher'}, ${true}, ${0}, ${null})`);
   await db.run(sql`
     INSERT INTO chess_multiplayer_players (id, owner_id, game_id, deleted_at)
     VALUES (${'player'}, ${HOST}, ${'game'}, ${TOMBSTONE})`);

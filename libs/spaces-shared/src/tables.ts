@@ -20,6 +20,11 @@ export const spacesUsers = defineTable({
     space_id: 'text',
     user_id: 'text',
     created_by_account_id: 'text',
+    joined: {
+      type: 'boolean',
+      backfill: { sql: { sql: 'TRUE', sqlite: '1' } },
+    },
+    participation_revision: { type: 'integer', backfill: { sql: '0' } },
   },
   uniqueIndexes: [['space_id', 'user_id']],
 });
@@ -32,6 +37,7 @@ export const spacesOpenSessions = defineTable({
     device_id: 'text',
     opened_at: 'timestamp',
     join_announced: 'boolean',
+    participation_revision: { type: 'integer', backfill: { sql: '0' } },
   },
   uniqueIndexes: [['device_id', 'space_id']],
 });

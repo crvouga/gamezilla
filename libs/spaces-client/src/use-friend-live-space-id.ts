@@ -23,7 +23,7 @@ export function useFriendLiveSpaceId(
           OR id IN (
             SELECT space_id
             FROM spaces_users
-            WHERE user_id = ${friend} AND deleted_at IS NULL
+            WHERE user_id = ${friend} AND deleted_at IS NULL AND joined = ${true}
           )
         )
       ORDER BY created_at DESC

@@ -1,6 +1,7 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, deviceMemberIdOf } from '@libs/harness/identity';
+import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
 
@@ -68,6 +69,7 @@ export async function activeSpaceVisible(
   actorId: string
 ): Promise<boolean> {
   try {
+    await bringToFront(s, actorId);
     const ui = await actorUi(s, actorId);
     return await ui.get(Handles.spaceClose).isVisible();
   } catch {
@@ -163,6 +165,7 @@ export async function joinOffered(
   actorId: string
 ): Promise<boolean> {
   try {
+    await bringToFront(s, actorId);
     const ui = await actorUi(s, actorId);
     return await ui.get(Handles.spaceJoin).isVisible();
   } catch {

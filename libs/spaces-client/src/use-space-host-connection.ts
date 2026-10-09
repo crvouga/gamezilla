@@ -4,6 +4,7 @@ import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSpaceRoomSessionId } from './space-room-context';
+import { useConfirmedHostAbsence } from './use-confirmed-host-absence';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 import {
   SPACE_ROOM_NAME,
@@ -20,7 +21,15 @@ export function useSpaceHostConnection(): Accessor<
   const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
   const connected = useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const hasRoster = useSpaceRoomSelector(RoomMetaAttr.hasRoster.from);
   const engine = useSyncEngine();
+  const absent = createMemo(
+    () =>
+      connected() &&
+      hasRoster() &&
+      !roster().some((actor) => actor.id === host())
+  );
+  const confirmedAbsent = useConfirmedHostAbsence(absent);
   let hostOfflineKnown = false;
   return createMemo(() => {
     const hostId = host();
@@ -28,8 +37,9 @@ export function useSpaceHostConnection(): Accessor<
     if (hostId === myId()) return 'ready';
     if (!engine.status().online)
       return hostOfflineKnown ? 'host-offline' : 'offline';
-    if (!connected()) return 'loading';
-    hostOfflineKnown = !roster().some((actor) => actor.id === hostId);
+    if (!connected() || !hasRoster()) return 'loading';
+    if (absent() && !confirmedAbsent()) return 'loading';
+    hostOfflineKnown = absent();
     if (hostOfflineKnown) return 'host-offline';
     return synced() ? 'ready' : 'loading';
   });

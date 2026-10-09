@@ -1,0 +1,4 @@
+{
+  "summary": "Alice removes Bob and Bob explicitly rejoins the public link. Bob's old open-session slot still used preview grants and Alice's presence counted only one. Participation filters now close the removed slot before a new explicit Join recreates it with current grants.",
+  "regressionTest": "specs/spaces/space-remove-person.feature"
+}

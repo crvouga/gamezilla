@@ -10,6 +10,7 @@ import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
+import { profileIdOf } from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
   createSpace,
@@ -22,6 +23,10 @@ import {
   reenterActiveSpace,
   returnToLobby,
 } from '@libs/spaces-harness/space-actions';
+import {
+  closeSpaceShare,
+  removePersonFromSpace,
+} from '@libs/spaces-harness/space-removal-actions';
 import type { SpaceScreen } from '@libs/spaces-harness/space-screen-read';
 import { spaceScreenOf } from '@libs/spaces-harness/space-screen-read';
 import {
@@ -34,6 +39,7 @@ import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
+import leftPreview from './fixtures/space-left-preview-misclassified-as-participant.itf.json';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -81,6 +87,13 @@ bindQuintModel<QuintHarnessWorld>({
   timeoutMs: 180_000,
   regressions: [
     {
+      // regression: space-left-preview-misclassified-as-participant
+      id: 'space-left-preview-misclassified-as-participant',
+      title: 'An offline-host notice does not turn a person who left into a participant',
+      seed: '0x67932',
+      itf: leftPreview,
+    },
+    {
       // regression: space-link-preview-orphaned-after-leave
       id: 'space-link-preview-orphaned-after-leave',
       title: 'A person can rejoin after leaving while the host was offline',
@@ -120,6 +133,13 @@ bindQuintModel<QuintHarnessWorld>({
     },
     leave: async (w, picks) => {
       await w.s.apply(leaveSpace, person(picks));
+    },
+    removePerson: async (w, picks) => {
+      const host = person(picks);
+      const other = await w.s.read(profileIdOf, person(picks, 'host'));
+      if (other === null) throw new Error('The other person has no profile');
+      await w.s.apply(removePersonFromSpace, host, other);
+      await w.s.apply(closeSpaceShare, host);
     },
     viewPresence: async (w, picks) => {
       await w.s.apply(openSpaceMembers, person(picks));

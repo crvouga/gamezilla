@@ -24,10 +24,11 @@ export const addSpaceUserMutation = defineMutation({
     const now = env.now().toISOString();
     await tx.run(sql`
       INSERT INTO spaces_users (
-        id, space_id, user_id, created_at, created_by_account_id, deleted_at
+        id, space_id, user_id, created_at, created_by_account_id, joined, participation_revision, deleted_at
       )
-      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${env.accountId}, ${null})
+      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${env.accountId}, ${false}, ${0}, ${null})
       ON CONFLICT (id) DO UPDATE SET
+        joined = CASE WHEN spaces_users.deleted_at IS NULL THEN spaces_users.joined ELSE ${false} END,
         deleted_at = NULL,
         created_at = excluded.created_at,
         created_by_account_id = excluded.created_by_account_id

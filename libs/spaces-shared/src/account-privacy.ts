@@ -33,7 +33,8 @@ export const SPACES_PRIVACY: AccountPrivacyContribution = {
           env.actorId
         )
           ? 'ended'
-          : 'left'
+          : 'left',
+        env.accountId ?? env.actorId
       );
     const now = (env.serverNow ?? env.now)().toISOString();
     await tx.run(

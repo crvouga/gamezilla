@@ -156,7 +156,7 @@ export async function seedCustomGameDecision(c: ServerCase): Promise<void> {
   await seedPlaceInSpace(c);
   const at = new Date(c.nowMs).toISOString();
   await c.db.run(
-    sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at) VALUES (${spaceUserEntityId(SPACE_ID, PEER)}, ${SPACE_ID}, ${PEER}, ${at}, ${at})`
+    sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at, joined, participation_revision) VALUES (${spaceUserEntityId(SPACE_ID, PEER)}, ${SPACE_ID}, ${PEER}, ${at}, ${at}, ${true}, ${0})`
   );
 }
 export const performCustomGameDecision: ServerOperation = async (c) => {

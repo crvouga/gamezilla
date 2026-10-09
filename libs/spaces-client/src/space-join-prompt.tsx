@@ -68,7 +68,7 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
         }
         content={({ bodyClass }) => (
           <div class={`box gap-3 ${bodyClass}`}>
-            <Show when={joinOffline()}>
+            <Show when={joinOffline() || connection() === 'offline'}>
               <SpacesNeedConnectionNotice />
             </Show>
             <Show

@@ -45,6 +45,7 @@ import {
   startAllowingSpaceName,
   stopAllowingSpaceName,
 } from '@libs/spaces-harness/space-name-rule-actions';
+import { returnToRetainedSpace } from '@libs/spaces-harness/space-retained-actions';
 import { spacePresenceDiagnostics } from '@libs/spaces-harness/space-screen-read';
 import {
   activeSpaceVisible,
@@ -141,6 +142,8 @@ async function untilPresence(
   count: number,
   maxMs: number
 ): Promise<void> {
+  if (!(await w.s.read(activeSpaceVisible, actor)))
+    await w.s.apply(openSpaceLink, actor, rememberedSpaceLink(w));
   await w.s.apply(openSpaceMembers, actor);
   try {
     await w.s.until((surf) => readSpacePresenceCount(surf, actor), {
@@ -172,6 +175,13 @@ Given('{actor} is a Plus member', async (w, actor: Actor) => {
 Given('{actor} is hosting a space', async (w, actor: Actor) => {
   await hostSpace(w, actor);
 });
+
+Given(
+  '{actor} is hosting {int} spaces',
+  async (w, actor: Actor, count: number) => {
+    for (let index = 0; index < count; index++) await hostSpace(w, actor);
+  }
+);
 
 When('{actor} creates a space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
@@ -227,7 +237,10 @@ Given('{actor} has gone back to the lobby', async (w, actor: Actor) => {
 });
 
 When('{actor} returns to their space', async (w, actor: Actor) => {
-  await w.s.apply(returnToOwnSpace, actor);
+  const link = w.memo.get(hostSpaceLinkKey(actor));
+  if (typeof link === 'string')
+    await w.s.apply(returnToRetainedSpace, actor, link);
+  else await w.s.apply(returnToOwnSpace, actor);
 });
 
 Then(
@@ -378,7 +391,9 @@ Then('{actor} is in the space', async (w, actor: Actor) => {
 });
 
 Then('{actor} is not in a space', async (w, actor: Actor) => {
-  expect(await w.s.read(activeSpaceVisible, actor)).toBe(false);
+  await w.s.until((surf) => activeSpaceVisible(surf, actor), {
+    pred: (visible) => !visible,
+  });
 });
 
 Then(
@@ -526,5 +541,10 @@ Then('{actor} cannot rename the space', async (w, actor: Actor) => {
 });
 
 Then('{actor} is offered to join', async (w, actor: Actor) => {
-  await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
+  try {
+    await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
+  } catch (error) {
+    const detail = await w.s.read(spacePresenceDiagnostics);
+    throw new Error(`${String(error)}; ${detail}`, { cause: error });
+  }
 });
