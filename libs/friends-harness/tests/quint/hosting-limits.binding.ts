@@ -95,7 +95,10 @@ bindQuintModel<QuintHarnessWorld>({
         await w.s.apply(providerEvent, ACTOR, 'run_out_period');
         await w.s.apply(letTimePass, 8 * DAY_MS);
         await w.s.apply(openBilling, ACTOR);
-        await w.s.until((s) => billingTier(s, ACTOR), { maxMs: 20_000, pred: (tier) => tier === 'free' });
+        await w.s.until((s) => billingTier(s, ACTOR), {
+          maxMs: 20_000,
+          pred: (tier) => tier === 'free',
+        });
       });
     },
     loseConnection: async (w) => {

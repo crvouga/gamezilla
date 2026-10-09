@@ -1,1 +1,1200 @@
-{"#meta":{"format":"ITF","format-description":"https://apalache-mc.org/docs/adr/015adr-trace.html","source":"/Volumes/OWC Express 1M2/super.engineering/worktrees/gamezilla/sc-flux-niobium-7361/specs/spaces/space-hosting.qnt","status":"ok","description":"Created by Quint on Fri Oct 09 2026 15:22:00 GMT-0700 (Mountain Standard Time)","timestamp":1791584520662},"vars":["_openSpaces","_sharedSpaces","_offline","lobby","_knownSpaces","_done","whereabouts","presence","_whereabouts","mbt::actionTaken","mbt::nondetPicks"],"states":[{"#meta":{"index":0},"_done":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"init","mbt::nondetPicks":{"host":{"tag":"None","value":{"#tup":[]}},"person":{"tag":"None","value":{"#tup":[]}}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":1},"_done":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":2},"_done":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"0"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"createSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":3},"_done":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"0"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"connectionReturns","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":4},"_done":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"1"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"createSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":5},"_done":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"1"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":6},"_done":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"2"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"viewPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"1"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]}},{"#meta":{"index":7},"_done":{"#map":[["alice",{"#bigint":"2"}],["bob",{"#bigint":"2"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"viewPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"1"}]]},"whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]}},{"#meta":{"index":8},"_done":{"#map":[["alice",{"#bigint":"3"}],["bob",{"#bigint":"2"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"stopViewingPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"1"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"ViewingPresence","value":"bob"}]]}},{"#meta":{"index":9},"_done":{"#map":[["alice",{"#bigint":"3"}],["bob",{"#bigint":"3"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"stopViewingPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":10},"_done":{"#map":[["alice",{"#bigint":"4"}],["bob",{"#bigint":"3"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"stepOut","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":11},"_done":{"#map":[["alice",{"#bigint":"4"}],["bob",{"#bigint":"3"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":["alice","bob"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice","bob"]},"_sharedSpaces":{"#set":["alice","bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":["alice","bob"]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"connectionReturns","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":12},"_done":{"#map":[["alice",{"#bigint":"4"}],["bob",{"#bigint":"4"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"leave","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]}},{"#meta":{"index":13},"_done":{"#map":[["alice",{"#bigint":"4"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"goBackToLobby","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":14},"_done":{"#map":[["alice",{"#bigint":"5"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"returnToSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":15},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"leave","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":16},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":17},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":["alice","bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":18},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"connectionReturns","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":19},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"5"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":20},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"6"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["bob"]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":["bob"]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"createSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":21},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"6"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["bob"]}]]},"_offline":{"#set":["alice","bob"]},"_openSpaces":{"#set":["bob"]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":22},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"6"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":["bob"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["bob"]},"_sharedSpaces":{"#set":["bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"connectionReturns","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":23},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"6"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":["bob"]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":["bob"]},"_sharedSpaces":{"#set":["bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"InSpace","value":"bob"}]]}},{"#meta":{"index":24},"_done":{"#map":[["alice",{"#bigint":"6"}],["bob",{"#bigint":"7"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":["bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"endSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Ended","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]}},{"#meta":{"index":25},"_done":{"#map":[["alice",{"#bigint":"7"}],["bob",{"#bigint":"7"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":["bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"goBackToLobby","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Ended","value":{"#tup":[]}}]]}},{"#meta":{"index":26},"_done":{"#map":[["alice",{"#bigint":"7"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":[]}]]},"_offline":{"#set":["bob"]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":["bob"]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":["bob"]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"goBackToLobby","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"bob"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":27},"_done":{"#map":[["alice",{"#bigint":"7"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":[]},"_sharedSpaces":{"#set":[]},"_whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":[]}]]},"mbt::actionTaken":"connectionReturns","mbt::nondetPicks":{"host":{"tag":"Some","value":"alice"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"Lobby","value":{"#tup":[]}}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":28},"_done":{"#map":[["alice",{"#bigint":"8"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"createSpace","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":29},"_done":{"#map":[["alice",{"#bigint":"9"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"viewPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":30},"_done":{"#map":[["alice",{"#bigint":"10"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"stopViewingPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"0"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"InSpace","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":31},"_done":{"#map":[["alice",{"#bigint":"11"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":[]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"viewPresence","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}},{"#meta":{"index":32},"_done":{"#map":[["alice",{"#bigint":"11"}],["bob",{"#bigint":"8"}]]},"_knownSpaces":{"#map":[["alice",{"#set":["alice"]}],["bob",{"#set":["alice"]}]]},"_offline":{"#set":["alice"]},"_openSpaces":{"#set":["alice"]},"_sharedSpaces":{"#set":["alice"]},"_whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]},"lobby":{"#map":[["alice",{"#set":[]}],["bob",{"#set":["alice"]}]]},"mbt::actionTaken":"loseConnection","mbt::nondetPicks":{"host":{"tag":"Some","value":"bob"},"person":{"tag":"Some","value":"alice"}},"presence":{"#map":[["alice",{"#bigint":"1"}],["bob",{"#bigint":"0"}]]},"whereabouts":{"#map":[["alice",{"tag":"ViewingPresence","value":"alice"}],["bob",{"tag":"Lobby","value":{"#tup":[]}}]]}}]}
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Volumes/OWC Express 1M2/super.engineering/worktrees/gamezilla/sc-flux-niobium-7361/specs/spaces/space-hosting.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Fri Oct 09 2026 15:22:00 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1791584520662
+  },
+  "vars": [
+    "_openSpaces",
+    "_sharedSpaces",
+    "_offline",
+    "lobby",
+    "_knownSpaces",
+    "_done",
+    "whereabouts",
+    "presence",
+    "_whereabouts",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "host": { "tag": "None", "value": { "#tup": [] } },
+        "person": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["alice"] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "1" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "1" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "2" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "viewPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "1" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "2" }], ["bob", { "#bigint": "2" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "viewPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "1" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "3" }], ["bob", { "#bigint": "2" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "stopViewingPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "1" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "ViewingPresence", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "3" }], ["bob", { "#bigint": "3" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "stopViewingPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "4" }], ["bob", { "#bigint": "3" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": [] }]
+        ]
+      },
+      "mbt::actionTaken": "stepOut",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "4" }], ["bob", { "#bigint": "3" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": ["alice", "bob"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice", "bob"] },
+      "_sharedSpaces": { "#set": ["alice", "bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": {
+        "#map": [
+          ["alice", { "#set": ["alice", "bob"] }],
+          ["bob", { "#set": [] }]
+        ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "4" }], ["bob", { "#bigint": "4" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": ["alice"] }], ["bob", { "#set": [] }]]
+      },
+      "mbt::actionTaken": "leave",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "4" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "mbt::actionTaken": "goBackToLobby",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "5" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "returnToSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "leave",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 17 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["alice", "bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 18 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 19 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "5" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 20 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "6" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["bob"] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": ["bob"] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 21 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "6" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["bob"] }]]
+      },
+      "_offline": { "#set": ["alice", "bob"] },
+      "_openSpaces": { "#set": ["bob"] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 22 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "6" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": ["bob"] }]]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["bob"] },
+      "_sharedSpaces": { "#set": ["bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 23 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "6" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": ["bob"] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": ["bob"] },
+      "_sharedSpaces": { "#set": ["bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "InSpace", "value": "bob" }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 24 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "6" }], ["bob", { "#bigint": "7" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": ["bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "endSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Ended", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 25 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "7" }], ["bob", { "#bigint": "7" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": ["bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": [] }]]
+      },
+      "mbt::actionTaken": "goBackToLobby",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Ended", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 26 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "7" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": ["bob"] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": ["bob"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": ["bob"] }], ["bob", { "#set": [] }]]
+      },
+      "mbt::actionTaken": "goBackToLobby",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "bob" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 27 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "7" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": [] },
+      "_sharedSpaces": { "#set": [] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": { "#map": [["alice", { "#set": [] }], ["bob", { "#set": [] }]] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "alice" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "Lobby", "value": { "#tup": [] } }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 28 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "8" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 29 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "9" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "viewPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 30 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "10" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "stopViewingPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "InSpace", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 31 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "11" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": [] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "viewPresence",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 32 },
+      "_done": {
+        "#map": [["alice", { "#bigint": "11" }], ["bob", { "#bigint": "8" }]]
+      },
+      "_knownSpaces": {
+        "#map": [
+          ["alice", { "#set": ["alice"] }],
+          ["bob", { "#set": ["alice"] }]
+        ]
+      },
+      "_offline": { "#set": ["alice"] },
+      "_openSpaces": { "#set": ["alice"] },
+      "_sharedSpaces": { "#set": ["alice"] },
+      "_whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      },
+      "lobby": {
+        "#map": [["alice", { "#set": [] }], ["bob", { "#set": ["alice"] }]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "host": { "tag": "Some", "value": "bob" },
+        "person": { "tag": "Some", "value": "alice" }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      },
+      "whereabouts": {
+        "#map": [
+          ["alice", { "tag": "ViewingPresence", "value": "alice" }],
+          ["bob", { "tag": "Lobby", "value": { "#tup": [] } }]
+        ]
+      }
+    }
+  ]
+}
