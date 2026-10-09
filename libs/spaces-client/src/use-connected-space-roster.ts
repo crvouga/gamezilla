@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages';
 import { isViewingSpaceClient } from '@libs/spaces-shared/space-presence-client-id';
 import { useNamedRoomRoster } from '@pkgs/room-root-client/room-clients-context';
@@ -28,7 +29,7 @@ export function useConnectedSpaceRoster(): Accessor<readonly RoomActor[]> {
   const host = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
   const myId = useMyId();
   const clientId = useSpaceRoomClientId();
-  return createMemo(() => {
+  const people = createMemo(() => {
     const hostId = host();
     if (hostId === null) return [];
     if (!connected() || !synced()) {
@@ -44,4 +45,6 @@ export function useConnectedSpaceRoster(): Accessor<readonly RoomActor[]> {
         (actor.id === hostId || Object.hasOwn(seats(), actor.id))
     );
   });
+  useSyncedProfiles(() => people().map((person) => person.id));
+  return people;
 }

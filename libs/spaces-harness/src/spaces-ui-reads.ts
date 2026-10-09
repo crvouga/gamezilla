@@ -88,6 +88,15 @@ export async function spaceMemberVisible(
   }
 }
 
+/** The name a connected person's row shows in the space's presence. */
+export function spaceMemberName(
+  s: ProductHarness,
+  actorId: string,
+  memberId: string
+): Promise<string | null> {
+  return textOf(s, actorId, Handles.spaceMemberName(memberId));
+}
+
 export async function spacePresenceCount(
   s: ProductHarness,
   actorId: string

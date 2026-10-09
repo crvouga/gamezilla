@@ -63,6 +63,7 @@ export const Handles = {
   spacePresenceStrip: 'space-presence-strip',
   /** One row in the space members list modal, scoped by member id. */
   spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
+  spaceMemberName: (memberId: string) => `space-member-name-${memberId}`,
   /** Hidden count probe in the space members modal. */
   spacePresenceCount: 'space-presence-count',
   /** Close control of the space members modal. */

@@ -1,13 +1,21 @@
 import { expect } from 'bun:test';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
+import {
+  nameEveryoneSeesOf,
+  profileIdOf,
+} from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
   openSpaceMembers,
 } from '@libs/spaces-harness/space-actions';
 import { presenceShown } from '@libs/spaces-harness/space-presence-reads';
 import { spaceScreenOf } from '@libs/spaces-harness/space-screen-read';
-import { readSpacePresenceCount } from '@libs/spaces-harness/spaces-ui-reads';
+import {
+  readSpacePresenceCount,
+  spaceMemberName,
+} from '@libs/spaces-harness/spaces-ui-reads';
 
 Given("{actor} is viewing the space's presence", async (w, actor: Actor) => {
   await w.s.apply(openSpaceMembers, actor);
@@ -27,6 +35,21 @@ Then(
     await w.s.until((s) => readSpacePresenceCount(s, actor), {
       pred: (actual) => actual === count,
       maxMs: 20_000,
+    });
+  }
+);
+
+Then(
+  "{actor} sees {actor} in the space's presence within {int} seconds",
+  async (w, actor: Actor, person: Actor, seconds: number) => {
+    const member = await w.s.read(profileIdOf, person);
+    const name = await w.s.read(nameEveryoneSeesOf, person);
+    if (member === null || name === null)
+      throw new Error(`${person} has no profile to identify`);
+    await w.s.apply(focusActor, actor);
+    await w.s.until((s) => spaceMemberName(s, actor, member), {
+      pred: (shown) => shown === name,
+      maxMs: seconds * 1_000,
     });
   }
 );
