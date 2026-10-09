@@ -87,6 +87,7 @@ Feature: Username rules
       Then Alice's username change is refused with "That username is not allowed"
       And Alice's profile still shows a stand-in name
 
+    @regression:offline-app-learns-unavailable-naming-rules
     Scenario: An offline device keeps the username it already knew
       Given Alice is offline
       When the team stops allowing the username @chess_cheater

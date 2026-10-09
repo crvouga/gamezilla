@@ -65,6 +65,7 @@ Feature: Rename a space
     Background:
       Given Alice has renamed the space to "Cheater corner"
 
+    @regression:offline-app-learns-unavailable-naming-rules
     Scenario: New naming rules keep an offline host's known space name
       Given Alice is offline
       When the team stops allowing the space name "Cheater corner"
