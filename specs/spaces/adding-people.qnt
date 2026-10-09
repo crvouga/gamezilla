@@ -17,22 +17,25 @@ module adding_people {
   var _offline: Set[Person]
   var _knownAdded: bool
   var _knownOpen: bool
+  var _knownJoined: bool
 
   pure def _show(open: bool, joined: bool, atLink: bool, away: Set[Person]): Person -> Whereabouts =
     Map("alice" -> (if (open) InSpace else Ended),
       "bob" -> (if (joined and open)
         (if (away == Set()) InSpace else DroppedOut)
         else if (atLink) (if (open)
-          (if (away.contains("alice")) DroppedOut else Left)
+          (if (away != Set()) DroppedOut else Left)
           else Ended) else Lobby))
 
   action _choose(open: bool, added: bool, joined: bool, atLink: bool, away: Set[Person]): bool = {
     val known = if (away == Set()) added else _knownAdded
     val knownOpen = if (away == Set()) open else _knownOpen
-    val place = _show(knownOpen, joined, atLink, away).set("alice", if (open) InSpace else Ended)
+    val knownJoined = if (away == Set()) joined else _knownJoined
+    val place = _show(knownOpen, knownJoined, atLink, away).set("alice", if (open) InSpace else Ended)
     all {
       _open' = open, _added' = added, _joined' = joined,
       _atLink' = atLink, _offline' = away, _knownAdded' = known, _knownOpen' = knownOpen,
+      _knownJoined' = knownJoined,
       whereabouts' = place,
       lobby' = Map("alice" -> Set(), "bob" ->
         (if (place.get("bob") == Lobby and knownOpen and known) Set("alice") else Set())),
@@ -42,6 +45,7 @@ module adding_people {
   action init = all {
     _open' = true, _added' = false, _joined' = false,
     _atLink' = false, _offline' = Set(), _knownAdded' = false, _knownOpen' = true,
+    _knownJoined' = false,
     whereabouts' = Map("alice" -> InSpace, "bob" -> Lobby),
     lobby' = PEOPLE.mapBy(_ => Set()),
   }
@@ -68,7 +72,7 @@ module adding_people {
   action join: bool = all {
     _open, not(_joined), _offline == Set(),
     _knownAdded or _atLink,
-    _choose(_open, _added, true, true, _offline),
+    _choose(_open, true, true, true, _offline),
   }
 
   /// The host's Leave ends the space for everyone.
@@ -108,10 +112,11 @@ module adding_people {
 
   val _inductive = and {
     _offline.subseteq(PEOPLE),
-    whereabouts == _show(_knownOpen, _joined, _atLink, _offline).set("alice", if (_open) InSpace else Ended),
+    whereabouts == _show(_knownOpen, _knownJoined, _atLink, _offline).set("alice", if (_open) InSpace else Ended),
     not(_open) implies not(_joined),
     _offline == Set() implies _knownAdded == _added,
     _offline == Set() implies _knownOpen == _open,
+    _offline == Set() implies _knownJoined == _joined,
     lobby == Map("alice" -> Set(), "bob" ->
       (if (whereabouts.get("bob") == Lobby and _knownOpen and _knownAdded) Set("alice") else Set())),
     invAdditionNeverJoins, invLobbyAccessIsCurrent, invOfflineHostKeepsSpace,
