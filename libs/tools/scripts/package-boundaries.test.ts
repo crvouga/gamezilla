@@ -7,6 +7,32 @@ import {
 
 const lib = { tier: 'libs', hasSrc: true, sources: [] };
 
+// regression: external-workspace-category
+test('upstream workspace packages do not adopt product package categories', () => {
+  expect(
+    categoryViolations(
+      {
+        name: '@libs/tools',
+        category: 'harness',
+        devDependencies: { '@crvouga/atlas': 'workspace:*' },
+      },
+      { tier: 'libs', hasSrc: false, sources: [] }
+    )
+  ).toEqual([]);
+  expect(
+    categoryViolations(
+      {
+        name: '@libs/tools',
+        category: 'harness',
+        devDependencies: { '@pkgs/missing-category': 'workspace:*' },
+      },
+      { tier: 'libs', hasSrc: false, sources: [] }
+    )
+  ).toEqual([
+    'devDependencies names @pkgs/missing-category, whose name spells no category',
+  ]);
+});
+
 describe('package categories', () => {
   test('the name spells the category', () => {
     expect(categoryOfName('@libs/chess-puzzle-client')).toBe('client');

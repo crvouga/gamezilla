@@ -1,6 +1,0 @@
-stateDiagram-v2
-  state "Viewing Paid access while offline" as s0
-  state "Alice has paid access — 1" as s1
-  [*] --> s0
-  s0 --> s1: Alice loses the connection
-  s1 --> [*]

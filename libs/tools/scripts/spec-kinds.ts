@@ -4,8 +4,9 @@
  * reading and this stays testable.
  *
  * `specs/` holds only `<context>/` directories, the shared kernel
- * (`ubiquitous-language.yml`), the conformance manifest (`conformance.yaml`)
- * and the combined rulebook (`README.md`). A context directory is flat:
+ * (`ubiquitous-language.yml`), the conformance manifest, the single product
+ * statechart with its journeys and Atlas metadata, and the combined rulebook.
+ * A context directory is flat:
  * its `ubiquitous-language.yml`, features, Quint models, DMN decision tables,
  * Alloy structures and OpenSLO objectives. A spec kind with no runner yet
  * (grammars, schemas) is refused — an unrun spec would be a false green.
@@ -20,6 +21,9 @@
 export const SPECS_ROOT_FILES: readonly string[] = [
   'ubiquitous-language.yml',
   'conformance.yaml',
+  'product.machine.json',
+  'journeys.yaml',
+  'atlas.yaml',
   'README.md',
 ];
 

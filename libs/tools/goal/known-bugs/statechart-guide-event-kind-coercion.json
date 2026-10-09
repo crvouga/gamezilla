@@ -1,0 +1,4 @@
+{
+  "summary": "Coercing an event kind to a string let ['system'] masquerade as the valid 'system' classification. Portable guide validation requires a literal string enum for every explicit kind and never coerces metadata.",
+  "regressionTest": "libs/tools/scripts/statechart-integrity.test.ts"
+}

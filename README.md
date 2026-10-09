@@ -4,6 +4,14 @@ Local-first multiplayer game platform. A person opens the app on a phone, tablet
 
 This file is the one briefing a fresh session should load: product, stack, and how the repo is worked. Executable product truth lives in [`specs/`](specs/). How to write a spec lives in [`specs/README.md`](specs/README.md). The injected agent contract is [`AGENTS.md`](AGENTS.md); it points here and does not restate this file. When this file and a spec disagree, the spec wins. Change product behavior by changing `specs/` first, in a `spec:` commit, then the code.
 
+The one [product statechart](specs/product.machine.json) maps the entire
+product, while its [exploration guide](docs/statecharts/README.md) explains
+the choices, outcomes, source-derived business examples and definitions.
+`bun atlas:viz` opens its lightweight viewer without the app stack;
+`bun atlas:run` validates and builds the standalone explorer; `bun
+atlas:lint` checks complete traversal, journeys, source ownership and
+portable serialization.
+
 The step catalogs — [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) and each spec package's `STEPS_CATALOG.md` — are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
 Private repo: `gamezilla-org/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.

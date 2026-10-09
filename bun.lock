@@ -2489,6 +2489,8 @@
       "version": "0.0.0",
       "devDependencies": {
         "@actions/artifact": "catalog:",
+        "@crvouga/atlas": "workspace:*",
+        "@crvouga/atlas-schema": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/secrets-server": "workspace:*",
         "@libs/secrets-shared": "workspace:*",

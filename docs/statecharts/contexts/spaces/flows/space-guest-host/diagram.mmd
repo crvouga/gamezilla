@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing A guest can host" as s0
-  state "Alice is in the space — 1" as s1
-  state "Alice is not in a space — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice creates a space
-  s0 --> s2: Alice ends the space
-  s1 --> [*]
-  s2 --> [*]
