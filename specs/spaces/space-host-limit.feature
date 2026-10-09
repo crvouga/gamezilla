@@ -2,8 +2,7 @@
 Feature: How many spaces a person can host
   When a person already hosts as many spaces as their hosting limit allows and
   wants another, they want to be invited to Plus rather than stopped by an
-  error, so hosting more is something worth paying for. Guests and free
-  accounts host one space at a time; Plus members host as many as they like.
+  error, so hosting more is something worth paying for.
 
   Rule: Guests and free accounts host one space at a time
 
