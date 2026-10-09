@@ -87,7 +87,13 @@ Feature: Username rules
       Then Alice's username change is refused with "That username is not allowed"
       And Alice's profile still shows a stand-in name
 
-    Scenario: A device without a connection shows the stand-in name at once
+    Scenario: An offline device keeps the username it already knew
       Given Alice is offline
       When the team stops allowing the username @chess_cheater
+      Then Alice's profile shows @chess_cheater
+
+    Scenario: A returning device applies the username rules it learns
+      Given Alice is offline
+      And the team has stopped allowing the username @chess_cheater
+      When the connection comes back
       Then Alice's profile shows a stand-in name

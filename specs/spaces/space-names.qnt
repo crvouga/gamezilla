@@ -12,8 +12,8 @@
 // Either of them can lose the connection and get it back. Offline, Alice's
 // rename shows on her own device at once and reaches Bob once both are
 // connected; a name that is not allowed is refused offline too, and Bob keeps
-// the last name he saw until he is back. A change to the rules shows on
-// every device at once, even one without a connection.
+// the last name he saw until he is back. Each offline device applies the
+// rules it already knows and learns changed rules when its connection returns.
 //
 // What a person can observe: what each of them sees the space called, and
 // what Alice's last rename showed her.
@@ -56,6 +56,8 @@ module space_names {
   var _sharedName: str
   /// The name Alice gave the space, as each device last heard it.
   var _known: Person -> str
+  /// Naming rules each device already knows.
+  var _knownNotAllowed: Person -> Set[str]
   /// People whose device has lost the connection.
   var _offline: Set[Person]
   /// The name Alice last typed.
@@ -81,13 +83,15 @@ module space_names {
     typed: str,
   ): bool = {
     val known = _heard(given, shared, _known, offline)
+    val rules = PEOPLE.mapBy(p => if (offline.contains(p)) _knownNotAllowed.get(p) else refused)
     all {
       givenName' = given,
-      spaceName' = PEOPLE.mapBy(p => _called(known.get(p), refused)),
+      spaceName' = PEOPLE.mapBy(p => _called(known.get(p), rules.get(p))),
       notAllowed' = refused,
       lastRename' = result,
       _sharedName' = shared,
       _known' = known,
+      _knownNotAllowed' = rules,
       _offline' = offline,
       _lastTyped' = typed,
     }
@@ -100,13 +104,14 @@ module space_names {
     lastRename' = NoRename,
     _sharedName' = "",
     _known' = PEOPLE.mapBy(_ => ""),
+    _knownNotAllowed' = PEOPLE.mapBy(_ => ALWAYS_REFUSED),
     _offline' = Set(),
     _lastTyped' = "",
   }
 
   /// Alice renames the space to `typed`.
   action rename(typed: str): bool =
-    if (notAllowed.contains(typed))
+    if (_knownNotAllowed.get("alice").contains(typed))
       _update(givenName, _sharedName, notAllowed, NameNotAllowed, _offline, typed)
     else
       _update(
@@ -158,14 +163,14 @@ module space_names {
     }
   }
 
-  /// Nobody ever sees the space called by a name that is not allowed.
+  /// Nobody sees a space name their device knows is not allowed.
   val invNotAllowedNeverShown = PEOPLE.forall(p =>
-    not(notAllowed.contains(spaceName.get(p)))
+    not(_knownNotAllowed.get(p).contains(spaceName.get(p)))
   )
 
   /// Alice sees the name she gave the space unless it is no longer allowed,
   /// and then the space named after her: the name itself is kept.
-  val invHostSeesGivenName = spaceName.get("alice") == _called(givenName, notAllowed)
+  val invHostSeesGivenName = spaceName.get("alice") == _called(givenName, _knownNotAllowed.get("alice"))
 
   /// A name the rules always refuse is never given to the space.
   val invAlwaysRefusedNeverGiven = not(ALWAYS_REFUSED.contains(givenName))
@@ -173,6 +178,12 @@ module space_names {
   /// A rename that showed as saved gave the space the name typed.
   val invSavedRenameGivesTypedName =
     lastRename == NameSaved implies givenName == _lastTyped
+
+  /// A connected device knows the current naming rules.
+  val invConnectedKnowsRules = PEOPLE.forall(p => not(_offline.contains(p)) implies _knownNotAllowed.get(p) == notAllowed)
+
+  /// Rules that always refuse a name are known on every device.
+  val invStandingRulesKnown = PEOPLE.forall(p => ALWAYS_REFUSED.subseteq(_knownNotAllowed.get(p)))
 
   /// While both are connected, they see the space called the same.
   val invConnectedAgree =

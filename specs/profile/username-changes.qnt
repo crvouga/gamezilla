@@ -16,11 +16,13 @@
 // that is no longer allowed is kept, never changed or taken away: everyone,
 // its person included, sees their stand-in name instead, until they rename
 // themselves or the team starts allowing it again. A change to the rules
-// shows on every device at once, even one without a connection.
+// reaches a device while it has a connection; an offline device keeps
+// applying the rules it already knows until its connection returns.
 //
 // A person can lose their connection, and the connection can come back.
 // The name everyone else sees for a person and the one on that person's own
-// device always agree, and nobody ever sees a username that is not allowed.
+// device agree while it is connected. Nobody sees a username their device
+// knows is not allowed.
 module username_changes {
   type Person = str
 
@@ -66,6 +68,8 @@ module username_changes {
   var lastUsernameChange: Person -> UsernameChangeResult
   /// People whose device has lost the connection.
   var offline: Set[Person]
+  /// Username rules each device already knows.
+  var _knownNotAllowed: Person -> Set[str]
   /// The username a person had when their connection went, and what their
   /// last username change showed then.
   var _nameAtCutOff: Person -> str
@@ -79,6 +83,12 @@ module username_changes {
     PEOPLE.mapBy(p =>
       if (refused.contains(names.get(p))) STAND_INS.get(p) else names.get(p)
     )
+
+  /// Each own device applies its known rules until its connection returns.
+  def _knownRules(refused: Set[str], away: Set[Person]): Person -> Set[str] =
+    PEOPLE.mapBy(p => if (away.contains(p)) _knownNotAllowed.get(p) else refused)
+  pure def _ownShown(names: Person -> str, rules: Person -> Set[str]): Person -> str =
+    PEOPLE.mapBy(p => if (rules.get(p).contains(names.get(p))) STAND_INS.get(p) else names.get(p))
 
   pure def _takenBy(names: Person -> str, person: Person, name: str): bool =
     PEOPLE.exists(other => other != person and names.get(other) == name)
@@ -120,6 +130,7 @@ module username_changes {
     notAllowed' = ALWAYS_REFUSED,
     lastUsernameChange' = PEOPLE.mapBy(_ => NoUsernameChange),
     offline' = Set(),
+    _knownNotAllowed' = PEOPLE.mapBy(_ => ALWAYS_REFUSED),
     _nameAtCutOff' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
     _resultAtCutOff' = PEOPLE.mapBy(_ => NoUsernameChange),
   }
@@ -131,10 +142,11 @@ module username_changes {
     all {
       username' = after,
       shownName' = _shown(after, notAllowed),
-      usernameOnDevice' = _shown(after, notAllowed),
+      usernameOnDevice' = _ownShown(after, _knownRules(notAllowed, offline)),
       notAllowed' = notAllowed,
       lastUsernameChange' = lastUsernameChange.set(person, _resultOf(username, notAllowed, isOffline, person, typed, false)),
       offline' = offline,
+      _knownNotAllowed' = _knownRules(notAllowed, offline),
       _nameAtCutOff' = _nameAtCutOff,
       _resultAtCutOff' = _resultAtCutOff,
     }
@@ -149,17 +161,18 @@ module username_changes {
     all {
       username' = after,
       shownName' = _shown(after, notAllowed),
-      usernameOnDevice' = _shown(after, notAllowed),
+      usernameOnDevice' = _ownShown(after, _knownRules(notAllowed, offline)),
       notAllowed' = notAllowed,
       lastUsernameChange' = lastUsernameChange.set(person, _resultOf(between, notAllowed, isOffline, person, retyped, changed)),
       offline' = offline,
+      _knownNotAllowed' = _knownRules(notAllowed, offline),
       _nameAtCutOff' = _nameAtCutOff,
       _resultAtCutOff' = _resultAtCutOff,
     }
   }
 
   /// The team stops allowing `name`: whoever has it keeps it, and shows as
-  /// their stand-in name on every device at once.
+  /// their stand-in name once a device learns the new rules.
   action stopAllowing(name: str): bool = {
     val refused = notAllowed.union(Set(name))
     all {
@@ -167,10 +180,11 @@ module username_changes {
       not(notAllowed.contains(name)),
       username' = username,
       shownName' = _shown(username, refused),
-      usernameOnDevice' = _shown(username, refused),
+      usernameOnDevice' = _ownShown(username, _knownRules(refused, offline)),
       notAllowed' = refused,
       lastUsernameChange' = lastUsernameChange,
       offline' = offline,
+      _knownNotAllowed' = _knownRules(refused, offline),
       _nameAtCutOff' = _nameAtCutOff,
       _resultAtCutOff' = _resultAtCutOff,
     }
@@ -184,10 +198,11 @@ module username_changes {
       notAllowed.contains(name),
       username' = username,
       shownName' = _shown(username, refused),
-      usernameOnDevice' = _shown(username, refused),
+      usernameOnDevice' = _ownShown(username, _knownRules(refused, offline)),
       notAllowed' = refused,
       lastUsernameChange' = lastUsernameChange,
       offline' = offline,
+      _knownNotAllowed' = _knownRules(refused, offline),
       _nameAtCutOff' = _nameAtCutOff,
       _resultAtCutOff' = _resultAtCutOff,
     }
@@ -201,6 +216,7 @@ module username_changes {
     notAllowed' = notAllowed,
     lastUsernameChange' = lastUsernameChange,
     offline' = offline.union(Set(person)),
+    _knownNotAllowed' = _knownNotAllowed,
     _nameAtCutOff' = _nameAtCutOff.set(person, username.get(person)),
     _resultAtCutOff' = _resultAtCutOff.set(person, lastUsernameChange.get(person)),
   }
@@ -209,10 +225,11 @@ module username_changes {
     offline != Set(),
     username' = username,
     shownName' = shownName,
-    usernameOnDevice' = usernameOnDevice,
+    usernameOnDevice' = _shown(username, notAllowed),
     notAllowed' = notAllowed,
     lastUsernameChange' = lastUsernameChange,
     offline' = Set(),
+    _knownNotAllowed' = PEOPLE.mapBy(_ => notAllowed),
     _nameAtCutOff' = _nameAtCutOff,
     _resultAtCutOff' = _resultAtCutOff,
   }
@@ -239,8 +256,8 @@ module username_changes {
     PEOPLE.forall(q => p == q or username.get(p) != username.get(q))
   )
 
-  /// Each person's own device shows the name everyone else sees.
-  val invDeviceShowsUsername = usernameOnDevice == shownName
+  /// A connected person's own device shows the name connected people see.
+  val invDeviceShowsUsername = PEOPLE.forall(p => not(offline.contains(p)) implies usernameOnDevice.get(p) == shownName.get(p))
 
   /// Everyone sees a person's username unless it is no longer allowed, and
   /// then their stand-in name: the username itself is kept.
@@ -250,6 +267,12 @@ module username_changes {
   val invNotAllowedNeverShown = PEOPLE.forall(p =>
     not(notAllowed.contains(shownName.get(p)))
   )
+
+  /// Own devices show only usernames their known rules allow.
+  val invOwnDeviceUsesKnownRules = usernameOnDevice == _ownShown(username, _knownNotAllowed)
+
+  /// A connected device knows the current username rules.
+  val invConnectedKnowsRules = PEOPLE.forall(p => not(offline.contains(p)) implies _knownNotAllowed.get(p) == notAllowed)
 
   /// A username the rules always refuse is never saved.
   val invAlwaysRefusedNeverSaved = PEOPLE.forall(p =>

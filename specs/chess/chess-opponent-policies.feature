@@ -38,8 +38,8 @@ Feature: Chess opponents respect the person's other choices
 
     Scenario: Returning after looking for an opponent keeps the space's puzzle as it was
       Given Alice and Bob are playing a puzzle in a space
-      When Alice finds a chess opponent for 5+0
-      And Alice returns to the puzzle in the space
+      And Alice has found a chess opponent for 5+0
+      When Alice returns to the puzzle in the space
       Then Bob keeps the same puzzle in the space
 
     Scenario: A multiplayer result does not move a puzzle rating

@@ -60,6 +60,28 @@ Feature: Rename a space
       When Alice renames the space to "Cheater corner"
       Then Alice is told that space name is not allowed
 
+  Rule: Offline devices apply the naming rules they already know
+
+    Background:
+      Given Alice has renamed the space to "Cheater corner"
+
+    Scenario: New naming rules keep an offline host's known space name
+      Given Alice is offline
+      When the team stops allowing the space name "Cheater corner"
+      Then Alice sees the space is called "Cheater corner"
+
+    Scenario: An offline host still refuses a name their device knows is not allowed
+      Given the team has stopped allowing the space name "Cheater corner"
+      And Alice is offline
+      When Alice renames the space to "Cheater corner"
+      Then Alice is told that space name is not allowed
+
+    Scenario: A returning host applies the naming rules they learn
+      Given Alice is offline
+      And the team has stopped allowing the space name "Cheater corner"
+      When the connection comes back
+      Then Alice sees the space is named after Alice within 15 seconds
+
   Rule: A space with no name of its own is named after its host as everyone sees them
     No counter-example: the host's name is theirs to change; nothing done in the space changes it.
 

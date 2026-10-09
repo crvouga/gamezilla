@@ -321,10 +321,11 @@ terms:
   - term: stop allowing
     definition: >-
       The team changing the rules so a name is no longer allowed. Names
-      already saved are kept, never rewritten, and shown differently on every
-      device at once, even one without a connection: a username shows as its
+      already saved are kept, never rewritten, and shown differently once a
+      device learns the new rules: a username shows as its
       person's stand-in name. Each context that borrows this says how its own
-      names show. Stopping a name that is already not allowed changes
+      names show. An offline device keeps applying its known rules until its
+      connection returns. Stopping a name that is already not allowed changes
       nothing.
     forms: [stops allowing, stopped allowing, has stopped allowing]
     avoid: [ban, block a name]
@@ -334,9 +335,10 @@ terms:
   - term: start allowing
     definition: >-
       The team changing the rules back so a name it stopped allowing is
-      allowed again. A name kept while it was not allowed is shown as it was,
-      at once. Only a name the team itself stopped allowing can be allowed
-      again: what the standing rules refuse stays not allowed.
+      allowed again. A name kept while it was not allowed is shown as it was
+      once a device learns the changed rules. Only a name the team itself
+      stopped allowing can be allowed again: what the standing rules refuse
+      stays not allowed.
     forms: [starts allowing, started allowing]
     model: [startAllowing]
     published: true
