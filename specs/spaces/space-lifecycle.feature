@@ -23,7 +23,7 @@ Feature: Find and return to your space
     Scenario: An offline host finds their space in the lobby
       Given Alice is hosting a space
       And Alice is offline
-      When Alice goes back to the lobby
+      When Alice steps out of the space
       Then Alice's lobby lists Alice's space
 
   Rule: Leaving one's space ends it with or without a connection
@@ -42,7 +42,7 @@ Feature: Find and return to your space
     @regression:space-step-out-presence-lingers
     Scenario: A friend who steps out stops showing as present
       Given Alice is hosting a space that Bob joined from the link
-      When Bob goes back to the lobby
+      When Bob steps out of the space
       Then Alice sees 1 person in the space within 20 seconds
 
     Scenario: Returning after stepping out shows the friend once

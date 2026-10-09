@@ -41,6 +41,16 @@ Feature: Look at the people in a space
       Then Alice is in the space
       And Alice no longer sees the space's presence
 
+  Rule: Ending a space closes its presence view
+    No counter-example: an ended space has nobody present; the view ends with it.
+
+    Scenario: A friend viewing presence sees the space end
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob is viewing the space's presence
+      When Alice ends the space
+      Then Bob sees the space has ended within 20 seconds
+      And Bob no longer sees the space's presence
+
   Rule: People can return to the lobby after leaving or ending a space
     No counter-example: going back to the lobby is available after either outcome.
 
