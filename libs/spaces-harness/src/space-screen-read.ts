@@ -51,7 +51,9 @@ export async function spacePresenceDiagnostics(
   const participation = await Promise.all(
     [...s.actors.values()].map(async (actor) => ({
       actor: actor.id,
-      rows: await actorLocalSql(s, actor.id)?.query(sql<Record<string, unknown>>`
+      rows: await actorLocalSql(s, actor.id)?.query(sql<
+        Record<string, unknown>
+      >`
         SELECT u.user_id, u.space_id, u.joined, u.participation_revision,
           u.deleted_at, o.device_id, o.participation_revision AS open_revision,
           o.deleted_at AS open_deleted_at

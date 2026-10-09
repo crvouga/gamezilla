@@ -1,5 +1,8 @@
 import sql, { join } from '@pkgs/sql-root-shared/sql';
-import type { MutationFeedback, MutationFeedbackScope } from './mutation-status';
+import type {
+  MutationFeedback,
+  MutationFeedbackScope,
+} from './mutation-status';
 import type { SyncEngine, WatchSubscription } from './sync-engine-port';
 
 /** The queue retains completed choices, so feedback survives route and app reopening. */

@@ -8,7 +8,7 @@ import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
-import { type Accessor, type JSX } from 'solid-js';
+import type { Accessor, JSX } from 'solid-js';
 import {
   ConfirmDeletePills,
   SingleActionPill,

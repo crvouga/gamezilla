@@ -4,7 +4,10 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
-import type { MutationFeedback, MutationFeedbackScope } from './mutation-status';
+import type {
+  MutationFeedback,
+  MutationFeedbackScope,
+} from './mutation-status';
 import { useSyncEngineInstance } from './sync-engine-context';
 
 /** Live, persistent mutation feedback without a feature reading framework tables. */
