@@ -211,7 +211,7 @@ module space_hosting {
   }
 
   /// `person`'s device loses its connection. That is not leaving.
-  action _loseConnection(person: Person): bool = all {
+  action loseConnection(person: Person): bool = all {
     not(_offline.contains(person)),
     _moveTo(
       _whereabouts, _openSpaces, _offline.union(Set(person)), _done,
@@ -219,7 +219,7 @@ module space_hosting {
   }
 
   /// Every connection comes back.
-  action _connectionReturns: bool = all {
+  action connectionReturns: bool = all {
     _offline != Set(),
     _moveTo(_whereabouts, _openSpaces, Set(), _done),
   }
@@ -237,8 +237,8 @@ module space_hosting {
       stopViewingPresence(person),
       endSpace(person),
       goBackToLobby(person),
-      _loseConnection(person),
-      _connectionReturns,
+      loseConnection(person),
+      connectionReturns,
     }
   }
 

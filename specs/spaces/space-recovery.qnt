@@ -71,13 +71,13 @@ module space_recovery {
   }
 
   /// Losing the connection stops showing a person as present, without leaving.
-  action _loseConnection(person: Person): bool = all {
+  action loseConnection(person: Person): bool = all {
     _online.get(person),
     _update(_whereabouts, _online.set(person, false), _openSpaces),
   }
 
   /// The person's own connection returns and shows every change made while away.
-  action _connectionReturns(person: Person): bool = all {
+  action connectionReturns(person: Person): bool = all {
     not(_online.get(person)),
     _update(_whereabouts, _online.set(person, true), _openSpaces),
   }
@@ -87,7 +87,7 @@ module space_recovery {
 
   action step = {
     nondet person = PEOPLE.oneOf()
-    any { leave(person), endSpace, leaveHost, _loseConnection(person), _connectionReturns(person), _wait }
+    any { leave(person), endSpace, leaveHost, loseConnection(person), connectionReturns(person), _wait }
   }
 
   /// Nobody remains in a space after it has ended.

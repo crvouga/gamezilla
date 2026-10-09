@@ -134,14 +134,14 @@ module space_names {
     _update(givenName, _sharedName, _notAllowed.exclude(Set(name)), lastRename, _offline, _lastTyped),
   }
 
-  action _loseConnection(person: Person): bool = all {
+  action loseConnection(person: Person): bool = all {
     not(_offline.contains(person)),
     _update(givenName, _sharedName, _notAllowed, lastRename, _offline.union(Set(person)), _lastTyped),
   }
 
   /// A person's connection comes back; once Alice is back, her name is
   /// everyone's.
-  action _connectionReturns(person: Person): bool = all {
+  action connectionReturns(person: Person): bool = all {
     _offline.contains(person),
     _update(
       givenName,
@@ -158,8 +158,8 @@ module space_names {
       rename(typed),
       stopAllowing(name),
       startAllowing(name),
-      _loseConnection(person),
-      _connectionReturns(person),
+      loseConnection(person),
+      connectionReturns(person),
     }
   }
 
