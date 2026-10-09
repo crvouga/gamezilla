@@ -26,6 +26,20 @@ test('setup does not use ref-dependent dependency cache actions', () => {
   expect(setup).toContain('uses: jdx/mise-action@v4');
 });
 
+// regression: ci-submodule-workspace-not-initialized
+test('setup initializes workspace submodules before installing dependencies', () => {
+  const setup = readFileSync(
+    join(root, '.github/actions/setup/action.yml'),
+    'utf8'
+  );
+  const initializeSubmodules = setup.indexOf(
+    'git submodule update --init --recursive'
+  );
+  const installDependencies = setup.indexOf('bun install --frozen-lockfile');
+  expect(initializeSubmodules).toBeGreaterThan(-1);
+  expect(initializeSubmodules).toBeLessThan(installDependencies);
+});
+
 // regression: turbo-build-unhashed-inputs
 test('build hashes its toolchain, shared compiler configs and output-affecting env', () => {
   const turbo = JSON.parse(readFileSync(join(root, 'turbo.json'), 'utf8')) as {
