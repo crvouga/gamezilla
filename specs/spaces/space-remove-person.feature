@@ -73,3 +73,12 @@ Feature: Remove a person from a space
       When Bob opens Alice's space link
       Then Bob is not in a space
       And Bob is offered to join
+
+    Scenario: A removed person's preview stays outside participation while the host is offline
+      Given Alice has removed Bob from the space
+      And Bob has opened Alice's space link
+      And Alice is offline
+      When Bob opens Alice's space link
+      Then Bob is not in a space
+      And Bob is told the host is offline within 20 seconds
+      And Bob is not offered to join

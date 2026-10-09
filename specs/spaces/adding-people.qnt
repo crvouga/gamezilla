@@ -28,9 +28,7 @@ module adding_people {
     Map("alice" -> (if (open) InSpace else Ended),
       "bob" -> (if (joined and open)
         (if (away == Set()) InSpace else DroppedOut)
-        else if (atLink) (if (open)
-          (if (away != Set()) DroppedOut else Left)
-          else Ended) else Lobby))
+        else if (atLink) (if (open) Left else Ended) else Lobby))
 
   action _choose(open: bool, added: bool, joined: bool, atLink: bool, away: Set[Person]): bool = {
     val sharedOpen = if (away.contains("alice")) _sharedOpen else open
