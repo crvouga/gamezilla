@@ -1,0 +1,42 @@
+context: Synthetic Population
+purpose: >-
+  Automated opponents use the same app as people, while authorized people
+  observe their activity and choose how many are available.
+terms:
+  - term: Synthetic Population
+    definition: The complete population of autonomous automated opponents.
+  - term: Synthetic User
+    definition: A persistent account operated autonomously and identified as automated.
+    forms: [Synthetic Users, Synthetic User's]
+  - term: Bot Observatory
+    definition: Where authorized people observe and control the Synthetic Population.
+  - term: desired population
+    definition: How many Synthetic Users should be available.
+  - term: pause
+    definition: Stop starting activities for a Synthetic User while preserving an ongoing game.
+    forms: [pauses, paused]
+  - term: resume
+    definition: Allow a paused Synthetic User to start activities again.
+    forms: [resumes, resumed]
+  - term: activity
+    definition: What a Synthetic User is currently doing in the app.
+    forms: [activities]
+  - term: account
+    from: profile
+  - term: sign in
+    from: profile
+  - term: sign out
+    from: profile
+  - term: space
+    from: spaces
+  - term: create a space
+    from: spaces
+  - term: join
+    from: spaces
+  - term: leave
+    from: spaces
+  - term: game
+    from: chess
+  - term: control
+    definition: Permission to pause, resume or restart a Synthetic User's autonomous activity.
+    forms: [controls, controlling]
