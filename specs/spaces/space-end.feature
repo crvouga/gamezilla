@@ -16,7 +16,7 @@ Feature: End a space
     Scenario: An unjoined friend keeps a known end when going offline
       Given Alice and Bob are friends
       And Alice is hosting a space
-      And Bob has gone back to the lobby
+      And Bob is hosting a space
       And Alice has ended the space
       And Bob is offline
       When Bob goes back to the lobby

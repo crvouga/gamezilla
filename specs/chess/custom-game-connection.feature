@@ -37,6 +37,7 @@ Feature: Keep the game through disconnection
       When the connection comes back
       Then Bob sees the active Custom Game with White to move
 
+    @regression:space-join-preview-grants-stale
     Scenario: A returning participant cannot revive a completed game
       Given Alice has an active Custom Game between Alice as White and Bob as Black
       And Bob is offline
