@@ -4,10 +4,20 @@ Feature: End a space
   so nobody keeps finding a space that is over.
 
   Rule: Ending a space removes it from the lobby of everyone who could find it
+    No counter-example: everyone who knows the space learns its end once connected.
 
-    @regression:space-ended-friend-lobby-stale
     Scenario: When the host ends the space, a friend's lobby stops listing it
       Given Alice and Bob are friends
       And Alice is hosting a space that Bob joined from the lobby
       When Alice ends the space
+      Then Bob's lobby stops listing Alice's space within 10 seconds
+
+    @regression:space-ended-friend-lobby-stale
+    Scenario: An unjoined friend keeps a known end when going offline
+      Given Alice and Bob are friends
+      And Alice is hosting a space
+      And Bob has gone back to the lobby
+      And Alice has ended the space
+      And Bob is offline
+      When Bob goes back to the lobby
       Then Bob's lobby stops listing Alice's space within 10 seconds
