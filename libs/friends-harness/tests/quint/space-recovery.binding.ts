@@ -57,11 +57,11 @@ bindQuintModel<QuintHarnessWorld>({
       await closeMembers(w, 'alice');
       await w.s.apply(leaveSpace, 'alice');
     },
-    _loseConnection: async (w, picks) => {
+    loseConnection: async (w, picks) => {
       await w.s.apply(partition, String(picks['person']));
       await w.s.advanceTime(2_000);
     },
-    _connectionReturns: async (w, picks) => {
+    connectionReturns: async (w, picks) => {
       await w.s.apply(restoreActorConnection, String(picks['person']));
       await w.s.advanceTime(2_000);
     },

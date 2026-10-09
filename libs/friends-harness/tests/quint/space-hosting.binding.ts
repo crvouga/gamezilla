@@ -120,11 +120,11 @@ bindQuintModel<QuintHarnessWorld>({
     goBackToLobby: async (w, picks) => {
       await w.s.apply(openSpacesTab, person(picks));
     },
-    _loseConnection: async (w, picks) => {
+    loseConnection: async (w, picks) => {
       await w.s.apply(partition, person(picks));
       await w.s.advanceTime(2_000);
     },
-    _connectionReturns: async (w) => {
+    connectionReturns: async (w) => {
       await w.s.apply(restoreNetwork);
       await w.s.advanceTime(2_000);
     },

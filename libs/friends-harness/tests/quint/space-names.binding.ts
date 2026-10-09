@@ -96,11 +96,11 @@ bindQuintModel<QuintHarnessWorld>({
     startAllowing: async (w, picks) => {
       await w.s.apply(startAllowingSpaceName, String(picks['name']));
     },
-    _loseConnection: async (w, picks) => {
+    loseConnection: async (w, picks) => {
       await w.s.apply(partition, String(picks['person']));
       await w.s.advanceTime(NOTICE_MS);
     },
-    _connectionReturns: async (w, picks) => {
+    connectionReturns: async (w, picks) => {
       await w.s.apply(restoreActorConnection, String(picks['person']));
       await w.s.advanceTime(NOTICE_MS);
     },
