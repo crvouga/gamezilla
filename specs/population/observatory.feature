@@ -28,7 +28,7 @@ Feature: Observe and control the Synthetic Population
       Then Alice sees a desired population of 6
 
     Scenario: A person with observation permission cannot change the desired population
-      Given Alice is authorized only to view the Bot Observatory
+      Given Alice is authorized to view the Bot Observatory
       And the desired population is 4
       When Alice changes the desired population to 6
       Then Alice is told that permission is required
@@ -45,7 +45,7 @@ Feature: Observe and control the Synthetic Population
       And "Cedar" starts no new activity
 
     Scenario: A person with observation permission cannot pause a Synthetic User
-      Given Alice is authorized only to view the Bot Observatory
+      Given Alice is authorized to view the Bot Observatory
       And the Synthetic User "Cedar" is available
       When Alice pauses the Synthetic User "Cedar"
       Then Alice is told that permission is required

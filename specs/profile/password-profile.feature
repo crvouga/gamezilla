@@ -6,6 +6,7 @@ Feature: Keep a profile with an email address and password
 
   Rule: A correct password keeps the account's profile, and an incorrect one changes nothing
 
+    @regression:password-form-macro-runtime
     Scenario: Starting a password account keeps the guest's profile
       Given Alice is a guest
       And Alice's username is @alice_password
