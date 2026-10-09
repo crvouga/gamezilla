@@ -1159,7 +1159,6 @@ terms:
     - Active
     - Completed
     - Cancelled
-    - playStatus
     - startGame
     - cancelGame
   - term: Custom Game choices
