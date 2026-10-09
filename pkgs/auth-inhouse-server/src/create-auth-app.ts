@@ -15,9 +15,9 @@ import {
   handleUnlink,
 } from './identity-handlers';
 import { handleOauthCallback, handleOauthLaunch } from './oauth-handlers';
+import { createPasswordAuthApp } from './password-auth';
 import { createOauthProviders } from './registry';
 import { handleSyntheticMonitorCode } from './synthetic-monitor';
-import { createPasswordAuthApp } from './password-auth';
 
 /**
  * Application-agnostic IdP Hono app. Runtime mounts with `.route('/', app)`.

@@ -11,8 +11,8 @@ import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { respondWithSession } from './auth-route-handlers';
 import type { CreateAuthAppDeps } from './create-auth-app-types';
-import { IdpRepository, isoFromMs } from './idp-repository';
 import { IdentityLinker } from './identity-linker';
+import { IdpRepository, isoFromMs } from './idp-repository';
 
 type Credentials = {
   email: string;

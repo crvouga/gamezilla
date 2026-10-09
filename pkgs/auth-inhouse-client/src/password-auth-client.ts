@@ -1,21 +1,19 @@
+import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
+import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import { isAuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { apiUrl, postJson } from './auth-client-http';
 import type { SignInCtx } from './auth-client-oauth';
 import { persistSessionFromResponse } from './auth-client-oauth';
-import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
-import { isAuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
-import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 
 export async function passwordAuthentication(
   ctx: SignInCtx,
   action: 'register' | 'sign-in',
-  email: string,
-  password: string,
-  options: SignInOptions = {}
+  input: { email: string; password: string; options?: SignInOptions }
 ): Promise<void> {
   const response = await postJson(
     ctx.config.fetch,
     apiUrl(ctx.config.baseURL, `/auth/password/${action}`),
-    { email, password, ...options }
+    { email: input.email, password: input.password, ...input.options }
   );
   if (!response.ok) {
     const body = (await response.json()) as { error?: string };

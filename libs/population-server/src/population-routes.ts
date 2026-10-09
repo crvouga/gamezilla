@@ -84,6 +84,12 @@ export function createPopulationRoutes(deps: PopulationRouteDeps) {
         ),
       });
     })
+    .route('/', createPopulationCommandRoutes(deps));
+}
+
+function createPopulationCommandRoutes(deps: PopulationRouteDeps) {
+  const admin = () => new PopulationAdministration(deps.getDb(), deps.ports);
+  return new Hono()
     .put('/config', zValidator('json', populationConfigSchema), async (c) => {
       const actorId = await deps.authorize(
         c.req.raw,

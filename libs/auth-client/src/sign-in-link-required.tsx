@@ -18,9 +18,8 @@ import {
 } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import { For, type JSX, Show } from 'solid-js';
-import { PasswordSignInForm } from './password-sign-in-form';
-
 import { providerName } from './auth-flow-messages';
+import { PasswordSignInForm } from './password-sign-in-form';
 
 export function SignInLinkRequiredContent(props: {
   readonly link: AuthLinkRequiredError;

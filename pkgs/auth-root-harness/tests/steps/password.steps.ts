@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
 import {
-  registerPassword,
   registeredPasswordAccount,
+  registerPassword,
   setupPasswordAccount,
   signInPassword,
 } from '@pkgs/auth-root-harness/password-actions';

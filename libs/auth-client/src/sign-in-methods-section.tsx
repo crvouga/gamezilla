@@ -12,8 +12,8 @@ import type {
   SignInMethodId,
 } from '@pkgs/auth-root-shared/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { Button } from '@pkgs/ui-root-client/button';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import {
   createMemo,

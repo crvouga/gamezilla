@@ -1,7 +1,7 @@
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import { runClient } from './actor';
-import { attachIdentity, startSession } from './model';
 import { expectOutcome } from './checks';
+import { attachIdentity, startSession } from './model';
 import type { AuthSurface } from './types';
 import { requireActor } from './types';
 

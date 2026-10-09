@@ -165,9 +165,9 @@ export function createInhouseAuthClient(
     provider: IDP_PROVIDER_LABEL,
     session,
     signInWithPassword: (email, password, options) =>
-      passwordAuthentication(ctx, 'sign-in', email, password, options),
+      passwordAuthentication(ctx, 'sign-in', { email, password, options }),
     registerWithPassword: (email, password) =>
-      passwordAuthentication(ctx, 'register', email, password),
+      passwordAuthentication(ctx, 'register', { email, password }),
     async signIn(provider, options) {
       await signInOauth(ctx, provider, options);
     },
