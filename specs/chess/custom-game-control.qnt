@@ -71,7 +71,6 @@ module custom_game_control {
   }
   /// An assigned person resigns; watching bots never grants resignation.
   action resignControlledGame(actor: str): bool = all {
-    _visible(actor),
     if(controlledStatus == "active" and _mayChoose(actor) and COLORS.exists(c => controllers.get(c) == actor))
       _update("completed",controlledPly,controlledTurn,if(controllers.get("white") == actor) "black wins by resignation" else "white wins by resignation",_offline,"")
     else _hold
@@ -79,7 +78,6 @@ module custom_game_control {
   /// The creator can cancel while watching or playing, before completion. In a
   /// game between two people, the other participant may cancel until each side has moved.
   action cancelControlledGame(actor: str): bool = all {
-    _visible(actor),
     if(controlledStatus == "active" and _mayChoose(actor) and (actor == "alice" or
         (controlledPly < 2 and COLORS.forall(c => controllers.get(c) != "bot") and COLORS.exists(c => controllers.get(c) == actor))))
       _update("cancelled",controlledPly,controlledTurn,"cancelled",_offline,"")
