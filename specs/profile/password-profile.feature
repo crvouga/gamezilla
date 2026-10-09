@@ -15,7 +15,7 @@ Feature: Keep a profile with an email address and password
 
     Scenario: Signing back in restores the password account's profile
       Given Alice has a password account at "alice@example.com" with password "cedar river lantern 37" and username @alice_password
-      And Alice is signed out
+      And Alice has signed out
       When Alice signs in with email address "alice@example.com" and password "cedar river lantern 37"
       Then Alice has a signed-in account
       And Alice's profile shows @alice_password
