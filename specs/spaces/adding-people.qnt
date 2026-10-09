@@ -4,6 +4,8 @@
 // Bob learns them when both connections are available. Removing Bob takes
 // away added access and ends any participation, but the public link still
 // permits another explicit Join. The host uses Leave to end the space.
+// Offline choices stay with the host until shared. A connected person can
+// still learn an end that was shared before the host went offline.
 module adding_people {
   type Person = str
   pure val PEOPLE = Set("alice", "bob")
@@ -18,6 +20,9 @@ module adding_people {
   var _knownAdded: bool
   var _knownOpen: bool
   var _knownJoined: bool
+  var _sharedOpen: bool
+  var _sharedAdded: bool
+  var _sharedJoined: bool
 
   pure def _show(open: bool, joined: bool, atLink: bool, away: Set[Person]): Person -> Whereabouts =
     Map("alice" -> (if (open) InSpace else Ended),
@@ -28,15 +33,19 @@ module adding_people {
           else Ended) else Lobby))
 
   action _choose(open: bool, added: bool, joined: bool, atLink: bool, away: Set[Person]): bool = {
-    val known = if (away == Set()) added else _knownAdded
-    val knowsSpace = added or atLink or _knownAdded or _atLink
-    val knownOpen = if (away == Set() and knowsSpace) open else _knownOpen
-    val knownJoined = if (away == Set()) joined else _knownJoined
+    val sharedOpen = if (away.contains("alice")) _sharedOpen else open
+    val sharedAdded = if (away.contains("alice")) _sharedAdded else added
+    val sharedJoined = if (away.contains("alice")) _sharedJoined else joined
+    val known = if (away.contains("bob")) _knownAdded else sharedAdded
+    val knowsSpace = sharedAdded or atLink or _knownAdded or _atLink
+    val knownOpen = if (not(away.contains("bob")) and knowsSpace) sharedOpen else _knownOpen
+    val knownJoined = if (away.contains("bob")) _knownJoined else sharedJoined
     val place = _show(knownOpen, knownJoined, atLink, away).set("alice", if (open) InSpace else Ended)
     all {
       _open' = open, _added' = added, _joined' = joined,
       _atLink' = atLink, _offline' = away, _knownAdded' = known, _knownOpen' = knownOpen,
       _knownJoined' = knownJoined,
+      _sharedOpen' = sharedOpen, _sharedAdded' = sharedAdded, _sharedJoined' = sharedJoined,
       whereabouts' = place,
       lobby' = Map("alice" -> Set(), "bob" ->
         (if (place.get("bob") == Lobby and knownOpen and known) Set("alice") else Set())),
@@ -47,6 +56,7 @@ module adding_people {
     _open' = true, _added' = false, _joined' = false,
     _atLink' = false, _offline' = Set(), _knownAdded' = false, _knownOpen' = true,
     _knownJoined' = false,
+    _sharedOpen' = true, _sharedAdded' = false, _sharedJoined' = false,
     whereabouts' = Map("alice" -> InSpace, "bob" -> Lobby),
     lobby' = PEOPLE.mapBy(_ => Set()),
   }
@@ -116,7 +126,11 @@ module adding_people {
     whereabouts == _show(_knownOpen, _knownJoined, _atLink, _offline).set("alice", if (_open) InSpace else Ended),
     not(_open) implies not(_joined),
     _offline == Set() implies _knownAdded == _added,
-    _offline == Set() and (_knownAdded or _atLink) implies _knownOpen == _open,
+    not(_offline.contains("alice")) implies
+      _sharedOpen == _open and _sharedAdded == _added and _sharedJoined == _joined,
+    not(_offline.contains("bob")) implies
+      _knownAdded == _sharedAdded and _knownJoined == _sharedJoined,
+    not(_offline.contains("bob")) and (_knownAdded or _atLink) implies _knownOpen == _sharedOpen,
     _offline == Set() implies _knownJoined == _joined,
     lobby == Map("alice" -> Set(), "bob" ->
       (if (whereabouts.get("bob") == Lobby and _knownOpen and _knownAdded) Set("alice") else Set())),

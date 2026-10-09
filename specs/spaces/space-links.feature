@@ -17,6 +17,13 @@ Feature: What a space's link leads to
       Then Bob sees the space has ended within 15 seconds
       And Bob is not offered to join
 
+    Scenario: An end already shared is still shown while the host is offline
+      Given Alice has hosted a space and ended it
+      And Alice is offline
+      When Bob opens Alice's space link
+      Then Bob sees the space has ended within 15 seconds
+      And Bob is not offered to join
+
     Scenario: The link to an ended space says it has ended
       Given Alice and Bob are guests
       And Alice has hosted a space and ended it
