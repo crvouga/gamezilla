@@ -58,13 +58,20 @@ Feature: Use your own space without a connection
 
   Rule: Joining someone else's space needs a connection
 
-    @regression:space-offline-join-reports-success
     Scenario: Joining from a link without a connection says it needs one
       Given Alice is hosting a space
       And Bob is offline
       When Bob joins the space from the link
       Then Bob is told joining needs a connection within 15 seconds
       And Bob is not in a space
+
+    @regression:space-offline-join-reports-success
+    Scenario: An offline join from a known space offers a retry
+      Given Alice is hosting a space
+      And Bob has opened Alice's space link
+      And Bob is offline
+      When Bob joins the space from the link
+      Then Bob is told joining needs a connection within 15 seconds
       And Bob can try joining again
 
     Scenario: A person can join a space while both people are online
