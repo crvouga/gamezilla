@@ -31,14 +31,6 @@ Feature: What a space's link leads to
       Then Bob is told the space cannot be found within 15 seconds
       And Bob is offered the way back to Spaces
 
-    Scenario: Someone who stepped out returns to the space once
-      Given Alice and Bob are friends
-      And Alice is hosting a space that Bob joined from the lobby
-      And Bob has gone back to the lobby
-      When Bob joins Alice's space from the lobby
-      Then Bob is in the space
-      And Alice sees 2 people in the space within 20 seconds
-
   Rule: Opening the same space link again shows where it leads
     No counter-example: the space and its host have not changed between openings.
 

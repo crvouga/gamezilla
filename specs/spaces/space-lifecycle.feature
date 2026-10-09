@@ -45,12 +45,13 @@ Feature: Find and return to your space
       When Bob goes back to the lobby
       Then Alice sees 1 person in the space within 20 seconds
 
-    Scenario: Returning after stepping out shows the friend once
+    Scenario: Someone who stepped out returns to the space once
       Given Alice and Bob are friends
       And Alice is hosting a space that Bob joined from the lobby
       And Bob has gone back to the lobby
       When Bob joins Alice's space from the lobby
-      Then Alice sees 2 people in the space within 20 seconds
+      Then Bob is in the space
+      And Alice sees 2 people in the space within 20 seconds
 
     Scenario: A friend steps out while the host is offline
       Given Alice is hosting a space that Bob joined from the link
