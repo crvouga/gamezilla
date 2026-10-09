@@ -315,7 +315,7 @@ terms:
       and the person is told so until they rename themselves. Saving it again
       is refused as not allowed.
     avoid: [banned, flagged, censored, moderated]
-    model: [notAllowed]
+    model: [_notAllowed]
     published: true
 
   - term: stop allowing
