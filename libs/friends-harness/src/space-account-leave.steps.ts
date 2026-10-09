@@ -17,6 +17,10 @@ Then("{actor}'s other device can leave the space", async (w, actor: Actor) => {
   expect(await w.s.read(leaveOffered, otherDevice(actor))).toBe(true);
 });
 
+Then('{actor} can leave the space', async (w, actor: Actor) => {
+  expect(await w.s.read(leaveOffered, actor)).toBe(true);
+});
+
 Then('{actor} is not offered to leave the space', async (w, actor: Actor) => {
   expect(await w.s.read(leaveOffered, actor)).toBe(false);
 });
