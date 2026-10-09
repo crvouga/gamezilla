@@ -42,6 +42,7 @@ Feature: What a space's link leads to
   Rule: Opening the same space link again shows where it leads
     No counter-example: the space and its host have not changed between openings.
 
+    @regression:space-link-reopen-auto-joined
     Scenario: Opening an open space's link again still offers joining
       Given Alice is hosting a space
       And Bob has opened Alice's space link

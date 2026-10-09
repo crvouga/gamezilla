@@ -74,4 +74,14 @@ module space_links {
 
   /// An offline host's open space cannot be joined from its link.
   val invOfflineHostPreventsJoining = _offline.contains("alice") implies not(joinOffered)
+
+  // These promises hold however often Bob opens the link or Alice goes away
+  // and comes back.
+  val _inductive = all {
+    _destination.in(DESTINATIONS),
+    _offline.in(Set("alice").powerset()),
+    invLinkShowsItsDestination,
+    invJoiningOfferedOnlyForOpenSpace,
+    invOfflineHostPreventsJoining,
+  }
 }
