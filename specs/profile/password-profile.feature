@@ -21,7 +21,7 @@ Feature: Keep a profile with an email address and password
       Then Alice has a signed-in account
       And Alice's profile shows @alice_password
 
-    Scenario: An incorrect password leaves the guest's profile alone
+    Scenario: An incorrect password keeps the guest's profile
       Given Alice has a password account at "alice@example.com" with password "cedar river lantern 37" and username @alice_password
       And Bob is a guest
       When Bob signs in with email address "alice@example.com" and password "wrong river lantern 37"

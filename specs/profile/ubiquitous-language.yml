@@ -97,7 +97,7 @@ terms:
       in needs a connection. A guest who signs in keeps their profile; a
       person signing back in gets their account's profile back.
     forms: [signs in, signed in, signing in, sign-in, sign-ins, signed-in]
-    avoid: [log in, logs in, logged in, logging in, sign up, signs up, register]
+    avoid: [log in, logs in, logged in, logging in, sign up, signs up]
     model: [signIn, signedIn, showsSignedIn, SignedIn]
     published: true
 
