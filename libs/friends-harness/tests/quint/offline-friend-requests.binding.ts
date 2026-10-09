@@ -21,13 +21,24 @@ import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs } from '@libs/harness/shell-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import declineAfterReopening from './fixtures/friend-request-decline-after-reopening.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'offline-friend-requests',
   inductiveInvariant: '_inductive',
+  inferPolymorphicTypes: false,
   traces: 32,
   maxSteps: 12,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: friend-request-decline-after-reopening
+      id: 'friend-request-decline-after-reopening',
+      title: 'A request declined after the asker reopens stops being requested',
+      seed: '0x67932',
+      itf: declineAfterReopening,
+    },
+  ],
   actions: {
     init: async (w) => {
       for (const actor of ['alice', 'bob']) {
