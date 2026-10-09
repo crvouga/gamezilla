@@ -18,14 +18,13 @@ Feature: Play a Custom Game in a space
 
     @regression:custom-game-journey-unbound
     @regression:custom-game-journey-offline-race
-    Scenario: An offline guest cannot start the ready game
+    Scenario: An offline guest starts the ready game against a bot
       Given a person opens the app on a fresh device
       And they are hosting a space
       And they have a ready Custom Game against a bot
       And the device is offline
       When they start the Custom Game
-      Then they are told Custom Games need a connection
-      And their Custom Game has not started
+      Then their Custom Game board is ready for White
 
   Rule: Two people in one space can agree on sides, play and finish the same Custom Game
 

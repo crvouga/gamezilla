@@ -35,6 +35,7 @@ Feature: Losing the connection in a space
       And Alice sees 2 people in the space within 20 seconds
 
   Rule: Someone away when the space ends finds out when they are back
+    No counter-example: coming back cannot reopen an ended space.
 
     Scenario: Someone offline when the space ends learns it ended once back online
       Given Bob has lost the connection long enough to drop out of the space
