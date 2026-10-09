@@ -36,6 +36,7 @@ import {
   quotePgIdent,
 } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
+import { mockingbirdSession } from './mockingbird-session';
 
 type MockingbirdPostgresBind =
   | string
@@ -292,11 +293,13 @@ export function adaptMockingbirdPostgresAsPool(getDb: () => Database): Pool {
     }
   };
 
-  const checkoutClient = (): PoolClient => {
+  const checkoutClient = async (): Promise<PoolClient> => {
+    const db = getDb();
+    const release = await mockingbirdSession(db).acquire();
     return {
       query: ((text: string, values?: unknown[]) =>
         runQuery(text, values)) as PoolClient['query'],
-      release: () => undefined,
+      release,
     };
   };
 
@@ -310,17 +313,25 @@ export function adaptMockingbirdPostgresAsPool(getDb: () => Database): Pool {
       ) => void
     ) => {
       if (typeof callback === 'function') {
-        callback(undefined, checkoutClient(), () => undefined);
+        void checkoutClient().then(
+          (client) => callback(undefined, client, () => client.release()),
+          (error: unknown) =>
+            callback(
+              error instanceof Error ? error : new Error(String(error)),
+              undefined,
+              () => undefined
+            )
+        );
         return undefined;
       }
-      return Promise.resolve(checkoutClient());
+      return checkoutClient();
     },
     query: (
       text: string,
       values?: unknown[],
       callback?: (err: Error | undefined, result: unknown) => void
     ) => {
-      const run = runQuery(text, values);
+      const run = mockingbirdSession(getDb()).run(() => runQuery(text, values));
       if (typeof callback === 'function') {
         void run
           .then((result) => callback(undefined, result))
@@ -469,6 +480,14 @@ export class SqlClientImplMockingbirdPostgres implements PostgresSqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    return mockingbirdSession(this.requireDb()).run(() =>
+      this.executeTransaction(fn)
+    );
+  }
+
+  private async executeTransaction<T>(
+    fn: (tx: SqlClient) => Promise<T>
+  ): Promise<T> {
     const db = this.requireDb();
     db.exec('BEGIN');
     try {
