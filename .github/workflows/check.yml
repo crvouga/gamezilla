@@ -78,6 +78,34 @@ env:
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:
+  population-package:
+    name: check:population-package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun opentofu railway
+      - name: Validate declarative Population Worker hosting
+        env:
+          TF_VAR_state_passphrase: ci-provider-validation-only
+        run: |
+          tofu -chdir=libs/infra-shared/tofu/stacks/foundation init -backend=false -input=false
+          tofu -chdir=libs/infra-shared/tofu/stacks/foundation validate
+      - name: Build immutable Population Worker image
+        run: docker build --file apps/population-worker/Dockerfile --tag population-worker:${{ github.sha }} .
+      - name: Verify container runtime and inspection contracts
+        run: docker run --rm population-worker:${{ github.sha }} bun run --filter @apps/population-worker test
+      - name: Retain exact provider dependency lock
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: population-provider-lock
+          path: libs/infra-shared/tofu/stacks/foundation/.terraform.lock.hcl
+          include-hidden-files: true
+          retention-days: 7
+
   check-plan:
     name: check:plan
     if: inputs.scope == 'full'
@@ -344,11 +372,15 @@ jobs:
   # In full scope it is green only when `check:verify` is.
   check:
     name: check
-    needs: [check-verify]
+    needs: [check-verify, population-package]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
+      - name: Require Population Worker packaging rehearsal
+        env:
+          PACKAGE_RESULT: ${{ needs.population-package.result }}
+        run: test "$PACKAGE_RESULT" = success
       - name: Require release verification
         if: env.CHECK_SCOPE == 'full'
         env:

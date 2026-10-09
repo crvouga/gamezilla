@@ -17,6 +17,7 @@ function baseSecrets(): Record<string, string> {
     PLANETSCALE_SERVICE_TOKEN_ID: 'ps-id',
     PLANETSCALE_SERVICE_TOKEN: 'ps-token',
     GRAFANA_CLOUD_API_TOKEN: 'graf',
+    RAILWAY_TOKEN: 'railway',
   };
 }
 

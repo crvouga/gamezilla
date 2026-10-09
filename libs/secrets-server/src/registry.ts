@@ -35,6 +35,7 @@ import {
   EMQX_WSS_URL,
 } from '@libs/secrets-shared/pubsub-emqx-secrets';
 import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
+import { RAILWAY_TOKEN } from '@libs/secrets-shared/railway-token';
 import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
 import type { Secret } from '@libs/secrets-shared/secret';
 import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
@@ -67,6 +68,7 @@ export const SECRETS: readonly Secret[] = [
   FEEDBACK_GITHUB_TOKEN,
   FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,
+  RAILWAY_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,
   DATABASE_URL,
   HYPERDRIVE_ID,

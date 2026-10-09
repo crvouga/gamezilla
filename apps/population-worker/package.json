@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "deploy": "bun run ../../libs/infra-server/scripts/publish-container.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "start": "bun --conditions=browser --conditions=development src/main.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",

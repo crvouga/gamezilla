@@ -103,3 +103,5 @@ variable "aws_session_token" {
   sensitive   = true
   description = "AWS session token when the access key is a temporary SSO credential."
 }
+
+variable "railway" { type = any }

@@ -57,7 +57,8 @@
     "CHECK_LINT_THREADS",
     "JAVA_TOOL_OPTIONS",
     "JVM_GC_ARGS",
-    "GOMAXPROCS"
+    "GOMAXPROCS",
+    "RAILWAY_TOKEN"
   ],
   "tasks": {
     "install:deps": {
@@ -747,7 +748,8 @@
       "cache": false,
       "dependsOn": [
         "@libs/infra-server#apply:edge",
-        "@libs/billing-server#billing:sync"
+        "@libs/billing-server#billing:sync",
+        "@apps/population-worker#deploy"
       ],
       "outputLogs": "errors-only"
     },
@@ -1931,6 +1933,10 @@
       ],
       "outputs": [],
       "outputLogs": "errors-only"
+    },
+    "@apps/population-worker#deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server#apply:edge"]
     }
   }
 }
