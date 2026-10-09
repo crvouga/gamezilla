@@ -99,6 +99,7 @@ turbo-platform-key.json
 
 # Check artifacts (reports, traces, videos)
 /check/
+**/atlas-runs/
 **/test-results/
 **/blob-report/
 /.data/

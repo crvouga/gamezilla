@@ -1,0 +1,3 @@
+[submodule "vendor/atlas"]
+	path = vendor/atlas
+	url = https://github.com/crvouga/atlas.git
