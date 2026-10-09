@@ -37,7 +37,7 @@ Feature: How many spaces a person can host
       And Alice is not invited to get Plus
 
   Rule: Plus members never reach a hosting limit
-    No counter-example: a guest or a free account at their hosting limit is the first rule's refusal.
+    No counter-example: paid access has no maximum number of hosted spaces.
 
     Scenario: A Plus member hosts a second space at once
       Given Alice is a Plus member

@@ -45,7 +45,7 @@ Feature: Losing the connection in a space
       And Bob is not offered to join
 
   Rule: Presence is unavailable to someone without a connection
-    No counter-example: the return scenarios cover presence becoming available again.
+    No counter-example: someone in another person's space never sees old presence described as current.
 
     @regression:space-offline-presence-stale
     Scenario: Someone away does not see old presence as current

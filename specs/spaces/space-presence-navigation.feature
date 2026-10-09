@@ -4,7 +4,7 @@ Feature: Look at the people in a space
   what they were doing, so they can see who is with them without leaving.
 
   Rule: Presence counts only people currently in the space
-    No counter-example: the view reports presence; people cannot choose to keep someone showing after disconnection.
+    No counter-example: presence reports who is there; people cannot choose to keep someone showing after disconnection.
 
     Scenario: A host views the people in their space
       Given Alice is hosting a space that Bob joined from the link
@@ -24,7 +24,7 @@ Feature: Look at the people in a space
       Then Bob sees 0 people in the space's presence
 
   Rule: Closing presence leaves the person in the space
-    No counter-example: closing this view changes only what the person is looking at.
+    No counter-example: stopping viewing presence changes only what the person is looking at.
 
     Scenario: A host returns from presence to their space
       Given Alice is hosting a space
