@@ -971,7 +971,9 @@ terms:
       chosen as a person, a bot, an invitation, an open place or a closed side before start.
       The host is its creator and need not participate. The usual starting position is used;
       other variants and starting positions are not offered. The game may be timed or untimed.
-      Every change needs a connection; agreed choices and moves remain available on return.
+      The host can create, configure and play without a connection when no other person holds
+      a side or invitation. Choices involving another person need a connection.
+      Agreed choices and moves remain available on return.
     forms:
     - Custom Games
     - Custom Game's
