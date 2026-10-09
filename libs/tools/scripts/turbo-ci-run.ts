@@ -95,8 +95,6 @@ import {
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
-/** The pull-request gate: the cheap subset of `//#check` (README "Checks and CI"). */
-const CHECK_PR_AGGREGATOR = '//#check:pr';
 const DEPLOY_AGGREGATOR = '//#deploy';
 /**
  * The live health checks and critical journeys (`@apps/product#health`,
@@ -148,9 +146,6 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
   check: CHECK_AGGREGATOR,
   '//#check': CHECK_AGGREGATOR,
   '//:check': CHECK_AGGREGATOR,
-  'check:pr': CHECK_PR_AGGREGATOR,
-  '//#check:pr': CHECK_PR_AGGREGATOR,
-  '//:check:pr': CHECK_PR_AGGREGATOR,
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,
@@ -480,7 +475,7 @@ async function main(): Promise<void> {
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
 
   const slowRunner = inCi();
-  const deadlineSeconds = runDeadlineSeconds(rawTaskArgs, mode, slowRunner);
+  const deadlineSeconds = runDeadlineSeconds(mode, slowRunner);
 
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
@@ -542,20 +537,10 @@ async function main(): Promise<void> {
   );
 }
 
-/** `//#check:pr` on CI uses the short ceiling; shards and deploys do not. */
-function runDeadlineSeconds(
-  rawTaskArgs: readonly string[],
-  mode: RunMode,
-  slowRunner: boolean
-): number {
+function runDeadlineSeconds(mode: RunMode, slowRunner: boolean): number {
   return resolveRunDeadlineSeconds(process.env, {
     isDeploy: mode === 'deploy',
     slowRunner,
-    prGate: rawTaskArgs.some(
-      (arg) =>
-        Object.hasOwn(AGGREGATOR_ALIASES, arg) &&
-        AGGREGATOR_ALIASES[arg] === CHECK_PR_AGGREGATOR
-    ),
   });
 }
 

@@ -1,4 +1,0 @@
-{
-  "summary": "A checkout whose configured GitHub origin differs from the CLI's default upstream sent pull request operations to the wrong repository. Automatic Check discovery must pass gamezilla-org/gamezilla explicitly, so bun check observes the configured repository's required PR run instead of dispatching a competing manual run.",
-  "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
-}
