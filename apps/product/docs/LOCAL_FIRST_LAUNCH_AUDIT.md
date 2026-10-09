@@ -5,6 +5,21 @@ The authoritative inventory and release rules are in
 [`specs/README.md`](../../../specs/README.md). This is an evidence record,
 not another product definition. No manual testing supplies evidence.
 
+The current combined product proof run passed seven checks and failed six
+at their existing time limits (471.43 seconds total). The six failures cover
+offline replication, access and synchronization, multiplayer, account privacy,
+the whole product and recovery. No bounds, deadlines or invariants were relaxed.
+The combined models also retain older offline and space-addition assumptions;
+those must be reconciled with the canonical domain rules before their verdict
+can support launch.
+
+All eight current Friends and Spaces models passed their formal checks with
+the original bounds and deadlines. The full behavior replay is still running.
+A separate settled-screen regression for repeated Plus access fails: both
+subscriptions ended at the provider and in the shared account record, while
+the device retains the second trial and offers no new subscription. The cause
+is under investigation; this is not passing launch evidence.
+
 ## Verification
 
 | Automated check | Recorded result | Limit |
@@ -516,8 +531,8 @@ The literal newly-added-person Join regression failed before the startup
 availability fix and passes after it. The room framework passes 56 contracts
 with 165 assertions. The previous full addition run passed 72 checks and failed
 that one startup case; a broader addition, removal and host-connection run is
-now in progress. Offline cached-profile request specifications are being
-corrected and their implementation remains outstanding.
+now in progress. The six offline cached-profile request examples now pass;
+their complete context verification remains outstanding.
 
 A broader run found four observer divergences where a person who had already
 left or been removed was labelled a disconnected participant solely because
@@ -535,3 +550,12 @@ connectivity returning does not synchronously deliver a membership snapshot.
 The three durable-feedback contracts pass with 17 assertions in 2.06 seconds,
 including separate outcomes for two different choice targets. These focused
 results do not replace the outstanding whole-context and full local gates.
+
+All eight current Friends/Spaces formal models pass under the existing bounds
+and deadlines. Product replay exposed lost feedback after a local refusal and
+queries treating a correctly deleted request as pending. Both inputs are pinned;
+the local refusal now survives reopening and the deleted request cannot prevent
+a later offline choice. Four feedback contracts pass with 24 assertions and the
+whole sync harness passes 28 checks with 98 assertions. The current complete
+behavior suite is running. These results do not resolve the remaining audit,
+capacity, environment-conformance or full local verification gaps.

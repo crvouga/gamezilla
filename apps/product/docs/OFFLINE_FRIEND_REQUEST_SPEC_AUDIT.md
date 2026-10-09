@@ -87,8 +87,8 @@ accepted, kept through app reopening, shared on return, or visibly refused
 without revealing a block. Scoped durable-feedback contracts passed with
 17 assertions. Current Friends client/harness, Spaces harness and sync client
 type checks and lint pass. The strict gate passes for 1,766 scenarios, 47
-models and 2,253 definitions. These results do not prove the still-running
-32 request traces or the complete Friends/Spaces contexts.
+models and 2,253 definitions. These results do not prove the complete
+Friends/Spaces contexts.
 
 The private proof premises now enumerate both boolean values and every
 connection subset; the hosting count remains any natural number. Adding
@@ -99,3 +99,16 @@ The hosting-limit induction passed in 8.60 seconds and addition induction in
 120-second deadline. The request induction first found an unreachable premise
 (shared request despite no local request). The complete candidate now proves
 that relationship and all five public invariants in 17.20 seconds. No failed obligation is marked as passing.
+
+The complete eight-model Friends/Spaces proof task now passes. It proves every
+named invariant and the induction candidates with the existing bounds and
+deadlines; the longest model took 75.6 seconds. Product replay found two
+additional defects: locally refused choices lost their feedback on reopening,
+and a removed request's deleted row was still treated as pending. Both literal
+inputs are pinned. The framework now keeps completed local refusals without
+uploading them; the profile and local request validation exclude deleted rows.
+The latter regression also proves that a fresh offline request after the block
+ends stays private and reaches the other person when shared. Four feedback
+contracts pass with 24 assertions; the whole framework package passes 28 checks
+with 98 assertions. Current affected type checks and lint pass. The complete
+behavior replay is still running, so its verdict remains outstanding.
