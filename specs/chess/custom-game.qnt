@@ -137,16 +137,21 @@ module custom_game {
   pure def _solo(g: CustomGame): bool = SIDES.forall(s =>
     _side(g,s).person == "" or _side(g,s).person == "alice")
   def _choicePicture(actor: Person): CustomGame = if (_offline.contains(actor)) gameShown.get(actor) else customGame
+  // An offline host has not yet learned that another device ended the space.
+  def _localHost(actor: Person, g: CustomGame): bool =
+    _personOf(actor) == "alice" and not(_signedOut.contains(actor)) and
+      ((_members.contains("alice") and not(_spaceEnded)) or g.creator == "alice")
   def _connectionReason(g: CustomGame, actor: Person, command: str): str =
     if (_offline.contains(actor)) {
-      if (_personOf(actor) == "alice" and _members.contains("alice") and not(_spaceEnded) and not(_signedOut.contains(actor)) and _solo(g) and command != "invite") ""
+      if (_localHost(actor,g) and _solo(g) and command != "invite") ""
       else "connection needed"
     } else if (_members.contains(_personOf(actor)) and not(_signedOut.contains(actor)) and _personOf(actor) != "alice" and not(_hostAvailable(_offline,_signedOut))) "the host is offline"
     else ""
 
   def _priorityReason(g: CustomGame, actor: Person, c: str): str = {
     val sender = _personOf(actor)
-    if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(sender))) "not in the space"
+    if (_signedOut.contains(actor) or
+      ((_spaceEnded or not(_members.contains(sender))) and not(_offline.contains(actor) and _localHost(actor,g)))) "not in the space"
     else if (g.status == "none" and not(Set("create", "rematch").contains(c))) "no Custom Game"
     else if (_creatorCommand(c) and sender != "alice" and not(c == "cancel" and _personSide(g,sender) != "")) "only the creator"
     else if (Set("create", "rematch").contains(c)) {
