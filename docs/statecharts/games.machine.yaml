@@ -1,0 +1,55 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: games
+initial: 'Games: Chess choices'
+meta:
+  description: The host chooses puzzles, private multiplayer chess or a Custom Game; participants watch as permitted.
+  snapshot: The host chooses puzzles, private multiplayer chess or a Custom Game; participants watch as permitted.
+  confidence: assumed
+  source: &id001
+  - specs/chess/space-host-select-game.feature
+  events: []
+  context: chess
+  eventKinds:
+    Changes the space’s game as a watcher: user
+    Opens a Custom Game: user
+    Opens a shared puzzle link: user
+    Opens chess puzzles: user
+    Opens multiplayer chess: user
+    Returns to chess choices: user
+states:
+  'Games: Chess choices':
+    id: 'Games: Chess choices'
+    meta:
+      description: The space offers its supported chess games according to the person’s role and permission.
+      snapshot: The space offers its supported chess games according to the person’s role and permission.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Opens chess puzzles:
+        target: '#App: Puzzles'
+      Opens multiplayer chess:
+        target: '#App: Multiplayer'
+      Opens a Custom Game:
+        target: '#App: Custom game'
+      Opens a shared puzzle link:
+        target: '#App: Puzzle links'
+      Changes the space’s game as a watcher:
+        target: '#Games: Game choice refused'
+  'Games: Game choice refused':
+    id: 'Games: Game choice refused'
+    meta:
+      description: Only the host changes the space’s selected game.
+      snapshot: Only the host changes the space’s selected game.
+      confidence: assumed
+      source:
+      - specs/chess/space-host-select-game.feature:6
+      events: []
+      gherkin:
+      - specs/chess/space-host-select-game.feature
+      checks:
+      - The host's game is the game everyone in the space is taken to
+    'on':
+      Returns to chess choices:
+        target: '#Games: Chess choices'

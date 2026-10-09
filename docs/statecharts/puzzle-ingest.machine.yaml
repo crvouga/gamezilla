@@ -1,0 +1,116 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: puzzle-ingest
+initial: 'Puzzle Ingest: Ready to add puzzles'
+meta:
+  description: An allowed person adds puzzle material and sees accepted and broken items or a retryable failure.
+  snapshot: An allowed person adds puzzle material and sees accepted and broken items or a retryable failure.
+  confidence: assumed
+  source: &id001
+  - specs/chess/puzzle-management-access.dmn
+  - specs/chess/puzzle-ingest.feature
+  - specs/chess/puzzle-loading.qnt
+  events: []
+  context: chess
+  eventKinds:
+    Adds more puzzle material: user
+    Adds puzzle material offline: user
+    Adds puzzle material with permission online: user
+    Adds puzzle material without permission: user
+    Connection returns: system
+    Puzzle import completes: system
+    Puzzle import fails: system
+    Returns from refused puzzle import: user
+    Tries adding the puzzle material again: user
+states:
+  'Puzzle Ingest: Ready to add puzzles':
+    id: 'Puzzle Ingest: Ready to add puzzles'
+    meta:
+      routes:
+      - '/more/puzzles'
+      description: Adding puzzles is offered only when the current permission allows it.
+      snapshot: Adding puzzles is offered only when the current permission allows it.
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-ingest.feature:6
+      - specs/chess/puzzle-ingest.feature:19
+      - specs/chess/puzzle-ingest.feature:46
+      - specs/chess/puzzle-ingest.feature:59
+      - specs/chess/puzzle-ingest.feature:82
+      events: []
+      gherkin:
+      - specs/chess/puzzle-ingest.feature
+      checks:
+      - Only the team may add puzzles
+      - An environment adds puzzles only once at a time
+      - Puzzles are added only to their environment
+      - The team can follow adding puzzles to its outcome
+      - A broken puzzle the team adds never reaches a solver
+    'on':
+      Adds puzzle material with permission online:
+        target: '#Puzzle Ingest: Adding puzzles'
+      Adds puzzle material without permission:
+        target: '#Puzzle Ingest: Adding refused'
+      Adds puzzle material offline:
+        target: '#Puzzle Ingest: Adding needs connection'
+  'Puzzle Ingest: Adding puzzles':
+    id: 'Puzzle Ingest: Adding puzzles'
+    meta:
+      description: The supplied puzzle material is being checked and added.
+      snapshot: The supplied puzzle material is being checked and added.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Puzzle import completes:
+        target: '#Puzzle Ingest: Import outcome'
+      Puzzle import fails:
+        target: '#Puzzle Ingest: Import failed'
+  'Puzzle Ingest: Import outcome':
+    id: 'Puzzle Ingest: Import outcome'
+    meta:
+      description: The accepted and broken puzzle counts explain the completed import.
+      snapshot: The accepted and broken puzzle counts explain the completed import.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Adds more puzzle material:
+        target: '#Puzzle Ingest: Ready to add puzzles'
+  'Puzzle Ingest: Import failed':
+    id: 'Puzzle Ingest: Import failed'
+    meta:
+      description: Failed puzzle import gives an explanation and another attempt.
+      snapshot: Failed puzzle import gives an explanation and another attempt.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries adding the puzzle material again:
+        target: '#Puzzle Ingest: Adding puzzles'
+  'Puzzle Ingest: Adding refused':
+    id: 'Puzzle Ingest: Adding refused'
+    meta:
+      description: This person cannot add puzzle material under the current permission.
+      snapshot: This person cannot add puzzle material under the current permission.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns from refused puzzle import:
+        target: '#App: Tools'
+  'Puzzle Ingest: Adding needs connection':
+    id: 'Puzzle Ingest: Adding needs connection'
+    meta:
+      description: Adding puzzle material needs a connection and keeps the last known outcome.
+      snapshot: Adding puzzle material needs a connection and keeps the last known outcome.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Connection returns:
+        target: '#Puzzle Ingest: Ready to add puzzles'

@@ -102,6 +102,7 @@ const CHECK_LEAVES = [
   '//#ci:workspace-lifecycle',
   '//#ci:goals',
   '//#ci:specs',
+  '//#ci:statecharts',
   '//#ci:conformance',
   '//#ci:spec-ownership',
   'tc',

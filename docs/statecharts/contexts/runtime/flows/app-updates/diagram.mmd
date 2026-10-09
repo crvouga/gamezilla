@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing An app too old for the product" as s0
-  state "Alice is asked to update the app within 15 seconds — 1" as s1
-  state "Alice's profile shows @alice_before — 2" as s2
-  [*] --> s0
-  s0 --> s1: the connection comes back
-  s0 --> s2: Alice updates the app
-  s1 --> [*]
-  s2 --> [*]

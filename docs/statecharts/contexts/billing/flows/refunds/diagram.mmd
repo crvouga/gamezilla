@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Refunds" as s0
-  state "Alice's membership has ended — 1" as s1
-  state "Alice has paid access — 3" as s2
-  [*] --> s0
-  s0 --> s1: Alice's payment is refunded when Alice has subscribed to Plus and Alice's free trial has ended
-  s0 --> s2: Alice subscribes to Plus
-  s1 --> [*]
-  s2 --> [*]

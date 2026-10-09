@@ -191,6 +191,8 @@ export function categoryViolations(
   for (const field of ['dependencies', 'devDependencies'] as const) {
     for (const [dep, version] of Object.entries(manifest[field] ?? {})) {
       if (!version.startsWith('workspace:')) continue;
+      // External workspaces keep their upstream naming and release policy.
+      if (!/^@(apps|libs|pkgs)\//.test(dep)) continue;
       const depCategory = categoryOfName(dep);
       if (depCategory === undefined) {
         out.push(`${field} names ${dep}, whose name spells no category`);

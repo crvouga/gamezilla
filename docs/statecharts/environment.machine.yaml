@@ -1,0 +1,160 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: environment
+initial: 'Environment: Declared environment'
+meta:
+  description: The team keeps each declared environment reachable, isolated, observable and recoverable without
+    exposing personal data.
+  snapshot: The team keeps each declared environment reachable, isolated, observable and recoverable without exposing
+    personal data.
+  confidence: assumed
+  source: &id001
+  - specs/runtime/availability.openslo.yaml
+  - specs/runtime/connected-services.feature
+  - specs/runtime/declared-environment.feature
+  - specs/runtime/privacy-retention.feature
+  - specs/runtime/reaching-the-app.feature
+  - specs/runtime/request-records.feature
+  - specs/runtime/serving-people.feature
+  - specs/runtime/stored-files.feature
+  events: []
+  context: runtime
+  eventKinds:
+    Checks the environment’s public reachability: user
+    Inspects a permitted investigation trail: user
+    Inspects connected services: user
+    Investigates app trouble: user
+    Opens maintenance evidence: user
+    Reads an owned stored file: user
+    Rebuilds a declared environment: user
+    Requests another person’s forbidden private material: user
+    Retention ends for investigation material: time
+    Returns to environment information: user
+states:
+  'Environment: Declared environment':
+    id: 'Environment: Declared environment'
+    meta:
+      description: The environment’s declared resources, connected services and protected data are inspectable by
+        the team.
+      snapshot: The environment’s declared resources, connected services and protected data are inspectable by the
+        team.
+      confidence: assumed
+      source:
+      - specs/runtime/connected-services.feature:8
+      - specs/runtime/declared-environment.feature:7
+      - specs/runtime/reaching-the-app.feature:6
+      - specs/runtime/serving-people.feature:7
+      events: []
+      gherkin:
+      - specs/runtime/connected-services.feature
+      - specs/runtime/declared-environment.feature
+      - specs/runtime/reaching-the-app.feature
+      - specs/runtime/serving-people.feature
+      checks:
+      - Every outside service the app relies on still lets the app use it
+      - An environment stays exactly as the team planned it
+      - People find the app at every address and reach it securely
+      - The app answers people, with everything it needs already in place
+    'on':
+      Rebuilds a declared environment:
+        target: '#Environment: Rebuilt environment'
+      Investigates app trouble:
+        target: '#Environment: Investigation trail'
+      Checks the environment’s public reachability:
+        target: '#Environment: Reachability outcome'
+      Inspects connected services:
+        target: '#Environment: Connected services'
+      Reads an owned stored file:
+        target: '#Environment: Stored file'
+      Opens maintenance evidence:
+        target: '#Tools: Database maintenance'
+  'Environment: Rebuilt environment':
+    id: 'Environment: Rebuilt environment'
+    meta:
+      description: A rebuilt environment keeps its declared behavior and protected data.
+      snapshot: A rebuilt environment keeps its declared behavior and protected data.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to environment information:
+        target: '#Environment: Declared environment'
+  'Environment: Investigation trail':
+    id: 'Environment: Investigation trail'
+    meta:
+      description: Permitted investigation records explain the person’s trouble and obey privacy and retention.
+      snapshot: Permitted investigation records explain the person’s trouble and obey privacy and retention.
+      confidence: assumed
+      source:
+      - specs/runtime/privacy-retention.feature:6
+      - specs/runtime/privacy-retention.feature:19
+      - specs/runtime/request-records.feature:6
+      events: []
+      gherkin:
+      - specs/runtime/privacy-retention.feature
+      - specs/runtime/request-records.feature
+      checks:
+      - Recovery copies cannot revive confirmed account deletions
+      - Routine investigation trails expire after 30 days
+      - The app leaves a trail the team can follow
+    'on':
+      Inspects a permitted investigation trail:
+        target: '#Environment: Investigation trail'
+      Requests another person’s forbidden private material:
+        target: '#Environment: Private material refused'
+      Retention ends for investigation material:
+        target: '#Environment: Declared environment'
+      Returns to environment information:
+        target: '#Environment: Declared environment'
+  'Environment: Private material refused':
+    id: 'Environment: Private material refused'
+    meta:
+      description: Unauthorised investigation material remains unavailable.
+      snapshot: Unauthorised investigation material remains unavailable.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to environment information:
+        target: '#Environment: Declared environment'
+  'Environment: Reachability outcome':
+    id: 'Environment: Reachability outcome'
+    meta:
+      description: The app’s measured reach and answers belong to the checked environment.
+      snapshot: The app’s measured reach and answers belong to the checked environment.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to environment information:
+        target: '#Environment: Declared environment'
+  'Environment: Connected services':
+    id: 'Environment: Connected services'
+    meta:
+      description: The environment’s declared service choices and their visible failures can be inspected.
+      snapshot: The environment’s declared service choices and their visible failures can be inspected.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to environment information:
+        target: '#Environment: Declared environment'
+  'Environment: Stored file':
+    id: 'Environment: Stored file'
+    meta:
+      description: Only the permitted person can obtain the stored file and unavailable files are explained.
+      snapshot: Only the permitted person can obtain the stored file and unavailable files are explained.
+      confidence: assumed
+      source:
+      - specs/runtime/stored-files.feature:7
+      events: []
+      gherkin:
+      - specs/runtime/stored-files.feature
+      checks:
+      - Each environment keeps its own uploads, and the app can keep, show and remove one
+    'on':
+      Returns to environment information:
+        target: '#Environment: Declared environment'

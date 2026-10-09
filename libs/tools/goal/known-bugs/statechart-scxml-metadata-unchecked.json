@@ -1,0 +1,4 @@
+{
+  "summary": "SCXML import trims ordinary metadata strings. A guide description with literal leading and trailing spaces changed after export/import while graph-only validation still passed. Portable guide validation must compare metadata and complete rule cards as well as transitions.",
+  "regressionTest": "libs/tools/scripts/statechart-integrity.test.ts"
+}

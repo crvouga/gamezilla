@@ -1,0 +1,484 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: billing
+initial: 'Billing: Plans'
+meta:
+  description: Plus checkout, renewals, cancellation, grace and refunds determine the person’s paid access.
+  snapshot: Plus checkout, renewals, cancellation, grace and refunds determine the person’s paid access.
+  confidence: assumed
+  source: &id001
+  - specs/billing/billing-access-per-person.feature
+  - specs/billing/billing-offline-grace.feature
+  - specs/billing/billing-plans-details.feature
+  - specs/billing/billing-plans.feature
+  - specs/billing/billing-portal.feature
+  - specs/billing/deleted-account-payments.feature
+  - specs/billing/expired-card.feature
+  - specs/billing/grace-ends.feature
+  - specs/billing/membership-cancellation.feature
+  - specs/billing/membership-interval-switch.feature
+  - specs/billing/membership-renewal.feature
+  - specs/billing/payment-failures.feature
+  - specs/billing/payment-provider-switch.feature
+  - specs/billing/payments.feature
+  - specs/billing/plus-credit.feature
+  - specs/billing/refunds.feature
+  - specs/billing/subscribe.feature
+  - specs/billing/events.qnt
+  - specs/billing/membership-lifecycle.qnt
+  - specs/billing/payment-provider-switch.qnt
+  - docs/statecharts/SPEC_CONFLICTS.md
+  events: []
+  context: billing
+  eventKinds:
+    A different person requests payment records: user
+    A working card pays the renewal: system
+    Abandons checkout: user
+    Chooses Plus as a guest: user
+    Chooses Plus while payments are disabled: user
+    Chooses Plus with an account and an available provider: user
+    Current billing information shows a trial: system
+    Current billing information shows an active membership: system
+    Current billing information shows an ended membership: system
+    Grace expires after the deadline: time
+    Loses connection after access confirmation: system
+    Offline access confirmation is older than seven days: time
+    Opens membership management: user
+    PaidAccessEnded: system
+    PaidAccessStarted: system
+    Payments become available: system
+    Provider confirms a refund: system
+    Provider confirms paid access: system
+    Provider confirms the seven-day trial: system
+    Provider opens checkout: system
+    Provider opens the portal: system
+    Provider refuses checkout: system
+    Provider refuses the portal: system
+    Provider schedules cancellation at period end: system
+    Provider stops further payment attempts: system
+    Reads their payment records: user
+    Renewal payment is declined: system
+    Renewal payment succeeds: system
+    Restores renewal before period end: user
+    Returns online with a live membership: system
+    Returns online without paid access: system
+    Returns to billing plans: user
+    Returns with membership unchanged: user
+    SignedIn: system
+    Subscribes again with an account: user
+    Switches to the yearly plan after the trial: user
+    Switches from yearly to monthly and keeps unused Plus credit: user
+    Plus credit covers renewal despite an expired card: system
+    Plus credit cannot cover renewal and the card is declined: system
+    Current billing information shows available Plus credit: system
+    The paid period ends: time
+    The team switches payment provider for new memberships: user
+    Trial ends with declined payment: system
+    Trial ends with successful payment: system
+    Tries checkout again: user
+    Tries opening the portal again: user
+states:
+  'Billing: Plans':
+    id: 'Billing: Plans'
+    meta:
+      routes:
+      - '/more/billing'
+      description: Monthly and yearly Plus plans show their price and trial before purchase.
+      snapshot: Monthly and yearly Plus plans show their price and trial before purchase.
+      confidence: assumed
+      source:
+      - specs/billing/billing-plans-details.feature:7
+      - specs/billing/billing-plans-details.feature:17
+      - specs/billing/billing-plans-details.feature:27
+      - specs/billing/billing-plans-details.feature:43
+      - specs/billing/billing-plans.feature:9
+      - specs/billing/expired-card.feature:7
+      - specs/billing/membership-interval-switch.feature:7
+      - specs/billing/membership-renewal.feature:7
+      - specs/billing/plus-credit.feature:12
+      - specs/billing/refunds.feature:11
+      - specs/billing/subscribe.feature:7
+      events: []
+      gherkin:
+      - specs/billing/billing-plans-details.feature
+      - specs/billing/billing-plans.feature
+      - specs/billing/expired-card.feature
+      - specs/billing/membership-interval-switch.feature
+      - specs/billing/membership-renewal.feature
+      - specs/billing/plus-credit.feature
+      - specs/billing/refunds.feature
+      - specs/billing/subscribe.feature
+      checks:
+      - Someone without a membership sees what each Plus plan costs and is offered a free trial
+      - While a membership is trialing, the billing plans show the day its free trial ends
+      - A Plus member sees the Plus plan they are on marked as their current plan, and only that one
+      - A Plus member whose payment failed is told so and offered to pay with a new card
+      - The billing plans offer subscribing or managing the membership according to paid access
+      - A renewal with an expired card stays delinquent until a new card pays
+      - Switching Plus plans after the free trial starts the chosen billing period at once
+      - A paid renewal keeps the membership active and moves the renewal date later
+      - Plus credit from the yearly plan pays a renewal before the card does
+      - A refund ends the membership at once, and the person can subscribe again
+      - A signed-in person without a live membership can subscribe to Plus
+    'on':
+      Current billing information shows a trial:
+        target: '#Billing: Trial'
+      Current billing information shows an active membership:
+        target: '#Billing: Active membership'
+      Current billing information shows available Plus credit:
+        target: '#Billing: Plus credit available'
+      Current billing information shows an ended membership:
+        target: '#Billing: Ended membership in grace'
+      Chooses Plus with an account and an available provider:
+        target: '#Billing: Opening checkout'
+      Chooses Plus as a guest:
+        target: '#Billing: Account required'
+      Chooses Plus while payments are disabled:
+        target: '#Billing: Payments unavailable'
+  'Billing: Account required':
+    id: 'Billing: Account required'
+    meta:
+      description: Buying Plus needs an account.
+      snapshot: Buying Plus needs an account.
+      confidence: assumed
+      source:
+      - specs/billing/deleted-account-payments.feature:6
+      - specs/billing/deleted-account-payments.feature:27
+      events: []
+      gherkin:
+      - specs/billing/deleted-account-payments.feature
+      checks:
+      - Confirmed account deletion stops future charges and paid access
+      - Retained payment records do not preserve the deleted account
+    'on':
+      SignedIn:
+        target: '#Billing: Plans'
+  'Billing: Payments unavailable':
+    id: 'Billing: Payments unavailable'
+    meta:
+      description: Payments are unavailable here and no charge is claimed.
+      snapshot: Payments are unavailable here and no charge is claimed.
+      confidence: assumed
+      source:
+      - specs/billing/payment-failures.feature:9
+      - specs/billing/payments.feature:6
+      events: []
+      gherkin:
+      - specs/billing/payment-failures.feature
+      - specs/billing/payments.feature
+      checks:
+      - A failed payment keeps paid access within grace until the payment provider gives up
+      - Real payments are taken only in a production environment
+    'on':
+      Payments become available:
+        target: '#Billing: Plans'
+  'Billing: Opening checkout':
+    id: 'Billing: Opening checkout'
+    meta:
+      description: The selected provider is opening checkout.
+      snapshot: The selected provider is opening checkout.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Provider opens checkout:
+        target: '#Billing: At checkout'
+      Provider refuses checkout:
+        target: '#Billing: Checkout failed'
+  'Billing: At checkout':
+    id: 'Billing: At checkout'
+    meta:
+      description: The person can inspect the purchase and choose whether to continue.
+      snapshot: The person can inspect the purchase and choose whether to continue.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Abandons checkout:
+        target: '#Billing: Plans'
+      Provider confirms the seven-day trial:
+        target: '#Billing: Trial'
+      Provider confirms paid access:
+        target: '#Billing: Active membership'
+  'Billing: Checkout failed':
+    id: 'Billing: Checkout failed'
+    meta:
+      description: Checkout failed with another attempt available.
+      snapshot: Checkout failed with another attempt available.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries checkout again:
+        target: '#Billing: Opening checkout'
+  'Billing: Trial':
+    id: 'Billing: Trial'
+    meta:
+      description: The seven-day trial grants access under the chosen interval.
+      snapshot: The seven-day trial grants access under the chosen interval.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Trial ends with successful payment:
+        target: '#Billing: Active membership'
+      Trial ends with declined payment:
+        target: '#Billing: Declined renewal'
+      Opens membership management:
+        target: '#Billing: Opening the portal'
+      PaidAccessStarted:
+        target: '#Billing: Trial'
+  'Billing: Active membership':
+    id: 'Billing: Active membership'
+    initial: 'Billing: Current payment terms'
+    meta:
+      description: The live membership grants the account paid access on its devices and stays with its original
+        payment provider after the team changes providers.
+      snapshot: The live membership grants the account paid access on its devices and stays with its original payment
+        provider after the team changes providers.
+      confidence: assumed
+      source:
+      - specs/billing/billing-access-per-person.feature:7
+      - specs/billing/membership-cancellation.feature:10
+      - specs/billing/payment-provider-switch.feature:8
+      - specs/billing/payment-provider-switch.feature:17
+      - specs/billing/payment-provider-switch.feature:32
+      events: []
+      gherkin:
+      - specs/billing/billing-access-per-person.feature
+      - specs/billing/membership-cancellation.feature
+      - specs/billing/payment-provider-switch.feature
+      checks:
+      - Paid access follows the person signed in, across their devices
+      - Canceling ends the membership at the chosen time and allows subscribing again
+      - A live membership stays at the payment provider it started at
+      - The first payment provider keeps serving its members after the switch
+      - New memberships start at the payment provider the team chose
+    states:
+      'Billing: Current payment terms':
+        id: 'Billing: Current payment terms'
+        meta:
+          description: The active membership shows the chosen monthly or yearly plan and its current renewal date.
+          snapshot: The active membership shows the chosen monthly or yearly plan and its current renewal date.
+          confidence: assumed
+          source:
+          - specs/billing/membership-interval-switch.feature:12
+          events: []
+          checks: []
+      'Billing: Plus credit available':
+        id: 'Billing: Plus credit available'
+        meta:
+          description: Switching from yearly to monthly keeps the unused yearly value as Plus credit. A renewal uses this credit before charging the card.
+          snapshot: Switching from yearly to monthly keeps the unused yearly value as Plus credit. A renewal uses this credit before charging the card.
+          confidence: assumed
+          source:
+          - specs/billing/plus-credit.feature:14
+          - specs/billing/plus-credit.feature:19
+          - specs/billing/plus-credit.feature:26
+          events: []
+          checks: []
+        'on':
+          Plus credit covers renewal despite an expired card:
+            target: '#Billing: Active membership'
+          Plus credit cannot cover renewal and the card is declined:
+            target: '#Billing: Declined renewal'
+    'on':
+      Opens membership management:
+        target: '#Billing: Opening the portal'
+      Renewal payment succeeds:
+        target: '#Billing: Active membership'
+      Renewal payment is declined:
+        target: '#Billing: Declined renewal'
+      Provider confirms a refund:
+        target: '#Billing: Refund confirmed'
+      Loses connection after access confirmation:
+        target: '#Billing: Offline paid access'
+      Switches to the yearly plan after the trial:
+        target: '#Billing: Active membership'
+      Switches from yearly to monthly and keeps unused Plus credit:
+        target: '#Billing: Plus credit available'
+      The team switches payment provider for new memberships:
+        target: '#Billing: Active membership'
+      PaidAccessStarted:
+        target: '#Billing: Active membership'
+  'Billing: Opening the portal':
+    id: 'Billing: Opening the portal'
+    meta:
+      description: The provider is opening membership management.
+      snapshot: The provider is opening membership management.
+      confidence: assumed
+      source:
+      - specs/billing/billing-portal.feature:7
+      events: []
+      gherkin:
+      - specs/billing/billing-portal.feature
+      checks:
+      - Changes in the billing portal keep the membership on the Plus plan the person chose
+    'on':
+      Provider opens the portal:
+        target: '#Billing: At the portal'
+      Provider refuses the portal:
+        target: '#Billing: Portal failed'
+  'Billing: Portal failed':
+    id: 'Billing: Portal failed'
+    meta:
+      description: Membership management failed with another attempt available.
+      snapshot: Membership management failed with another attempt available.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries opening the portal again:
+        target: '#Billing: Opening the portal'
+  'Billing: At the portal':
+    id: 'Billing: At the portal'
+    meta:
+      description: The person manages the current membership with the provider.
+      snapshot: The person manages the current membership with the provider.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Provider schedules cancellation at period end:
+        target: '#Billing: Scheduled cancellation'
+      Returns with membership unchanged:
+        target: '#Billing: Active membership'
+  'Billing: Scheduled cancellation':
+    id: 'Billing: Scheduled cancellation'
+    meta:
+      description: Access continues through the paid period; future renewal is cancelled.
+      snapshot: Access continues through the paid period; future renewal is cancelled.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Restores renewal before period end:
+        target: '#Billing: Active membership'
+      The paid period ends:
+        target: '#Billing: Ended membership in grace'
+  'Billing: Declined renewal':
+    id: 'Billing: Declined renewal'
+    meta:
+      description: Payment is declined and paid access is kept only through the allowed grace.
+      snapshot: Payment is declined and paid access is kept only through the allowed grace.
+      confidence: assumed
+      source:
+      - specs/billing/grace-ends.feature:8
+      - specs/billing/grace-ends.feature:24
+      events: []
+      gherkin:
+      - specs/billing/grace-ends.feature
+      checks:
+      - A canceled membership keeps paid access for 7 days, and no longer
+      - A Plus member offline keeps paid access for 7 days
+    'on':
+      A working card pays the renewal:
+        target: '#Billing: Active membership'
+      Provider stops further payment attempts:
+        target: '#Billing: Ended membership in grace'
+      Grace expires after the deadline:
+        target: '#Billing: Free access'
+  'Billing: Ended membership in grace':
+    id: 'Billing: Ended membership in grace'
+    meta:
+      description: The membership ended and temporary grace is still in force.
+      snapshot: The membership ended and temporary grace is still in force.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+      hints:
+      - Grace expiry follows specs/billing/grace-ends.feature; the context membership model does not yet describe an expiry action.
+    'on':
+      Grace expires after the deadline:
+        target: '#Billing: Free access'
+  'Billing: Offline paid access':
+    id: 'Billing: Offline paid access'
+    meta:
+      description: The last known paid access lasts at most the documented offline grace.
+      snapshot: The last known paid access lasts at most the documented offline grace.
+      confidence: assumed
+      source:
+      - specs/billing/billing-offline-grace.feature:7
+      events: []
+      gherkin:
+      - specs/billing/billing-offline-grace.feature
+      checks:
+      - Losing the connection keeps paid access while grace lasts
+    'on':
+      Offline access confirmation is older than seven days:
+        target: '#Billing: Offline free access'
+      Returns online with a live membership:
+        target: '#Billing: Active membership'
+  'Billing: Offline free access':
+    id: 'Billing: Offline free access'
+    meta:
+      description: Old offline confirmation gives no paid access.
+      snapshot: Old offline confirmation gives no paid access.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns online with a live membership:
+        target: '#Billing: Active membership'
+      Returns online without paid access:
+        target: '#Billing: Free access'
+  'Billing: Refund confirmed':
+    id: 'Billing: Refund confirmed'
+    meta:
+      description: The refund ends paid access immediately and keeps its payment record.
+      snapshot: The refund ends paid access immediately and keeps its payment record.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      PaidAccessEnded:
+        target: '#Billing: Free access'
+  'Billing: Free access':
+    id: 'Billing: Free access'
+    meta:
+      description: Free limits apply; completed payment records remain owned by the payer.
+      snapshot: Free limits apply; completed payment records remain owned by the payer.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Subscribes again with an account:
+        target: '#Billing: Opening checkout'
+      Reads their payment records:
+        target: '#Billing: Payment records'
+  'Billing: Payment records':
+    id: 'Billing: Payment records'
+    meta:
+      description: Only the payer sees their permitted payment and credit records.
+      snapshot: Only the payer sees their permitted payment and credit records.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to billing plans:
+        target: '#Billing: Plans'
+      A different person requests payment records:
+        target: '#Billing: Payment records refused'
+  'Billing: Payment records refused':
+    id: 'Billing: Payment records refused'
+    meta:
+      description: Another person’s payment records cannot be read.
+      snapshot: Another person’s payment records cannot be read.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to billing plans:
+        target: '#Billing: Plans'

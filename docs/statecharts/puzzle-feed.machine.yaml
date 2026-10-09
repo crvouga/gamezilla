@@ -1,0 +1,139 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: puzzle-feed
+initial: 'Puzzle Feed: Saved feed'
+meta:
+  description: Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed.
+  snapshot: Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed.
+  confidence: assumed
+  source: &id001
+  - specs/chess/puzzle-feed-gates.feature
+  - specs/chess/puzzle-feed-sticks.feature
+  - specs/chess/puzzle-feed.feature
+  - specs/chess/puzzle-feed.qnt
+  - docs/statecharts/SPEC_CONFLICTS.md
+  events: []
+  context: chess
+  eventKinds:
+    Cancels feed editing: user
+    Changes history, theme or target within its bounds: user
+    Changes the feed target within its bounds: user
+    Connection returns: system
+    Edits the feed again: user
+    Edits the feed with permission: user
+    Edits the feed without permission: user
+    Raises or lowers a feed target beyond its bounds: user
+    Returns to puzzles after saving the feed: user
+    Returns to puzzles with saved offline choices: user
+    Saves permitted feed choices offline: user
+    Saves permitted feed choices online: user
+    SignedIn: system
+states:
+  'Puzzle Feed: Saved feed':
+    id: 'Puzzle Feed: Saved feed'
+    meta:
+      description: Saved feed choices select history, target, theme and auto-advance for the next puzzle.
+      snapshot: Saved feed choices select history, target, theme and auto-advance for the next puzzle.
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed-sticks.feature:6
+      - specs/chess/puzzle-feed-sticks.feature:30
+      - specs/chess/puzzle-feed.feature:7
+      - specs/chess/puzzle-feed.feature:59
+      - specs/chess/puzzle-feed.feature:94
+      - specs/chess/puzzle-feed.feature:135
+      - specs/chess/puzzle-feed.feature:152
+      events: []
+      gherkin:
+      - specs/chess/puzzle-feed-sticks.feature
+      - specs/chess/puzzle-feed.feature
+      checks:
+      - Saved feed settings stay after the app closes and follow the account to other devices
+      - A chosen puzzle theme stays after the app closes and follows the account to other devices
+      - Feed settings choose the history filter and feed target for the next puzzle
+      - Saving applies the previewed choices; closing without saving keeps the saved choices
+      - The rating offset stays between −400 and +400, and a custom feed target between 400 and 3000
+      - A chosen puzzle theme serves only puzzles with that theme
+      - The "Failed" history filter serves only puzzles the solver failed, unrated
+    'on':
+      Edits the feed with permission:
+        target: '#Puzzle Feed: Editing the feed'
+      Edits the feed without permission:
+        target: '#Puzzle Feed: Feed permission required'
+  'Puzzle Feed: Editing the feed':
+    id: 'Puzzle Feed: Editing the feed'
+    meta:
+      description: Unsaved choices preview the target and matching pool without replacing the saved choices.
+      snapshot: Unsaved choices preview the target and matching pool without replacing the saved choices.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Changes history, theme or target within its bounds:
+        target: '#Puzzle Feed: Editing the feed'
+      Raises or lowers a feed target beyond its bounds:
+        target: '#Puzzle Feed: Target boundary'
+      Saves permitted feed choices online:
+        target: '#Puzzle Feed: Feed saved'
+      Saves permitted feed choices offline:
+        target: '#Puzzle Feed: Feed saved offline'
+      Cancels feed editing:
+        target: '#Puzzle Feed: Saved feed'
+  'Puzzle Feed: Target boundary':
+    id: 'Puzzle Feed: Target boundary'
+    meta:
+      description: The rating offset stays from minus 400 to plus 400 and the custom target from 400 to 3000.
+      snapshot: The rating offset stays from minus 400 to plus 400 and the custom target from 400 to 3000.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Changes the feed target within its bounds:
+        target: '#Puzzle Feed: Editing the feed'
+  'Puzzle Feed: Feed permission required':
+    id: 'Puzzle Feed: Feed permission required'
+    meta:
+      description: The current permission decision explains why feed customization is unavailable.
+      snapshot: The current permission decision explains why feed customization is unavailable.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+      hints:
+      - The feed feature requires an account; specs/system/product-state.qnt also requires paid access. This source disagreement remains a contract gap.
+    'on':
+      SignedIn:
+        target: '#Puzzle Feed: Saved feed'
+  'Puzzle Feed: Feed saved':
+    id: 'Puzzle Feed: Feed saved'
+    meta:
+      description: The saved choices govern the next puzzle and survive returning to the app.
+      snapshot: The saved choices govern the next puzzle and survive returning to the app.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to puzzles after saving the feed:
+        target: '#App: Puzzles'
+      Edits the feed again:
+        target: '#Puzzle Feed: Editing the feed'
+  'Puzzle Feed: Feed saved offline':
+    id: 'Puzzle Feed: Feed saved offline'
+    meta:
+      description: Offline choices stay on this device and reach the account when the connection returns.
+      snapshot: Offline choices stay on this device and reach the account when the connection returns.
+      confidence: assumed
+      source:
+      - specs/chess/puzzle-feed-gates.feature:7
+      events: []
+      gherkin:
+      - specs/chess/puzzle-feed-gates.feature
+      checks:
+      - A guest can play puzzles but needs an account to customize the feed
+    'on':
+      Connection returns:
+        target: '#Puzzle Feed: Feed saved'
+      Returns to puzzles with saved offline choices:
+        target: '#App: Puzzles'

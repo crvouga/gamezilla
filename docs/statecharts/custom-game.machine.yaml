@@ -1,0 +1,827 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: custom-game
+initial: 'Custom Game: Opening current Custom Game'
+meta:
+  description: A host configures people or bots, gets readiness for the current choices, then plays and reviews
+    an unrated Custom Game.
+  snapshot: A host configures people or bots, gets readiness for the current choices, then plays and reviews an
+    unrated Custom Game.
+  confidence: assumed
+  source: &id001
+  - specs/chess/custom-game-access.dmn
+  - specs/chess/custom-game-delivery.openslo.yaml
+  - specs/chess/custom-games.als
+  - specs/chess/custom-game-access.feature
+  - specs/chess/custom-game-accessibility.feature
+  - specs/chess/custom-game-away.feature
+  - specs/chess/custom-game-blocking.feature
+  - specs/chess/custom-game-board.feature
+  - specs/chess/custom-game-chess-rules.feature
+  - specs/chess/custom-game-clock.feature
+  - specs/chess/custom-game-completion.feature
+  - specs/chess/custom-game-connection.feature
+  - specs/chess/custom-game-creation.feature
+  - specs/chess/custom-game-devices.feature
+  - specs/chess/custom-game-draws.feature
+  - specs/chess/custom-game-history.feature
+  - specs/chess/custom-game-identity.feature
+  - specs/chess/custom-game-invitations.feature
+  - specs/chess/custom-game-material.feature
+  - specs/chess/custom-game-open-places.feature
+  - specs/chess/custom-game-open-side.feature
+  - specs/chess/custom-game-play.feature
+  - specs/chess/custom-game-position-draws.feature
+  - specs/chess/custom-game-privacy.feature
+  - specs/chess/custom-game-readiness.feature
+  - specs/chess/custom-game-sides.feature
+  - specs/chess/custom-game-withdraw-readiness.feature
+  - specs/chess/custom-game-control.qnt
+  - specs/chess/custom-game-play.qnt
+  - specs/chess/custom-game.qnt
+  events: []
+  context: chess
+  eventKinds:
+    A Custom Game clock expires: time
+    A participant cancels before both people have moved: user
+    A participant confirms readiness: user
+    A participant leaves the space and resigns: user
+    A participant loses connection: system
+    A participant releases their own side before start: user
+    A participant resigns the Custom Game: user
+    A participant withdraws readiness: user
+    A watcher creates a Custom Game: user
+    Another person starts the game: user
+    Another person tries releasing a participant’s side: user
+    Assigns a permitted person or bot to a side: user
+    Blocks a participant during the active game: user
+    Both sides are filled and every person is ready for the current choices: system
+    Changes Custom Game choices offline: user
+    Changes the Custom Game clock: user
+    Chooses the Custom Game promotion piece: user
+    Chooses the same person for both sides: user
+    Claims a position draw before it is available: user
+    Claims a win after the opponent was away for only fifty-nine seconds: user
+    Claims a win after the opponent was away for sixty seconds: user
+    Claims an available position draw: user
+    Connection returns to a cancelled Custom Game: system
+    Connection returns to a finished Custom Game: system
+    Connection returns to an active Custom Game: system
+    Connection returns to the current Custom Game choices: system
+    Corrects the Custom Game side choices: user
+    Creates a Custom Game rematch with swapped sides: user
+    Creates a rematch before this Custom Game ends: user
+    Creates another Custom Game before this one ends: user
+    Custom Game checkmate occurs: system
+    Custom Game stalemate, insufficient material or automatic repetition occurs: system
+    Invites a permitted person to an open side: user
+    Invites a person blocked by either side: user
+    Offers a Custom Game draw: user
+    Offers a Custom Game draw against a bot: user
+    Offers the declined Custom Game draw again before moving: user
+    The offering participant plays their next legal Custom Game move: user
+    The other participant plays a legal Custom Game move after declining: user
+    The offering participant tries declining their own Custom Game draw: user
+    A Custom Game clock expires against a side unable to mate: time
+    A participant resigns to a side unable to mate: user
+    Claims a win after sixty seconds without mating material: user
+    Plays a legal Custom Game move on their turn: user
+    Plays an illegal or wrong-turn Custom Game move: user
+    Reaches Custom Game promotion: user
+    Returns to Custom Game choices: user
+    Returns to Custom Game configuration: user
+    Returns to a configuring Custom Game: user
+    Returns to a finished Custom Game: user
+    Returns to an active Custom Game: user
+    Returns to the Custom Game board: user
+    Returns to the Custom Game result: user
+    Returns to the unfinished Custom Game: user
+    Reviews the Custom Game’s moves: user
+    SignedIn: system
+    Someone tries an ended or another person’s invitation: user
+    Starts a cancelled Custom Game: user
+    Starts a finished Custom Game: user
+    Starts before everyone is ready: user
+    Starts the already active Custom Game again: user
+    Starts with open places or unready participants: user
+    Takes a permitted open side: user
+    Takes an open side with a block between the person and creator: user
+    The creator cancels the active Custom Game: user
+    The creator cancels the unstarted game: user
+    The creator changes the choices: user
+    The creator revokes the invitation: user
+    The creator starts the agreed game: user
+    The host creates a Custom Game: user
+    The host creates another Custom Game: user
+    The invited person accepts a current invitation: user
+    The invited person declines: user
+    The offering participant accepts their own draw: user
+    The other participant accepts the Custom Game draw: system
+    The other participant declines the Custom Game draw: system
+    Tries acquiring or releasing a side after start: user
+    UsernameChanged: system
+    No unfinished Custom Game exists in the space: system
+    The current Custom Game is cancelled: system
+    The current Custom Game choices are partly ready: system
+    The current Custom Game choices are fully ready: system
+    Connection returns to partly ready Custom Game choices: system
+    Connection returns to fully ready Custom Game choices: system
+    Connection returns with a waiting Custom Game draw offer: system
+    Connection returns while the Custom Game sender still waits to offer again: system
+states:
+  'Custom Game: Opening current Custom Game':
+    id: 'Custom Game: Opening current Custom Game'
+    meta:
+      description: Opening observes the space's existing game, choices, moves and result. Navigation never creates a game or resets one already in progress.
+      snapshot: Opening observes the space's existing game, choices, moves and result. Navigation never creates a game or resets one already in progress.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-history.feature:5
+      - specs/chess/custom-game-devices.feature:7
+      - specs/chess/custom-game-devices.feature:24
+      events: []
+      checks: []
+    'on':
+      No unfinished Custom Game exists in the space:
+        target: '#Custom Game: No unfinished Custom Game'
+      Returns to a configuring Custom Game:
+        target: '#Custom Game: Configuring'
+      The current Custom Game choices are partly ready:
+        target: '#Custom Game: Partly ready'
+      The current Custom Game choices are fully ready:
+        target: '#Custom Game: Ready to start'
+      Returns to an active Custom Game:
+        target: '#Custom Game: Playing'
+      Returns to a finished Custom Game:
+        target: '#Custom Game: Finished'
+      The current Custom Game is cancelled:
+        target: '#Custom Game: Cancelled'
+      The host creates a Custom Game:
+        target: '#Custom Game: Configuring'
+      A watcher creates a Custom Game:
+        target: '#Custom Game: Creator required'
+      Creates another Custom Game before this one ends:
+        target: '#Custom Game: Replacement refused'
+  'Custom Game: No unfinished Custom Game':
+    id: 'Custom Game: No unfinished Custom Game'
+    meta:
+      description: The host may create a Custom Game after the previous game finished or was cancelled.
+      snapshot: The host may create a Custom Game after the previous game finished or was cancelled.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-accessibility.feature:5
+      - specs/chess/custom-game-accessibility.feature:19
+      - specs/chess/custom-game-blocking.feature:5
+      - specs/chess/custom-game-blocking.feature:28
+      - specs/chess/custom-game-blocking.feature:45
+      - specs/chess/custom-game-creation.feature:5
+      - specs/chess/custom-game-creation.feature:20
+      - specs/chess/custom-game-creation.feature:32
+      - specs/chess/custom-game-play.feature:5
+      - specs/chess/custom-game-play.feature:39
+      - specs/chess/custom-game-play.feature:54
+      - specs/chess/custom-game-play.feature:67
+      - specs/chess/custom-game-play.feature:82
+      - specs/chess/custom-game-privacy.feature:5
+      - specs/chess/custom-game-privacy.feature:20
+      - specs/chess/custom-game-privacy.feature:45
+      events: []
+      gherkin:
+      - specs/chess/custom-game-accessibility.feature
+      - specs/chess/custom-game-blocking.feature
+      - specs/chess/custom-game-creation.feature
+      - specs/chess/custom-game-play.feature
+      - specs/chess/custom-game-privacy.feature
+      checks:
+      - The keyboard alone can choose a participant and start a ready game
+      - Listening describes the sides, readiness and outcome
+      - The creator cannot invite someone when either of them has blocked the other
+      - Someone with a block between them and the creator cannot claim an open place in the creator's game
+      - A block after the game has started does not end it
+      - Only the host creates the space's Custom Game
+      - Creating another game keeps an unfinished game
+      - Every Custom Game starts with standard chess and is unrated
+      - Only the participant to move plays legal moves
+      - Bots play only their own turn and stop when the game ends
+      - Checkmate ends the game immediately
+      - A draw needs agreement or a drawn chess position
+      - Finished moves can be reviewed without changing the result
+      - Deleting the creator's account ends the space and cancels unfinished games
+      - Deleting a participant releases a waiting side or resigns an active side
+      - Personal-data exports include the person's retained Custom Games without another person's private data
+    'on':
+      Returns to a configuring Custom Game:
+        target: '#Custom Game: Configuring'
+      Returns to an active Custom Game:
+        target: '#Custom Game: Playing'
+      Returns to a finished Custom Game:
+        target: '#Custom Game: Finished'
+      The host creates a Custom Game:
+        target: '#Custom Game: Configuring'
+      A watcher creates a Custom Game:
+        target: '#Custom Game: Creator required'
+  'Custom Game: Custom Game connection required':
+    id: 'Custom Game: Custom Game connection required'
+    meta:
+      description: Custom Game changes need a connection and cannot be queued to happen later on their own.
+      snapshot: Custom Game changes need a connection and cannot be queued to happen later on their own.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-connection.feature:5
+      - specs/chess/custom-game-connection.feature:30
+      - specs/chess/custom-game-connection.feature:48
+      events: []
+      gherkin:
+      - specs/chess/custom-game-connection.feature
+      checks:
+      - Changes to a Custom Game need a connection and never happen later on their own
+      - A returning person sees the current choices and outcome
+      - Acknowledged choices survive closing the app
+    'on':
+      Connection returns to the current Custom Game choices:
+        target: '#Custom Game: Configuring'
+      Connection returns to partly ready Custom Game choices:
+        target: '#Custom Game: Partly ready'
+      Connection returns to fully ready Custom Game choices:
+        target: '#Custom Game: Ready to start'
+  'Custom Game: Creator required':
+    id: 'Custom Game: Creator required'
+    meta:
+      description: Only the space’s host may create this Custom Game.
+      snapshot: Only the space’s host may create this Custom Game.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-access.feature:5
+      - specs/chess/custom-game-access.feature:20
+      - specs/chess/custom-game-access.feature:34
+      - specs/chess/custom-game-devices.feature:5
+      - specs/chess/custom-game-devices.feature:22
+      events: []
+      gherkin:
+      - specs/chess/custom-game-access.feature
+      - specs/chess/custom-game-devices.feature
+      checks:
+      - Everyone already in the space may watch the same Custom Game
+      - Joining a space follows that space's rules before a side can be claimed
+      - Paid access changes no Custom Game choice
+      - The participating account controls the same side on each connected device
+      - Reconnecting a device restores the current game without reviving its older board
+    'on':
+      Returns to Custom Game choices:
+        target: '#Custom Game: No unfinished Custom Game'
+  'Custom Game: Configuring':
+    id: 'Custom Game: Configuring'
+    meta:
+      description: The creator chooses White, Black, people or bots and the clock; choices clear previous readiness.
+      snapshot: The creator chooses White, Black, people or bots and the clock; choices clear previous readiness.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-clock.feature:5
+      - specs/chess/custom-game-clock.feature:24
+      - specs/chess/custom-game-clock.feature:39
+      - specs/chess/custom-game-clock.feature:53
+      - specs/chess/custom-game-sides.feature:5
+      - specs/chess/custom-game-sides.feature:17
+      - specs/chess/custom-game-sides.feature:30
+      - specs/chess/custom-game-sides.feature:46
+      - specs/chess/custom-game-sides.feature:60
+      - specs/chess/custom-game-withdraw-readiness.feature:5
+      events: []
+      gherkin:
+      - specs/chess/custom-game-clock.feature
+      - specs/chess/custom-game-sides.feature
+      - specs/chess/custom-game-withdraw-readiness.feature
+      checks:
+      - A timed game uses whole minutes from one to one hundred eighty and an increment from zero to sixty seconds
+      - Only the side to move spends time and a legal move adds its increment
+      - Running out of time ends play even if a move arrives at that moment
+      - The creator may choose an untimed game only before start
+      - The creator changes participants only before start
+      - One person controls at most one side
+      - A creator may watch two other participants
+      - Swapping sides requires people to become ready again
+      - A closed side cannot be claimed
+      - A person may withdraw readiness before start
+    'on':
+      Assigns a permitted person or bot to a side:
+        target: '#Custom Game: Configuring'
+      Changes the Custom Game clock:
+        target: '#Custom Game: Configuring'
+      Invites a permitted person to an open side:
+        target: '#Custom Game: Invitation pending'
+      Invites a person blocked by either side:
+        target: '#Custom Game: Invitation refused'
+      Takes a permitted open side:
+        target: '#Custom Game: Configuring'
+      Takes an open side with a block between the person and creator:
+        target: '#Custom Game: Side choice refused'
+      A participant releases their own side before start:
+        target: '#Custom Game: Configuring'
+      Another person tries releasing a participant’s side:
+        target: '#Custom Game: Side choice refused'
+      A participant confirms readiness:
+        target: '#Custom Game: Partly ready'
+      Starts with open places or unready participants:
+        target: '#Custom Game: Start refused'
+      The creator cancels the unstarted game:
+        target: '#Custom Game: Cancelled'
+      Chooses the same person for both sides:
+        target: '#Custom Game: Side choice refused'
+  'Custom Game: Invitation pending':
+    id: 'Custom Game: Invitation pending'
+    meta:
+      description: The invited person chooses whether to take the offered side.
+      snapshot: The invited person chooses whether to take the offered side.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      The invited person accepts a current invitation:
+        target: '#Custom Game: Configuring'
+      The invited person declines:
+        target: '#Custom Game: Configuring'
+      The creator revokes the invitation:
+        target: '#Custom Game: Configuring'
+      Someone tries an ended or another person’s invitation:
+        target: '#Custom Game: Invitation refused'
+  'Custom Game: Invitation refused':
+    id: 'Custom Game: Invitation refused'
+    meta:
+      description: Only the current invited person may accept a live invitation for its open side.
+      snapshot: Only the current invited person may accept a live invitation for its open side.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-invitations.feature:5
+      - specs/chess/custom-game-invitations.feature:18
+      - specs/chess/custom-game-invitations.feature:39
+      - specs/chess/custom-game-invitations.feature:55
+      - specs/chess/custom-game-invitations.feature:68
+      - specs/chess/custom-game-invitations.feature:82
+      - specs/chess/custom-game-open-places.feature:5
+      - specs/chess/custom-game-open-places.feature:19
+      - specs/chess/custom-game-open-places.feature:31
+      - specs/chess/custom-game-open-places.feature:56
+      - specs/chess/custom-game-open-side.feature:5
+      events: []
+      gherkin:
+      - specs/chess/custom-game-invitations.feature
+      - specs/chess/custom-game-open-places.feature
+      - specs/chess/custom-game-open-side.feature
+      checks:
+      - Only someone in the space can be invited
+      - The invited person is shown the invitation and nobody outside the space is
+      - Only the invited person accepts their current invitation
+      - Declining releases the reserved side
+      - Revoking an invitation removes its offer
+      - Invitation races retain only one valid side relationship
+      - An open place belongs to the first accepted claim
+      - Releasing a side is the participant's own choice
+      - After start no person may acquire or release a side
+      - Competing claims cannot share an open place
+      - Opening a side removes its earlier choice before start
+    'on':
+      Returns to Custom Game choices:
+        target: '#Custom Game: Configuring'
+  'Custom Game: Side choice refused':
+    id: 'Custom Game: Side choice refused'
+    meta:
+      description: Side choices cannot duplicate a person or bypass the creator’s authority.
+      snapshot: Side choices cannot duplicate a person or bypass the creator’s authority.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-sides.feature:25
+      - specs/chess/custom-game-open-places.feature:26
+      - specs/chess/custom-game-sides.feature:67
+      events: []
+      gherkin:
+      - specs/chess/custom-game-sides.feature
+      - specs/chess/custom-game-open-places.feature
+      checks: []
+    'on':
+      Corrects the Custom Game side choices:
+        target: '#Custom Game: Configuring'
+  'Custom Game: Partly ready':
+    id: 'Custom Game: Partly ready'
+    meta:
+      description: Some participants agreed to the current choices; the remaining people must agree too.
+      snapshot: Some participants agreed to the current choices; the remaining people must agree too.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Both sides are filled and every person is ready for the current choices:
+        target: '#Custom Game: Ready to start'
+      A participant withdraws readiness:
+        target: '#Custom Game: Configuring'
+      The creator changes the choices:
+        target: '#Custom Game: Configuring'
+      Changes Custom Game choices offline:
+        target: '#Custom Game: Custom Game connection required'
+      Starts before everyone is ready:
+        target: '#Custom Game: Start refused'
+  'Custom Game: Ready to start':
+    id: 'Custom Game: Ready to start'
+    meta:
+      description: Both sides are filled and every person is ready for these choices.
+      snapshot: Both sides are filled and every person is ready for these choices.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-chess-rules.feature:5
+      - specs/chess/custom-game-chess-rules.feature:20
+      - specs/chess/custom-game-readiness.feature:5
+      - specs/chess/custom-game-readiness.feature:19
+      - specs/chess/custom-game-readiness.feature:35
+      - specs/chess/custom-game-readiness.feature:62
+      - specs/chess/custom-game-readiness.feature:79
+      events: []
+      gherkin:
+      - specs/chess/custom-game-chess-rules.feature
+      - specs/chess/custom-game-readiness.feature
+      checks:
+      - Promoting asks which piece and plays the piece chosen
+      - Castling and en passant are legal moves, and castling through check is illegal
+      - Every person confirms readiness for the current choices
+      - Changing the choices clears each person's readiness
+      - Only the creator starts a complete ready game
+      - Starting again never restarts the same game
+      - A start uses the choices the participants agreed to
+    'on':
+      The creator starts the agreed game:
+        target: '#Custom Game: Playing'
+      Another person starts the game:
+        target: '#Custom Game: Start refused'
+      A participant withdraws readiness:
+        target: '#Custom Game: Partly ready'
+      The creator changes the choices:
+        target: '#Custom Game: Configuring'
+  'Custom Game: Start refused':
+    id: 'Custom Game: Start refused'
+    meta:
+      description: Starting explains the missing people, readiness, authority or changed choices and keeps the game
+        intact.
+      snapshot: Starting explains the missing people, readiness, authority or changed choices and keeps the game
+        intact.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to Custom Game configuration:
+        target: '#Custom Game: Configuring'
+  'Custom Game: Playing':
+    id: 'Custom Game: Playing'
+    meta:
+      description: The agreed Custom Game is active from the standard position with White first; it is unrated and
+        the current participant controls the same side on their connected devices.
+      snapshot: The agreed Custom Game is active from the standard position with White first; it is unrated and
+        the current participant controls the same side on their connected devices.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-identity.feature:5
+      - specs/chess/custom-game-identity.feature:22
+      - specs/chess/custom-game-position-draws.feature:5
+      - specs/chess/custom-game-position-draws.feature:18
+      - specs/chess/custom-game-position-draws.feature:31
+      events: []
+      gherkin:
+      - specs/chess/custom-game-identity.feature
+      - specs/chess/custom-game-position-draws.feature
+      checks:
+      - Signing in to the participating account restores its current side
+      - Changing a username changes the person's name without changing their side
+      - Stalemate completes the game as a draw
+      - Insufficient mating material completes the game as a draw
+      - Fifty moves by each side without a pawn move or capture complete the game as a draw
+    'on':
+      Plays a legal Custom Game move on their turn:
+        target: '#Custom Game: Playing'
+      Plays an illegal or wrong-turn Custom Game move:
+        target: '#Custom Game: Move refused'
+      Reaches Custom Game promotion:
+        target: '#Custom Game: Choosing promotion'
+      Offers a Custom Game draw:
+        target: '#Custom Game: Draw offered'
+      Offers a Custom Game draw against a bot:
+        target: '#Custom Game: Draw unavailable'
+      Custom Game checkmate occurs:
+        target: '#Custom Game: Won result'
+      A participant resigns the Custom Game:
+        target: '#Custom Game: Finished'
+      A participant resigns to a side unable to mate:
+        target: '#Custom Game: Drawn result'
+      A Custom Game clock expires:
+        target: '#Custom Game: Finished'
+      A Custom Game clock expires against a side unable to mate:
+        target: '#Custom Game: Drawn result'
+      Custom Game stalemate, insufficient material or automatic repetition occurs:
+        target: '#Custom Game: Drawn result'
+      Claims an available position draw:
+        target: '#Custom Game: Drawn result'
+      Claims a position draw before it is available:
+        target: '#Custom Game: Move refused'
+      Claims a win after the opponent was away for sixty seconds:
+        target: '#Custom Game: Finished'
+      Claims a win after sixty seconds without mating material:
+        target: '#Custom Game: Drawn result'
+      Claims a win after the opponent was away for only fifty-nine seconds:
+        target: '#Custom Game: Away claim refused'
+      Blocks a participant during the active game:
+        target: '#Custom Game: Playing'
+      The creator cancels the active Custom Game:
+        target: '#Custom Game: Cancelled'
+      A participant cancels before both people have moved:
+        target: '#Custom Game: Cancelled'
+      A participant leaves the space and resigns:
+        target: '#Custom Game: Finished'
+      A participant loses connection:
+        target: '#Custom Game: Playing offline'
+      Creates another Custom Game before this one ends:
+        target: '#Custom Game: Replacement refused'
+      Creates a rematch before this Custom Game ends:
+        target: '#Custom Game: Replacement refused'
+      Starts the already active Custom Game again:
+        target: '#Custom Game: Playing'
+      Tries acquiring or releasing a side after start:
+        target: '#Custom Game: Playing'
+      SignedIn:
+        target: '#Custom Game: Playing'
+      UsernameChanged:
+        target: '#Custom Game: Playing'
+  'Custom Game: Away claim refused':
+    id: 'Custom Game: Away claim refused'
+    meta:
+      description: Only a participant may claim a win after the opponent has stayed away for at least sixty seconds;
+        an earlier claim keeps the game active.
+      snapshot: Only a participant may claim a win after the opponent has stayed away for at least sixty seconds;
+        an earlier claim keeps the game active.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-away.feature:5
+      - specs/chess/custom-game-away.feature:21
+      - specs/chess/custom-game-history.feature:5
+      - specs/chess/custom-game-history.feature:19
+      - specs/chess/custom-game-history.feature:33
+      - specs/chess/custom-game-material.feature:5
+      - specs/chess/custom-game-material.feature:20
+      - specs/chess/custom-game-material.feature:33
+      events: []
+      gherkin:
+      - specs/chess/custom-game-away.feature
+      - specs/chess/custom-game-history.feature
+      - specs/chess/custom-game-material.feature
+      checks:
+      - Being away never gives up a Custom Game on its own
+      - After 60 seconds away, the other participant may claim the win
+      - A new game and a rematch keep the earlier move list and result
+      - A rematch inherits accepted people still in the space and bots
+      - Reading an earlier game never grants control of the current game
+      - Running out of time draws when the other side cannot mate with the remaining material
+      - Resignation draws when the other side cannot mate with the remaining material
+      - Claiming the win draws when the claimant cannot mate with the remaining material
+    'on':
+      Returns to the Custom Game board:
+        target: '#Custom Game: Playing'
+  'Custom Game: Move refused':
+    id: 'Custom Game: Move refused'
+    meta:
+      description: A refused move does not advance the board, clock or turn.
+      snapshot: A refused move does not advance the board, clock or turn.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to the Custom Game board:
+        target: '#Custom Game: Playing'
+  'Custom Game: Choosing promotion':
+    id: 'Custom Game: Choosing promotion'
+    meta:
+      description: The participant chooses Queen, Rook, Bishop or Knight for the promotion.
+      snapshot: The participant chooses Queen, Rook, Bishop or Knight for the promotion.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Chooses the Custom Game promotion piece:
+        target: '#Custom Game: Playing'
+  'Custom Game: Draw offered':
+    id: 'Custom Game: Draw offered'
+    meta:
+      description: Only the other participant may accept or decline the live draw offer. Play and clocks continue; a legal move clears it and an illegal move preserves it.
+      snapshot: Only the other participant may accept or decline the live draw offer. Play and clocks continue; a legal move clears it and an illegal move preserves it.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-draws.feature:5
+      - specs/chess/custom-game-draws.feature:17
+      - specs/chess/custom-game-draws.feature:32
+      - specs/chess/custom-game-draws.feature:48
+      - specs/chess/custom-game-draws.feature:63
+      events: []
+      gherkin:
+      - specs/chess/custom-game-draws.feature
+      checks:
+      - A draw offer comes from a participant in a game between two people
+      - Declining a draw keeps the game active
+      - After a declined offer, the person who offered may offer again only after their next move
+      - A legal move clears a waiting draw offer
+      - A repeated position three times completes the game as a draw
+    'on':
+      The other participant accepts the Custom Game draw:
+        target: '#Custom Game: Drawn result'
+      The other participant declines the Custom Game draw:
+        target: '#Custom Game: Waiting to offer again'
+      The offering participant accepts their own draw:
+        target: '#Custom Game: Draw offered'
+      The offering participant tries declining their own Custom Game draw:
+        target: '#Custom Game: Draw offered'
+      Plays a legal Custom Game move on their turn:
+        target: '#Custom Game: Playing'
+      Plays an illegal or wrong-turn Custom Game move:
+        target: '#Custom Game: Draw offered'
+      A participant resigns the Custom Game:
+        target: '#Custom Game: Finished'
+      A participant resigns to a side unable to mate:
+        target: '#Custom Game: Drawn result'
+      A Custom Game clock expires:
+        target: '#Custom Game: Finished'
+      A Custom Game clock expires against a side unable to mate:
+        target: '#Custom Game: Drawn result'
+      A participant loses connection:
+        target: '#Custom Game: Playing offline'
+      The creator cancels the active Custom Game:
+        target: '#Custom Game: Cancelled'
+      A participant leaves the space and resigns:
+        target: '#Custom Game: Finished'
+  'Custom Game: Draw unavailable':
+    id: 'Custom Game: Draw unavailable'
+    meta:
+      description: Draw agreement needs two people; an offer against a bot is refused and play continues.
+      snapshot: Draw agreement needs two people; an offer against a bot is refused and play continues.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-draws.feature:12
+      events: []
+      checks: []
+    'on':
+      Returns to the Custom Game board:
+        target: '#Custom Game: Playing'
+  'Custom Game: Waiting to offer again':
+    id: 'Custom Game: Waiting to offer again'
+    meta:
+      description: The declined offer is gone. Its sender must make their next legal move before offering again; the other participant's move does not end that wait.
+      snapshot: The declined offer is gone. Its sender must make their next legal move before offering again; the other participant's move does not end that wait.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-draws.feature:34
+      - specs/chess/custom-game-draws.feature:41
+      events: []
+      checks: []
+    'on':
+      Offers the declined Custom Game draw again before moving:
+        target: '#Custom Game: Waiting to offer again'
+      The offering participant plays their next legal Custom Game move:
+        target: '#Custom Game: Playing'
+      The other participant plays a legal Custom Game move after declining:
+        target: '#Custom Game: Waiting to offer again'
+      Plays an illegal or wrong-turn Custom Game move:
+        target: '#Custom Game: Waiting to offer again'
+      A participant resigns the Custom Game:
+        target: '#Custom Game: Finished'
+      A Custom Game clock expires:
+        target: '#Custom Game: Finished'
+      A participant loses connection:
+        target: '#Custom Game: Playing offline'
+      The creator cancels the active Custom Game:
+        target: '#Custom Game: Cancelled'
+  'Custom Game: Playing offline':
+    id: 'Custom Game: Playing offline'
+    meta:
+      description: The board preserves the last known game and prevents unauthorised offline moves.
+      snapshot: The board preserves the last known game and prevents unauthorised offline moves.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Connection returns to an active Custom Game:
+        target: '#Custom Game: Playing'
+      Connection returns with a waiting Custom Game draw offer:
+        target: '#Custom Game: Draw offered'
+      Connection returns while the Custom Game sender still waits to offer again:
+        target: '#Custom Game: Waiting to offer again'
+      Connection returns to a finished Custom Game:
+        target: '#Custom Game: Finished'
+      Connection returns to a cancelled Custom Game:
+        target: '#Custom Game: Cancelled'
+  'Custom Game: Replacement refused':
+    id: 'Custom Game: Replacement refused'
+    meta:
+      description: The unfinished game must finish or be cancelled before another is created.
+      snapshot: The unfinished game must finish or be cancelled before another is created.
+      confidence: assumed
+      source:
+      - specs/chess/custom-game-completion.feature:5
+      - specs/chess/custom-game-completion.feature:18
+      - specs/chess/custom-game-completion.feature:50
+      - specs/chess/custom-game-completion.feature:63
+      - specs/chess/custom-game-completion.feature:83
+      - specs/chess/custom-game-completion.feature:96
+      events: []
+      gherkin:
+      - specs/chess/custom-game-completion.feature
+      checks:
+      - A participant may resign an active game
+      - The creator may cancel a game that has not finished
+      - Either participant may cancel a game between two people until each side has moved
+      - Leaving the space releases a waiting side and resigns an active side
+      - Ending the space cancels every unfinished Custom Game
+      - A rematch keeps choices and swaps sides without changing the finished game
+    'on':
+      Returns to the unfinished Custom Game:
+        target: '#Custom Game: Playing'
+  'Custom Game: Finished':
+    id: 'Custom Game: Finished'
+    initial: 'Custom Game: Recorded result'
+    meta:
+      description: The final result and move list remain visible without changing puzzle ratings; further moves
+        or claims cannot replace the outcome.
+      snapshot: The final result and move list remain visible without changing puzzle ratings; further moves or
+        claims cannot replace the outcome.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    states:
+      'Custom Game: Recorded result':
+        id: 'Custom Game: Recorded result'
+        meta:
+          description: The recorded winner or draw and its reason remain attached to this finished game.
+          snapshot: The recorded winner or draw and its reason remain attached to this finished game.
+          confidence: assumed
+          source:
+          - specs/chess/custom-game-completion.feature:7
+          - specs/chess/custom-game-material.feature:5
+          events: []
+          checks: []
+      'Custom Game: Won result':
+        id: 'Custom Game: Won result'
+        meta:
+          description: The winner and reason are shown. Checkmate wins; time, resignation or an away claim can win only when that side has mating material.
+          snapshot: The winner and reason are shown. Checkmate wins; time, resignation or an away claim can win only when that side has mating material.
+          confidence: assumed
+          source:
+          - specs/chess/custom-game-material.feature:14
+          - specs/chess/custom-game-material.feature:28
+          - specs/chess/custom-game-material.feature:44
+          events: []
+          checks: []
+      'Custom Game: Drawn result':
+        id: 'Custom Game: Drawn result'
+        meta:
+          description: The game ends as a draw by agreement or position, or when time, resignation or an away claim cannot award a possible mating win.
+          snapshot: The game ends as a draw by agreement or position, or when time, resignation or an away claim cannot award a possible mating win.
+          confidence: assumed
+          source:
+          - specs/chess/custom-game-material.feature:8
+          - specs/chess/custom-game-material.feature:23
+          - specs/chess/custom-game-material.feature:39
+          - specs/chess/custom-game-position-draws.feature:5
+          events: []
+          checks: []
+    'on':
+      Reviews the Custom Game’s moves:
+        target: '#Custom Game: Reviewing'
+      The host creates another Custom Game:
+        target: '#Custom Game: Configuring'
+      Creates a Custom Game rematch with swapped sides:
+        target: '#Custom Game: Configuring'
+      Starts a finished Custom Game:
+        target: '#Custom Game: Finished'
+  'Custom Game: Reviewing':
+    id: 'Custom Game: Reviewing'
+    meta:
+      description: The reached move list remains attached to the finished game on each device.
+      snapshot: The reached move list remains attached to the finished game on each device.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to the Custom Game result:
+        target: '#Custom Game: Finished'
+  'Custom Game: Cancelled':
+    id: 'Custom Game: Cancelled'
+    meta:
+      description: Cancellation is recorded and cannot restart the cancelled game.
+      snapshot: Cancellation is recorded and cannot restart the cancelled game.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      The host creates another Custom Game:
+        target: '#Custom Game: Configuring'
+      Starts a cancelled Custom Game:
+        target: '#Custom Game: Cancelled'

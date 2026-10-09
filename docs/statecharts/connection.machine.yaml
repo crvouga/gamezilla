@@ -1,0 +1,88 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: connection
+initial: 'Connection: Fresh device offline'
+meta:
+  description: Opening offline distinguishes a device with saved app data from a fresh device, and recovery preserves
+    the person’s place.
+  snapshot: Opening offline distinguishes a device with saved app data from a fresh device, and recovery preserves
+    the person’s place.
+  confidence: assumed
+  source: &id001
+  - specs/runtime/app-updates.feature
+  - specs/runtime/connection-restore.feature
+  - specs/runtime/offline-open.feature
+  events: []
+  context: runtime
+  eventKinds:
+    An unsupported old app is refused: system
+    Applies the required app update: user
+    Applies the supported app update: user
+    Connection returns: system
+    Defers the app update: user
+    Opens the saved app: user
+states:
+  'Connection: Fresh device offline':
+    id: 'Connection: Fresh device offline'
+    meta:
+      description: A fresh offline device explains that the app needs a connection to open for the first time.
+      snapshot: A fresh offline device explains that the app needs a connection to open for the first time.
+      confidence: assumed
+      source:
+      - specs/runtime/connection-restore.feature:7
+      - specs/runtime/offline-open.feature:7
+      events: []
+      gherkin:
+      - specs/runtime/connection-restore.feature
+      - specs/runtime/offline-open.feature
+      checks:
+      - A connection that comes back makes signing in available again
+      - After its first opening the app and Settings open without a connection
+    'on':
+      Connection returns:
+        target: '#App: Spaces'
+  'Connection: Saved app offline':
+    id: 'Connection: Saved app offline'
+    meta:
+      description: A returning device shows its saved app and data while offline.
+      snapshot: A returning device shows its saved app and data while offline.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Opens the saved app:
+        target: '#App: Spaces'
+      Connection returns:
+        target: '#App: Spaces'
+  'Connection: Update available':
+    id: 'Connection: Update available'
+    meta:
+      description: An app update can be applied without silently losing the person’s saved work.
+      snapshot: An app update can be applied without silently losing the person’s saved work.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Applies the supported app update:
+        target: '#App: Spaces'
+      Defers the app update:
+        target: '#App: Spaces'
+      An unsupported old app is refused:
+        target: '#Connection: Upgrade required'
+  'Connection: Upgrade required':
+    id: 'Connection: Upgrade required'
+    meta:
+      description: The old app must update before continuing; its local data is not erased.
+      snapshot: The old app must update before continuing; its local data is not erased.
+      confidence: assumed
+      source:
+      - specs/runtime/app-updates.feature:7
+      events: []
+      gherkin:
+      - specs/runtime/app-updates.feature
+      checks:
+      - An outdated app asks for an update and keeps what people saved
+    'on':
+      Applies the required app update:
+        target: '#App: Spaces'

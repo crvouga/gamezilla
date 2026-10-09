@@ -609,6 +609,7 @@
         "//#ci:workspace-lifecycle",
         "//#ci:goals",
         "//#ci:specs",
+        "//#ci:statecharts",
         "//#ci:spec-ownership",
         "tc",
         "lint",
@@ -626,6 +627,7 @@
         "//#ci:workspace-lifecycle",
         "//#ci:goals",
         "//#ci:specs",
+        "//#ci:statecharts",
         "//#ci:conformance",
         "//#ci:spec-ownership",
         "tc",
@@ -1929,6 +1931,26 @@
         "$TURBO_ROOT$/libs/tools/scripts/board-sound-contract.ts"
       ],
       "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#ci:statecharts": {
+      "dependsOn": ["@libs/tools#src"],
+      "inputs": [
+        "docs/statecharts/**",
+        "specs/**",
+        "package.json",
+        "vendor/atlas/packages/core/src/**",
+        "vendor/atlas/packages/schema/src/**",
+        "libs/app-root-client/src/route-table.ts",
+        "libs/runtime-client/src/app-feature-clients.ts",
+        "libs/*-client/src/feature-client.{ts,tsx}",
+        "libs/chess-puzzle-client/src/puzzle-link-client.ts",
+        "libs/chess-puzzle-shared/src/puzzle-link.ts",
+        "apps/product/src/main.tsx",
+        "apps/product/src/console-nav-real.ts",
+        "apps/product/src/reports-path.ts"
+      ],
+      "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"
     }
   }

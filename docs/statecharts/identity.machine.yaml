@@ -1,0 +1,85 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: identity
+initial: 'Identity: Guest'
+meta:
+  description: The device keeps its own current person while the person explores the app.
+  snapshot: The device keeps its own current person while the person explores the app.
+  confidence: assumed
+  source:
+  - specs/profile/devices.feature
+  - specs/profile/profile-defaults.feature
+  - specs/profile/sessions.feature
+  - specs/profile/sign-in.feature
+  - specs/profile/account-sign-in.qnt
+  - specs/profile/events.qnt
+  events: []
+  context: profile
+  eventKinds:
+    AccountDeletionConfirmed: system
+    Opens the app as a new guest: user
+    SignedIn: system
+    SignedOut: system
+    The thirty-day sign-in expires: time
+states:
+  'Identity: Guest':
+    id: 'Identity: Guest'
+    meta:
+      description: A guest explores with free access and the guest allowance; an account is needed for paid access.
+      snapshot: A guest explores with free access and the guest allowance; an account is needed for paid access.
+      confidence: assumed
+      source:
+      - specs/profile/profile-defaults.feature:7
+      events: []
+      gherkin:
+      - specs/profile/profile-defaults.feature
+      checks:
+      - Every newcomer starts as a guest with a username and avatar of their own
+    'on':
+      SignedIn:
+        target: '#Identity: Account signed in'
+  'Identity: Account signed in':
+    id: 'Identity: Account signed in'
+    meta:
+      description: This device uses the proven account and confirms that account’s own access; other devices keep
+        their places.
+      snapshot: This device uses the proven account and confirms that account’s own access; other devices keep their
+        places.
+      confidence: assumed
+      source:
+      - specs/profile/devices.feature:6
+      events: []
+      gherkin:
+      - specs/profile/devices.feature
+      checks:
+      - An account shows only its signed-in devices and a guest is asked to sign in
+    'on':
+      SignedOut:
+        target: '#Identity: Guest'
+      The thirty-day sign-in expires:
+        target: '#Identity: Guest'
+      AccountDeletionConfirmed:
+        target: '#Identity: Deleted account'
+    invoke:
+      src: access
+      id: access
+  'Identity: Deleted account':
+    id: 'Identity: Deleted account'
+    meta:
+      description: The deleted account has no usable identity or paid access and cannot regain its erased personal
+        data.
+      snapshot: The deleted account has no usable identity or paid access and cannot regain its erased personal
+        data.
+      confidence: assumed
+      source:
+      - specs/profile/sessions.feature:7
+      - specs/profile/sign-in.feature:7
+      events: []
+      gherkin:
+      - specs/profile/sessions.feature
+      - specs/profile/sign-in.feature
+      checks:
+      - Signing out everywhere or losing a sign-in method signs out the affected devices
+      - The account's profile follows the person, and this device can sign out
+    'on':
+      Opens the app as a new guest:
+        target: '#Identity: Guest'

@@ -1,0 +1,191 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: room
+initial: 'Room: Unowned room'
+meta:
+  description: The framework example joins room ownership, presence, a shared tally and a timed match.
+  snapshot: The framework example joins room ownership, presence, a shared tally and a timed match.
+  confidence: assumed
+  source: &id001
+  - specs/room/match-clock.feature
+  - specs/room/match-recovery.feature
+  - specs/room/ownership.feature
+  - specs/room/presence.feature
+  - specs/room/tally.feature
+  - specs/room/match-clock.qnt
+  - specs/room/match-recovery.qnt
+  - specs/room/ownership.qnt
+  - specs/room/tally-recovery.qnt
+  - specs/room/tally.qnt
+  events: []
+  context: room
+  eventKinds:
+    A non-owner tries turning someone away: user
+    A permitted person enters or leaves: user
+    Another person claims the owned room: user
+    Changes the shared tally: user
+    Changes the tally offline: user
+    Claims the unowned example room: user
+    Connection returns to the example room: system
+    Plays a permitted timed move: user
+    Reopens after room recovery: user
+    Returns after timed match recovery: user
+    Returns to room examples: user
+    Returns to the example room: user
+    Returns to the owned room: user
+    Starts the example timed match: user
+    The example match clock expires: time
+    The owner tries turning themselves away: user
+    The owner turns another person away: user
+    The owner turns this person away: user
+    Tries changing the tally after being turned away: user
+states:
+  'Room: Unowned room':
+    id: 'Room: Unowned room'
+    meta:
+      description: The example room has no owner yet.
+      snapshot: The example room has no owner yet.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Claims the unowned example room:
+        target: '#Room: Owned room'
+  'Room: Owned room':
+    id: 'Room: Owned room'
+    meta:
+      description: The owner and permitted people see presence and the shared tally.
+      snapshot: The owner and permitted people see presence and the shared tally.
+      confidence: assumed
+      source:
+      - specs/room/presence.feature:10
+      - specs/room/tally.feature:10
+      - specs/room/tally.feature:28
+      - specs/room/tally.feature:41
+      - specs/room/tally.feature:50
+      events: []
+      gherkin:
+      - specs/room/presence.feature
+      - specs/room/tally.feature
+      checks:
+      - The room shows present only the people whose phones are online in it
+      - Every change anyone in the room makes shows for everyone
+      - A change made offline shows at once for its maker and reaches everyone once they are back online
+      - A change waiting on a phone is kept when the app closes unexpectedly
+      - An interrupted change counts once when the room is available again
+    'on':
+      A permitted person enters or leaves:
+        target: '#Room: Owned room'
+      Changes the shared tally:
+        target: '#Room: Owned room'
+      Another person claims the owned room:
+        target: '#Room: Ownership refused'
+      The owner turns another person away:
+        target: '#Room: Owned room'
+      A non-owner tries turning someone away:
+        target: '#Room: Ownership refused'
+      The owner tries turning themselves away:
+        target: '#Room: Ownership refused'
+      The owner turns this person away:
+        target: '#Room: Turned away'
+      Changes the tally offline:
+        target: '#Room: Offline tally'
+      Reopens after room recovery:
+        target: '#Room: Owned room'
+      Starts the example timed match:
+        target: '#Room: Timed match'
+  'Room: Ownership refused':
+    id: 'Room: Ownership refused'
+    meta:
+      description: Only the current owner may turn another person away; nobody may claim an already owned room or
+        turn the owner away.
+      snapshot: Only the current owner may turn another person away; nobody may claim an already owned room or turn
+        the owner away.
+      confidence: assumed
+      source:
+      - specs/room/ownership.feature:9
+      - specs/room/ownership.feature:22
+      - specs/room/ownership.feature:40
+      events: []
+      gherkin:
+      - specs/room/ownership.feature
+      checks:
+      - The first person to claim the room owns it
+      - Only the owner can turn someone away, and never themselves
+      - Someone who is turned away cannot change anything in the room
+    'on':
+      Returns to the owned room:
+        target: '#Room: Owned room'
+  'Room: Offline tally':
+    id: 'Room: Offline tally'
+    meta:
+      description: The maker sees their offline tally change at once and the acknowledged change counts once after
+        returning.
+      snapshot: The maker sees their offline tally change at once and the acknowledged change counts once after
+        returning.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Connection returns to the example room:
+        target: '#Room: Owned room'
+  'Room: Turned away':
+    id: 'Room: Turned away'
+    meta:
+      description: The owner turned this person away; their changes cannot alter the tally or match.
+      snapshot: The owner turned this person away; their changes cannot alter the tally or match.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries changing the tally after being turned away:
+        target: '#Room: Turned away'
+      Returns to room examples:
+        target: '#Room: Unowned room'
+  'Room: Timed match':
+    id: 'Room: Timed match'
+    meta:
+      description: The example match has started and its current turn and clock are visible.
+      snapshot: The example match has started and its current turn and clock are visible.
+      confidence: assumed
+      source:
+      - specs/room/match-clock.feature:8
+      - specs/room/match-clock.feature:29
+      - specs/room/match-clock.feature:48
+      - specs/room/match-clock.feature:57
+      - specs/room/match-clock.feature:82
+      - specs/room/match-clock.feature:91
+      - specs/room/match-recovery.feature:6
+      events: []
+      gherkin:
+      - specs/room/match-clock.feature
+      - specs/room/match-recovery.feature
+      checks:
+      - A match starts only once
+      - The player whose time runs out loses on time
+      - The match clock runs only the time of the player to move
+      - Only the player to move can move, and only while the match is playing
+      - Whoever runs out of time while offline sees the result once back online
+      - Claiming the opponent has run out of time changes nothing until they have
+      - An interruption never gives a player extra time
+    'on':
+      Plays a permitted timed move:
+        target: '#Room: Timed match'
+      The example match clock expires:
+        target: '#Room: Match over'
+      Returns after timed match recovery:
+        target: '#Room: Timed match'
+  'Room: Match over':
+    id: 'Room: Match over'
+    meta:
+      description: Both people see the lasting winner without restarting the completed match.
+      snapshot: Both people see the lasting winner without restarting the completed match.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to the example room:
+        target: '#Room: Owned room'

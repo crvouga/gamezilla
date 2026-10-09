@@ -1,0 +1,471 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: spaces
+initial: 'Spaces: Lobby'
+meta:
+  description: People create, join, share, rename, leave and end spaces, with clear limits and recovery.
+  snapshot: People create, join, share, rename, leave and end spaces, with clear limits and recovery.
+  confidence: assumed
+  source: &id001
+  - specs/spaces/hosting-limit.dmn
+  - specs/spaces/space-roles.dmn
+  - specs/spaces/spaces.als
+  - specs/spaces/deleted-account-spaces.feature
+  - specs/spaces/live-updates.feature
+  - specs/spaces/space-create.feature
+  - specs/spaces/space-disconnect-reconnect.feature
+  - specs/spaces/space-end.feature
+  - specs/spaces/space-friend-join.feature
+  - specs/spaces/space-guest-host.feature
+  - specs/spaces/space-guest-link-join.feature
+  - specs/spaces/space-host-leaves.feature
+  - specs/spaces/space-host-limit.feature
+  - specs/spaces/space-lifecycle.feature
+  - specs/spaces/space-links.feature
+  - specs/spaces/space-live-presence.feature
+  - specs/spaces/space-needs-connection.feature
+  - specs/spaces/space-rename.feature
+  - specs/spaces/spaces.feature
+  - specs/spaces/events.qnt
+  - specs/spaces/space-hosting.qnt
+  - specs/spaces/space-names.qnt
+  - specs/spaces/space-recovery.qnt
+  events: []
+  context: spaces
+  eventKinds:
+    AccountDeletionConfirmed: system
+    BecameFriends: system
+    Cancels ending the space: user
+    Cancels leaving the space: user
+    Confirms leaving the space: user
+    Joins the open space again: user
+    Returns to the lobby after leaving: user
+    Cancels space renaming: user
+    Chooses to end the space: user
+    Chooses to leave the space: user
+    Closes space sharing: user
+    Confirms ending the space: user
+    Connection returns: system
+    Connection returns to the open space: system
+    Creates at the hosting limit: user
+    Creates below the hosting limit online: user
+    Creates or joins offline: user
+    Edits the space name again: user
+    FriendshipEnded: system
+    Opens Plus from the hosting limit: user
+    Opens an ended space link: user
+    Opens an open space link: user
+    Opens an unknown space link: user
+    Opens chess choices: user
+    PaidAccessStarted: system
+    PersonJoined: system
+    PersonLeft: system
+    Renames the space: user
+    Returns to Spaces: user
+    Returns to a hosted open space: user
+    Returns to a joined open space: user
+    Saves a refused space name: user
+    Saves an allowed space name: user
+    Shares the space link: user
+    Space creation fails: system
+    Space ending fails: system
+    SpaceEnded: system
+    SpaceOpened: system
+    The host loses connection: system
+    Tries creating the space again: user
+    Tries ending the space again: user
+    UsernameChanged: system
+states:
+  'Spaces: Lobby':
+    id: 'Spaces: Lobby'
+    meta:
+      routes:
+      - '/'
+      description: Spaces lists hosted, joined and discoverable friends’ open spaces.
+      snapshot: Spaces lists hosted, joined and discoverable friends’ open spaces.
+      confidence: assumed
+      source:
+      - specs/spaces/space-friend-join.feature:9
+      - specs/spaces/spaces.feature:6
+      events: []
+      gherkin:
+      - specs/spaces/space-friend-join.feature
+      - specs/spaces/spaces.feature
+      checks:
+      - A friend's lobby lists their open space, and a person can join it from there
+      - Spaces can open in this environment and the app can take people into one
+    'on':
+      Creates below the hosting limit online:
+        target: '#Spaces: Creating a space'
+      Creates at the hosting limit:
+        target: '#Spaces: Hosting limit reached'
+      Creates or joins offline:
+        target: '#Spaces: Connection required'
+      Opens an open space link:
+        target: '#Spaces: Joining a space'
+      Opens an unknown space link:
+        target: '#Spaces: Unknown space'
+      Opens an ended space link:
+        target: '#Spaces: Ended space'
+      Returns to a hosted open space:
+        target: '#Spaces: Hosting a space'
+      Returns to a joined open space:
+        target: '#Spaces: Joined a space'
+      BecameFriends:
+        target: '#Spaces: Lobby'
+      FriendshipEnded:
+        target: '#Spaces: Lobby'
+      UsernameChanged:
+        target: '#Spaces: Lobby'
+  'Spaces: Creating a space':
+    id: 'Spaces: Creating a space'
+    meta:
+      description: Creating a space shows progress before an outcome.
+      snapshot: Creating a space shows progress before an outcome.
+      confidence: assumed
+      source:
+      - specs/spaces/space-create.feature:6
+      - specs/spaces/space-disconnect-reconnect.feature:10
+      - specs/spaces/space-disconnect-reconnect.feature:21
+      - specs/spaces/space-disconnect-reconnect.feature:35
+      - specs/spaces/space-disconnect-reconnect.feature:44
+      - specs/spaces/space-end.feature:6
+      - specs/spaces/space-lifecycle.feature:6
+      - specs/spaces/space-lifecycle.feature:15
+      - specs/spaces/space-live-presence.feature:6
+      - specs/spaces/space-live-presence.feature:19
+      - specs/spaces/space-needs-connection.feature:7
+      - specs/spaces/space-rename.feature:11
+      - specs/spaces/space-rename.feature:31
+      - specs/spaces/space-rename.feature:43
+      - specs/spaces/space-rename.feature:62
+      events: []
+      gherkin:
+      - specs/spaces/space-create.feature
+      - specs/spaces/space-disconnect-reconnect.feature
+      - specs/spaces/space-end.feature
+      - specs/spaces/space-lifecycle.feature
+      - specs/spaces/space-live-presence.feature
+      - specs/spaces/space-needs-connection.feature
+      - specs/spaces/space-rename.feature
+      checks:
+      - Creating a space makes the person its host and lists it in their lobby
+      - Nobody lingers after they have gone
+      - Nobody appears twice
+      - Someone away when the space ends finds out when they are back
+      - Presence is unavailable to someone without a connection
+      - Ending a space removes it from the lobby of everyone who could find it
+      - Stepping out keeps an open space in the host's lobby so they can return
+      - Stepping out stops showing a person as present without leaving their space
+      - Presence shows everyone in the space and stops showing someone who leaves
+      - Leaving shows a clear outcome and lets a friend join again
+      - Creating or joining a space needs a connection and is available again once it comes back
+      - Only the host renames a space and the new name reaches everyone who sees it
+      - A space name that is not allowed is refused and the space keeps its name
+      - A space name the team stops allowing shows the space named after its host until the team starts allowing
+        it again
+      - A space with no name of its own is named after its host as everyone sees them
+    'on':
+      SpaceOpened:
+        target: '#Spaces: Hosting a space'
+      Space creation fails:
+        target: '#Spaces: Creation failed'
+  'Spaces: Creation failed':
+    id: 'Spaces: Creation failed'
+    meta:
+      description: Space creation failed with a retry available.
+      snapshot: Space creation failed with a retry available.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries creating the space again:
+        target: '#Spaces: Creating a space'
+  'Spaces: Hosting limit reached':
+    id: 'Spaces: Hosting limit reached'
+    meta:
+      description: The current permission decision explains the hosting limit and its available unlocks.
+      snapshot: The current permission decision explains the hosting limit and its available unlocks.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Opens Plus from the hosting limit:
+        target: '#App: Billing'
+      PaidAccessStarted:
+        target: '#Spaces: Lobby'
+  'Spaces: Connection required':
+    id: 'Spaces: Connection required'
+    meta:
+      description: Creating or joining requires a connection.
+      snapshot: Creating or joining requires a connection.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Connection returns:
+        target: '#Spaces: Lobby'
+  'Spaces: Joining a space':
+    id: 'Spaces: Joining a space'
+    meta:
+      description: The link identifies an open space and joining is in progress.
+      snapshot: The link identifies an open space and joining is in progress.
+      confidence: assumed
+      source:
+      - specs/spaces/space-links.feature:7
+      events: []
+      gherkin:
+      - specs/spaces/space-links.feature
+      checks:
+      - A space link says whether its space is open, ended or cannot be found
+    'on':
+      PersonJoined:
+        target: '#Spaces: Joined a space'
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+  'Spaces: Unknown space':
+    id: 'Spaces: Unknown space'
+    meta:
+      description: The supplied space link has never identified a space.
+      snapshot: The supplied space link has never identified a space.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Returns to Spaces:
+        target: '#Spaces: Lobby'
+  'Spaces: Hosting a space':
+    id: 'Spaces: Hosting a space'
+    meta:
+      routes:
+      - '/space/:id'
+      description: The host sees the space’s people and choices and can play.
+      snapshot: The host sees the space’s people and choices and can play.
+      confidence: assumed
+      source:
+      - specs/spaces/deleted-account-spaces.feature:6
+      - specs/spaces/deleted-account-spaces.feature:19
+      - specs/spaces/live-updates.feature:7
+      - specs/spaces/space-guest-host.feature:6
+      - specs/spaces/space-host-leaves.feature:8
+      - specs/spaces/space-host-limit.feature:8
+      - specs/spaces/space-host-limit.feature:31
+      events: []
+      gherkin:
+      - specs/spaces/deleted-account-spaces.feature
+      - specs/spaces/live-updates.feature
+      - specs/spaces/space-guest-host.feature
+      - specs/spaces/space-host-leaves.feature
+      - specs/spaces/space-host-limit.feature
+      checks:
+      - A deleted host's spaces end for everyone
+      - Deleting a joined person's account keeps the host's space open
+      - What happens in a space reaches everyone in it, and nobody outside the team can listen in
+      - A guest can create and end their own space
+      - The host leaving ends the space and losing the connection or closing the app does not
+      - Guests and free accounts host one space at a time
+      - Plus members never reach a hosting limit
+    'on':
+      Shares the space link:
+        target: '#Spaces: Sharing a link'
+      Renames the space:
+        target: '#Spaces: Editing a name'
+      Chooses to end the space:
+        target: '#Spaces: Confirming ending'
+      The host loses connection:
+        target: '#Spaces: Offline host'
+      Opens chess choices:
+        target: '#App: Games'
+      AccountDeletionConfirmed:
+        target: '#Spaces: Ended space'
+      PersonJoined:
+        target: '#Spaces: Hosting a space'
+      PersonLeft:
+        target: '#Spaces: Hosting a space'
+      UsernameChanged:
+        target: '#Spaces: Hosting a space'
+  'Spaces: Joined a space':
+    id: 'Spaces: Joined a space'
+    meta:
+      description: The person joined an open space and can watch its game.
+      snapshot: The person joined an open space and can watch its game.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Chooses to leave the space:
+        target: '#Spaces: Confirming leaving'
+      Opens chess choices:
+        target: '#App: Games'
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+      PersonJoined:
+        target: '#Spaces: Joined a space'
+      PersonLeft:
+        target: '#Spaces: Joined a space'
+      UsernameChanged:
+        target: '#Spaces: Joined a space'
+  'Spaces: Sharing a link':
+    id: 'Spaces: Sharing a link'
+    meta:
+      description: The space link can be shared without changing who hosts it.
+      snapshot: The space link can be shared without changing who hosts it.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Closes space sharing:
+        target: '#Spaces: Hosting a space'
+  'Spaces: Editing a name':
+    id: 'Spaces: Editing a name'
+    meta:
+      description: The host edits the name while the saved name stays visible elsewhere.
+      snapshot: The host edits the name while the saved name stays visible elsewhere.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Saves an allowed space name:
+        target: '#Spaces: Hosting a space'
+      Saves a refused space name:
+        target: '#Spaces: Name refused'
+      Cancels space renaming:
+        target: '#Spaces: Hosting a space'
+  'Spaces: Name refused':
+    id: 'Spaces: Name refused'
+    meta:
+      description: The refused name leaves the previous space name intact.
+      snapshot: The refused name leaves the previous space name intact.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Edits the space name again:
+        target: '#Spaces: Editing a name'
+  'Spaces: Confirming ending':
+    id: 'Spaces: Confirming ending'
+    meta:
+      description: Ending the space requires the host’s confirmation.
+      snapshot: Ending the space requires the host’s confirmation.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Cancels ending the space:
+        target: '#Spaces: Hosting a space'
+      Confirms ending the space:
+        target: '#Spaces: Ending a space'
+  'Spaces: Ending a space':
+    id: 'Spaces: Ending a space'
+    meta:
+      description: Ending is in progress and no completion is claimed yet.
+      snapshot: Ending is in progress and no completion is claimed yet.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+      Space ending fails:
+        target: '#Spaces: Ending failed'
+  'Spaces: Ending failed':
+    id: 'Spaces: Ending failed'
+    meta:
+      description: Ending failed with another attempt available.
+      snapshot: Ending failed with another attempt available.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Tries ending the space again:
+        target: '#Spaces: Ending a space'
+  'Spaces: Confirming leaving':
+    id: 'Spaces: Confirming leaving'
+    meta:
+      description: The participant chooses whether to leave the open space.
+      snapshot: The participant chooses whether to leave the open space.
+      confidence: assumed
+      source:
+      - specs/spaces/space-live-presence.feature:22
+      events: []
+      checks: []
+    'on':
+      Cancels leaving the space:
+        target: '#Spaces: Joined a space'
+      Confirms leaving the space:
+        target: '#Spaces: Leaving a space'
+      PersonLeft:
+        target: '#Spaces: Left space'
+  'Spaces: Leaving a space':
+    id: 'Spaces: Leaving a space'
+    meta:
+      description: Leaving is in progress; this person's departure does not end another person's open space.
+      snapshot: Leaving is in progress; this person's departure does not end another person's open space.
+      confidence: assumed
+      source:
+      - specs/spaces/space-live-presence.feature:22
+      events: []
+      checks: []
+    'on':
+      PersonLeft:
+        target: '#Spaces: Left space'
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+  'Spaces: Left space':
+    id: 'Spaces: Left space'
+    meta:
+      description: The successful departure remains visible in the space view. An open space offers joining again; an ended space removes that offer.
+      snapshot: The successful departure remains visible in the space view. An open space offers joining again; an ended space removes that offer.
+      confidence: assumed
+      source:
+      - specs/spaces/space-live-presence.feature:22
+      - specs/spaces/space-live-presence.feature:28
+      events: []
+      checks: []
+    'on':
+      Joins the open space again:
+        target: '#Spaces: Joining a space'
+      Returns to the lobby after leaving:
+        target: '#Spaces: Lobby'
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+  'Spaces: Offline host':
+    id: 'Spaces: Offline host'
+    meta:
+      description: The host keeps the last known space and puzzle while offline.
+      snapshot: The host keeps the last known space and puzzle while offline.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Connection returns to the open space:
+        target: '#Spaces: Hosting a space'
+      SpaceEnded:
+        target: '#Spaces: Ended space'
+  'Spaces: Ended space':
+    id: 'Spaces: Ended space'
+    meta:
+      description: The space has ended; its link cannot reopen it or continue play.
+      snapshot: The space has ended; its link cannot reopen it or continue play.
+      confidence: assumed
+      source:
+      - specs/spaces/space-guest-link-join.feature:7
+      events: []
+      gherkin:
+      - specs/spaces/space-guest-link-join.feature
+      checks:
+      - Anyone with the space link can join an open space including a guest
+    'on':
+      Returns to Spaces:
+        target: '#Spaces: Lobby'

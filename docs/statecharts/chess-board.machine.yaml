@@ -1,0 +1,405 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: chess-board
+initial: 'Chess Board: Settled board'
+meta:
+  description: Board controls support selecting, dragging, keyboard play, promotion, marks, sounds and independent
+    boards.
+  snapshot: Board controls support selecting, dragging, keyboard play, promotion, marks, sounds and independent
+    boards.
+  confidence: assumed
+  source: &id001
+  - specs/chess-board/board-accessibility.feature
+  - specs/chess-board/board-annotations.feature
+  - specs/chess-board/board-authority.feature
+  - specs/chess-board/board-black-promotion.feature
+  - specs/chess-board/board-feedback.feature
+  - specs/chess-board/board-independence.feature
+  - specs/chess-board/board-interaction.feature
+  - specs/chess-board/board-motion.feature
+  - specs/chess-board/board-opening.feature
+  - specs/chess-board/board-options.feature
+  - specs/chess-board/board-premoves.feature
+  - specs/chess-board/board-promotion.feature
+  - specs/chess-board/board-sound.feature
+  - specs/chess-board/board-special-moves.feature
+  - specs/chess-board/board-annotations.qnt
+  - specs/chess-board/board-independence.qnt
+  - specs/chess-board/board-keyboard.qnt
+  - specs/chess-board/board-lifecycle.qnt
+  - specs/chess-board/board-options.qnt
+  - specs/chess-board/board-premoves.qnt
+  - specs/chess-board/board-promotion.qnt
+  events: []
+  context: chess-board
+  eventKinds:
+    A new watched position arrives: system
+    A newer authoritative position arrives: system
+    An allowed premove plays on the person’s turn: system
+    Cancels chess selection: user
+    Cancels drawing the mark: user
+    Cancels holding the piece: user
+    Cancels promotion: user
+    Cancels the keyboard destination: user
+    Cancels the queued premove: user
+    Changes the board’s allowed presentation choices: user
+    Chooses Bishop: user
+    Chooses Knight: user
+    Chooses Queen: user
+    Chooses Rook: user
+    Chooses an illegal destination: user
+    Clears personal board marks: user
+    Closes the board: user
+    Confirms a legal keyboard destination: user
+    Confirms a promotion destination: user
+    Draws a board arrow: user
+    Draws another board mark: user
+    Drops on a legal destination: user
+    Drops on an illegal destination: user
+    Finishes a personal board mark: user
+    Hides the board: user
+    Hides the moving board: user
+    Holds a movable chess piece: user
+    Moves a pawn to promotion: user
+    Opens the board again: user
+    Plays a legal destination: user
+    Plays a legal special chess move: user
+    Queues an allowed premove: user
+    Restores the person’s move controls: user
+    Selects a movable chess piece: user
+    Shows the board again: user
+    The board settles after the move: system
+    The queued premove becomes illegal: system
+    Uses the board keyboard where enabled: user
+    Watches a board with move controls disabled: user
+states:
+  'Chess Board: Settled board':
+    id: 'Chess Board: Settled board'
+    meta:
+      description: The position, facing and legal controls belong to this board alone.
+      snapshot: The position, facing and legal controls belong to this board alone.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-annotations.feature:6
+      - specs/chess-board/board-annotations.feature:27
+      - specs/chess-board/board-annotations.feature:95
+      - specs/chess-board/board-annotations.feature:156
+      - specs/chess-board/board-annotations.feature:191
+      - specs/chess-board/board-independence.feature:6
+      - specs/chess-board/board-independence.feature:49
+      - specs/chess-board/board-independence.feature:100
+      - specs/chess-board/board-opening.feature:6
+      - specs/chess-board/board-opening.feature:29
+      - specs/chess-board/board-opening.feature:47
+      events: []
+      gherkin:
+      - specs/chess-board/board-annotations.feature
+      - specs/chess-board/board-independence.feature
+      - specs/chess-board/board-opening.feature
+      checks:
+      - Capture destinations have rings and quiet destinations have dots
+      - Activity annotations retain their chosen appearance until the activity removes them
+      - Enabled personal annotations toggle without moving a piece
+      - Abandoned annotation drawing offers no completed annotation
+      - Orientation changes keep completed annotations on the same logical squares
+      - A move, selection or held piece belongs only to its chosen chessboard
+      - Each activity chooses only its own board's input and sound
+      - Closing one board preserves the other board's current activity
+      - A chessboard without a supplied position starts normal chess
+      - Opening prepares the facing corner for keyboard entry without taking another control's keyboard
+      - Reopening uses the activity's position and abandons the closed board's choices
+    'on':
+      Selects a movable chess piece:
+        target: '#Chess Board: Selected piece'
+      Holds a movable chess piece:
+        target: '#Chess Board: Held piece'
+      Uses the board keyboard where enabled:
+        target: '#Chess Board: Keyboard destination'
+      Draws a board arrow:
+        target: '#Chess Board: Drawing a mark'
+      Watches a board with move controls disabled:
+        target: '#Chess Board: Watching board'
+      Hides the board:
+        target: '#Chess Board: Hidden board'
+      Closes the board:
+        target: '#Chess Board: Closed board'
+      Queues an allowed premove:
+        target: '#Chess Board: Premove queued'
+      Changes the board’s allowed presentation choices:
+        target: '#Chess Board: Settled board'
+      Plays a legal special chess move:
+        target: '#Chess Board: Moving pieces'
+  'Chess Board: Selected piece':
+    id: 'Chess Board: Selected piece'
+    meta:
+      description: Selection shows permitted destinations and move feedback for this board.
+      snapshot: Selection shows permitted destinations and move feedback for this board.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-feedback.feature:6
+      - specs/chess-board/board-feedback.feature:27
+      - specs/chess-board/board-feedback.feature:47
+      events: []
+      gherkin:
+      - specs/chess-board/board-feedback.feature
+      checks:
+      - Activity arrows use the primary color unless the activity chooses another appearance
+      - Feedback badges use their usual symbols and colors unless the activity chooses another appearance
+      - Turning the chessboard keeps feedback on its assigned logical square
+    'on':
+      Plays a legal destination:
+        target: '#Chess Board: Moving pieces'
+      Chooses an illegal destination:
+        target: '#Chess Board: Selected piece'
+      Cancels chess selection:
+        target: '#Chess Board: Settled board'
+      Moves a pawn to promotion:
+        target: '#Chess Board: Promotion piece'
+  'Chess Board: Held piece':
+    id: 'Chess Board: Held piece'
+    meta:
+      description: A held piece follows the pointer while keeping its starting position until a legal move.
+      snapshot: A held piece follows the pointer while keeping its starting position until a legal move.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-premoves.feature:6
+      - specs/chess-board/board-premoves.feature:71
+      - specs/chess-board/board-premoves.feature:102
+      events: []
+      gherkin:
+      - specs/chess-board/board-premoves.feature
+      checks:
+      - Enabled premoves preview a waiting-side move while its real piece stays put
+      - Each opponent reply completes at most one queued premove in order
+      - Cancelling premoves removes every preview without moving its real pieces
+    'on':
+      Drops on a legal destination:
+        target: '#Chess Board: Moving pieces'
+      Drops on an illegal destination:
+        target: '#Chess Board: Settled board'
+      Cancels holding the piece:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Keyboard destination':
+    id: 'Chess Board: Keyboard destination'
+    meta:
+      description: Keyboard focus and destinations provide the same permitted moves as pointer play.
+      snapshot: Keyboard focus and destinations provide the same permitted moves as pointer play.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-interaction.feature:6
+      - specs/chess-board/board-interaction.feature:67
+      - specs/chess-board/board-interaction.feature:111
+      - specs/chess-board/board-interaction.feature:177
+      - specs/chess-board/board-interaction.feature:209
+      - specs/chess-board/board-promotion.feature:6
+      - specs/chess-board/board-promotion.feature:24
+      - specs/chess-board/board-special-moves.feature:6
+      - specs/chess-board/board-special-moves.feature:62
+      - specs/chess-board/board-special-moves.feature:89
+      events: []
+      gherkin:
+      - specs/chess-board/board-interaction.feature
+      - specs/chess-board/board-promotion.feature
+      - specs/chess-board/board-special-moves.feature
+      checks:
+      - Selection offers only legal destinations for the side to move
+      - A legal move passes the turn and is offered once however the piece is moved
+      - Captures complete a legal move while illegal destinations keep the position
+      - Putting a held piece down without a legal destination abandons the move
+      - Check is distinguished from checkmate and stalemate before further moves are offered
+      - A promotion request names all four choices and gives the queen the keyboard
+      - Deciding or cancelling promotion gives the keyboard back to the board
+      - Legal castling moves the king and rook together
+      - En passant removes the passed pawn and marks the completed move's source and destination
+      - Promotion decides its replacement before offering the move to the activity
+    'on':
+      Confirms a legal keyboard destination:
+        target: '#Chess Board: Moving pieces'
+      Cancels the keyboard destination:
+        target: '#Chess Board: Settled board'
+      Confirms a promotion destination:
+        target: '#Chess Board: Promotion piece'
+  'Chess Board: Moving pieces':
+    id: 'Chess Board: Moving pieces'
+    meta:
+      description: Motion shows the accepted move; the confirmed position stays authoritative.
+      snapshot: Motion shows the accepted move; the confirmed position stays authoritative.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-motion.feature:6
+      - specs/chess-board/board-motion.feature:36
+      - specs/chess-board/board-motion.feature:86
+      - specs/chess-board/board-motion.feature:106
+      events: []
+      gherkin:
+      - specs/chess-board/board-motion.feature
+      checks:
+      - Captures show one coherent arrival
+      - Newer positions own displayed pieces despite an earlier interrupted arrival
+      - Reduced motion places pieces immediately
+      - A hidden chessboard settles without replaying old motion
+    'on':
+      The board settles after the move:
+        target: '#Chess Board: Settled board'
+      A newer authoritative position arrives:
+        target: '#Chess Board: Settled board'
+      Hides the moving board:
+        target: '#Chess Board: Hidden board'
+  'Chess Board: Promotion piece':
+    id: 'Chess Board: Promotion piece'
+    meta:
+      description: Queen, Rook, Bishop and Knight are offered for the side making the promotion.
+      snapshot: Queen, Rook, Bishop and Knight are offered for the side making the promotion.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-black-promotion.feature:9
+      - specs/chess-board/board-black-promotion.feature:34
+      - specs/chess-board/board-black-promotion.feature:67
+      - specs/chess-board/board-black-promotion.feature:100
+      events: []
+      gherkin:
+      - specs/chess-board/board-black-promotion.feature
+      checks:
+      - Black's last-rank request waits at source for a named choice
+      - Each quiet Black choice completes one promotion and preserves the opposing knight
+      - Each Black capture choice removes its victim and completes one promotion
+      - A promotion reaching a dead position announces the draw with one end sound
+    'on':
+      Chooses Queen:
+        target: '#Chess Board: Moving pieces'
+      Chooses Rook:
+        target: '#Chess Board: Moving pieces'
+      Chooses Bishop:
+        target: '#Chess Board: Moving pieces'
+      Chooses Knight:
+        target: '#Chess Board: Moving pieces'
+      Cancels promotion:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Drawing a mark':
+    id: 'Chess Board: Drawing a mark'
+    meta:
+      description: The person draws a personal arrow or square without playing a move.
+      snapshot: The person draws a personal arrow or square without playing a move.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-accessibility.feature:6
+      - specs/chess-board/board-accessibility.feature:22
+      - specs/chess-board/board-accessibility.feature:37
+      - specs/chess-board/board-accessibility.feature:91
+      - specs/chess-board/board-accessibility.feature:146
+      events: []
+      gherkin:
+      - specs/chess-board/board-accessibility.feature
+      checks:
+      - Each square communicates its piece and selection
+      - Keyboard moves follow the same legality as other moves
+      - Arrow keys move the keyboard in the direction Alice sees and stop at the edge
+      - Space and Enter choose the keyboard's square using the same selection and move rules
+      - Choosing a square gives that square the keyboard
+    'on':
+      Finishes a personal board mark:
+        target: '#Chess Board: Personal marks'
+      Cancels drawing the mark:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Personal marks':
+    id: 'Chess Board: Personal marks'
+    meta:
+      description: Personal marks belong to this board and do not change the game or another board.
+      snapshot: Personal marks belong to this board and do not change the game or another board.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-authority.feature:6
+      - specs/chess-board/board-authority.feature:42
+      - specs/chess-board/board-authority.feature:81
+      - specs/chess-board/board-authority.feature:91
+      - specs/chess-board/board-authority.feature:107
+      - specs/chess-board/board-authority.feature:131
+      - specs/chess-board/board-authority.feature:149
+      - specs/chess-board/board-authority.feature:172
+      events: []
+      gherkin:
+      - specs/chess-board/board-authority.feature
+      checks:
+      - Disabling interactivity cancels an unfinished move
+      - A replacement position cancels an unfinished gesture
+      - Changing orientation cancels a drag without changing the position
+      - Resizing preserves idle selection and cancels a drag
+      - Abandoning a drag never moves a piece
+      - The activity may confirm or refuse an offered move
+      - Only usable supplied positions become the chessboard's position
+      - Automatic queen promotion changes apply to the next request
+    'on':
+      Clears personal board marks:
+        target: '#Chess Board: Settled board'
+      Draws another board mark:
+        target: '#Chess Board: Drawing a mark'
+  'Chess Board: Premove queued':
+    id: 'Chess Board: Premove queued'
+    meta:
+      description: An allowed planned move waits for the person’s turn and is discarded if it becomes illegal.
+      snapshot: An allowed planned move waits for the person’s turn and is discarded if it becomes illegal.
+      confidence: assumed
+      source:
+      - specs/chess-board/board-options.feature:6
+      - specs/chess-board/board-options.feature:190
+      - specs/chess-board/board-options.feature:218
+      - specs/chess-board/board-options.feature:239
+      - specs/chess-board/board-options.feature:253
+      - specs/chess-board/board-sound.feature:6
+      - specs/chess-board/board-sound.feature:26
+      events: []
+      gherkin:
+      - specs/chess-board/board-options.feature
+      - specs/chess-board/board-sound.feature
+      checks:
+      - The chessboard uses the activity's chosen width and offers moves only at a supported width
+      - Coordinate visibility follows the activity's choice in either orientation
+      - Legal destination marks may be hidden without changing selection or legality
+      - Last move marks may be hidden without changing the position
+      - Board color choices preserve the position and unfinished choices
+      - Disabled sound prevents every chessboard sound
+      - Changing sound cancels delayed feedback without replaying it
+    'on':
+      An allowed premove plays on the person’s turn:
+        target: '#Chess Board: Moving pieces'
+      The queued premove becomes illegal:
+        target: '#Chess Board: Settled board'
+      Cancels the queued premove:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Watching board':
+    id: 'Chess Board: Watching board'
+    meta:
+      description: The spectator sees the authoritative position with move controls unavailable.
+      snapshot: The spectator sees the authoritative position with move controls unavailable.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      A new watched position arrives:
+        target: '#Chess Board: Watching board'
+      Restores the person’s move controls:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Hidden board':
+    id: 'Chess Board: Hidden board'
+    meta:
+      description: Hiding cancels unfinished gestures without inventing a move.
+      snapshot: Hiding cancels unfinished gestures without inventing a move.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Shows the board again:
+        target: '#Chess Board: Settled board'
+  'Chess Board: Closed board':
+    id: 'Chess Board: Closed board'
+    meta:
+      description: Closing cancels this board’s gestures and leaves another board intact.
+      snapshot: Closing cancels this board’s gestures and leaves another board intact.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Opens the board again:
+        target: '#Chess Board: Settled board'

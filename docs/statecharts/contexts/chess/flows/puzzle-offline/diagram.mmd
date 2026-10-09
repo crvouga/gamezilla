@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Puzzles offline" as s0
-  state "Alice is told puzzles need a connection within 15 seconds — 1" as s1
-  state "Alice has a puzzle on the board within 30 seconds — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice opens puzzles in their space
-  s0 --> s2: the connection comes back
-  s1 --> [*]
-  s2 --> [*]

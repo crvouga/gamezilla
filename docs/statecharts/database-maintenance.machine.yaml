@@ -1,0 +1,184 @@
+# Product behavior projection; authoritative rules remain in specs/.
+id: database-maintenance
+initial: 'Database Maintenance: Maintenance evidence'
+meta:
+  description: The maintenance contract tracks planned, interrupted and retired work without creating a player-facing
+    feature.
+  snapshot: The maintenance contract tracks planned, interrupted and retired work without creating a player-facing
+    feature.
+  confidence: assumed
+  source: &id001
+  - specs/db-indexes/budgets.feature
+  - specs/db-indexes/execution.feature
+  - specs/db-indexes/ownership.feature
+  - specs/db-indexes/persisted-interruption.feature
+  - specs/db-indexes/planning.feature
+  - specs/db-indexes/retirement.feature
+  - specs/db-indexes/index-interruption.qnt
+  - specs/db-indexes/index-retirement.qnt
+  events: []
+  context: db-indexes
+  eventKinds:
+    Another maintenance cycle begins: system
+    Eligible index work is planned: system
+    Index work begins: system
+    Index work completes: system
+    Index work exceeds its budget or belongs to another owner: system
+    Index work fails: system
+    Index work is interrupted: system
+    Maintenance resumes from its persisted outcome: system
+    Owned unused indexes finish retiring: system
+    The maintenance budget is exhausted: system
+    Unused owned indexes are selected for retirement: system
+states:
+  'Database Maintenance: Maintenance evidence':
+    id: 'Database Maintenance: Maintenance evidence'
+    meta:
+      description: The team can inspect ownership and the budget for automatic maintenance.
+      snapshot: The team can inspect ownership and the budget for automatic maintenance.
+      confidence: assumed
+      source:
+      - specs/db-indexes/ownership.feature:6
+      - specs/db-indexes/ownership.feature:27
+      - specs/db-indexes/planning.feature:6
+      - specs/db-indexes/planning.feature:20
+      - specs/db-indexes/planning.feature:34
+      - specs/db-indexes/planning.feature:43
+      - specs/db-indexes/planning.feature:57
+      - specs/db-indexes/planning.feature:69
+      events: []
+      gherkin:
+      - specs/db-indexes/ownership.feature
+      - specs/db-indexes/planning.feature
+      checks:
+      - Only ordinary owned indexes may be changed
+      - Planning cannot change indexes or retirement metadata
+      - Online candidates meet the configured row threshold
+      - Online candidates meet the configured improvement threshold
+      - Duplicate statements do not multiply indexes
+      - A table cannot exceed the configured candidate budget
+      - Migration indexing admits required paths on an empty table
+      - No additional index is needed for an empty workload or a primary-key lookup
+    'on':
+      Eligible index work is planned:
+        target: '#Database Maintenance: Planned maintenance'
+      Index work exceeds its budget or belongs to another owner:
+        target: '#Database Maintenance: Deferred maintenance'
+      Unused owned indexes are selected for retirement:
+        target: '#Database Maintenance: Retiring maintenance'
+  'Database Maintenance: Planned maintenance':
+    id: 'Database Maintenance: Planned maintenance'
+    meta:
+      description: Planned work has the required ownership and budget.
+      snapshot: Planned work has the required ownership and budget.
+      confidence: assumed
+      source:
+      - specs/db-indexes/budgets.feature:6
+      - specs/db-indexes/budgets.feature:21
+      events: []
+      gherkin:
+      - specs/db-indexes/budgets.feature
+      checks:
+      - A run does not start an action beyond its estimated deadline
+      - A run respects its successful-build limit
+    'on':
+      Index work begins:
+        target: '#Database Maintenance: Running maintenance'
+      The maintenance budget is exhausted:
+        target: '#Database Maintenance: Deferred maintenance'
+  'Database Maintenance: Running maintenance':
+    id: 'Database Maintenance: Running maintenance'
+    meta:
+      description: Maintenance is in progress and its interruption does not silently claim completion.
+      snapshot: Maintenance is in progress and its interruption does not silently claim completion.
+      confidence: assumed
+      source:
+      - specs/db-indexes/persisted-interruption.feature:6
+      events: []
+      gherkin:
+      - specs/db-indexes/persisted-interruption.feature
+      checks:
+      - Recovery re-inspects durable state after any write prefix
+    'on':
+      Index work completes:
+        target: '#Database Maintenance: Completed maintenance'
+      Index work is interrupted:
+        target: '#Database Maintenance: Interrupted maintenance'
+      Index work fails:
+        target: '#Database Maintenance: Failed maintenance'
+  'Database Maintenance: Interrupted maintenance':
+    id: 'Database Maintenance: Interrupted maintenance'
+    meta:
+      description: Incomplete, invalid and completed work are distinguished when maintenance resumes.
+      snapshot: Incomplete, invalid and completed work are distinguished when maintenance resumes.
+      confidence: assumed
+      source:
+      - specs/db-indexes/execution.feature:6
+      - specs/db-indexes/execution.feature:33
+      - specs/db-indexes/execution.feature:53
+      events: []
+      gherkin:
+      - specs/db-indexes/execution.feature
+      checks:
+      - An interrupted action stops its run and remains unfinished
+      - Deferral and failure remain visible instead of claiming completion
+      - Reconciliation is idempotent after convergence
+    'on':
+      Maintenance resumes from its persisted outcome:
+        target: '#Database Maintenance: Planned maintenance'
+  'Database Maintenance: Completed maintenance':
+    id: 'Database Maintenance: Completed maintenance'
+    meta:
+      description: Completed maintenance is accounted for before further work is planned.
+      snapshot: Completed maintenance is accounted for before further work is planned.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Another maintenance cycle begins:
+        target: '#Database Maintenance: Maintenance evidence'
+  'Database Maintenance: Deferred maintenance':
+    id: 'Database Maintenance: Deferred maintenance'
+    meta:
+      description: Deferred work does not bypass ownership or the declared budget.
+      snapshot: Deferred work does not bypass ownership or the declared budget.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Another maintenance cycle begins:
+        target: '#Database Maintenance: Maintenance evidence'
+  'Database Maintenance: Failed maintenance':
+    id: 'Database Maintenance: Failed maintenance'
+    meta:
+      description: Failed work is recorded as failed rather than complete.
+      snapshot: Failed work is recorded as failed rather than complete.
+      confidence: assumed
+      source: *id001
+      events: []
+      checks: []
+    'on':
+      Another maintenance cycle begins:
+        target: '#Database Maintenance: Maintenance evidence'
+  'Database Maintenance: Retiring maintenance':
+    id: 'Database Maintenance: Retiring maintenance'
+    meta:
+      description: Only owned unused indexes may retire; active or unowned work is preserved.
+      snapshot: Only owned unused indexes may retire; active or unowned work is preserved.
+      confidence: assumed
+      source:
+      - specs/db-indexes/retirement.feature:6
+      - specs/db-indexes/retirement.feature:27
+      - specs/db-indexes/retirement.feature:47
+      events: []
+      gherkin:
+      - specs/db-indexes/retirement.feature
+      checks:
+      - Retirement requires the complete configured window
+      - Observed use restarts retirement rather than permitting removal
+      - A desired index stops retiring
+    'on':
+      Owned unused indexes finish retiring:
+        target: '#Database Maintenance: Maintenance evidence'
