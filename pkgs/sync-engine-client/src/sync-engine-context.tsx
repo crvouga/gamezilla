@@ -87,6 +87,7 @@ export function useSyncEngine(): SyncEngineApi {
     subscribeQuery: engine.subscribeQuery,
     subscribeQueries: engine.subscribeQueries,
     mutationOutcome: (mutationId) => engine.mutationOutcome(mutationId),
+    mutationFeedback: (mutationName, scope) => engine.mutationFeedback(mutationName, scope),
     listRejections: () => engine.listRejections(),
     pendingMutationCount: () => engine.pendingMutationCount(),
     wakeUploads: engine.wakeUploads,

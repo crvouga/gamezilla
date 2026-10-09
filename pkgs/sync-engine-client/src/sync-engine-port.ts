@@ -5,7 +5,12 @@
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { Mutation } from '@pkgs/sync-engine-shared/mutations-types';
-import type { MutationStatus, UnackedWriteRejection } from './mutation-status';
+import type {
+  MutationFeedback,
+  MutationFeedbackScope,
+  MutationStatus,
+  UnackedWriteRejection,
+} from './mutation-status';
 import type {
   SubscribeQueriesHandle,
   SyncEngineQuerySubscriptionSpec,
@@ -99,6 +104,11 @@ export type SyncEngine = {
    * Do not read framework tables for this.
    */
   readonly mutationOutcome: (mutationId: string) => Promise<MutationStatus>;
+  /** Persistent, event-driven feedback for this install's latest choice of a kind. */
+  readonly mutationFeedback: (
+    mutationName: string,
+    scope?: MutationFeedbackScope
+  ) => WatchSubscription<readonly MutationFeedback[]>;
   /** Unacknowledged write rejections for this engine's client id. */
   readonly listRejections: () => Promise<readonly UnackedWriteRejection[]>;
   /** Count of local mutations still waiting to upload. */

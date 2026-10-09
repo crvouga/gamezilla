@@ -5,6 +5,7 @@ import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
 import type {
+  Mutation,
   MutationAuthorize,
   MutationEnv,
 } from '@pkgs/sync-engine-shared/mutations-types';
@@ -21,7 +22,10 @@ const CLIENT_AT = '2026-09-19T08:00:00.000Z';
 
 type Verdict = { readonly status: string; readonly code?: string };
 
-async function openHost(authorize?: MutationAuthorize) {
+async function openHost(
+  authorize?: MutationAuthorize,
+  contentRulesTime?: Mutation<unknown>['contentRulesTime']
+) {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await reconcileSqliteSchema(db, syncEngineServerSchema, {
@@ -31,7 +35,15 @@ async function openHost(authorize?: MutationAuthorize) {
   const ping = defineMutation<{ readonly n: number }>({
     name: 'ping',
     args: z.object({ n: z.number() }),
+    ...(contentRulesTime === undefined ? {} : { contentRulesTime }),
     async run({ env }, args) {
+      if (
+        env.contentRules?.checkWrite('note', 'changed rule').allowed === false
+      )
+        throw new MutationError(
+          'not_allowed',
+          'This note is no longer allowed.'
+        );
       ran.push({ args, env });
     },
   });
@@ -49,6 +61,9 @@ async function openHost(authorize?: MutationAuthorize) {
     mutations: mutationRegistry([ping]),
     now: () => SERVER_NOW,
     createId: () => `id-${++id}`,
+    contentRulesAt: (atMs) => ({
+      checkWrite: () => ({ allowed: atMs < SERVER_NOW }),
+    }),
     ...(authorize === undefined ? {} : { authorizeMutation: authorize }),
   });
   async function send(name: string, args: unknown): Promise<Verdict> {
@@ -81,6 +96,21 @@ async function openHost(authorize?: MutationAuthorize) {
 }
 
 describe('createSyncApp authorizeMutation', () => {
+  test('a queued choice can require the rules at replay while keeping its original timestamp', async () => {
+    const host = await openHost(undefined, 'replayed');
+    expect(await host.send('ping', { n: 1 })).toMatchObject({
+      status: 'rejected',
+      code: 'not_allowed',
+    });
+    expect(host.ran).toEqual([]);
+  });
+
+  test('writes judged at their creation retain the rules that accepted them', async () => {
+    const host = await openHost(undefined, 'created');
+    expect((await host.send('ping', { n: 1 })).status).toBe('applied');
+    expect(host.ran[0]?.env.now().toISOString()).toBe(CLIENT_AT);
+  });
+
   test('without a hook every product mutation replays', async () => {
     const host = await openHost();
     expect((await host.send('ping', { n: 1 })).status).toBe('applied');

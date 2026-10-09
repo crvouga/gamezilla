@@ -9,6 +9,7 @@ import type {
 } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
+import { watchMutationFeedback } from './mutation-feedback';
 import {
   listUnackedWriteRejections,
   mutationStatus,
@@ -323,7 +324,8 @@ function notifyLocalMutation(
   capture: WriteCaptureSnapshot
 ): void {
   // A checked write belongs only to its author until the server accepts it.
-  if (mutation.pendingUx === 'pending') return;
+  if (mutation.pendingUx === 'pending' || mutation.pendingUx === 'local')
+    return;
   const push = state.options.push;
   if (push === undefined || push.rowImageFanout !== true) return;
   const topicMap = withFrameworkTopicMap(push.topicMap);
@@ -462,6 +464,13 @@ function toEngine(state: LocalEngineState): SyncEngine {
     status: state.status.status,
     mutationOutcome: (mutationId) =>
       mutationStatus(state.options.db, mutationId),
+    mutationFeedback: (mutationName, scope) =>
+      watchMutationFeedback(
+        (query) => state.watches.watch(query),
+        state.options.getClientId(),
+        mutationName,
+        scope
+      ),
     listRejections: () =>
       listUnackedWriteRejections(state.options.db, state.options.getClientId()),
     pendingMutationCount: () =>
