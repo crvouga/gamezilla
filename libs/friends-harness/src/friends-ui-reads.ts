@@ -1,6 +1,7 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
+import { showKnownPerson } from './known-person-view';
 
 /**
  * Bring the actor's phone to the front without asserting anything on it:
@@ -186,6 +187,7 @@ export async function withdrawOffered(
   actorId: string,
   toUsername: string
 ): Promise<boolean> {
+  await showKnownPerson(s, actorId, toUsername);
   return await handleVisible(s, actorId, Handles.friendCancel(toUsername));
 }
 
@@ -213,12 +215,4 @@ export async function friendsEmptyShown(
   actorId: string
 ): Promise<boolean> {
   return await handleVisible(s, actorId, Handles.friendsEmpty);
-}
-
-/** The app says friend requests need a connection (focuses the actor). */
-export async function friendRequestNeedsConnection(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendRequestNeedsConnection);
 }

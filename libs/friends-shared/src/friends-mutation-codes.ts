@@ -5,6 +5,4 @@ export const FRIENDS_BLOCKED = 'FRIENDS_BLOCKED';
 export const FRIENDS_NOT_FOUND = 'FRIENDS_NOT_FOUND';
 export const FRIENDS_COOLDOWN = 'FRIENDS_COOLDOWN';
 export const FRIENDS_FORBIDDEN = 'FRIENDS_FORBIDDEN';
-/** Refused on the device: friend requests are never queued offline. */
-export const FRIENDS_NEEDS_CONNECTION = 'FRIENDS_NEEDS_CONNECTION';
 export const FRIEND_REQUEST_RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;

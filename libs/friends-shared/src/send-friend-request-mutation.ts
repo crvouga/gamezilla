@@ -132,6 +132,7 @@ async function validateSendFriendRequest(
 
 export const sendFriendRequestMutation = defineMutation({
   name: 'sendFriendRequest',
+  pendingUx: 'local',
   args: z.object({
     requestId: z.string().min(1),
     toUserId: z.string().min(1),

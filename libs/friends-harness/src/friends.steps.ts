@@ -40,7 +40,6 @@ import {
   confirmOffered,
   friendLiveBadgeVisible,
   friendRequestCardVisible,
-  friendRequestNeedsConnection,
   friendRowVisible,
   friendStatusShown,
   friendsEmptyShown,
@@ -167,15 +166,6 @@ When('{actor} asks {actor} again', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(backToTabs, actor);
   await w.s.apply(askAgainFromSearch, actor, other);
 });
-
-Then(
-  '{actor} is told friend requests need a connection within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestNeedsConnection(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
-  }
-);
 
 Then(
   "{actor}'s request to {actor} is refused because {actor} declined it within the last day",

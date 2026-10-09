@@ -1,0 +1,4 @@
+{
+  "summary": "A cached profile refused a friend request solely because the asker was offline. Accept the choice locally, show that it waits to be shared, and give the shared refusal when needed.",
+  "regressionTest": "specs/friends/offline-friend-request.feature"
+}
