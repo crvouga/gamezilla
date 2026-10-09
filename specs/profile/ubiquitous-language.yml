@@ -118,7 +118,7 @@ terms:
       for everyone else. Every newcomer gets one of their own.
     forms: [usernames, username's]
     avoid: [handle, display name, nickname, screen name]
-    model: [username, usernameOnDevice, Username, shownName]
+    model: [username, usernameOnDevice, Username]
     published: true
 
   - term: avatar
