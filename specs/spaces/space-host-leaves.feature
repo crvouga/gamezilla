@@ -26,3 +26,36 @@ Feature: The host leaving ends the space
       When Alice returns to their space
       Then Alice is in the space
       And Bob sees 2 people in the space within 20 seconds
+
+  Rule: Other people are disconnected while the host is offline and the host keeps their space
+
+    Background:
+      Given Alice is hosting a space that Bob joined from the link
+
+    @regression:space-host-offline-guests-stay
+    Scenario: Losing the host's connection disconnects the other person
+      When Alice loses the connection
+      Then Alice is in the space
+      And Alice sees 1 person in the space within 20 seconds
+      And Bob is told the host is offline within 20 seconds
+      And Bob is not offered to join
+
+    Scenario: A person cannot join a space while its host is offline
+      Given Alice is offline
+      When Carol opens Alice's space link
+      Then Carol is told the host is offline within 20 seconds
+      And Carol is not offered to join
+
+    Scenario: The host's return restores the same space and its people once
+      Given Alice has lost the connection long enough to drop out of the space
+      When the connection comes back
+      Then Alice is in the space
+      And Alice sees 2 people in the space within 20 seconds
+      And Bob sees 2 people in the space within 20 seconds
+
+    Scenario: A space ended by its offline host stays ended on return
+      Given Alice is offline
+      And Alice has ended the space
+      When the connection comes back
+      Then Bob sees the space has ended within 20 seconds
+      And Bob is not offered to join
