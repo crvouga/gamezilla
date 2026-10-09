@@ -68,10 +68,10 @@ terms:
   - term: cut off
     definition: >-
       A device losing its connection. Nobody is thrown out of their place in
-      the app; what needs a connection (signing in, searching, hosting or
-      ending a space) waits until they are back online. Once the connection
-      comes back, anything that needs one, such as signing in, is ready
-      again.
+      the app; what needs a connection, such as signing in or searching,
+      waits until they are back online. Creating, using and ending their own
+      space work without a connection. Once the connection comes back,
+      anything that needs one, such as signing in, is ready again.
     forms: [cuts off, is cut off]
     avoid: [load balancer, dropped socket]
     model: [offline, cutOff, reconnect]

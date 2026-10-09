@@ -28,7 +28,7 @@ Feature: Keep the game through disconnection
       And The Custom Game remains configuring
 
   Rule: The host can create and play a Custom Game without another person while offline
-    No counter-example: the first rule covers choices involving another person.
+    No counter-example: connection loss never stops the host's choices involving no other person.
 
     @regression:custom-game-offline-create-refused
     Scenario: An offline-created space can have a Custom Game
