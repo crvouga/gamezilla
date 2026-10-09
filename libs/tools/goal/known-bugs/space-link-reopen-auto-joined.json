@@ -1,0 +1,4 @@
+{
+  "summary": "The repeated space-link opening binding pressed Join even when the person only opened the link. Opening Alice's link twice as Bob must retain the joining offer until Bob chooses to join.",
+  "regressionTest": "specs/spaces/space-links.feature"
+}

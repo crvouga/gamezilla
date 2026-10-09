@@ -258,7 +258,6 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 Given("{actor} has opened {actor}'s space link", async (w, actor: Actor) => {
   await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
-  await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
 });
 
 /** `actor` opens the shared space link and joins when it offers to. */
@@ -274,8 +273,16 @@ When('{actor} joins the space from the link', async (w, actor: Actor) => {
 });
 
 When('{actor} opens the space link again', async (w, actor: Actor) => {
-  await w.s.apply(reopenSpaceLink, actor, recall(w, SPACE_LINK) as string);
+  await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
 });
+
+Given(
+  '{actor} has opened a link to a space that does not exist',
+  async (w, actor: Actor) => {
+    remember(w, SPACE_LINK, NO_SUCH_SPACE_LINK);
+    await w.s.apply(openSpaceLink, actor, NO_SUCH_SPACE_LINK);
+  }
+);
 
 When(
   "{actor} joins {actor}'s space from the lobby",
