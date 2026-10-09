@@ -39,13 +39,6 @@ Feature: Username rules
       Then Alice's username change is refused because their username was changed recently
       And Alice's profile still shows @alice_one
 
-    Scenario: A username change without a connection is refused
-      Given Alice's username is @alice_one
-      And Alice is offline
-      When Alice tries to use username "alice_two"
-      Then Alice's username change is refused because their device is offline
-      And Alice's profile still shows @alice_one
-
     Scenario: A username is saved in lowercase
       Given Alice is a guest
       When Alice tries to use username "Chess_Fan_7"

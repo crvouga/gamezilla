@@ -1,237 +1,127 @@
-// Changing a username.
-//
-// Alice and Bob are signed in; Carol is a guest with a generated username.
-// Anyone can rename themselves: pick a new username and save it. The username
-// change then shows one of: "Saved" (the username is theirs now), "Username
-// is taken" (someone else has it, in any letter case), "That username is not
-// allowed" (the rules refuse it, even when it is the username they already
-// have), "Username was changed recently" (they renamed themselves moments ago
-// and must wait), or "You're offline" (a username change needs a connection). Usernames are saved in
-// lowercase, and saving the username a person already has is simply saved. A
-// refused username change changes nothing, and does not count as a change. A
-// person can save once and, on seeing the result, right away save another
-// username.
-//
-// The team can stop allowing a username and start allowing it again. A saved username
-// that is no longer allowed is kept, never changed or taken away: connected
-// people see their stand-in name instead, until they rename
-// themselves or the team starts allowing it again. A change to the rules
-// reaches a device while it has a connection; an offline device keeps
-// applying the rules it already knows until its connection returns.
-//
-// A person can lose their connection, and the connection can come back.
-// The name everyone else sees for a person and the one on that person's own
-// device agree while it is connected. Nobody sees a username their device
-// knows is not allowed.
+// People choose a username under the rules their device knows. A valid
+// offline choice appears for them at once and survives reopening the app;
+// other people keep the last shared username until the connection returns.
+// Sharing refuses a name another person has claimed, or one no longer
+// allowed, with the reason shown and the last shared username restored.
+// Names accepted for sharing are unique and lowercase. Refused choices do
+// not count as a change. The team can stop allowing and start allowing a
+// name; an offline device applies its known rules until it returns.
 module username_changes {
   type Person = str
-
-  /// Alice and Bob sign in with Google; Carol stays a guest.
   pure val PEOPLE: Set[Person] = Set("alice", "bob", "carol")
-
-  /// What people type: few enough that names collide, in two letter cases,
-  /// and one the rules always refuse.
-  pure val NAMES: Set[str] = Set("ann", "Ann", "bea", "alice", "official_support")
-
-  /// Usernames the rules always refuse.
-  pure val ALWAYS_REFUSED: Set[str] = Set("official_support")
-
-  /// Saved usernames the team may stop allowing, and start allowing again.
-  pure val CHANGEABLE: Set[str] = Set("ann", "bea", "alice")
-
-  /// Each person's stand-in name, the same every time.
-  pure val STAND_INS: Person -> str =
-    Map("alice" -> "Brave Tiger 1", "bob" -> "Calm Otter 2", "carol" -> "Swift Heron 3")
-
-  /// A guest's first username, generated for them.
+  pure val NAMES = Set("ann", "Ann", "bea", "alice", "official_support")
+  pure val ALWAYS_REFUSED = Set("official_support")
+  pure val CHANGEABLE = Set("ann", "bea", "alice")
+  pure val STAND_INS = Map("alice" -> "Brave Tiger 1", "bob" -> "Calm Otter 2", "carol" -> "Swift Heron 3")
   pure val GENERATED = "generated"
+  type UsernameChangeResult = NoUsernameChange | UsernameSaved | UsernameTaken | NotAllowed | ChangedRecently
 
-  /// What each person's last username change showed them.
-  type UsernameChangeResult =
-    | NoUsernameChange
-    | UsernameSaved
-    | UsernameTaken
-    | NotAllowed
-    | ChangedRecently
-    | RefusedOffline
-
-  /// Each person's saved username, kept even when it is no longer allowed.
+  /// Each person's accepted choice on their own device.
   var username: Person -> str
-  /// The name everyone else sees for each person: their username, or their
-  /// stand-in name while it is no longer allowed.
-  var _shownName: Person -> str
-  /// The name each person's own device shows for them.
+  /// Each person's own profile, under the username rules their device knows.
   var usernameOnDevice: Person -> str
-  /// Usernames the rules refuse right now.
-  var _notAllowed: Set[str]
-  /// The result of each person's last username change.
   var lastUsernameChange: Person -> UsernameChangeResult
-  /// People whose device has lost the connection.
   var offline: Set[Person]
-  /// Username rules each device already knows.
+  var _sharedUsernames: Person -> str
+  var _shownName: Person -> str
+  var _notAllowed: Set[str]
   var _knownNotAllowed: Person -> Set[str]
-  /// The username a person had when their connection went, and what their
-  /// last username change showed then.
-  var _nameAtCutOff: Person -> str
-  var _resultAtCutOff: Person -> UsernameChangeResult
+  var _knownNames: Person -> (Person -> str)
+  var _waitingNames: Person -> List[str]
+  var _sharedAtCutOff: Person -> str
 
-  /// How a typed username is saved.
   pure def _lowercase(name: str): str = if (name == "Ann") "ann" else name
-
-  /// What everyone sees for each person under the rules `refused`.
   pure def _shown(names: Person -> str, refused: Set[str]): Person -> str =
-    PEOPLE.mapBy(p =>
-      if (refused.contains(names.get(p))) STAND_INS.get(p) else names.get(p)
-    )
-
-  /// Each own device applies its known rules until its connection returns.
-  def _knownRules(refused: Set[str], away: Set[Person]): Person -> Set[str] =
-    PEOPLE.mapBy(p => if (away.contains(p)) _knownNotAllowed.get(p) else refused)
+    PEOPLE.mapBy(p => if (refused.contains(names.get(p))) STAND_INS.get(p) else names.get(p))
   pure def _ownShown(names: Person -> str, rules: Person -> Set[str]): Person -> str =
     PEOPLE.mapBy(p => if (rules.get(p).contains(names.get(p))) STAND_INS.get(p) else names.get(p))
-
   pure def _takenBy(names: Person -> str, person: Person, name: str): bool =
     PEOPLE.exists(other => other != person and names.get(other) == name)
-
-  /// What a username change shows when `person` saves `typed` while the
-  /// usernames are `names`; `cooling` says they changed it moments ago.
-  pure def _resultOf(
-    names: Person -> str,
-    refused: Set[str],
-    isOffline: bool,
-    person: Person,
-    typed: str,
-    cooling: bool,
-  ): UsernameChangeResult =
-    if (isOffline) RefusedOffline
-    else if (refused.contains(_lowercase(typed))) NotAllowed
+  pure def _resultOf(names: Person -> str, refused: Set[str], person: Person, typed: str, cooling: bool): UsernameChangeResult =
+    if (refused.contains(_lowercase(typed))) NotAllowed
     else if (_lowercase(typed) == names.get(person)) UsernameSaved
     else if (cooling) ChangedRecently
     else if (_takenBy(names, person, _lowercase(typed))) UsernameTaken
     else UsernameSaved
 
-  /// The usernames after that save.
-  pure def _usernamesAfter(
-    names: Person -> str,
-    refused: Set[str],
-    isOffline: bool,
-    person: Person,
-    typed: str,
-    cooling: bool,
-  ): Person -> str =
-    if (_resultOf(names, refused, isOffline, person, typed, cooling) == UsernameSaved)
-      names.set(person, _lowercase(typed))
-    else names
-
-  action init = all {
-    username' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
-    _shownName' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
-    usernameOnDevice' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
-    _notAllowed' = ALWAYS_REFUSED,
-    lastUsernameChange' = PEOPLE.mapBy(_ => NoUsernameChange),
-    offline' = Set(),
-    _knownNotAllowed' = PEOPLE.mapBy(_ => ALWAYS_REFUSED),
-    _nameAtCutOff' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
-    _resultAtCutOff' = PEOPLE.mapBy(_ => NoUsernameChange),
+  action _keep(local: Person -> str, shared: Person -> str, refused: Set[str], results: Person -> UsernameChangeResult,
+    away: Set[Person], waiting: Person -> List[str], cutOff: Person -> str): bool = {
+    val rules = PEOPLE.mapBy(p => if (away.contains(p)) _knownNotAllowed.get(p) else refused)
+    all {
+      username' = local,
+      usernameOnDevice' = _ownShown(local, rules),
+      lastUsernameChange' = results, offline' = away,
+      _sharedUsernames' = shared, _shownName' = _shown(shared, refused),
+      _notAllowed' = refused, _knownNotAllowed' = rules,
+      _knownNames' = PEOPLE.mapBy(p => if (away.contains(p)) _knownNames.get(p) else shared),
+      _waitingNames' = waiting, _sharedAtCutOff' = cutOff,
+    }
   }
 
-  /// A person saves a new username, a while after anything they did before.
+  /// bookkeeping: apply a choice to the person's own known names and rules.
+  def _choice(person: Person, typed: str, cooling: bool, local: Person -> str, shared: Person -> str,
+    waiting: Person -> List[str]): { local: Person -> str, shared: Person -> str, waiting: Person -> List[str], result: UsernameChangeResult } = {
+    val names = (if (offline.contains(person)) _knownNames.get(person) else shared).set(person, local.get(person))
+    val result = _resultOf(names, _knownNotAllowed.get(person), person, typed, cooling)
+    val accepted = result == UsernameSaved
+    val after = if (accepted) local.set(person, _lowercase(typed)) else local
+    { local: after, result: result,
+      shared: if (accepted and not(offline.contains(person))) shared.set(person, _lowercase(typed)) else shared,
+      waiting: if (accepted and offline.contains(person)) waiting.set(person, waiting.get(person).append(_lowercase(typed))) else waiting }
+  }
+
+  action init = {
+    val names = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED)
+    all {
+      username' = names, usernameOnDevice' = names,
+      lastUsernameChange' = PEOPLE.mapBy(_ => NoUsernameChange), offline' = Set(),
+      _sharedUsernames' = names, _shownName' = names, _notAllowed' = ALWAYS_REFUSED,
+      _knownNotAllowed' = PEOPLE.mapBy(_ => ALWAYS_REFUSED),
+      _knownNames' = PEOPLE.mapBy(_ => names), _waitingNames' = PEOPLE.mapBy(_ => List()),
+      _sharedAtCutOff' = names,
+    }
+  }
+
+  /// A person saves a choice, a while after their previous change.
   action rename(person: Person, typed: str): bool = {
-    val isOffline = offline.contains(person)
-    val after = _usernamesAfter(username, _notAllowed, isOffline, person, typed, false)
-    all {
-      username' = after,
-      _shownName' = _shown(after, _notAllowed),
-      usernameOnDevice' = _ownShown(after, _knownRules(_notAllowed, offline)),
-      _notAllowed' = _notAllowed,
-      lastUsernameChange' = lastUsernameChange.set(person, _resultOf(username, _notAllowed, isOffline, person, typed, false)),
-      offline' = offline,
-      _knownNotAllowed' = _knownRules(_notAllowed, offline),
-      _nameAtCutOff' = _nameAtCutOff,
-      _resultAtCutOff' = _resultAtCutOff,
-    }
+    val after = _choice(person, typed, false, username, _sharedUsernames, _waitingNames)
+    _keep(after.local, after.shared, _notAllowed, lastUsernameChange.set(person, after.result), offline, after.waiting, _sharedAtCutOff)
   }
 
-  /// A person saves `typed` and, on seeing the result, right away `retyped`.
+  /// A person saves a choice and immediately tries another one.
   action renameTwice(person: Person, typed: str, retyped: str): bool = {
-    val isOffline = offline.contains(person)
-    val between = _usernamesAfter(username, _notAllowed, isOffline, person, typed, false)
-    val changed = between.get(person) != username.get(person)
-    val after = _usernamesAfter(between, _notAllowed, isOffline, person, retyped, changed)
-    all {
-      username' = after,
-      _shownName' = _shown(after, _notAllowed),
-      usernameOnDevice' = _ownShown(after, _knownRules(_notAllowed, offline)),
-      _notAllowed' = _notAllowed,
-      lastUsernameChange' = lastUsernameChange.set(person, _resultOf(between, _notAllowed, isOffline, person, retyped, changed)),
-      offline' = offline,
-      _knownNotAllowed' = _knownRules(_notAllowed, offline),
-      _nameAtCutOff' = _nameAtCutOff,
-      _resultAtCutOff' = _resultAtCutOff,
-    }
+    val between = _choice(person, typed, false, username, _sharedUsernames, _waitingNames)
+    val after = _choice(person, retyped, between.local.get(person) != username.get(person), between.local, between.shared, between.waiting)
+    _keep(after.local, after.shared, _notAllowed, lastUsernameChange.set(person, after.result), offline, after.waiting, _sharedAtCutOff)
   }
 
-  /// The team stops allowing `name`: whoever has it keeps it, and shows as
-  /// their stand-in name once a device learns the new rules.
-  action stopAllowing(name: str): bool = {
-    val refused = _notAllowed.union(Set(name))
-    all {
-      CHANGEABLE.contains(name),
-      not(_notAllowed.contains(name)),
-      username' = username,
-      _shownName' = _shown(username, refused),
-      usernameOnDevice' = _ownShown(username, _knownRules(refused, offline)),
-      _notAllowed' = refused,
-      lastUsernameChange' = lastUsernameChange,
-      offline' = offline,
-      _knownNotAllowed' = _knownRules(refused, offline),
-      _nameAtCutOff' = _nameAtCutOff,
-      _resultAtCutOff' = _resultAtCutOff,
-    }
+  action stopAllowing(name: str): bool = all {
+    CHANGEABLE.contains(name), not(_notAllowed.contains(name)),
+    _keep(username, _sharedUsernames, _notAllowed.union(Set(name)), lastUsernameChange, offline, _waitingNames, _sharedAtCutOff),
   }
-
-  /// The team starts allowing `name` again: whoever kept it shows by it again.
-  action startAllowing(name: str): bool = {
-    val refused = _notAllowed.exclude(Set(name))
-    all {
-      CHANGEABLE.contains(name),
-      _notAllowed.contains(name),
-      username' = username,
-      _shownName' = _shown(username, refused),
-      usernameOnDevice' = _ownShown(username, _knownRules(refused, offline)),
-      _notAllowed' = refused,
-      lastUsernameChange' = lastUsernameChange,
-      offline' = offline,
-      _knownNotAllowed' = _knownRules(refused, offline),
-      _nameAtCutOff' = _nameAtCutOff,
-      _resultAtCutOff' = _resultAtCutOff,
-    }
+  action startAllowing(name: str): bool = all {
+    CHANGEABLE.contains(name), _notAllowed.contains(name),
+    _keep(username, _sharedUsernames, _notAllowed.exclude(Set(name)), lastUsernameChange, offline, _waitingNames, _sharedAtCutOff),
   }
-
   action loseConnection(person: Person): bool = all {
     not(offline.contains(person)),
-    username' = username,
-    _shownName' = _shownName,
-    usernameOnDevice' = usernameOnDevice,
-    _notAllowed' = _notAllowed,
-    lastUsernameChange' = lastUsernameChange,
-    offline' = offline.union(Set(person)),
-    _knownNotAllowed' = _knownNotAllowed,
-    _nameAtCutOff' = _nameAtCutOff.set(person, username.get(person)),
-    _resultAtCutOff' = _resultAtCutOff.set(person, lastUsernameChange.get(person)),
+    _keep(username, _sharedUsernames, _notAllowed, lastUsernameChange, offline.union(Set(person)), _waitingNames,
+      _sharedAtCutOff.set(person, _sharedUsernames.get(person))),
   }
 
-  action connectionReturns: bool = all {
-    offline != Set(),
-    username' = username,
-    _shownName' = _shownName,
-    usernameOnDevice' = _shown(username, _notAllowed),
-    _notAllowed' = _notAllowed,
-    lastUsernameChange' = lastUsernameChange,
-    offline' = Set(),
-    _knownNotAllowed' = PEOPLE.mapBy(_ => _notAllowed),
-    _nameAtCutOff' = _nameAtCutOff,
-    _resultAtCutOff' = _resultAtCutOff,
+  /// This person returns and shares their offline choices in the order made.
+  action connectionReturns(person: Person): bool = {
+    val settled = _waitingNames.get(person).foldl({ names: _sharedUsernames, result: NoUsernameChange }, (before, name) => {
+      val result = _resultOf(before.names, _notAllowed, person, name, false)
+      { names: if (result == UsernameSaved) before.names.set(person, name) else before.names, result: result }
+    })
+    val refused = Set(UsernameTaken, NotAllowed).contains(settled.result)
+    all {
+      offline.contains(person),
+      _keep(username.set(person, settled.names.get(person)), settled.names, _notAllowed,
+        if (refused) lastUsernameChange.set(person, settled.result) else lastUsernameChange,
+        offline.exclude(Set(person)), _waitingNames.set(person, List()), _sharedAtCutOff),
+    }
   }
 
   action step = {
@@ -239,55 +129,26 @@ module username_changes {
     nondet typed = NAMES.oneOf()
     nondet retyped = NAMES.oneOf()
     nondet name = CHANGEABLE.oneOf()
-    any {
-      rename(person, typed),
-      renameTwice(person, typed, retyped),
-      stopAllowing(name),
-      startAllowing(name),
-      any {
-        loseConnection(person),
-        connectionReturns,
-      },
-    }
+    any { rename(person, typed), renameTwice(person, typed, retyped), stopAllowing(name), startAllowing(name),
+      loseConnection(person), connectionReturns(person) }
   }
 
-  /// No two people ever hold the same username.
-  val invNamesAreUnique = PEOPLE.forall(p =>
-    PEOPLE.forall(q => p == q or username.get(p) != username.get(q))
-  )
-
-  /// A connected person's own device shows the name connected people see.
+  /// Shared usernames are unique; offline choices remain private until accepted.
+  val invNamesAreUnique = PEOPLE.forall(p => PEOPLE.forall(q => p == q or _sharedUsernames.get(p) != _sharedUsernames.get(q)))
+  /// Connected people show the shared username or its stand-in name.
   val invDeviceShowsUsername = PEOPLE.forall(p => not(offline.contains(p)) implies usernameOnDevice.get(p) == _shownName.get(p))
-
-  /// Everyone sees a person's username unless it is no longer allowed, and
-  /// then their stand-in name: the username itself is kept.
-  val invShownNameIsUsernameOrStandIn = _shownName == _shown(username, _notAllowed)
-
-  /// Nobody ever sees a username that is not allowed.
-  val invNotAllowedNeverShown = PEOPLE.forall(p =>
-    not(_notAllowed.contains(_shownName.get(p)))
-  )
-
-  /// Own devices show only usernames their known rules allow.
+  val invShownNameIsUsernameOrStandIn = _shownName == _shown(_sharedUsernames, _notAllowed)
+  val invNotAllowedNeverShown = PEOPLE.forall(p => not(_notAllowed.contains(_shownName.get(p))))
   val invOwnDeviceUsesKnownRules = usernameOnDevice == _ownShown(username, _knownNotAllowed)
-
-  /// A connected device knows the current username rules.
   val invConnectedKnowsRules = PEOPLE.forall(p => not(offline.contains(p)) implies _knownNotAllowed.get(p) == _notAllowed)
-
-  /// A username the rules always refuse is never saved.
-  val invAlwaysRefusedNeverSaved = PEOPLE.forall(p =>
-    not(ALWAYS_REFUSED.contains(username.get(p)))
-  )
-
-  /// Saved usernames are lowercase.
+  val invAlwaysRefusedNeverSaved = PEOPLE.forall(p => not(ALWAYS_REFUSED.contains(username.get(p))))
   val invStoredLowercase = PEOPLE.forall(p => username.get(p) != "Ann")
-
-  /// Offline, a person keeps the username they had when the connection went.
-  /// A save then shows "You're offline", or the earlier result still stands.
-  val invOfflineKeepsUsername = PEOPLE.forall(p =>
-    offline.contains(p) implies
-      username.get(p) == _nameAtCutOff.get(p) and
-      (lastUsernameChange.get(p) == _resultAtCutOff.get(p) or
-        lastUsernameChange.get(p) == RefusedOffline)
-  )
+  /// An accepted choice does not take a name the device knows belongs to someone else.
+  val invSavedChoiceUsesKnownNames = PEOPLE.forall(p => lastUsernameChange.get(p) == UsernameSaved implies
+    not(_takenBy(_knownNames.get(p), p, username.get(p))))
+  /// An offline choice cannot change the name other people already know.
+  val invOfflineKeepsSharedUsername = PEOPLE.forall(p => offline.contains(p) implies _sharedUsernames.get(p) == _sharedAtCutOff.get(p))
+  /// An offline choice is shared automatically once the person's connection returns.
+  val invConnectedChoiceIsShared = PEOPLE.forall(p => not(offline.contains(p)) implies
+    username.get(p) == _sharedUsernames.get(p) and _waitingNames.get(p) == List())
 }

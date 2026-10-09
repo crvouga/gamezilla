@@ -115,8 +115,10 @@ terms:
     definition: >-
       The name a person goes by, shown as @name: unique regardless of letter
       case and saved in lowercase. Every newcomer gets one of their own.
-      Connected devices show the same saved name under the naming rules
-      they know; an offline device keeps its last known name and rules.
+      Connected devices show the same shared name under the naming rules
+      they know. A person can choose a name offline under the rules their
+      device knows; it appears for them at once and is shared when the
+      connection returns. Until then, other people keep the last shared name.
     forms: [usernames, username's]
     avoid: [handle, display name, nickname, screen name]
     model: [username, usernameOnDevice, Username]
@@ -279,9 +281,13 @@ terms:
 
   - term: username change
     definition: >-
-      A person saving a new username for themselves. It is saved, or refused;
-      saving the username a person already has is simply saved. Once the
-      result shows, they can right away make another one.
+      A person saving a new username for themselves. It is saved on their
+      device, or refused under the rules the device knows. Saving the username
+      they already have is simply saved. An offline choice is shared when
+      the connection returns. If another person has claimed it or the rules
+      no longer allow it, the change is refused with its reason and the last
+      shared username returns. Once the result shows, they can right away
+      make another one.
     forms: [username changes]
     model: [UsernameChangeResult, lastUsernameChange, NoUsernameChange, UsernameSaved, UsernameChanged]
 
@@ -289,13 +295,13 @@ terms:
     definition: >-
       A username change that is not saved. The person is told why: it is too
       short, too long, uses more than letters, numbers and _, is not allowed,
-      is taken by someone else in any letter case, comes moments after their
-      last change, or was tried offline (a username change needs a
-      connection). It leaves the username as it was and does not count as a
-      change.
+      is taken by someone else in any letter case, or comes moments after
+      their last change. A refusal on the device leaves its username as it
+      was. A refusal of an offline choice when it is shared restores the last
+      shared username. A refused choice does not count as a change.
     forms: [refused username changes, username change is refused, username change refused]
     avoid: [rejected, invalid username]
-    model: [UsernameTaken, ChangedRecently, RefusedOffline, NotAllowed]
+    model: [UsernameTaken, ChangedRecently, NotAllowed]
 
   - term: not allowed
     definition: >-
@@ -387,8 +393,8 @@ terms:
   - term: lose the connection
     definition: >-
       A person's device goes offline for a while, until the connection comes
-      back. Offline, they can still sign out; signing in, connecting or
-      removing a sign-in method, and a username change need a connection.
+      back. Offline, they can still sign out and choose a username; signing
+      in and connecting or removing a sign-in method need a connection.
       Once back online, the device shows what everyone else sees again.
     forms: [loses the connection, lost the connection, loses their connection]
     model: [offline, loseConnection, reconnect, connectionReturns]
