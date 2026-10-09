@@ -38,7 +38,7 @@ module custom_game {
   pure val _EMPTY = { kind: "open", person: "" }
   pure val _BOT = { kind: "bot", person: "" }
   pure val _CLOSED = { kind: "closed", person: "" }
-  pure val _INITIAL = {
+  pure val _INITIAL: CustomGame = {
     status: "none", creator: "", white: _EMPTY, black: _EMPTY,
     ready: Set(), minutes: 0, increment: 0, starts: 0,
     outcome: "", drawOfferedBy: "",
