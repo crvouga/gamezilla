@@ -12,12 +12,12 @@ import { statechartExplorerFlags } from './statechart-explorer-options';
 import { productGuide, unmappedContracts } from './statechart-guide';
 import { guideIntegrityProblems } from './statechart-integrity';
 import { guideNotes, languageContracts } from './statechart-language';
-import { productStatechartSourceProblems } from './statechart-source-policy';
 import {
   declaredProductRoutes,
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
+import { productStatechartSourceProblems } from './statechart-source-policy';
 
 const ROOT = resolve(import.meta.dir, '../../..');
 const CHARTS = join(ROOT, 'specs');
