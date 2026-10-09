@@ -3,7 +3,8 @@ Feature: Look at the people in a space
   When people are in a space, they want to view its presence and return to
   what they were doing, so they can see who is with them without leaving.
 
-  Rule: Presence is available while a person can use the space
+  Rule: Presence counts only people currently in the space
+    No counter-example: the view reports presence; people cannot choose to keep someone showing after disconnection.
 
     Scenario: A host views the people in their space
       Given Alice is hosting a space that Bob joined from the link
@@ -16,10 +17,11 @@ Feature: Look at the people in a space
       When Alice views the space's presence
       Then Alice sees 1 person in the space's presence
 
-    Scenario: A friend cannot view presence while the host is offline
+    Scenario: A friend sees nobody present while the host is offline
       Given Alice is hosting a space that Bob joined from the link
-      When Alice loses the connection
-      Then Bob cannot view the space's presence because its host is offline
+      And Alice is offline
+      When Bob views the space's presence
+      Then Bob sees 0 people in the space's presence
 
   Rule: Closing presence leaves the person in the space
     No counter-example: closing this view changes only what the person is looking at.
