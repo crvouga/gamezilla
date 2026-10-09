@@ -8,6 +8,7 @@ Feature: Remove a person from a space
 
   Rule: Only the host can remove another person from their space
 
+    @regression:space-removal-keeps-live-seat
     Scenario: The host removes a person without ending the space
       When Alice removes Bob from the space
       Then Bob is not in a space
@@ -20,6 +21,7 @@ Feature: Remove a person from a space
   Rule: A host can remove a person with or without a connection
     No counter-example: removal is the host's choice; the other person learns it once both connections are back.
 
+    @regression:space-removal-success-disappears
     Scenario: An offline host sees their removal accepted
       Given Alice is offline
       When Alice removes Bob from the space
