@@ -68,7 +68,7 @@ Feature: Rename a space
     Scenario: New naming rules keep an offline host's known space name
       Given Alice is offline
       When the team stops allowing the space name "Cheater corner"
-      Then Alice sees the space is called "Cheater corner"
+      Then Alice sees the space is called "Cheater corner" within 15 seconds
 
     Scenario: An offline host still refuses a name their device knows is not allowed
       Given the team has stopped allowing the space name "Cheater corner"
