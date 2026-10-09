@@ -25,6 +25,9 @@ module hosting_limits {
   var _paid: bool
   /// Whether Alice's device has no connection.
   var _offline: bool
+  /// The spaces and place Alice chose on her own device.
+  var _chosenCount: int
+  var _chosenPlace: Whereabouts
   /// The last change was paid access ending, and the count before it ended.
   var _lastPaidEnding: bool
   var _countBeforePaidEnding: int
@@ -36,13 +39,16 @@ module hosting_limits {
     _count' = count,
     _paid' = paid,
     _offline' = _offline,
+    _chosenCount' = count, _chosenPlace' = place,
     _lastPaidEnding' = false,
     _countBeforePaidEnding' = count,
   }
 
   action init = all {
     whereabouts' = Lobby, hostedSpaces' = 0, invitedToPlus' = false,
-    _count' = 0, _paid' = false, _offline' = false,
+    _count' = 0, _paid' = false,
+    _offline' = false,
+    _chosenCount' = 0, _chosenPlace' = Lobby,
     _lastPaidEnding' = false, _countBeforePaidEnding' = 0,
   }
 
@@ -95,6 +101,7 @@ module hosting_limits {
     _count' = _count,
     _paid' = false,
     _offline' = _offline,
+    _chosenCount' = _chosenCount, _chosenPlace' = _chosenPlace,
     _lastPaidEnding' = true,
     _countBeforePaidEnding' = _count,
   }
@@ -103,6 +110,7 @@ module hosting_limits {
     whereabouts' = whereabouts, hostedSpaces' = hostedSpaces,
     invitedToPlus' = invitedToPlus, _count' = _count, _paid' = _paid,
     _offline' = offline,
+    _chosenCount' = _chosenCount, _chosenPlace' = _chosenPlace,
     _lastPaidEnding' = false, _countBeforePaidEnding' = _count,
   }
 
@@ -128,13 +136,17 @@ module hosting_limits {
   val invPaidEndingKeepsSpaces = _lastPaidEnding implies _count == _countBeforePaidEnding
   /// An invitation to Plus follows an attempted creation at the free hosting limit.
   val invInvitationAtLimit = invitedToPlus implies all { whereabouts == Lobby, not(_paid), _count >= 1 }
+  /// While offline, Alice keeps the spaces and place she chose on her own device.
+  val invOfflineKeepsOwnChoices = _offline implies all { _count == _chosenCount, whereabouts == _chosenPlace }
 
   // The promises hold however many spaces Alice hosts and however often access changes.
   val _inductive = all {
     whereabouts.in(Set(Lobby, InSpace, Ended)),
     _count >= 0, _countBeforePaidEnding >= 0,
+    _count == _chosenCount, whereabouts == _chosenPlace,
     invNonnegativeCount, invLobbyListsAllHosted,
     invInsideAnOpenSpace, invPaidEndingKeepsSpaces,
     invInvitationAtLimit,
+    invOfflineKeepsOwnChoices,
   }
 }
