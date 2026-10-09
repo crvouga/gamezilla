@@ -94,9 +94,12 @@ terms:
     definition: >-
       How many spaces a person may host at once: one for a guest or a free
       account, no limit for a Plus member. Reaching it is an invitation to
-      Plus, never an error.
+      Plus, never an error. When paid access ends, existing spaces stay open;
+      a new space can be created only when the person is below the free
+      hosting limit.
     forms: [hosting limits]
     avoid: [space limit, space quota]
+    model: [hostedSpaces]
     published: true
 
   # This context's own language
@@ -211,6 +214,7 @@ terms:
       What a person sees on reaching their hosting limit: an offer of Plus so
       they can host more spaces, instead of an error.
     forms: [invited to get Plus, invitation to Plus]
+    model: [invitedToPlus]
 
   - term: what happens in a space
     definition: >-
@@ -257,6 +261,7 @@ terms:
     from: billing
   - term: paid access
     from: billing
+    model: [PaidAccessStarted, PaidAccessEnded]
   - term: friend
     from: friends
     model: [friend]

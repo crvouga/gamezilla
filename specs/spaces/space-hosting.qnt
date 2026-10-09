@@ -1,6 +1,6 @@
 // Hosting a space among friends.
 //
-// Alice and Bob are friends. Either can create a space, host it and be in it;
+// Alice and Bob are friends with free accounts. Either can create a space, host it and be in it;
 // step out to the lobby and return to their own open space; look at the
 // space's presence, which counts who is in it; and end the space. The other
 // can join a friend's open space from their lobby, step out, and leave it;
@@ -24,7 +24,7 @@
 module space_hosting {
   type Person = str
 
-  /// Two signed-in friends.
+  /// Two signed-in friends with free accounts.
   pure val PEOPLE: Set[Person] = Set("alice", "bob")
 
   /// Lobby: in the lobby; InSpace(host): in the space `host` hosts;

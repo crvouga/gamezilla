@@ -44,3 +44,37 @@ Feature: How many spaces a person can host
       When Alice creates another space
       Then Alice is in the space
       And Alice hosts 2 spaces
+
+  Rule: Paid access ending keeps existing spaces and applies the free hosting limit to new spaces
+
+    Scenario: A host keeps two spaces when paid access ends
+      Given Alice is a Plus member
+      And Alice is hosting 2 spaces
+      And Alice's paid access has ended
+      When Alice returns to their space
+      Then Alice is in the space
+      And Alice hosts 2 spaces
+
+    Scenario: A host with two retained spaces cannot create a third without paid access
+      Given Alice is a Plus member
+      And Alice is hosting 2 spaces
+      And Alice's paid access has ended
+      When Alice creates another space
+      Then Alice is told their hosting limit is reached and invited to get Plus
+      And Alice hosts 2 spaces
+
+    Scenario: An offline host keeps using a space after paid access ends
+      Given Alice is a Plus member
+      And Alice is hosting 2 spaces
+      And Alice's paid access has ended
+      And Alice is offline
+      When Alice returns to their space
+      Then Alice is in the space
+
+    Scenario: Someone still joins a retained space after its host's paid access ends
+      Given Alice is a Plus member
+      And Alice is hosting 2 spaces
+      And Alice's paid access has ended
+      When Bob joins the space from the link
+      Then Bob is in the space
+      And Alice sees 2 people in the space within 20 seconds
