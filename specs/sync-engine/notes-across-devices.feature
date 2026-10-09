@@ -1,8 +1,8 @@
 @domain:sync-engine
 Feature: Notes across devices
-  When a person writes notes on whichever device is at hand, even one that is
-  offline, they want every device they use to have all of their notes once
-  the devices are back online.
+  When a person writes on whichever device is at hand, they want their notes
+  on every device they use, so writing offline remains available when their
+  devices are back online.
 
   Rule: A person's devices all show their notes once they have a connection
 

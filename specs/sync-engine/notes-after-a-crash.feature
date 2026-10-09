@@ -1,7 +1,7 @@
 @domain:sync-engine
 Feature: Notes survive a crash
-  When the app crashes, a person wants every note it had to be there when it
-  reopens, including notes that had not yet reached anyone else.
+  When their app closes unexpectedly, a person wants every note when it
+  reopens, so their writing survives even before anyone else has seen it.
 
   Rule: A note already shown on a device survives the app closing unexpectedly
 

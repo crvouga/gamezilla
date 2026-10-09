@@ -1,9 +1,8 @@
 @domain:sync-engine
 Feature: Online-only actions
-  When a person tries an online-only action offline, such as writing an
-  announcement, they want to be told it needs a connection, not to have it
-  happen later on its own, and to be able to do it once the connection is
-  back.
+  When a person writes an announcement offline, they want to know it needs
+  a connection, so they can choose to write it once online and it never
+  happens later on its own.
 
   Rule: An online-only action is refused offline and never happens later on its own
 

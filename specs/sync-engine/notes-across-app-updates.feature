@@ -1,8 +1,7 @@
 @domain:sync-engine
 Feature: Notes across app updates
-  When the app updates, or goes back to an earlier version, a person wants
-  every note it had still to be there, including notes not yet sent, and to
-  stay in step with everyone.
+  When the app changes to another version, a person wants to keep every note,
+  so changing versions never costs their writing or stops sharing it.
 
   Rule: An update keeps every note, even an update that fetches every note again
 

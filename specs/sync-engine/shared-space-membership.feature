@@ -1,10 +1,8 @@
 @domain:sync-engine
 Feature: Leave a shared space and rejoin it
-  When a person comes and goes from a shared space, they want to keep the
-  notes they had, stop getting new ones while away, and catch up on
-  everything they missed when they rejoin. Leaving, a shared space ending,
-  or looking at one they are not in never costs them the notes they have or
-  their live updates.
+  When a person leaves or rejoins a shared space, they want to keep earlier
+  notes and receive new ones only while in it, so they can come and go
+  without losing their writing or anything they missed when they return.
 
   Rule: Leaving a shared space keeps earlier notes and stops later notes until the person rejoins
 

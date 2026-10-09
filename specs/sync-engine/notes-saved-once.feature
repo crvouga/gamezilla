@@ -1,7 +1,7 @@
 @domain:sync-engine
 Feature: Notes count once
-  When the app does not hear back about a note it wrote, a person wants the
-  note still to reach everyone and never to show twice to anybody.
+  When a connection is unreliable, a person wants their note to reach
+  everyone exactly once, so nobody mistakes repeated copies for new writing.
 
   Rule: A note shows exactly once however many times the app has to save it
 
