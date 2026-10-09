@@ -22,7 +22,7 @@ not another product definition. No manual testing supplies evidence.
 | All registered formal models | 43 passed | Chess 12; friends and spaces 4; framework contexts 21; billing, profile and runtime 6. Original bounds and deadlines retained |
 | Push-session continuity contracts | 18 package tests passed, including 5 replacement checks | Breaking incremental updates rejected two cases; duplicating the initial connection rejected all five |
 | Strict specification gate | Passed: 1,702 scenarios, 43 models, 2,231 definitions | Only the automated subset of the audit standard |
-| Focused local launch gate of 60e8c6c50 | 17 tasks passed; gate passed | Existing two-check concurrency ceiling; proof task 231 seconds against 420 seconds. Includes the final glossary and departure changes |
+| Focused local launch gate of 60e8c6c50 | 9 updated tasks passed; gate passed | Earlier unchanged tasks reused their verified cache entries; two-check ceiling retained; proof task 231 seconds against 420 seconds |
 | Full release verification of d8e6f3a5a | Not executed | [Actions run](https://github.com/crvouga/gamezilla/actions/runs/37903939539): Actions budget prevented jobs from starting |
 
 Equivalent proof compilation preserves model guarantees, search bounds,
