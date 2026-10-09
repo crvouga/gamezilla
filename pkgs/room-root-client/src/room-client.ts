@@ -178,6 +178,7 @@ export class RoomClient<
   >();
 
   private roster: readonly RoomActor[] = EMPTY_ROSTER;
+  private hasRoster = false;
   private lastError: RoomError | Error | null = null;
   private readonly onDestroy: (() => void) | undefined;
   private destroyed = false;
@@ -252,6 +253,7 @@ export class RoomClient<
     s.display = this.core.display;
     s.synced = this.core.synced;
     s.connected = this.transport.isConnected;
+    s.hasRoster = this.hasRoster;
     s.lastError = this.lastError;
   }
 
@@ -303,10 +305,12 @@ export class RoomClient<
     });
     this.unsubHandlers = this.transport.onHandlers({
       onOpen: () => {
+        this.hasRoster = false;
         this.sendSync();
         this.notify();
       },
       onClose: () => {
+        this.hasRoster = false;
         this.core.synced = false;
         this.notify();
       },
@@ -343,6 +347,7 @@ export class RoomClient<
         return;
       case ROOM_WIRE_KIND.roster:
         this.roster = msg.clients;
+        this.hasRoster = true;
         this.notify();
         return;
       case ROOM_WIRE_KIND.welcome:

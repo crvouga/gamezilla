@@ -232,8 +232,9 @@ describe('room client: pending commands replay on the committed log', () => {
 });
 
 describe('room client: snapshots and logs change identity only when they change', () => {
-  test('a roster leaves the snapshot object as it was', async () => {
+  test('subsequent rosters leave the snapshot object as it was', async () => {
     const rig = await syncedWith();
+    rig.transport.deliver({ v: WIRE_VERSION, kind: 'roster', clients: [] });
     const snapshot = rig.room.getSnapshot();
     rig.transport.deliver({
       v: WIRE_VERSION,
