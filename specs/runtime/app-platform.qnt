@@ -10,8 +10,8 @@
 //
 // Meanwhile a device can be cut off until the connection comes back. Being cut
 // off never throws anyone out of their place in the app; what needs a
-// connection (signing in, searching, hosting and ending a space) waits until
-// they are back online.
+// connection (signing in and searching) waits until they are back online.
+// Hosting and ending one's own space remain available while offline.
 module app_platform {
   type Person = str
 
@@ -181,7 +181,7 @@ module app_platform {
 
   /// Host a space: the person is in it.
   action host(person: Person): bool = all {
-    _online(person),
+    opened.contains(person),
     not(hosting.contains(person)),
     place.get(person) != InSpace,
     _moveTo(
@@ -192,7 +192,7 @@ module app_platform {
 
   /// The host ends their space and sees that it has ended.
   action end(person: Person): bool = all {
-    _online(person),
+    opened.contains(person),
     place.get(person) == InSpace,
     _moveTo(
       opened, place.set(person, Ended), signedIn, _capacity, _lastTab, _searchedFor,
