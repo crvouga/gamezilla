@@ -8,6 +8,7 @@
         "@antithesishq/bombadil": "^0.7.8",
         "@biomejs/biome": "catalog:",
         "@crvouga/atlas": "workspace:*",
+        "@crvouga/atlas-visualizer": "workspace:*",
         "@lingui/cli": "catalog:",
         "@lingui/conf": "catalog:",
         "@lingui/format-po": "catalog:",
