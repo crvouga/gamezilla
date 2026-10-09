@@ -1,4 +1,4 @@
-# Journeys start at the whole-product root and replay through all composed modules.
+# Journeys start at the whole-product root and replay through its regions.
 journeys:
   A multiplayer draw offer does not freeze play:
     description: The sender's move keeps the offer; the recipient's move declines it while the game continues.

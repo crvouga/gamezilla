@@ -1718,7 +1718,10 @@ friends / friendship.qnt
 Nothing in a spec file (feature, model, decision table, structure,
 objective, glossary or the manifest) changes if the product is rewritten in
 another language, framework, database or host. No file paths, package names,
-or code identifiers appear in specs.
+or code identifiers appear in product prose. The product machine's
+`source` arrays and a journey's `gherkin` list are traceability metadata:
+they may point only to contracts in `specs/` and the statechart scope notes,
+and the statechart gate rejects a missing address.
 *Why: the spec is the contract the rewrite is checked against.*
 
 **D2 · Steps bind through the harness, this repo's port.** *Blocking.*
@@ -1809,8 +1812,9 @@ checks the rest. It fails on:
   outside `specs/` that is not test-only machinery marked `@spec-meta`
 - TypeScript, JavaScript, or a Quint model marked `@spec-meta` or
   `@spec-interpretation` inside an unregistered campaign domain in `specs/`
-- code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
-  this rulebook): a
+- code in product prose (D1, `libs/tools/scripts/spec-decoupling.ts`; every
+  file but this rulebook, excluding the product map's declared traceability
+  fields): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
   other than `@domain:`, `@regression:` and the exact tag `@synthetic`
 - a random walk outside a Quint model: `.explore(` or `randomActions(` in a
