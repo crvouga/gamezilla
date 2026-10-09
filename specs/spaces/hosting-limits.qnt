@@ -24,7 +24,7 @@ module hosting_limits {
   /// Whether Alice has paid access.
   var _paid: bool
   /// Whether Alice's device has no connection.
-  var _offline: bool
+  var _offline: Set[str]
   /// The spaces and place Alice chose on her own device.
   var _chosenCount: int
   var _chosenPlace: Whereabouts
@@ -47,7 +47,7 @@ module hosting_limits {
   action init = all {
     whereabouts' = Lobby, hostedSpaces' = 0, invitedToPlus' = false,
     _count' = 0, _paid' = false,
-    _offline' = false,
+    _offline' = Set(),
     _chosenCount' = 0, _chosenPlace' = Lobby,
     _lastPaidEnding' = false, _countBeforePaidEnding' = 0,
   }
@@ -88,7 +88,7 @@ module hosting_limits {
   /// Alice gains paid access and can create more spaces.
   action PaidAccessStarted: bool = all {
     not(_paid),
-    not(_offline),
+    not(_offline.contains("alice")),
     _update(_count, true, whereabouts, false),
   }
 
@@ -106,7 +106,7 @@ module hosting_limits {
     _countBeforePaidEnding' = _count,
   }
 
-  action _connection(offline: bool): bool = all {
+  action _connection(offline: Set[str]): bool = all {
     whereabouts' = whereabouts, hostedSpaces' = hostedSpaces,
     invitedToPlus' = invitedToPlus, _count' = _count, _paid' = _paid,
     _offline' = offline,
@@ -115,10 +115,10 @@ module hosting_limits {
   }
 
   /// Alice's device loses its connection; her spaces remain usable.
-  action loseConnection: bool = all { not(_offline), _connection(true) }
+  action loseConnection: bool = all { not(_offline.contains("alice")), _connection(Set("alice")) }
 
   /// Alice's connection returns; the same spaces are still open.
-  action connectionReturns: bool = all { _offline, _connection(false) }
+  action connectionReturns: bool = all { _offline.contains("alice"), _connection(Set()) }
 
   action step = any {
     createSpace, stepOut, returnToSpace, endSpace, goBackToLobby,
@@ -137,11 +137,12 @@ module hosting_limits {
   /// An invitation to Plus follows an attempted creation at the free hosting limit.
   val invInvitationAtLimit = invitedToPlus implies all { whereabouts == Lobby, not(_paid), _count >= 1 }
   /// While offline, Alice keeps the spaces and place she chose on her own device.
-  val invOfflineKeepsOwnChoices = _offline implies all { _count == _chosenCount, whereabouts == _chosenPlace }
+  val invOfflineKeepsOwnChoices = _offline.contains("alice") implies all { _count == _chosenCount, whereabouts == _chosenPlace }
 
   // The promises hold however many spaces Alice hosts and however often access changes.
   val _inductive = all {
     whereabouts.in(Set(Lobby, InSpace, Ended)),
+    _offline.subseteq(Set("alice")),
     _count >= 0, _countBeforePaidEnding >= 0,
     _count == _chosenCount, whereabouts == _chosenPlace,
     invNonnegativeCount, invLobbyListsAllHosted,
