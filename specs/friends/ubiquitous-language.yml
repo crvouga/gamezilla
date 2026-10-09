@@ -74,12 +74,16 @@ terms:
   - term: friend request
     definition: >-
       One person asking another to be their friend, from people search or
-      the other's profile. It needs a connection. It waits in the inbox of
-      the person asked until they accept or decline it, or the asker cancels
-      it. "Request" for short.
+      the other's profile. A person can ask from a profile already on their
+      device while offline. The request shows for the asker at once and is
+      kept when the app reopens; it reaches the person asked after the
+      connection returns. The asker is told while it is waiting to be shared,
+      and is told clearly if it cannot be shared under the relationships now
+      known. It waits in the inbox of the person asked until they accept or
+      decline it, or the asker cancels it. "Request" for short.
     forms: [friend requests, Request, request, requests]
     avoid: [invite, invitation, friend invite]
-    model: [ask, friendRequests, RequestSent, RequestReceived]
+    model: [ask, friendRequests, RequestSent, RequestReceived, requestShown, waitingToShare, invPendingRequestIsPrivate, invSharedRequestAgrees, invOwnChoiceIsKept, reopen]
 
   - term: asker
     definition: >-
@@ -116,10 +120,12 @@ terms:
 
   - term: refused
     definition: >-
-      A friend request that is not sent, because the person asked declined
-      the asker within the last day. The asker is told to try again later,
-      and nothing reaches the person asked.
+      A friend request that cannot be shared. A known decline within the
+      last day tells the asker to try again later. A person who becomes
+      unavailable while the asker is offline is described only as unavailable,
+      without revealing a block. Nothing reaches the person asked.
     forms: [refuse, refuses]
+    model: [requestRefused, invRefusalEndsPendingChoice]
 
   # --- Ending and blocking --------------------------------------------------
 
@@ -138,7 +144,7 @@ terms:
       longer find the blocker. The blocked person is not told. The blocker
       can still find them and unblock.
     forms: [blocks someone, blocked someone, blocker, blocker's, blocked person, blocked people]
-    model: [block, blocks, Blocking]
+    model: [block, blockPerson, blocks, Blocking, invBlockEndsSharedRequest]
     published: true
 
   - term: hidden by a block
@@ -152,7 +158,7 @@ terms:
       Undo a block. The two are strangers again, and either can ask the
       other to be friends.
     forms: [unblocks, unblocked, unblocking]
-    model: [unblock]
+    model: [unblock, unblockPerson]
 
   # --- Finding people and hearing back --------------------------------------
 
