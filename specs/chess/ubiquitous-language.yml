@@ -112,7 +112,7 @@ terms:
       chess choices, or the board. What a space plays belongs to the space,
       so everyone in it has the host's view.
     avoid: [screen, menu, page]
-    model: [View, view]
+    model: [View, view, Elsewhere]
 
   - term: game choice
     definition: >-
