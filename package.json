@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "agents:sync": "bun run libs/tools/scripts/sync-agent-commands.ts",
-    "altas:run": "atlas run --mode showcase",
-    "altas:viz": "atlas-visualizer dev --specs docs/statecharts --runs atlas-runs",
+    "atlas:run": "atlas run --mode showcase",
+    "atlas:viz": "atlas-visualizer dev --specs docs/statecharts --runs atlas-runs",
     "billing:sync": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/billing-server billing:sync",
     "check": "bun run libs/tools/scripts/workflow-remote.ts check",
     "check:coverage": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-coverage.ts",
