@@ -4,7 +4,7 @@ Feature: Create a space
   they can return to it whenever they step out.
 
   Rule: Creating a space makes the person its host and lists it in their lobby
-    No counter-example: an accepted creation always makes its creator the host; the hosting limit refuses a creation that is not allowed.
+    No counter-example: an accepted creation always makes the person its host; the hosting limit refuses a creation that is not allowed.
 
     Scenario: A host's space is listed in their lobby
       Given Alice is signed in
