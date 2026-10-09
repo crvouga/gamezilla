@@ -132,6 +132,9 @@ test('custom-game default encoding retains the full induction and original deadl
     specUri: 'specs/chess/custom-game.qnt',
     steps: 4,
     inductiveInvariant: '_inductive',
+    separateInduction: true,
+    inductionCaseGroupSize: 8,
+    inferPolymorphicTypes: false,
     timeoutMs: 240_000,
   });
 });

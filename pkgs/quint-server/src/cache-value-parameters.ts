@@ -6,6 +6,7 @@ import {
   type QuintOpDef,
 } from '@informalsystems/quint';
 import { cacheRecordFields, type SourceEdit } from './cache-record-fields';
+import { cacheStateFields } from './cache-state-fields';
 
 /**
  * Preserve value arguments as nullary LET bindings instead of duplicating
@@ -21,8 +22,33 @@ export function cacheValueParameters(source: string): string {
   const names = new Set(source.match(/[a-zA-Z_][a-zA-Z0-9_]*/g));
   const edits: SourceEdit[] = [];
   for (const module of parsed.modules) {
+    const variables = module.declarations.filter(
+      (declaration) => declaration.kind === 'var'
+    );
+    const lastVariable = variables.at(-1);
+    const insertion =
+      lastVariable === undefined
+        ? undefined
+        : parsed.sourceMap.get(lastVariable.id)?.end?.index;
+    if (insertion !== undefined)
+      cacheStateFields({
+        definitions: module.declarations.filter(
+          (declaration): declaration is QuintOpDef => declaration.kind === 'def'
+        ),
+        insertion: insertion + 1,
+        variables: variables.map((variable) => variable.name),
+        source,
+        sourceMap: parsed.sourceMap,
+        edits,
+        freshName: () => {
+          let name = `cached_state_${ids.nextId()}`;
+          while (names.has(name)) name = `cached_state_${ids.nextId()}`;
+          names.add(name);
+          return name;
+        },
+      });
     for (const declaration of module.declarations) {
-      if (declaration.kind === 'def')
+      if (declaration.kind === 'def') {
         cacheDefinition(declaration, {
           ids,
           names,
@@ -30,6 +56,7 @@ export function cacheValueParameters(source: string): string {
           sourceMap: parsed.sourceMap,
           edits,
         });
+      }
     }
   }
   for (const edit of edits.sort((a, b) => b.start - a.start)) {

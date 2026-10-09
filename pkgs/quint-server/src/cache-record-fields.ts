@@ -47,6 +47,7 @@ export function cacheRecordFields(input: {
 }
 
 function recordFields(expression: QuintEx, name: string): readonly QuintEx[] {
+  if (expression.kind === 'app' && expression.opcode === 'prime') return [];
   if (expression.kind === 'app')
     return expression.opcode === 'field' &&
       expression.args[0]?.kind === 'name' &&
