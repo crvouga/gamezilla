@@ -45,7 +45,7 @@ async function seedSpace(db: SqlClient): Promise<void> {
 }
 
 /** `person`, on their own install, sends `payload` to the space's room. */
-function send(db: SqlClient, person: string, payload: Message) {
+async function send(db: SqlClient, person: string, payload: Message) {
   const { clock, timers } = createHarnessClock({ startMs: Date.parse(NOW) });
   let ids = 0;
   const gateway: HarnessRoomGateway = {
@@ -61,15 +61,33 @@ function send(db: SqlClient, person: string, payload: Message) {
     seed: 1n,
   };
   const node = createInProcessRoomNode(env, { games: [], gateway });
-  return answerOfRoomCommand(node, {
-    spaceId: SPACE_ID,
-    identity: person,
-    installId: person,
-    payload,
-    commandId: `choice-${person}`,
-    nowMs: clock.now(),
+  // Participant admission is meaningful only while the host is online.
+  const host = node.createTransport({
+    topic: `space:${SPACE_ID}`,
+    module: 'space',
+    apiUrl: '',
+    identity: HOST,
+    installId: HOST,
+    clientId: 'host-presence',
+    getSessionToken: () => null,
     timers,
+    random: env.random,
   });
+  try {
+    await host.connect();
+    return await answerOfRoomCommand(node, {
+      spaceId: SPACE_ID,
+      identity: person,
+      installId: person,
+      payload,
+      commandId: `choice-${person}`,
+      nowMs: clock.now(),
+      timers,
+    });
+  } finally {
+    host.destroy();
+    node.dispose();
+  }
 }
 
 async function withSpace(run: (db: SqlClient) => Promise<void>) {

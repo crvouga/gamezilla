@@ -4,7 +4,27 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { standInName, usernameText } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
-import { backToProfileTab, NAV_WAIT_MS } from './profile-actions';
+import {
+  backToProfileTab,
+  leaveUsernameEditor,
+  NAV_WAIT_MS,
+  openProfileEdit,
+} from './profile-actions';
+
+/** The saved username exposed in its owner's editable field, without saving. */
+export async function readSavedProfileUsername(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  await Promise.resolve(openProfileEdit.act(s, actorId));
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.profileEditUsername).tap();
+  const input = ui.get(Handles.profileUsernameInput);
+  await input.expect.visible();
+  const name = await input.text();
+  await Promise.resolve(leaveUsernameEditor.act(s, actorId));
+  return name;
+}
 
 export async function readUsername(
   s: ProductHarness,

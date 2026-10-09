@@ -2,8 +2,8 @@
  * `specs/profile/username-changes.qnt` against the profile composition: each
  * username change saved through the username screen (the result it settles
  * on kept for `observe`), the connection lost and returned through the
- * network, and each person's username read back as everyone else sees it
- * and as their own device shows it.
+ * network, and each person's saved username read through their editor and
+ * their displayed name read through their own Profile screen.
  *
  * Time is the one thing the model leaves implicit: a step's saves happen "a
  * while after" the person's last one, so the binding lets more than the
@@ -15,7 +15,7 @@
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
-import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
+import { accountIdOf } from '@libs/harness/identity';
 import { partitioned } from '@libs/harness/observations';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -25,7 +25,9 @@ import {
   submitUsername,
 } from '@libs/profile-harness/profile-actions';
 import {
+  profileIdOf,
   readProfileUsernameShown,
+  readSavedProfileUsername,
   readUsernameSaveFace,
   standInNameOf,
 } from '@libs/profile-harness/profile-ui-reads';
@@ -38,7 +40,6 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import sql from '@pkgs/sql-root-shared/sql';
 
 const SIGNED_IN = ['alice', 'bob'] as const;
 const GUEST = 'carol';
@@ -56,9 +57,6 @@ const USERNAME_CHANGE_RESULTS: Readonly<Record<string, string>> = {
   'That username is not allowed': 'NotAllowed',
 };
 
-/** Every name the model types or rules on, in the case it is saved in. */
-const MODEL_NAMES = ['ann', 'bea', 'alice', 'official_support'] as const;
-
 /** Each person's stand-in name, as the model names it. */
 const STAND_INS: Readonly<Record<string, string>> = {
   alice: 'Brave Tiger 1',
@@ -66,43 +64,12 @@ const STAND_INS: Readonly<Record<string, string>> = {
   carol: 'Swift Heron 3',
 };
 
-const profileIdKey = (actor: string) => `profile-id:${actor}`;
 const generatedKey = (actor: string) => `generated-username:${actor}`;
 const lastUsernameChangeKey = (actor: string) =>
   `last-username-change:${actor}`;
 
 function person(picks: Picks): string {
   return String(picks['person']);
-}
-
-function profileIdOf(w: QuintHarnessWorld, actor: string): string {
-  const id = w.memo.get(profileIdKey(actor));
-  if (typeof id !== 'string') throw new Error(`no profile id for ${actor}`);
-  return id;
-}
-
-/** The device's own profile rows (a device holds only its own). */
-async function localProfileIds(
-  s: ProductHarness,
-  actor: string
-): Promise<string[]> {
-  const db = actorLocalSql(s, actor);
-  if (db === null) return [];
-  const rows = await db.query(sql<{ readonly id: string }>`
-    SELECT id FROM profile WHERE deleted_at IS NULL`);
-  return rows.map((row) => row.id);
-}
-
-async function username(
-  s: ProductHarness,
-  profileId: string
-): Promise<string | null> {
-  const rows = await s.harness.serverSql.sqlClient.query(sql<{
-    readonly username: string;
-  }>`
-    SELECT username FROM profile
-    WHERE id = ${profileId} AND deleted_at IS NULL`);
-  return rows[0]?.username ?? null;
 }
 
 /** Save `typed` on a fresh username screen; keep the result it shows. */
@@ -113,25 +80,6 @@ async function save(w: QuintHarnessWorld, actor: string, typed: string) {
   const face = await w.s.read(readUsernameSaveFace, actor);
   w.memo.set(lastUsernameChangeKey(actor), face);
   await w.s.apply(leaveUsernameEditor, actor);
-}
-
-/** The deployment's rules refuse `name` as a username right now. */
-function refusedNow(s: ProductHarness, name: string): boolean {
-  return !s.harness.teamRules.moderation.current().checkWrite('username', name)
-    .allowed;
-}
-
-/** What everyone else sees for `profileId`: its username, or a stand-in. */
-function shownToOthers(
-  s: ProductHarness,
-  name: string | null,
-  profileId: string
-): { readonly masked: boolean; readonly text: string | null } {
-  if (name === null) return { masked: false, text: null };
-  const shown = s.harness.teamRules.moderation
-    .current()
-    .display('username', name, { id: profileId });
-  return { masked: shown.masked, text: shown.masked ? null : name };
 }
 
 function asModelUsername(
@@ -155,19 +103,20 @@ bindQuintModel<QuintHarnessWorld>({
         await w.s.apply(returnToTabs, actor);
         const id = await w.s.read(accountIdOf, actor);
         if (id === null) throw new Error(`${actor} did not sign in`);
-        w.memo.set(profileIdKey(actor), id);
         await save(w, actor, actor);
         w.memo.delete(lastUsernameChangeKey(actor));
       }
       await w.s.apply(focusActor, GUEST);
       const [guestId] = await w.s.until(
-        (s: ProductHarness) => localProfileIds(s, GUEST),
+        async (s: ProductHarness) => {
+          const id = await profileIdOf(s, GUEST);
+          return id === null ? [] : [id];
+        },
         { pred: (ids) => ids.length === 1 }
       );
       if (guestId === undefined) throw new Error(`${GUEST} has no profile`);
-      w.memo.set(profileIdKey(GUEST), guestId);
       const generated = await w.s.until(
-        (s: ProductHarness) => username(s, guestId),
+        (s: ProductHarness) => readSavedProfileUsername(s, GUEST),
         { pred: (name) => name !== null }
       );
       w.memo.set(generatedKey(GUEST), generated);
@@ -198,22 +147,11 @@ bindQuintModel<QuintHarnessWorld>({
   },
   observe: async (w) => {
     const usernames = new Map<QuintValue, QuintValue>();
-    const shownNames = new Map<QuintValue, QuintValue>();
     const usernamesOnDevice = new Map<QuintValue, QuintValue>();
     const lastUsernameChange = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
-      const id = profileIdOf(w, actor);
-      const saved = await w.quiet.read(username, id);
+      const saved = await w.quiet.read(readSavedProfileUsername, actor);
       usernames.set(actor, asModelUsername(w, actor, saved));
-      const others = await w.quiet.read((s: ProductHarness) =>
-        shownToOthers(s, saved, id)
-      );
-      shownNames.set(
-        actor,
-        others.masked
-          ? (STAND_INS[actor] ?? actor)
-          : asModelUsername(w, actor, others.text)
-      );
       await w.s.apply(focusActor, actor);
       const standIn = await w.quiet.read(standInNameOf, actor);
       const onDevice = await w.quiet.until(
@@ -237,13 +175,7 @@ bindQuintModel<QuintHarnessWorld>({
     }
     return {
       username: usernames,
-      shownName: shownNames,
       usernameOnDevice: usernamesOnDevice,
-      notAllowed: new Set(
-        await w.quiet.read((s: ProductHarness) =>
-          MODEL_NAMES.filter((name) => refusedNow(s, name))
-        )
-      ),
       lastUsernameChange,
       offline: new Set(
         (await w.quiet.read(partitioned))

@@ -81,11 +81,7 @@ export async function leaveToLobby(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
-  await ui
-    .get(Handles.spaceCreate)
-    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await showSpacesTab(s, actorId);
 }
 
 /** Coming back after the app reopened can take longer than a tap. */

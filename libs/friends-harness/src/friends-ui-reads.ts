@@ -150,13 +150,16 @@ export async function personProfileShown(
   return await handleText(s, actorId, Handles.friendUserUsername);
 }
 
-/** The label on `username`'s Add pill — "Try again later" when refused (focuses the actor). */
-export async function addFriendLabel(
+/** The Add action shows the recent-decline refusal (focuses the actor). */
+export async function recentDeclineRefusalShown(
   s: ProductHarness,
   actorId: string,
   username: string
-): Promise<string | null> {
-  return await handleText(s, actorId, Handles.friendAdd(username));
+): Promise<boolean> {
+  return (
+    (await handleText(s, actorId, Handles.friendAdd(username))) ===
+    'Try again later'
+  );
 }
 
 /** The screen shows `username` as a friend (focuses the actor). */

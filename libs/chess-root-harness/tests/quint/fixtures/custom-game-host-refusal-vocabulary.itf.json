@@ -174,44 +174,10 @@
         ]
       },
       "_cutOffCreator": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffDrawofferedby": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffIncrement": {
         "#map": [
@@ -270,24 +236,7 @@
         ]
       },
       "_cutOffOutcome": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffReady": {
         "#map": [
@@ -347,22 +296,10 @@
       },
       "_cutOffStatus": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "_cutOffWhite": {
@@ -454,10 +391,7 @@
         "#bigint": "0"
       },
       "_members": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_minutes": {
         "#bigint": "0"
@@ -518,44 +452,10 @@
         ]
       },
       "creatorShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "drawOfferedByShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "incrementShown": {
         "#map": [
@@ -614,24 +514,7 @@
         ]
       },
       "outcomeShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "readyShown": {
         "#map": [
@@ -662,24 +545,7 @@
         ]
       },
       "refusal": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "startsShown": {
         "#map": [
@@ -711,22 +577,10 @@
       },
       "statusShown": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "whiteShown": {
@@ -867,44 +721,10 @@
         ]
       },
       "_cutOffCreator": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffDrawofferedby": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffIncrement": {
         "#map": [
@@ -963,24 +783,7 @@
         ]
       },
       "_cutOffOutcome": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffReady": {
         "#map": [
@@ -1040,22 +843,10 @@
       },
       "_cutOffStatus": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "_cutOffWhite": {
@@ -1147,10 +938,7 @@
         "#bigint": "0"
       },
       "_members": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_minutes": {
         "#bigint": "0"
@@ -1211,44 +999,10 @@
         ]
       },
       "creatorShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "drawOfferedByShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "incrementShown": {
         "#map": [
@@ -1307,24 +1061,7 @@
         ]
       },
       "outcomeShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "readyShown": {
         "#map": [
@@ -1355,24 +1092,7 @@
         ]
       },
       "refusal": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "startsShown": {
         "#map": [
@@ -1404,22 +1124,10 @@
       },
       "statusShown": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "whiteShown": {
@@ -1560,44 +1268,10 @@
         ]
       },
       "_cutOffCreator": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffDrawofferedby": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffIncrement": {
         "#map": [
@@ -1656,24 +1330,7 @@
         ]
       },
       "_cutOffOutcome": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffReady": {
         "#map": [
@@ -1733,22 +1390,10 @@
       },
       "_cutOffStatus": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "_cutOffWhite": {
@@ -1840,10 +1485,7 @@
         "#bigint": "0"
       },
       "_members": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_minutes": {
         "#bigint": "0"
@@ -1852,9 +1494,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_outcome": "",
       "_ready": {
@@ -1906,44 +1546,10 @@
         ]
       },
       "creatorShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "drawOfferedByShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "incrementShown": {
         "#map": [
@@ -2002,24 +1608,7 @@
         ]
       },
       "outcomeShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "readyShown": {
         "#map": [
@@ -2050,24 +1639,7 @@
         ]
       },
       "refusal": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "startsShown": {
         "#map": [
@@ -2099,22 +1671,10 @@
       },
       "statusShown": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "whiteShown": {
@@ -2255,44 +1815,10 @@
         ]
       },
       "_cutOffCreator": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffDrawofferedby": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffIncrement": {
         "#map": [
@@ -2351,24 +1877,7 @@
         ]
       },
       "_cutOffOutcome": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffReady": {
         "#map": [
@@ -2428,22 +1937,10 @@
       },
       "_cutOffStatus": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "_cutOffWhite": {
@@ -2535,10 +2032,7 @@
         "#bigint": "0"
       },
       "_members": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_minutes": {
         "#bigint": "0"
@@ -2599,44 +2093,10 @@
         ]
       },
       "creatorShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "drawOfferedByShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "incrementShown": {
         "#map": [
@@ -2695,24 +2155,7 @@
         ]
       },
       "outcomeShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "readyShown": {
         "#map": [
@@ -2743,24 +2186,7 @@
         ]
       },
       "refusal": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "startsShown": {
         "#map": [
@@ -2792,22 +2218,10 @@
       },
       "statusShown": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "whiteShown": {
@@ -2948,44 +2362,10 @@
         ]
       },
       "_cutOffCreator": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffDrawofferedby": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffIncrement": {
         "#map": [
@@ -3044,24 +2424,7 @@
         ]
       },
       "_cutOffOutcome": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "_cutOffReady": {
         "#map": [
@@ -3121,22 +2484,10 @@
       },
       "_cutOffStatus": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "_cutOffWhite": {
@@ -3228,10 +2579,7 @@
         "#bigint": "0"
       },
       "_members": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_minutes": {
         "#bigint": "0"
@@ -3292,44 +2640,10 @@
         ]
       },
       "creatorShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "drawOfferedByShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "incrementShown": {
         "#map": [
@@ -3388,24 +2702,7 @@
         ]
       },
       "outcomeShown": {
-        "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            ""
-          ],
-          [
-            "carol",
-            ""
-          ]
-        ]
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
       },
       "readyShown": {
         "#map": [
@@ -3437,22 +2734,10 @@
       },
       "refusal": {
         "#map": [
-          [
-            "alice-other",
-            ""
-          ],
-          [
-            "alice",
-            ""
-          ],
-          [
-            "bob",
-            "only the creator"
-          ],
-          [
-            "carol",
-            ""
-          ]
+          ["alice-other", ""],
+          ["alice", ""],
+          ["bob", "only the creator"],
+          ["carol", ""]
         ]
       },
       "startsShown": {
@@ -3485,22 +2770,10 @@
       },
       "statusShown": {
         "#map": [
-          [
-            "alice-other",
-            "none"
-          ],
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ],
-          [
-            "carol",
-            "none"
-          ]
+          ["alice-other", "none"],
+          ["alice", "none"],
+          ["bob", "none"],
+          ["carol", "none"]
         ]
       },
       "whiteShown": {

@@ -661,6 +661,7 @@ msgstr "Check the spelling or try a different username."
 
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Chess"
 msgstr "Chess"
@@ -1578,7 +1579,7 @@ msgstr "Game drawn."
 msgid "Game finished"
 msgstr "Game finished"
 
-#: libs/chess-puzzle-client/src/chess-stats-screen.tsx
+#: libs/chess-puzzle-client/src/chess-stats-body.tsx
 msgid "Game log"
 msgstr "Game log"
 
@@ -1869,6 +1870,7 @@ msgstr "Leave and end the space?"
 
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: libs/spaces-client/src/space-end-or-leave-button.tsx
+#: libs/spaces-client/src/space-join-prompt.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -2768,6 +2770,7 @@ msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
@@ -2783,7 +2786,9 @@ msgstr "Puzzle solved!"
 msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
-#: libs/chess-puzzle-client/src/chess-stats-screen.tsx
+#: libs/chess-puzzle-client/src/chess-stats-body.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
@@ -3223,6 +3228,7 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 #: libs/billing-client/src/billing-screen-view.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
@@ -4529,6 +4535,10 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Your rating"
 msgstr "Your rating"
+
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
+msgid "Your rating and game log, available offline"
+msgstr "Your rating and game log, available offline"
 
 #. placeholder {0}: (props.diff ?? 0) > 0 ? '+' : ''
 #. placeholder {1}: props.diff ?? 0

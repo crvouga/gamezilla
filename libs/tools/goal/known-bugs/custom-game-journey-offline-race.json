@@ -1,4 +1,4 @@
 {
-  "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
+  "summary": "A simulated connection cut must settle before starting a ready host game against a bot. Once the device notices it is offline, the host can still start their local game.",
   "regressionTest": "specs/journeys/custom-game.feature"
 }

@@ -36,7 +36,6 @@ import {
   unblockFriend,
 } from './friends-actions';
 import {
-  addFriendLabel,
   askOffered,
   confirmOffered,
   friendLiveBadgeVisible,
@@ -47,6 +46,7 @@ import {
   friendsEmptyShown,
   personProfileShown,
   readFriendsCount,
+  recentDeclineRefusalShown,
   unblockOffered,
   withdrawOffered,
 } from './friends-ui-reads';
@@ -178,9 +178,10 @@ Then(
 );
 
 Then(
-  "{actor}'s request to {actor} is refused with {string}",
-  async (w, actor: Actor, other: Actor, reason: string) => {
-    expect(await w.s.read(addFriendLabel, actor, other)).toBe(reason);
+  "{actor}'s request to {actor} is refused because {actor} declined it within the last day",
+  async (w, actor: Actor, other: Actor, personAsked: Actor) => {
+    sameActor(other, personAsked, 'request refused because … declined it');
+    expect(await w.s.read(recentDeclineRefusalShown, actor, other)).toBe(true);
   }
 );
 

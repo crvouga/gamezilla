@@ -24,6 +24,7 @@ import {
 } from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
+  closeSpaceScreen,
   createSpace,
   endSpace,
   joinFromLobby,
@@ -204,6 +205,10 @@ Then(
 
 When('{actor} goes back to the lobby', async (w, actor: Actor) => {
   await w.s.apply(returnToLobby, actor);
+});
+
+When('{actor} steps out of the space', async (w, actor: Actor) => {
+  await w.s.apply(closeSpaceScreen, actor);
 });
 
 Given('{actor} has gone back to the lobby', async (w, actor: Actor) => {

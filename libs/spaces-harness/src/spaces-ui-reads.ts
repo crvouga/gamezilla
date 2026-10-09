@@ -287,21 +287,3 @@ export async function localSpaceHostUsername(
     LIMIT 1`);
   return rows[0]?.username ?? null;
 }
-
-/**
- * The name the space at `link` was given, as the actor's device has it
- * (`''` for none): kept even while it is no longer allowed.
- */
-export async function localSpaceGivenName(
-  s: ProductHarness,
-  actorId: string,
-  link: string
-): Promise<string | null> {
-  const local = actorLocalSql(s, actorId);
-  const spaceId = /^\/space\/([^/?#]+)/.exec(link)?.[1];
-  if (local === null || spaceId === undefined) return null;
-  const rows = await local.query(sql<{ readonly title: string | null }>`
-    SELECT title FROM spaces WHERE id = ${spaceId} LIMIT 1`);
-  const row = rows[0];
-  return row === undefined ? null : (row.title ?? '');
-}

@@ -55,6 +55,13 @@ When('{device} comes back online', async (w, device: Device) => {
   w.offline.set(device, false);
 });
 
+Given('{device} has come back online', async (w, device: Device) => {
+  const id = await ensureDevice(w, device);
+  await w.s.apply(connect, id);
+  await w.s.apply(online, id, true);
+  w.offline.set(device, false);
+});
+
 Given(
   '{device} will not hear back about its next save',
   async (w, device: Device) => {
@@ -80,18 +87,18 @@ When('{device} crashes and reopens', async (w, device: Device) => {
   await w.s.apply(restart, id, { preserveLocalDb: true });
 });
 
+Given('{device} has crashed and reopened', async (w, device: Device) => {
+  const id = await ensureDevice(w, device);
+  await w.s.apply(crash, id);
+  await w.s.apply(restart, id, { preserveLocalDb: true });
+});
+
 Given(
   '{actor} has written the note {string} on their {deviceKind}',
   async (w, actor: string, title: string, kind: string) => {
     await writeNote(w, { actor, kind }, { title, body: '' });
     await settledWrite(w, { actor, kind }, { title, deleted: false });
   }
-);
-
-When(
-  '{actor} writes the note {string} on their {deviceKind}',
-  (w, actor: string, title: string, kind: string) =>
-    writeNote(w, { actor, kind }, { title, body: '' })
 );
 
 Then(

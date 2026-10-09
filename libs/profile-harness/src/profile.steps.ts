@@ -37,6 +37,7 @@ import {
   startAllowingUsername,
   stopAllowingUsername,
 } from './team-rule-actions';
+import { usernameRefusalShown } from './username-refusal-read';
 
 const SECOND_MS = 1_000;
 
@@ -206,9 +207,9 @@ Then(
 );
 
 Then(
-  "{actor}'s username change is refused with {string}",
+  "{actor}'s username change is refused because {usernameRefusal}",
   async (w, actor: Actor, reason: string) => {
-    expect(await w.s.read(readUsernameSaveFace, actor)).toBe(reason);
+    await w.s.until((s) => usernameRefusalShown(s, actor, reason));
   }
 );
 
