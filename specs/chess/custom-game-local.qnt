@@ -23,10 +23,15 @@ module custom_game_local {
     _sealedPly' = if (status == "cancelled" or status == "completed") ply else -1,
   }
   action _hold = _update(controlledStatus, controlledPly, controlledTurn, black, ready, _offline)
-  action init = all {
-    controlledStatus' = "none", controlledPly' = 0, controlledTurn' = "white",
-    black' = "open", ready' = false, _offline' = Set(),
-    shownMoves' = PEOPLE.mapBy(_ => 0), _sealedPly' = -1,
+  action init = {
+    nondet beginning = Set("empty", "playing").oneOf()
+    all {
+      controlledStatus' = if (beginning == "playing") "active" else "none",
+      controlledPly' = 0, controlledTurn' = "white",
+      black' = if (beginning == "playing") "bot" else "open",
+      ready' = beginning == "playing", _offline' = Set(),
+      shownMoves' = PEOPLE.mapBy(_ => 0), _sealedPly' = -1,
+    }
   }
   /// A new game is separate from a completed or cancelled game.
   action createGame = all {
@@ -55,7 +60,7 @@ module custom_game_local {
   }
   action cancelCustomGame = all {
     Set("configuring", "active").contains(controlledStatus),
-    _update("cancelled", controlledPly, controlledTurn, black, ready, _offline),
+    _update("cancelled", controlledPly, controlledTurn, black, false, _offline),
   }
   action resignCustomGame = all {
     controlledStatus == "active",
