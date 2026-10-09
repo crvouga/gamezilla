@@ -1,10 +1,10 @@
 // @io-wall-ok — explicit model setup; never runs inside the offline gate.
-import { resolve } from 'node:path';
 import { setup } from '@pkgs/ui-quality-check-server/api';
+import { UI_QUALITY_MODEL_DIR } from './ui-quality/model-location';
 
 if (import.meta.main) {
   const model = await setup({
-    modelDir: resolve(import.meta.dir, '../../../../.cache/ui-quality-model'),
+    modelDir: UI_QUALITY_MODEL_DIR,
   });
   console.log(
     JSON.stringify({

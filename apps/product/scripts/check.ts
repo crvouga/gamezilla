@@ -18,11 +18,11 @@ import {
 } from './report';
 import type { ArtifactManifest } from './types';
 import config from './ui-quality/config.json';
+import { UI_QUALITY_MODEL_DIR } from './ui-quality/model-location';
 
 const ROOT = resolve(import.meta.dir, '..');
 const INPUT = join(ROOT, '.cache/ui-quality-inputs');
 const OUTPUT = join(ROOT, '.cache/ui-quality');
-const MODEL = resolve(ROOT, '../../.cache/ui-quality-model');
 const REPORTS = join(ROOT, '.cache/harness-report/ui-quality');
 const REPORT_ORIGIN = reportOrigin(resolve(ROOT, '../..'));
 
@@ -54,7 +54,7 @@ export async function checkRecordedUI(signal?: AbortSignal): Promise<number> {
     );
   const checker = await createUIQualityChecker({
     ...(config as CheckerOptions),
-    modelDir: MODEL,
+    modelDir: UI_QUALITY_MODEL_DIR,
     artifactsDir: join(OUTPUT, 'videos'),
     failureClipMs: 1000,
     ...(signal ? { signal } : {}),
