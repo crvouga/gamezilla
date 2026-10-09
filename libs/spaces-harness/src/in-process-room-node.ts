@@ -41,6 +41,10 @@ type TopicEntry = {
   readonly storage: InMemoryRoomStorage;
   readonly disposeSchedule: () => void;
   readonly ready: Promise<void>;
+  readonly connections: Map<
+    string,
+    { readonly identity: string; readonly close: () => void }
+  >;
 };
 
 export type RoomServerApp = HarnessRoomNode & {
@@ -119,6 +123,7 @@ function createTopicEntry(
     storage,
     disposeSchedule: schedule.dispose,
     ready: server.hydrateFromStorage(),
+    connections: new Map(),
   };
 }
 
@@ -151,14 +156,20 @@ function buildLoopbackTransport(
           actor.id,
           actor.clientId
         )) {
+          entry.connections.get(stale)?.close();
           entry.server.unregisterConnection(stale);
         }
         entry.server.registerConnection(id, send, actor, {
           ...options,
           grants,
         });
+        entry.connections.set(id, {
+          identity: actor.id,
+          close: () => transport.closeFromServer(),
+        });
       },
       unregisterConnection(id) {
+        entry.connections.delete(id);
         entry.server.unregisterConnection(id);
       },
       handleClientMessage(connectionId, identity, raw) {
@@ -267,6 +278,10 @@ export function createInProcessRoomNode(
         const entry = getOrCreate(topic);
         await entry.ready;
         entry.server.disconnectActor(identity);
+        for (const connection of [...entry.connections.values()]) {
+          if (identity === null || connection.identity === identity)
+            connection.close();
+        }
       },
     },
     createTransport: (args) => {

@@ -118,6 +118,15 @@ export class LoopbackRoomTransport implements ClientTransport {
     };
   }
 
+  /** A server withdrawal closes the socket without destroying its client. */
+  closeFromServer(): void {
+    if (!this.registered) return;
+    this.registered = false;
+    this.opened = false;
+    this.server.unregisterConnection(this.connectionId);
+    for (const h of [...this.handlerSets]) h.onClose?.();
+  }
+
   destroy(): void {
     if (this.registered) {
       this.server.unregisterConnection(this.connectionId);

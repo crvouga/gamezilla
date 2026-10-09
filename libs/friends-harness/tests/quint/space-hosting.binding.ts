@@ -15,6 +15,7 @@ import {
   createSpace,
   endSpace,
   joinFromLobby,
+  joinFromPrompt,
   leaveSpace,
   openSpaceMembers,
   openSpacesTab,
@@ -32,6 +33,7 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -77,6 +79,15 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 32,
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: space-link-preview-orphaned-after-leave
+      id: 'space-link-preview-orphaned-after-leave',
+      title: 'A person can rejoin after leaving while the host was offline',
+      seed: '0x67932',
+      itf: orphanedPreview,
+    },
+  ],
   actions: {
     init: async (w) => {
       await setupFriendsPair(w.s, 'alice', 'bob');
@@ -98,7 +109,11 @@ bindQuintModel<QuintHarnessWorld>({
     join: async (w, picks) => {
       const actor = person(picks);
       await w.s.apply(focusActor, actor);
-      await w.s.apply(joinFromLobby, actor, person(picks, 'host'));
+      if ((await w.s.read(spaceScreenOf, actor)) === 'left') {
+        await w.s.apply(joinFromPrompt, actor);
+      } else {
+        await w.s.apply(joinFromLobby, actor, person(picks, 'host'));
+      }
     },
     stepOut: async (w, picks) => {
       await w.s.apply(returnToLobby, person(picks));
