@@ -3,7 +3,8 @@
 // Alice and Bob are friends. Either can create a space, host it and be in it;
 // step out to the lobby and return to their own open space; look at the
 // space's presence, which counts who is in it; and end the space. The other
-// can join a friend's open space from their lobby, step out, and leave it. A
+// can join a friend's open space from their lobby, step out, and leave it;
+// after leaving, they can choose to join it again from its space link. A
 // lobby lists every open space of the person and their friends. Ending a
 // space shows everyone looking at it that it has ended; from there they go
 // back to the lobby. Losing the connection is not leaving. A host creates,
@@ -144,11 +145,11 @@ module space_hosting {
     _moveTo(_whereabouts.set(person, InSpace(person)), _openSpaces, _offline, _acted(person)),
   }
 
-  /// Join a friend's open space from the lobby.
+  /// Join a friend's open space from the lobby or its link after leaving.
   action join(person: Person, host: Person): bool = all {
     not(_offline.contains(person)),
     not(_offline.contains(host)),
-    _whereabouts.get(person) == Lobby,
+    (_whereabouts.get(person) == Lobby or _whereabouts.get(person) == Left(host)),
     host != person,
     _openSpaces.contains(host),
     _moveTo(_whereabouts.set(person, InSpace(host)), _openSpaces, _offline, _acted(person)),

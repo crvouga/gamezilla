@@ -28,6 +28,13 @@ Feature: Presence in a space
       And Bob is not offered to leave the space
       And Alice sees 1 person in the space within 20 seconds
 
+    Scenario: Someone who left joins the open space again once
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob has left the space
+      When Bob joins the space from the link
+      Then Bob is in the space
+      And Alice sees 2 people in the space within 20 seconds
+
     Scenario: Someone who left stops being offered to join when the space ends
       Given Alice is hosting a space that Bob joined from the link
       And Bob has left the space
