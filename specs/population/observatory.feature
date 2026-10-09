@@ -21,6 +21,7 @@ Feature: Observe and control the Synthetic Population
 
   Rule: Changing the desired population requires permission
 
+    @regression:population-config-save-stays-disabled
     Scenario: An authorized person changes the desired population
       Given Alice is authorized to configure the Synthetic Population
       When Alice changes the desired population to 6
