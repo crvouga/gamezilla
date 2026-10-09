@@ -1,7 +1,8 @@
 # Offline friend request spec audit
 
-Verdict: INCOMPLETE. The corrected contract has not yet been implemented or
-verified against the product. This is not launch evidence.
+Verdict: INCOMPLETE. The six corrected feature examples are implemented and
+pass. Whole-context replay, policy reactions and the complete aggregate map
+remain outstanding. This is not a passing launch verdict.
 
 Scope: `specs/friends/offline-friend-request.feature`,
 `offline-friend-requests.qnt`, the corrected connection feature, and the changed
@@ -76,3 +77,25 @@ unavailable-person refusal as actual observations. Add a fact for an accepted
 request chosen from the already-open profile while offline. Do not infer outcomes
 from the model or from shared storage. Run the new scenarios red before changing
 product code, then run the complete Friends and Spaces contexts.
+
+## Current executable evidence
+
+All six new examples failed at their Then outcomes before implementation
+(`offline-friend-request-bound-red.log`, 16.13 seconds). All six passed after
+implementation with nine assertions in 25.96 seconds. The request is locally
+accepted, kept through app reopening, shared on return, or visibly refused
+without revealing a block. Scoped durable-feedback contracts passed with
+17 assertions. Current Friends client/harness, Spaces harness and sync client
+type checks and lint pass. The strict gate passes for 1,766 scenarios, 47
+models and 2,253 definitions. These results do not prove the still-running
+32 request traces or the complete Friends/Spaces contexts.
+
+The private proof premises now enumerate both boolean values and every
+connection subset; the hosting count remains any natural number. Adding
+people also records that participation follows a known open space and access.
+These premises do not remove actions, observations or public invariants.
+The hosting-limit induction passed in 8.60 seconds and addition induction in
+103.40 seconds as focused proof runs, with the original four-step bound and
+120-second deadline. The request induction first found an unreachable premise
+(shared request despite no local request). The complete candidate now proves
+that relationship and all five public invariants in 17.20 seconds. No failed obligation is marked as passing.
