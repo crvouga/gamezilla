@@ -52,8 +52,9 @@ import {
   hostedSpaceCount,
   hostingLimitShown,
   joinOffered,
-  lobbyCardText,
   lobbyCardVisible,
+  lobbySpaceCardText,
+  lobbySpaceCardVisible,
   readSpaceLink,
   readSpacePresenceCount,
   renameOffered,
@@ -76,6 +77,15 @@ export function rememberedSpaceLink(w: HarnessWorld): string {
   return recall(w, SPACE_LINK) as string;
 }
 const SPACE_HOST = 'spaceHost';
+const hostSpaceLinkKey = (host: Actor) => `hostSpaceLink:${host}`;
+
+async function spaceLinkForHost(w: HarnessWorld, host: Actor): Promise<string> {
+  const remembered = w.memo.get(hostSpaceLinkKey(host));
+  if (typeof remembered === 'string') return remembered;
+  const link = await w.s.read(readSpaceLink, host);
+  if (link === null) throw new Error(`${host} has no shared space link`);
+  return link;
+}
 
 /**
  * Into `host`'s live space from `actor`'s lobby card, once it lists it.
@@ -120,6 +130,7 @@ async function shareLink(w: HarnessWorld, host: Actor): Promise<string> {
   const link = await w.s.read(readSpaceLink, host);
   if (link === null) throw new Error(`${host} is not in a space`);
   remember(w, SPACE_HOST, host);
+  remember(w, hostSpaceLinkKey(host), link);
   return remember(w, SPACE_LINK, link);
 }
 
@@ -222,11 +233,9 @@ When('{actor} returns to their space', async (w, actor: Actor) => {
 Then(
   "{actor}'s lobby lists {actor}'s space",
   async (w, actor: Actor, host: Actor) => {
-    // Look at the lobby; the card arrives with the friend's space.
-    const name = await w.s.read(nameEveryoneSeesOf, host);
-    if (name === null) throw new Error(`${host} has no name yet`);
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, name), {
+    await w.s.until((surf) => lobbySpaceCardVisible(surf, actor, link), {
       maxMs: PRESENCE_SETTLES_MS,
     });
   }
@@ -235,12 +244,13 @@ Then(
 Then(
   "{actor}'s lobby stops listing {actor}'s space within {int} seconds",
   async (w, actor: Actor, host: Actor, seconds: number) => {
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+    await w.s.until((surf) => lobbySpaceCardVisible(surf, actor, link), {
       pred: (listed) => !listed,
       maxMs: seconds * SECOND_MS,
     });
-    expect(await w.s.read(lobbyCardVisible, actor, host)).toBe(false);
+    expect(await w.s.read(lobbySpaceCardVisible, actor, link)).toBe(false);
   }
 );
 
@@ -422,8 +432,9 @@ Then(
     w,
     ...[actor, host, title, seconds]: [Actor, Actor, string, number]
   ) => {
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardText(surf, actor, host), {
+    await w.s.until((surf) => lobbySpaceCardText(surf, actor, link), {
       pred: (text) => text?.includes(title) === true,
       maxMs: seconds * SECOND_MS,
     });

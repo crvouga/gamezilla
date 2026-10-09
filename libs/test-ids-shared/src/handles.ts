@@ -39,6 +39,8 @@ export const Handles = {
   spaceCreate: 'space-create',
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
+  /** One retained lobby card, even before its host's profile is available. */
+  spaceLobbyCard: (spaceId: string) => `space-lobby-card-${spaceId}`,
   spaceJoin: 'space-join',
   spaceJoinPrompt: 'space-join-prompt',
   spaceEnded: 'space-ended',

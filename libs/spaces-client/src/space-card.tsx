@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import {
@@ -23,6 +24,7 @@ export function SpaceCard(props: SpaceCardProps): JSX.Element {
       <SpaceCardOpenLink spaceId={props.spaceId}>
         <SpaceCardGradientBox
           class="p-4"
+          dataSet={{ testid: Handles.spaceLobbyCard(props.spaceId) }}
           style={{
             'border-radius': `${SPACE_CARD_BORDER_RADIUS}px`,
             'border-width': current() ? '2px' : '0',

@@ -38,6 +38,31 @@ export async function lobbyCardVisible(
   }
 }
 
+/** The actual lobby card for the shared link, independent of cached names. */
+export async function lobbySpaceCardVisible(
+  s: ProductHarness,
+  actorId: string,
+  spaceLink: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(lobbySpaceCardHandle(spaceLink)).isVisible();
+}
+
+export async function lobbySpaceCardText(
+  s: ProductHarness,
+  actorId: string,
+  spaceLink: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(lobbySpaceCardHandle(spaceLink)).text();
+}
+
+function lobbySpaceCardHandle(spaceLink: string): string {
+  const spaceId = /^\/space\/([^/?#]+)/.exec(spaceLink)?.[1];
+  if (spaceId === undefined) throw new Error(`Not a space link: ${spaceLink}`);
+  return Handles.spaceLobbyCard(spaceId);
+}
+
 export async function activeSpaceVisible(
   s: ProductHarness,
   actorId: string
