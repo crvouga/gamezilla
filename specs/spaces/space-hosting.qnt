@@ -12,8 +12,11 @@
 // Joining someone else's space needs both people online. People can leave
 // or step out without a connection; leaving never happens again on return.
 //
-// What a person can observe: their whereabouts, what
-// their lobby lists, and how many people the presence they are looking at
+// A person learns which other spaces are open while looking at their lobby
+// online. Away from the lobby, they keep its last known list and their own
+// local choices.
+//
+// What a person can observe: their whereabouts, what their lobby lists, and how many people the presence they are looking at
 // counts.
 module space_hosting {
   type Person = str
@@ -96,13 +99,13 @@ module space_hosting {
   ): bool = {
     val shared = newOpenSpaces.exclude(newOffline).union(_sharedSpaces.intersect(newOffline))
     val known = PEOPLE.mapBy(p =>
-      if (newOffline.contains(p))
+      if (newOffline.contains(p) or newWhereabouts.get(p) != Lobby)
         _knownSpaces.get(p).exclude(Set(p)).union(newOpenSpaces.intersect(Set(p)))
       else shared)
     all {
       _whereabouts' = newWhereabouts,
       whereabouts' = PEOPLE.mapBy(p =>
-        if ((newOffline.contains(p) or newOffline.contains(_targetOf(_whereabouts.get(p)))) and
+        if ((newOffline.contains(p) or newOffline.contains(_targetOf(whereabouts.get(p)))) and
           newDone.get(p) == _done.get(p) and _targetOf(newWhereabouts.get(p)) != p)
           _visible(p, whereabouts.get(p), newOffline)
         else _visible(p, newWhereabouts.get(p), newOffline)),
