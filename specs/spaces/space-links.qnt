@@ -7,8 +7,8 @@
 // space's link says the host is offline and does not offer joining.
 module space_links {
   type Person = str
-  /// Where the link leads: an open space, an ended space, a space that cannot
-  /// be found, or a space whose host is offline.
+  /// Where the link leads while Alice is online: an open space, an ended
+  /// space, or a space that cannot be found.
   pure val DESTINATIONS = Set("open", "ended", "not found")
 
   /// What Bob sees from the link: "none" before opening it, then "open",
