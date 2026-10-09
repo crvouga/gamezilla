@@ -73,7 +73,7 @@ terms:
   - term: lobby
     definition: >-
       Where a person finds spaces: it lists every open space they host or
-      have joined, and every open space a friend of theirs hosts or has
+      have joined or been added to, and every open space a friend of theirs hosts or has
       joined, each of which they can return to or join.
     forms: [lobby's, lobbies]
     avoid: [space list, dashboard]
@@ -138,6 +138,16 @@ terms:
       the person learns the removal once both connections are back.
     forms: [removes someone from the space, removed someone from the space, removed from the space]
     model: [removePerson]
+
+  - term: add a person
+    definition: >-
+      The host gives a known person access to their space. The space appears
+      in that person's lobby, and the person explicitly chooses Join to
+      participate. Adding never joins the person automatically. The host
+      can add a known person without a connection; the person learns the
+      addition once both connections are available.
+    forms: [adds someone to the space, added someone to the space, added to the space]
+    model: [addPerson]
 
   - term: go back to the lobby
     definition: >-
@@ -266,6 +276,8 @@ terms:
     from: friends
     model: [friend]
   - term: username
+    from: profile
+  - term: profile
     from: profile
   - term: rename themselves
     from: profile
