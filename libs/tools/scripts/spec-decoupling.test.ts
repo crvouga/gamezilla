@@ -126,4 +126,35 @@ describe('decouplingProblems (D1)', () => {
       )
     ).toEqual([]);
   });
+
+  test('product-map traceability may point to its owning specs', () => {
+    expect(
+      problems(
+        'specs/product.machine.json',
+        [
+          '{',
+          '  "meta": {',
+          '    "source": [',
+          '      "specs/chess/puzzles.feature",',
+          '      "docs/statecharts/SPEC_CONFLICTS.md"',
+          '    ],',
+          '    "description": "A person explores puzzles"',
+          '  }',
+          '}',
+        ].join('\n')
+      )
+    ).toEqual([]);
+    expect(
+      problems(
+        'specs/journeys.yaml',
+        'gherkin:\n- specs/chess/puzzles.feature\ndescription: A person explores puzzles'
+      )
+    ).toEqual([]);
+    expect(
+      problems(
+        'specs/product.machine.json',
+        '{ "description": "implemented in libs/chess/src/puzzles.ts" }'
+      )
+    ).toHaveLength(1);
+  });
 });

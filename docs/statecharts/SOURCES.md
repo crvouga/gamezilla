@@ -12,7 +12,14 @@ The product explorer derives its business catalog from [specs/](../../specs/). T
 | OpenSLO and conformance | Quantitative objectives and the required classes of release evidence |
 | Product inventory and source conflicts | Scope notes, missing contracts and unresolved product decisions |
 
-The compiler reads these sources when `atlas:lint`, `atlas:run`, `atlas:viz` or `atlas:export` runs. It attaches the matching cards at each capability boundary and includes the complete catalog at the root. Search and state details read those cards from the portable chart; no second written copy of the business rules is maintained here. Module source references establish ownership, and a source without any composed owner fails compilation. [GHERKIN_MAPPING.md](GHERKIN_MAPPING.md) and [QUINT_MAPPING.md](QUINT_MAPPING.md) explain the source families.
+The compiler reads these sources when `atlas:lint`, `atlas:run`,
+`atlas:viz` or `atlas:export` runs. It attaches matching cards to the one
+product machine and includes the complete catalog at the root. Search and
+state details read those cards from the portable chart; no second written
+copy of the business rules is maintained. State source references establish
+ownership, and an authoritative source without any state owner fails
+compilation. [GHERKIN_MAPPING.md](GHERKIN_MAPPING.md) and
+[QUINT_MAPPING.md](QUINT_MAPPING.md) explain the source families.
 
 The current catalog has 2,707 cards from 344 source files. Reproduce the exact catalog with `bun atlas:lint`, then read `.cache/product-statechart/contracts.json` and `.cache/product-statechart/specs/product.machine.json`. `.cache/product-statechart/analysis.json` records the states, transitions, source metadata, shortest paths, public route owners, journeys and structural findings for the same compilation. `.cache/product-statechart/routes.json` retains the declared route inventory and its implementation source files; app addresses also appear as hints on their owning states. These generated files are local artifacts rather than committed product definitions.
 

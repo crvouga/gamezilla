@@ -16,6 +16,9 @@ The root keeps identity and access active while one device navigates. A shared e
 | `BecameFriends` / `FriendshipEnded` | The current request or relationship reaches its outcome; discoverability is recomputed where relevant | [Friends events](../../specs/friends/events.qnt) |
 | `MatchFormed` | A waiting matchmaking flow reaches a complete match; opponent search reaches multiplayer play | [Matchmaking events](../../specs/matchmaking/events.qnt), [being matched](../../specs/chess/multiplayer-being-matched.feature) |
 
-The charts use `invoke` to embed a capability. Cross-module targets enter its owning branch directly, including a complete match opening its multiplayer board and a puzzle link opening that exact puzzle’s board. They are not independent per-chart journey legs.
+Cross-region targets enter the owning branch directly. A completed opponent
+search opens its multiplayer board, and a puzzle link opens that exact
+puzzle’s board. Each guided journey therefore replays from the one product
+root.
 
 Provider outcomes and published facts are explicit steps in a journey. The pure chart does not execute an action to publish another event. Runtime delivery, actor selection and duplicate handling belong to the referenced specifications and application adapters.

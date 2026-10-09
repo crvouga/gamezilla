@@ -11,6 +11,7 @@ import { productContracts } from './statechart-contracts';
 import { productGuide, unmappedContracts } from './statechart-guide';
 import { guideIntegrityProblems } from './statechart-integrity';
 import { guideNotes, languageContracts } from './statechart-language';
+import { productStatechartSourceProblems } from './statechart-source-policy';
 import {
   declaredProductRoutes,
   PRODUCT_ROUTE_ROOTS,
@@ -18,6 +19,7 @@ import {
 } from './statechart-routes';
 
 const ROOT = resolve(import.meta.dir, '../../..');
+const CHARTS = join(ROOT, 'specs');
 const CACHE = join(ROOT, '.cache/product-statechart');
 const SPECS = join(CACHE, 'specs');
 const SITE = join(ROOT, '.cache/product-statechart-explorer');
@@ -72,10 +74,7 @@ function writeGuide(
   mkdirSync(SPECS, { recursive: true });
   writeJson(join(SPECS, 'product.machine.json'), machine);
   for (const name of ['atlas.yaml', 'journeys.yaml']) {
-    writeFileSync(
-      join(SPECS, name),
-      readFileSync(join(ROOT, 'docs/statecharts', name))
-    );
+    writeFileSync(join(SPECS, name), readFileSync(join(CHARTS, name)));
   }
   writeFileSync(join(CACHE, 'product.scxml'), `${machineToScxml(machine)}\n`);
   for (const [name, value] of Object.entries(artifacts))
@@ -85,7 +84,7 @@ function writeGuide(
 function compileGuide(): void {
   const sources = sourceFiles();
   const routes = declaredProductRoutes(sources);
-  const bundle = loadSpecDirectory(join(ROOT, 'docs/statecharts'));
+  const bundle = loadSpecDirectory(CHARTS);
   const analysis = analyzeStatecharts(bundle, { sourceFiles: sources });
   const contracts = [
     ...productContracts(sources),
@@ -94,6 +93,7 @@ function compileGuide(): void {
   ];
   const missing = unmappedContracts(bundle, contracts);
   const issues = [
+    ...productStatechartSourceProblems(bundle),
     ...analysis.issues.map((issue) => JSON.stringify(issue)),
     ...missing.map((path) => `No chart owns the contract ${path}`),
   ];
