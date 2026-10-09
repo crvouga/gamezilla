@@ -42,7 +42,7 @@ Feature: Find and return to your space
     @regression:space-step-out-presence-lingers
     Scenario: A friend who steps out stops showing as present
       Given Alice is hosting a space that Bob joined from the link
-      When Bob steps out of the space
+      When Bob goes back to the lobby
       Then Alice sees 1 person in the space within 20 seconds
 
     Scenario: Returning after stepping out shows the friend once
