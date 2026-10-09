@@ -38,6 +38,31 @@ describe('verifyTimeoutOf', () => {
 });
 
 describe('modelChecks', () => {
+  test('only an opted-in binding groups bounded targets without changing its bound or deadline', () => {
+    const checks = modelChecksFromBindings(
+      ['specs/example/first.qnt', 'specs/example/second.qnt'],
+      new Map([
+        [
+          'first',
+          "model: 'first', verifySteps: 2, verifyTimeoutMs: 480_000, boundedInvariantGroupSize: 6",
+        ],
+        ['second', "model: 'second', verifySteps: 2, verifyTimeoutMs: 480_000"],
+      ])
+    );
+    expect(checks[0]).toEqual({
+      specUri: 'specs/example/first.qnt',
+      steps: 2,
+      timeoutMs: 480_000,
+      inductiveInvariant: null,
+      boundedInvariantGroupSize: 6,
+    });
+    expect(checks[1]).toEqual({
+      specUri: 'specs/example/second.qnt',
+      steps: 2,
+      timeoutMs: 480_000,
+      inductiveInvariant: null,
+    });
+  });
   test('only the matching binding opts into separate induction', () => {
     // regression: tools-test-unhashed-model-bindings
     const checks = modelChecksFromBindings(

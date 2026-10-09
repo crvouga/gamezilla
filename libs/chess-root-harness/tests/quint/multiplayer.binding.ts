@@ -34,6 +34,7 @@ bindQuintModel<PlayTrace>({
   // Twenty actions over three people's six devices: Apalache explores two
   // steps from every reachable start within the models check's deadline.
   verifySteps: 2,
+  boundedInvariantGroupSize: 6,
   verifyTimeoutMs: 480_000,
   // The model counts seconds (searching, clocks, the first-move wait):
   // settling in 100 ms steps would let the product's time run past it.

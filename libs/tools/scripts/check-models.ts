@@ -61,6 +61,7 @@ const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
 const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
 const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
 const INDUCTION_CASE_GROUP_SIZE = /\binductionCaseGroupSize:\s*(\d+)/;
+const BOUNDED_INVARIANT_GROUP_SIZE = /\bboundedInvariantGroupSize:\s*(\d+)/;
 const CONCRETE_TYPES = /\binferPolymorphicTypes:\s*false\b/;
 const VERIFY_TIMEOUT_MS = /\bverifyTimeoutMs:\s*([\d_]+)/;
 
@@ -72,6 +73,7 @@ export type ModelCheck = {
   readonly encoding?: 'fun-arrays';
   readonly separateInduction?: true;
   readonly inductionCaseGroupSize?: number;
+  readonly boundedInvariantGroupSize?: number;
   readonly inferPolymorphicTypes?: false;
   /** A timeout is a failed obligation; improve the abstraction or proof strategy. */
   readonly timeoutMs: number;
@@ -133,6 +135,10 @@ export function modelChecksFromBindings(
         binding === null
           ? undefined
           : INDUCTION_CASE_GROUP_SIZE.exec(binding)?.[1];
+      const boundedGroupSize =
+        binding === null
+          ? undefined
+          : BOUNDED_INVARIANT_GROUP_SIZE.exec(binding)?.[1];
       return {
         specUri,
         steps: verifyStepsOf(binding),
@@ -145,6 +151,9 @@ export function modelChecksFromBindings(
         ...(groupSize === undefined
           ? {}
           : { inductionCaseGroupSize: Number(groupSize) }),
+        ...(boundedGroupSize === undefined
+          ? {}
+          : { boundedInvariantGroupSize: Number(boundedGroupSize) }),
         ...(binding !== null && CONCRETE_TYPES.test(binding)
           ? { inferPolymorphicTypes: false as const }
           : {}),
@@ -233,6 +242,9 @@ async function checkModel(
           ...(check.inductionCaseGroupSize === undefined
             ? {}
             : { inductionCaseGroupSize: check.inductionCaseGroupSize }),
+          ...(check.boundedInvariantGroupSize === undefined
+            ? {}
+            : { boundedInvariantGroupSize: check.boundedInvariantGroupSize }),
           ...(check.inferPolymorphicTypes === undefined
             ? {}
             : { inferPolymorphicTypes: check.inferPolymorphicTypes }),

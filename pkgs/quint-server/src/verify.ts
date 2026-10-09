@@ -48,6 +48,8 @@ export type VerifyOptions = {
   readonly separateInduction?: boolean;
   /** Preserve every induction case, sharing a solver phase across this many. */
   readonly inductionCaseGroupSize?: number;
+  /** Opt into independent bounded phases without changing targets or bounds. */
+  readonly boundedInvariantGroupSize?: number;
   /** Apalache's working directory and QUINT_HOME (emptied first). */
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */

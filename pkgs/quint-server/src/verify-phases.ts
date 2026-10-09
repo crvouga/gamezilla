@@ -26,16 +26,10 @@ export function verifyPhases(input: {
   readonly inductiveInvariant?: string;
   readonly separateInduction?: boolean;
   readonly inductionCaseGroupSize?: number;
+  readonly boundedInvariantGroupSize?: number;
 }): readonly VerifyPhase[] {
   const candidate = input.inductiveInvariant;
-  if (candidate === undefined)
-    return [
-      {
-        name: 'bounded',
-        invariants: input.invariants,
-        maxSteps: input.maxSteps,
-      },
-    ];
+  if (candidate === undefined) return boundedPhases(input);
   const targets = inductionTargets({
     source: input.source,
     module: input.module,
@@ -84,6 +78,32 @@ export function verifyPhases(input: {
           },
         ]),
   ];
+}
+
+/** Split only solver obligations, retaining the complete bound in each phase. */
+function boundedPhases(input: {
+  readonly invariants: readonly string[];
+  readonly maxSteps: number;
+  readonly boundedInvariantGroupSize?: number;
+}): readonly VerifyPhase[] {
+  const phase = {
+    name: 'bounded' as const,
+    invariants: input.invariants,
+    maxSteps: input.maxSteps,
+  };
+  const requested = input.boundedInvariantGroupSize;
+  if (requested === undefined || !Number.isFinite(requested) || requested <= 0)
+    return [phase];
+  const size = Math.max(1, Math.floor(requested));
+  if (size >= input.invariants.length) return [phase];
+  const phases: VerifyPhase[] = [];
+  for (let index = 0; index < input.invariants.length; index += size)
+    phases.push({
+      ...phase,
+      invariants: input.invariants.slice(index, index + size),
+      case: phases.length,
+    });
+  return phases;
 }
 
 /** Regroup every alternative; a group's shared frame is their intersection. */

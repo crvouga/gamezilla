@@ -79,6 +79,8 @@ export type QuintBinding<W> = {
   readonly separateInduction?: boolean;
   /** Share solver setup while retaining every alternative and its guards. */
   readonly inductionCaseGroupSize?: number;
+  /** Share a bounded solver phase across this many safety targets, retaining all. */
+  readonly boundedInvariantGroupSize?: number;
   /** Concrete inference still type-checks models without polymorphic operators. */
   readonly inferPolymorphicTypes?: boolean;
   /**
