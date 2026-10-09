@@ -187,10 +187,11 @@ terms:
   - term: no longer allowed
     definition: >-
       Said of a space name given before the rules stopped allowing it. The
-      host keeps it, but everyone sees the space named after its host, as if
-      it had never been given a name.
+      host keeps it. Once a device learns the changed rules, it shows the
+      space named after its host, as if it had never been given a name.
+      An offline device keeps applying the naming rules it already knows.
     avoid: [banned, flagged, censored, moderated]
-    model: [notAllowed]
+    model: [_notAllowed]
 
   - term: invited to Plus
     definition: >-

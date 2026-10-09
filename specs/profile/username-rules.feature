@@ -6,27 +6,27 @@ Feature: Username rules
 
   Rule: A saved username is unique and allowed and a refused username change keeps the saved username
 
-    Scenario Outline: A username change refused as "<reason>" keeps the username unchanged
+    Scenario Outline: A refused username change keeps the saved username
       Given Alice's username is @alice_one
       When Alice tries to use username "<name>"
-      Then Alice's username change is refused with "<reason>"
+      Then Alice's username change is refused because <reason>
       And Alice's profile shows @alice_one
 
       Examples:
         | name                              | reason                                        |
-        | ab                                | Username is too short                         |
-        | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | Username is too long                          |
-        | no spaces!                        | Username can only use letters, numbers, and _ |
+        | ab                                | it is too short                         |
+        | alice_plays_chess_after_supper_2026 | it is too long                          |
+        | Alice Woods                        | it contains characters other than letters, numbers and _ |
 
     Scenario: A disguised offensive username change is refused
       Given Alice is a guest
       When Alice tries to use username "sh1thead_99"
-      Then Alice's username change is refused with "That username is not allowed"
+      Then Alice's username change is refused because the name is not allowed
 
     Scenario: A username that passes someone off as the team is refused
       Given Alice is a guest
       When Alice tries to use username "official_support"
-      Then Alice's username change is refused with "That username is not allowed"
+      Then Alice's username change is refused because the name is not allowed
 
     Scenario: A username that only holds an offensive word inside an ordinary word is saved
       Given Alice is a guest
@@ -36,14 +36,14 @@ Feature: Username rules
     Scenario: A username change moments after the last one is refused
       Given Alice has renamed themselves to @alice_one
       When Alice tries to use username "alice_two"
-      Then Alice's username change is refused with "Username was changed recently"
+      Then Alice's username change is refused because their username was changed recently
       And Alice's profile still shows @alice_one
 
     Scenario: A username change without a connection is refused
       Given Alice's username is @alice_one
       And Alice is offline
       When Alice tries to use username "alice_two"
-      Then Alice's username change is refused with "You're offline"
+      Then Alice's username change is refused because their device is offline
       And Alice's profile still shows @alice_one
 
     Scenario: A username is saved in lowercase
@@ -59,7 +59,7 @@ Feature: Username rules
     Scenario: A username cannot be claimed twice, regardless of case
       Given Alice's username is @queen_gambit
       When Bob tries to use username "QUEEN_GAMBIT"
-      Then Bob's username change is refused with "Username is taken"
+      Then Bob's username change is refused because another person already has that name
 
   Rule: A username the team stops allowing is kept but shows as a stand-in name until the person renames themselves
 
@@ -84,7 +84,7 @@ Feature: Username rules
     Scenario: A username that is no longer allowed cannot be saved again
       Given the team has stopped allowing the username @chess_cheater
       When Alice tries to use username "chess_cheater"
-      Then Alice's username change is refused with "That username is not allowed"
+      Then Alice's username change is refused because the name is not allowed
       And Alice's profile still shows a stand-in name
 
     @regression:offline-app-learns-unavailable-naming-rules

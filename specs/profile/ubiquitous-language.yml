@@ -114,8 +114,9 @@ terms:
   - term: username
     definition: >-
       The name a person goes by, shown as @name: unique regardless of letter
-      case, saved in lowercase, and the same on every device of theirs and
-      for everyone else. Every newcomer gets one of their own.
+      case and saved in lowercase. Every newcomer gets one of their own.
+      Connected devices show the same saved name under the naming rules
+      they know; an offline device keeps its last known name and rules.
     forms: [usernames, username's]
     avoid: [handle, display name, nickname, screen name]
     model: [username, usernameOnDevice, Username]
@@ -310,10 +311,11 @@ terms:
   - term: no longer allowed
     definition: >-
       Said of a username saved before the rules stopped allowing it. The
-      person keeps it: it is never changed or taken away, and nobody else
-      sees it. Everyone, that person included, sees a stand-in name for it,
-      and the person is told so until they rename themselves. Saving it again
-      is refused as not allowed.
+      person keeps it: it is never changed or taken away. Once a device
+      learns the changed rules, it shows a stand-in name, and the person
+      is told so until they rename themselves. An offline device keeps
+      applying its known rules. Saving a name the device knows is not
+      allowed is refused.
     avoid: [banned, flagged, censored, moderated]
     model: [_notAllowed]
     published: true

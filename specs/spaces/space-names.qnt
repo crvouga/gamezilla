@@ -49,7 +49,7 @@ module space_names {
   /// What each person sees the space called.
   var spaceName: Person -> str
   /// Space names the rules refuse right now.
-  var notAllowed: Set[str]
+  var _notAllowed: Set[str]
   /// What Alice's last rename showed her.
   var lastRename: RenameResult
   /// The name Alice gave the space, as everyone else has it.
@@ -87,7 +87,7 @@ module space_names {
     all {
       givenName' = given,
       spaceName' = PEOPLE.mapBy(p => _called(known.get(p), rules.get(p))),
-      notAllowed' = refused,
+      _notAllowed' = refused,
       lastRename' = result,
       _sharedName' = shared,
       _known' = known,
@@ -100,7 +100,7 @@ module space_names {
   action init = all {
     givenName' = "",
     spaceName' = PEOPLE.mapBy(_ => NAMED_AFTER_HOST),
-    notAllowed' = ALWAYS_REFUSED,
+    _notAllowed' = ALWAYS_REFUSED,
     lastRename' = NoRename,
     _sharedName' = "",
     _known' = PEOPLE.mapBy(_ => ""),
@@ -112,31 +112,31 @@ module space_names {
   /// Alice renames the space to `typed`.
   action rename(typed: str): bool =
     if (_knownNotAllowed.get("alice").contains(typed))
-      _update(givenName, _sharedName, notAllowed, NameNotAllowed, _offline, typed)
+      _update(givenName, _sharedName, _notAllowed, NameNotAllowed, _offline, typed)
     else
       _update(
         typed,
         if (_offline.contains("alice")) _sharedName else typed,
-        notAllowed, NameSaved, _offline, typed,
+        _notAllowed, NameSaved, _offline, typed,
       )
 
   /// The team stops allowing `name` as a space name.
   action stopAllowing(name: str): bool = all {
     CHANGEABLE.contains(name),
-    not(notAllowed.contains(name)),
-    _update(givenName, _sharedName, notAllowed.union(Set(name)), lastRename, _offline, _lastTyped),
+    not(_notAllowed.contains(name)),
+    _update(givenName, _sharedName, _notAllowed.union(Set(name)), lastRename, _offline, _lastTyped),
   }
 
   /// The team starts allowing `name` as a space name again.
   action startAllowing(name: str): bool = all {
     CHANGEABLE.contains(name),
-    notAllowed.contains(name),
-    _update(givenName, _sharedName, notAllowed.exclude(Set(name)), lastRename, _offline, _lastTyped),
+    _notAllowed.contains(name),
+    _update(givenName, _sharedName, _notAllowed.exclude(Set(name)), lastRename, _offline, _lastTyped),
   }
 
   action _loseConnection(person: Person): bool = all {
     not(_offline.contains(person)),
-    _update(givenName, _sharedName, notAllowed, lastRename, _offline.union(Set(person)), _lastTyped),
+    _update(givenName, _sharedName, _notAllowed, lastRename, _offline.union(Set(person)), _lastTyped),
   }
 
   /// A person's connection comes back; once Alice is back, her name is
@@ -146,7 +146,7 @@ module space_names {
     _update(
       givenName,
       if (person == "alice") givenName else _sharedName,
-      notAllowed, lastRename, _offline.exclude(Set(person)), _lastTyped,
+      _notAllowed, lastRename, _offline.exclude(Set(person)), _lastTyped,
     ),
   }
 
@@ -180,7 +180,7 @@ module space_names {
     lastRename == NameSaved implies givenName == _lastTyped
 
   /// A connected device knows the current naming rules.
-  val invConnectedKnowsRules = PEOPLE.forall(p => not(_offline.contains(p)) implies _knownNotAllowed.get(p) == notAllowed)
+  val invConnectedKnowsRules = PEOPLE.forall(p => not(_offline.contains(p)) implies _knownNotAllowed.get(p) == _notAllowed)
 
   /// Rules that always refuse a name are known on every device.
   val invStandingRulesKnown = PEOPLE.forall(p => ALWAYS_REFUSED.subseteq(_knownNotAllowed.get(p)))
