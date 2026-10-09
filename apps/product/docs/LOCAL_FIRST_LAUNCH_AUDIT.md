@@ -13,7 +13,8 @@ not another product definition. No manual testing supplies evidence.
 | Complete shared-notes specification suite | 974 passed, 0 failed | Local execution; audit findings below remain |
 | Complete profile specification suite | 130 passed, 0 failed | Local execution |
 | Complete runtime specification suite | 62 passed, 0 failed | Local execution |
-| Complete friend-and-space specification suite | 377 passed, 0 failed | Current examples, all model replays, decisions and structures; includes all final departure and naming additions |
+| Complete friend-and-space specification suite | 381 passed, 0 failed | Current examples, all model replays, decisions and structures; includes guest departure while the host is offline |
+| Guest departure while the host is offline | 4 passed, 0 failed | Offer, departure, both people offline, and departure retained after reconnection |
 | Host departure and naming features | 23 passed, 0 failed | Includes the three later examples: repeated refusal, offline host leaving, and learning that end on return |
 | Space live-presence feature | 4 passed, 0 failed | Includes the visible outcome of leaving |
 | Space authorization tests | 12 passed, 0 failed | Host is connected in the positive participant control |
@@ -21,8 +22,8 @@ not another product definition. No manual testing supplies evidence.
 | Quint framework tests | 74 passed, 0 failed | Includes counterexamples after equivalent compiler sharing |
 | All registered formal models | 43 passed | Chess 12; friends and spaces 4; framework contexts 21; billing, profile and runtime 6. Original bounds and deadlines retained |
 | Push-session continuity contracts | 18 package tests passed, including 5 replacement checks | Breaking incremental updates rejected two cases; duplicating the initial connection rejected all five |
-| Strict specification gate | Passed: 1,702 scenarios, 43 models, 2,231 definitions | Only the automated subset of the audit standard |
-| Focused local launch gate of 60e8c6c50 | 9 updated tasks passed; gate passed | Earlier unchanged tasks reused their verified cache entries; two-check ceiling retained; proof task 231 seconds against 420 seconds |
+| Strict specification gate | Passed: 1,706 scenarios, 43 models, 2,232 definitions | Only the automated subset of the audit standard |
+| Focused local launch gate of 0176d2c54 and its guest-offer binding | 17 tasks passed; 2 cached | Source snapshot included the binding committed as 4ac4ce2f0; two-check ceiling retained; proof task 235 seconds against 420 seconds |
 | Full release verification of d8e6f3a5a | Not executed | [Actions run](https://github.com/crvouga/gamezilla/actions/runs/37903939539): Actions budget prevented jobs from starting |
 
 Equivalent proof compilation preserves model guarantees, search bounds,
@@ -133,8 +134,8 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
 | invariant | invGuestsFollowHost | drop out | space-host-leaves.feature:49 | covered |
 | invariant | invPresenceIsCurrent | presence | space-disconnect-reconnect.feature:25; space-leave-without-host.feature:33 | covered |
 | transition | InSpace → Left | leave | space-live-presence.feature:23 | covered |
-| transition | DroppedOut → Left | leave | space-leave-without-host.feature:23,27 | covered |
-| transition | Left → Left, reconnecting | connection | space-leave-without-host.feature:33 | covered |
+| transition | DroppedOut → Left | leave | space-leave-without-host.feature:23,27; space-guest-leave.feature:18,23 | covered |
+| transition | Left → Left, reconnecting | connection | space-leave-without-host.feature:33; space-guest-leave.feature:30 | covered |
 | transition | Host InSpace → Ended, ending offline | end a space | space-needs-connection.feature:99 | covered |
 | transition | Host InSpace → Ended, leaving offline | leave | space-host-leaves.feature:30 | covered |
 | transition | DroppedOut → Ended, offline host ended | connection | space-host-leaves.feature:63 | covered |
@@ -182,7 +183,9 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
 - C4: offline departure now proves Left, its persistence on reconnection,
   and the surviving host's presence. Naming now illustrates refusal followed
   by success and repeated refusal. Host leaving offline illustrates Ended
-  for the host and the guest learning that end on return.
+  for the host and the guest learning that end on return. Guest departure
+  has its own four examples, including both people offline and the guest's
+  retained departure on reconnection.
 - Cross-spec consistency: the shared connection definition promises
   automatic sharing of accepted local choices, while explicitly refused
   choices never take effect later. It no longer contradicts the refused
@@ -190,7 +193,7 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
 
 ## Outstanding audit work
 
-The mechanical scan covers 233 features. Its quoted-data and compound-actor
+The mechanical scan covers 234 features. Its quoted-data and compound-actor
 candidates require judgment; they are not all findings. Full per-feature
 A0–B17 review, all aggregate C1–C6 maps, D1–D6 binding review and process
 evidence remain incomplete. A green strict gate does not supply these missing
