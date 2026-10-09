@@ -65,7 +65,7 @@ terms:
       return to it.
     forms: [open spaces]
     avoid: [live space, active space, running space]
-    model: [openSpaces, SpaceOpened, OpenSpace]
+    model: [_openSpaces, SpaceOpened, OpenSpace]
     published: true
 
   - term: lobby
