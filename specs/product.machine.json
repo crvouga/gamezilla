@@ -3771,7 +3771,7 @@
                         ],
                         "events": [],
                         "hints": [
-                          "Grace expiry follows specs/billing/grace-ends.feature; the context membership model does not yet describe an expiry action."
+                          "The membership model does not yet describe when grace ends."
                         ]
                       },
                       "on": {
@@ -4397,7 +4397,7 @@
                         ],
                         "events": [],
                         "hints": [
-                          "The feature states a one-day wait, but specs/friends/friendship.qnt has no action ending that wait."
+                          "The friendship model states a one-day wait but no way that wait ends."
                         ]
                       },
                       "on": {
@@ -5265,7 +5265,7 @@
                         ],
                         "events": [],
                         "hints": [
-                          "The critical journey’s next-puzzle wording differs from the explicit move-on and configured auto-advance contract in specs/chess/puzzle-attempt-resume.feature."
+                          "The next-puzzle journey wording differs from the explicit move-on and configured auto-advance contract."
                         ]
                       },
                       "on": {
@@ -5875,7 +5875,7 @@
                         ],
                         "events": [],
                         "hints": [
-                          "The feed feature requires an account; specs/system/product-state.qnt also requires paid access. This source disagreement remains a contract gap."
+                          "The feed contract requires an account while the whole-product model also requires paid access. This disagreement remains a contract gap."
                         ]
                       },
                       "on": {
