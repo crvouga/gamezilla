@@ -139,7 +139,7 @@ review.
 | world | loseConnection | connection | space-host-leaves.feature:52; space-disconnect-reconnect.feature:14 | covered |
 | world | connectionReturns | connection | space-host-leaves.feature:20,41,60 | covered |
 | policy | PaidAccessEnded → hosting limit with one existing space | paid access | space-host-limit.feature:23 | covered |
-| policy | PaidAccessEnded with several existing spaces | paid access | Product decision about existing spaces is pending | MISSING |
+| policy | PaidAccessEnded with several existing spaces | paid access | Confirmed: retain existing spaces and block creation at the free limit; space-host-limit.feature | covered |
 | policy | SignedIn → host can create and find their space | sign in | space-create.feature:10,12; signed-in fact and visible lobby outcome | covered |
 | policy | SignedOut → hosting and participation | sign out | The identity relationship is declared in specs/README.md:1120; no Spaces reaction or borrowed sign-out term is evidenced | MISSING |
 | policy | BecameFriends → friend can find the host's space | friend | space-friend-join.feature:7,12; settled friendship fact and visible lobby outcome | covered |
@@ -206,17 +206,20 @@ bookkeeping remains model-only; it is not replaced with a server-data observer.
 
 ## Blocking findings and triage
 
-- C5 block space-host-limit.feature:23 — “paid access has ended” — the
-  one-space boundary is covered; what happens to several existing spaces is
-  undefined. Owner: product decision, then spec-upsert and spec-implement.
+- C5 paid-access-ending contract is now defined: retain existing spaces and
+  block new spaces at the free hosting limit. The added examples pass; the
+  repeated access-transition model still requires a passing product replay.
 - C6 block specs/README.md:45 — “adding and removing people” — the offered
   Share actions have no complete feature/model contract. Owner:
-  spec-upsert, then spec-implement. The person's decision about removal
-  and rejoining, and confirmation of the terms, are pending.
+  spec-upsert, then spec-implement. The confirmed contract grants lobby access
+  through Add, requires explicit Join, ends participation through Remove,
+  permits rejoining through public links, and reserves Leave for the host.
+  New examples and models exist; current aggregate verification is running.
 - C6 block space-hosting.qnt:133 — “not(_openSpaces.contains(person))” —
   the hosting model cannot represent the paid member's additional space.
-  Owner: spec-upsert, then spec-implement; coordinate with the unresolved
-  paid-access-ending decision instead of inventing it.
+  The new hosting-limits model represents additional spaces and retained
+  spaces after paid access ends. Its repeated access-cycle replay is not yet
+  passing, so this remains an implementation verification blocker.
 - C4: the complete hosting exclusion matrix remains under review. The
   explicit Left and Ended refusals below close those rows only.
 - B2 closed by 57bbe7e81: the hosting-limit description is one job story;
@@ -379,10 +382,10 @@ candidates require judgment; they are not all findings. Full per-feature
 A0–B17 review, all aggregate C1–C6 maps, D1–D6 binding review and process
 evidence remain incomplete. A green strict gate does not supply these missing
 checks. The inventory also retains its quantitative-capacity and offered
-developer-tool contract gaps. The capacity target is awaiting a product
-decision; no target has been invented. Nothing here attests launch readiness.
-The offline behavior of username changes and cached-profile friend requests
-is also awaiting clarification; their current specs require a connection.
+developer-tool contract gaps. No launch capacity was supplied; quantitative
+evidence remains to be measured. Nothing here attests launch readiness.
+Username changes and cached-profile friend requests now follow the confirmed
+local-acceptance contract. Current focused checks are recorded below.
 
 ## Current Spaces shape checks
 
@@ -493,3 +496,42 @@ that successful task's artifacts were published into the local check cache.
 This snapshot includes the grouping implementation before commit and
 predates the rejoining example consolidation; the model text is unchanged.
 A fresh full check and remote full verification remain required.
+
+## Current local-first verification after confirmed decisions
+
+The person confirmed that username choices and requests from a profile already
+on the device are accepted locally, shared later, and clearly refused when
+shared rules reject them. These decisions replace the earlier open questions.
+The person did not supply a capacity target; quantitative evidence still needs
+to be measured and documented, rather than treating that absence as a pass.
+
+Username verification now passes all 35 selected feature and model checks,
+including local persistence, later sharing, taken-name refusal and a newly
+disallowed name. The profile package passes eight property and contract checks
+with 587 assertions. Current profile client, profile harness, spaces client and
+sync client type checks pass; username feedback lint passes. These are focused
+local results, not a full launch verdict.
+
+The literal newly-added-person Join regression failed before the startup
+availability fix and passes after it. The room framework passes 56 contracts
+with 165 assertions. The previous full addition run passed 72 checks and failed
+that one startup case; a broader addition, removal and host-connection run is
+now in progress. Offline cached-profile request specifications are being
+corrected and their implementation remains outstanding.
+
+A broader run found four observer divergences where a person who had already
+left or been removed was labelled a disconnected participant solely because
+the preview showed an offline-host notice. A preview does not participate.
+The addition model now agrees with the hosting model on that distinction;
+the removed-person offline preview is explicitly illustrated. The literal
+hosting input will pin the observer classification separately. No expected
+participation, offline-host denial or disconnection guarantee is weakened.
+
+The six offline friend-request scenarios failed at their visible outcomes before
+implementation (16.13 seconds), then all six passed with nine assertions in
+25.96 seconds. The returning-person removal example now waits for the
+observable settled view and passes in 1.79 seconds, with a five-second bound;
+connectivity returning does not synchronously deliver a membership snapshot.
+The three durable-feedback contracts pass with 17 assertions in 2.06 seconds,
+including separate outcomes for two different choice targets. These focused
+results do not replace the outstanding whole-context and full local gates.
