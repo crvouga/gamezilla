@@ -13,7 +13,6 @@ import {
 } from '@pkgs/sync-engine-harness/regression-actions';
 import {
   crash,
-  httpFault,
   net,
   restart,
 } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
@@ -61,14 +60,6 @@ Given('{device} has come back online', async (w, device: Device) => {
   await w.s.apply(online, id, true);
   w.offline.set(device, false);
 });
-
-Given(
-  '{device} will not hear back about its next save',
-  async (w, device: Device) => {
-    const id = await ensureDevice(w, device);
-    await w.s.apply(httpFault, id, { kind: 'dropMutationsResponse' });
-  }
-);
 
 /** Closing keeps the device's on-disk database; so does a crash. */
 When('{device} closes and reopens', async (w, device: Device) => {
