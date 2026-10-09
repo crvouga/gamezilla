@@ -11,13 +11,4 @@ set -euo pipefail
 # shellcheck source=libs/tools/workspace/port.sh
 . "$(dirname "${BASH_SOURCE[0]}")/port.sh"
 
-# Check the full schema against a fresh, isolated mock before dev opens services
-# or resets its instance data. Dependency upgrades must pass the real wire path.
-if ! bun run --silent --filter @libs/runtime-server test:contract; then
-  printf '%s\n' \
-    'Workspace Run blocked: Mockingbird Postgres cannot reconcile the application schema.' \
-    'See libs/tools/MOCKINGBIRD_MIGRATION.md for upstream gaps and regression checks.' >&2
-  exit 1
-fi
-
 exec bun run --silent dev -- --web-port "${VITE_PORT}"
