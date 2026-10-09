@@ -18,6 +18,13 @@ else
   echo "!!! mise not found; install it (https://mise.jdx.dev) and run 'mise install'"
 fi
 
+# Bun resolves every declared workspace before it installs any package. A fresh
+# linked worktree has only the submodule gitlink, so materialize submodule
+# workspaces before asking Bun to resolve the workspace graph.
+echo "==> git submodule update --init --recursive"
+git submodule update --init --recursive || \
+  echo "!!! submodule initialization failed; continuing with the available checkout"
+
 echo "==> bun install"
 if ! bun install; then
   # A failed lifecycle script must not abort workspace creation. Retry
@@ -25,9 +32,12 @@ if ! bun install; then
   # postinstall would have written. better-sqlite3 does not need that script;
   # ffmpeg-static and onnxruntime-node download their binaries in one.
   echo "!!! bun install failed; retrying with --ignore-scripts"
-  bun install --ignore-scripts
-  bun run generate || echo "!!! bun run generate failed; run it in this workspace"
-  echo "!!! install scripts did not run. ffmpeg-static and onnxruntime-node may be missing their binaries."
+  if bun install --ignore-scripts; then
+    bun run generate || echo "!!! bun run generate failed; run it in this workspace"
+    echo "!!! install scripts did not run. ffmpeg-static and onnxruntime-node may be missing their binaries."
+  else
+    echo "!!! dependency install is still incomplete; run this setup again when package sources are available"
+  fi
 fi
 
 # `main` only moves through a merged PR: enable the repo hooks (pre-commit,
