@@ -24,6 +24,12 @@ module system_actions {
   var quiescent: bool
   var recoveryBudget: int
 
+  // Joining and live room use need a connected host, independently of
+  // retained access or participation on either person's device.
+  def hostAvailable(id: int): bool = DEVICES.exists(d =>
+    clients.owner.get(d) == server.social.spaces.get(id).owner and
+      syncConnected(clients,d) and syncSession(clients,server,d))
+
   action init = all {
     server' = productInitial, clients' = syncInitial(productInitial),
     violation' = Set(), covered' = Set(), quiescent' = false, recoveryBudget' = 0,
@@ -62,11 +68,13 @@ module system_actions {
       val before = queue.slice(0,index)
       val o = clients.ops.get(id)
       val fresh = not(clients.decision.keys().contains(id))
-      val allowed = o.actor == clients.owner.get(d) and productAllowed(server,o)
+      val allowed = o.actor == clients.owner.get(d) and productAllowed(server,o) and
+        (o.kind != "join" or hostAvailable(o.resource))
       // Independent proof of the before-state facts, confined to admission so
       // the symbolic compiler does not duplicate it into every unrelated action.
       val justified = clients.held.contains(d) and clients.owner.get(d) == o.actor and
-        clients.token.get(d) == server.auth.epoch.get(o.actor) and authUsable(server.auth,o.actor) and productAllowed(server,o)
+        clients.token.get(d) == server.auth.epoch.get(o.actor) and authUsable(server.auth,o.actor) and productAllowed(server,o) and
+        (o.kind != "join" or hostAvailable(o.resource))
       all {
         // SQL and room channels preserve their own order, not a shared order.
         before.indices().forall(i => clients.decision.keys().contains(before.nth(i)) or
@@ -306,7 +314,7 @@ module system_actions {
     val p = clients.owner.get(d)
     all {
       not(quiescent), syncConnected(clients,d), syncSession(clients,server,d),
-      r.open, r.game != -1, r.members.contains(p),
+      r.open, r.game != -1, r.members.contains(p), hostAvailable(id),
       move({ ...server, game: { ...server.game, roomMoves: server.game.roomMoves.set(id,server.game.roomMoves.get(id) + 1) },
         revision: server.revision + 1 },clients,"room-move"),
     }
