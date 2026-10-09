@@ -6017,6 +6017,18 @@
         "typescript": "catalog:",
       },
     },
+    "vendor/atlas/packages/bun": {
+      "name": "@crvouga/atlas-bun",
+      "version": "0.1.0",
+      "dependencies": {
+        "@crvouga/atlas": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "^22.20.3",
+        "typescript": "^5.9.3",
+        "vitest": "^3.2.6",
+      },
+    },
     "vendor/atlas/packages/core": {
       "name": "@crvouga/atlas",
       "version": "0.1.0",
@@ -6123,6 +6135,18 @@
     },
     "vendor/atlas/packages/vitest": {
       "name": "@crvouga/atlas-vitest",
+      "version": "0.1.0",
+      "dependencies": {
+        "@crvouga/atlas": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "^22.20.3",
+        "typescript": "^5.9.3",
+        "vitest": "^3.2.6",
+      },
+    },
+    "vendor/atlas/packages/webdriver": {
+      "name": "@crvouga/atlas-webdriver",
       "version": "0.1.0",
       "dependencies": {
         "@crvouga/atlas": "workspace:*",
@@ -6606,6 +6630,8 @@
 
     "@crvouga/atlas": ["@crvouga/atlas@workspace:vendor/atlas/packages/core"],
 
+    "@crvouga/atlas-bun": ["@crvouga/atlas-bun@workspace:vendor/atlas/packages/bun"],
+
     "@crvouga/atlas-detox": ["@crvouga/atlas-detox@workspace:vendor/atlas/packages/detox"],
 
     "@crvouga/atlas-playwright": ["@crvouga/atlas-playwright@workspace:vendor/atlas/packages/playwright"],
@@ -6615,6 +6641,8 @@
     "@crvouga/atlas-visualizer": ["@crvouga/atlas-visualizer@workspace:vendor/atlas/packages/visualizer"],
 
     "@crvouga/atlas-vitest": ["@crvouga/atlas-vitest@workspace:vendor/atlas/packages/vitest"],
+
+    "@crvouga/atlas-webdriver": ["@crvouga/atlas-webdriver@workspace:vendor/atlas/packages/webdriver"],
 
     "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.11.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-G5EJjgDjFilrGUbTuqnapcpAiAFVu9YsWy/Vr1EzXvw5B9FnNfT10k1TCHCflRea/lEaTJiYNnPCwhIXE9RAFA=="],
 
@@ -9452,6 +9480,10 @@
 
     "@crvouga/atlas/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
+    "@crvouga/atlas-bun/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
+
+    "@crvouga/atlas-bun/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
     "@crvouga/atlas-detox/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
 
     "@crvouga/atlas-detox/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
@@ -9477,6 +9509,10 @@
     "@crvouga/atlas-vitest/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
 
     "@crvouga/atlas-vitest/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
+    "@crvouga/atlas-webdriver/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
+
+    "@crvouga/atlas-webdriver/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
 
