@@ -19,3 +19,19 @@ Feature: Leave your account's space while its host is offline
     Scenario: A person who never joined is not offered to leave
       When Carol opens Alice's space link
       Then Carol is not offered to leave the space
+
+    Scenario: A joined person leaves while the host is offline
+      When Bob leaves the space
+      Then Bob sees they have left the space
+
+    Scenario: A joined person leaves without either person's connection
+      Given Bob is offline
+      When Bob leaves the space
+      Then Bob sees they have left the space
+
+    Scenario: Returning does not bring back someone who left offline
+      Given Bob is offline
+      And Bob has left the space
+      When the connection comes back
+      Then Bob sees they have left the space
+      And Alice sees 1 person in the space within 20 seconds
