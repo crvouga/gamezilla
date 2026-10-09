@@ -27,6 +27,10 @@ runs:
         version: 2026.9.13
         install_args: ${{ inputs.tools }}
 
+    - name: Initialize workspace submodules
+      shell: bash
+      run: git submodule update --init --recursive
+
     # Frozen installs avoid restoring platform-dependent dependency trees.
     # mise caches pinned tools; Turbo caches content-addressed task results.
     - name: Install dependencies

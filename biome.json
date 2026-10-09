@@ -15,6 +15,7 @@
       "!!**/.wrangler",
       "!!**/.turbo",
       "!!**/.cache",
+      "!!vendor/atlas",
       "!**/*.lock",
       "!libs/app-root-shared/locales/*/messages.ts",
       "!.superset/config.json",

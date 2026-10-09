@@ -113,6 +113,50 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
   }
 });
 
+// regression: check-snapshot-linked-worktree-submodule-gitdir
+test('a linked-worktree submodule does not redirect snapshot Git commands', async () => {
+  const source = mkdtempSync(join(tmpdir(), 'check-submodule-fixture-'));
+  let run: string | undefined;
+  try {
+    const git = (...args: string[]) =>
+      execFileSync('git', args, { cwd: source, stdio: 'pipe' });
+    git('init', '-q');
+    writeFileSync(join(source, 'input'), 'fixture');
+    git('add', 'input');
+    git(
+      '-c',
+      'user.name=Fixture',
+      '-c',
+      'user.email=fixture@example.com',
+      'commit',
+      '-qm',
+      'fixture'
+    );
+    const head = git('rev-parse', 'HEAD').toString().trim();
+    mkdirSync(join(source, 'vendor/atlas'), { recursive: true });
+    writeFileSync(join(source, 'vendor/atlas/package.json'), '{}');
+    writeFileSync(
+      join(source, 'vendor/atlas/.git'),
+      'gitdir: ../../.git/worktrees/fixture/modules/vendor/atlas\n'
+    );
+    git('update-index', '--add', '--cacheinfo', `160000,${head},vendor/atlas`);
+
+    run = await createCheckSnapshot(source);
+
+    expect(existsSync(join(run, 'vendor/atlas/package.json'))).toBe(true);
+    expect(existsSync(join(run, 'vendor/atlas/.git'))).toBe(false);
+    expect(() =>
+      execFileSync('git', ['status', '--porcelain'], {
+        cwd: run,
+        stdio: 'pipe',
+      })
+    ).not.toThrow();
+  } finally {
+    for (const path of [run === undefined ? undefined : dirname(run), source])
+      if (path) rmSync(path, { recursive: true, force: true });
+  }
+});
+
 // regression: check-snapshot-dependency-copy-overhead
 // regression: check-snapshot-native-dependencies
 test('installed native libraries and workspace imports survive private dependency copies', async () => {

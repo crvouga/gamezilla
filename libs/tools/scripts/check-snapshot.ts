@@ -28,7 +28,7 @@ function copyInput(source: string, destination: string): void {
     verbatimSymlinks: true,
     mode: constants.COPYFILE_FICLONE,
     filter: (path) =>
-      !['.cache', '.turbo', '.vite'].includes(path.split('/').at(-1)!),
+      !['.cache', '.git', '.turbo', '.vite'].includes(path.split('/').at(-1)!),
   });
 }
 
