@@ -126,6 +126,16 @@ terms:
     forms: [steps out, stepped out, stepping out]
     model: [stepOut]
 
+  - term: remove a person
+    definition: >-
+      The host ends another person's current participation in their space.
+      The space stays open. Removal is not a ban: the person may choose
+      to join again through the public space link once both connections
+      are available. A host can remove a person without a connection;
+      the person learns the removal once both connections are back.
+    forms: [removes someone from the space, removed someone from the space, removed from the space]
+    model: [removePerson]
+
   - term: go back to the lobby
     definition: >-
       Go to the lobby from wherever a person is in Spaces. From a space they

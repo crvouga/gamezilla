@@ -5,6 +5,9 @@
 // space's presence, which counts who is in it; and end the space. The other
 // can join a friend's open space from their lobby, step out, and leave it;
 // after leaving, they can choose to join it again from its space link. A
+// host can remove the other person, with or without a connection. Removal
+// ends that person's participation; they may explicitly join again through
+// the public space link, and reopening the app never joins them by itself.
 // lobby lists every open space of the person and their friends. Ending a
 // space shows everyone looking at it that it has ended; from there they go
 // back to the lobby. Losing the connection is not leaving. A host creates,
@@ -177,6 +180,14 @@ module space_hosting {
       _moveTo(_whereabouts.set(person, Left(hostOf(_whereabouts.get(person)))), _openSpaces, _offline, _acted(person)),
   }
 
+  /// The host removes the other person without ending the space or preventing a later join.
+  action removePerson(person: Person, other: Person): bool = all {
+    hostOf(_whereabouts.get(person)) == person,
+    other != person,
+    hostOf(_whereabouts.get(other)) == person,
+    _moveTo(_whereabouts.set(other, Left(person)), _openSpaces, _offline, _acted(person)),
+  }
+
   /// Look at who is in the space.
   action viewPresence(person: Person): bool = all {
     match _whereabouts.get(person) { | InSpace(_) => true | _ => false },
@@ -234,6 +245,7 @@ module space_hosting {
       join(person, host),
       stepOut(person),
       leave(person),
+      removePerson(person, host),
       viewPresence(person),
       stopViewingPresence(person),
       endSpace(person),
