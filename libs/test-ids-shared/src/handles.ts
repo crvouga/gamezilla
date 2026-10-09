@@ -40,7 +40,9 @@ export const Handles = {
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
   spaceJoin: 'space-join',
+  spaceJoinPrompt: 'space-join-prompt',
   spaceEnded: 'space-ended',
+  spaceHostOffline: 'space-host-offline',
   spaceClose: 'space-close',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
@@ -66,8 +68,8 @@ export const Handles = {
   /** How many live spaces the viewer hosts, on the Spaces screen. */
   spacesHostingCount: 'spaces-hosting-count',
   /**
-   * The Spaces list has heard from the server, including when it hosts none.
-   * Absent while that answer is still on its way.
+   * The Spaces list has read its local hosting count, including zero.
+   * Absent while local data is loading.
    */
   spacesListReady: 'spaces-list-ready',
   /** Spaces screen / link: this needs a connection. */

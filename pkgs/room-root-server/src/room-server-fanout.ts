@@ -54,12 +54,16 @@ export async function sendWelcomeFrame(args: {
  * Fan-out of ONE frame object to every connection (adapters may memoize its
  * serialization per object); drop sockets whose `send` throws (never swallow).
  */
-export function broadcastToConnections(
-  connections: Map<string, { readonly id: string; readonly send: Sender }>,
-  payload: unknown
+export function broadcastToConnections<
+  T extends { readonly id: string; readonly send: Sender },
+>(
+  connections: Map<string, T>,
+  payload: unknown,
+  accepts: (connection: T) => boolean
 ): void {
   let dead: string[] | null = null;
   for (const conn of connections.values()) {
+    if (!accepts(conn)) continue;
     try {
       conn.send(payload);
     } catch {

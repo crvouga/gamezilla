@@ -150,12 +150,31 @@ export function hostingLimitShown(
   return shows(s, actorId, Handles.spacesHostingLimit);
 }
 
-/** The actor's app says spaces need a connection. */
+/** The actor's app explains why joining needs a connection. */
 export function spacesNeedConnectionShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   return shows(s, actorId, Handles.spacesNeedConnection);
+}
+
+/** The space explicitly says its host is offline. */
+export function spaceHostOfflineShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceHostOffline);
+}
+
+/** A refused join stays available as an explicit retry. */
+export async function joinRetryOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return (
+    (await textOf(s, actorId, Handles.spaceJoin))?.includes("Couldn't join") ??
+    false
+  );
 }
 
 /** How many live spaces the actor's Spaces screen says they host. */

@@ -21,8 +21,8 @@ import {
   reenterActiveSpace,
   returnToLobby,
 } from '@libs/spaces-harness/space-actions';
+import type { SpaceScreen } from '@libs/spaces-harness/space-screen-read';
 import { spaceScreenOf } from '@libs/spaces-harness/space-screen-read';
-import { openSpaceHosts } from '@libs/spaces-harness/space-state-reads';
 import {
   lobbyCardVisible,
   readSpaceLink,
@@ -51,6 +51,24 @@ async function hostHere(
   const link = await w.quiet.read(readSpaceLink, actorId);
   const host = link === null ? undefined : w.memo.get(hostKey(link));
   return typeof host === 'string' ? host : `unknown space ${String(link)}`;
+}
+
+async function whereaboutsHere(
+  w: QuintHarnessWorld,
+  actor: string,
+  screen: SpaceScreen
+): Promise<QuintValue> {
+  if (screen === 'lobby') return variant('Lobby');
+  if (screen === 'ended') return variant('Ended');
+  const names = {
+    space: 'InSpace',
+    viewingPresence: 'ViewingPresence',
+    left: 'Left',
+    droppedOut: 'DroppedOut',
+    elsewhere: 'Elsewhere',
+  } as const;
+  if (screen === 'elsewhere') return variant(names[screen]);
+  return variant(names[screen], await hostHere(w, actor));
 }
 
 bindQuintModel<QuintHarnessWorld>({
@@ -119,34 +137,21 @@ bindQuintModel<QuintHarnessWorld>({
       lobby.set(actor, new Set());
       presence.set(actor, 0);
       const screen = await w.quiet.read(spaceScreenOf, actor);
+      whereabouts.set(actor, await whereaboutsHere(w, actor, screen));
       if (screen === 'lobby') {
-        whereabouts.set(actor, variant('Lobby'));
         const hosts = new Set<QuintValue>();
         for (const host of PEOPLE) {
           if (await w.quiet.read(lobbyCardVisible, actor, host))
             hosts.add(host);
         }
         lobby.set(actor, hosts);
-      } else if (screen === 'space') {
-        whereabouts.set(actor, variant('InSpace', await hostHere(w, actor)));
       } else if (screen === 'viewingPresence') {
-        whereabouts.set(
-          actor,
-          variant('ViewingPresence', await hostHere(w, actor))
-        );
         presence.set(
           actor,
           (await w.quiet.read(readSpacePresenceCount, actor)) ?? -1
         );
-      } else if (screen === 'left') {
-        whereabouts.set(actor, variant('Left', await hostHere(w, actor)));
-      } else if (screen === 'ended') {
-        whereabouts.set(actor, variant('Ended'));
-      } else {
-        whereabouts.set(actor, variant('Elsewhere'));
       }
     }
-    const openSpaces = await w.quiet.read(openSpaceHosts, PEOPLE);
-    return { whereabouts, openSpaces, lobby, presence };
+    return { whereabouts, lobby, presence };
   },
 });

@@ -12,6 +12,7 @@ import type {
 import { OperationRefused } from '@libs/permissions-shared/server';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
+import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
 import {
   memberIdOf,
   SPACE_ID,
@@ -198,7 +199,8 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
         getSessionToken: () => null,
       });
       try {
-        await transport.connect();
+        const disclosed = await roomHistoryDisclosed(transport, timers);
+        if (!disclosed) throw new OperationRefused('not in the space');
       } catch (cause) {
         if (cause instanceof Error && cause.message === 'not in the space')
           throw new OperationRefused(cause.message);

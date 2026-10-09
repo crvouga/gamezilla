@@ -1,0 +1,4 @@
+{
+  "summary": "The watcher agreement check captured an old host position before an automatic reply, then compared against it forever.",
+  "regressionTest": "specs/chess/puzzle-late-watcher.feature"
+}

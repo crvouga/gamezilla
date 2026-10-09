@@ -5,6 +5,7 @@ import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-com
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
+import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { readCustomGameIdentity } from './custom-game-identity';
 
@@ -73,7 +74,6 @@ export const attemptCustomGameBoundary = scenarioAction({
         rememberReply(s, actor, { reason, disclosed: true });
         return;
       }
-      let disclosed = false;
       const transport = node.createTransport({
         topic: `space:${args.spaceId}`,
         module: 'space',
@@ -85,12 +85,12 @@ export const attemptCustomGameBoundary = scenarioAction({
         random: env.random,
         getSessionToken: () => null,
       });
-      transport.subscribe(() => {
-        disclosed = true;
-      });
       try {
-        await transport.connect();
-        rememberReply(s, actor, { reason: '', disclosed });
+        const disclosed = await roomHistoryDisclosed(transport, env.timers);
+        rememberReply(s, actor, {
+          reason: disclosed ? '' : 'not in the space',
+          disclosed,
+        });
       } finally {
         transport.destroy();
       }

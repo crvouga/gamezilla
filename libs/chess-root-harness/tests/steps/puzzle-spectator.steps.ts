@@ -20,11 +20,11 @@ import {
   isPuzzleSolved,
   readActivePuzzleId,
   readPuzzleDebug,
-  readPuzzleDisplayFen,
   readPuzzlePickState,
   readPuzzleSpectator,
   readPuzzleStatus,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { puzzleBoardPair } from '@libs/chess-puzzle-harness/puzzle-board-pair-read';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { joinSpaceFromLink } from '@libs/friends-harness/spaces.steps';
 import { Given, Then, When } from '@libs/harness/define';
@@ -97,15 +97,9 @@ async function untilBoardsAgree(
   second: Actor,
   maxMs: number
 ): Promise<void> {
-  await w.s.apply(focusActor, first);
-  const fen = required(
-    await w.s.read(readPuzzleDisplayFen, first),
-    `${first}'s board`
-  );
-  await w.s.apply(focusActor, second);
-  await w.s.until(async (surf) => readPuzzleDisplayFen(surf, second), {
+  await w.s.until((surf) => puzzleBoardPair(surf, first, second), {
     maxMs,
-    pred: (other) => other === fen,
+    pred: (boards) => boards.first !== null && boards.first === boards.second,
   });
 }
 

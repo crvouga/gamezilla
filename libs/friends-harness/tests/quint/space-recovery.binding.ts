@@ -10,7 +10,6 @@ import {
   openSpaceMembers,
 } from '@libs/spaces-harness/space-actions';
 import { spaceScreenOf } from '@libs/spaces-harness/space-screen-read';
-import { openSpaceHosts } from '@libs/spaces-harness/space-state-reads';
 import {
   readSpaceLink,
   readSpacePresenceCount,
@@ -78,11 +77,13 @@ bindQuintModel<QuintHarnessWorld>({
       const where =
         screen === 'space' || screen === 'viewingPresence'
           ? 'InSpace'
-          : screen === 'left'
-            ? 'Left'
-            : screen === 'ended'
-              ? 'Ended'
-              : 'Elsewhere';
+          : screen === 'droppedOut'
+            ? 'DroppedOut'
+            : screen === 'left'
+              ? 'Left'
+              : screen === 'ended'
+                ? 'Ended'
+                : 'Elsewhere';
       whereabouts.set(actor, variant(where));
       presence.set(
         actor,
@@ -91,7 +92,6 @@ bindQuintModel<QuintHarnessWorld>({
           : 0
       );
     }
-    const openSpaces = await w.quiet.read(openSpaceHosts, PEOPLE);
-    return { openSpaces, whereabouts, presence };
+    return { whereabouts, presence };
   },
 });

@@ -123,6 +123,12 @@ export type RoomModule<
 > = {
   /** Wire id for DO routing (`module` query) and uniqueness in multi-module hosts. */
   readonly name: RoomModuleName;
+  /** A presence connection receives availability, never domain events. */
+  connectionView?(
+    grants: readonly string[]
+  ):
+    | { readonly mode: 'full' }
+    | { readonly mode: 'presence'; readonly reason: string };
   initialState(): S;
   handle(
     state: S,

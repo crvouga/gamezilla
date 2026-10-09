@@ -1,4 +1,4 @@
 {
-  "summary": "Creating a space offline was quietly queued. Fixed: it says spaces need a connection.",
+  "summary": "Offline space creation was blocked despite local-first hosting. The host must enter immediately and keep the same space on reconnect.",
   "regressionTest": "specs/spaces/space-needs-connection.feature"
 }

@@ -11,12 +11,10 @@ import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-rea
 import {
   leavePuzzleToChessMenu,
   reopenPuzzleFromChessMenu,
-  showChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import {
   readActivePuzzleId,
   readPuzzleDisplayFen,
-  readStatsElo,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   focusChessScreen,
@@ -36,12 +34,6 @@ import { multiplayerPeople } from './multiplayer-people';
 import { givenGame } from './multiplayer-world';
 import { enterPuzzles, waitSolverToMove } from './puzzle-world';
 
-Given('{actor} blocked {actor}', async (w, actor: Actor, blocked: Actor) => {
-  await prepareNamedFriend(w.s, actor);
-  await prepareNamedFriend(w.s, blocked);
-  await w.s.apply(openPersonFromSearch, actor, blocked);
-  await w.s.apply(blockPerson, actor, blocked);
-});
 Given(
   '{actor} blocked {actor} after their multiplayer game was formed',
   async (w, actor: Actor, blocked: Actor) => {
@@ -134,10 +126,3 @@ Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
     await w.s.read(readPuzzleDisplayFen, actor),
   ]).toEqual(w.memo.get('multiplayer:unrelated-puzzle') as [string, string]);
 });
-Then(
-  "{actor}'s puzzle rating is still {int}",
-  async (w, actor: Actor, rating: number) => {
-    await w.s.apply(showChessStatsScreen, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBe(rating);
-  }
-);

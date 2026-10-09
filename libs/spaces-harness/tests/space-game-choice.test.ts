@@ -5,6 +5,7 @@ import { openConformanceDb } from '@libs/permissions-shared/world';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
+import { Increment } from '@libs/spaces-shared/counter';
 import { SelectGame } from '@libs/spaces-shared/games';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
@@ -108,6 +109,19 @@ describe('the game choice in a space room', () => {
       expect(await send(db, OUTSIDER, chooseNoGame)).toMatchObject({
         kind: 'rejected',
         error: { type: ROOM_ERROR_TYPE.unauthorized },
+      });
+    });
+  });
+
+  // regression: space-preview-command-unguarded
+  test('a public-link observer cannot issue a participant command', async () => {
+    await withSpace(async (db) => {
+      expect(await send(db, OUTSIDER, Increment({}))).toMatchObject({
+        kind: 'rejected',
+        error: { type: ROOM_ERROR_TYPE.unauthorized },
+      });
+      expect(await send(db, MEMBER, Increment({}))).toEqual({
+        kind: 'committed',
       });
     });
   });

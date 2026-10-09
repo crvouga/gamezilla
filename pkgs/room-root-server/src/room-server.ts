@@ -171,6 +171,9 @@ export class RoomServer<
       send,
       actor,
       grants: options?.grants ?? NO_GRANTS,
+      view: this.module.connectionView?.(options?.grants ?? NO_GRANTS) ?? {
+        mode: 'full',
+      },
     });
     if (options?.silent !== true) this.broadcastRoster();
   }
@@ -202,9 +205,9 @@ export class RoomServer<
   }
 
   getRoster(): readonly RoomActor[] {
-    const out = new Array<RoomActor>(this.connections.size);
-    let i = 0;
-    for (const conn of this.connections.values()) out[i++] = conn.actor;
+    const out: RoomActor[] = [];
+    for (const conn of this.connections.values())
+      if (conn.view.mode === 'full') out.push(conn.actor);
     return out;
   }
 
@@ -242,7 +245,13 @@ export class RoomServer<
   }
 
   private broadcast(frame: unknown): void {
-    broadcastToConnections(this.connections, frame);
+    broadcastToConnections(
+      this.connections,
+      frame,
+      (conn) =>
+        conn.view.mode === 'full' ||
+        (frame as { kind: string }).kind === ROOM_WIRE_KIND.roster
+    );
   }
 
   /** Serialize storage-touching work; the returned promise carries the work's outcome. */
@@ -266,6 +275,21 @@ export class RoomServer<
   ): Promise<void> {
     const conn = this.connections.get(connectionId);
     if (conn === undefined) return;
+    if (conn.view.mode === 'presence') {
+      conn.send({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.welcome,
+        fromSeq: 0,
+        lastSeq: 0,
+        entries: [],
+      });
+      conn.send({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.roster,
+        clients: this.getRoster(),
+      });
+      return;
+    }
     await sendWelcomeFrame({
       storage: this.storage,
       topic: this.topic,
@@ -448,6 +472,15 @@ export class RoomServer<
     if (conn === undefined) return;
     const send = conn.send;
     const commandId = parsed.id;
+    if (conn.view.mode === 'presence') {
+      send(
+        rejectedFrame(commandId, {
+          type: ROOM_ERROR_TYPE.unauthorized,
+          reason: conn.view.reason,
+        })
+      );
+      return;
+    }
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
       this.sendDedupReplay(send, commandId, prior);

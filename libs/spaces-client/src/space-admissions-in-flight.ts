@@ -1,29 +1,28 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import { createContext, useContext } from 'solid-js';
 
-/** How long a room connection waits for its space's creation to land. */
+/** How long a room connection waits for its space participation to land. */
 const LAND_MAX_MS = 4_000;
 const LAND_POLL_MS = 100;
 
 /**
- * The spaces this device just created, each with the id of its `createSpace`
+ * The spaces this device created or joined, each with the id of its participation
  * write, until that write has reached the server.
  *
  * The room gateway decides what someone may do in a space's room from the
- * server's rows when their socket opens (the host's game choice), and the
- * room keeps that answer for the life of the connection. A host whose space
- * is still on its way to the server must not open the socket before it
- * lands, or the room would admit them without the host's grants.
+ * server's rows when their connection opens, and the
+ * room keeps that answer for the life of the connection. Participation still on its way to the server must land before
+ * opening that connection, so members receive their participant grants.
  */
-export type SpaceHostingsInFlight = {
+export type SpaceAdmissionsInFlight = {
   readonly record: (spaceId: string, mutationId: string) => void;
-  /** The in-flight creation of `spaceId`, if any. */
+  /** The in-flight participation of `spaceId`, if any. */
   readonly get: (spaceId: string) => string | null;
-  /** The creation reached the server (or stopped being waited on). */
+  /** The participation was confirmed or refused. */
   readonly forget: (spaceId: string) => void;
 };
 
-export function createSpaceHostingsInFlight(): SpaceHostingsInFlight {
+export function createSpaceAdmissionsInFlight(): SpaceAdmissionsInFlight {
   const inFlight = new Map<string, string>();
   return {
     record: (spaceId, mutationId) => {
@@ -36,12 +35,12 @@ export function createSpaceHostingsInFlight(): SpaceHostingsInFlight {
   };
 }
 
-export const SpaceHostingsInFlightContext =
-  createContext<SpaceHostingsInFlight | null>(null);
+export const SpaceAdmissionsInFlightContext =
+  createContext<SpaceAdmissionsInFlight | null>(null);
 
 /** Null outside the spaces chrome (nothing is tracked there). */
-export function useSpaceHostingsInFlight(): SpaceHostingsInFlight | null {
-  return useContext(SpaceHostingsInFlightContext);
+export function useSpaceAdmissionsInFlight(): SpaceAdmissionsInFlight | null {
+  return useContext(SpaceAdmissionsInFlightContext);
 }
 
 type MutationOutcomes = {
@@ -62,13 +61,15 @@ function sleep(timers: Timers, ms: number): Promise<void> {
  * rejected), or after {@link LAND_MAX_MS} (offline: the socket will not open
  * anyway).
  */
-export async function hostingLanded(
+export async function admissionLanded(
   outcomes: MutationOutcomes,
   args: { readonly mutationId: string; readonly timers: Timers }
-): Promise<void> {
+): Promise<'pending' | 'confirmed' | 'rejected'> {
   outcomes.wakeUploads();
   for (let waited = 0; waited < LAND_MAX_MS; waited += LAND_POLL_MS) {
-    if ((await outcomes.mutationOutcome(args.mutationId)) !== 'pending') return;
+    const outcome = await outcomes.mutationOutcome(args.mutationId);
+    if (outcome !== 'pending') return outcome;
     await sleep(args.timers, LAND_POLL_MS);
   }
+  return outcomes.mutationOutcome(args.mutationId);
 }

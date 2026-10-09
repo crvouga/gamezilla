@@ -190,7 +190,7 @@ Then('{actor} hosts {int} space(s)', async (w, actor: Actor, count: number) => {
 });
 
 Then(
-  '{actor} is told spaces need a connection within {int} seconds',
+  '{actor} is told joining needs a connection within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
     await w.s.until((surf) => spacesNeedConnectionShown(surf, actor), {
       maxMs: seconds * SECOND_MS,
@@ -214,8 +214,10 @@ Then(
   "{actor}'s lobby lists {actor}'s space",
   async (w, actor: Actor, host: Actor) => {
     // Look at the lobby; the card arrives with the friend's space.
+    const name = await w.s.read(nameEveryoneSeesOf, host);
+    if (name === null) throw new Error(`${host} has no name yet`);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+    await w.s.until((surf) => lobbyCardVisible(surf, actor, name), {
       maxMs: PRESENCE_SETTLES_MS,
     });
   }
@@ -244,6 +246,11 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 });
 
 // ------------------------------------------------------------------ joining
+
+Given("{actor} has opened {actor}'s space link", async (w, actor: Actor) => {
+  await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
+  await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
+});
 
 /** `actor` opens the shared space link and joins when it offers to. */
 export async function joinSpaceFromLink(
@@ -317,9 +324,8 @@ Given('{actor} has left the space', async (w, actor: Actor) => {
 Given(
   '{actor} has lost the connection long enough to drop out of the space',
   async (w, actor: Actor) => {
-    const host = recall(w, SPACE_HOST) as Actor;
     await cutConnection(w, actor);
-    await untilPresence(w, host, 1, PRESENCE_SETTLES_MS);
+    await w.s.apply(letTimePass, 2 * SECOND_MS);
   }
 );
 

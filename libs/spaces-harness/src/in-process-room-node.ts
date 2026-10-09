@@ -55,7 +55,7 @@ export type RoomServerApp = HarnessRoomNode & {
 
 function withReadyGate(
   inner: ClientTransport,
-  ready: () => Promise<void>
+  ready: (cancelled: () => boolean) => Promise<void>
 ): ClientTransport {
   let destroyed = false;
   return {
@@ -64,7 +64,7 @@ function withReadyGate(
     },
     async connect() {
       try {
-        await ready();
+        await ready(() => destroyed);
       } catch (cause) {
         if (!destroyed) throw cause;
       }
@@ -169,12 +169,14 @@ function buildLoopbackTransport(
     identity: args.identity,
     clientId: args.clientId,
   });
-  return withReadyGate(transport, async () => {
+  return withReadyGate(transport, async (cancelled) => {
     await entry.ready;
+    if (cancelled()) return;
     // Every open asks the client for its session token first, as the web
     // transport's URL factory does (a host whose space was just created waits
     // there for it to reach the server before the socket opens).
     await args.getSessionToken();
+    if (cancelled()) return;
     grants = await gateway.roomGrants({
       topic: entry.server.topic,
       actor: actorOf(args),
@@ -183,7 +185,11 @@ function buildLoopbackTransport(
       args.module === 'space'
         ? PERMISSION.spacesLeave
         : PERMISSION.chessMultiplayerWatch;
-    if (!grants.includes(admissionKey)) throw new Error('not in the space');
+    if (
+      !grants.includes(admissionKey) &&
+      !(args.module === 'space' && grants.includes(PERMISSION.spacesJoin))
+    )
+      throw new Error('not in the space');
   });
 }
 

@@ -132,7 +132,9 @@ export class RoomClient<
     }
     r.attachTransport();
     try {
-      await Promise.resolve(config.transport.connect());
+      void Promise.resolve(config.transport.connect()).catch(() => {
+        // Admission never holds local state or optimistic commands hostage.
+      });
     } catch {
       // Stay offline; offline-first UI depends on returning the client.
     }

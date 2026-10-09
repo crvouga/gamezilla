@@ -1,0 +1,4 @@
+{
+  "summary": "Ending a space did not notify friends outside its membership, leaving an ended space in their offline lobby.",
+  "regressionTest": "specs/spaces/space-end.feature"
+}

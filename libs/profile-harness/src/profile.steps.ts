@@ -9,7 +9,7 @@ import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import { type HarnessWorld, remember } from '@libs/harness/spec-world';
 import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile-shared/username';
 import {
   cancelAvatarEdits,
@@ -32,6 +32,7 @@ import {
   standInNameOf,
   standInNoticeShown,
 } from './profile-ui-reads';
+import { usernameKey } from './remembered-username';
 import {
   startAllowingUsername,
   stopAllowingUsername,
@@ -97,6 +98,7 @@ async function takeUsername(
   if (face !== 'Saved') {
     throw new Error(`${actor} could not take @${username}: ${face}`);
   }
+  remember(w, usernameKey(actor), username);
   await w.s.apply(leaveUsernameEditor, actor);
 }
 
@@ -110,7 +112,7 @@ Given(
 );
 
 Given(
-  '{actor} has just renamed themselves to {username}',
+  '{actor} has renamed themselves to {username}',
   async (w, actor: Actor, username: string) => {
     await takeUsername(w, actor, username);
   }

@@ -1802,6 +1802,14 @@ msgid "Joined"
 msgstr "Joined"
 
 #: libs/spaces-client/src/space-join-button.tsx
+msgid "Joining someone else's space needs a connection."
+msgstr "Joining someone else's space needs a connection."
+
+#: libs/spaces-client/src/spaces-notices.tsx
+msgid "Joining someone else's space needs a connection. Your own spaces work offline."
+msgstr "Joining someone else's space needs a connection. Your own spaces work offline."
+
+#: libs/spaces-client/src/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
 
@@ -3511,10 +3519,6 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
-#: libs/spaces-client/src/spaces-notices.tsx
-msgid "Spaces need a connection. Connect to the internet and try again."
-msgstr "Spaces need a connection. Connect to the internet and try again."
-
 #: pkgs/harness-report-client/src/entity-browser.tsx
 msgid "Spec"
 msgstr "Spec"
@@ -3809,6 +3813,10 @@ msgstr "The game ends with no result and no rating change."
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
+
+#: libs/spaces-client/src/space-connection-notice.tsx
+msgid "The host is offline. This space will reconnect when they return."
+msgstr "The host is offline. This space will reconnect when they return."
 
 #: libs/spaces-client/src/games-main-menu.tsx
 msgid "The host picks the game for this space."

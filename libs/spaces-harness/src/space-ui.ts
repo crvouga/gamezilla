@@ -181,6 +181,7 @@ const SPACE_OUTCOMES = [
   Handles.spaceJoin,
   Handles.spaceClose,
   Handles.spaceEnded,
+  Handles.spaceHostOffline,
   Handles.spaceNotFound,
   Handles.spacesNeedConnection,
   Handles.spacesHostingLimit,

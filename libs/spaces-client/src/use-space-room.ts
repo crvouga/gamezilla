@@ -4,6 +4,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth-client/use-fresh-auth-token';
+import { spacePresenceClientId } from '@libs/spaces-shared/space-presence-client-id';
 import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useKv } from '@pkgs/kv-root-client/solid';
 import type { RoomClient } from '@pkgs/room-root-client/room-client';
@@ -56,7 +57,10 @@ export function useSpaceRoom(
     const id = resolveId(spaceId);
     const device = deviceId();
     return id.length > 0 && device.length > 0
-      ? rooms.clientId(id, device, createId)
+      ? spacePresenceClientId(
+          rooms.clientId(id, device, createId),
+          rooms.viewingIds().has(id)
+        )
       : '';
   });
 

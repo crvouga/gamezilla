@@ -8,6 +8,7 @@ export type SpaceScreen =
   | 'space'
   | 'lobby'
   | 'left'
+  | 'droppedOut'
   | 'elsewhere';
 
 /** The space or lobby a person can currently see. */
@@ -17,6 +18,12 @@ export async function spaceScreenOf(
 ): Promise<SpaceScreen> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'ended';
+  if (await visible(s, actorId, [Handles.spaceJoinPrompt])) return 'left';
+  if (
+    (await visible(s, actorId, [Handles.spaceHostOffline])) ||
+    (await visible(s, actorId, [Handles.spacesNeedConnection]))
+  )
+    return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'space';

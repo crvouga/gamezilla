@@ -1,6 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon, PlusIcon } from '@pkgs/ui-root-client/icons';
@@ -14,7 +13,6 @@ import { SpaceCard } from './space-card';
 import { openSpaceDetail } from './space-routes';
 import type { SpacesNotice } from './spaces-notices';
 import { SpacesAttemptNotice, SpacesLobbyContent } from './spaces-notices';
-import { useCheckConnection } from './use-check-connection';
 import { useCreateSpace } from './use-create-space';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
@@ -78,8 +76,7 @@ function SpacesList(props: {
 }
 
 /**
- * Start a space, or say why not: offline (spaces need the server) or at the
- * hosting limit (an invitation to Plus). Neither is an error.
+ * Start locally, or show the hosting limit's invitation to Plus.
  */
 function useStartSpace(): {
   readonly start: () => Promise<void>;
@@ -87,18 +84,9 @@ function useStartSpace(): {
 } {
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const checkConnection = useCheckConnection();
-  const engine = useSyncEngineInstance();
   const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
   const start = async (): Promise<void> => {
     setNotice(null);
-    // The hosting limit counts the server's live spaces. Wait until this
-    // device has them, or a create the server will refuse opens anyway.
-    await engine.waitForFirstSync();
-    if (!(await checkConnection())) {
-      setNotice({ kind: 'offline' });
-      return;
-    }
     const result = await createSpace();
     if (result.kind === 'limited') {
       setNotice({ kind: 'limited', decision: result.decision });

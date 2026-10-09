@@ -2401,7 +2401,6 @@
       "name": "@libs/spaces-harness",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/auth-shared": "workspace:*",
         "@libs/billing-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
         "@libs/harness": "workspace:*",
@@ -2436,6 +2435,7 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/feature-shared": "workspace:*",
         "@libs/permissions-server": "workspace:*",
+        "@libs/permissions-shared": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
         "@pkgs/attribute-shared": "workspace:*",
         "@pkgs/message-shared": "workspace:*",

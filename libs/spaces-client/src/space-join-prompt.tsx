@@ -7,11 +7,13 @@ import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createSignal, Match, Show, Switch } from 'solid-js';
+import { SpaceHostOfflineNotice } from './space-connection-notice';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinLiveBody } from './space-join-live-body';
 import { SpaceTitleText } from './space-title-text';
 import { SpacesNeedConnectionNotice } from './spaces-notices';
+import { useSpaceHostConnection } from './use-space-host-connection';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 
 export type SpaceJoinPromptProps = {
@@ -27,6 +29,7 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
     () => props.linkAnswered
   );
   const [joinOffline, setJoinOffline] = createSignal(false);
+  const connection = useSpaceHostConnection();
 
   return (
     <Show
@@ -35,6 +38,7 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
     >
       <ScreenBase
         screenId="space-join"
+        dataSet={{ testid: Handles.spaceJoinPrompt }}
         breadcrumbs={[
           { name: <Trans>Spaces</Trans>, onClick: nav('/') },
           {
@@ -47,7 +51,13 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
           },
         ]}
         footer={
-          <Show when={snapshot().status === 'live'}>
+          <Show
+            when={
+              snapshot().status === 'live' &&
+              connection() !== 'host-offline' &&
+              connection() !== 'loading'
+            }
+          >
             <div class="box flex-row">
               <SpaceJoinButton
                 spaceId={props.spaceId}
@@ -63,7 +73,16 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
             <Show when={joinOffline()}>
               <SpacesNeedConnectionNotice />
             </Show>
-            <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
+            <Show
+              when={
+                snapshot().status === 'live' && connection() === 'host-offline'
+              }
+              fallback={
+                <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
+              }
+            >
+              <SpaceHostOfflineNotice />
+            </Show>
           </div>
         )}
       />

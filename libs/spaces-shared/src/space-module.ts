@@ -1,3 +1,4 @@
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { createComposedMessageRouter } from '@pkgs/message-shared/router';
@@ -152,6 +153,10 @@ export function createSpaceModule(
 
   return {
     name,
+    connectionView: (grants) =>
+      grants.includes(PERMISSION.spacesLeave)
+        ? { mode: 'full' }
+        : { mode: 'presence', reason: 'not in the space' },
     initialState: (): RoomState => buildInitialState(games),
     recoverEffects: (state) =>
       games.flatMap((game) => [...game.recoverEffects(state)]),
