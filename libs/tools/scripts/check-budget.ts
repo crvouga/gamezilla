@@ -73,14 +73,6 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
  */
 export const CI_RUN_DEADLINE_SECONDS = 1200;
 
-/**
- * Wall-clock ceiling for `//#check:pr` on CI. Much less than a full shard:
- * a pull request is fast feedback, and the required `check` job (including
- * checkout, install, and Chrome) dies at 8 minutes. This stays below that
- * job's `check` step so a wedge is named before GitHub kills the step.
- */
-export const CI_PR_RUN_DEADLINE_SECONDS = 360;
-
 /** `deploy` adds provision → migrate → three worker deploys → health. */
 export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
@@ -97,8 +89,6 @@ export function taskBudgetSeconds(taskId: string, slowRunner: boolean): number {
 export type RunDeadlineOptions = {
   readonly isDeploy: boolean;
   readonly slowRunner: boolean;
-  /** `//#check:pr` on CI. Full shards keep {@link CI_RUN_DEADLINE_SECONDS}. */
-  readonly prGate?: boolean;
 };
 
 export function resolveRunDeadlineSeconds(
@@ -108,8 +98,6 @@ export function resolveRunDeadlineSeconds(
   const override = Number.parseInt(env[RUN_DEADLINE_ENV]?.trim() ?? '', 10);
   if (Number.isInteger(override) && override > 0) return override;
   if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;
-  if (options.slowRunner && options.prGate === true)
-    return CI_PR_RUN_DEADLINE_SECONDS;
   return options.slowRunner
     ? CI_RUN_DEADLINE_SECONDS
     : DEFAULT_RUN_DEADLINE_SECONDS;

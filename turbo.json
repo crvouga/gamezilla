@@ -600,22 +600,6 @@
       "cache": false,
       "outputLogs": "errors-only"
     },
-    "//#check:pr": {
-      "dependsOn": [
-        "//#lint:root",
-        "//#ci:syncpack",
-        "//#ci:i18n",
-        "//#ci:agent-commands",
-        "//#ci:workspace-lifecycle",
-        "//#ci:goals",
-        "//#ci:specs",
-        "//#ci:spec-ownership",
-        "tc",
-        "lint",
-        "test",
-        "@libs/tools#check:actionlint"
-      ]
-    },
     "//#check": {
       "dependsOn": [
         "//#lint:root",

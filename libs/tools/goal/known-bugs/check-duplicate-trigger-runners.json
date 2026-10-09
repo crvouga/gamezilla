@@ -1,4 +1,0 @@
-{
-  "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
-  "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
-}

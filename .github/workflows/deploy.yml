@@ -15,7 +15,7 @@ run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}
 #
 #   deploy:matrix  reads the env files (libs/infra-shared/scripts/workflow-env-matrix.ts)
 #                  from a job with no secrets and publishes the env lists.
-#   deploy:verify  the full Check (check.yml, scope `full`) on that commit:
+#   deploy:verify  the full Check (check.yml) on that commit:
 #                  every suite runs, fail-fast off, one aggregated verdict.
 #                  Nothing below starts unless it is green. Its cached
 #                  verdicts and build outputs are the ones `//#deploy`
@@ -44,8 +44,8 @@ run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}
 #
 # This never runs on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
-# secrets. PRs get the fast `check` gate in the Check workflow
-# (.github/workflows/check.yml) instead.
+# secrets. Pull requests run no GitHub Actions; Check is called only below as
+# the release gate.
 
 permissions:
   contents: read
@@ -143,8 +143,6 @@ jobs:
     name: deploy:verify
     needs: deploy-matrix
     uses: ./.github/workflows/check.yml
-    with:
-      scope: full
 
   # Every env file's secrets environment and its import of the shared
   # credentials (libs/infra-shared/tofu/stacks/fleet), then no env may keep a local

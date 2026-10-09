@@ -125,14 +125,13 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-`bun check`, `bun verify`, `bun health`, and `bun deploy` dispatch the
-Check, Health, and Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)). `bun check` is the fast PR
-gate (`//#check:pr`); `bun verify` runs every gate (`//#check`) and publishes
-the spec report of the commit to `/reports/<sha>`; `bun deploy` is the
-release: full verification of `main`, then every environment. Merging never
-deploys. `bun check:local`, `bun health:local`, and
-`bun deploy:local` run that work on this machine. Every check is a cached, per-package task that reads only its own package; a new
+Pull requests run no automated checks. `bun check`, `bun verify`, and
+`bun check:local` run every gate (`//#check`) locally. `bun health` and `bun deploy`
+dispatch the Health and Deploy workflows and block on the verdict
+([`README.md`](README.md#correctness-machinery)); Deploy independently runs
+full verification of `main` before every environment. Merging never deploys.
+`bun health:local` and `bun deploy:local` run that work on this machine. Every
+check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
@@ -160,8 +159,7 @@ super.engineering's app project settings.
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bun run --filter <pkg> tc`, `bun run --filter
-  <pkg> test`, then `bun check` (the Check workflow on GitHub, through
-  `git-sync`; `bun check:local` for a local run).
+  <pkg> test`, then `bun check` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-green` drives Check, Deploy and Health green.
