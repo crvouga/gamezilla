@@ -542,7 +542,9 @@ Then('{actor} cannot rename the space', async (w, actor: Actor) => {
 
 Then('{actor} is offered to join', async (w, actor: Actor) => {
   try {
-    await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
+    await w.s.until((s) => joinOffered(s, actor), {
+      maxMs: PRESENCE_SETTLES_MS,
+    });
   } catch (error) {
     const detail = await w.s.read(spacePresenceDiagnostics);
     throw new Error(`${String(error)}; ${detail}`, { cause: error });

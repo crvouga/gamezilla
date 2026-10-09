@@ -38,8 +38,8 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
 import leftPreview from './fixtures/space-left-preview-misclassified-as-participant.itf.json';
+import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -89,7 +89,8 @@ bindQuintModel<QuintHarnessWorld>({
     {
       // regression: space-left-preview-misclassified-as-participant
       id: 'space-left-preview-misclassified-as-participant',
-      title: 'An offline-host notice does not turn a person who left into a participant',
+      title:
+        'An offline-host notice does not turn a person who left into a participant',
       seed: '0x67932',
       itf: leftPreview,
     },

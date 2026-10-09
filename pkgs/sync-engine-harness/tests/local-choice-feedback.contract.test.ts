@@ -141,15 +141,21 @@ test('feedback belongs to its client and dismissing a refusal does not claim acc
   stopBob();
 });
 
-
 test('feedback for one choice target survives newer choices for another target', async () => {
   // regression: sync-mutation-feedback-confuses-choice-targets
-  await using s = await exampleSystem.run({ seed: 1, args: { clientCount: 0 } });
+  await using s = await exampleSystem.run({
+    seed: 1,
+    args: { clientCount: 0 },
+  });
   await openChoices(s);
   const client = await s.read((h) => h.clients.get('alice'));
   if (client === undefined) throw new Error('No Alice');
-  const groceries = client.engine.mutationFeedback(localNote.name, { id: NOTE.id });
-  const itinerary = client.engine.mutationFeedback(localNote.name, { id: 'Itinerary' });
+  const groceries = client.engine.mutationFeedback(localNote.name, {
+    id: NOTE.id,
+  });
+  const itinerary = client.engine.mutationFeedback(localNote.name, {
+    id: 'Itinerary',
+  });
   const stopGroceries = groceries.subscribe(() => undefined);
   const stopItinerary = itinerary.subscribe(() => undefined);
   try {
@@ -157,12 +163,27 @@ test('feedback for one choice target survives newer choices for another target',
     await s.apply(netSet, 'alice', 'sync', 'hold');
     await s.apply(mutate, 'alice', localNote, { ...NOTE, body: 'refused' });
     const pendingGroceries = await waitFeedback(s, groceries, 'pending');
-    await s.apply(mutate, 'alice', localNote, { id: 'Itinerary', title: 'Itinerary', body: 'train' });
+    await s.apply(mutate, 'alice', localNote, {
+      id: 'Itinerary',
+      title: 'Itinerary',
+      body: 'train',
+    });
     const pendingItinerary = await waitFeedback(s, itinerary, 'pending');
     expect(pendingGroceries?.mutationId).not.toBe(pendingItinerary?.mutationId);
-    expect(groceries.getSnapshot()[0]?.mutationId).toBe(pendingGroceries?.mutationId);
+    expect(groceries.getSnapshot()[0]?.mutationId).toBe(
+      pendingGroceries?.mutationId
+    );
     await s.apply(netSet, 'alice', 'sync', 'ok');
-    expect(await waitFeedback(s, groceries, 'rejected')).toMatchObject({ mutationId: pendingGroceries?.mutationId, code: 'REFUSED' });
-    expect(await waitFeedback(s, itinerary, 'confirmed')).toMatchObject({ mutationId: pendingItinerary?.mutationId, code: null });
-  } finally { stopGroceries(); stopItinerary(); }
+    expect(await waitFeedback(s, groceries, 'rejected')).toMatchObject({
+      mutationId: pendingGroceries?.mutationId,
+      code: 'REFUSED',
+    });
+    expect(await waitFeedback(s, itinerary, 'confirmed')).toMatchObject({
+      mutationId: pendingItinerary?.mutationId,
+      code: null,
+    });
+  } finally {
+    stopGroceries();
+    stopItinerary();
+  }
 });
