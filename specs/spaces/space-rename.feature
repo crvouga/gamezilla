@@ -96,6 +96,10 @@ Feature: Rename a space
   Rule: A space with no name of its own is named after its host as everyone sees them
     No counter-example: the host's name is theirs to change; nothing done in the space changes it.
 
+    Scenario: A space named after its host follows their new username
+      When Alice renames themselves to @alice_w
+      Then Bob sees the space is named after Alice within 15 seconds
+
     Scenario: A space named after a host whose username the team stops allowing uses their stand-in name
       Given Alice has renamed themselves to @chess_cheater
       When the team stops allowing the username @chess_cheater
