@@ -30,9 +30,10 @@ export async function requestRefusalShown(
 ): Promise<boolean> {
   await showKnownPerson(s, actor, other);
   const ui = await actorUi(s, actor);
+  const add = ui.get(Handles.friendAdd(other));
   return (
     (await ui.get(Handles.friendRequestRefusal).isVisible()) ||
-    (await ui.get(Handles.friendAdd(other)).text()) === 'Try again later'
+    ((await add.isVisible()) && (await add.text()) === 'Try again later')
   );
 }
 
