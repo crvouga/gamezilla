@@ -21,6 +21,19 @@ Feature: Use your own space without a connection
       Then Alice is in the space
       And Alice hosts 1 space
 
+    Scenario: A person creates their first space offline on a fresh device
+      Given Alice is offline on a fresh device
+      When Alice creates a space
+      Then Alice is in the space
+      And Alice hosts 1 space
+
+    Scenario: An offline space survives closing and reopening the app
+      Given Alice is hosting a space created offline
+      And Alice has closed and reopened the app
+      When Alice returns to their space
+      Then Alice is in the same space
+      And Alice hosts 1 space
+
     Scenario: A space created offline stays the same space when the connection returns
       Given Alice is hosting a space created offline
       When the connection comes back
