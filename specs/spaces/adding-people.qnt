@@ -29,7 +29,8 @@ module adding_people {
 
   action _choose(open: bool, added: bool, joined: bool, atLink: bool, away: Set[Person]): bool = {
     val known = if (away == Set()) added else _knownAdded
-    val knownOpen = if (away == Set()) open else _knownOpen
+    val knowsSpace = added or atLink or _knownAdded or _atLink
+    val knownOpen = if (away == Set() and knowsSpace) open else _knownOpen
     val knownJoined = if (away == Set()) joined else _knownJoined
     val place = _show(knownOpen, knownJoined, atLink, away).set("alice", if (open) InSpace else Ended)
     all {
@@ -115,7 +116,7 @@ module adding_people {
     whereabouts == _show(_knownOpen, _knownJoined, _atLink, _offline).set("alice", if (_open) InSpace else Ended),
     not(_open) implies not(_joined),
     _offline == Set() implies _knownAdded == _added,
-    _offline == Set() implies _knownOpen == _open,
+    _offline == Set() and (_knownAdded or _atLink) implies _knownOpen == _open,
     _offline == Set() implies _knownJoined == _joined,
     lobby == Map("alice" -> Set(), "bob" ->
       (if (whereabouts.get("bob") == Lobby and _knownOpen and _knownAdded) Set("alice") else Set())),

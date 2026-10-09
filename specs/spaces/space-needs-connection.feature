@@ -58,6 +58,13 @@ Feature: Use your own space without a connection
 
   Rule: Joining someone else's space needs a connection
 
+    @regression:space-known-link-hides-lost-connection
+    Scenario: A person viewing a known space link is told their connection was lost
+      Given Alice is hosting a space
+      And Bob has opened Alice's space link
+      When Bob loses the connection
+      Then Bob is told joining needs a connection within 15 seconds
+
     Scenario: Joining from a link without a connection says it needs one
       Given Alice is hosting a space
       And Bob is offline

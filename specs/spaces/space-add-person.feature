@@ -35,6 +35,13 @@ Feature: Add a person to a space
       Then Bob is in the space
       And Alice sees 2 people in the space within 20 seconds
 
+    @regression:space-added-link-join-sees-false-host-offline
+    Scenario: An added person chooses to join from the public link
+      Given Alice has added Bob to the space
+      When Bob joins the space from the link
+      Then Bob is in the space
+      And Alice sees 2 people in the space within 20 seconds
+
     Scenario: Reopening the app does not join an added person
       Given Alice has added Bob to the space
       When Bob closes and reopens the app
@@ -44,6 +51,7 @@ Feature: Add a person to a space
   Rule: A host can add a known person with or without a connection
     No counter-example: the host's choice is kept locally; lobby access reaches the other person when both connections are available.
 
+    @regression:space-offline-known-person-picker-empty
     Scenario: An offline host is offered to add a known person
       Given Alice is offline
       When Alice views the space's presence

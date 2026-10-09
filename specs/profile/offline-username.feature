@@ -6,6 +6,7 @@ Feature: Choose a username offline
 
   Rule: An offline choice appears locally under the username rules already known
 
+    @regression:username-offline-choice-refused
     Scenario: A valid offline username appears on the person's profile
       Given Alice's username is @alice_one
       And Alice is offline
@@ -56,6 +57,7 @@ Feature: Choose a username offline
       Then Alice's username change is refused because another person already has that name
       And Alice's profile shows @alice_one
 
+    @regression:username-offline-choice-uses-stale-shared-rules
     Scenario: A choice no longer allowed is refused when it is shared
       Given Alice's username is @alice_one
       And Alice is offline
