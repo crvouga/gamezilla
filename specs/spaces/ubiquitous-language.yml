@@ -38,7 +38,7 @@ terms:
       one's own space never needs a connection.
     forms: [joins, joined, joining]
     avoid: [enter the space]
-    model: [join, PersonJoined, joined]
+    model: [join, PersonJoined, joined, joinOffered]
     published: true
 
   - term: leave
@@ -87,6 +87,7 @@ terms:
       a space that has ended or does not exist.
     forms: [space links, space's link, the link]
     avoid: [invite link, invite code, room code]
+    model: [openSpaceLink, linkDestination]
     published: true
 
   - term: hosting limit

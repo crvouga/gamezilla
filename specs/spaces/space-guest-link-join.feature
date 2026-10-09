@@ -20,3 +20,17 @@ Feature: Join a space from its link
       When Carol opens Alice's space link
       Then Carol is told the host is offline within 20 seconds
       And Carol is not offered to join
+
+    Scenario: An open space's link stops offering joining when the host goes offline
+      Given Alice is hosting a space
+      And Bob has opened Alice's space link
+      When Alice loses the connection
+      Then Bob is told the host is offline within 20 seconds
+      And Bob is not offered to join
+
+    Scenario: An open space's link offers joining again when the host returns
+      Given Alice is hosting a space
+      And Alice is offline
+      And Bob has opened Alice's space link
+      When the connection comes back
+      Then Bob is offered to join
