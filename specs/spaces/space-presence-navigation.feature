@@ -33,6 +33,21 @@ Feature: Look at the people in a space
       Then Alice is in the space
       And Alice no longer sees the space's presence
 
+    Scenario: A friend returns from presence to the same space
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob is viewing the space's presence
+      When Bob stops viewing the space's presence
+      Then Bob is in the space
+      And Bob no longer sees the space's presence
+
+    Scenario: Closing presence while the host is offline keeps the friend disconnected
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice is offline
+      And Bob is viewing the space's presence
+      When Bob stops viewing the space's presence
+      Then Bob is told the host is offline within 20 seconds
+      And Bob no longer sees the space's presence
+
     Scenario: An offline host returns from presence to their space
       Given Alice is hosting a space
       And Alice is offline

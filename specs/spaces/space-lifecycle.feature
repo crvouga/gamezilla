@@ -51,3 +51,17 @@ Feature: Find and return to your space
       And Bob has gone back to the lobby
       When Bob joins Alice's space from the lobby
       Then Alice sees 2 people in the space within 20 seconds
+
+    Scenario: A friend steps out while the host is offline
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice is offline
+      When Bob goes back to the lobby
+      Then Bob is back in the lobby
+      And Bob's lobby lists Alice's space
+
+    Scenario: An offline friend steps out to the lobby
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob is offline
+      When Bob goes back to the lobby
+      Then Bob is back in the lobby
+      And Bob's lobby lists Alice's space
