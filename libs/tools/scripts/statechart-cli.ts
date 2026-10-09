@@ -8,6 +8,7 @@ import { run } from '@pkgs/os-server/command';
 import { startProcess } from '@pkgs/os-server/streaming-process';
 import { analyzeStatecharts } from './statechart-analysis';
 import { productContracts } from './statechart-contracts';
+import { statechartExplorerFlags } from './statechart-explorer-options';
 import { productGuide, unmappedContracts } from './statechart-guide';
 import { guideIntegrityProblems } from './statechart-integrity';
 import { guideNotes, languageContracts } from './statechart-language';
@@ -119,7 +120,7 @@ function compileGuide(): void {
     throw new Error(integrity.map((issue) => JSON.stringify(issue)).join('\n'));
   writeGuide(machine, { analysis, contracts, routes });
   console.log(
-    `Product chart: ${analysis.states.length} states, ${analysis.transitions.length} transitions, ${analysis.journeys.length} journeys, ${contracts.length} source-derived rules.`
+    `Product chart "product": ${analysis.states.length} states, ${analysis.transitions.length} transitions, ${analysis.journeys.length} journeys, ${contracts.length} source-derived rules.`
   );
   console.log(
     `Complete traversal: ${analysis.configurations} configurations; every state and transition reachable and every planned path replayed. All ${routes.length} registered app addresses have chart states.`
@@ -130,6 +131,7 @@ function compileGuide(): void {
 }
 
 async function explore(flags: string[]): Promise<void> {
+  const viewerFlags = statechartExplorerFlags(flags);
   const watchers = ['specs', 'docs/statecharts'].map((path) =>
     watch(join(ROOT, path), { recursive: true }, (_event, name) => {
       if (
@@ -155,7 +157,7 @@ async function explore(flags: string[]): Promise<void> {
       SPECS,
       '--runs',
       join(ROOT, 'atlas-runs'),
-      ...flags,
+      ...viewerFlags,
     ],
   });
   child.stdout.pipe(process.stdout);

@@ -7,7 +7,7 @@ function bundle(files = ['product.machine.json']): SpecBundle {
     file,
     format: 'xstate' as const,
     machine: {
-      id: index === 0 ? 'gamezilla-product' : `extra-${index}`,
+      id: index === 0 ? 'product' : `extra-${index}`,
       initial: 'Ready',
       states: { Ready: {} },
     } satisfies MachineConfig,
@@ -39,9 +39,12 @@ describe('product statechart source policy', () => {
 
   test('requires the canonical file and at least one journey', () => {
     const input = bundle(['other.machine.yaml']);
+    input.charts[0]!.machine.id = 'other';
+    input.root = 'other';
     input.journeys = [];
     expect(productStatechartSourceProblems(input)).toEqual([
       'The one product statechart must be specs/product.machine.json; found other.machine.yaml',
+      'The one product statechart must be named "product"; found "other"',
       'The product statechart has no guided journeys',
     ]);
   });

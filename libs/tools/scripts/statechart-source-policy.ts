@@ -17,6 +17,11 @@ export function productStatechartSourceProblems(
       `The one product statechart must be specs/product.machine.json; found ${chart.file}`
     );
   }
+  if (chart.machine.id !== 'product') {
+    problems.push(
+      `The one product statechart must be named "product"; found "${chart.machine.id}"`
+    );
+  }
   if (bundle.root !== chart.machine.id) {
     problems.push(
       `The Atlas root "${bundle.root}" does not identify the one product machine "${chart.machine.id}"`

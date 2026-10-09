@@ -4,7 +4,7 @@
 
 | Check | Current result |
 | --- | --- |
-| Source shape | Exactly one authored chart, `specs/product.machine.json`, rooted at `gamezilla-product` |
+| Source shape | Exactly one authored chart, `specs/product.machine.json`, named `product` |
 | State identity and sources | All 350 states have globally unique names, matching ids, descriptions and existing source references |
 | Complete graph traversal | 1,530 reachable configurations; all 350 states and 906 transitions reached |
 | Identity and access | No reachable guest or deleted-account configuration carries paid access |

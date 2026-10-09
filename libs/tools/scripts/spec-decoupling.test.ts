@@ -146,6 +146,12 @@ describe('decouplingProblems (D1)', () => {
     ).toEqual([]);
     expect(
       problems(
+        'specs/product.machine.json',
+        '{\n  "source": ["specs/chess/puzzles.feature"]\n}'
+      )
+    ).toEqual([]);
+    expect(
+      problems(
         'specs/journeys.yaml',
         'gherkin:\n- specs/chess/puzzles.feature\ndescription: A person explores puzzles'
       )

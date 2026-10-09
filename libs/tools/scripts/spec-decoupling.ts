@@ -123,8 +123,9 @@ function withoutProductMapTraceability(
         sourceIndent = undefined;
       return '';
     }
-    if (/^\s*"source": \[$/.test(line)) {
-      sourceIndent = line.length - line.trimStart().length;
+    if (/^\s*"source": \[/.test(line)) {
+      if (!line.includes(']'))
+        sourceIndent = line.length - line.trimStart().length;
       return '';
     }
     return line;
