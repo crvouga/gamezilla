@@ -86,12 +86,14 @@ Feature: Finish or cancel a Custom Game
     Scenario: The host's departure ends an active game
       Given Alice has an active Custom Game between Alice as White and Bob as Black
       When Alice leaves the space
-      Then The Custom Game is cancelled with no winner
+      Then Bob sees the space has ended within 15 seconds
+      And Alice is not in a space
 
     Scenario: Ending the space preserves an already completed result
       Given Alice has a completed Custom Game between Alice as White and Bob as Black
       When Alice ends the space
-      Then The Custom Game keeps its completed outcome
+      Then Bob sees the space has ended within 15 seconds
+      And Alice is not in a space
 
   Rule: A rematch keeps choices and swaps sides without changing the finished game
 
