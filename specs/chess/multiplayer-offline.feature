@@ -42,7 +42,7 @@ Feature: Multiplayer chess needs a connection to change anything
       And Alice's phone is offline
       When Alice declines the multiplayer draw
       Then Alice is told multiplayer chess needs a connection
-      And Alice is still offered a multiplayer draw
+      And Alice is offered a multiplayer draw
 
   Rule: An offline person sees their last known search but cannot change it or a multiplayer rematch
 
@@ -74,11 +74,11 @@ Feature: Multiplayer chess needs a connection to change anything
       And Alice's phone is offline
       When Alice accepts the multiplayer rematch
       Then Alice is told multiplayer chess needs a connection
-      And Alice is still offered a multiplayer rematch
+      And Alice is offered a multiplayer rematch
 
     Scenario: An offline person cannot decline a multiplayer rematch
       Given Bob has offered Alice a multiplayer rematch
       And Alice's phone is offline
       When Alice declines the multiplayer rematch
       Then Alice is told multiplayer chess needs a connection
-      And Alice is still offered a multiplayer rematch
+      And Alice is offered a multiplayer rematch

@@ -14,7 +14,7 @@ Feature: Offer a multiplayer draw
     Scenario: Offering a multiplayer draw twice keeps one offer
       Given Alice has offered Bob a multiplayer draw
       When Alice offers a multiplayer draw
-      Then Bob is still offered a multiplayer draw
+      Then Bob is offered a multiplayer draw
       And the multiplayer game is still unfinished
 
     Scenario: No multiplayer draw offer is taken once the game is over
@@ -58,7 +58,7 @@ Feature: Offer a multiplayer draw
       Given Alice has offered Bob a multiplayer draw
       When Alice declines the multiplayer draw
       Then Alice is told only Bob may answer her multiplayer draw offer
-      And Bob is still offered a multiplayer draw
+      And Bob is offered a multiplayer draw
 
     Scenario: A multiplayer draw nobody offered cannot be declined
       Given Alice is White and Bob is Black in a new multiplayer game
@@ -77,4 +77,4 @@ Feature: Offer a multiplayer draw
       Given Alice is White and Bob is Black in a new multiplayer game
       And Alice has offered Bob a multiplayer draw
       When Alice plays e2 to e4 as a multiplayer move
-      Then Bob is still offered a multiplayer draw
+      Then Bob is offered a multiplayer draw

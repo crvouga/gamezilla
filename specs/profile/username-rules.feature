@@ -34,7 +34,7 @@ Feature: Username rules
       Then Alice's profile shows @scunthorpe_fan
 
     Scenario: A username change moments after the last one is refused
-      Given Alice has just renamed themselves to @alice_one
+      Given Alice has renamed themselves to @alice_one
       When Alice tries to use username "alice_two"
       Then Alice's username change is refused with "Username was changed recently"
       And Alice's profile still shows @alice_one

@@ -9,7 +9,7 @@ Feature: The multiplayer clock
     Scenario: Waiting for White's first move costs nobody any time
       Given Alice is White and Bob is Black in a new 1+0 multiplayer game
       When 20 seconds pass in multiplayer chess
-      Then both people still see 60 seconds on White's multiplayer clock and 60 seconds on Black's
+      Then both people see 60 seconds on White's multiplayer clock and 60 seconds on Black's
 
     Scenario: White's multiplayer clock runs once both people have moved
       Given Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
@@ -29,7 +29,7 @@ Feature: The multiplayer clock
     Scenario: A move out of turn earns no increment
       When Bob plays d7 to d5 as a multiplayer move
       Then Bob is told it is not his multiplayer turn
-      And both people still see 120 seconds on White's multiplayer clock and 120 seconds on Black's
+      And both people see 120 seconds on White's multiplayer clock and 120 seconds on Black's
 
   Rule: Running out of time loses, even if a move arrives at that moment
 
@@ -51,13 +51,13 @@ Feature: The multiplayer clock
     Scenario: Running out of time against a bare king ends in a multiplayer draw
       Given Bob has only his king left as Black in his 1+0 multiplayer game with Alice
       And Alice has 1 second left on White's multiplayer clock on her turn
-      When 1 second passes in multiplayer chess
+      When 1 seconds pass in multiplayer chess
       Then both people see the multiplayer game is drawn by White running out of time against a bare king
 
     Scenario: Running out of time against a king and knight still loses
       Given Bob has only his king and a knight left as Black in his 1+0 multiplayer game with Alice
       And Alice has 1 second left on White's multiplayer clock on her turn
-      When 1 second passes in multiplayer chess
+      When 1 seconds pass in multiplayer chess
       Then the multiplayer game is still won by Bob because White ran out of time
 
   Rule: A disconnected person's multiplayer clock keeps running on their turn

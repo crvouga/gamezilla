@@ -18,8 +18,8 @@ Feature: Being matched for multiplayer chess
       Given Bob has a blitz rating of 1620
       And Alice and Bob are looking for 3+2 chess opponents
       When a matchmaking match is formed for Alice and Bob
-      Then Alice sees Bob as her multiplayer opponent at 3+2, with his blitz rating "1620" and her colour
-      And Bob sees Alice as his multiplayer opponent at 3+2, with her blitz rating "1500?" and his colour
+      Then Alice sees Bob as their multiplayer opponent at 3+2, with a blitz rating of "1620" and their colour
+      And Bob sees Alice as their multiplayer opponent at 3+2, with a blitz rating of "1500?" and their colour
 
     Scenario: A person who is still looking is shown no multiplayer opponent
       Given Alice is the only person looking for a 3+2 chess opponent

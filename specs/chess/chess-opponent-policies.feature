@@ -12,7 +12,7 @@ Feature: Chess opponents respect the person's other choices
 
     Scenario: Blocking before they are matched keeps both people seeking other chess opponents
       Given Alice and Bob are looking for 5+0 chess opponents
-      And Alice blocked Bob
+      And Alice has blocked Bob
       When matchmaking pairs people up
       Then Alice and Bob are still looking for other chess opponents
       And Bob is not told Alice blocked him
@@ -46,4 +46,4 @@ Feature: Chess opponents respect the person's other choices
       Given Alice's puzzle rating has settled at 1700
       And Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       When Alice resigns multiplayer chess
-      Then Alice's puzzle rating is still 1700
+      Then Alice's puzzle rating is 1700
