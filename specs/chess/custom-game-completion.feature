@@ -89,7 +89,7 @@ Feature: Finish or cancel a Custom Game
       Then Bob sees the space has ended within 15 seconds
       And Alice is not in a space
 
-    Scenario: Ending the space preserves an already completed result
+    Scenario: Ending a space with a completed game ends it for both people
       Given Alice has a completed Custom Game between Alice as White and Bob as Black
       When Alice ends the space
       Then Bob sees the space has ended within 15 seconds

@@ -8,7 +8,7 @@ Feature: Custom Games respect account deletion and personal-data export
       Given Alice has a recently proven account
       And Alice has an active Custom Game between two bots
       When Alice confirms account deletion
-      Then The Custom Game is cancelled with no winner
+      Then Bob sees the space has ended within 15 seconds
       And Bob cannot see the Custom Game
 
     Scenario: A later account cannot recover the deleted creator's game

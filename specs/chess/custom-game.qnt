@@ -139,7 +139,7 @@ module custom_game {
   def _choicePicture(actor: Person): CustomGame = if (_offline.contains(actor)) gameShown.get(actor) else customGame
   def _connectionReason(g: CustomGame, actor: Person, command: str): str =
     if (_offline.contains(actor)) {
-      if (_personOf(actor) == "alice" and not(_signedOut.contains(actor)) and _solo(g) and command != "invite") ""
+      if (_personOf(actor) == "alice" and _members.contains("alice") and not(_spaceEnded) and not(_signedOut.contains(actor)) and _solo(g) and command != "invite") ""
       else "connection needed"
     } else if (_members.contains(_personOf(actor)) and not(_signedOut.contains(actor)) and _personOf(actor) != "alice" and not(_hostAvailable(_offline,_signedOut))) "the host is offline"
     else ""
