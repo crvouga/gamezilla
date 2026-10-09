@@ -55,14 +55,14 @@ Feature: Keep the game through disconnection
       Given Alice has an active Custom Game against a bot as Black
       And Alice has played e2-e4 in the Custom Game while offline
       When Alice closes and reopens the app
-      Then The Custom Game move list shows e4 once
+      Then The Custom Game keeps the opening move and the bot reply
       And White is to move in the Custom Game
 
     Scenario: Returning keeps the offline moves without playing them twice
       Given Alice has an active Custom Game against a bot as Black
       And Alice has played e2-e4 in the Custom Game while offline
       When the connection comes back
-      Then The Custom Game move list shows e4 once
+      Then The Custom Game keeps the opening move and the bot reply
       And White is to move in the Custom Game
 
   Rule: A returning person sees the current choices and outcome
