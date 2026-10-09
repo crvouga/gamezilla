@@ -115,7 +115,7 @@ module hosting_limits {
   }
 
   /// Alice's device loses its connection; her spaces remain usable.
-  action loseConnection: bool = all { not(_offline.contains("alice")), _connection(Set("alice")) }
+  action loseConnection: bool = all { not(_offline.contains("alice")), _connection(_offline.union(Set("alice"))) }
 
   /// Alice's connection returns; the same spaces are still open.
   action connectionReturns: bool = all { _offline.contains("alice"), _connection(Set()) }
