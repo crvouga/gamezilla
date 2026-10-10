@@ -34,15 +34,12 @@ published package versions; a green `bun check` remains the release decision.
 | `pg_index.indisvalid` and interrupted index state | [#326](https://github.com/crvouga/mockingbird/issues/326) | `libs/runtime-server/tests/mockingbird-reconcile.contract.test.ts` |
 | Crash-safe durable wire commits | [#321](https://github.com/crvouga/mockingbird/issues/321) | Feature request; current adapter only stores snapshots on orderly shutdown |
 
-`libs/tools/workspace/run.sh` now checks full application reconciliation against
-an isolated wire server before launching dev or resetting instance data. It
-blocks startup on a failed contract and points here. Catalog query failures are
-propagated immediately; they are no longer treated as an empty invalid-index
-set, which previously hid the original error behind transaction-aborted `25P02`.
-The launcher checks and catalog error regression pass. The installed 2.3.0
-release still fails full reconciliation. The corrected upstream source and its
-built package pass full reconciliation twice and the pinned catalog/DDL inputs;
-the fix must be merged and released before this workspace can use it normally.
+Full application reconciliation stays in `@libs/runtime-server`'s automated
+contract suite rather than the workspace Run hook. Run launches the dev stack;
+it does not turn dependency-installation or contract-runner failures into a
+workspace-launch failure. Catalog query failures are propagated immediately;
+they are no longer treated as an empty invalid-index set, which previously hid
+the original error behind transaction-aborted `25P02`.
 
 ## Upstream reconciliation fix
 
