@@ -8,6 +8,7 @@ terms:
   - term: Synthetic User
     definition: A persistent account operated autonomously and identified as automated.
     forms: [Synthetic Users, Synthetic User's]
+    model: [SyntheticUser, identity, invPersistentIdentity]
   - term: Bot Observatory
     definition: Where authorized people observe and control the Synthetic Population.
   - term: desired population
@@ -21,6 +22,11 @@ terms:
   - term: activity
     definition: What a Synthetic User is currently doing in the app.
     forms: [activities]
+    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored]
+  - term: Recovery
+    definition: Restoring an interrupted Synthetic User to its current activity safely.
+    forms: [recovers, recovered, recovering]
+    model: [reopenApp, invOngoingGamePreserved]
   - term: account
     from: profile
   - term: sign in
@@ -37,6 +43,17 @@ terms:
     from: spaces
   - term: game
     from: chess
+  - term: multiplayer chess
+    from: chess
+    model: [game]
+  - term: multiplayer result
+    from: chess
+    model: [invFinishedGamePreserved]
+  - term: username
+    from: profile
+  - term: the app
+    from: kernel
+    model: [reopenApp]
   - term: control
     definition: Permission to pause, resume or restart a Synthetic User's autonomous activity.
     forms: [controls, controlling]
