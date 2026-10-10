@@ -111,6 +111,8 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 8,
   maxSteps: 10,
   timeoutMs: 180_000,
+  // Check every invariant at the original bound in independent solver groups.
+  boundedInvariantGroupSize: 6,
   actions: {
     init: async (w) => {
       for (const actor of SIGNED_IN) {
