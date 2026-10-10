@@ -8,6 +8,7 @@ import { spawnOwned } from '@pkgs/os-server/dev-owner-spawn';
 import { ownerProcess, processSnapshot } from '@pkgs/os-server/dev-owner-state';
 
 const fixture = join(import.meta.dirname, 'dev-owner-node-fixture.cjs');
+const runFixture = join(import.meta.dirname, 'dev-owner-run-fixture.cjs');
 const owned = (root: string) =>
   processSnapshot().filter(
     (row) => row.root === root && /(?:bun|node)/.test(row.command)
@@ -145,6 +146,38 @@ test('owned bun x executes its native subcommand without treating it as a packag
     });
     expect(code).toBe(0);
     expect(output).toContain('Version:');
+  } finally {
+    await gcDevOwner(root, true);
+    rmSync(root, { recursive: true, force: true });
+  }
+}, 30000);
+
+// regression: dev-owner-preload-before-run
+test('owned bun run keeps leading flags and executes the script', async () => {
+  const root = rootDir();
+  const child = spawnOwned('bun', ['--no-env-file', 'run', runFixture], {
+    env: {
+      ...process.env,
+      DEV_OWNER_ROOT: root,
+      DEV_OWNER_BOOT: 'run-flag-fixture',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let output = '';
+  child.stdout?.on('data', (chunk) => {
+    output += chunk.toString();
+  });
+  child.stderr?.on('data', (chunk) => {
+    output += chunk.toString();
+  });
+  try {
+    const code = await new Promise((resolve, reject) => {
+      child.once('error', reject);
+      child.once('close', resolve);
+    });
+    expect(code).toBe(0);
+    expect(output).toContain('run-fixture-ok');
+    expect(output).not.toContain('Usage: bun run');
   } finally {
     await gcDevOwner(root, true);
     rmSync(root, { recursive: true, force: true });
