@@ -7,9 +7,13 @@ import { signedInAccountOf } from './identity';
 export const setupPasswordAccount = scenarioAction({
   name: 'setupPasswordAccount',
   act: async (s, actor: string, email: string, password: string) => {
-    await actorUi(s, actor);
-    const env = await s.harness.client(actor);
-    await env.createAuthClient().registerWithPassword(email, password);
+    await Promise.resolve(
+      authenticateWithPassword.act(s, actor, {
+        email,
+        password,
+        registering: true,
+      })
+    );
     await pollUntil(
       s,
       async () => (await signedInAccountOf(s, actor)) ?? null,
@@ -23,16 +27,18 @@ export const authenticateWithPassword = scenarioAction({
   act: async (
     s,
     actor: string,
-    email: string,
-    password: string,
-    registering: boolean
+    credentials: { email: string; password: string; registering: boolean }
   ) => {
     const ui = await actorUi(s, actor);
     await openSignInModal(ui);
-    await ui.get('auth-password-email').input(email);
-    await ui.get('auth-password-secret').input(password);
+    await ui.get('auth-password-email').input(credentials.email);
+    await ui.get('auth-password-secret').input(credentials.password);
     await ui
-      .get(registering ? 'auth-password-register' : 'auth-password-sign-in')
+      .get(
+        credentials.registering
+          ? 'auth-password-register'
+          : 'auth-password-sign-in'
+      )
       .tap();
     const succeeded = await pollUntil(
       s,

@@ -40,6 +40,10 @@ import type { StackManifest } from './manifest';
 import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import {
+  populationStackSecrets,
+  startPopulationSidecars,
+} from './population-sidecars';
+import {
   loadReportsDevSecrets,
   reportsDevEnv,
 } from './reports-dev-credentials';
@@ -255,6 +259,7 @@ async function startApiTier(args: {
   readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
+  readonly populationSecrets: Readonly<Record<string, string>>;
 }): Promise<ApiTier> {
   const reportsEnv = reportsEnvForStack();
   const roomServiceToken = crypto.randomUUID();
@@ -277,7 +282,7 @@ async function startApiTier(args: {
         idpEnv: args.idpEnv,
         billing: args.billing,
         webOrigin: args.webOrigin,
-        infraEnv: args.infra.env,
+        infraEnv: { ...args.infra.env, ...args.populationSecrets },
         reportsEnv,
         roomServiceToken,
       })
@@ -352,6 +357,7 @@ async function startBillingAndApi(args: {
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
   readonly dataDir: string;
+  readonly populationSecrets: Readonly<Record<string, string>>;
   readonly unwind: () => Promise<void>;
 }): Promise<BillingAndApi> {
   await args.releaseBillingPort();
@@ -374,6 +380,7 @@ async function startBillingAndApi(args: {
       billing,
       webOrigin: args.webOrigin,
       infra: args.infra,
+      populationSecrets: args.populationSecrets,
     });
     return { billing, api };
   } catch (error) {
@@ -401,11 +408,62 @@ function reserveStackPorts(options: StackOptions) {
   };
 }
 
+async function startApplicationClients(input: {
+  options: StackOptions;
+  apiOrigin: string;
+  webOrigin: string | null;
+  webReservation: PortReservation | null;
+  externalWeb: boolean;
+  token: string;
+}): Promise<() => Promise<void>> {
+  const children: ChildProcess[] = [];
+  const stop = async () => {
+    await Promise.all(children.map(stopChild));
+  };
+  try {
+    await startPopulationSidecars({
+      repoRoot: REPO_ROOT,
+      origin: input.apiOrigin,
+      count: input.options.populationWorkers,
+      token: input.token,
+      track: (child) => children.push(child),
+    });
+    await input.webReservation?.release();
+    if (input.webOrigin !== null && !input.externalWeb)
+      children.push(
+        await startWeb({
+          origin: input.webOrigin,
+          apiOrigin: input.apiOrigin,
+          frozen: input.options.frozenWeb,
+          testHooks: input.options.testHooks,
+        })
+      );
+    return stop;
+  } catch (error) {
+    await stop();
+    throw error;
+  }
+}
+
+function backingServiceManifest(infra: InfraHandles) {
+  return {
+    databaseUrl: infra.databaseUrl,
+    s3Endpoint: infra.s3Endpoint,
+    mqttWssUrl: infra.mqttWssUrl,
+    mqttUrl: infra.mqttUrl,
+    observabilityCollectorUrl: infra.observabilityCollectorUrl,
+    observabilityTraceDir: infra.observabilityTraceDir,
+    observabilityTempoUrl: infra.observabilityTempoUrl,
+    observabilityGrafanaUrl: infra.observabilityGrafanaUrl,
+  };
+}
+
 export async function bootLocalhostStack(
   options: StackOptions,
   externalWeb = false
 ): Promise<LocalhostStack> {
   const dataDir = instanceDataDir(options);
+  const populationSecrets = populationStackSecrets(dataDir);
   const idpState = resolveIdpState(options, dataDir);
   const { lbReservation, idpReservations, billingReservation, webReservation } =
     reserveStackPorts(options);
@@ -432,6 +490,7 @@ export async function bootLocalhostStack(
     webOrigin,
     infra,
     dataDir,
+    populationSecrets,
     // Unwind what already booted if the provider or an API node fails.
     unwind: async () => {
       await stopIdps(idps);
@@ -444,17 +503,21 @@ export async function bootLocalhostStack(
     backends: api.backends,
   });
   await waitForHttp(`${balancer.origin}/api/health`);
-
-  await webReservation?.release();
-  const webChild =
-    webOrigin === null || externalWeb
-      ? null
-      : await startWeb({
-          origin: webOrigin,
-          apiOrigin,
-          frozen: options.frozenWeb,
-          testHooks: options.testHooks,
-        });
+  const stopClients = await startApplicationClients({
+    options,
+    apiOrigin: balancer.origin,
+    webOrigin,
+    webReservation,
+    externalWeb,
+    token: populationSecrets['POPULATION_WORKER_TOKEN']!,
+  }).catch(async (error: unknown) => {
+    await Promise.all(api.children.map(stopChild));
+    await stopIdps(idps);
+    await billing.server.close();
+    await balancer.stop();
+    await infra.stop();
+    throw error;
+  });
 
   const manifest: StackManifest = {
     instanceId: options.instanceId,
@@ -467,14 +530,7 @@ export async function bootLocalhostStack(
       apple: loopback(idpReservations.apple.port),
     },
     billingOrigin,
-    databaseUrl: infra.databaseUrl,
-    s3Endpoint: infra.s3Endpoint,
-    mqttWssUrl: infra.mqttWssUrl,
-    mqttUrl: infra.mqttUrl,
-    observabilityCollectorUrl: infra.observabilityCollectorUrl,
-    observabilityTraceDir: infra.observabilityTraceDir,
-    observabilityTempoUrl: infra.observabilityTempoUrl,
-    observabilityGrafanaUrl: infra.observabilityGrafanaUrl,
+    ...backingServiceManifest(infra),
     dataDir,
   };
   const path = writeManifest(REPO_ROOT, manifest);
@@ -483,7 +539,7 @@ export async function bootLocalhostStack(
     manifest,
     manifestPath: path,
     async stop() {
-      if (webChild !== null) await stopChild(webChild);
+      await stopClients();
       await Promise.all(api.children.map((child) => stopChild(child)));
       await stopIdps(idps);
       await billing.server.close();

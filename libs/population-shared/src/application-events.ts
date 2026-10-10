@@ -17,6 +17,8 @@ export const applicationEventSchema = z.object({
     'SessionRestored',
     'SessionInterrupted',
     'DecisionSelected',
+    'StateTransition',
+    'UiDriverAction',
   ]),
   activity: activitySchema,
   action: z.string().max(256).nullable(),

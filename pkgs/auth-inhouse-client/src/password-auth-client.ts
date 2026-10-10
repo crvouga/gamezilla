@@ -8,7 +8,11 @@ import { persistSessionFromResponse } from './auth-client-oauth';
 export async function passwordAuthentication(
   ctx: SignInCtx,
   action: 'register' | 'sign-in',
-  input: { email: string; password: string; options?: SignInOptions }
+  input: {
+    email: string;
+    password: string;
+    options?: SignInOptions | undefined;
+  }
 ): Promise<void> {
   const response = await postJson(
     ctx.config.fetch,

@@ -14,6 +14,7 @@ import { signedInAccountOf } from '@libs/harness/identity';
 import { setupPasswordAccount } from '@libs/harness/password-actions';
 import { PopulationController } from '@libs/population-server/population-controller';
 import { PopulationRepository } from '@libs/population-server/population-repository';
+import { configureUsername } from '@libs/population-shared/application-actions';
 import sql from '@pkgs/sql-root-shared/sql';
 import { givenDesiredPopulation } from './observatory-actions';
 
@@ -72,6 +73,7 @@ export const givenSyntheticUser = scenarioAction({
     await db.run(
       sql`UPDATE population_users SET username = ${name}, account_id = ${accountId}, device_id = ${deviceId}, activity = ${playing ? 'playing' : 'browsing'} WHERE id = ${assignment.lease.userId}`
     );
+    await configureUsername(await actorUi(s, 'cedar'), 'cedar');
     if (!playing) return;
     await Promise.resolve(signInWithGoogle.act(s, 'bob'));
     for (const actor of ['cedar', 'bob']) {

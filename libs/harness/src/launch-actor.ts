@@ -1,4 +1,5 @@
 import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
+import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { createSignal } from 'solid-js';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
@@ -6,7 +7,6 @@ import { createSignal } from 'solid-js';
 
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
-import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared/recording-driver';
@@ -16,7 +16,7 @@ import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-do
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { Harness } from './create-harness';
 import { inProcessDevice, webviewDevice } from './device-probes';
-import type { HarnessActor, HarnessDevice } from './harness';
+import type { HarnessActor } from './harness';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import type { ProductUi } from './ports';
 import { solidActorRoot } from './solid-actor-root';
@@ -116,97 +116,132 @@ function recorded(
     : recordingDriver(raw, { recorder, actorId: id });
 }
 
-export async function launchActor(args: {
+type LaunchActorArgs = {
   readonly ui: ProductUi;
   readonly harness: Harness;
   readonly id: string;
   readonly snapshot?: HarnessSystemSnapshot;
   /** When set, every driver op becomes a report step for this actor. */
   readonly recorder?: StepRecorder;
-}): Promise<ActorEntry> {
-  let raw: Driver;
-  let localSql: () => SqlTx | null = () =>
-    args.harness.clientSql(args.id)?.sqlClient ?? null;
-  let closeResources: () => Promise<void> = () => Promise.resolve();
-  let openLink: (path: string) => Promise<void>;
-  let currentPath: () => Promise<string>;
-  let setViewport: (size: { width: number; height: number }) => Promise<void>;
-  let device: HarnessDevice;
-  if (args.ui.kind === 'bun-webview') {
-    const webOrigin = args.ui.webOrigin;
-    // Each actor is its own device: its own on-disk storage (cookies, OPFS
-    // for the app's SQLite), shared with the popups it opens. No URL here:
-    // the driver's `launch` navigates and awaits the load.
-    const { dataStore, cleanup } = await actorDataStore(args.id);
-    const view = new Bun.WebView({ width: 390, height: 844, dataStore });
-    device = webviewDevice(view);
-    raw = new BunWebviewDriver({
+};
+
+async function launchWebview(
+  args: LaunchActorArgs & { ui: Extract<ProductUi, { kind: 'bun-webview' }> }
+) {
+  const webOrigin = args.ui.webOrigin;
+  // Each actor is its own device: its own on-disk storage (cookies, OPFS
+  // for the app's SQLite), shared with the popups it opens. No URL here:
+  // the driver's `launch` navigates and awaits the load.
+  const { dataStore, cleanup } = await actorDataStore(args.id);
+  const view = new Bun.WebView({ width: 390, height: 844, dataStore });
+  const device = webviewDevice(view);
+  const sessionToken = async () => {
+    const value = await view.evaluate(
+      `localStorage.getItem(${JSON.stringify(SESSION_TOKEN_KEY)})`
+    );
+    return typeof value === 'string' ? value : null;
+  };
+  const raw = new BunWebviewDriver({
+    view,
+    baseUrl: webOrigin,
+    actorId: args.id,
+    popupOptions: { dataStore },
+    timers: wallTimers,
+  });
+  const localSql = () => webviewLocalSql(view);
+  const closeResources = async () => {
+    view.close();
+    await cleanup();
+  };
+  const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
+  const currentPath = async () =>
+    String(await view.evaluate('location.pathname + location.search'));
+  const setViewport = (size: { width: number; height: number }) =>
+    view.resize(size.width, size.height);
+  await raw.launch();
+  if (args.snapshot !== undefined) {
+    await injectWebViewSnapshotAuth({
       view,
-      baseUrl: webOrigin,
       actorId: args.id,
-      popupOptions: { dataStore },
-      timers: wallTimers,
+      snapshot: args.snapshot,
+      namespace: args.harness.clientNamespace(args.id),
+      origin: webOrigin,
     });
-    const pageSql = webviewLocalSql(view);
-    localSql = () => pageSql;
-    closeResources = async () => {
-      view.close();
-      await cleanup();
-    };
-    openLink = (path) => view.navigate(`${webOrigin}${path}`);
-    currentPath = async () =>
-      String(await view.evaluate('location.pathname + location.search'));
-    setViewport = (size) => view.resize(size.width, size.height);
-    await raw.launch();
-    if (args.snapshot !== undefined) {
-      await injectWebViewSnapshotAuth({
-        view,
-        actorId: args.id,
-        snapshot: args.snapshot,
-        namespace: args.harness.clientNamespace(args.id),
-        origin: webOrigin,
-      });
-    }
-  } else {
-    const session = args.ui.session;
-    if (session === undefined) {
-      throw new Error(
-        'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
-      );
-    }
-    const runFor = args.ui.runFor;
-    const history = await actorHistory(args.harness, args.id);
-    device = inProcessDevice(await args.harness.client(args.id));
-    const { viewport, changeViewport } = reactiveViewport(runFor);
-    setViewport = changeViewport;
-    raw = await createSolidDomClientDriver({
-      harness: args.harness,
-      id: args.id,
-      session,
-      runFor,
-      history,
-      viewport,
-    });
-    openLink = async (path) => {
-      history.set({ value: path });
-      await runFor(0);
-    };
-    currentPath = () => Promise.resolve(history.get());
-    await raw.launch();
   }
-  const ui = recorded(raw, args.id, args.recorder);
   return {
-    handle: {
-      id: args.id,
-      ui,
-      localSql,
-      openLink,
-      currentPath,
-      setViewport,
-      device,
-    },
+    raw,
+    localSql,
+    closeResources,
+    openLink,
+    currentPath,
+    setViewport,
+    device,
+    sessionToken,
+  };
+}
+
+async function launchSolid(
+  args: LaunchActorArgs & { ui: Extract<ProductUi, { kind: 'solid-dom' }> }
+) {
+  const session = args.ui.session;
+  if (session === undefined) {
+    throw new Error(
+      'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
+    );
+  }
+  const runFor = args.ui.runFor;
+  const history = await actorHistory(args.harness, args.id);
+  const device = inProcessDevice(await args.harness.client(args.id));
+  const sessionToken = async () => {
+    const value = (await args.harness.client(args.id)).secureStorage.getValue(
+      SESSION_TOKEN_KEY
+    );
+    return typeof value === 'string' ? value : null;
+  };
+  const { viewport, changeViewport } = reactiveViewport(runFor);
+  const setViewport = changeViewport;
+  const localSql = () => args.harness.clientSql(args.id)?.sqlClient ?? null;
+  const closeResources = () => Promise.resolve();
+  const raw = await createSolidDomClientDriver({
+    harness: args.harness,
+    id: args.id,
+    session,
+    runFor,
+    history,
+    viewport,
+  });
+  const openLink = async (path: string) => {
+    history.set({ value: path });
+    await runFor(0);
+  };
+  const currentPath = () => Promise.resolve(history.get());
+  await raw.launch();
+  return {
+    raw,
+    localSql,
+    closeResources,
+    openLink,
+    currentPath,
+    setViewport,
+    device,
+    sessionToken,
+  };
+}
+
+export async function launchActor(args: LaunchActorArgs): Promise<ActorEntry> {
+  const entry =
+    args.ui.kind === 'bun-webview'
+      ? await launchWebview({ ...args, ui: args.ui })
+      : await launchSolid({ ...args, ui: args.ui });
+  const { raw, closeResources, ...device } = entry;
+  return {
     raw,
     closeResources,
+    handle: {
+      id: args.id,
+      ui: recorded(raw, args.id, args.recorder),
+      ...device,
+    },
   };
 }
 

@@ -29,8 +29,17 @@ export const inspectionSchema = z.object({
 });
 export type Inspection = z.infer<typeof inspectionSchema>;
 
-export function redactDiagnostic(text: string): string {
-  return text
+export function redactDiagnostic(
+  text: string,
+  secrets: readonly string[] = []
+): string {
+  const scrubbed = secrets
+    .filter(Boolean)
+    .reduce(
+      (value, secret) => value.replaceAll(secret, '[redacted credential]'),
+      text
+    );
+  return scrubbed
     .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '[redacted email]')
     .replace(/Bearer\s+\S+/gi, '[redacted token]')
     .replace(
@@ -44,18 +53,20 @@ export function sanitizeDomSnapshot(
   document: Document,
   secrets: readonly string[] = []
 ) {
-  const redact = (text: string) =>
-    secrets
-      .filter(Boolean)
-      .reduce(
-        (value, secret) => value.replaceAll(secret, '[redacted credential]'),
-        redactDiagnostic(text)
-      );
-  const controls = readDomInventory(document).pressables.map((item) => ({
-    testId: item.testId,
-    role: item.role ?? '',
-    name: redact(item.accessibleName || item.text || '').slice(0, 256),
-  }));
+  const redact = (text: string) => redactDiagnostic(text, secrets);
+  const sensitive = new Set(
+    [...document.querySelectorAll('[data-testid]')]
+      .filter((element) => element.closest('[data-sensitive]') !== null)
+      .map((element) => element.getAttribute('data-testid'))
+  );
+  const inventory = readDomInventory(document);
+  const controls = [...inventory.pressables, ...inventory.inputs]
+    .filter((item) => !sensitive.has(item.testId))
+    .map((item) => ({
+      testId: redact(item.testId),
+      role: item.role ?? '',
+      name: redact(item.accessibleName || item.text || '').slice(0, 256),
+    }));
   const root = document.documentElement.cloneNode(true) as HTMLElement;
   for (const node of root.querySelectorAll(
     'script, style, iframe, object, embed, template, [data-sensitive], input[type="hidden"]'
@@ -73,6 +84,8 @@ export function sanitizeDomSnapshot(
     'aria-live',
     'aria-hidden',
     'disabled',
+    'hidden',
+    'inert',
     'type',
     'alt',
     'data-testid',

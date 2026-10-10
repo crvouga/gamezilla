@@ -13,7 +13,7 @@ const environment = z.object({
   DEPLOYMENT_VERSION: z.string().min(1).max(128).default('local'),
   SECRETS_ENV: z.string().default('local'),
   DEPLOYMENT_ENVIRONMENT: z.string().optional(),
-  PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
+  PORT: z.coerce.number().int().min(0).max(65_535).default(8080),
 });
 /** Local sessions cannot accidentally target a deployed application. */
 export function readWorkerEnvironment(

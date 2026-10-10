@@ -28,7 +28,7 @@ export async function authenticateThroughUi(
   try {
     await driver
       .get(Handles.authSignedInDone)
-      .wait('visible', { timeoutMs: credentials.registered ? 30_000 : 5_000 });
+      .wait('visible', { timeoutMs: 30_000 });
   } catch (error) {
     // A committed registration can lose its acknowledgement. Prove the identity normally.
     if (

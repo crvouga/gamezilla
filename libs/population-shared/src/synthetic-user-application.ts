@@ -16,7 +16,10 @@ import {
   observeAvailableSpaces,
   returnToSpaces,
 } from './application-navigation';
-import { behaviorStatechart } from './behavior-statechart';
+import {
+  type BEHAVIOR_EVENTS,
+  behaviorStatechart,
+} from './behavior-statechart';
 import type { Activity } from './config';
 import {
   chooseActivity,
@@ -30,6 +33,8 @@ export class SyntheticUserApplication {
   private pendingFen: string | null = null;
   private submittedAt = 0;
   private idleUntil = 0;
+  private restoringGame: boolean;
+  private readonly restoreStartedAt: number;
   private decision: { inputs: PolicyInputs; selected: Decision } | null = null;
   constructor(
     private readonly driver: Driver,
@@ -37,13 +42,23 @@ export class SyntheticUserApplication {
       clock: Clock;
       random: Random;
       username: string;
+      restoreGame?: boolean;
       emit: (event: ApplicationEvent) => void;
     }
-  ) {}
+  ) {
+    this.restoringGame = ports.restoreGame ?? false;
+    this.restoreStartedAt = ports.clock.now();
+  }
   authenticated(): void {
-    this.actor.send({ type: 'START' });
-    this.actor.send({ type: 'AUTHENTICATED' });
+    this.transition({ type: 'START' });
+    this.transition({ type: 'AUTHENTICATED' });
     this.event('Authenticated');
+  }
+  private transition(event: { type: (typeof BEHAVIOR_EVENTS)[number] }): void {
+    const from = JSON.stringify(this.actor.getSnapshot().value);
+    this.actor.send(event);
+    const to = JSON.stringify(this.actor.getSnapshot().value);
+    if (from !== to) this.event('StateTransition', event.type, { from, to });
   }
   activity(): Activity {
     const value = this.actor.getSnapshot().value;
@@ -68,7 +83,19 @@ export class SyntheticUserApplication {
     sessionMs: number;
     hostingWeight?: number;
   }): Promise<boolean> {
+    await openMultiplayer(this.driver);
     if (await this.playCurrentGame()) return true;
+    if (this.restoringGame) {
+      if (await this.driver.get(Handles.spaceJoin).isVisible()) {
+        await this.driver.get(Handles.spaceJoin).tap();
+        await this.driver.get(Handles.spaceJoin).wait('hidden');
+      }
+      if (this.ports.clock.now() - this.restoreStartedAt > 30_000)
+        throw new Error(
+          'The ongoing game could not be reconciled through the app'
+        );
+      return true;
+    }
     const ownSpace = Handles.spaceCard(this.ports.username);
     if (
       (await this.driver.get(Handles.spaceCreate).isVisible()) &&
@@ -76,7 +103,7 @@ export class SyntheticUserApplication {
     ) {
       await this.driver.get(ownSpace).tap();
       await openMultiplayer(this.driver);
-      this.actor.send({ type: 'HOST' });
+      this.transition({ type: 'HOST' });
       this.event('SessionRestored', ownSpace);
       return true;
     }
@@ -98,14 +125,14 @@ export class SyntheticUserApplication {
     });
     this.decision = { inputs, selected };
     if (selected.activity === 'loggingOut') {
-      this.actor.send({ type: 'LOG_OUT' });
+      this.transition({ type: 'LOG_OUT' });
       await logOutThroughUi(this.driver);
-      this.actor.send({ type: 'STOP' });
+      this.transition({ type: 'STOP' });
       this.event('LoggedOut');
       return false;
     }
     if (inputs.hasQueueEntry) {
-      this.actor.send({ type: 'WAIT' });
+      this.transition({ type: 'WAIT' });
       return true;
     }
     if (this.ports.clock.now() < this.idleUntil) return true;
@@ -123,9 +150,10 @@ export class SyntheticUserApplication {
     if (await this.tryRematch(decision)) return;
     if (await this.driver.get(Handles.spaceJoin).isVisible()) {
       await this.driver.get(Handles.spaceJoin).tap();
-      this.actor.send({ type: 'JOIN' });
+      await this.driver.get(Handles.spaceJoin).wait('hidden');
+      this.transition({ type: 'JOIN' });
       this.event('JoinedSpace', Handles.spaceJoin);
-      this.idleUntil = this.ports.clock.now() + 20_000;
+      await openMultiplayer(this.driver);
       return;
     }
     await openMultiplayer(this.driver);
@@ -133,9 +161,9 @@ export class SyntheticUserApplication {
       (await this.driver.get('multiplayer-find').isVisible()) &&
       decision.activity !== 'browsing'
     ) {
-      this.actor.send({ type: 'READY' });
+      this.transition({ type: 'READY' });
       await this.driver.get('multiplayer-find').tap();
-      this.actor.send({ type: 'WAIT' });
+      this.transition({ type: 'WAIT' });
       this.event('EnteredMatchmaking', 'multiplayer-find');
       return;
     }
@@ -144,7 +172,7 @@ export class SyntheticUserApplication {
       (await this.driver.get(decision.targetControlId).isVisible())
     ) {
       await this.driver.get(decision.targetControlId).tap();
-      this.actor.send({ type: 'JOIN' });
+      this.transition({ type: 'JOIN' });
       return;
     }
     if (
@@ -152,12 +180,12 @@ export class SyntheticUserApplication {
       (decision.activity === 'hosting' || decision.activity === 'matchmaking')
     ) {
       await this.driver.get(Handles.spaceCreate).tap();
-      this.actor.send({ type: 'HOST' });
+      this.transition({ type: 'HOST' });
       this.event('CreatedSpace', Handles.spaceCreate);
       return;
     }
     await returnToSpaces(this.driver);
-    this.actor.send({ type: 'BROWSE' });
+    this.transition({ type: 'BROWSE' });
     this.event('OpenedSpaces', Handles.tabSpaces);
     this.idleUntil = this.ports.clock.now() + 15_000;
   }
@@ -182,7 +210,7 @@ export class SyntheticUserApplication {
       (await this.driver.get('multiplayer-new-opponent').isVisible())
     ) {
       await this.driver.get('multiplayer-new-opponent').tap();
-      this.actor.send({ type: 'WAIT' });
+      this.transition({ type: 'WAIT' });
       this.event('EnteredMatchmaking', 'multiplayer-new-opponent');
       return true;
     }
@@ -194,24 +222,25 @@ export class SyntheticUserApplication {
       !(await isMatchParticipant(this.driver))
     )
       return false;
-    const probe = parseChessBoardProbe(
-      await this.driver.get(chessBoardProbeTestId('multiplayer-board')).text()
-    );
+    const board = this.driver.get(chessBoardProbeTestId('multiplayer-board'));
+    await board.wait({ text: '"fen"', exact: false });
+    const probe = parseChessBoardProbe(await board.text());
+    this.restoringGame = false;
     if (probe.status !== 'playing') {
       if (this.activity() !== 'postGame') {
-        if (this.activity() !== 'playing') this.actor.send({ type: 'MATCH' });
-        this.actor.send({ type: 'COMPLETE' });
+        if (this.activity() !== 'playing') this.transition({ type: 'MATCH' });
+        this.transition({ type: 'COMPLETE' });
         this.event('GameCompleted');
       }
       return false;
     }
     if (this.activity() !== 'playing') {
-      this.actor.send({ type: 'MATCH' });
+      this.transition({ type: 'MATCH' });
       this.event('GameStarted');
     }
     if (this.pendingFen !== null && probe.fen !== this.pendingFen) {
       this.pendingFen = null;
-      this.actor.send({ type: 'ACKNOWLEDGED' });
+      this.transition({ type: 'ACKNOWLEDGED' });
     }
     if (probe.interactive) {
       if (this.pendingFen === null) await this.move(probe.fen);
@@ -225,7 +254,7 @@ export class SyntheticUserApplication {
   private async move(fen: string): Promise<void> {
     const move = chooseChessMove(fen, this.ports.random);
     if (move === null) return;
-    this.actor.send({ type: 'TURN' });
+    this.transition({ type: 'TURN' });
     // Mark uncertainty before the UI gesture, so failure always reconciles against the server.
     this.pendingFen = fen;
     this.submittedAt = this.ports.clock.now();
@@ -244,7 +273,7 @@ export class SyntheticUserApplication {
       await this.driver
         .get(chessBoardPromotionTestId('multiplayer-board', move.promotion))
         .tap();
-    this.actor.send({ type: 'MOVE' });
+    this.transition({ type: 'MOVE' });
     this.event('MoveSubmitted', move.lan, { fen });
   }
   close(): void {

@@ -24,6 +24,8 @@ export type HarnessActor = {
    * or inside a live browser), or `null` before the app has opened one.
    */
   readonly localSql: () => SqlTx | null;
+  /** Private session probe for server-verdict reads; never recorded in reports. */
+  readonly sessionToken: () => Promise<string | null>;
   /** Open an app link (`/space/<id>`) the way a person pastes one. */
   readonly openLink: (path: string) => Promise<void>;
   /** The app route the actor is on — what "Copy link" would hand out. */

@@ -46,8 +46,21 @@ export class SessionRuntime {
     );
   }
   async start(): Promise<void> {
-    await this.restoreTracked();
-    this.schedule();
+    try {
+      await this.restoreTracked();
+      this.schedule();
+    } catch (error) {
+      this.ports.send({
+        type: 'checkpoint',
+        checkpoint: this.checkpoint,
+        action: null,
+        error: redactDiagnostic(
+          error instanceof Error ? error.message : String(error),
+          [this.assignment.password]
+        ).slice(0, 512),
+      });
+      await this.close();
+    }
   }
   private async restoreTracked(): Promise<void> {
     this.restoring = this.restore();
@@ -75,8 +88,24 @@ export class SessionRuntime {
       ...this.assignment,
       origin: this.origin,
       route: this.checkpoint.route,
+      onError: (error) =>
+        this.ports.send({
+          type: 'checkpoint',
+          checkpoint: this.checkpoint,
+          action: this.action,
+          error: error.slice(0, 512),
+        }),
       onAction: (action) => {
         this.actions = [...this.actions.slice(-49), action];
+        this.ports.send({
+          type: 'event',
+          event: {
+            name: 'UiDriverAction',
+            activity: this.checkpoint.activity,
+            action: action.action,
+            context: { outcome: action.outcome },
+          },
+        });
       },
     });
     if (this.stopped) {
@@ -89,6 +118,7 @@ export class SessionRuntime {
     this.behavior = new SyntheticUserApplication(this.instance.driver, {
       clock: this.ports.clock,
       username: this.assignment.username,
+      restoreGame: this.checkpoint.matchId !== null,
       random: () => {
         this.checkpoint.decisions += 1;
         return random();
@@ -99,6 +129,8 @@ export class SessionRuntime {
       },
     });
     this.behavior.authenticated();
+    if (this.recovering || this.assignment.registered)
+      this.lifecycleEvent('SessionRestored');
     this.ports.send({ type: 'authenticated', token: this.instance.token });
   }
   private schedule(): void {
@@ -120,6 +152,7 @@ export class SessionRuntime {
         await this.close();
         return;
       }
+      await this.instance.activate();
       const active = await this.behavior.tick({
         paused: renewal?.paused ?? false,
         draining: this.draining,
@@ -186,13 +219,16 @@ export class SessionRuntime {
   private async recover(error: unknown): Promise<void> {
     if (this.stopped || this.recovering) return;
     this.recovering = true;
+    this.lifecycleEvent('SessionInterrupted');
+    this.lifecycleEvent('RecoveryStarted');
     this.checkpoint = { ...this.checkpoint, activity: 'recovering' };
     this.ports.send({
       type: 'checkpoint',
       checkpoint: this.checkpoint,
       action: null,
       error: redactDiagnostic(
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
+        [this.assignment.password, this.instance?.token ?? '']
       ).slice(0, 512),
     });
     try {
@@ -206,6 +242,19 @@ export class SessionRuntime {
     } finally {
       this.recovering = false;
     }
+  }
+  private lifecycleEvent(
+    name: 'SessionInterrupted' | 'RecoveryStarted' | 'SessionRestored'
+  ): void {
+    this.ports.send({
+      type: 'event',
+      event: {
+        name,
+        activity: this.checkpoint.activity,
+        action: null,
+        context: {},
+      },
+    });
   }
   async close(): Promise<void> {
     if (this.stopped) return;

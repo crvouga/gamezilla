@@ -32,13 +32,6 @@ Given(
   }
 );
 Given(
-  '{actor} is authorized only to view the Bot Observatory',
-  async (w, actor: Actor) => {
-    await w.s.apply(signInWithGoogle, actor);
-    await w.s.apply(grantPopulationAccess, actor, [PERMISSION.populationView]);
-  }
-);
-Given(
   '{actor} is authorized to configure the Synthetic Population',
   async (w, actor: Actor) => {
     await w.s.apply(signInWithGoogle, actor);

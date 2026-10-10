@@ -2,10 +2,9 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Idle flow is a method picker (Google, and Apple where enabled). Every
- * method uses an OAuth auth-session with a durable pending marker across the
- * redirect/popup handoff. A sign-in whose address matched another account
- * lands on "Connect your accounts" instead of an error.
+ * Password authentication and enabled OAuth providers share the session
+ * lifecycle. OAuth keeps its durable pending marker across redirects. An
+ * address match asks the person to prove their existing account before linking.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';

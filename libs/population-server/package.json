@@ -22,17 +22,16 @@
     "@libs/permissions-shared": "workspace:*",
     "@libs/population-shared": "workspace:*",
     "@libs/pubsub-server": "workspace:*",
+    "@libs/pubsub-shared": "workspace:*",
     "@pkgs/auth-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
-    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:",
-    "zod": "catalog:",
-    "@libs/pubsub-shared": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pkgs/db-schema-root-shared": "workspace:*",

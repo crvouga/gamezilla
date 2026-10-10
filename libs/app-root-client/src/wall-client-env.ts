@@ -63,6 +63,8 @@ function readBrowserOrigin(): string | undefined {
 
 export type WallClientEnvArgs = {
   readonly serverUrl?: string | undefined;
+  /** Hosts without browser persistence provide their own object-store port. */
+  readonly objectStore?: ClientEnv['objectStore'];
   /**
    * Whoever owns rooms supplies the transport. The shell knows a client may
    * open one; it does not know a room is a space.
@@ -118,7 +120,9 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     clipboard: wallWebClipboard(),
     haptics: wallWebHaptics(),
     devMenu: createNoopDevMenuPort(),
-    objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
+    objectStore:
+      args.objectStore ??
+      createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
     serverUrl,
     // The in-house IdP, reached on the API origin through same-tab navigation.
     createAuthClient: () =>

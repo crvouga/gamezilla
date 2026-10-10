@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent Solid application realms share a process ID and raced on the same Babel cache temporary file, causing ENOENT during rename. Cache staging paths must also include the realm's thread ID.",
+  "regressionTest": "apps/population-worker/tests/application-realm.test.ts"
+}

@@ -17,6 +17,7 @@ export function SyntheticUserStatechart(props: {
           <MenuRow
             title={state}
             value={state === props.activity ? t`Current` : ''}
+            selected={state === props.activity}
             dataSet={{ testid: `population-state-${state}` }}
           />
         )}

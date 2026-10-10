@@ -134,6 +134,7 @@ test('statechart acknowledges each move before choosing the next, and recovery d
 });
 
 test('checkpoint reconciliation accepts stored JSON and safely restarts completed or incompatible sessions', () => {
+  // regression: population-stored-checkpoint-reset
   const baseline = reconcileCheckpoint(null, 1000, 'cedar');
   const active = {
     ...baseline,

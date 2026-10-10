@@ -6,12 +6,15 @@ export interface StreamingProcess {
   readonly stderr: Readable;
   readonly completed: Promise<number | null>;
   stop(): void;
+  terminate(): void;
 }
 
 export interface ProcessRequest {
   readonly command: string;
   readonly args: readonly string[];
   readonly signal?: AbortSignal;
+  readonly env?: Readonly<Record<string, string | undefined>>;
+  readonly cwd?: string;
 }
 
 /** Shell-free streaming process; consumers drain both pipes and await completion. */
@@ -20,6 +23,8 @@ export function startProcess(request: ProcessRequest): StreamingProcess {
   const child = spawn(request.command, [...request.args], {
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
+    ...(request.env === undefined ? {} : { env: request.env }),
+    ...(request.cwd === undefined ? {} : { cwd: request.cwd }),
   });
   const stop = () => {
     child.kill('SIGKILL');
@@ -34,5 +39,13 @@ export function startProcess(request: ProcessRequest): StreamingProcess {
   });
   // A consumer can be between pipe reads when spawn fails.
   void completed.catch(() => undefined);
-  return { stdout: child.stdout, stderr: child.stderr, completed, stop };
+  return {
+    stdout: child.stdout,
+    stderr: child.stderr,
+    completed,
+    stop,
+    terminate: () => {
+      child.kill('SIGTERM');
+    },
+  };
 }

@@ -14,6 +14,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/app-config-client": "workspace:*",
     "@libs/app-root-client": "workspace:*",
     "@libs/auth-client": "workspace:*",
     "@libs/auth-shared": "workspace:*",
@@ -25,13 +26,12 @@
     "@lingui/solid": "catalog:",
     "@pkgs/http-client-client": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "@solidjs/router": "catalog:",
     "hono": "catalog:",
-    "solid-js": "catalog:",
-    "@libs/app-config-client": "workspace:*",
-    "@pkgs/logger-shared": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@libs/population-server": "workspace:*",

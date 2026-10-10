@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "benchmark": "bun --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/register tests/benchmark.ts",
     "deploy": "bun run ../../libs/infra-server/scripts/publish-container.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "start": "bun --conditions=browser --conditions=development src/main.ts",
@@ -39,6 +40,10 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/harness": "workspace:*",
+    "@libs/runtime-harness": "workspace:*",
+    "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

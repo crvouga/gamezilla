@@ -14,6 +14,7 @@ import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createResource, createSignal, type JSX, Show } from 'solid-js';
 import { usePopulationApi } from './population-api';
 import { PopulationDenial } from './population-denial';
+import { PopulationEventTimeline } from './population-event-timeline';
 import { PopulationSummary } from './population-summary';
 import { PopulationUsers } from './population-users';
 import { PopulationWorkers } from './population-workers';
@@ -114,6 +115,11 @@ function PopulationContent(): JSX.Element {
                   inspect={(id) => router.push(`/admin/population/users/${id}`)}
                 />
                 <PopulationWorkers overview={value} />
+                <PopulationEventTimeline
+                  events={value.events.filter(
+                    (event) => event.event !== 'UiDriverAction'
+                  )}
+                />
               </>
             )}
           </Show>

@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import {
@@ -16,6 +17,7 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared/ports';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { brokerLogDirectory } from './broker-log-directory';
 import { resolveEmqxBin } from './emqx-bin';
 
 export type EmqxServerHandle = {
@@ -195,6 +197,7 @@ export async function startEmqxServer(
     stdio: ['inherit', 'pipe', 'pipe'],
     env: {
       ...cleanEnv,
+      EMQX_LOG_DIR: brokerLogDirectory(dataDir, tmpdir()),
       ERL_FLAGS: [cleanEnv['ERL_FLAGS'], ERL_FLAGS].filter(Boolean).join(' '),
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),

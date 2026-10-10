@@ -27,7 +27,11 @@ Given(
 When(
   '{actor} registers with email address {string} and password {string}',
   async (w, actor: Actor, email: string, password: string) => {
-    await w.s.apply(authenticateWithPassword, actor, email, password, true);
+    await w.s.apply(authenticateWithPassword, actor, {
+      email,
+      password,
+      registering: true,
+    });
     await w.s.apply(returnToTabs, actor);
   }
 );
@@ -35,7 +39,11 @@ When(
 When(
   '{actor} signs in with email address {string} and password {string}',
   async (w, actor: Actor, email: string, password: string) => {
-    await w.s.apply(authenticateWithPassword, actor, email, password, false);
+    await w.s.apply(authenticateWithPassword, actor, {
+      email,
+      password,
+      registering: false,
+    });
   }
 );
 

@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import type { JSX } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import type { PopulationOverview } from './population-api';
 
 export function PopulationSummary(props: {
@@ -30,6 +30,15 @@ export function PopulationSummary(props: {
         title={<Trans>Recovering</Trans>}
         value={String(props.overview.recovering)}
       />
+      <For each={props.overview.groups}>
+        {(group) => (
+          <MenuRow
+            title={group.activity}
+            caption={group.region}
+            value={String(group.count)}
+          />
+        )}
+      </For>
     </MenuSection>
   );
 }

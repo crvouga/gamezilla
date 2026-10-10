@@ -15,6 +15,11 @@ export function PopulationEventTimeline(props: {
             title={event.event}
             caption={`${event.created_at} · ${event.correlation_id}`}
             value={event.application_version ?? ''}
+            trailing={
+              <pre class="text textMono overflow-auto">
+                {JSON.stringify(event.context, null, 2)}
+              </pre>
+            }
           />
         )}
       </For>

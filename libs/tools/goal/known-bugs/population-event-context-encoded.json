@@ -1,0 +1,4 @@
+{
+  "summary": "Population timelines returned stored JSON diagnostics as encoded strings, hiding acknowledged transitions from typed RPC consumers and recovery checks.",
+  "regressionTest": "apps/population-worker/tests/application-realm.test.ts"
+}

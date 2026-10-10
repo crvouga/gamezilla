@@ -1,0 +1,4 @@
+{
+  "summary": "Registering a DOM in an isolated Bun realm must retain its native message channel, otherwise Population Worker assignments and inspection replies never cross the realm boundary.",
+  "regressionTest": "pkgs/bun-test-solid-client/tests/worker-port.test.ts"
+}

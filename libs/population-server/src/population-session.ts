@@ -25,7 +25,7 @@ export class PopulationSession {
       context?: Record<string, unknown>;
     }
   ): Promise<boolean> {
-    return this.db.transaction(async (tx) => {
+    const accepted = await this.db.transaction(async (tx) => {
       await tx.run(
         sql`UPDATE population_users SET generation = generation WHERE id = ${input.userId}`
       );
@@ -37,6 +37,8 @@ export class PopulationSession {
       });
       return true;
     });
+    if (accepted) await this.ports.notify();
+    return accepted;
   }
 
   async renew(lease: Ownership) {
@@ -99,6 +101,9 @@ export class PopulationSession {
     operationId: string
   ): Promise<boolean> {
     return this.db.transaction(async (tx) => {
+      await tx.run(
+        sql`UPDATE population_users SET generation = generation WHERE id = ${lease.userId}`
+      );
       if (!(await new LeaseRepository(tx, this.ports).owned(lease)))
         return false;
       const now = isoAt(this.ports.clock.now());
@@ -126,6 +131,7 @@ export class PopulationSession {
         id: string;
       }>`UPDATE population_users SET inspection = ${snapshot}, inspection_requested_at = ${null}, updated_at = ${now} WHERE id = ${lease.userId} AND worker_id = ${lease.workerId} AND generation = ${lease.generation} AND lease_until > ${now} AND inspection_requested_at = ${requestedAt} RETURNING id`
     );
+    if (rows.length > 0) await this.ports.notify();
     return rows.length > 0;
   }
 }
