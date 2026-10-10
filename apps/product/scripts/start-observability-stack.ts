@@ -1,8 +1,11 @@
 // @io-wall-ok — tools composition root owns local listeners and optional Docker.
 
-import { type ChildProcess, spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { appendFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { registerDevContainer } from '@pkgs/os-server/dev-owner-resources';
+import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 
 import { reservePort, waitForHttp } from './free-port';
 import type { ObservabilityBackend } from './stack-options';
@@ -23,7 +26,11 @@ export type ObservabilityStack = {
 
 function safeContainerName(instanceId: string): string {
   const suffix = instanceId.toLowerCase().replace(/[^a-z0-9_.-]/g, '-');
-  return `gamezilla-observability-${suffix}`;
+  const rootHash = createHash('sha256')
+    .update(process.env['DEV_OWNER_ROOT'] ?? process.cwd())
+    .digest('hex')
+    .slice(0, 12);
+  return `gamezilla-observability-${rootHash}-${suffix}`;
 }
 
 function childExit(child: ChildProcess): Promise<void> {
@@ -52,9 +59,11 @@ async function startNativeCollector(
 ): Promise<ObservabilityStack> {
   mkdirSync(dataDir, { recursive: true });
   const tracePath = join(dataDir, 'spans.ndjson');
+  const reservation = reservePort();
+  await reservation.release();
   const server = Bun.serve({
     hostname: '127.0.0.1',
-    port: 0,
+    port: reservation.port,
     maxRequestBodySize: MAX_OTLP_BODY_BYTES,
     async fetch(request) {
       const url = new URL(request.url);
@@ -91,6 +100,41 @@ async function startNativeCollector(
   };
 }
 
+function lgtmArgs(args: {
+  dataDir: string;
+  containerName: string;
+  collectorPort: { port: number };
+  tempoPort: { port: number };
+  grafanaPort: { port: number };
+}): string[] {
+  const { containerName, collectorPort, tempoPort, grafanaPort } = args;
+  return [
+    'run',
+    '--rm',
+    '--env',
+    `DEV_OWNER_ROOT=${process.env['DEV_OWNER_ROOT'] ?? ''}`,
+    '--env',
+    `DEV_OWNER_BOOT=${process.env['DEV_OWNER_BOOT'] ?? ''}`,
+    '--label',
+    `dev.owner.root=${process.env['DEV_OWNER_ROOT'] ?? ''}`,
+    '--label',
+    `dev.owner.boot=${process.env['DEV_OWNER_BOOT'] ?? ''}`,
+    '--name',
+    containerName,
+    '--label',
+    'gamezilla.sidecar=observability',
+    '--publish',
+    `127.0.0.1:${String(collectorPort.port)}:4318`,
+    '--publish',
+    `127.0.0.1:${String(tempoPort.port)}:3200`,
+    '--publish',
+    `127.0.0.1:${String(grafanaPort.port)}:3000`,
+    '--volume',
+    `${args.dataDir}:/data`,
+    LGTM_IMAGE,
+  ];
+}
+
 /** Optional full Grafana + Tempo UI for developers who explicitly request it. */
 async function startLgtmCollector(args: {
   readonly instanceId: string;
@@ -105,25 +149,17 @@ async function startLgtmCollector(args: {
     grafanaPort.release(),
   ]);
   mkdirSync(args.dataDir, { recursive: true });
+  const containerName = safeContainerName(args.instanceId);
+  registerDevContainer(containerName);
   const child = spawn(
     'docker',
-    [
-      'run',
-      '--rm',
-      '--name',
-      safeContainerName(args.instanceId),
-      '--label',
-      'gamezilla.sidecar=observability',
-      '--publish',
-      `127.0.0.1:${String(collectorPort.port)}:4318`,
-      '--publish',
-      `127.0.0.1:${String(tempoPort.port)}:3200`,
-      '--publish',
-      `127.0.0.1:${String(grafanaPort.port)}:3000`,
-      '--volume',
-      `${args.dataDir}:/data`,
-      LGTM_IMAGE,
-    ],
+    lgtmArgs({
+      dataDir: args.dataDir,
+      containerName,
+      collectorPort,
+      tempoPort,
+      grafanaPort,
+    }),
     { stdio: 'inherit' }
   );
   const tempoUrl = `http://127.0.0.1:${String(tempoPort.port)}`;

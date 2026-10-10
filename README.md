@@ -396,7 +396,11 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 ## Laptop
 
-`bun run dev` (alias `bun run stack`) runs through Turborepo’s terminal UI. Turbo owns environment setup, message catalog compilation, stack preparation, backend services, and Vite; Vite waits for the backend readiness manifest. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. The launcher starts the backend services and one Vite watcher directly. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+
+`bun run own -- <command> [arguments]` runs other long-lived tools through the same supervisor, including Node, Expo, JVM, browser, and media workers. Agent-launched long-lived commands use `bun dev`, `bun dev:client`, or this entry point.
+
+`bun run gc` collects abandoned boots for this checkout, preserving live supervisors. `bun run stop` (also `bun run kill`) intentionally stops all its boots. Ownership records live in `.cache/dev-owner/`: boot identities, per-PID ledgers, listen-port claims, resource records, and the admission lock. Launch gates stamp `DEV_OWNER_ROOT` and `DEV_OWNER_BOOT` and record service and Node/Bun worker leaders before execution. An independent watchdog and GC collect stamped descendants, including separate sessions after supervisor death. Cleanup compares process birth identities and refuses foreign checkout stamps; it never kills by a machine-wide name or port.
 
 Migration status and outstanding Mockingbird service/compatibility gaps are tracked in [`libs/tools/MOCKINGBIRD_MIGRATION.md`](libs/tools/MOCKINGBIRD_MIGRATION.md).
 

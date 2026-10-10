@@ -12,10 +12,9 @@
  * (`gamezilla-reports`), the same store every deployment reads.
  */
 
-import { type ChildProcess, spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-
 import {
   createServer as createStripeServer,
   type StripeServer,
@@ -31,6 +30,7 @@ import {
   StripeSecretKeys,
 } from '@pkgs/billing-stripe-shared/secret-keys';
 import { createLogger } from '@pkgs/logger-shared/logger';
+import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 import type { InfraHandles } from './boot-infra';
 import { bootInfra } from './boot-infra';
 import type { PortReservation } from './free-port';

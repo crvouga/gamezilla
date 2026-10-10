@@ -9,6 +9,11 @@
  * number, so the window is narrowed rather than merely hoped away.
  */
 
+import {
+  nextOwnerPort,
+  recordOwnerPort,
+} from '@pkgs/os-server/dev-owner-ports';
+
 export type PortReservation = {
   readonly port: number;
   /** Release the placeholder listener so the real server can bind. */
@@ -17,10 +22,11 @@ export type PortReservation = {
 
 export function reservePort(port = 0): PortReservation {
   const server = Bun.serve({
-    port,
+    port: port || nextOwnerPort(),
     hostname: '127.0.0.1',
     fetch: () => new Response('reserved', { status: 503 }),
   });
+  recordOwnerPort(Number(server.url.port));
   let released = false;
   return {
     port: Number(server.url.port),

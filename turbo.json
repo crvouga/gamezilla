@@ -57,7 +57,9 @@
     "CHECK_LINT_THREADS",
     "JAVA_TOOL_OPTIONS",
     "JVM_GC_ARGS",
-    "GOMAXPROCS"
+    "GOMAXPROCS",
+    "DEV_OWNER_*",
+    "NODE_OPTIONS"
   ],
   "tasks": {
     "install:deps": {
@@ -86,7 +88,6 @@
     },
     "@apps/product#dev": {
       "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
-      "with": ["dev:services"],
       "persistent": true,
       "cache": false,
       "passThroughEnv": ["WORKSPACE_*", "PRODUCT_DEV_*", "VITE_*"]
