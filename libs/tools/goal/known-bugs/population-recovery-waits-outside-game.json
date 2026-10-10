@@ -1,4 +1,0 @@
-{
-  "summary": "A replacement Synthetic User rejoined its space but waited outside its ongoing game instead of restoring the authoritative match.",
-  "regressionTest": "apps/population-worker/tests/session-handoff.test.ts"
-}

@@ -11,7 +11,7 @@ export type StackOptions = {
   readonly instanceId: string;
   /** How many API instances sit behind the balancer. */
   readonly apiNodes: number;
-  readonly populationWorkers: number;
+  readonly syntheticPopulationWorkers: number;
   readonly withS3: boolean;
   readonly withMqtt: boolean;
   /** Native OTLP file collector by default; LGTM is the opt-in Docker UI. */
@@ -112,20 +112,24 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
   const idpState = parseIdpState(argv);
   const withWeb = !flag(argv, 'no-web');
   const webPort = parseWebPort(argv);
-  const populationWorkers = Number(value(argv, 'population-workers') ?? '1');
+  const syntheticPopulationWorkers = Number(
+    value(argv, 'synthetic-population-workers') ?? '1'
+  );
   if (
-    !Number.isInteger(populationWorkers) ||
-    populationWorkers < 0 ||
-    populationWorkers > 8
+    !Number.isInteger(syntheticPopulationWorkers) ||
+    syntheticPopulationWorkers < 0 ||
+    syntheticPopulationWorkers > 8
   )
-    throw new Error('--population-workers must be an integer between 0 and 8');
+    throw new Error(
+      '--synthetic-population-workers must be an integer between 0 and 8'
+    );
   if (webPort !== null && !withWeb) {
     throw new Error('--web-port requires the web app (omit --no-web)');
   }
   return {
     instanceId: value(argv, 'instance') ?? defaultInstanceId(),
     apiNodes: Number.isFinite(nodes) && nodes > 0 ? Math.floor(nodes) : 2,
-    populationWorkers,
+    syntheticPopulationWorkers,
     withS3: !flag(argv, 'no-s3'),
     withMqtt: !flag(argv, 'no-mqtt'),
     observabilityBackend: parseObservabilityBackend(argv),

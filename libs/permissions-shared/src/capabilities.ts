@@ -17,11 +17,11 @@ export type CatalogKey = AppPolicyKey | AppLimit;
 
 /** Manifest capability id → the catalog key the product decides it with. */
 export const CAPABILITY_KEYS = {
-  'view the Bot Observatory': PERMISSION.populationView,
-  'inspect a Synthetic User': PERMISSION.populationInspect,
-  'configure the Synthetic Population': PERMISSION.populationConfigure,
-  'control a Synthetic User': PERMISSION.populationControl,
-  'replay Synthetic User decisions': PERMISSION.populationReplay,
+  'view the Bot Observatory': PERMISSION.syntheticPopulationView,
+  'inspect a Synthetic User': PERMISSION.syntheticPopulationInspect,
+  'configure the Synthetic Population': PERMISSION.syntheticPopulationConfigure,
+  'control a Synthetic User': PERMISSION.syntheticPopulationControl,
+  'replay Synthetic User decisions': PERMISSION.syntheticPopulationReplay,
   'keep a friends list': PERMISSION.friendsUse,
   'use people search': PERMISSION.peopleSearch,
   'get notifications': PERMISSION.notificationsReceive,

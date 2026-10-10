@@ -6,8 +6,13 @@
  * harness without the harness naming an app.
  */
 
+import { afterAll } from 'bun:test';
 import { registerRealStackBooter } from '@libs/harness/real-stack';
 
-import { ensureMaxFidelityStack } from './real-mode-stack';
+import {
+  ensureMaxFidelityStack,
+  stopMaxFidelityStack,
+} from './real-mode-stack';
 
 registerRealStackBooter(ensureMaxFidelityStack);
+afterAll(stopMaxFidelityStack);

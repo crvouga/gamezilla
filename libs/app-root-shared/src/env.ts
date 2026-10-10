@@ -144,7 +144,7 @@ export function readPuzzleManagerAccountIds(
   );
 }
 
-export function readPopulationOperatorAccountIds(
+export function readSyntheticPopulationOperatorAccountIds(
   env: Pick<ApiWorkerEnv, 'POPULATION_OPERATOR_ACCOUNT_IDS'>
 ): readonly string[] {
   return readAccountIds(

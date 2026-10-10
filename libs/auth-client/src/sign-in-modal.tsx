@@ -179,7 +179,7 @@ function SignInPhaseContent(props: {
       </Match>
       <Match when={props.phase() === 'success'}>
         <>
-          <StateArea>
+          <StateArea outcome>
             <SuccessState
               title={t`Signed in`}
               body={t`You're signed in on this device.`}
@@ -236,7 +236,7 @@ function SignInErrorContent(props: {
   };
   return (
     <div class="box" data-testid={Handles.authSignInFailed}>
-      <StateArea>
+      <StateArea outcome>
         <ErrorState
           title={t`Sign-in failed`}
           body={message() ?? t`Sign-in was cancelled or didn't finish.`}
@@ -254,10 +254,14 @@ function SignInErrorContent(props: {
   );
 }
 
-function StateArea(props: { children: JSX.Element }): JSX.Element {
+function StateArea(props: {
+  children: JSX.Element;
+  outcome?: boolean;
+}): JSX.Element {
   return (
     <div
       class="box justify-center"
+      data-testid={props.outcome ? 'auth-sign-in-outcome' : undefined}
       style={{ 'min-height': `${STATE_AREA_MIN_HEIGHT}px` }}
     >
       {props.children}

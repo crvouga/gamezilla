@@ -1,6 +1,7 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { bothHaveMoved } from '@libs/chess-matchmaking-shared/game-state';
 import { multiplayerDeadlineMs } from '@libs/chess-matchmaking-shared/multiplayer-clock';
+import { AccountAutomationLabel } from '@libs/profile-client/account-automation-label';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
@@ -64,6 +65,7 @@ export function MultiplayerLineup(props: {
             name={
               <span data-testid="multiplayer-opponent">
                 {props.opponentName} ({props.opponentRating})
+                <AccountAutomationLabel profileId={otherId()} />
               </span>
             }
             avatar={<UserProfileAvatar profileId={otherId()} size={48} />}

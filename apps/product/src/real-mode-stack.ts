@@ -12,9 +12,11 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared/ports';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
+import type { LocalStackHandle } from '../../server/scripts/boot-local-stack';
 import { bootLocalStack } from '../../server/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
+let active: LocalStackHandle | undefined;
 
 function applyEnv(s3: Readonly<Record<string, string>>): void {
   process.env['DATABASE_URL'] = LOCAL_DATABASE_URL;
@@ -27,11 +29,19 @@ function applyEnv(s3: Readonly<Record<string, string>>): void {
   process.env['EMQX_DASHBOARD_PORT'] = String(EMQX_DASHBOARD_PORT);
 }
 
-/** Boot sidecars once per Jest/Bun process. Does not stop them (CI job teardown). */
+/** Boot sidecars once per test process; the preload owns their teardown. */
 export function ensureMaxFidelityStack(): Promise<void> {
   started ??= (async () => {
     const stack = await bootLocalStack();
+    active = stack;
     applyEnv(stack.s3);
   })();
   return started;
+}
+
+export async function stopMaxFidelityStack(): Promise<void> {
+  await started;
+  await active?.stop();
+  active = undefined;
+  started = undefined;
 }

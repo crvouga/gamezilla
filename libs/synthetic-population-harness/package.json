@@ -1,0 +1,59 @@
+{
+  "name": "@libs/synthetic-population-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+  },
+  "dependencies": {
+    "@libs/account-privacy-harness": "workspace:*",
+    "@libs/app-config-shared": "workspace:*",
+    "@libs/billing-harness": "workspace:*",
+    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-matchmaking-harness": "workspace:*",
+    "@libs/chess-root-client": "workspace:*",
+    "@libs/chess-root-harness": "workspace:*",
+    "@libs/friends-harness": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/notifications-harness": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/synthetic-population-client": "workspace:*",
+    "@libs/synthetic-population-server": "workspace:*",
+    "@libs/synthetic-population-shared": "workspace:*",
+    "@libs/profile-harness": "workspace:*",
+    "@libs/search-harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/dmn-shared": "workspace:*",
+    "@pkgs/permissions-shared": "workspace:*",
+    "@pkgs/quint-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "hono": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "specDomains": [
+    "synthetic-population"
+  ],
+  "specParts": 1
+}

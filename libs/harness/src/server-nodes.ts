@@ -10,6 +10,7 @@
  */
 
 import { createServer } from '@libs/app-root-server/create-server';
+import type { RoomNamespace } from '@libs/app-root-shared/env';
 import { serveFetch } from '@libs/app-root-shared/serve-fetch';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { composeFeatureServers } from '@libs/feature-shared/compose-server';
@@ -38,6 +39,7 @@ export type HarnessServerNode = {
 };
 
 export type HarnessServerNodes = {
+  setRoomNamespace(namespace: RoomNamespace | undefined): void;
   ensureEnv(id: string): Promise<ServerEnv>;
   spawn(id?: string): Promise<HarnessServerNode>;
   drop(id: string): Promise<void>;
@@ -54,6 +56,26 @@ function nextServerId(taken: ReadonlySet<string>): string {
   return nextHarnessNodeId('server', taken);
 }
 
+function createServerNodeFetch(args: {
+  app: Server;
+  roomNamespace: () => RoomNamespace | undefined;
+  disposed: () => boolean;
+  instanceId: string;
+}) {
+  const raw = serveFetch((request) => {
+    const namespace = args.roomNamespace();
+    return args.app.fetch(
+      request,
+      namespace === undefined ? undefined : { ROOM: namespace }
+    );
+  });
+  return serializeFetch(async (input, init) => {
+    if (args.disposed())
+      throw new Error(`createHarness: server '${args.instanceId}' disposed`);
+    return raw(input, init);
+  });
+}
+
 export function createHarnessServerNodes(args: {
   readonly composition: HarnessComposition;
   readonly rooms: RoomServicePort;
@@ -64,6 +86,7 @@ export function createHarnessServerNodes(args: {
   const envs = new Map<string, ServerEnv>();
   const nodes = new Map<string, HarnessServerNode>();
   const order: string[] = [];
+  let roomNamespace: RoomNamespace | undefined;
 
   async function ensureEnv(id: string): Promise<ServerEnv> {
     const cached = envs.get(id);
@@ -74,6 +97,9 @@ export function createHarnessServerNodes(args: {
   }
 
   return {
+    setRoomNamespace: (namespace) => {
+      roomNamespace = namespace;
+    },
     ensureEnv,
     async spawn(id) {
       const instanceId =
@@ -93,12 +119,11 @@ export function createHarnessServerNodes(args: {
         app: args.composition.app,
         servers: featureServers,
       });
-      const raw = serveFetch((request) => app.fetch(request));
-      const serialized = serializeFetch(async (input, init) => {
-        if (args.disposed()) {
-          throw new Error(`createHarness: server '${instanceId}' disposed`);
-        }
-        return raw(input, init);
+      const serialized = createServerNodeFetch({
+        app,
+        roomNamespace: () => roomNamespace,
+        disposed: args.disposed,
+        instanceId,
       });
       const node: HarnessServerNode = {
         id: instanceId,

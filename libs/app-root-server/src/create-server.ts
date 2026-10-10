@@ -22,7 +22,7 @@ import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
-import { withPopulationOperators } from '@libs/permissions-shared/population-permission-policy';
+import { withSyntheticPopulationOperators } from '@libs/permissions-shared/synthetic-population-permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { SpanStatusCode } from '@opentelemetry/api';
@@ -219,7 +219,7 @@ async function buildDesiredClientConfig(args: {
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
   readonly puzzleManagerAccountIds: readonly string[];
-  readonly populationOperatorAccountIds: readonly string[];
+  readonly syntheticPopulationOperatorAccountIds: readonly string[];
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
   const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
@@ -236,9 +236,9 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    permissionPolicy: withPopulationOperators(
+    permissionPolicy: withSyntheticPopulationOperators(
       permissionPolicyForPuzzleManagers(args.puzzleManagerAccountIds),
-      args.populationOperatorAccountIds
+      args.syntheticPopulationOperatorAccountIds
     ),
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
@@ -512,7 +512,8 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
     puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
-    populationOperatorAccountIds: env.populationOperatorAccountIds ?? [],
+    syntheticPopulationOperatorAccountIds:
+      env.syntheticPopulationOperatorAccountIds ?? [],
     ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
   });
 

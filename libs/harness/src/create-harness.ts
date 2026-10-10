@@ -139,6 +139,7 @@ export type Harness = {
   dispose(): Promise<void>;
   /** The in-process room host (empty when the composition runs no rooms). */
   readonly roomNode: HarnessRoomNode;
+  readonly setRoomNamespace: HarnessServerNodes['setRoomNamespace'];
   readonly serverSql: HarnessSql;
   clientSql(id: string): HarnessSql | undefined;
 };
@@ -519,6 +520,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     roomNode,
     serverSql,
     clientSql: (id) => clientSql.get(id),
+    setRoomNamespace: servers.setRoomNamespace,
   };
 }
 

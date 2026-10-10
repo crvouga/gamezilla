@@ -28,7 +28,7 @@ function artifactCommand(cmd: readonly string[], cwd: string): string {
   const stderr = redactInfraOutput(result.stderr.toString(), process.env);
   if (stderr) process.stderr.write(stderr);
   if (result.exitCode !== 0)
-    throw new Error(`Population Worker artifact ${cmd[0]} failed`);
+    throw new Error(`Synthetic Population Worker artifact ${cmd[0]} failed`);
   return result.stdout.toString();
 }
 
@@ -70,7 +70,7 @@ if (
   !Object.values(deployment).every((id) => /^[0-9a-f-]{36}$/.test(id))
 )
   throw new Error('Railway deployment outputs are invalid');
-const stage = mkdtempSync(join(tmpdir(), 'population-release-'));
+const stage = mkdtempSync(join(tmpdir(), 'synthetic-population-release-'));
 try {
   const archive = `${stage}.tar`;
   artifactCommand(
@@ -93,7 +93,7 @@ try {
     root
   );
   const dockerfile = readFileSync(
-    join(stage, 'apps/population-worker/Dockerfile'),
+    join(stage, 'apps/synthetic-population-worker/Dockerfile'),
     'utf8'
   );
   writeFileSync(
@@ -118,7 +118,7 @@ try {
       '--ci',
       '--json',
       '--message',
-      `Population Worker ${version}`,
+      `Synthetic Population Worker ${version}`,
     ],
     root
   );

@@ -22,7 +22,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/friends-client/src',
   'libs/notifications-client/src',
   'libs/permissions-client/src',
-  'libs/population-client/src',
+  'libs/synthetic-population-client/src',
   'libs/profile-client/src',
   'libs/search-client/src',
   'libs/spaces-client/src',

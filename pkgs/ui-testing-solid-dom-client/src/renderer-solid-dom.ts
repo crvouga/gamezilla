@@ -21,8 +21,8 @@ import {
   queryWithinTestId,
 } from './dom-query';
 import { fieldOf, isTextField, readDomText } from './dom-text';
-import { createLayoutSynchronizer } from './layout-synchronizer';
 import { isDomVisible } from './dom-visibility';
+import { createLayoutSynchronizer } from './layout-synchronizer';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
 export type SolidDomAppScope = {
@@ -177,6 +177,7 @@ export function createSolidDomRenderedApp(
       queryWithinTestId(asElement(parent), testId),
     isVisible: (element) => isDomVisible(asElement(element)),
     getText: (element) => readDomText(asElement(element)),
+    getAttribute: (element, name) => asElement(element).getAttribute(name),
     tap: async (element) => {
       syncLayout();
       ensureElementLayout(asElement(element), provider);

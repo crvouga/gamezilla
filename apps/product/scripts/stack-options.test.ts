@@ -8,20 +8,22 @@ describe('localhost stack options', () => {
     expect(options.webPort).toBeNull();
     expect(options.withWeb).toBe(true);
     expect(options.apiNodes).toBe(2);
-    expect(options.populationWorkers).toBe(1);
+    expect(options.syntheticPopulationWorkers).toBe(1);
   });
 
-  test('multiple local Population Workers have a bounded replica count', () => {
+  test('multiple local Synthetic Population Workers have a bounded replica count', () => {
     expect(
-      parseStackOptions(['--population-workers', '3']).populationWorkers
+      parseStackOptions(['--synthetic-population-workers', '3'])
+        .syntheticPopulationWorkers
     ).toBe(3);
     expect(
-      parseStackOptions(['--population-workers', '0']).populationWorkers
+      parseStackOptions(['--synthetic-population-workers', '0'])
+        .syntheticPopulationWorkers
     ).toBe(0);
     for (const count of ['-1', '9', '1.5', 'NaN'])
-      expect(() => parseStackOptions(['--population-workers', count])).toThrow(
-        'between 0 and 8'
-      );
+      expect(() =>
+        parseStackOptions(['--synthetic-population-workers', count])
+      ).toThrow('between 0 and 8');
   });
 
   test('a workspace pins the web listener with --web-port', () => {

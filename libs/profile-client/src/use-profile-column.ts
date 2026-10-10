@@ -7,6 +7,7 @@ export const ProfileField = {
   username: 'username',
   avatarConfig: 'avatar_config',
   createdAt: 'created_at',
+  accountKind: 'account_kind',
 } as const satisfies Record<string, string>;
 
 export type ProfileFieldKey = keyof typeof ProfileField;

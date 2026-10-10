@@ -1,0 +1,4 @@
+{
+  "summary": "Closing and reopening Cedar's browser application removed the on-disk device store, so its account became null. Browser storage now belongs to the device lifecycle and survives application restart; device reset and final teardown remove it.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

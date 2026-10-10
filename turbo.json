@@ -395,7 +395,7 @@
         "libs/notifications-client/src/**/*.{ts,tsx}",
         "libs/permissions-client/src/**/*.{ts,tsx}",
         "libs/profile-client/src/**/*.{ts,tsx}",
-        "libs/population-client/src/**/*.{ts,tsx}",
+        "libs/synthetic-population-client/src/**/*.{ts,tsx}",
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
@@ -734,7 +734,7 @@
       "dependsOn": [
         "@libs/infra-server#apply:edge",
         "@libs/billing-server#billing:sync",
-        "@apps/population-worker#deploy"
+        "@apps/synthetic-population-worker#deploy"
       ],
       "outputLogs": "errors-only"
     },
@@ -1919,7 +1919,7 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@apps/population-worker#deploy": {
+    "@apps/synthetic-population-worker#deploy": {
       "cache": false,
       "dependsOn": ["@libs/infra-server#apply:edge"]
     },

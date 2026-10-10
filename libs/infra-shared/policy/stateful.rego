@@ -48,7 +48,7 @@ deletable := {
 	"aws_iot_domain_configuration",
 	"aws_lambda_function",
 	"aws_lambda_permission",
-	# Population Workers hold only disposable client instances; identity, leases,
+	# Synthetic Population Workers hold only disposable client instances; identity, leases,
 	# matchmaking and games remain in the existing durable services.
 }
 

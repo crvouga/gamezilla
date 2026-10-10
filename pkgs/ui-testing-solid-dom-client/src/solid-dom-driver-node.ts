@@ -144,6 +144,12 @@ export class SolidDomDriverNode implements DriverNode {
     return settle(() => this.host.requireApp().getText(this.requireElement()));
   }
 
+  attribute(name: string): Promise<string | null> {
+    return settle(() =>
+      this.host.requireApp().getAttribute(this.requireElement(), name)
+    );
+  }
+
   private visibleNow(): boolean {
     const element = this.queryElement();
     if (element === null) return false;

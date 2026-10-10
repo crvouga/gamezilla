@@ -40,16 +40,16 @@ import type { StackManifest } from './manifest';
 import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import {
-  populationStackSecrets,
-  startPopulationSidecars,
-} from './population-sidecars';
-import {
   loadReportsDevSecrets,
   reportsDevEnv,
 } from './reports-dev-credentials';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
 import { startStackIdps } from './start-idps';
+import {
+  startSyntheticPopulationSidecars,
+  syntheticPopulationStackSecrets,
+} from './synthetic-population-sidecars';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
@@ -259,7 +259,7 @@ async function startApiTier(args: {
   readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
-  readonly populationSecrets: Readonly<Record<string, string>>;
+  readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
 }): Promise<ApiTier> {
   const reportsEnv = reportsEnvForStack();
   const roomServiceToken = crypto.randomUUID();
@@ -282,7 +282,7 @@ async function startApiTier(args: {
         idpEnv: args.idpEnv,
         billing: args.billing,
         webOrigin: args.webOrigin,
-        infraEnv: { ...args.infra.env, ...args.populationSecrets },
+        infraEnv: { ...args.infra.env, ...args.syntheticPopulationSecrets },
         reportsEnv,
         roomServiceToken,
       })
@@ -357,7 +357,7 @@ async function startBillingAndApi(args: {
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
   readonly dataDir: string;
-  readonly populationSecrets: Readonly<Record<string, string>>;
+  readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
   readonly unwind: () => Promise<void>;
 }): Promise<BillingAndApi> {
   await args.releaseBillingPort();
@@ -380,7 +380,7 @@ async function startBillingAndApi(args: {
       billing,
       webOrigin: args.webOrigin,
       infra: args.infra,
-      populationSecrets: args.populationSecrets,
+      syntheticPopulationSecrets: args.syntheticPopulationSecrets,
     });
     return { billing, api };
   } catch (error) {
@@ -421,10 +421,10 @@ async function startApplicationClients(input: {
     await Promise.all(children.map(stopChild));
   };
   try {
-    await startPopulationSidecars({
+    await startSyntheticPopulationSidecars({
       repoRoot: REPO_ROOT,
       origin: input.apiOrigin,
-      count: input.options.populationWorkers,
+      count: input.options.syntheticPopulationWorkers,
       token: input.token,
       track: (child) => children.push(child),
     });
@@ -463,7 +463,7 @@ export async function bootLocalhostStack(
   externalWeb = false
 ): Promise<LocalhostStack> {
   const dataDir = instanceDataDir(options);
-  const populationSecrets = populationStackSecrets(dataDir);
+  const syntheticPopulationSecrets = syntheticPopulationStackSecrets(dataDir);
   const idpState = resolveIdpState(options, dataDir);
   const { lbReservation, idpReservations, billingReservation, webReservation } =
     reserveStackPorts(options);
@@ -490,7 +490,7 @@ export async function bootLocalhostStack(
     webOrigin,
     infra,
     dataDir,
-    populationSecrets,
+    syntheticPopulationSecrets,
     // Unwind what already booted if the provider or an API node fails.
     unwind: async () => {
       await stopIdps(idps);
@@ -509,7 +509,7 @@ export async function bootLocalhostStack(
     webOrigin,
     webReservation,
     externalWeb,
-    token: populationSecrets['POPULATION_WORKER_TOKEN']!,
+    token: syntheticPopulationSecrets['POPULATION_WORKER_TOKEN']!,
   }).catch(async (error: unknown) => {
     await Promise.all(api.children.map(stopChild));
     await stopIdps(idps);

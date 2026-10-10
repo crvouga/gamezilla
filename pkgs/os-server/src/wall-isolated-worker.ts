@@ -8,12 +8,21 @@ export type IsolatedWorker = {
 /** Each realm owns globals, module singletons, storage, timers and sockets. */
 export function createIsolatedWorker(
   moduleUrl: URL,
-  preload: readonly string[]
+  preload: readonly string[],
+  environment: Readonly<Record<string, string>> = {}
 ): IsolatedWorker {
   const worker = new Worker(moduleUrl.href, {
     preload: [...preload],
     smol: true,
     ref: true,
+    env: {
+      ...Object.fromEntries(
+        Object.entries(process.env).filter(
+          (entry): entry is [string, string] => entry[1] !== undefined
+        )
+      ),
+      ...environment,
+    },
   });
   return {
     post: (value) => worker.postMessage(value),

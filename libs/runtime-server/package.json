@@ -30,7 +30,7 @@
     "@libs/friends-shared": "workspace:*",
     "@libs/infra-shared": "workspace:*",
     "@libs/notifications-server": "workspace:*",
-    "@libs/population-server": "workspace:*",
+    "@libs/synthetic-population-server": "workspace:*",
     "@libs/runtime-shared": "workspace:*",
     "@libs/spaces-server": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",

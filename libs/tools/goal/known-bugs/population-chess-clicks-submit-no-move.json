@@ -1,4 +1,0 @@
-{
-  "summary": "The Synthetic User selected d8h4 in the position rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2 but simple square clicks did not submit a move. The board supports pointer gestures and keyboard activation; the UI Driver now uses its normal keyboard controls.",
-  "regressionTest": "specs/population/observatory.feature"
-}

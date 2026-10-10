@@ -1,5 +1,8 @@
 import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
-import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
+import {
+  DEVICE_ID_KEY,
+  SESSION_TOKEN_KEY,
+} from '@libs/auth-shared/auth-storage-keys';
 import { createSignal } from 'solid-js';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
@@ -14,6 +17,7 @@ import type { StepRecorder } from '@pkgs/ui-testing-root-shared/step-recorder';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
+import type { ActorBrowserStorage } from './actor-browser-storage';
 import type { Harness } from './create-harness';
 import { inProcessDevice, webviewDevice } from './device-probes';
 import type { HarnessActor } from './harness';
@@ -68,17 +72,6 @@ async function createSolidDomClientDriver(args: {
   });
 }
 
-async function actorDataStore(id: string) {
-  const { mkdtemp, rm } = await import('node:fs/promises');
-  const { tmpdir } = await import('node:os');
-  const { join } = await import('node:path');
-  const directory = await mkdtemp(join(tmpdir(), `harness-webview-${id}-`));
-  return {
-    dataStore: { directory },
-    cleanup: () => rm(directory, { recursive: true, force: true }),
-  };
-}
-
 async function actorHistory(
   harness: Harness,
   id: string
@@ -121,6 +114,7 @@ type LaunchActorArgs = {
   readonly harness: Harness;
   readonly id: string;
   readonly snapshot?: HarnessSystemSnapshot;
+  readonly browserStorage?: ActorBrowserStorage;
   /** When set, every driver op becomes a report step for this actor. */
   readonly recorder?: StepRecorder;
 };
@@ -132,12 +126,20 @@ async function launchWebview(
   // Each actor is its own device: its own on-disk storage (cookies, OPFS
   // for the app's SQLite), shared with the popups it opens. No URL here:
   // the driver's `launch` navigates and awaits the load.
-  const { dataStore, cleanup } = await actorDataStore(args.id);
+  if (args.browserStorage === undefined)
+    throw new Error('Browser devices require persistent device storage');
+  const { dataStore } = args.browserStorage;
   const view = new Bun.WebView({ width: 390, height: 844, dataStore });
   const device = webviewDevice(view);
   const sessionToken = async () => {
     const value = await view.evaluate(
       `localStorage.getItem(${JSON.stringify(SESSION_TOKEN_KEY)})`
+    );
+    return typeof value === 'string' ? value : null;
+  };
+  const deviceId = async () => {
+    const value = await view.evaluate(
+      `localStorage.getItem(${JSON.stringify(DEVICE_ID_KEY)})`
     );
     return typeof value === 'string' ? value : null;
   };
@@ -149,10 +151,7 @@ async function launchWebview(
     timers: wallTimers,
   });
   const localSql = () => webviewLocalSql(view);
-  const closeResources = async () => {
-    view.close();
-    await cleanup();
-  };
+  const closeResources = () => Promise.resolve();
   const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
   const currentPath = async () =>
     String(await view.evaluate('location.pathname + location.search'));
@@ -177,6 +176,7 @@ async function launchWebview(
     setViewport,
     device,
     sessionToken,
+    deviceId,
   };
 }
 
@@ -195,6 +195,12 @@ async function launchSolid(
   const sessionToken = async () => {
     const value = (await args.harness.client(args.id)).secureStorage.getValue(
       SESSION_TOKEN_KEY
+    );
+    return typeof value === 'string' ? value : null;
+  };
+  const deviceId = async () => {
+    const value = (await args.harness.client(args.id)).secureStorage.getValue(
+      DEVICE_ID_KEY
     );
     return typeof value === 'string' ? value : null;
   };
@@ -225,6 +231,7 @@ async function launchSolid(
     setViewport,
     device,
     sessionToken,
+    deviceId,
   };
 }
 

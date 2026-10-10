@@ -2,6 +2,9 @@
 export function processLifecycle() {
   return {
     env: process.env as Readonly<Record<string, string | undefined>>,
+    writeOutput: (text: string): void => {
+      process.stdout.write(text);
+    },
     onTermination(listener: () => void): () => void {
       process.on('SIGTERM', listener);
       process.on('SIGINT', listener);

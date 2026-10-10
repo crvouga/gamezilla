@@ -27,10 +27,6 @@ import {
   TOFU_STATE_SECRET_ACCESS_KEY,
 } from '@libs/secrets-shared/infra-secrets';
 import {
-  POPULATION_CREDENTIAL_SECRET,
-  POPULATION_WORKER_TOKEN,
-} from '@libs/secrets-shared/population-secrets';
-import {
   EMQX_JWT_SECRET,
   EMQX_WSS_URL,
 } from '@libs/secrets-shared/pubsub-emqx-secrets';
@@ -38,6 +34,10 @@ import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
 import { RAILWAY_TOKEN } from '@libs/secrets-shared/railway-token';
 import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
 import type { Secret } from '@libs/secrets-shared/secret';
+import {
+  POPULATION_CREDENTIAL_SECRET,
+  POPULATION_WORKER_TOKEN,
+} from '@libs/secrets-shared/synthetic-population-secrets';
 import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared/turbo-token';
 import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';

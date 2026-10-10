@@ -93,6 +93,8 @@ describe('SolidDomDriver', () => {
     await driver.get('inc').tap();
     await driver.get('count').expect.text('2');
     expect(await driver.get('count').text()).toBe('2');
+    expect(await driver.get('count').attribute('data-testid')).toBe('count');
+    expect(await driver.get('count').attribute('data-missing')).toBeNull();
   });
 
   test('Enter in the email field submits via onSubmitEditing', async () => {
