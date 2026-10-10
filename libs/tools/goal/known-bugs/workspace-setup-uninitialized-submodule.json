@@ -1,0 +1,4 @@
+{
+  "summary": "Fresh linked worktrees left the vendor/atlas submodule uninitialized, so Bun rejected the declared Atlas workspaces before installing any dependency. Workspace setup now initializes submodules before dependency resolution and remains non-fatal when installation cannot complete.",
+  "regressionTest": "libs/tools/scripts/workspace-setup.test.ts"
+}

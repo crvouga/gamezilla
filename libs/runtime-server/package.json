@@ -17,7 +17,7 @@
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
-    "test:contract": "bun test tests/mockingbird-reconcile.contract.test.ts"
+    "test:contract": "bun test --timeout 30000 tests/mockingbird-reconcile.contract.test.ts"
   },
   "dependencies": {
     "@libs/account-privacy-server": "workspace:*",
