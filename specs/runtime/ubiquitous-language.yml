@@ -30,6 +30,22 @@ terms:
     model: [Settings, openSettings, leaveSettings]
     published: true
 
+  - term: work offline
+    definition: >-
+      A choice a person can make in Settings or the command palette that
+      prevents their device from reaching anyone else until they choose to
+      work online again, even while the device otherwise has a connection.
+    forms: [works offline, working offline, chosen to work offline, stop working offline, stops working offline, work online]
+    avoid: [offline mode, airplane mode]
+    model: [workingOffline, workOffline, workOnline]
+
+  - term: command palette
+    definition: >-
+      A place a person can open with the keyboard from anywhere in the app to
+      find and use commands, including the choice to work offline or online.
+    forms: [command palette's]
+    avoid: [command menu, quick actions]
+
   - term: tabs
     definition: >-
       The app's home once it has opened: Spaces, Notifications and Profile. A
@@ -64,6 +80,7 @@ terms:
       preferences are as they left them.
     forms: [closes and reopens the app, closed and reopened the app]
     avoid: [restart, relaunch, reload]
+    model: [reopen]
 
   - term: cut off
     definition: >-
