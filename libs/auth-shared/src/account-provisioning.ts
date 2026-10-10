@@ -6,6 +6,7 @@ import { assertUuid } from '@pkgs/uuid-shared/uuid';
 
 import { AnonUserService } from './anon-user-service';
 import { ExternalAccountRepository } from './external-account-repository';
+import { accountProvisionedEvent } from './telemetry';
 
 /** Transaction-scoped account provisioning. Open a transaction in a use case. */
 export class AccountProvisioningService {
@@ -31,6 +32,7 @@ export class AccountProvisioningService {
    * winner via `ON CONFLICT`.
    */
   async ensureInternalAccountIdForExternalUser(args: {
+    readonly synthetic?: boolean;
     externalUserId: string;
     /** Device-bound anon user to upgrade when this external id is new. */
     upgradeUserId?: string | null;
@@ -88,6 +90,25 @@ export class AccountProvisioningService {
       // Leave the anon row upgraded but unlinked; canonical owner wins.
     }
 
+    if (ownerId === candidateUserId)
+      await accountProvisionedEvent.record(
+        {
+          tx: this.tx,
+          env: {
+            actorId: ownerId,
+            accountId: ownerId,
+            deviceId: '',
+            isAnon: false,
+            now: () => new Date(nowIso),
+            serverNow: () => new Date(now()),
+            createId,
+            ...(args.synthetic === undefined
+              ? {}
+              : { synthetic: args.synthetic }),
+          },
+        },
+        { id: ownerId, attributes: { 'subject.id': ownerId } }
+      );
     return ownerId;
   }
 

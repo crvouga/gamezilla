@@ -130,7 +130,7 @@ test('startup logs export without a span and arbitrary bodies and attributes are
   expect(records[0]?.attributes['app.log.message']).toBe(
     'Bearer [redacted] [email-redacted]'
   );
-  expect(records[1]?.body).toBeUndefined();
+  expect(records[1]?.body).toBe('diagnostic');
   expect(records[1]?.attributes).toEqual({});
   await runtime.shutdown();
 });

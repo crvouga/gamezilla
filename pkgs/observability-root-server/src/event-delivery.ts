@@ -1,54 +1,75 @@
 import { defaultTextMapGetter, ROOT_CONTEXT } from '@opentelemetry/api';
 import { SeverityNumber } from '@opentelemetry/api-logs';
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
-import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   LoggerProvider,
   type LogRecordExporter,
   SimpleLogRecordProcessor,
 } from '@opentelemetry/sdk-logs';
+import type { Timers } from '@pkgs/clock-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { MessageTag } from '@pkgs/message-shared/message';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import type { EventContract } from '@pkgs/observability-root-shared/event-contract';
 import { validateEvent } from '@pkgs/observability-root-shared/event-contract';
 import type { PendingTelemetryEvent } from '@pkgs/observability-root-shared/event-outbox';
+import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import { allowlistedAttributes } from '@pkgs/observability-root-shared/redaction';
 import type { TelemetryOptions } from '@pkgs/observability-runtime-shared/options';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
+import { AcknowledgedLogExporter } from './acknowledged-log-exporter';
 
-export function createBusinessEventDelivery(options: TelemetryOptions) {
+export function createBusinessEventDelivery(
+  options: TelemetryOptions,
+  http: HttpClient,
+  timers: Timers
+) {
   const exporter =
     options.logExporter ??
     (options.logsUrl === undefined
       ? undefined
-      : new OTLPLogExporter({
-          url: options.logsUrl,
-          timeoutMillis: 5000,
-          ...(options.otlpHeaders === undefined
-            ? {}
-            : { headers: options.otlpHeaders }),
-        }));
+      : new AcknowledgedLogExporter(
+          options.logsUrl,
+          options.otlpHeaders ?? {},
+          http,
+          timers
+        ));
   if (exporter === undefined) return undefined;
-  return (input: {
+  const recordAttempt = createMetric({
+    name: 'telemetry.business_event.export_attempts',
+    description:
+      'Physical acknowledged business event export attempts, never a logical business count',
+    unit: '{attempt}',
+    type: 'counter',
+    dimensions: { 'telemetry.outcome': ['success', 'failure'] },
+  });
+  return async (input: {
     readonly contract: EventContract;
     readonly event: PendingTelemetryEvent;
     readonly observedAtMs: number;
-  }) =>
-    exportAcknowledged(
-      {
-        contract: input.contract,
-        exporter,
-        resourceAttributes: {
-          [ATTR.SERVICE_NAME]: options.serviceName,
-          [ATTR.SERVICE_VERSION]: options.serviceVersion,
-          [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: options.environment,
-          [ATTR.APP_BUILD_SHA]: options.buildSha,
+  }) => {
+    try {
+      await exportAcknowledged(
+        {
+          contract: input.contract,
+          exporter,
+          resourceAttributes: {
+            [ATTR.SERVICE_NAME]: options.serviceName,
+            [ATTR.SERVICE_VERSION]: options.serviceVersion,
+            [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: options.environment,
+            [ATTR.APP_BUILD_SHA]: options.buildSha,
+          },
         },
-      },
-      input.event,
-      input.observedAtMs
-    );
+        input.event,
+        input.observedAtMs
+      );
+      recordAttempt(1, { 'telemetry.outcome': 'success' });
+    } catch (error) {
+      recordAttempt(1, { 'telemetry.outcome': 'failure' });
+      throw error;
+    }
+  };
 }
 
 /** An acknowledged export fails the delivery, not the already committed domain
@@ -130,6 +151,7 @@ function eventRecord(
   ];
   return {
     eventName: contract.name,
+    body: contract.name,
     severityNumber: SeverityNumber.INFO,
     timestamp: time(pending.envelope.occurredAtMs),
     observedTimestamp: time(observedAtMs),

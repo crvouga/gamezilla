@@ -1,3 +1,4 @@
+import type { Counter, Meter } from '@opentelemetry/api';
 import type {
   LogRecordExporter,
   ReadableLogRecord,
@@ -16,14 +17,23 @@ const ENVELOPE_KEYS = new Set([
 /** The exporter guard also covers third-party log instrumentation. Bodies and
  * scope attributes are never exported; named events require registered schemas. */
 export class GuardedLogExporter implements LogRecordExporter {
+  readonly #violations: Counter | undefined;
   readonly #contracts: Map<string, EventContract>;
   readonly #exporter: LogRecordExporter;
 
   constructor(
     exporter: LogRecordExporter,
-    contracts: readonly EventContract[]
+    contracts: readonly EventContract[],
+    meter?: Meter
   ) {
     this.#exporter = exporter;
+    this.#violations = meter?.createCounter(
+      'telemetry.logs.schema_violations',
+      {
+        description: 'Log records rejected by the schema guard',
+        unit: '{record}',
+      }
+    );
     this.#contracts = new Map(
       contracts.map((contract) => [contract.name, contract])
     );
@@ -57,10 +67,15 @@ export class GuardedLogExporter implements LogRecordExporter {
             ? {}
             : { severityText: record.severityText }),
           attributes,
+          body:
+            record.eventName ??
+            String(attributes['app.log.name'] ?? 'diagnostic'),
           instrumentationScope: { name: '@pkgs/observability' },
         },
       ];
     });
+    if (records.length > safe.length)
+      this.#violations?.add(records.length - safe.length);
     if (safe.length === 0) callback({ code: 0 });
     else this.#exporter.export(safe, callback);
   }

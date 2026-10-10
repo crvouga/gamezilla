@@ -59,6 +59,9 @@ export type ServerEnv = {
   readonly serverUrl: string | null;
   /** Exact OTLP/HTTP traces endpoint used by the browser ingress proxy. */
   readonly observabilityCollectorUrl?: string | null;
+  readonly observabilityLogsUrl?: string | null;
+  readonly observabilityMetricsUrl?: string | null;
+  readonly observabilityEnvironment?: string;
   /** Write-only OTLP ingest credential; never exposed to the browser. */
   readonly observabilityCollectorToken?: string | null;
   /** Basic-auth user for OTLP ingest (Grafana Cloud stack id); null → Bearer. */

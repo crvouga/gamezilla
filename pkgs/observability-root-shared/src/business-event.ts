@@ -22,6 +22,7 @@ export function emitBusinessEvent<C extends EventContract>(
   try {
     logs.getLogger(contract.owner).emit({
       eventName: contract.name,
+      body: contract.name,
       timestamp: [
         Math.floor(envelope.occurredAtMs / 1000),
         (envelope.occurredAtMs % 1000) * 1_000_000,

@@ -1,0 +1,146 @@
+{
+  "uid": "business-product-${environment}",
+  "title": "Product \u2014 ${environment}",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "observability",
+    "business",
+    "${environment}"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Spaces created",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"multiplayer.space.created\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Player joins",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"multiplayer.player.joined\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Puzzle attempts",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.puzzle.attempted\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 4,
+      "title": "Puzzles completed",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.puzzle.completed\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

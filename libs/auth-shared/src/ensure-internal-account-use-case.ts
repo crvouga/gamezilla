@@ -16,6 +16,7 @@ export class EnsureInternalAccountUseCase {
   ) {}
 
   async execute(args: {
+    readonly synthetic?: boolean;
     externalUserId: string;
     upgradeUserId?: string | null;
     now?: () => number;

@@ -20,7 +20,6 @@
     "@opentelemetry/api-logs": "catalog:",
     "@opentelemetry/context-async-hooks": "catalog:",
     "@opentelemetry/core": "catalog:",
-    "@opentelemetry/exporter-logs-otlp-http": "catalog:",
     "@opentelemetry/resources": "catalog:",
     "@opentelemetry/sdk-logs": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
@@ -28,7 +27,10 @@
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/observability-runtime-shared": "workspace:*",
-    "@pkgs/outbox-shared": "workspace:*"
+    "@pkgs/outbox-shared": "workspace:*",
+    "@opentelemetry/otlp-transformer": "catalog:",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/object-store-root-shared": "workspace:*",

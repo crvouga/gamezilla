@@ -7,6 +7,7 @@ import {
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { withSpan } from '@pkgs/observability-root-shared/span';
+import { WEB_VITAL_EVENT } from '@pkgs/observability-root-shared/web-vital';
 import type {
   TelemetryOptions,
   TelemetryRuntime,
@@ -70,7 +71,18 @@ export function createBrowserTelemetry(
         : { contextManager: options.contextManager }
     );
   }
-  const signals = createSignals(options, false);
+  const signals = createSignals(
+    {
+      ...options,
+      eventContracts: [
+        WEB_VITAL_EVENT,
+        ...(options.eventContracts ?? []).filter(
+          (event) => event.name !== WEB_VITAL_EVENT.name
+        ),
+      ],
+    },
+    false
+  );
   const unregisterFetch =
     options.instrumentFetch === false
       ? undefined

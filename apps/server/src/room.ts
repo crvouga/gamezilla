@@ -68,6 +68,7 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    instanceId: crypto.randomUUID(),
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),

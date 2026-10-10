@@ -3,6 +3,7 @@ import type { Attributes, AttributeValue } from '@opentelemetry/api';
 import { ALLOWED_ATTRIBUTE_KEYS, ATTR } from './attributes';
 
 const VALUE_LIMITS: Readonly<Record<string, number>> = {
+  [ATTR.EXCEPTION_TYPE]: 128,
   [ATTR.DB_QUERY_TEXT]: 2_048,
   [ATTR.EXCEPTION_MESSAGE]: 512,
   [ATTR.EXCEPTION_STACKTRACE]: 4_096,

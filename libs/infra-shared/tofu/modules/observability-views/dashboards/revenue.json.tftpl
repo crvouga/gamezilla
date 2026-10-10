@@ -1,0 +1,83 @@
+{
+  "uid": "business-revenue-${environment}",
+  "title": "Revenue \u2014 ${environment}",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "observability",
+    "business",
+    "${environment}"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Authoritative payment reconciliation snapshots",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"membership.payment.reconciled\"",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Authoritative subscription projection snapshots",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"membership.subscription.projected\"",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ],
+  "description": "Reconciled provider snapshots are diagnostic records. Never sum them as revenue. Exact cash totals come from settledPaymentReport; MRR/ARR require authoritative recurring-price history."
+}

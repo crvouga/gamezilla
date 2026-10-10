@@ -96,7 +96,7 @@ export const OBSERVABILITY_COLLECTOR_USER = new Secret({
 
 export const OBSERVABILITY_COLLECTOR_TOKEN = new Secret({
   name: Name.collectorToken,
-  hint: `Write-only traces:write token for OTLP ingest. ${PROVISIONED}`,
+  hint: `Write-only traces, logs and metrics token for the shared Grafana OTLP ingest. ${PROVISIONED}`,
   optional: true,
   managedBy: 'tofu',
   pushToApiWorker: true,

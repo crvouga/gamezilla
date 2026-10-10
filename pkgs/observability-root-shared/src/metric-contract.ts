@@ -1,6 +1,9 @@
 import { metrics } from '@opentelemetry/api';
+import { ATTR } from './attributes';
 
 export const METRIC_DIMENSION_KEYS = [
+  ATTR.DEPLOYMENT_ENVIRONMENT_NAME,
+  'telemetry.outcome',
   'http.request.method',
   'app.http.status_class',
   'error.type',

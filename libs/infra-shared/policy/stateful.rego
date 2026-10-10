@@ -28,6 +28,9 @@ deletable := {
 	"github_actions_variable",
 	"grafana_cloud_access_policy",
 	"grafana_cloud_access_policy_token",
+	# Only managed definitions/credentials; telemetry storage is not deleted.
+	"grafana_cloud_stack_service_account",
+	"grafana_cloud_stack_service_account_token",
 	"infisical_secret",
 	"infisical_secret_import",
 	"terraform_data",

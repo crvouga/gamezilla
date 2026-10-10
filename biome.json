@@ -1504,6 +1504,7 @@
         "!**/libs/permissions-harness/tests/**",
         "!**/libs/permissions-shared/turbo.json",
         "!**/libs/app-root-server/src/create-server.ts",
+        "!**/libs/app-root-server/src/browser-telemetry-ingress.ts",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
       ]
@@ -1675,6 +1676,7 @@
         "!**/libs/observability-server/src/person-trouble-document.ts",
         "!**/libs/observability-server/src/person-trouble-probe.ts",
         "!**/libs/app-root-server/src/create-server.ts",
+        "!**/libs/app-root-server/src/browser-telemetry-ingress.ts",
         "!**/libs/app-root-server/src/request-db-middleware.ts",
         "!**/libs/app-root-server/src/request-telemetry.ts",
         "!**/libs/app-root-shared/src/stamp-connection-place.ts",

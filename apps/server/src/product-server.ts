@@ -1,6 +1,7 @@
 import {
   businessEventDeliveryOptions,
   ensureWorkerTelemetry,
+  telemetryEndpointOptions,
   type WorkerTelemetryRuntime,
 } from './worker-telemetry';
 // @io-wall-ok
@@ -67,6 +68,8 @@ import {
   injectRequestHeaders,
 } from '@pkgs/observability-root-server/worker-worker';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
+import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
@@ -270,8 +273,12 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     syntheticPopulationOperatorAccountIds:
       readSyntheticPopulationOperatorAccountIds(env),
     serverUrl,
-    observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
-    ...businessEventDeliveryOptions(env),
+    ...telemetryEndpointOptions(env),
+    ...businessEventDeliveryOptions(
+      env,
+      { fetch: (input, init) => globalThis.fetch(input, init) },
+      wallTimers
+    ),
     observabilityCollectorToken:
       env.OBSERVABILITY_COLLECTOR_TOKEN?.trim() || null,
     observabilityCollectorUser:
@@ -435,7 +442,7 @@ const workerHandler = {
     let telemetry: WorkerTelemetryRuntime = { flushWith: () => undefined };
     let traceId: string | undefined;
     try {
-      telemetry = ensureWorkerTelemetry(env);
+      telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
       const parent = extractRequestContext(request.headers);
       return await context.with(parent, () =>
         withSpan(
@@ -495,7 +502,17 @@ const workerHandler = {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<void> {
-    const telemetry = ensureWorkerTelemetry(env);
+    const telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
+    const environment = deploymentTelemetryEnvironment(
+      env.DEPLOYMENT_ENVIRONMENT
+    );
+    createMetric({
+      name: 'telemetry.pipeline.heartbeat',
+      description: 'Scheduled server telemetry heartbeat',
+      type: 'counter',
+      unit: '{beat}',
+      dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
+    })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
     try {
       await withSpan('outbox.drain', () => drainOutboxOnCron(env), {
         [ATTR.CODE_FILE_PATH]: 'apps/server/src/product-server.ts',

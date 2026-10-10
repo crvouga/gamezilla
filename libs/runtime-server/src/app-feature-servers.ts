@@ -9,6 +9,7 @@
  */
 
 import { createAccountPrivacyServer } from '@libs/account-privacy-server/feature-server';
+import { AUTH_SERVER } from '@libs/auth-server/feature-server';
 import { createBillingServer } from '@libs/billing-server/feature-server';
 import { createChessServer } from '@libs/chess-root-server/feature-server';
 import type { FeatureServer } from '@libs/feature-shared/server';
@@ -30,6 +31,7 @@ export function appFeatureServers(
   deps: AppFeatureServerDeps
 ): readonly FeatureServer[] {
   return [
+    AUTH_SERVER,
     createAccountPrivacyServer(APP.accountPrivacy, deps.rooms),
     createSpacesServer(deps.rooms, FRIENDS_BLOCK_RELATION),
     createChessServer(deps.rooms),

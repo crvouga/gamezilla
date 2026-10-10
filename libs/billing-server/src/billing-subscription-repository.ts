@@ -80,7 +80,18 @@ export class BillingSubscriptionRepository {
         },
         {
           envelope: {
-            id: telemetrySubjectId(JSON.stringify(projection)),
+            id: telemetrySubjectId(
+              JSON.stringify([
+                projection.provider,
+                projection.accountId,
+                projection.subscriptionId,
+                projection.offerPriceKey,
+                projection.status,
+                projection.periodEndMs,
+                projection.endsAtPeriodEnd,
+                projection.creditCents,
+              ])
+            ),
             occurredAtMs: Date.parse(nowIso),
           },
           attributes: {

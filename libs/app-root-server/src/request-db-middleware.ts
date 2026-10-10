@@ -198,7 +198,10 @@ export function createRequestDbMiddleware(
   const skipDatabasePolicy = options.skipDatabaseUrlPolicy === true;
   return async (c, next) => {
     const path = new URL(c.req.url).pathname;
-    if (path === '/api/health' || path === '/api/observability/v1/traces') {
+    if (
+      path === '/api/health' ||
+      /^\/api\/observability\/v1\/(traces|logs|metrics)$/.test(path)
+    ) {
       return next();
     }
     if (!skipDatabasePolicy) {

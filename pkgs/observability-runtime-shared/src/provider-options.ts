@@ -49,6 +49,9 @@ export function createProviderConfig(
       : { idGenerator: options.idGenerator }),
     ...(options.sampler === undefined ? {} : { sampler: options.sampler }),
     resource: resourceFromAttributes({
+      ...(options.instanceId === undefined
+        ? {}
+        : { [ATTR.SERVICE_INSTANCE_ID]: options.instanceId }),
       ...allowlistedAttributes(options.resourceAttributes ?? {}),
       [ATTR.SERVICE_NAME]: options.serviceName,
       [ATTR.SERVICE_VERSION]: options.serviceVersion,

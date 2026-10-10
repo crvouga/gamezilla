@@ -159,13 +159,11 @@ export function buildAppAuthContext(
   args: BuildAppAuthContextArgs
 ): AppAuthContext {
   return {
-    ...AuthClaimAttr.telemetryPopulation(
-      args.synthetic === undefined
-        ? 'unknown'
-        : args.synthetic
-          ? 'synthetic'
-          : 'real'
-    ),
+    ...(args.synthetic === undefined
+      ? {}
+      : AuthClaimAttr.telemetryPopulation(
+          args.synthetic ? 'synthetic' : 'real'
+        )),
     ...AuthClaimAttr.deviceId(args.deviceId),
     ...AuthClaimAttr.accountId(args.accountId),
     ...AuthClaimAttr.myId(args.myId),

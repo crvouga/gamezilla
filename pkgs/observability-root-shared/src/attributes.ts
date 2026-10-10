@@ -11,6 +11,7 @@ import {
   ATTR_HTTP_REQUEST_METHOD,
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_HTTP_ROUTE,
+  ATTR_SERVICE_INSTANCE_ID,
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions';
@@ -23,6 +24,7 @@ export const ATTR = {
   USER_ID: ATTR_USER_ID,
   SESSION_ID: ATTR_SESSION_ID,
   SERVICE_NAME: ATTR_SERVICE_NAME,
+  SERVICE_INSTANCE_ID: ATTR_SERVICE_INSTANCE_ID,
   SERVICE_VERSION: ATTR_SERVICE_VERSION,
   DEPLOYMENT_ENVIRONMENT_NAME: ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
   DB_SYSTEM_NAME: ATTR_DB_SYSTEM_NAME,
@@ -70,6 +72,7 @@ export type AttrValue = {
   'user.id': string;
   'session.id': string;
   'service.name': string;
+  'service.instance.id': string;
   'service.version': string;
   'deployment.environment.name': string;
   'db.system.name': string;

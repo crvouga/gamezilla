@@ -108,6 +108,9 @@ export class BearerAuthResolver {
       this.authServer
     ).execute({
       externalUserId: session.externalUserId,
+      ...(session.synthetic === undefined
+        ? {}
+        : { synthetic: session.synthetic }),
       upgradeUserId,
     });
     if (accountId !== null) {

@@ -3,6 +3,8 @@ import {
   ConfigurationError,
   readDeploymentProtection,
 } from '@libs/app-root-shared/env';
+import type { Timers } from '@pkgs/clock-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createBusinessEventDelivery } from '@pkgs/observability-root-server/event-delivery';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
@@ -12,28 +14,37 @@ export type WorkerTelemetryRuntime = {
 };
 let workerTelemetry: WorkerTelemetryRuntime | null = null;
 
-export function businessEventDeliveryOptions(env: ApiWorkerEnv) {
+export function businessEventDeliveryOptions(
+  env: ApiWorkerEnv,
+  http: HttpClient,
+  timers: Timers
+) {
   if (env.OBSERVABILITY_ENABLED?.trim() === '0') return {};
   const authorization = otlpAuthorization({
     user: env.OBSERVABILITY_COLLECTOR_USER,
     token: env.OBSERVABILITY_COLLECTOR_TOKEN,
   });
   const logsUrl = env.OBSERVABILITY_LOGS_URL?.trim();
-  const deliverBusinessEvent = createBusinessEventDelivery({
-    serviceName: 'gamezilla-server',
-    serviceVersion: env.BUILD_SHA?.trim() || 'development',
-    buildSha: env.BUILD_SHA?.trim() || 'development',
-    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
-    ...(logsUrl ? { logsUrl } : {}),
-    ...(authorization === undefined
-      ? {}
-      : { otlpHeaders: { Authorization: authorization } }),
-  });
+  const deliverBusinessEvent = createBusinessEventDelivery(
+    {
+      serviceName: 'gamezilla-server',
+      serviceVersion: env.BUILD_SHA?.trim() || 'development',
+      buildSha: env.BUILD_SHA?.trim() || 'development',
+      environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
+      ...(logsUrl ? { logsUrl } : {}),
+      ...(authorization === undefined
+        ? {}
+        : { otlpHeaders: { Authorization: authorization } }),
+    },
+    http,
+    timers
+  );
   return deliverBusinessEvent === undefined ? {} : { deliverBusinessEvent };
 }
 
 export function ensureWorkerTelemetry(
-  env: ApiWorkerEnv
+  env: ApiWorkerEnv,
+  createId: () => string
 ): WorkerTelemetryRuntime {
   if (workerTelemetry !== null) return workerTelemetry;
   if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
@@ -66,6 +77,7 @@ export function ensureWorkerTelemetry(
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    instanceId: createId(),
     serviceName: 'gamezilla-server',
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
@@ -82,4 +94,15 @@ export function ensureWorkerTelemetry(
       : { otlpHeaders: { Authorization: authorization } }),
   });
   return workerTelemetry;
+}
+
+export function telemetryEndpointOptions(env: ApiWorkerEnv) {
+  return {
+    observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
+    observabilityLogsUrl: env.OBSERVABILITY_LOGS_URL?.trim() || null,
+    observabilityMetricsUrl: env.OBSERVABILITY_METRICS_URL?.trim() || null,
+    observabilityEnvironment: deploymentTelemetryEnvironment(
+      env.DEPLOYMENT_ENVIRONMENT
+    ),
+  };
 }

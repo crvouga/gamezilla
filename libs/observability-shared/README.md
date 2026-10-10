@@ -1,82 +1,107 @@
-# Universal observability audit
+# Unified product observability
 
-This is an audit and implementation status, not a declaration that the full
-observability overhaul is complete. Framework APIs and delivery semantics are
-documented in [the observability package](../../pkgs/observability-root-shared/README.md).
+The existing Grafana Cloud stack is the collection and reporting platform:
+Tempo for traces, Loki for named events and diagnostics, Mimir for metrics.
+Application instrumentation uses standard OpenTelemetry and OTLP. No additional
+analytics vendor or persistent service is introduced. Framework API usage is in
+[the observability package](../../pkgs/observability-root-shared/README.md).
 
-## Existing capabilities and gaps
+## Audit and implemented coverage
 
-| Area | Existing implementation | Remaining work |
+| Domain | Existing capabilities reused | Added coverage |
 | --- | --- | --- |
-| Distributed traces | Official OTel API, browser fetch instrumentation, Hono request boundaries, SQL wrappers, sync mutation correlation, Durable Object boundaries, Bun/Worker/browser adapters | Independent signals need composition-root endpoint configuration; browser async context is callback-scoped |
-| Collection and queries | Production Grafana Cloud Tempo, OTLP HTTP proxy for browser traces, local/CI trace artifacts, `bun obs`, MCP query tools | No configured OpenObserve deployment, endpoint, installed server version or management credential; query tools still use Tempo |
-| Identity and releases | User/session/device correlation, build SHA, service version and deployment resource attributes | Consent-aware pseudonymous analytical identity, attribution linking and backend subject deletion |
-| Product and gaming | Spaces, matchmaking, chess, puzzles and room systems; executable business models and journeys | Domain-owned event catalogs and emission sites, activation definitions, funnels, retention and deployed queries |
-| Billing | Verified provider callbacks, subscription projections, reconciled durable payment evidence, account closure and payment retention | Reliable lifecycle emission, historical transitions, settled-price/currency and synthetic provenance for recurring-value reports |
-| Marketing | No marketing generation/publishing integration found in deployed app/features | Actual provider integrations, campaign attribution, consent and reporting ingestion; no impressions/spend data can be asserted |
-| Customer experience | Existing INP/LCP/CLS sampler, browser error/route/interaction boundaries | Configured metric export, single-page lifecycle/session reporting, route timing and consent controls |
-| Reliability | Existing outbox, deterministic harness, Gherkin/Quint/OpenSLO bindings, production health/synthetic runner | Telemetry ingestion synthetic, business/pipeline SLO bindings and burn-rate alerts |
-| Infrastructure | OpenTofu-managed Grafana stack, ingest/query credentials, secret references and deletion protection | OpenObserve streams, retention/RBAC, dashboards, alerts, version-specific provider/API validation and Actions rehearsal |
-| Security | Permission decisions, authentication ports, account privacy workflow | Durable security audit policy and records; best-effort diagnostics are insufficient |
+| Runtime | Browser fetch, Hono, SQL, sync and Durable Object traces; release resources; `bun obs` | Independent unsampled log/metric SDKs, request counts/duration, bounded batches and metric labels, invocation flush isolation |
+| Identity | Verified identities and transactional account provisioning | Reliable first-account provisioning event; trusted real/synthetic/unknown provenance through authentication and replay |
+| Multiplayer | Spaces, chess matchmaking and authoritative state persistence | Space creation/join/leave; game creation/start/completion/abort, with stable logical identities |
+| Puzzles | Deterministic interaction mutations | Attempt/completion events without puzzle positions or raw player identifiers |
+| Billing | Reconciled payment evidence and durable subscription projections | Authoritative reconciliation/projection snapshot events; exact currency-separated settled cash/refund report |
+| Customer experience | Browser exceptions, navigation/interaction traces and performance HUD | Independent exception logs and final INP/LCP/CLS observations; restricted server-side browser ingestion |
+| Reliability | Transactional outbox, scheduled jobs, deterministic harness and existing OpenSLO approach | Export acknowledgement, retries, schema violation counters, pipeline heartbeat, declarative dashboards and four alert rules |
+| Infrastructure | Protected Grafana stack, OpenTofu, secret store and deploy gates | Three-signal credential scopes; stack-scoped management identity; per-environment dashboard folder and alerts |
 
-## Implemented in this change
+## Contracts and reliable delivery
 
-The existing runtime adapters now support independent official OTel log and
-metric SDKs with explicit OTLP endpoints or injected exporters. The logger
-bridge selects a structured log sink when configured, retaining its existing
-span-event path otherwise. Batches are bounded, metric dimensions are
-allowlisted, Worker metrics flush without an interval, and failed invocation
-flushes are isolated from product responses.
+Each owning domain exports its typed catalog in `telemetry.ts`; feature manifests
+register those contracts in the runtime. The product helper pseudonymizes logical
+and business entity identifiers consistently. Server replay writes an event into
+the existing outbox in the same transaction as the domain change. Optimistic client
+replay does not publish a reliable event. Export runs in the scheduled background
+drain, outside gameplay request processing.
 
-Type-safe event contracts, compatibility checks and exporter schema/privacy
-guards support domain-owned definitions. A versioned message tag binds each
-reliable contract to the existing transactional outbox. Its consumer waits for
-export acknowledgement, carries originating W3C context and preserves event
-time across retries. No new queue or persistent service was added.
+Stable versioned identities deduplicate enqueue attempts. Delivery uses the original
+event timestamp and originating W3C trace context. The OTLP JSON exporter uses injected
+HTTP and timers, bounds response size, and rejects HTTP errors, timeouts and OTLP
+partial rejection even when the response is HTTP 200. A committed business operation
+survives exporter failure. Physical delivery is at least once; exhausted retries need
+outbox reconciliation. Queries deduplicate logical IDs; there is no exactly-once claim.
 
-HTTP request counts and duration are measured outside trace sampling using
-the injected clock. The existing browser sampler records Web Vitals
-observations without exporting its DOM attribution strings. INP currently
-reports changes: its histogram describes observations, not one final value per
-page or session. Metrics export remains opt-in until endpoints are wired.
+Financial snapshots describe reconciled durable records. Do not sum snapshot log
+values into financial totals. `settledPaymentReport` queries authoritative payment
+evidence and returns exact decimal minor-unit totals per currency. Its half-open
+window uses original payment time and current reconciled refund state. The evidence
+has no established synthetic provenance; it is not a GAAP revenue report.
 
-The billing package exposes `settledPaymentReport`: it queries authoritative
-payment evidence and returns exact decimal minor-unit totals separately for
-each currency. Windows use original payment time; refunds reflect the current
-reconciled evidence. This report includes the evidence held by the ledger; it
-does not establish production/synthetic provenance. It does not calculate
-MRR, ARR, churn, recognized revenue, exchange rates or attribution. Existing
-subscription projections do not preserve enough authoritative price/currency
-history to infer those values safely from the offer catalog.
+## Analytical definitions
 
-Automated tests cover zero-percent trace sampling, named events, correlation,
-event timestamps, exporter failures, replay identity, schema rejection,
-privacy, metric accuracy, compatibility, analytical deduplication, UTC window
-edges, erased subjects and authoritative cash/refund reconciliation. Four
-literal regressions are registered under the existing known-bug directory.
+`@libs/runtime-shared/business-usage` provides versioned meaningful-action definitions:
+space creation/join, puzzle attempts and chess game starts. Active use is distinct
+pseudonymous subjects participating in these events; both chess participants count.
+DAU/WAU/MAU use explicit half-open UTC windows of 1/7/30 days. Page views do not count.
+Only explicitly real provenance is included; synthetic and unknown populations are
+excluded. Logical duplicates and deleted subjects are excluded. Late arrivals use
+event time. Game completion rates follow the started cohort as of the window end.
 
-## OpenObserve assessment and deployment dependencies
+These are reproducible query helpers, not a new analytics storage service. They do
+not establish activation, attribution, identity linking, consent or retention cohorts.
+Account provisioning means the first verified external identity created an internal
+account; it does not mean onboarding or activation completed.
 
-OpenObserve documents [OTLP ingestion](https://openobserve.ai/docs/user-guide/data-exploration/traces/traces/)
-and [RUM with session replay](https://openobserve.ai/docs/user-guide/data-exploration/rum/).
-Replay is a separate capability; it is not supplied by OTel. It remains
-disabled here because no consent/masking policy or compatible deployed server
-version has been established. Browser diagnostics should never include chat,
-payment details, credentials or form input values.
+## Grafana infrastructure and operations
 
-The official [OpenObserve Terraform provider](https://registry.terraform.io/providers/openobserve/openobserve/latest/docs)
-is a candidate for declarative streams/dashboards/alerts. This repository has
-no installed provider or server version against which its resources can be
-validated. No OpenObserve resources or dashboards have been deployed, and the
-protected Grafana trace history has not been removed. Migrating requires an
-actual target and credentials through the existing secret store, a pinned
-provider/server compatibility check, import/retention planning and the
-repository's GitHub Actions rehearsal before merge.
+[Dashboard sources](../infra-shared/tofu/modules/observability-views/main.tf) provide
+engineering, executive, product, multiplayer, revenue reconciliation, customer
+experience and pipeline views. Panels query actual emitted records/instruments;
+there are no fake values or empty placeholders. The revenue view shows reconciliation
+health and records, not MRR/ARR. Loki queries use OTLP structured metadata and stable
+log bodies; product counts require `event_synthetic="false"` and deduplicate event IDs.
+Long windows with many logical IDs can reach Loki query series limits; use bounded
+windows and authoritative reporting rather than interpreting a failed query as zero.
 
-The business-wide definition of done remains outstanding: domain emission,
-analytics definitions and reconciliation, attribution, synthetic provenance,
-backend access/retention/erasure, OpenObserve query tooling and deployments,
-dashboard suites, actionable alerts/SLOs and performance/cost validation.
-The new contract APIs are available; production business domains are not yet
-wired to them. No substitute analytics vendor, fake data or empty dashboard
-was introduced.
+Four owner/severity/runbook-tagged alert rules cover a provisional 99% API availability
+fast burn (5-minute and 1-hour windows with a traffic floor), repeated reliable export
+failures, contract violations and a missing scheduled heartbeat. Delivery destinations
+inherit the stack's existing notification policy; no new contact channel is created.
+Additional business SLOs require owned objectives and compatible existing bindings.
+
+OpenTofu foundation manages per-environment writer/read policies, dashboard folders,
+service accounts and alerts. Workers receive ingestion credentials only. Browser logs
+are proxied with server credentials; resource identity is forced, business claims and
+private bodies are stripped, and only diagnostic attributes or scalar Web Vitals pass.
+Browser cumulative metrics are not exported into a shared series. Server metric
+resources identify the isolate so concurrent writers do not overwrite each other.
+
+Schema/privacy, cardinality, delivery, correlation, analytical calculations, financial
+reconciliation and dashboard structural checks run in existing package gates. Full
+`bun verify` and the required GitHub Actions infrastructure rehearsal remain release
+evidence; a source declaration does not prove that dashboards are deployed or backend
+queries accepted. Never use manual dashboard inspection as verification.
+
+## Remaining limitations
+
+No deployed marketing generation/publishing system or trustworthy impression/spend
+feed was found. Campaign consent, persisted attribution, anonymous identity linking
+and narrowly scoped external reporting adapters remain work; no marketing figures
+are invented. Existing subscription projections lack authoritative historical settled
+price/currency changes needed for MRR, ARR, churn and lifetime-value estimates.
+
+Backend subject erasure, retention tiers and restricted security-audit access require
+an explicit policy and backend integration. Pseudonymization is not anonymization;
+pattern redaction cannot prove that arbitrary diagnostic text has no personal data.
+Durable security audit records, consent governance and session replay are not supplied
+by this change. Replay remains disabled. Synthetics with unknown provenance are
+excluded from business counts, rather than assumed to be genuine activity.
+
+The dashboard/alert resources require a successful Actions plan against the existing
+Grafana stack and its hosted datasource names before merge. Production deployment
+requires the repository's human merge and full Deploy gates. The broader business-wide
+mission is not proven complete by the instrumentation and dashboards alone.

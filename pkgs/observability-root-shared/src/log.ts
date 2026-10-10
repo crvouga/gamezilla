@@ -50,6 +50,28 @@ export function recordStructuredLog(event: CorrelatedLogEvent): void {
   }
 }
 
+export function recordStructuredError(
+  error: Error,
+  loggerName: string,
+  source = context.active()
+): void {
+  try {
+    logs.getLogger('@pkgs/observability').emit({
+      context: source,
+      severityNumber: SeverityNumber.ERROR,
+      severityText: 'ERROR',
+      attributes: allowlistedAttributes({
+        [ATTR.APP_LOG_NAME]: loggerName,
+        [ATTR.EXCEPTION_TYPE]: error.name,
+        [ATTR.EXCEPTION_MESSAGE]: error.message,
+        [ATTR.EXCEPTION_STACKTRACE]: error.stack,
+      }),
+    });
+  } catch {
+    /* Diagnostic failures must not interrupt recovery. */
+  }
+}
+
 /** Records a log on the active span. Startup/no-context calls are no-ops. */
 export function recordLogEvent(event: CorrelatedLogEvent): void {
   const span = activeSpan();

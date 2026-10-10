@@ -8,7 +8,9 @@ import {
   LoggerProvider,
 } from '@opentelemetry/sdk-logs';
 import {
+  AggregationType,
   createAllowListAttributesProcessor,
+  InstrumentType,
   MeterProvider,
   PeriodicExportingMetricReader,
 } from '@opentelemetry/sdk-metrics';
@@ -24,6 +26,9 @@ export function createSignals(
   worker: boolean
 ): TelemetryRuntime {
   const resource = resourceFromAttributes({
+    ...(options.instanceId === undefined
+      ? {}
+      : { [ATTR.SERVICE_INSTANCE_ID]: options.instanceId }),
     [ATTR.SERVICE_NAME]: options.serviceName,
     [ATTR.SERVICE_VERSION]: options.serviceVersion,
     [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: options.environment,
@@ -40,7 +45,11 @@ export function createSignals(
   }
   return {
     async forceFlush() {
-      await Promise.all([logger?.forceFlush(), meter?.forceFlush()]);
+      try {
+        await logger?.forceFlush();
+      } finally {
+        await meter?.forceFlush();
+      }
     },
     async shutdown() {
       await Promise.all([logger?.shutdown(), meter?.shutdown()]);
@@ -73,15 +82,27 @@ function createMeter(
             ? new FlushMetricReader(metricExporter)
             : new PeriodicExportingMetricReader({ exporter: metricExporter }),
         ],
-        views: [
-          {
-            instrumentName: '*',
-            aggregationCardinalityLimit: 256,
-            attributesProcessors: [
-              createAllowListAttributesProcessor([...METRIC_DIMENSION_KEYS]),
-            ],
-          },
-        ],
+        views: Object.values(InstrumentType).map((instrumentType) => ({
+          instrumentType,
+          aggregationCardinalityLimit: 256,
+          attributesProcessors: [
+            createAllowListAttributesProcessor([...METRIC_DIMENSION_KEYS]),
+          ],
+          ...(instrumentType === InstrumentType.HISTOGRAM
+            ? {
+                aggregation: {
+                  type: AggregationType.EXPLICIT_BUCKET_HISTOGRAM,
+                  options: {
+                    boundaries: [
+                      0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75,
+                      1, 2.5, 5, 7.5, 10, 25, 50, 75, 100, 250, 500, 750, 1000,
+                      2500, 5000, 7500, 10000,
+                    ],
+                  },
+                },
+              }
+            : {}),
+        })),
       });
 }
 
@@ -110,7 +131,8 @@ function createLoggerProvider(
             ...(meter === undefined ? {} : { selfObsMeterProvider: meter }),
             exporter: new GuardedLogExporter(
               logExporter,
-              options.eventContracts ?? []
+              options.eventContracts ?? [],
+              meter?.getMeter('@pkgs/observability')
             ),
             maxQueueSize: 2048,
             maxExportBatchSize: 256,

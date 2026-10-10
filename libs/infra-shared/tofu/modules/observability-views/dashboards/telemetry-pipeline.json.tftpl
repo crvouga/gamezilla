@@ -1,0 +1,114 @@
+{
+  "uid": "business-telemetry-pipeline-${environment}",
+  "title": "Telemetry Pipeline \u2014 ${environment}",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "observability",
+    "business",
+    "${environment}"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Business export attempt outcomes",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${metrics_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(telemetry_outcome)(rate(telemetry_business_event_export_attempts_total[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${metrics_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Rejected event schemas",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${metrics_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(telemetry_logs_schema_violations_total[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${metrics_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Unclassified business activity",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} | event_delivery=~\"reliable|authoritative\" | event_synthetic=\"\"",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

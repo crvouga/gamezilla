@@ -68,7 +68,7 @@ Unknown values, extra dimensions, negative/nonfinite measurements and more
 than 256 vocabulary combinations are rejected. SDK views enforce the same
 dimension allowlist and a series cap. Identifiers stay out of metrics.
 
-`logicalEvents` deduplicates records, rejects conflicting copies, excludes
+`logicalEvents` deduplicates records, rejects conflicting copies, includes only explicitly real activity, excludes unknown and
 synthetic activity and selects event time in explicit half-open UTC windows.
 `activeSubjects` requires a caller-supplied meaningful-action vocabulary and
 an erasure set. Page views are not implicitly active use. These helpers do not
@@ -81,8 +81,8 @@ at invocation boundaries instead of scheduling an interval; `flushWith` hands
 all signals to `waitUntil` and isolates failures from the response. Every host
 must still arrange shutdown/flush; telemetry is best effort outside the outbox.
 
-Generic log bodies and instrumentation-scope attributes are removed before
-export. Diagnostic attributes use the existing default-deny redactor. Named
+Generic log bodies are replaced with stable names and instrumentation-scope
+attributes are removed before export. Diagnostic attributes use the existing default-deny redactor. Named
 events must match their registered schema and envelope. Credentials and email
 addresses in span status descriptions now follow exception redaction as well.
 Free text still requires deliberate review: an allowlist and pattern-based

@@ -1,10 +1,11 @@
-import { context, SpanStatusCode } from '@opentelemetry/api';
+import { context, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import {
   currentCorrelation,
   deserializeTraceContext,
 } from '@pkgs/observability-root-shared/correlation';
 import { addEvent, EVENT } from '@pkgs/observability-root-shared/events';
+import { recordStructuredError } from '@pkgs/observability-root-shared/log';
 import { startSpan } from '@pkgs/observability-root-shared/span';
 import {
   clearPendingInteractionCorrelation,
@@ -29,6 +30,11 @@ function reportError(error: unknown, source: string): string | undefined {
     [ATTR.CODE_FUNCTION_NAME]: source,
   });
   span.recordException(exception);
+  recordStructuredError(
+    exception,
+    source,
+    trace.setSpan(context.active(), span)
+  );
   span.setStatus({ code: SpanStatusCode.ERROR, message: exception.message });
   const traceId = span.spanContext().traceId;
   recordRecentTraceId(traceId);

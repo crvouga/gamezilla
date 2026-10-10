@@ -18,6 +18,7 @@ export type TelemetryOptions = {
   readonly serviceVersion: string;
   readonly environment: TelemetryEnvironment;
   readonly buildSha: string;
+  readonly instanceId?: string;
   readonly exporter?: SpanExporter;
   /** Exact OTLP/HTTP trace endpoint, including `/v1/traces`. */
   readonly otlpUrl?: string;
