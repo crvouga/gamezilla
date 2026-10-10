@@ -33,7 +33,7 @@ export function FriendProfileHeader(
       />
       <div class="box items-center gap-1 self-stretch">
         <h1
-          class="text textTitle line-clamp-1 text-center"
+          class="text textHeading line-clamp-1 text-center"
           data-testid={Handles.friendUserUsername}
         >
           {handle()}

@@ -10,11 +10,7 @@
 .header {
   display: flex;
   align-items: flex-start;
-  gap: var(--ui-space-4);
-  padding: var(--ui-space-5);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-color-surface);
+  gap: var(--ui-space-3);
 }
 .meta {
   font-size: var(--ui-font-size-xs);
@@ -74,7 +70,7 @@
   font-family: var(--ui-font-display);
   font-size: var(--ui-font-size-lg);
   line-height: var(--ui-leading-lg);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .sectionFooter {
@@ -103,7 +99,7 @@
   color: var(--ui-color-text);
   background: var(--ui-color-surface-muted);
   font-family: var(--ui-font-display);
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--ui-font-size-xs);
 }
 .player {
@@ -116,13 +112,6 @@
   background: var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-lg);
-  transition:
-    border-color var(--ui-duration-fast) var(--ui-easing-standard),
-    background var(--ui-duration-fast) var(--ui-easing-standard);
-}
-.player[data-active="true"] {
-  border-color: var(--ui-color-tint);
-  background: var(--ui-color-tint-subtle);
 }
 .player[data-ready="true"] .playerStatus {
   color: var(--ui-color-success);
@@ -139,7 +128,7 @@
 }
 .playerName {
   font-family: var(--ui-font-display);
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--ui-font-size-lg);
   line-height: var(--ui-leading-lg);
   letter-spacing: -0.01em;
@@ -262,12 +251,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ui-space-4);
+  gap: var(--ui-space-3);
   text-align: center;
-  padding: var(--ui-space-8) var(--ui-space-5);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-color-surface);
+  padding: var(--ui-space-6) var(--ui-space-5);
 }
 .radar {
   display: grid;
@@ -329,11 +315,11 @@
 }
 .countdownValue {
   font-family: var(--ui-font-display);
-  font-size: var(--ui-font-size-2xl);
-  line-height: var(--ui-leading-2xl);
-  font-weight: 700;
+  font-size: var(--ui-font-size-lg);
+  line-height: var(--ui-leading-lg);
+  font-weight: 600;
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .stat {
   display: flex;
@@ -346,11 +332,11 @@
 }
 .statValue {
   font-family: var(--ui-font-display);
-  font-size: var(--ui-font-size-2xl);
-  line-height: var(--ui-leading-2xl);
-  font-weight: 700;
+  font-size: var(--ui-font-size-lg);
+  line-height: var(--ui-leading-lg);
+  font-weight: 600;
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 @media (hover: hover) and (pointer: fine) {
   .choices:not(:disabled) .choice:hover {
@@ -360,7 +346,7 @@
     background: var(--ui-color-tint-active);
   }
   .disclosureTrigger:hover {
-    color: var(--ui-color-tint);
+    background: var(--ui-color-surface-muted);
   }
 }
 @media (min-width: 960px) {
@@ -370,7 +356,6 @@
 }
 @media (max-width: 560px) {
   .header {
-    padding: var(--ui-space-4);
     flex-wrap: wrap;
   }
   .headerDetail {
@@ -395,7 +380,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .player,
   .choice,
   .chevron {
     transition: none;
