@@ -123,6 +123,12 @@
       "skillPath": "skills/hegel/SKILL.md",
       "computedHash": "910eaf31932ca55a8370e88939db01f57880582bfa3928d0c4d4a44f097e204d"
     },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "de7de6829490819b3c18cfdad2c93d002bd428c4b738d29b971ef3dc8f911d08"
+    },
     "neon": {
       "source": "neondatabase/agent-skills",
       "sourceType": "github",
