@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Customizing the feed is for people with an account" as s0
-  state "Alice cannot customize the feed without an account — 1" as s1
-  state "Alice's feed targets 1500 automatically — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice starts editing the feed settings
-  s0 --> s2: Alice opens puzzles in their space
-  s1 --> [*]
-  s2 --> [*]

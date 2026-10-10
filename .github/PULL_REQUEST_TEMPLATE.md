@@ -19,8 +19,8 @@ Check a box only when it is true.
 ## Verification
 
 <!--
-One line: the automated checks exercised and their result (`bun check` →
-green). Never a manual step — we do not test by hand.
+One line: any local automated checks exercised and their result. Pull requests
+do not run CI. Never a manual step — we do not test by hand.
 One line — required: what this PR does NOT prove.
 -->
 
@@ -40,8 +40,6 @@ must decide before merging.
 
 ## Checklist
 
-- [ ] CI (`bun check`) is green on this PR.
-- [ ] Every touched package ran `bun run --filter <pkg> tc` and `test` locally.
 - [ ] No check was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
 - [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) registered as `libs/tools/goal/known-bugs/<id>.json`. Nothing was verified by hand.
 - [ ] No deprecated code left behind: replaced APIs are deleted and every call site migrated here.
@@ -52,4 +50,4 @@ must decide before merging.
 - [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra-shared/tofu/stacks/foundation/secrets.json`).
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
-- [ ] Merged by a human only once every check is green; never `--admin` or merge queue.
+- [ ] Merged by a human; never `--admin` or merge queue. Full verification is required when deploying, not when merging.

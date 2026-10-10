@@ -10,10 +10,13 @@ import {
 const DMN = BINDING_KINDS.find((k) => k.field === 'decisions') as BindingKind;
 
 describe('specs/ layout', () => {
-  test('the root holds contexts, the kernel, the manifest and the rulebook', () => {
+  test('the root holds contexts and the declared whole-product specs', () => {
     for (const name of [
       'ubiquitous-language.yml',
       'conformance.yaml',
+      'product.machine.json',
+      'journeys.yaml',
+      'atlas.yaml',
       'README.md',
     ]) {
       expect(specsRootEntryProblem(name, false)).toBeNull();

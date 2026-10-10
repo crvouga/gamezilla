@@ -13,11 +13,9 @@ type Git = (args: readonly string[]) => string | undefined;
  * The commits a secrets scan must cover, as a `git log` range of full shas:
  * `<merge-base>..<head>`, i.e. exactly the commits the branch adds.
  *
- * Both ends are content addresses, so the range is a pure cache key: a local
- * `bun check` on a branch and the Check run on its pull request resolve the
- * same range and share the turbo cache entry, and main moving under an open
- * PR does not invalidate it. A head with nothing of its own (main after a
- * merge) scans just its tip commit.
+ * Both ends are content addresses, so the range is a pure cache key. A local
+ * branch check remains stable when main moves. A head with nothing of its own
+ * (main after a merge) scans just its tip commit.
  */
 export function secretsScanRange(
   env: NodeJS.ProcessEnv,

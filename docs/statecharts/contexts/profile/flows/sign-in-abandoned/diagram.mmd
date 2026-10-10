@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Abandon signing in" as s0
-  state "Alice still has no account — 1" as s1
-  state "Alice has a signed-in account — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice abandons signing in with Google
-  s0 --> s2: Alice signs in with Google
-  s1 --> [*]
-  s2 --> [*]

@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Who is in the room" as s0
-  state "the room shows only Alice present — 1" as s1
-  state "the room shows Alice and Bob present — 2" as s2
-  [*] --> s0
-  s0 --> s1: Bob's phone goes offline
-  s0 --> s2: Bob's phone comes back online
-  s1 --> [*]
-  s2 --> [*]

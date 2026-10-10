@@ -1,0 +1,4 @@
+{
+  "summary": "Strict optional-property compatibility must omit a parent transition map after all completion events have been consumed. The literal Checking out → Checkout Paid/Abandoned fixture preserves child hand-offs and leaves no parent completion events to fire again.",
+  "regressionTest": "vendor/atlas/packages/core/src/spec/compose.test.ts"
+}

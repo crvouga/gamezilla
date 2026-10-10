@@ -1,0 +1,4 @@
+{
+  "summary": "Identity invariants must inspect transient configurations before automatic child completion. A guest child final state can coexist with a paid parallel region before the hand-off changes it to an account; inspecting only settled configurations misses that invalid combination.",
+  "regressionTest": "libs/tools/scripts/statechart-handoff.test.ts"
+}
