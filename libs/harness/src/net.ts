@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 
 export function harnessPartitionedError(from: string, to: string): TypeError {
   const err = new TypeError(`harness partition: ${from} ↛ ${to}`);

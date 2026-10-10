@@ -6,7 +6,7 @@ export type ProductRoute = { path: string; source: string };
 
 export const PRODUCT_ROUTE_ROOTS = [
   'libs/app-root-client/src/route-table.ts',
-  'libs/runtime-client/src/app-feature-clients.ts',
+  'libs/runtime-client/src/app-sub-clients.ts',
   'apps/product/src/main.tsx',
   'apps/product/src/console-nav-real.ts',
 ] as const;
@@ -201,19 +201,19 @@ function routeText(
   fail(value, 'Route path must resolve to a static pattern');
 }
 
-function featureObject(location: Location, sources: RouteSources): Location {
+function subObject(location: Location, sources: RouteSources): Location {
   const value = resolved(location, sources);
   if (
     !ts.isCallExpression(value.node) ||
     !ts.isIdentifier(value.node.expression)
   )
-    fail(value, 'Unresolved feature-client composition');
+    fail(value, 'Unresolved sub-client composition');
   const callName = value.node.expression.text;
   const importedDefinition = value.file.statements.some((statement) => {
     if (
       !ts.isImportDeclaration(statement) ||
       !ts.isStringLiteral(statement.moduleSpecifier) ||
-      statement.moduleSpecifier.text !== '@libs/feature-client/client'
+      statement.moduleSpecifier.text !== '@libs/sub-client/client'
     )
       return false;
     const imports = statement.importClause?.namedBindings;
@@ -223,23 +223,22 @@ function featureObject(location: Location, sources: RouteSources): Location {
       imports.elements.some(
         (entry) =>
           entry.name.text === callName &&
-          (entry.propertyName?.text ?? entry.name.text) ===
-            'defineFeatureClient'
+          (entry.propertyName?.text ?? entry.name.text) === 'defineSubClient'
       )
     );
   });
   if (importedDefinition) {
     if (value.node.arguments.length !== 1)
-      fail(value, 'Feature definition must have one static object');
+      fail(value, 'Sub definition must have one static object');
     return resolved({ ...value, node: value.node.arguments[0]! }, sources);
   }
   const factory = binding(value.file, callName, sources);
   if (!ts.isFunctionDeclaration(factory.node) || !factory.node.body)
-    fail(factory, 'Feature factory must have a static declaration');
+    fail(factory, 'Sub factory must have a static declaration');
   const returns = factory.node.body.statements.filter(ts.isReturnStatement);
   if (returns.length !== 1 || !returns[0]!.expression)
-    fail(factory, 'Feature factory must return one static definition');
-  return featureObject({ ...factory, node: returns[0]!.expression! }, sources);
+    fail(factory, 'Sub factory must return one static definition');
+  return subObject({ ...factory, node: returns[0]!.expression! }, sources);
 }
 
 function routesInArray(
@@ -342,14 +341,14 @@ export function declaredProductRoutes(sources: RouteSources): ProductRoute[] {
     sources
   );
   for (const entry of arrayEntries(
-    binding(composition, 'APP_FEATURE_CLIENTS', sources),
+    binding(composition, 'APP_SUB_CLIENTS', sources),
     sources
   )) {
-    const feature = featureObject(entry, sources);
-    const contributions = namedProperty(feature, 'routes');
+    const subClient = subObject(entry, sources);
+    const contributions = namedProperty(subClient, 'routes');
     if (contributions)
       routes.push(
-        ...routesInArray({ ...feature, node: contributions }, sources)
+        ...routesInArray({ ...subClient, node: contributions }, sources)
       );
   }
   routes.push(

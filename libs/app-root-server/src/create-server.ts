@@ -19,12 +19,12 @@ import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import { isLocalApiOrigin } from '@libs/auth-shared/local-api-origin';
 import type { AuthContext } from '@libs/auth-shared/types';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
-import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
 import { withSyntheticPopulationOperators } from '@libs/permissions-shared/synthetic-population-permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
+import type { ComposedSubs } from '@libs/sub-shared/compose';
+import type { ComposedSubServers } from '@libs/sub-shared/compose-server';
 import { SpanStatusCode } from '@opentelemetry/api';
 import { ForbiddenError } from '@pkgs/assert-root-shared/forbidden-error';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -245,8 +245,8 @@ async function buildDesiredClientConfig(args: {
 
 function createSyncAppMount(
   env: ServerEnv,
-  app: ComposedFeatures,
-  servers: ComposedFeatureServers
+  app: ComposedSubs,
+  servers: ComposedSubServers
 ) {
   return createSyncApp({
     app,
@@ -360,7 +360,7 @@ function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly auth: AuthProvider;
   readonly desiredClientConfig: DesiredClientConfig;
-  readonly servers: ComposedFeatureServers;
+  readonly servers: ComposedSubServers;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
   readonly sync: Awaited<ReturnType<typeof createSyncApp>>;
@@ -419,27 +419,27 @@ function createServerRouter(args: {
     .route('/', llm.app)
     .route('/', createRoomApp(servers.roomGrants));
 
-  // Whatever the composed features contribute, in feature order. The shell
+  // Whatever the composed subs contribute, in walk order. The shell
   // mounts them; it does not know what any of them serves.
-  const featureRouters = servers.routers({
+  const subRouters = servers.routers({
     authServer: auth.server,
     getSqlClient: () => {
       const store = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(store, 'feature routes: request store missing');
+      assert.defined(store, 'sub routes: request store missing');
       return store.sqlClient;
     },
     clock: env.clock,
     createId: env.createId,
   });
-  for (const router of featureRouters) shell.route('/', router);
+  for (const router of subRouters) shell.route('/', router);
   return shell.onError(createApiErrorHandler(log, protection !== 'production'));
 }
 
 export type CreateServerArgs = {
-  /** The folded feature set sync serves: schema, queries, topics, mutations. */
-  readonly app: ComposedFeatures;
-  /** The same features' server halves: routes, outbox consumers, topics. */
-  readonly servers: ComposedFeatureServers;
+  /** The folded sub set sync serves: schema, queries, topics, mutations. */
+  readonly app: ComposedSubs;
+  /** The same subs' server halves: routes, outbox consumers, topics. */
+  readonly servers: ComposedSubServers;
 };
 
 /**
@@ -466,7 +466,7 @@ async function pushChangedAuthUser(
  *
  * The shell owns the platform routes — health, auth, sync, pubsub tokens,
  * rooms, matchmaking, the vendor apps — and mounts whatever the composed
- * features contribute on top. It names no feature, so the same function
+ * subs contribute on top. It names no sub, so the same function
  * serves the whole product and a single bounded context under test.
  */
 export async function createServer(env: ServerEnv, args: CreateServerArgs) {

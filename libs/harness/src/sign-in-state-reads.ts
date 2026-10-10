@@ -1,5 +1,5 @@
 import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { HARNESS_APPLE_CLIENT_ID } from '@libs/feature-shared/harness-constants';
+import { HARNESS_APPLE_CLIENT_ID } from '@libs/sub-shared/harness-constants';
 import sql from '@pkgs/sql-root-shared/sql';
 import type { ProductHarness } from './harness';
 import { harnessIdpAccountId } from './idp';

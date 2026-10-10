@@ -589,7 +589,7 @@ export const solvePuzzlesDaily = scenarioAction({
   },
 });
 
-/** Registered on every system that composes this feature. */
+/** Registered on every system that composes this sub. */
 export const CHESS_HARNESS_ACTIONS = [
   listenToTheApp,
   playPuzzleMoveWithKeyboard,

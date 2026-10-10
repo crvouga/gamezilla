@@ -1,6 +1,6 @@
 // @io-wall-ok — CLI helper: find and run every package's spec suite.
 /**
- * The spec suites live with the features they exercise (`libs/<feature>/tests/harness`)
+ * The spec suites live with the subs they exercise (`libs/<sub>/tests/harness`)
  * and the whole-app one with the composition root. The live-browser runners
  * (`test:max`, `test:stack`) drive all of them, one package at a time: each
  * package's `test:spec` is the same harness runner, so a suite runs the same

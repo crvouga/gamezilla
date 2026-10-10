@@ -1,6 +1,6 @@
 import type { HarnessSlice } from '@libs/harness/slices';
 
-import { SEARCH_CLIENT } from '@libs/search-client/feature-client';
+import { SEARCH_CLIENT } from '@libs/search-client/sub-client';
 import { SEARCH_HARNESS_ACTIONS } from './search-actions';
 import { searchDoesNotHang } from './search-properties';
 

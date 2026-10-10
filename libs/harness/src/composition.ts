@@ -5,18 +5,18 @@ import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-mo
  *
  * The harness is a shell. It knows the fabric — virtual time, the network, the
  * load balancer, the simulated IdP, the SQL engines — and nothing about any
- * feature. A composition names the features, and the same `composeFeatures` /
- * `createClient` / `createServer` folds production runs boot them. A feature's
- * own spec passes its slice; the product passes all of it. That is what lets a
- * feature's spec live in the feature and stay cached while other features
- * change.
+ * sub. A composition names the subs, and the same `composeSubs` /
+ * `createClient` / `createServer` folds production runs boot them. A sub's
+ * own spec passes its slice; the product passes the flat shipped list. That
+ * is what lets a sub's spec live with that sub and stay cached while other
+ * subs change.
  */
 
 import type { ClientEnv } from '@libs/app-root-client/client-env';
-import type { FeatureClient } from '@libs/feature-client/client';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
-import type { FeatureServer, RoomGrantsCtx } from '@libs/feature-shared/server';
-import type { EnvTime } from '@libs/feature-shared/sync';
+import type { SubClient } from '@libs/sub-client/client';
+import type { ComposedSubs } from '@libs/sub-shared/compose';
+import type { RoomGrantsCtx, SubServer } from '@libs/sub-shared/server';
+import type { EnvTime } from '@libs/sub-shared/sync';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
@@ -42,8 +42,8 @@ export type MigrateHarnessPostgres = (args: {
 }) => Promise<void>;
 
 /**
- * The in-process room host a composition runs, if any of its features uses
- * rooms. Structural, so the harness never names the feature that owns rooms.
+ * The in-process room host a composition runs, if any of its subs uses
+ * rooms. Structural, so the harness never names the sub that owns rooms.
  */
 export type HarnessRoomInspect = {
   readonly topic: string;
@@ -55,8 +55,8 @@ export type HarnessRoomInspect = {
 /**
  * What the API room gateway decides at upgrade, for a room node with no
  * gateway in front of it: the grants the connecting actor holds in the
- * topic's room, decided by the composed features against the server
- * database (`FeatureServer.roomGrants`).
+ * topic's room, decided by the composed subs against the server
+ * database (`SubServer.roomGrants`).
  */
 export type HarnessRoomGateway = {
   readonly roomGrants: (args: {
@@ -79,17 +79,17 @@ export type HarnessRoomNode = {
 
 export type HarnessComposition = {
   readonly authProvider?: AuthProviderModule;
-  /** Names the seed cache and the report; distinct per feature set. */
+  /** Names the seed cache and the report; distinct per sub set. */
   readonly name: string;
-  /** The folded features: schema, queries, topic map, mutations. */
-  readonly app: ComposedFeatures;
+  /** The folded subs: schema, queries, topic map, mutations. */
+  readonly app: ComposedSubs;
   /** Client folds, in mount order (earlier is outermost). */
-  readonly clients: readonly FeatureClient[];
+  readonly clients: readonly SubClient[];
   /** Server folds for one API instance, given the host's services. */
   readonly servers: (deps: {
     readonly billing: MembershipProviders | null;
     readonly rooms: RoomServicePort;
-  }) => readonly FeatureServer[];
+  }) => readonly SubServer[];
   /** Defaults to {@link migrateCompositionPostgres} over `app.schema`. */
   readonly migratePostgres?: MigrateHarnessPostgres;
   /** Folded into the seed fingerprint when `migratePostgres` is custom. */

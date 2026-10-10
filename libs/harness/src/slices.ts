@@ -1,21 +1,21 @@
 /**
- * A feature's contribution to a harness, and the fold that turns a list of them
+ * A sub's contribution to a harness, and the fold that turns a list of them
  * into a {@link HarnessComposition}.
  *
- * Each feature exports its slice from its own `./harness` surface; a suite lists
+ * Each sub exports its slice from its own `./harness` surface; a suite lists
  * the slices it needs. Order is the composition root's: the harness folds
- * features, clients and servers in {@link SLICE_ORDER}, the same relative
- * order production composes them in, whatever order a suite lists them.
+ * subs in {@link SLICE_ORDER}, the same relative order production composes
+ * them in, whatever order a suite lists them.
  */
 
-import { CLIENT_CONFIG_FEATURE } from '@libs/app-config-shared/feature';
-import { AUTH_FEATURE } from '@libs/auth-shared/feature';
-import type { FeatureClient } from '@libs/feature-client/client';
-import { composeFeatures } from '@libs/feature-shared/compose';
-import type { FeatureManifest } from '@libs/feature-shared/manifest';
-import type { FeatureServer } from '@libs/feature-shared/server';
-import type { EnvTime } from '@libs/feature-shared/sync';
-import { PERMISSIONS_FEATURE } from '@libs/permissions-shared/feature';
+import { CLIENT_CONFIG_SUB } from '@libs/app-config-shared/sub';
+import { AUTH_SUB } from '@libs/auth-shared/sub';
+import { PERMISSIONS_SUB } from '@libs/permissions-shared/sub';
+import type { SubClient } from '@libs/sub-client/client';
+import { composeSubs } from '@libs/sub-shared/compose';
+import type { SubManifest } from '@libs/sub-shared/manifest';
+import type { SubServer } from '@libs/sub-shared/server';
+import type { EnvTime } from '@libs/sub-shared/sync';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
@@ -34,27 +34,27 @@ import type { ProductHarness } from './harness';
 
 export type HarnessSlice = {
   readonly name: SliceName;
-  readonly feature?: FeatureManifest;
-  readonly client?: FeatureClient;
+  readonly sub?: SubManifest;
+  readonly client?: SubClient;
   readonly server?: (deps: {
     readonly billing: MembershipProviders | null;
     readonly rooms: RoomServicePort;
-    readonly app: ReturnType<typeof composeFeatures>;
-  }) => FeatureServer;
+    readonly app: ReturnType<typeof composeSubs>;
+  }) => SubServer;
   readonly roomNode?: (
     env: EnvTime,
     gateway: HarnessRoomGateway
   ) => HarnessRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
-  /** What this feature sells; boots the harness's payment provider. */
+  /** What this sub sells; boots the harness's payment provider. */
   readonly billingOffer?: PlusMembershipOffer;
   readonly properties?: readonly CatalogProperty<ProductHarness>[];
   readonly actions?: readonly CatalogAction<ProductHarness>[];
 };
 
 /**
- * Production's composition order (`@libs/runtime` `APP_FEATURES`,
- * `APP_FEATURE_CLIENTS`, `appFeatureServers`), which all agree on this
+ * Production's composition order (`@libs/runtime` `APP_SUBS`,
+ * `APP_SUB_CLIENTS`, `appSubServers`), which all agree on this
  * relative order. A provider mounted earlier is outermost.
  */
 export const SLICE_ORDER = [
@@ -77,19 +77,19 @@ export type SliceName = (typeof SLICE_ORDER)[number];
 /** Identity: every composition runs it, the shell cannot boot without it. */
 export const AUTH_HARNESS_SLICE: HarnessSlice = {
   name: 'auth',
-  feature: AUTH_FEATURE,
+  sub: AUTH_SUB,
 };
 
 /** Runtime config rows the shell reads at boot. */
 export const CLIENT_CONFIG_HARNESS_SLICE: HarnessSlice = {
   name: 'client-config',
-  feature: CLIENT_CONFIG_FEATURE,
+  sub: CLIENT_CONFIG_SUB,
 };
 
-/** Permission policy; every feature's gates read it. */
+/** Permission policy; every sub's gates read it. */
 export const PERMISSIONS_HARNESS_SLICE: HarnessSlice = {
   name: 'permissions',
-  feature: PERMISSIONS_FEATURE,
+  sub: PERMISSIONS_SUB,
 };
 
 /** The platform slices every composition includes. */
@@ -136,8 +136,8 @@ export function composeHarnessSlices(
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
-  const app = composeFeatures(
-    ordered.flatMap((s) => (s.feature === undefined ? [] : [s.feature]))
+  const app = composeSubs(
+    ordered.flatMap((s) => (s.sub === undefined ? [] : [s.sub]))
   );
   return {
     name,

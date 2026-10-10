@@ -84,7 +84,7 @@
     "@libs/account-privacy-harness": "workspace:*",
     "@libs/chess-custom-game-harness": "workspace:*",
     "@libs/chess-custom-game-shared": "workspace:*",
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/chess-matchmaking-harness": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",

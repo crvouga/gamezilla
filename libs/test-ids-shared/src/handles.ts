@@ -32,7 +32,7 @@ export const Handles = {
   tabSearch: 'tab-search',
   tabNotifications: 'tab-notifications',
   tabSpaces: 'tab-spaces',
-  /** The harness's bare home tab, in compositions where no feature owns `/`. */
+  /** The harness's bare home tab, in compositions where no sub owns `/`. */
   tabHarnessHome: 'tab-harness-home',
 
   // spaces

@@ -154,12 +154,12 @@ export async function extractWorkload(
 }
 
 /**
- * Every domain table a query registry touches — the read side of a feature's
+ * Every domain table a query registry touches — the read side of a sub's
  * table surface, derived from the SQL AST rather than declared by hand.
  *
  * `hydrates` names the tables a query returns; the classified `FROM` list adds
- * the ones it only joins through. A feature boundary check compares this
- * against what the feature declared it owns.
+ * the ones it only joins through. A sub boundary check compares this
+ * against what the sub declared it owns.
  */
 export async function extractQueryTables(
   registry: QueryRegistry,

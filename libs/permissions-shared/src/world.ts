@@ -1,7 +1,7 @@
 /**
  * One decision case's server world: a fresh in-memory SQLite database with
  * the permission system's tables, the synced client config and whatever
- * feature tables the operation needs, seeded with what the server reads to
+ * sub tables the operation needs, seeded with what the server reads to
  * decide — the deployment's billing switch, the policy row when a case runs a
  * changed policy, and the membership rows behind a Plus member.
  *

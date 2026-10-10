@@ -16,7 +16,7 @@ function joinObjectStorePrefixes(left: string, right: string): string {
 
 /**
  * Decorator that scopes every {@link ObjectStore} operation to a fixed key
- * prefix. Used at composition roots (e.g. API bindings) so feature code uses
+ * prefix. Used at composition roots (e.g. API bindings) so sub code uses
  * logical keys while a shared bucket stays partitioned by prefix.
  */
 export class ObjectStoreWithPrefix implements ObjectStore {

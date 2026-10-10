@@ -310,7 +310,7 @@ export const reopenSpaceLink = scenarioAction({
   },
 });
 
-/** Registered on every system that composes this feature. */
+/** Registered on every system that composes this sub. */
 export const SPACES_HARNESS_ACTIONS = [
   stopAllowingSpaceName,
   startAllowingSpaceName,

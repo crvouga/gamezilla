@@ -310,7 +310,7 @@ function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
 /**
  * The preloads belong to this package (it declares them), not to whichever
  * package is running its suite — resolve them here, so a suite runs under an
- * isolated install without every feature re-declaring the harness's deps.
+ * isolated install without every sub re-declaring the harness's deps.
  */
 const SOLID_PRELOAD = Bun.resolveSync(
   '@pkgs/bun-test-solid-client/preload',

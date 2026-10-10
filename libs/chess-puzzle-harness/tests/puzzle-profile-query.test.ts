@@ -5,8 +5,6 @@
  */
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
-import { CHESS_QUERIES } from '@libs/chess-feature-shared/queries';
 import { chessPuzzleProfile } from '@libs/chess-puzzle-shared/chess-puzzle-profile-query';
 import {
   applyPuzzleAttemptRating,
@@ -14,6 +12,8 @@ import {
   PUZZLE_SCORE_PERMILLE,
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
+import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { CHESS_QUERIES } from '@libs/chess-sub-shared/queries';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';

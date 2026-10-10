@@ -1,5 +1,5 @@
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';

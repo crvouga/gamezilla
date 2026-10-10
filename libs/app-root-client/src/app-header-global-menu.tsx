@@ -138,7 +138,7 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   ]);
 }
 
-/** Shell default face when no feature published one. */
+/** Shell default face when no sub published one. */
 function DefaultAccountFace(props: { readonly size: number }): JSX.Element {
   return <UserIcon size={props.size} />;
 }

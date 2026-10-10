@@ -79,7 +79,7 @@ export function expandExportTargets(
 }
 
 /**
- * Resolve workspace imports (`@pkgs/x/sub`) by honouring array fallback
+ * Resolve workspace imports (`@pkgs/x/feature`) by honouring array fallback
  * targets in `exports` (`["./src/<star>.ts", "./src/<star>.tsx", "./src/<star>/index.ts"]`):
  * Vite/Node take the first *syntactically valid* target, Bun takes the first
  * that exists on disk. This plugin mirrors Bun so `.tsx` subpaths resolve.

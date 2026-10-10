@@ -15,8 +15,8 @@
  * link back to the app, the close button — returns to the app.
  */
 
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type {
   OpenAuthSession,

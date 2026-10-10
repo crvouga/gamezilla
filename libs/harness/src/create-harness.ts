@@ -2,7 +2,7 @@ import type { ClientEnv } from '@libs/app-root-client/client-env';
 import type { Client } from '@libs/app-root-client/create-client';
 import { createClient } from '@libs/app-root-client/create-client';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
@@ -66,7 +66,7 @@ import { createHarnessTeamRules } from './team-rules';
 export type CreateHarnessOptions = {
   /** Deployment credentials injected by integration hosts, scoped to this harness. */
   readonly secretValues?: Readonly<Record<string, string>>;
-  /** The features this harness boots. */
+  /** The subs this harness boots. */
   readonly composition: HarnessComposition;
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
@@ -479,7 +479,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
       const live = createClient(env ?? (await client(id)), {
-        features: kernel.composition.clients,
+        subs: kernel.composition.clients,
         loadApp: () => Promise.resolve(kernel.composition.app),
       });
       liveClients.set(id, live);

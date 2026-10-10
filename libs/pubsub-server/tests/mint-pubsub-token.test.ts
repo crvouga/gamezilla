@@ -8,7 +8,7 @@ const START_MS = 1_767_225_600_000;
 const TOKEN_TTL_SEC = 15 * 60;
 
 describe('mintPubSubToken', () => {
-  test('embeds subscribe+publish ACL for the actor and whatever features granted', async () => {
+  test('embeds subscribe+publish ACL for the actor and whatever subs granted', async () => {
     const secret = 'test-secret';
     const { clock } = createHarnessClock({ startMs: START_MS });
     const { token, expiresAt } = await mintPubSubToken({

@@ -12,7 +12,7 @@
  * though the request now travels through the balancer.
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import { requestMethod, requestPath } from './http-request';
 import type { HarnessNet } from './net';
 import { harnessCrashedError } from './net';

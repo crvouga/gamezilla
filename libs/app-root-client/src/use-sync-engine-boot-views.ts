@@ -9,7 +9,7 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
-import { useAppData } from './app-features-context';
+import { useAppData } from './app-subs-context';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
 import { useClientEnv, useSyncEnginePool } from './client-env-context';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';

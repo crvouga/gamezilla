@@ -1,5 +1,5 @@
-import type { OpenSqlClient } from '@libs/feature-shared/sync';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
+import type { OpenSqlClient } from '@libs/sub-shared/sync';
 import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-module';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';

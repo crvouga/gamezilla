@@ -7,7 +7,7 @@ import type { ClientEnv } from '@libs/app-root-client/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
 import { setOriginAvailability } from '@libs/app-root-client/origin-availability-for-env';
 import { setPendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-client/bearer-token-storage-web';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import type { Timers } from '@pkgs/clock-shared/types';

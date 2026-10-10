@@ -11,7 +11,7 @@ import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared/user-search-ty
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
-/** `ScreenBase`'s ⋯ button (design-system chrome, not a feature handle). */
+/** `ScreenBase`'s ⋯ button (design-system chrome, not a sub handle). */
 const OVERFLOW_MENU = 'header-overflow-menu';
 
 type Surface = Parameters<typeof actorUi>[0];

@@ -23,7 +23,7 @@ and composed into the existing foundation stack. The Observatory uses the main
 frontend and backend deployments. SQL names, environment bindings and OpenTofu
 state addresses stay stable across the source-file rename.
 
-Automated verification is `bun check`. The feature's focused gates are the
+Automated verification is `bun check`. The sub's focused gates are the
 `test`, `tc` and `lint` scripts in its shared/server packages, `test:spec` in
 `@libs/synthetic-population-harness`, and `test` in
 `@apps/synthetic-population-worker`. Native realm tests cover session replacement,

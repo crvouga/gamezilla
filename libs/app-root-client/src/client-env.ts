@@ -7,8 +7,8 @@
  */
 
 import type { DevMenuPort } from '@libs/app-root-shared/ports';
-import type { OpenSqlClient, ServerHttp } from '@libs/feature-shared/sync';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
+import type { OpenSqlClient, ServerHttp } from '@libs/sub-shared/sync';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { ClipboardPort } from '@pkgs/device-shared/clipboard';

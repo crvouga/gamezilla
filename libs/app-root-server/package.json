@@ -21,7 +21,7 @@
     "@libs/auth-server": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/db-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/pubsub-server": "workspace:*",

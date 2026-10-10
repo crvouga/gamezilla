@@ -2,7 +2,7 @@ import {
   installBrowserObservabilityBoundaries,
   setBrowserTraceFlush,
 } from '@libs/app-root-client/browser-boundaries';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
@@ -29,7 +29,7 @@ import {
   getCommitHash,
   hasCommitProvenance,
 } from '@libs/app-root-shared/app-metadata';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
 
@@ -75,7 +75,7 @@ if (root === null) {
 }
 
 const client = createClient(clientEnv, {
-  features: APP_FEATURE_CLIENTS,
+  subs: APP_SUB_CLIENTS,
   loadApp: () => Promise.resolve(APP),
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
 });

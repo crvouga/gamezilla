@@ -6,7 +6,7 @@
  * a cache invalidation: every change to it reruns this package's `tc`, `lint`,
  * `test` and `test:spec`, and everything downstream. One that nothing imports
  * buys that cost for nothing — the shell that once declared a board widget,
- * the app that declared every feature it no longer names. The opposite
+ * the app that declared every sub it no longer names. The opposite
  * mistake, importing what is not declared, is Biome's
  * `noUndeclaredDependencies`.
  *

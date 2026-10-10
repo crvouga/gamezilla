@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 
 export type SerializedFetch = {
   readonly fetch: ServerHttp;

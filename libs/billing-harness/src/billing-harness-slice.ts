@@ -1,7 +1,7 @@
-import { BILLING_CLIENT } from '@libs/billing-client/feature-client';
-import { createBillingServer } from '@libs/billing-server/feature-server';
-import { BILLING_FEATURE } from '@libs/billing-shared/feature';
+import { BILLING_CLIENT } from '@libs/billing-client/sub-client';
+import { createBillingServer } from '@libs/billing-server/sub-server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import { BILLING_SUB } from '@libs/billing-shared/sub';
 import type { HarnessSlice } from '@libs/harness/slices';
 import {
   agePaymentRetention,
@@ -18,7 +18,7 @@ import { BILLING_HARNESS_ACTIONS } from './billing-actions';
  */
 export const BILLING_HARNESS_SLICE: HarnessSlice = {
   name: 'billing',
-  feature: BILLING_FEATURE,
+  sub: BILLING_SUB,
   client: BILLING_CLIENT,
   server: (deps) => createBillingServer(deps.billing),
   billingOffer: PLUS_MEMBERSHIP_OFFER,

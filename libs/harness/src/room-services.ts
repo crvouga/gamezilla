@@ -1,4 +1,4 @@
-import type { EnvTime } from '@libs/feature-shared/sync';
+import type { EnvTime } from '@libs/sub-shared/sync';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';

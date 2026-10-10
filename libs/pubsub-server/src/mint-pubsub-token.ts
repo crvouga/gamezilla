@@ -1,5 +1,5 @@
 import { clientConfigTopic } from '@libs/app-config-shared/sync-topics';
-import { userTopic } from '@libs/feature-shared/sync';
+import { userTopic } from '@libs/sub-shared/sync';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { SignJWT } from 'jose';
 
@@ -32,7 +32,7 @@ export function buildSubscribeAcl(topics: readonly Topic[]): EmqxAclRule[] {
 /**
  * What every actor may subscribe to whatever the app was composed from: their
  * own rows and the runtime config. Anything else — a room, a channel — is a
- * feature's to grant, and arrives as `featureTopics`.
+ * sub's to grant, and arrives as `featureTopics`.
  */
 export function pubsubTopicsForActor(
   actorId: string,
@@ -44,7 +44,7 @@ export function pubsubTopicsForActor(
 export async function mintPubSubToken(args: {
   readonly secret: string;
   readonly actorId: string;
-  /** Topics the composed features granted this actor. */
+  /** Topics the composed subs granted this actor. */
   readonly featureTopics: readonly Topic[];
   /** Epoch ms — callers pass env.clock.now or a harness clock. */
   readonly now: () => number;

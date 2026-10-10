@@ -1,9 +1,9 @@
 import { resolveSessionReplayAuth } from '@libs/app-root-shared/query-auth';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
+import type { ComposedSubs } from '@libs/sub-shared/compose';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared/pubsub-not-supported-error';
@@ -42,13 +42,13 @@ function createRequestScopedPubSub(): PubSub {
 /**
  * Sync mount: `POST /api/query` (batch body), `/api/mutations`.
  *
- * Serves exactly what the composed features declared — the whole product on
+ * Serves exactly what the composed subs declared — the whole product on
  * the API, one bounded context in a subsystem harness.
  */
 export async function createSyncApp(deps: {
-  /** The folded feature set: schema, queries, wake topics, mutations. */
-  readonly app: ComposedFeatures;
-  /** The features' server-only mutation checks (rooms they read); none by default. */
+  /** The folded sub set: schema, queries, wake topics, mutations. */
+  readonly app: ComposedSubs;
+  /** The subs' server-only mutation checks (rooms they read); none by default. */
   readonly authorizeServerMutation?: MutationAuthorize;
   readonly now: () => number;
   readonly createId: () => string;

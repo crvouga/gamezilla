@@ -13,11 +13,10 @@
  * sees. Every reconnect decides afresh.
  */
 
-import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
-
 import { SPACE_ROOM_GRANT_KEYS } from '@libs/spaces-shared/space-room-authorize';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
+import type { RoomGrantsCtx } from '@libs/sub-shared/server';
 
 const SPACE_ROOM_TOPIC_PREFIX = 'space:';
 

@@ -1,5 +1,4 @@
 import { CUSTOM_GAME_HARNESS_ACTIONS } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { CHESS_FEATURE } from '@libs/chess-feature-shared/feature';
 import { MULTIPLAYER_HARNESS_ACTIONS } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
@@ -17,7 +16,8 @@ import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client
 import { CHESS_HARNESS_ACTIONS } from '@libs/chess-puzzle-harness/chess-actions';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
-import { createChessServer } from '@libs/chess-root-server/feature-server';
+import { createChessServer } from '@libs/chess-root-server/sub-server';
+import { CHESS_SUB } from '@libs/chess-sub-shared/sub';
 import type { HarnessSlice } from '@libs/harness/slices';
 import { focusChessScreen } from './chess-screen-reads';
 import { setCustomGameParticipation } from './custom-game-participation';
@@ -32,7 +32,7 @@ import {
  */
 export const CHESS_HARNESS_SLICE: HarnessSlice = {
   name: 'chess',
-  feature: CHESS_FEATURE,
+  sub: CHESS_SUB,
   client: PUZZLE_LINK_CLIENT,
   server: (deps) => createChessServer(deps.rooms),
   seedServer: seedChessPuzzlesForHarness,

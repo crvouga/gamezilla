@@ -32,7 +32,7 @@ import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared/href';
 import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { useAppFeatures } from './app-features-context';
+import { useAppSubs } from './app-subs-context';
 import { usePerfHudPreference } from './perf-hud-preference';
 
 const ROW_ICON_SIZE = 20;
@@ -213,7 +213,7 @@ function SettingsRowItem(props: { readonly row: SettingsRow }): JSX.Element {
 
 export function SettingsScreen(): JSX.Element {
   const groups = useSettingsGroups();
-  const features = useAppFeatures();
+  const subs = useAppSubs();
   return (
     <ScreenBase
       screenId="more"
@@ -233,7 +233,7 @@ export function SettingsScreen(): JSX.Element {
               </MenuSection>
             )}
           </For>
-          <For each={features.settings}>{(Settings) => <Settings />}</For>
+          <For each={subs.settings}>{(Settings) => <Settings />}</For>
         </div>
       )}
     />

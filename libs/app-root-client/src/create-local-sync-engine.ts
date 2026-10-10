@@ -9,10 +9,10 @@ import { emqxUrlHolderFor } from '@libs/app-root-shared/emqx-url-holder';
 import { tryAcquireSyncOwnerLease } from '@libs/app-root-shared/sync-owner-lock';
 import { localSyncActor } from '@libs/auth-shared/auth-context';
 import type { ConfigService } from '@libs/auth-shared/config-service-types';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
-import type { ChannelsCtx, OpenSqlClient } from '@libs/feature-shared/sync';
-import { defaultEntryChannel } from '@libs/feature-shared/sync';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
+import type { ComposedSubs } from '@libs/sub-shared/compose';
+import type { ChannelsCtx, OpenSqlClient } from '@libs/sub-shared/sync';
+import { defaultEntryChannel } from '@libs/sub-shared/sync';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
@@ -40,13 +40,13 @@ import { postAppQueries, postMutationBatch } from './sync-api';
 
 export type CreateAppLocalSyncEngineArgs = {
   /**
-   * Resolves the folded feature set this engine serves: its schema, its
+   * Resolves the folded sub set this engine serves: its schema, its
    * queries, its wake topics. The shell holds no product registry of its own,
    * so the same factory builds the whole product's engine and a single
-   * feature's — and the fold loads here, with the engine, rather than on the
+   * sub's — and the fold loads here, with the engine, rather than on the
    * entry chunk.
    */
-  readonly loadApp: () => Promise<ComposedFeatures>;
+  readonly loadApp: () => Promise<ComposedSubs>;
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly userId: string;
@@ -91,8 +91,8 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
   };
 }
 
-/** What the composed features asked to keep open for the session. */
-function sessionQuerySpecs(app: ComposedFeatures) {
+/** What the composed subs asked to keep open for the session. */
+function sessionQuerySpecs(app: ComposedSubs) {
   return app.sessionQueries.map((name) => ({ name, params: {} }));
 }
 
@@ -115,7 +115,7 @@ function createMembershipChannels(args: {
 
 function pushOptions(
   args: CreateAppLocalSyncEngineArgs,
-  app: ComposedFeatures,
+  app: ComposedSubs,
   pushCtx: ReturnType<typeof createMembershipChannels>,
   emqxUrlHolder: { url: string | null }
 ) {
@@ -208,7 +208,7 @@ function webChangeBridge(webDb: Partial<WebSqlClient>) {
 
 function buildEngine(
   args: CreateAppLocalSyncEngineArgs,
-  app: ComposedFeatures,
+  app: ComposedSubs,
   db: SqlClient,
   isOwner: boolean
 ): Promise<SyncEngine> {

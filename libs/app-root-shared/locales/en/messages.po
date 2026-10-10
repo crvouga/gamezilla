@@ -2265,7 +2265,7 @@ msgstr "Nothing needs your attention"
 msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
 msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
 
-#: libs/notifications-client/src/feature-client.tsx
+#: libs/notifications-client/src/sub-client.tsx
 #: libs/notifications-client/src/notifications-header-button.tsx
 #: libs/notifications-client/src/notifications-screen.tsx
 msgid "Notifications"
@@ -2596,7 +2596,7 @@ msgstr "Production"
 #: libs/friends-client/src/friends-list-screen-view.tsx
 #: libs/friends-client/src/friends-permission-gate.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
-#: libs/profile-client/src/feature-client.tsx
+#: libs/profile-client/src/sub-client.tsx
 #: libs/profile-client/src/profile-edit-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
 #: libs/profile-client/src/profile-screen.tsx
@@ -2963,7 +2963,7 @@ msgstr "Saved"
 msgid "Saving…"
 msgstr "Saving…"
 
-#: libs/search-client/src/feature-client.tsx
+#: libs/search-client/src/sub-client.tsx
 #: libs/search-client/src/search-screen-view.tsx
 msgid "Search"
 msgstr "Search"
@@ -3385,7 +3385,7 @@ msgstr "Space renamed"
 #: libs/auth-client/src/account-device-detail-screen.tsx
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
-#: libs/spaces-client/src/feature-client.tsx
+#: libs/spaces-client/src/sub-client.tsx
 #: libs/spaces-client/src/space-ended-screen.tsx
 #: libs/spaces-client/src/space-join-prompt.tsx
 #: libs/spaces-client/src/spaces-screen.tsx

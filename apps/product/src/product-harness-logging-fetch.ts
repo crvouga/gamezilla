@@ -1,5 +1,5 @@
-import type { ServerHttp } from '@libs/feature-shared/sync';
 import { requestMethod, requestPath } from '@libs/harness/http-request';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import type { ProductHarnessLogBuffer } from '@pkgs/harness-console-shared/ports';
 
 /**

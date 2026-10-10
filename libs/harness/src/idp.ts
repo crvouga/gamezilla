@@ -30,8 +30,8 @@ import {
   HARNESS_GOOGLE_CLIENT_SECRET,
   HARNESS_IDP_URL,
   HARNESS_SERVER_URL,
-} from '@libs/feature-shared/harness-constants';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+} from '@libs/sub-shared/harness-constants';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import type { Clock } from '@pkgs/clock-shared/types';
 

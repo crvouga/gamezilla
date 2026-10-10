@@ -28,7 +28,7 @@ export function assertRemoteObjectKey(key: string, namespace: string): void {
 
 /**
  * Validates a logical key before {@link ObjectStoreWithPrefix} scopes it under
- * a namespace or feature prefix.
+ * a namespace or sub prefix.
  */
 export function assertLogicalObjectKey(key: string): void {
   if (key.length === 0) {

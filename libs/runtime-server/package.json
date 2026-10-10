@@ -25,7 +25,7 @@
     "@libs/chess-root-server": "workspace:*",
     "@libs/db-server": "workspace:*",
     "@libs/db-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/friends-server": "workspace:*",
     "@libs/friends-shared": "workspace:*",
     "@libs/infra-shared": "workspace:*",

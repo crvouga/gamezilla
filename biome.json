@@ -210,7 +210,7 @@
         "**/libs/spaces-client/tests/**/*.{ts,tsx}",
         "**/libs/spaces-harness/tests/**/*.{ts,tsx}",
         "**/libs/spaces-shared/tests/**/*.{ts,tsx}",
-        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-sub-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-root-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",
@@ -300,7 +300,7 @@
         "**/libs/spaces-client/tests/**/*.{ts,tsx}",
         "**/libs/spaces-harness/tests/**/*.{ts,tsx}",
         "**/libs/spaces-shared/tests/**/*.{ts,tsx}",
-        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-sub-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-root-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",
@@ -774,7 +774,7 @@
     {
       "path": "./libs/tools/biome-plugins/no-tier-words-puzzle.grit",
       "includes": [
-        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-sub-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-root-harness/src/**/*.{ts,tsx}",
         "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",

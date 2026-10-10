@@ -1,5 +1,5 @@
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import type { ProductHarness } from '@libs/harness/harness';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import type { Lease } from '@libs/synthetic-population-server/records';
 import type { SyntheticPopulationWorkerRPC } from '@libs/synthetic-population-server/worker-routes';
 import sql from '@pkgs/sql-root-shared/sql';

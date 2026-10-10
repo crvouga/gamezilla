@@ -4,8 +4,8 @@
  *
  * Turbo builds its graph from `package.json` dependencies, so a package's
  * declared dependencies *are* its blast radius. If the app shell declares a
- * feature, every feature lands in every feature's test closure and
- * per-feature caching quietly stops working — the tests still pass, they just
+ * sub, every sub lands in every sub's test closure and
+ * per-sub caching quietly stops working — the tests still pass, they just
  * all run, every time, and nobody notices for months. That is why this is a
  * gate and not a convention.
  *
@@ -72,8 +72,8 @@ const SERVER_ONLY =
  */
 const PLATFORM = ['auth', 'app-config', 'permissions', 'test-ids'] as const;
 
-/** Bounded contexts. One of these in the shell's graph is the bug. */
-const FEATURES = [
+/** Product subs. One of these in the shell's graph is the bug. */
+const SUBS = [
   'billing',
   'chess',
   'friends',
@@ -85,21 +85,21 @@ const FEATURES = [
   'user-search',
 ] as const;
 
-/** The one family allowed to know every feature. */
+/** The one family allowed to know every sub. */
 const COMPOSITION_ROOT = 'runtime';
 
 /**
- * Families that must stay composable from any subset of features: the app
- * shell, and the harness a feature's own spec boots them through.
+ * Families that must stay composable from any subset of subs: the app
+ * shell, and the harness a sub's own spec boots them through.
  */
 const SHELLS = ['app', 'harness'] as const;
 
 const FAMILIES = [
   ...PLATFORM,
-  ...FEATURES,
+  ...SUBS,
   COMPOSITION_ROOT,
   ...SHELLS,
-  'feature',
+  'sub',
 ].sort((a, b) => b.length - a.length);
 
 /** `@libs/chess-puzzle-client` -> `chess`; undefined outside `@libs/`. */
@@ -115,26 +115,33 @@ type Rule = {
 };
 
 const SHELL_RULE: Rule = {
-  forbidden: new Set([...FEATURES, COMPOSITION_ROOT]),
-  why: "the shell is what a feature's own spec boots; naming a feature here puts every feature in every feature's build graph. Contribute through the FeatureClient / FeatureServer fold instead, or declare a port the composition root fills.",
+  forbidden: new Set([...SUBS, COMPOSITION_ROOT]),
+  why: "the shell is what a sub's own spec boots; naming a sub here puts every sub in every sub's build graph. Contribute through the SubClient / SubServer fold instead, or declare a port the composition root fills.",
 };
 
-const FEATURE_RULE: Rule = {
+const SUB_RULE: Rule = {
   forbidden: new Set([COMPOSITION_ROOT]),
-  why: 'a feature must not import the composition root — that inverts the fold and drags every other feature in with it.',
+  why: 'a sub must not import the composition root — that inverts the fold and drags every other sub in with it.',
 };
 
 const RULES: ReadonlyMap<string, Rule> = new Map([
   ...SHELLS.map((f) => [f, SHELL_RULE] as const),
-  ...[...FEATURES, ...PLATFORM].map((f) => [f, FEATURE_RULE] as const),
+  ...[...SUBS, ...PLATFORM].map((f) => [f, SUB_RULE] as const),
   [
-    'feature',
+    'sub',
     {
-      forbidden: new Set([...FEATURES, COMPOSITION_ROOT, ...SHELLS]),
-      why: 'the manifest algebra is generic over what features declare; it may not know one, nor the shells that fold them.',
+      forbidden: new Set([...SUBS, COMPOSITION_ROOT, ...SHELLS]),
+      why: 'the manifest algebra is generic over what subs declare; it may not know a product sub, nor the shells that fold them.',
     },
   ],
 ]);
+
+/** Whether `family` may depend on `dependency`, from the shipped rules. */
+export function familyMayDependOn(family: string, dependency: string): boolean {
+  const rule = RULES.get(family);
+  if (rule === undefined) return true;
+  return !rule.forbidden.has(dependency);
+}
 
 type Manifest = {
   readonly name?: string;

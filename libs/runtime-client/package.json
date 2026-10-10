@@ -19,7 +19,7 @@
     "@libs/app-root-client": "workspace:*",
     "@libs/billing-client": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
-    "@libs/feature-client": "workspace:*",
+    "@libs/sub-client": "workspace:*",
     "@libs/friends-client": "workspace:*",
     "@libs/games-client": "workspace:*",
     "@libs/games-shared": "workspace:*",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@libs/app-root-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/runtime-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",

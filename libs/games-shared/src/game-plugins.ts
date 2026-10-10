@@ -1,4 +1,4 @@
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import type { GameDefinition } from '@libs/spaces-shared/game';
 import { assertGameRegistry } from '@libs/spaces-shared/load-game-plugins';
 

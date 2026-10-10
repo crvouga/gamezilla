@@ -18,7 +18,7 @@
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",

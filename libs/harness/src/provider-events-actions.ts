@@ -5,7 +5,7 @@
  * the notification, exactly as it would in production.
  */
 
-import { HARNESS_APPLE_CLIENT_ID } from '@libs/feature-shared/harness-constants';
+import { HARNESS_APPLE_CLIENT_ID } from '@libs/sub-shared/harness-constants';
 import { scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';

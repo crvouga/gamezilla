@@ -70,11 +70,11 @@ export type ServerCase = {
 export type ServerOperation = (c: ServerCase) => Promise<void>;
 
 export type ServerLayerOptions = {
-  /** Feature tables the operation reads and writes (billing's included). */
+  /** Sub tables the operation reads and writes (billing's included). */
   readonly tables: readonly TableDef[];
   /** The operation the case's capability is performed through; null: none. */
   readonly operationFor: (input: CaseInput) => ServerOperation | null;
-  /** Feature rows the case needs (after the access rows are seeded). */
+  /** Sub rows the case needs (after the access rows are seeded). */
   readonly seed?: (c: ServerCase) => Promise<void>;
   /** A changed policy, synced as the server's policy row. */
   readonly policy?: AppPolicy;

@@ -1,4 +1,4 @@
-import { composeRoomGrants } from '@libs/feature-shared/compose-server';
+import { composeRoomGrants } from '@libs/sub-shared/compose-server';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 
@@ -7,7 +7,7 @@ import type { HarnessSql } from './sql-types';
 
 /**
  * The API room gateway's decision for the in-process room node: the
- * composed features' room grants, read from the server database at connect
+ * composed subs' room grants, read from the server database at connect
  * time (billing plays no part in them).
  */
 export function harnessRoomGateway(args: {

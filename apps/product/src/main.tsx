@@ -1,4 +1,4 @@
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { HarnessBoot } from './harness-boot';
 // @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
 /**
@@ -14,7 +14,7 @@ import { HarnessBoot } from './harness-boot';
 
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import '@pkgs/tailwind-shared/tailwind.css';
@@ -46,7 +46,7 @@ function redirectedToHarness(): boolean {
 
 function AppBoot(): JSX.Element {
   const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
-    features: APP_FEATURE_CLIENTS,
+    subs: APP_SUB_CLIENTS,
     loadApp: async () => APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
   });

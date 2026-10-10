@@ -13,8 +13,8 @@ import { createServer } from '@libs/app-root-server/create-server';
 import type { RoomNamespace } from '@libs/app-root-shared/env';
 import { serveFetch } from '@libs/app-root-shared/serve-fetch';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { composeFeatureServers } from '@libs/feature-shared/compose-server';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import { composeSubServers } from '@libs/sub-shared/compose-server';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
@@ -31,7 +31,7 @@ export type HarnessServerNode = {
   readonly env: ServerEnv;
   readonly app: Server;
   readonly outboxConsumers: OutboxConsumerRegistry;
-  /** The features' server-only mutation checks the sync mount runs. */
+  /** The subs' server-only mutation checks the sync mount runs. */
   readonly authorizeMutation: MutationAuthorize;
   /** Serialized so request ALS scopes never interleave within an instance. */
   readonly fetch: ServerHttp;
@@ -112,12 +112,12 @@ export function createHarnessServerNodes(args: {
         throw new Error('createHarness: server disposed');
       }
       const env = await ensureEnv(instanceId);
-      const featureServers = composeFeatureServers(
+      const subServers = composeSubServers(
         args.composition.servers({ billing: env.billing, rooms: args.rooms })
       );
       const app = await createServer(env, {
         app: args.composition.app,
-        servers: featureServers,
+        servers: subServers,
       });
       const serialized = createServerNodeFetch({
         app,
@@ -129,8 +129,8 @@ export function createHarnessServerNodes(args: {
         id: instanceId,
         env,
         app,
-        outboxConsumers: featureServers.outboxConsumers,
-        authorizeMutation: featureServers.authorizeMutation,
+        outboxConsumers: subServers.outboxConsumers,
+        authorizeMutation: subServers.authorizeMutation,
         fetch: serialized.fetch,
         drain: serialized.drain,
       };

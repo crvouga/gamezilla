@@ -57,7 +57,7 @@ function sourceFiles(): Map<string, string> {
   }
   const routes = new Set([
     ...PRODUCT_ROUTE_ROOTS,
-    ...new Bun.Glob('libs/*-client/src/feature-client.{ts,tsx}').scanSync({
+    ...new Bun.Glob('libs/*-client/src/sub-client.{ts,tsx}').scanSync({
       cwd: ROOT,
     }),
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',

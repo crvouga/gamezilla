@@ -20,7 +20,7 @@ export type DenialSurfaceProps = {
 /**
  * The one denial / unlock surface (§22.5): renders a `Decision` by resolving
  * its `unlockRef` to config copy and CTA. The only place upsell or sign-in
- * copy renders, so a denied feature shows this and nothing of its own.
+ * copy renders, so a denied sub shows this and nothing of its own.
  */
 export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
   const permissions = usePermissions();

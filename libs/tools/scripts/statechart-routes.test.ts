@@ -20,16 +20,16 @@ function sources(): Map<string, string> {
     [
       PRODUCT_ROUTE_ROOTS[1],
       `
-      import { CLIENT as ACTIVE } from '@libs/example-client/feature-client';
-      import { UNUSED } from '@libs/uncomposed-client/feature-client';
+      import { CLIENT as ACTIVE } from '@libs/example-client/sub-client';
+      import { UNUSED } from '@libs/uncomposed-client/sub-client';
       const ACTIVE_CLIENTS = [ACTIVE];
-      export const APP_FEATURE_CLIENTS = [...ACTIVE_CLIENTS];
+      export const APP_SUB_CLIENTS = [...ACTIVE_CLIENTS];
     `,
     ],
     [
-      'libs/example-client/src/feature-client.tsx',
+      'libs/example-client/src/sub-client.tsx',
       `
-      import { defineFeatureClient as define } from '@libs/feature-client/client';
+      import { defineSubClient as define } from '@libs/sub-client/client';
       import { DETAIL } from '@libs/example-shared/paths';
       const ROUTES = [{ path: DETAIL, component: Detail }];
       export const CLIENT = define({ name: 'example', routes: ROUTES });
@@ -81,28 +81,28 @@ describe('declared product route closure', () => {
       '/harness',
     ]);
     expect(routes.find((route) => route.path === '/example/:id')?.source).toBe(
-      'libs/example-client/src/feature-client.tsx'
+      'libs/example-client/src/sub-client.tsx'
     );
     expect(routeCoverageProblems(chart(), routes)).toEqual([]);
   });
 
-  test('finds routes returned by a composed feature factory', () => {
+  test('finds routes returned by a composed sub factory', () => {
     const files = sources();
     files.set(
       PRODUCT_ROUTE_ROOTS[1],
       `
-      import { createClient } from '@libs/example-client/feature-client';
+      import { createClient } from '@libs/example-client/sub-client';
       const ACTIVE = createClient({ ports: injectedPorts });
-      export const APP_FEATURE_CLIENTS = [ACTIVE];
+      export const APP_SUB_CLIENTS = [ACTIVE];
     `
     );
     files.set(
-      'libs/example-client/src/feature-client.tsx',
+      'libs/example-client/src/sub-client.tsx',
       `
-      import { defineFeatureClient } from '@libs/feature-client/client';
+      import { defineSubClient } from '@libs/sub-client/client';
       export function createClient(options) {
         function Provider() { return options.children; }
-        return defineFeatureClient({ name: 'example', routes: [{ path: '/factory/:id' }] });
+        return defineSubClient({ name: 'example', routes: [{ path: '/factory/:id' }] });
       }
     `
     );

@@ -62,7 +62,7 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Billing | `@libs/billing`, providers `@pkgs/billing-stripe` and `@pkgs/billing-paddle` via `@pkgs/billing-providers-server` | See the plans, subscribe, trial, renew, switch monthly/yearly, switch provider, portal, cancel, resubscribe, failed card, expired card, refund, Plus credit when switching plans. Membership is managed by the person. |
 | Sync | `@pkgs/sync-engine` (`specs/sync-engine/`) | Shared rows (spec'd as notes) show at once, survive crash, offline, and app update, and count once. Leave a shared place and rejoin to catch up. Some actions are online-only and do not fire later. Server arrival order wins. |
 | Room | `@pkgs/room` (`specs/room/`) | One live topic. Shared tally, who is in the room, who owns it, timed match. Same picture after offline time or a crash. This is the session engine spaces and games sit on. It is separate from sync. |
-| Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped feature fold (`APP_FEATURES`). |
+| Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped sub fold (`APP_SUBS`). |
 | Live checks | `@synthetic` on the owning feature | Promises a live environment keeps right now, seen by the team from outside: reach the app, sign in, serve people, spaces, live updates, uploads, payments real only in production, outside services, request trail, find a person's trouble, environment matches the plan. |
 | Journeys | `specs/journeys/` | Flows that must not break where people use the app: open past the opening screen, Google sign-in and the way back, sign out, host a space and end it, start a puzzle, keep an avatar edit, people search, see what Plus offers. Plus [`specs/journeys/join-and-offline.feature`](specs/journeys/join-and-offline.feature). |
 
@@ -107,9 +107,7 @@ Two data planes.
 
 **Auth on the wire.** Token only. The API does not read or set cookies. Requests carry `Authorization: Bearer <session-token>` and the install id in `x-anon-id`. One current person per install. Several sign-in methods can sit on one account. Local SQLite on the web client is not encrypted at rest. Each account has its own file (`user_<shortId>`), so one account's queries do not read another's rows. Do not put secrets, or data that must not be lost with the device, only on the device.
 
-**Composition.** `@libs/runtime` is the only package that lists features. `APP_FEATURES` in `libs/runtime-shared/src/app-features.ts` folds schema, queries, topics, and mutations. `APP_FEATURE_CLIENTS` folds routes and chrome. Order matters: profile is outermost, friends mounts above notifications. A feature never imports another feature. Cross-feature needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the feature list as an argument, so a test boots one feature or all of them with the same code.
-
-Shipped feature manifests, in fold order: auth, profile, client-config, spaces, friends, notifications, chess, billing, permissions. Client fold also mounts search.
+**Composition.** A sub can contain subs of the same kind. Folding a node walks that node, then the subs it contains, in listed order, and leaves out anything outside that subtree. A repeated name, a repeated owned table, or a walk that re-enters a node fails. `@libs/runtime` is the only package that lists the shipped product, and that list stays flat: auth, account-privacy, profile, client-config, spaces, friends, notifications, chess, billing, permissions, synthetic-population. `APP_SUBS` in `libs/runtime-shared/src/app-subs.ts` folds schema, queries, topics, and mutations. `APP_SUB_CLIENTS` folds routes and chrome, and also mounts search between notifications and billing. Order matters: profile is outermost, friends mounts above notifications. Sibling product subs do not import each other. Cross-sub needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the sub list as an argument, so a test boots one sub or the whole flat list with the same code. Call `defineSub`, `defineSubClient`, and `defineSubServer` from `@libs/sub-shared` and `@libs/sub-client`.
 
 ```text
 device UI (Solid)
@@ -133,7 +131,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | Tier | Path | May import | Holds |
 | --- | --- | --- | --- |
 | Apps `@apps/` | `apps/` | apps, libs, pkgs | deployed surfaces |
-| Libs `@libs/` | `libs/` | pkgs, other libs' `public/` | product features, shells, runtime |
+| Libs `@libs/` | `libs/` | pkgs, other libs' `public/` | product subs, shells, runtime |
 | Pkgs `@pkgs/` | `pkgs/` | pkgs only | frameworks. No `gamezilla`, `@libs/*`, or product names anywhere in these packages |
 
 | App | Role |
@@ -146,7 +144,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | Platform lib | Role |
 | --- | --- |
 | `@libs/runtime` | Composition root, migrations, schema snapshot. |
-| `@libs/feature` | Manifest algebra. Imports no feature. |
+| `@libs/sub` | Manifest algebra. Imports no product sub. |
 | `@libs/client-app` | Providers, router, chrome, sync boot. |
 | `@libs/server-app` | Request scope, auth, sync, rooms. |
 | `@libs/client-config` | Synced runtime config (EMQX/MQTT URL, observability). Not `VITE_*`. |
@@ -194,20 +192,21 @@ production `src/` imports still obey their category, regardless of which
 manifest field declares the dependency. `package-boundaries.ts` enforces these
 rules in each package's cached lint, including source imports and flatness.
 
-A feature exports manifests from the corresponding packages: `FeatureManifest`
-(tables, topics, queries, mutations), `FeatureClient` (routes, chrome), and
-`FeatureServer` (HTTP, outbox, pubsub). The `runtime` family composes these;
-`app` and `feature` packages stay independent of individual features.
+A sub exports manifests from the corresponding packages: `SubManifest`
+(tables, topics, queries, mutations), `SubClient` (routes, chrome), and
+`SubServer` (HTTP, outbox, pubsub). A sub may list nested subs of the same
+kind. The `runtime` family composes the shipped flat list; `app` and `sub`
+packages stay independent of individual product subs.
 
 Tests live in the package that owns their runtime. Pure tests accompany shared
 modules, browser tests accompany client modules, and server tests accompany
 server modules. Tests that compose runtimes live in the slice's harness
-package; tests spanning product features live in `@libs/runtime-harness`.
+package; tests spanning product subs live in `@libs/runtime-harness`.
 Framework behavior is tested through one kitchen-sink example app in the
 framework's harness package, with flat example modules. Test consumers import
 package exports, never another package's source paths.
 
-Known cross-feature table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every feature spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
+Known cross-sub table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every sub spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
 
 ### Framework packages that matter
 
@@ -338,7 +337,7 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 
 | Resource | Why |
 | --- | --- |
-| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any feature prefix. |
+| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any sub prefix. |
 | Read token and write token on `gamezilla-reports` | Atlas reads. Check writes. Each token is scoped to that bucket. |
 | Grafana write policy and token; read policy and token | Workers ingest on the write token. `bun obs` queries on the read token. One environment rotates without touching the other. Deploy requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
@@ -517,10 +516,10 @@ Repo file names: markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md` matche
 ## Invariants that make a patch wrong
 
 - Specs describe what a person observes. This file is a briefing. It is not a second product definition.
-- One write path: `mutate()` / `defineMutation`. Domain SQL runs inside the mutation. No feature REST for synced data. Billing and external webhooks are the exception list; do not grow it.
+- One write path: `mutate()` / `defineMutation`. Domain SQL runs inside the mutation. No sub REST for synced data. Billing and external webhooks are the exception list; do not grow it.
 - No `DELETE FROM` on a domain table. Framework `sync_engine_*` tables may hard-delete.
 - No bare I/O. No `Io` bag, no silent wall-clock fallback.
-- No access checks by reading `is_anon`, subscription rows, role names, or plan names from feature code.
+- No access checks by reading `is_anon`, subscription rows, role names, or plan names from sub code.
 - No new dependency patches (`bun patch`, `patches/`, `resolutions`).
 - No `@deprecated` aliases or shim re-exports. Delete the old API and update call sites in the same change.
 - No new `'off'` or `biome-ignore` for the Tiger-Style size caps in `biome.json` (lines per file, lines per function, params, nested callbacks, cognitive complexity, classes per file). Extract a function or a component.

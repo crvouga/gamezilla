@@ -17,16 +17,16 @@ import UiExplorerScreen from './ui-explorer';
 import UiExplorerDetailScreen from './ui-explorer-detail';
 /**
  * The shell's own routes — settings, account, the client inspector, the UI
- * explorer, the OAuth callback. Everything a *feature* owns is contributed by
- * that feature's `FeatureClient` and folded in by `buildRouteTable`.
+ * explorer, the OAuth callback. Everything a *sub* owns is contributed by
+ * that sub's `SubClient` and folded in by `buildRouteTable`.
  *
  * Every screen is imported before navigation.
  */
 
-import type { FeatureRoute } from '@libs/feature-client/client';
+import type { SubRoute } from '@libs/sub-client/client';
 
-/** A route the router can mount: the shell's own, or a feature's. */
-export type AppRouteEntry = FeatureRoute;
+/** A route the router can mount: the shell's own, or a sub's. */
+export type AppRouteEntry = SubRoute;
 
 /** Routes that belong to the shell itself, not to any bounded context. */
 export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
@@ -64,11 +64,11 @@ export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
   { path: '/sso-callback', component: SsoCallbackScreen },
 ];
 
-/** Shell routes plus whatever the composed features contribute. */
+/** Shell routes plus whatever the composed subs contribute. */
 export function buildRouteTable(
-  featureRoutes: readonly AppRouteEntry[]
+  subRoutes: readonly AppRouteEntry[]
 ): readonly AppRouteEntry[] {
-  return [...featureRoutes, ...SHELL_ROUTE_TABLE];
+  return [...subRoutes, ...SHELL_ROUTE_TABLE];
 }
 
 /** `@solidjs/router` splat for the not-found screen. */

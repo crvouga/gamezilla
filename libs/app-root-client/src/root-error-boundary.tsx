@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-/** Recovery sits inside the minimal theme root, outside feature providers. */
+/** Recovery sits inside the minimal theme root, outside sub providers. */
 import { ErrorBoundary, type JSX } from 'solid-js';
 import { CrashScreen } from './crash-screen';
 

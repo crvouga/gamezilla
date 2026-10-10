@@ -2,8 +2,8 @@
 
 import { afterEach, describe, expect, it } from 'bun:test';
 import { createClient } from '@libs/app-root-client/create-client';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { createMemoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
@@ -52,9 +52,9 @@ function stubHostSize(size: { width: number; height: number }): () => void {
 }
 
 /**
- * The real composition: every feature the product ships, folded by the same
+ * The real composition: every sub the product ships, folded by the same
  * `createClient` a subsystem harness calls with one. This is the thin
- * full-composition layer — it invalidates whenever any feature changes, by
+ * full-composition layer — it invalidates whenever any sub changes, by
  * design, so it stays small and is never skipped.
  */
 describe('app composition', () => {
@@ -70,7 +70,7 @@ describe('app composition', () => {
   it('boots through the paint gate into the tabbed Spaces screen and routes', async () => {
     harness = await harnessClientEnv({ seed: 7 });
     const client = createClient(harness.env, {
-      features: APP_FEATURE_CLIENTS,
+      subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
     const history = createMemoryHistory();
@@ -117,7 +117,7 @@ describe('app composition', () => {
     restoreHostSize = stubHostSize({ width: 1280, height: 900 });
     harness = await harnessClientEnv({ seed: 11 });
     const client = createClient(harness.env, {
-      features: APP_FEATURE_CLIENTS,
+      subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
     const history = createMemoryHistory();
@@ -145,7 +145,7 @@ describe('app composition', () => {
   it('opens the account menu without a surface-stack crash', async () => {
     harness = await harnessClientEnv({ seed: 13 });
     const client = createClient(harness.env, {
-      features: APP_FEATURE_CLIENTS,
+      subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
     const history = createMemoryHistory();

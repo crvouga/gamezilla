@@ -94,7 +94,7 @@ export function AppNotificationsProvider(props: {
   const sources = useNotificationSources();
 
   // Nothing arrives for someone who may not receive notifications, whatever
-  // features registered.
+  // subs registered.
   const providers = createMemo(() => (canReceive() ? sources() : []));
 
   return (

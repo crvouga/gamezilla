@@ -36,11 +36,11 @@ import { wrapSqlClientForObservability } from '@libs/app-root-shared/wrap-sql-cl
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import { composeFeatureServers } from '@libs/feature-shared/compose-server';
 import { createRoomService } from '@libs/room-app-shared/create-room-service';
 import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
-import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
-import { APP } from '@libs/runtime-shared/app-features';
+import { appSubServers } from '@libs/runtime-server/app-sub-servers';
+import { APP } from '@libs/runtime-shared/app-subs';
+import { composeSubServers } from '@libs/sub-shared/compose-server';
 import { context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { ThrowingCrashHandler } from '@pkgs/assert-root-shared/crash-handler-throwing';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -320,8 +320,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   return await createServer(serverEnv, {
     app: APP,
-    servers: composeFeatureServers(
-      appFeatureServers({ billing, rooms: createRoomService(env.ROOM) })
+    servers: composeSubServers(
+      appSubServers({ billing, rooms: createRoomService(env.ROOM) })
     ),
   });
 }

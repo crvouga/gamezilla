@@ -1,6 +1,6 @@
 language js
 
-// §22.11 inside the puzzle feature: not even bare tier words as identifiers.
+// §22.11 inside the puzzle sub: not even bare tier words as identifiers.
 // Perf: a whole-file substring test gates the tree walk. Every match must
 // contain one of these tokens, so files without them are skipped for ~free.
 file($body) where {
@@ -28,6 +28,6 @@ file($body) where {
       "pro",
       "plus"
     },
-    register_diagnostic(span=$n, message="Tier word used as an identifier in the puzzle feature (§22.11). Name the thing by what it does; gate through usePermissions().", severity="error")
+    register_diagnostic(span=$n, message="Tier word used as an identifier in the puzzle sub (§22.11). Name the thing by what it does; gate through usePermissions().", severity="error")
   }
 }

@@ -18,7 +18,7 @@ import { createSerializedRunFor } from './wait-pump';
 // @io-wall-ok — host factory; wallClock only when skipSeed (product-harness).
 
 export type InProcessRuntimeOptions = {
-  /** The features this host's harnesses boot (seed + migrate follow from it). */
+  /** The subs this host's harnesses boot (seed + migrate follow from it). */
   readonly composition: HarnessComposition;
   /**
    * Attach a `MultiAppSolidDomSession` (happy-dom) for bun:test scenarios.

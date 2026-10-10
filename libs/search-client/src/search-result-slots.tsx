@@ -7,7 +7,7 @@
  * owns friendships, so search declares the hole from its own point of view
  * and the composition root — or, in a subsystem harness, nobody — fills it.
  *
- * Unfilled is a real state: search with no friends feature composed in shows
+ * Unfilled is a real state: search with no friends sub composed in shows
  * each result as a plain avatar + username row.
  */
 
@@ -25,7 +25,7 @@ const SearchResultSlotsContext =
 
 export const SearchResultSlotsProvider = SearchResultSlotsContext.Provider;
 
-/** Slots filled by other features, or an empty set when none are composed. */
+/** Slots filled by other subs, or an empty set when none are composed. */
 export function useSearchResultSlots(): SearchResultSlots {
   return SearchResultSlotsContext.useOptional() ?? {};
 }
