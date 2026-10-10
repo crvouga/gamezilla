@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import {
@@ -16,6 +17,7 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared/ports';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { brokerLogDirectory } from './broker-log-directory';
 import { resolveEmqxBin } from './emqx-bin';
 
 export type EmqxServerHandle = {
@@ -190,11 +192,15 @@ export async function startEmqxServer(
   // only if the broker exits without being asked to (the parent's failure).
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
+    // The foreground script owns an Erlang child. Give this broker its own
+    // process group so teardown also stops that child if the script exits.
+    detached: true,
     // stdin stays inherited: an Erlang node in `foreground` halts when its
     // stdin hits EOF, so `ignore` (/dev/null) kills the broker at boot.
     stdio: ['inherit', 'pipe', 'pipe'],
     env: {
       ...cleanEnv,
+      EMQX_LOG_DIR: brokerLogDirectory(dataDir, tmpdir()),
       ERL_FLAGS: [cleanEnv['ERL_FLAGS'], ERL_FLAGS].filter(Boolean).join(' '),
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
@@ -215,6 +221,15 @@ export async function startEmqxServer(
   emqx.stdout.on('data', keep);
   emqx.stderr.on('data', keep);
   let stopping = false;
+  const stop = () => {
+    stopping = true;
+    if (emqx.pid === undefined) return;
+    try {
+      process.kill(-emqx.pid, 'SIGTERM');
+    } catch {
+      // The owned process group has already stopped.
+    }
+  };
 
   emqx.on('error', (err) => {
     process.stderr.write(`[emqx] failed to start ${String(err)}\n`);
@@ -238,8 +253,7 @@ export async function startEmqxServer(
       tail: () => tail,
     });
   } catch (error) {
-    stopping = true;
-    emqx.kill('SIGTERM');
+    stop();
     throw error;
   }
 
@@ -248,14 +262,6 @@ export async function startEmqxServer(
     mqttPort,
     wsPort,
     dataDir,
-    stop() {
-      stopping = true;
-      if (emqx.exitCode !== null || emqx.killed) return;
-      try {
-        emqx.kill('SIGTERM');
-      } catch {
-        // already gone
-      }
-    },
+    stop,
   };
 }

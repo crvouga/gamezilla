@@ -65,8 +65,9 @@ variable "worker" {
       source_id = string
       target_id = string
     }))
-    retire = optional(list(string), [])
-    puzzle_manager_account_ids = optional(list(string), [])
+    retire                          = optional(list(string), [])
+    puzzle_manager_account_ids      = optional(list(string), [])
+    population_operator_account_ids = optional(list(string), [])
   })
 }
 
@@ -118,3 +119,5 @@ variable "state_passphrase" {
   type      = string
   sensitive = true
 }
+
+variable "railway" { type = any }

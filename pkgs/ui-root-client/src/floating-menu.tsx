@@ -30,6 +30,7 @@ import {
 } from 'solid-js';
 import type {
   FloatingMenuContent,
+  FloatingMenuContentRow,
   FloatingMenuItemRow,
 } from './floating-menu-content';
 import { estimateFloatingMenuHeight } from './floating-menu-estimate-height';
@@ -129,6 +130,22 @@ function onMenuKeyDown(host: HTMLElement, ev: KeyboardEvent): void {
   items[next]?.focus();
 }
 
+function StableFloatingMenuRow(props: {
+  id: string;
+  rows: readonly FloatingMenuContentRow[];
+  onSelect: (row: FloatingMenuItemRow) => void;
+}): JSX.Element {
+  const item = createMemo(() => {
+    const row = props.rows.find((row) => row.id === props.id);
+    return row?.type === 'item' ? row : undefined;
+  });
+  return (
+    <Show when={item()} fallback={<FloatingMenuDivider />}>
+      {(row) => <FloatingMenuItem row={row()} onSelect={props.onSelect} />}
+    </Show>
+  );
+}
+
 function FloatingMenuPanel(props: {
   position: FloatingMenuPosition;
   width: number;
@@ -171,16 +188,13 @@ function FloatingMenuPanel(props: {
           <Show when={props.content.header}>
             {(header) => <FloatingMenuHeader header={header()} />}
           </Show>
-          <For each={props.content.rows}>
-            {(row) => (
-              <Show
-                when={row.type === 'item' ? row : undefined}
-                fallback={<FloatingMenuDivider />}
-              >
-                {(item) => (
-                  <FloatingMenuItem row={item()} onSelect={onSelect} />
-                )}
-              </Show>
+          <For each={props.content.rows.map((row) => row.id)}>
+            {(id) => (
+              <StableFloatingMenuRow
+                id={id}
+                rows={props.content.rows}
+                onSelect={onSelect}
+              />
             )}
           </For>
         </div>

@@ -46,6 +46,7 @@ function fakeNode(log: string[], path: string[]): DriverNode {
     },
     isVisible: async () => true,
     text: async () => 'hi',
+    attribute: async () => null,
   };
   return node;
 }

@@ -7,8 +7,8 @@
 
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Context } from 'hono';
 import {
   bearerUserId,
@@ -56,7 +56,7 @@ export async function handleListIdentities(
 async function unlinkIn(
   ctx: AuthAppCtx,
   userId: string,
-  provider: OauthProviderId
+  provider: SignInMethodId
 ): Promise<{ removed: IdentityRow | null; left: IdentityRow[] } | 'last'> {
   return await ctx.deps.getSql().transaction(async (tx) => {
     const identities = new IdentityRepository(
@@ -93,7 +93,7 @@ export async function handleUnlink(
   if (userId === null) return unauthorized(c);
   const raw: unknown = await c.req.json().catch(() => null);
   const provider = readStringField(raw, 'provider');
-  if (!isOauthProviderId(provider)) {
+  if (!isSignInMethodId(provider)) {
     return c.json({ error: 'unsupported_provider' }, 400);
   }
   const result = await unlinkIn(ctx, userId, provider);
@@ -102,7 +102,7 @@ export async function handleUnlink(
   }
   const token = result.removed?.refreshToken ?? null;
   const revoked =
-    token === null
+    token === null || provider === 'password'
       ? false
       : ((await ctx.oauth.get(provider)?.revoke(token)) ?? false);
   return c.json(

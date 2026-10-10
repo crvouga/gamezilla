@@ -40,6 +40,7 @@ function node(args: {
     },
     isVisible: () => Promise.resolve(args.visible()),
     text: () => Promise.resolve(null),
+    attribute: () => Promise.resolve(null),
   };
   return self;
 }

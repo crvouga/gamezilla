@@ -1,0 +1,4 @@
+{
+  "summary": "The browser recovery fixture invoked a single autonomous game decision before its supplied black-to-move position had reached the actual board. The Synthetic User correctly waited on the old white-to-move position, so the finished-game setup remained ongoing. Await the visible supplied position and turn before choosing the move.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

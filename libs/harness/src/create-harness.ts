@@ -8,16 +8,13 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-pr
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
-import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
 } from '@pkgs/pubsub-root-shared/in-memory';
-import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
-import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
 import type { HarnessAppBuild, HarnessAppBuilds } from './app-build';
@@ -32,20 +29,17 @@ import { browserLookup } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
-import type { AppleClientKeys, HarnessIdps } from './idp';
+import type { HarnessIdps } from './idp';
 import {
   addHarnessIdpAccounts,
   createHarnessIdps,
   HARNESS_APPLE_IDP_ID,
   harnessAppleClientKeys,
   harnessIdpFetchFrom,
-  harnessIdpSecrets,
 } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
 import { createHarnessLoadBalancer } from './load-balancer';
 import { compositionMigratePostgres } from './migrate-composition';
-import { createHarnessLlm } from './mockingbird-llm';
-import { createHarnessObjectStore } from './mockingbird-object-store';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
 import type {
@@ -58,15 +52,20 @@ import {
   HARNESS_PRIMARY_SERVER_ID,
 } from './server-nodes';
 import {
+  buildSharedServerServices,
+  type SharedServerServices,
+} from './shared-server-services';
+import {
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
 } from './sql';
 import type { HarnessSql } from './sql-types';
-import { sharedSqlClient } from './sql-types';
 import type { HarnessTeamRules } from './team-rules';
 import { createHarnessTeamRules } from './team-rules';
 
 export type CreateHarnessOptions = {
+  /** Deployment credentials injected by integration hosts, scoped to this harness. */
+  readonly secretValues?: Readonly<Record<string, string>>;
   /** The features this harness boots. */
   readonly composition: HarnessComposition;
   /** Override virtual timers (hosts that need wall timers for a live UI). */
@@ -140,6 +139,7 @@ export type Harness = {
   dispose(): Promise<void>;
   /** The in-process room host (empty when the composition runs no rooms). */
   readonly roomNode: HarnessRoomNode;
+  readonly setRoomNamespace: HarnessServerNodes['setRoomNamespace'];
   readonly serverSql: HarnessSql;
   clientSql(id: string): HarnessSql | undefined;
 };
@@ -153,47 +153,6 @@ function sessionSeed(session: Session): bigint {
 
 function portSql(session: Session): HarnessSql | undefined {
   return (session.ports as { readonly sql?: HarnessSql }).sql;
-}
-
-/**
- * Services a production fleet shares across API instances. Per-instance copies
- * would hide shared-state bugs (a Kv write on one instance must be visible on
- * the next request, whichever instance the balancer picks).
- */
-type SharedServerServices = {
-  readonly kv: ServerEnv['kv'];
-  readonly blob: ServerEnv['blob'];
-  readonly tts: ServerEnv['tts'];
-  readonly llm: ServerEnv['llm'];
-  readonly secrets: ServerEnv['secrets'];
-  readonly auth: ServerEnv['auth'];
-  readonly moderation: ServerEnv['moderation'];
-  readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
-};
-
-function buildSharedServerServices(args: {
-  readonly serverSql: HarnessSql;
-  readonly appleKeys: AppleClientKeys;
-  readonly auth: ServerEnv['auth'];
-  readonly clock: Clock;
-  readonly moderation: ServerEnv['moderation'];
-}): SharedServerServices {
-  const secrets = createRecordSecretStore({
-    DATABASE_URL: 'postgresql://mockingbird-postgres/harness',
-    API_URL: HARNESS_SERVER_URL,
-    ...harnessIdpSecrets(args.appleKeys),
-  });
-  return {
-    kv: new KvImplPostgres(args.serverSql.sqlClient, () => args.clock.now()),
-    blob: createHarnessObjectStore(args.clock),
-    tts: new InMemoryTtsProvider(),
-    llm: createHarnessLlm({ clock: args.clock }).provider,
-    secrets,
-    // The simulated deployment signs in through the in-house IdP.
-    auth: args.auth,
-    moderation: args.moderation,
-    sqlClient: sharedSqlClient(args.serverSql.sqlClient),
-  };
 }
 
 type ServerEnvDeps = {
@@ -342,6 +301,9 @@ async function bootHarnessKernel(
   const serverSql = await openServerSql(session, opts);
   const teamRules = createHarnessTeamRules(session.ports.clock);
   const shared = buildSharedServerServices({
+    ...(opts.secretValues === undefined
+      ? {}
+      : { secretValues: opts.secretValues }),
     serverSql,
     appleKeys,
     auth: composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
@@ -558,6 +520,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     roomNode,
     serverSql,
     clientSql: (id) => clientSql.get(id),
+    setRoomNamespace: servers.setRoomNamespace,
   };
 }
 

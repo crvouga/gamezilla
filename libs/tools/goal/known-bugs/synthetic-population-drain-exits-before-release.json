@@ -1,0 +1,4 @@
+{
+  "summary": "A confirmed Synthetic User close notified the Synthetic Population Worker that draining had finished before awaiting lease release. The worker could exit while that request was outstanding. Confirmed closes now stop the application first and await release before signalling completion; forced closes retain expiration recovery.",
+  "regressionTest": "apps/synthetic-population-worker/tests/termination.test.ts"
+}

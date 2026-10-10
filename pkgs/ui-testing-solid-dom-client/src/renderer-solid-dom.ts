@@ -10,7 +10,6 @@ import type { RenderedApp } from '@pkgs/ui-testing-root-shared/render-adapter';
 import { userEventKeyFromDom } from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
 import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
 import { serializeDomHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
-import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 import userEvent from '@testing-library/user-event';
 import { fireDrag, fireTapAt } from './dom-gestures';
 import type { LayoutProvider } from './dom-layout';
@@ -22,8 +21,8 @@ import {
   queryWithinTestId,
 } from './dom-query';
 import { fieldOf, isTextField, readDomText } from './dom-text';
-import { layoutDomTree } from './dom-tree-layout';
 import { isDomVisible } from './dom-visibility';
+import { createLayoutSynchronizer } from './layout-synchronizer';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
 export type SolidDomAppScope = {
@@ -167,17 +166,18 @@ export function createSolidDomRenderedApp(
 ): SolidDomRenderedApp {
   const user = scope.user ?? createDomUser(scope.document);
   const provider = scope.layoutProvider ?? synthesizeLayout;
-  const syncLayout = (): void => {
-    const container = scope.container();
-    if (container !== null) layoutDomTree(container, MULTI_APP_ACTOR_FRAME);
-  };
+  const layout = createLayoutSynchronizer(scope.container);
+  const syncLayout = layout.sync;
   return {
-    query: (testId) =>
-      queryActorTestId(scope.document, scope.container(), testId),
+    query: (testId) => {
+      syncLayout();
+      return queryActorTestId(scope.document, scope.container(), testId);
+    },
     queryWithin: (parent, testId) =>
       queryWithinTestId(asElement(parent), testId),
     isVisible: (element) => isDomVisible(asElement(element)),
     getText: (element) => readDomText(asElement(element)),
+    getAttribute: (element, name) => asElement(element).getAttribute(name),
     tap: async (element) => {
       syncLayout();
       ensureElementLayout(asElement(element), provider);
@@ -220,7 +220,10 @@ export function createSolidDomRenderedApp(
       scrollBy(asElement(element), direction, amount);
       return Promise.resolve();
     },
-    unmount: scope.unmount,
+    unmount: () => {
+      layout.close();
+      return scope.unmount();
+    },
     snapshotHtml: (options) => {
       syncLayout();
       return snapshotActorHtml(scope.document, scope.container(), options);

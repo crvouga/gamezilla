@@ -1,8 +1,8 @@
-import type { OauthProviderId } from './sign-in-method';
+import type { SignInMethodId } from './sign-in-method';
 
 /** One sign-in method on an account. */
 export type AuthIdentity = {
-  readonly provider: OauthProviderId;
+  readonly provider: SignInMethodId;
   /** The subject at that provider (Google `sub`, Apple `sub`, …). */
   readonly providerUserId: string;
   readonly email: string | null;

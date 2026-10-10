@@ -136,7 +136,27 @@ export const idpProviderEvents = defineTable({
   uniqueIndexes: [['provider', 'jti']],
 });
 
+export const idpPasswords = defineTable({
+  domain: 'idp',
+  name: 'idp_passwords',
+  columns: {
+    user_id: 'text',
+    email: 'text',
+    salt: 'text',
+    password_hash: 'text',
+  },
+  uniqueIndexes: ['email', 'user_id'],
+});
+
+export const idpPasswordAttempts = defineTable({
+  domain: 'idp',
+  name: 'idp_password_attempts',
+  columns: { window_started_at: 'timestamp', attempts: 'integer' },
+});
+
 export const IDP_TABLES = [
+  idpPasswords,
+  idpPasswordAttempts,
   idpUsers,
   idpAccounts,
   idpSessions,

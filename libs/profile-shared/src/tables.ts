@@ -8,6 +8,7 @@ export const profile = defineTable({
     avatar_config: 'json',
     username_changed_at: 'timestamp',
     username_norm: 'text',
+    account_kind: 'text',
   },
   uniqueIndexes: [['username_norm']],
 });

@@ -15,6 +15,7 @@ export const profilesByIds = defineQuery({
         CASE WHEN deleted_at IS NULL THEN username ELSE '' END AS username,
         CASE WHEN deleted_at IS NULL THEN username_norm ELSE '' END AS username_norm,
         CASE WHEN deleted_at IS NULL THEN avatar_config ELSE NULL END AS avatar_config,
+        CASE WHEN deleted_at IS NULL THEN account_kind ELSE NULL END AS account_kind,
         username_changed_at, deleted_at
       FROM profile
       WHERE id IN (${join(ids)})

@@ -16,7 +16,7 @@ import {
 } from './actions';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
-import { createHarness } from './create-harness';
+import { type CreateHarnessOptions, createHarness } from './create-harness';
 import type { ProductHarness } from './harness';
 import { createProductHarness, productExtra } from './harness';
 import { inProcessRuntime } from './in-process';
@@ -110,7 +110,10 @@ export const globalActionMenuAlwaysVisible = defineProperty({
  * API fleet. The default host is `in-process` (virtual time, happy-dom);
  * `bun-webview` (a live browser, `HARNESS_MODE=real|stack`) runs the same suite.
  */
-export function defineProductSystem(composition: HarnessComposition) {
+export function defineProductSystem(
+  composition: HarnessComposition,
+  options: Pick<CreateHarnessOptions, 'secretValues'> = {}
+) {
   return defineSystem<ProductHarness>({
     name: `harness.${composition.name}`,
     runtimes: [
@@ -156,6 +159,7 @@ export function defineProductSystem(composition: HarnessComposition) {
     async create(session) {
       const extra = extraOf(session);
       const harness = await createHarness(session, {
+        ...options,
         composition,
         serverSql: extra.sql,
       });

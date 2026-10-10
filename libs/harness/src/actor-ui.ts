@@ -70,6 +70,13 @@ export async function ensureActor(
     timeoutMs: ACTOR_READY_MAX_MS,
   });
   if (productExtra(s).ui.kind === 'bun-webview') {
+    // Chrome paints before the initial identity reconciliation. On the
+    // landing screen, wait for its ordinary server-backed ready state;
+    // otherwise adopting that identity can replace a menu during its tap.
+    if ((await handle.currentPath()) === '/')
+      await handle.ui.get(Handles.spacesListReady).expect.visible({
+        timeoutMs: ACTOR_READY_MAX_MS,
+      });
     await waitForWallChromeSettled(s, handle.ui);
   }
   s.actors.set(actorId, handle);

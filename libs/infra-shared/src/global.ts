@@ -42,6 +42,7 @@ export const globalFileSchema = z
       .strict(),
     /** One AWS region for IoT Core. Growth stays in this region. */
     aws: z.object({ region: id }).strict(),
+    railway: z.object({ workspace_id: z.uuid() }).strict(),
     grafana: z
       .object({
         stack_slug: z.string().regex(/^[a-z][a-z0-9]*$/),

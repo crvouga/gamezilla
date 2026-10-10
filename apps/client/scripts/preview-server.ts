@@ -10,7 +10,7 @@ import { assert } from '@pkgs/assert-root-shared/singleton';
 import { file } from 'bun';
 
 import { previewStackReadyResponse } from './preview-stack-ready';
-import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.d';
+import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
 
 const CALLBACK_COOP = 'same-origin-allow-popups';
 

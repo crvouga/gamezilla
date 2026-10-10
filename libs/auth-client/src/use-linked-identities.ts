@@ -4,8 +4,8 @@
  * provider) by `/identity/refresh`, so this is ordinary synced data.
  */
 
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
@@ -14,7 +14,7 @@ import { useHasAuthSession } from './access-facts';
 import { useMyId } from './use-current-user';
 
 export type LinkedIdentity = {
-  readonly provider: OauthProviderId;
+  readonly provider: SignInMethodId;
   readonly email: string | null;
   readonly emailVerified: boolean;
   readonly isPrivateEmail: boolean;
@@ -43,7 +43,7 @@ function metadataOf(raw: unknown): Record<string, unknown> {
 }
 
 function toIdentity(row: Row): LinkedIdentity | null {
-  if (!isOauthProviderId(row.provider)) return null;
+  if (!isSignInMethodId(row.provider)) return null;
   const meta = metadataOf(row.metadata);
   return {
     provider: row.provider,
@@ -65,7 +65,7 @@ export function useLinkedIdentities(): Accessor<readonly LinkedIdentity[]> {
     SELECT provider, metadata
     FROM auth_external_accounts
     WHERE user_id = ${watchId()}
-      AND provider IN ('google', 'apple')
+      AND provider IN ('google', 'apple', 'password')
       AND deleted_at IS NULL
     ORDER BY provider
   `

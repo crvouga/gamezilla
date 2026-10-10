@@ -1,0 +1,4 @@
+{
+  "summary": "The DOM snapshot removed sensitive sections but its interactive-control inventory still exposed controls inside those sections.",
+  "regressionTest": "apps/synthetic-population-worker/tests/inspection.test.ts"
+}

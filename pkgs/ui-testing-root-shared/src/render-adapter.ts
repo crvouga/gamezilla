@@ -27,6 +27,8 @@ export interface RenderedApp {
   /** Read displayed / accessible text from the element. */
   getText(element: HostNode): string | null;
 
+  getAttribute(element: HostNode, name: string): string | null;
+
   /** Tap / click the element. */
   tap(element: HostNode): Promise<void>;
 

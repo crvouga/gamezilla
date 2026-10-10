@@ -46,7 +46,7 @@ data "grafana_cloud_stack" "this" {
 resource "grafana_cloud_access_policy" "write" {
   region = var.region
   name   = var.write_policy_name
-  scopes = ["traces:write"]
+  scopes = ["traces:write", "metrics:write"]
 
   realm {
     type       = "stack"
@@ -84,6 +84,10 @@ locals {
 
 output "collector_url" {
   value = "${local.otlp_base}/otlp/v1/traces"
+}
+
+output "metrics_collector_url" {
+  value = "${local.otlp_base}/otlp/v1/metrics"
 }
 
 output "collector_user" {
