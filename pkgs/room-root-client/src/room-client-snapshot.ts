@@ -3,6 +3,7 @@ import { RoomMetaAttr } from './room-meta';
 
 const IS_SYNCED_KEY = RoomMetaAttr.isSynced.key;
 const IS_CONNECTED_KEY = RoomMetaAttr.isConnected.key;
+const HAS_ROSTER_KEY = RoomMetaAttr.hasRoster.key;
 const LAST_ERROR_KEY = RoomMetaAttr.lastError.key;
 
 /**
@@ -14,11 +15,13 @@ export type SnapshotCache<S extends RoomState> = {
   display: S | null;
   synced: boolean;
   connected: boolean;
+  hasRoster: boolean;
   lastError: RoomError | Error | null;
   built: S | null;
   builtFrom: S | null;
   builtSynced: boolean;
   builtConnected: boolean;
+  builtHasRoster: boolean;
   builtError: RoomError | Error | null;
   readonly freeze: boolean;
 };
@@ -30,11 +33,13 @@ export function createSnapshotCache<S extends RoomState>(
     display: null,
     synced: false,
     connected: false,
+    hasRoster: false,
     lastError: null,
     built: null,
     builtFrom: null,
     builtSynced: false,
     builtConnected: false,
+    builtHasRoster: false,
     builtError: null,
     freeze,
   };
@@ -46,6 +51,7 @@ function isCurrent<S extends RoomState>(c: SnapshotCache<S>): boolean {
     c.builtFrom === c.display &&
     c.builtSynced === c.synced &&
     c.builtConnected === c.connected &&
+    c.builtHasRoster === c.hasRoster &&
     c.builtError === c.lastError
   );
 }
@@ -57,12 +63,14 @@ export function readSnapshot<S extends RoomState>(c: SnapshotCache<S>): S {
   const merged = { ...(display as Record<string, unknown>) };
   merged[IS_SYNCED_KEY] = RoomMetaAttr.isSynced.parse(c.synced);
   merged[IS_CONNECTED_KEY] = RoomMetaAttr.isConnected.parse(c.connected);
+  merged[HAS_ROSTER_KEY] = RoomMetaAttr.hasRoster.parse(c.hasRoster);
   merged[LAST_ERROR_KEY] = RoomMetaAttr.lastError.parse(c.lastError);
   const built = (c.freeze ? Object.freeze(merged) : merged) as unknown as S;
   c.built = built;
   c.builtFrom = display;
   c.builtSynced = c.synced;
   c.builtConnected = c.connected;
+  c.builtHasRoster = c.hasRoster;
   c.builtError = c.lastError;
   return built;
 }

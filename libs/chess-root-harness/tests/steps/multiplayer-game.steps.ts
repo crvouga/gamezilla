@@ -104,9 +104,7 @@ When(
 When('{actor} resigns multiplayer chess', async (w, actor: Actor) => {
   await resignation(w, actor);
 });
-When('{actor} resigns multiplayer chess again', async (w, actor: Actor) => {
-  await resignation(w, actor);
-});
+
 Then('both multiplayer boards show the white pawn on e4', async (w) => {
   const game = await bothBoards(w, (g) => g.revision === 1);
   expect(game.fen).toStartWith(
@@ -117,11 +115,7 @@ Then('{actor} has the multiplayer turn', async (w, actor: Actor) => {
   const owner = await w.s.read(accountIdOf, actor);
   expect((await bothBoards(w)).turn).toBe(owner!);
 });
-Then('{actor} still has the multiplayer turn', async (w, actor: Actor) => {
-  expect((await bothBoards(w)).turn).toBe(
-    (await w.s.read(accountIdOf, actor))!
-  );
-});
+
 // The position the boards had when the refused move was tried.
 Then('both multiplayer boards keep their starting position', async (w) => {
   expect((await bothBoards(w)).fen).toBe(
@@ -149,10 +143,7 @@ Then('{actor} is told the multiplayer game is over', (w, actor: Actor) =>
 Then('both people see {actor} won the multiplayer game', (w, actor: Actor) =>
   winner(w, actor)
 );
-Then(
-  'both people still see {actor} won the multiplayer game',
-  (w, actor: Actor) => winner(w, actor)
-);
+
 Then(
   'both people see {actor} won the multiplayer game by checkmate',
   (w, actor: Actor) => winner(w, actor, 'checkmate')
@@ -205,10 +196,7 @@ async function bothSeeMoveList(w: HarnessWorld, moves: string) {
 }
 
 Then('both people see the multiplayer move list {string}', bothSeeMoveList);
-Then(
-  'both people still see the multiplayer move list {string}',
-  bothSeeMoveList
-);
+
 Then(
   '{actor} sees the multiplayer move list {string}',
   (w, actor: Actor, moves: string) =>

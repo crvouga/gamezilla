@@ -1,11 +1,7 @@
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { bigintToJsonSafe } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
 import { sanitizePostgresUrlForBunSql } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-bun-sql';
-import {
-  postgresRejectsStartupSearchPathOption,
-  sqlBundledWithSearchPath,
-  withPostgresSearchPathOption,
-} from '@pkgs/sql-client-postgres-shared/session-schema';
+import { sqlBundledWithSearchPath } from '@pkgs/sql-client-postgres-shared/session-schema';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -32,22 +28,13 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
     connection: string | URL | BunSql,
     readonly dbScope: PostgresDbScope
   ) {
-    const pinSearchPathEachQuery =
-      typeof connection === 'string'
-        ? postgresRejectsStartupSearchPathOption(connection)
-        : connection instanceof URL
-          ? postgresRejectsStartupSearchPathOption(connection.toString())
-          : false;
     const sql =
       typeof connection === 'string' || connection instanceof URL
-        ? new SQL(
-            withPostgresSearchPathOption(
-              sanitizePostgresUrlForBunSql(connection),
-              dbScope
-            )
-          )
+        ? new SQL(sanitizePostgresUrlForBunSql(connection))
         : connection;
-    this.client = createClient(sql, { pinSearchPathEachQuery, dbScope });
+    // Bun does not apply every libpq startup option. A transaction pins the
+    // same backend that executes the query, including behind poolers.
+    this.client = createClient(sql, { pinSearchPathEachQuery: true, dbScope });
   }
 
   static connect(

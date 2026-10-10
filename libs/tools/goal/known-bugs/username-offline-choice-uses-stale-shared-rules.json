@@ -1,0 +1,4 @@
+{
+  "summary": "Alice with username alice_one saves chess_cheater offline. The team stops allowing chess_cheater before Alice reconnects. Replay accepts the choice under its original timestamp's rules and shows a stand-in instead of refusing the choice and restoring alice_one.",
+  "regressionTest": "specs/profile/offline-username.feature"
+}

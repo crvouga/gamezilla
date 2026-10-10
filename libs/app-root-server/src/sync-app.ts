@@ -52,7 +52,7 @@ export async function createSyncApp(deps: {
   readonly authorizeServerMutation?: MutationAuthorize;
   readonly now: () => number;
   readonly createId: () => string;
-  /** The moderation replayed writes are judged by, as of their time. */
+  /** Rules supplied at each mutation's selected replay judgment time. */
   readonly moderation: ModerationRules;
   /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
   readonly strictQueryLimits?: boolean;

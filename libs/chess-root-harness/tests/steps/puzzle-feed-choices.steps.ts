@@ -12,6 +12,7 @@ import {
   lowerPuzzleFeedOffset,
   openPuzzleByTheme,
   openPuzzleFeedSettings,
+  openPuzzleFromSpace,
   playUntilSolved,
   savePuzzleFeedSettings,
   setPuzzleFeedMode,
@@ -203,6 +204,7 @@ Then(
     // The other device looks at the feed in the space the account hosts.
     const link = required(await w.s.read(readSpaceLink, actor), 'a space');
     await w.s.apply(reopenSpaceLink, device, link);
+    await w.s.apply(openPuzzleFromSpace, device);
     await w.s.until(
       (surf) => isFeedLimitedToTheme(surf, device, puzzleThemeNamed(name)),
       { maxMs: seconds * SECOND_MS }

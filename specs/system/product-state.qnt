@@ -21,8 +21,8 @@ module product_state {
   }
   type ProductOp = { id: int, device: int, actor: int, kind: str, resource: int, value: int, day: int }
   pure val productNOTES = Set(0, 1)
-  pure val productOFFLINE = boardKINDS.union(Set("write", "delete", "profile", "customize", "start", "finish"))
-  pure val productKINDS = productOFFLINE.union(Set("rename", "create", "join", "leave", "end", "select", "add-member", "remove-member", "request", "accept", "block", "unblock", "decline", "cancel-request", "remove-friend", "wait", "cancel"))
+  pure val productOFFLINE = boardKINDS.union(Set("write", "delete", "profile", "customize", "start", "finish", "rename", "create", "leave", "end", "select", "add-member", "remove-member", "request", "accept", "block", "unblock", "decline", "cancel-request", "remove-friend", "cancel"))
+  pure val productKINDS = productOFFLINE.union(Set("join", "wait"))
   pure val productInitial: ProductState = {
     auth: authInitial, billing: billingInitial,
     social: socialJoin(socialJoin(socialCreate(socialInitial,0,0),1,0),2,0), game: gameInitial,
@@ -51,7 +51,8 @@ module product_state {
       else if (o.kind == "join") r.open
       else if (o.kind == "leave") r.open and r.members.contains(o.actor)
       else if (o.kind == "add-member") r.open and r.owner == o.actor and PEOPLE.contains(o.value) and o.value != o.actor
-      else if (Set("end", "select", "remove-member").contains(o.kind)) r.open and r.owner == o.actor
+      else if (o.kind == "remove-member") r.open and r.owner == o.actor and PEOPLE.contains(o.value) and o.value != o.actor
+      else if (Set("end", "select").contains(o.kind)) r.open and r.owner == o.actor
       else if (o.kind == "start") account or gameUsed(s.game,o.actor,o.day) < gameLIMIT or gameCharged(s.game,o.actor,o.resource)
       else if (o.kind == "finish") gameCharged(s.game,o.actor,o.resource)
       else if (Set("request", "accept", "block", "unblock", "decline", "cancel-request", "remove-friend").contains(o.kind)) account and PEOPLE.contains(o.value) and authAccount(s.auth,o.value) and o.value != o.actor
@@ -78,7 +79,7 @@ module product_state {
     else if (o.kind == "join") { ...s, revision: revision, social: socialJoin(s.social,o.actor,o.resource) }
     else if (o.kind == "leave") { ...s, revision: revision, social: socialLeave(s.social,o.actor,o.resource) }
     else if (o.kind == "end") { ...s, revision: revision, social: socialEnd(s.social,o.resource) }
-    else if (o.kind == "add-member") { ...s, revision: revision, social: socialJoin(s.social,o.value,o.resource) }
+    else if (o.kind == "add-member") { ...s, revision: revision, social: socialAddPerson(s.social,o.value,o.resource) }
     else if (o.kind == "remove-member") { ...s, revision: revision, social: socialRemoveMember(s.social,o.value,o.resource) }
     else if (o.kind == "select") { ...s, revision: revision, social: socialSelectGame(s.social,o.resource,o.value % 2) }
     else if (o.kind == "start") { ...s, revision: revision, game: gameStart(s.game,o.actor,o.resource,o.day) }

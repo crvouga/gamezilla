@@ -325,19 +325,28 @@ function useUnlockDeniedLink(args: {
  */
 function useLinkedPuzzleRequest(args: {
   canPick: Accessor<boolean>;
+  activePuzzleId: Accessor<string | null>;
   roomStatus: Accessor<ChessPuzzlePlayStatus>;
   requestLinked: (puzzleId: string, over: boolean) => void;
 }): void {
   const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
   const pathname = usePathname();
   const router = useRouter();
+  const requested = { current: null as string | null };
   createEffect(() => {
     const linked = params()[LINKED_PUZZLE_PARAM];
     if (linked === undefined || linked.length === 0 || !args.canPick()) return;
-    untrack(() => {
-      args.requestLinked(linked, isFinishedPuzzleStatus(args.roomStatus()));
-      router.replace(pathname());
-    });
+    if (requested.current !== linked) {
+      requested.current = linked;
+      untrack(() =>
+        args.requestLinked(linked, isFinishedPuzzleStatus(args.roomStatus()))
+      );
+    }
+    if (
+      args.activePuzzleId() === linked &&
+      args.roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle
+    )
+      untrack(() => router.replace(pathname()));
   });
 }
 
@@ -354,6 +363,7 @@ function useLinkedPuzzles(args: {
   });
   useLinkedPuzzleRequest({
     canPick: args.canPick,
+    activePuzzleId: args.placement.activePuzzleId,
     roomStatus,
     requestLinked: args.placement.requestLinked,
   });

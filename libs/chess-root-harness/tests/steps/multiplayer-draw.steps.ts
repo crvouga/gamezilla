@@ -60,9 +60,7 @@ Then('{actor} is offered a multiplayer draw', async (w, actor: Actor) => {
   await bothBoards(w, (g) => g.draw_offer_by === by);
   expect(await drawOfferBy(w)).toBe(by);
 });
-Then('{actor} is still offered a multiplayer draw', async (w, actor: Actor) => {
-  expect(await drawOfferBy(w)).toBe(await ownerOf(w, otherOf(w, actor)));
-});
+
 Then('{actor} is not offered a multiplayer draw', async (w, actor: Actor) => {
   expect(await drawOfferBy(w)).not.toBe(await ownerOf(w, otherOf(w, actor)));
 });

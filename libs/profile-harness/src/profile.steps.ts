@@ -9,7 +9,7 @@ import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import { type HarnessWorld, remember } from '@libs/harness/spec-world';
 import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile-shared/username';
 import {
   cancelAvatarEdits,
@@ -31,11 +31,14 @@ import {
   readUsernameSaveFace,
   standInNameOf,
   standInNoticeShown,
+  usernameWaitingToShareShown,
 } from './profile-ui-reads';
+import { usernameKey } from './remembered-username';
 import {
   startAllowingUsername,
   stopAllowingUsername,
 } from './team-rule-actions';
+import { usernameRefusalShown } from './username-refusal-read';
 
 const SECOND_MS = 1_000;
 
@@ -97,6 +100,7 @@ async function takeUsername(
   if (face !== 'Saved') {
     throw new Error(`${actor} could not take @${username}: ${face}`);
   }
+  remember(w, usernameKey(actor), username);
   await w.s.apply(leaveUsernameEditor, actor);
 }
 
@@ -110,7 +114,7 @@ Given(
 );
 
 Given(
-  '{actor} has just renamed themselves to {username}',
+  '{actor} has renamed themselves to {username}',
   async (w, actor: Actor, username: string) => {
     await takeUsername(w, actor, username);
   }
@@ -204,9 +208,26 @@ Then(
 );
 
 Then(
-  "{actor}'s username change is refused with {string}",
+  "{actor}'s other device shows {username} within {int} seconds",
+  async (w, actor: Actor, username: string, seconds: number) => {
+    await w.s.until(
+      (harness) => readProfileTabUsername(harness, otherDevice(actor)),
+      { pred: (shown) => shown === username, maxMs: seconds * SECOND_MS }
+    );
+  }
+);
+
+Then(
+  '{actor} is told their username change will be shared when the connection returns',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => usernameWaitingToShareShown(harness, actor));
+  }
+);
+
+Then(
+  "{actor}'s username change is refused because {usernameRefusal}",
   async (w, actor: Actor, reason: string) => {
-    expect(await w.s.read(readUsernameSaveFace, actor)).toBe(reason);
+    await w.s.until((s) => usernameRefusalShown(s, actor, reason));
   }
 );
 

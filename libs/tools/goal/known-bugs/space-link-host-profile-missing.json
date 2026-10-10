@@ -1,0 +1,4 @@
+{
+  "summary": "A person who joined a space by link without being friends with its host saw Space instead of the host-based name. The host's profile never synchronized to their device, so clearing or moderating a space name and changing or moderating the host's username could not show the correct name.",
+  "regressionTest": "libs/friends-harness/tests/space-link-host-profile.test.ts"
+}

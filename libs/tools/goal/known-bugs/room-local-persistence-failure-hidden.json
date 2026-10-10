@@ -1,0 +1,4 @@
+{
+  "summary": "The local room durability wait resolved after a device storage failure, allowing a local choice to report success before it was saved.",
+  "regressionTest": "pkgs/room-root-harness/tests/local-room-persistence.test.ts"
+}

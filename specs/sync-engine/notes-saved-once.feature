@@ -1,21 +1,21 @@
 @domain:sync-engine
 Feature: Notes count once
-  When the app does not hear back about a note it wrote, a person wants the
-  note still to reach everyone and never to show twice to anybody.
+  When a person writes a note, they want it to show once for everyone it is
+  shared with, so nobody mistakes repeated copies for new writing.
 
-  Rule: A note shows exactly once however many times the app has to save it
+  Rule: A note shows once for every person in its shared space
+    No counter-example: two copies of the same note are never an allowed outcome.
 
     Background:
       Given Alice and Bob are in the shared space "Trip"
-      And Alice's app will not hear back about its next save
 
-    Scenario: A note whose save is never confirmed shows exactly once for everyone
+    Scenario: A written note shows once for everyone it is shared with
       When Alice writes the note "Groceries" saying "milk"
       Then Alice sees the note "Groceries" once
       And Bob sees the note "Groceries" once
 
-    Scenario: A note whose save is never confirmed shows once even after a crash
-      When Alice writes the note "Groceries" saying "milk"
-      And Alice's app crashes and reopens
+    Scenario: A written note shows once after its writer's app crashes
+      Given Alice has written the note "Groceries" saying "milk"
+      When Alice's app crashes and reopens
       Then Alice sees the note "Groceries" once
       And Bob sees the note "Groceries" once

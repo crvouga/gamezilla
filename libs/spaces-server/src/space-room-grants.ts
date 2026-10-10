@@ -5,19 +5,16 @@
  * the stored rows (host / joined / not in it) — the same decision the spaces
  * mutations take.
  *
- * Decided once, at upgrade; the room keeps the answer for the life of the
- * connection. The only grant today is the game choice, held by the host
- * alone, and a space's host never changes while it is live: the host leaving
- * ends the space. So a stale answer can only be a host's connection to a
- * space they have since ended, where a game choice changes nothing anyone
- * sees. Every reconnect decides afresh.
+ * Decided on every connection; participant commands also check current
+ * domain membership, so leaving revokes an already admitted participant.
  */
 
 import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
-
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { SPACE_ROOM_GRANT_KEYS } from '@libs/spaces-shared/space-room-authorize';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const SPACE_ROOM_TOPIC_PREFIX = 'space:';
 
@@ -35,6 +32,21 @@ export async function spaceRoomGrants(
   if (spaceId === null) return [];
   const presence = await storedSpacePresence(ctx.db, spaceId, ctx.actor);
   const granted: string[] = [];
+  // A public link observes host availability before taking a seat. The
+  // command boundary still requires membership for every participant command.
+  const publicSpace = await ctx.db.query(sql<{ readonly id: string }>`
+    SELECT id FROM spaces WHERE id = ${spaceId}
+      AND visibility = ${'public'} AND deleted_at IS NULL AND ended_at IS NULL
+  `);
+  if (publicSpace.length > 0) {
+    const preview = await decideOnServer(ctx.db, {
+      actor: ctx.actor,
+      key: PERMISSION.spacesJoin,
+      nowMs: ctx.nowMs,
+      scope: { spacePresence: presence },
+    });
+    if (preview.allowed) granted.push(PERMISSION.spacesJoin);
+  }
   for (const key of SPACE_ROOM_GRANT_KEYS) {
     const decision = await decideOnServer(ctx.db, {
       actor: ctx.actor,

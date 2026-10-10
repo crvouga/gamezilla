@@ -8,21 +8,44 @@
     "timestamp": 1790993224789
   },
   "vars": [
-    "ply",
-    "_terminalPicture",
-    "sideToMove",
-    "_ended",
     "_atCutOff",
-    "result",
+    "_result",
     "playShown",
+    "_awayFor",
     "_offline",
     "clockLeft",
-    "playStatus",
+    "_playStatus",
+    "_timed",
+    "_canceller",
+    "ply",
+    "_terminalPicture",
+    "_claimedAfter",
+    "sideToMove",
+    "_ended",
     "mbt::actionTaken",
     "mbt::nondetPicks"
   ],
   "states": [
     {
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "timed": {
+          "tag": "Some",
+          "value": true
+        }
+      },
       "#meta": {
         "index": 0
       },
@@ -66,10 +89,38 @@
           ]
         ]
       },
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
       "_ended": false,
       "_offline": {
         "#set": []
       },
+      "_playStatus": "active",
+      "_result": "",
       "_terminalPicture": {
         "#tup": [
           "active",
@@ -95,6 +146,7 @@
           }
         ]
       },
+      "_timed": true,
       "clockLeft": {
         "#map": [
           [
@@ -110,25 +162,6 @@
             }
           ]
         ]
-      },
-      "mbt::actionTaken": "init",
-      "mbt::nondetPicks": {
-        "actor": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "quarters": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "timed": {
-          "tag": "Some",
-          "value": true
-        }
       },
       "playShown": {
         "#map": [
@@ -170,14 +203,31 @@
           ]
         ]
       },
-      "playStatus": "active",
       "ply": {
         "#bigint": "0"
       },
-      "result": "",
       "sideToMove": "white"
     },
     {
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "quarters": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "timed": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
       "#meta": {
         "index": 1
       },
@@ -221,10 +271,38 @@
           ]
         ]
       },
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
       "_ended": false,
       "_offline": {
         "#set": ["alice"]
       },
+      "_playStatus": "active",
+      "_result": "",
       "_terminalPicture": {
         "#tup": [
           "active",
@@ -250,6 +328,7 @@
           }
         ]
       },
+      "_timed": true,
       "clockLeft": {
         "#map": [
           [
@@ -265,25 +344,6 @@
             }
           ]
         ]
-      },
-      "mbt::actionTaken": "_loseConnection",
-      "mbt::nondetPicks": {
-        "actor": {
-          "tag": "Some",
-          "value": "alice"
-        },
-        "quarters": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "1"
-          }
-        },
-        "timed": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
       },
       "playShown": {
         "#map": [
@@ -303,7 +363,7 @@
             "bob",
             {
               "#tup": [
-                "active",
+                "unavailable",
                 {
                   "#bigint": "0"
                 },
@@ -315,7 +375,7 @@
             "carol",
             {
               "#tup": [
-                "active",
+                "unavailable",
                 {
                   "#bigint": "0"
                 },
@@ -325,11 +385,9 @@
           ]
         ]
       },
-      "playStatus": "active",
       "ply": {
         "#bigint": "0"
       },
-      "result": "",
       "sideToMove": "white"
     }
   ]

@@ -14,6 +14,7 @@ Feature: Using the app without seeing it or without a mouse
       When Alice opens the app
       Then Alice hears what every control on the tabs does
 
+    @regression:offline-settings-menu-semantics
     Scenario: Someone listening hears what every control in Settings does
       When Alice opens Settings
       Then Alice hears what every control in Settings does

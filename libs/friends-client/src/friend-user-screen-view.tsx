@@ -9,6 +9,7 @@ import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
+import { FriendRequestFeedback } from './friend-request-feedback';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import { FriendUserScreenContent } from './friend-user-screen-content';
 import { FriendsPermissionGate } from './friends-permission-gate';
@@ -90,33 +91,39 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       breadcrumbs={breadcrumbs()}
       actions={headerActions()}
       content={({ bodyClass }) => (
-        <Show
-          when={!userProfile.unavailable()}
-          fallback={
-            <p class="text" data-testid="friend-profile-unavailable">
-              <Trans>
-                This profile is no longer available because the account was
-                deleted.
-              </Trans>
-            </p>
-          }
-        >
-          <FriendUserScreenContent
-            class={bodyClass}
-            profile={userProfile.profile()}
+        <div class={`box gap-4 ${bodyClass}`}>
+          <FriendRequestFeedback
             userId={props.userId}
-            status={status()}
-            incomingRequestId={requestIds.incomingRequestId()}
             outgoingRequestId={requestIds.outgoingRequestId()}
-            onChanged={userProfile.refreshProfile}
-            removeOpen={removeOpen()}
-            blockOpen={blockOpen()}
-            onCloseRemove={() => setRemoveOpen(false)}
-            onCloseBlock={() => setBlockOpen(false)}
-            onRemove={dangerHandlers.onRemove}
-            onBlock={dangerHandlers.onBlock}
           />
-        </Show>
+          <Show
+            when={!userProfile.unavailable()}
+            fallback={
+              <p class="text" data-testid="friend-profile-unavailable">
+                <Trans>
+                  This profile is no longer available because the account was
+                  deleted.
+                </Trans>
+              </p>
+            }
+          >
+            <FriendUserScreenContent
+              class={bodyClass}
+              profile={userProfile.profile()}
+              userId={props.userId}
+              status={status()}
+              incomingRequestId={requestIds.incomingRequestId()}
+              outgoingRequestId={requestIds.outgoingRequestId()}
+              onChanged={userProfile.refreshProfile}
+              removeOpen={removeOpen()}
+              blockOpen={blockOpen()}
+              onCloseRemove={() => setRemoveOpen(false)}
+              onCloseBlock={() => setBlockOpen(false)}
+              onRemove={dangerHandlers.onRemove}
+              onBlock={dangerHandlers.onBlock}
+            />
+          </Show>
+        </div>
       )}
     />
   );

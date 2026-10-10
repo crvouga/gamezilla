@@ -19,6 +19,7 @@ import {
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { brokerLogDirectory } from './broker-log-directory';
 import { resolveEmqxBin } from './emqx-bin';
+import { prepareEmqxRuntime } from './emqx-runtime';
 
 export type EmqxServerHandle = {
   readonly dashboardPort: number;
@@ -179,7 +180,7 @@ export async function startEmqxServer(
   const dashboardPort = options.dashboardPort ?? EMQX_DASHBOARD_PORT;
   const nodeName = options.nodeName ?? 'emqx@127.0.0.1';
   ensureEmqxDataDir(dataDir);
-  const bin = resolveEmqxBin();
+  const runtime = prepareEmqxRuntime(resolveEmqxBin());
   // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
   // chain entries cannot override the local password bootstrap.
   const cleanEnv: Record<string, string> = {};
@@ -190,7 +191,7 @@ export async function startEmqxServer(
   }
   // The broker's own log is noise while it works; it is buffered and printed
   // only if the broker exits without being asked to (the parent's failure).
-  const emqx = spawn(bin, ['foreground'], {
+  const emqx = spawn(runtime.bin, ['foreground'], {
     cwd: APP_DIR,
     // The foreground script owns an Erlang child. Give this broker its own
     // process group so teardown also stops that child if the script exits.
@@ -232,9 +233,11 @@ export async function startEmqxServer(
   };
 
   emqx.on('error', (err) => {
+    runtime.dispose();
     process.stderr.write(`[emqx] failed to start ${String(err)}\n`);
   });
   emqx.on('exit', (code, signal) => {
+    runtime.dispose();
     if (stopping) return;
     process.stderr.write(
       `[emqx] exited unexpectedly (code=${String(code)} signal=${String(signal)}); last output:\n${tail}\n`

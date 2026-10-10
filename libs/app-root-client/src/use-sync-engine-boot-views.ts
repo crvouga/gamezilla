@@ -66,9 +66,7 @@ function useSyncBootPromise(args: {
       ...(env.reconcileIntervalMs !== undefined
         ? { reconcileIntervalMs: env.reconcileIntervalMs }
         : {}),
-      ...(env.createPubSub !== undefined
-        ? { createPubSub: env.createPubSub }
-        : {}),
+      createPubSub: env.createPubSub,
       config: { getApiUrl: () => env.serverUrl },
       fetchFn,
       auth,

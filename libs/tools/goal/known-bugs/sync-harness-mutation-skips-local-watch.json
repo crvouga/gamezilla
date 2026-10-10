@@ -1,0 +1,4 @@
+{
+  "summary": "The example app has a continuously subscribed mutation-feedback watch. After milk is confirmed, Alice holds uploads and locally saves refused. The mutation succeeds and its local row changes, but feedback stays on confirmed milk because the harness writes through its raw database instead of the engine's notifying database used in production.",
+  "regressionTest": "pkgs/sync-engine-harness/tests/local-choice-feedback.contract.test.ts"
+}

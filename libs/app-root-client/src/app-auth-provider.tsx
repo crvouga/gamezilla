@@ -10,7 +10,7 @@ export function AppAuthProvider(props: {
 }): JSX.Element {
   const env = useClientEnv();
   return (
-    <AuthClientProvider port={env.createAuthClient()}>
+    <AuthClientProvider port={env.createAuthClient(env.server)}>
       <AuthBridge>
         <LocalIdentityProvider>{props.children}</LocalIdentityProvider>
       </AuthBridge>

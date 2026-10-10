@@ -6,6 +6,7 @@ export type PwaUpdatePrompt = { readonly reload: () => void };
 export type RegisterServiceWorkerArgs = {
   readonly onUpdateAvailable: (prompt: PwaUpdatePrompt) => void;
   readonly onRegisterError: (error: unknown) => void;
+  readonly networkAllowed?: (() => boolean) | undefined;
 };
 
 function isLocalHostname(hostname: string): boolean {
@@ -39,8 +40,21 @@ export function registerServiceWorker(
     });
   };
   wb.addEventListener('waiting', onWaiting);
-  void wb.register().catch(args.onRegisterError);
+  void wb
+    .register()
+    .then(async (registration) => {
+      if (args.networkAllowed?.() === false) await registration?.unregister();
+    })
+    .catch(args.onRegisterError);
   return () => {
     wb.removeEventListener('waiting', onWaiting);
   };
+}
+
+/** Remove the app's update registration while its network gate is closed. */
+export async function unregisterServiceWorker(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  if (!('serviceWorker' in navigator)) return;
+  const registration = await navigator.serviceWorker.getRegistration();
+  await registration?.unregister();
 }

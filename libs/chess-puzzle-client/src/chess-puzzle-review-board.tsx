@@ -11,7 +11,10 @@ import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 import { ChessPuzzleReviewTest } from './chess-puzzle-review-test';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
-import type { PuzzleReviewBoardModel } from './use-puzzle-review-board';
+import type {
+  PuzzleReviewBoardModel,
+  PuzzleReviewCursor,
+} from './use-puzzle-review-board';
 import { usePuzzleReviewBoard } from './use-puzzle-review-board';
 
 function ReviewBoardSurface(props: {
@@ -56,8 +59,9 @@ function ReviewBoardSurface(props: {
 export function ChessPuzzleReviewBoard(props: {
   fen: string;
   moves: string;
+  cursor: PuzzleReviewCursor;
 }): JSX.Element {
-  const model = usePuzzleReviewBoard(props.fen, props.moves);
+  const model = usePuzzleReviewBoard(props.fen, props.moves, props.cursor);
   const [config] = useChessPuzzleFeedConfig();
   onCleanup(
     registerFeedbackContext({

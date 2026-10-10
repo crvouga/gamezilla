@@ -1,6 +1,9 @@
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import sql from '@pkgs/sql-root-shared/sql';
+import {
+  checkedNoteConsidered,
+  prepareExistingCheckedNote,
+} from '@pkgs/sync-engine-harness/checked-note-setup';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
 import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import {
@@ -21,7 +24,6 @@ import {
   lastMutationSettled,
   queuedEdits,
   rejections,
-  rows,
 } from '@pkgs/sync-engine-harness/sync-observations';
 import type { NoteWorld } from './note-world';
 
@@ -36,19 +38,9 @@ async function waitUntilConsidered(
 ): Promise<void> {
   const id = w.owed.get(person);
   if (id === undefined) throw new Error(`${person} has no pending writing`);
-  await w.s.until(
-    (s) =>
-      rows(
-        s,
-        'considered-note',
-        'server',
-        sql`SELECT status FROM sync_engine_mutations_applied WHERE mutation_id = ${id}`
-      ),
-    {
-      maxMs: ANSWER_MS,
-      pred: (decisions) => decisions.length === 1,
-    }
-  );
+  await w.s.until((s) => checkedNoteConsidered(s, id), {
+    maxMs: ANSWER_MS,
+  });
   await w.s.apply(partition, person, 'sync');
   w.recovery.accepted.add(person);
 }
@@ -122,8 +114,12 @@ bindQuintModel<NoteWorld>({
   maxSteps: 40,
   verifySteps: 8,
   actions: {
-    init: async (w) => {
+    init: async (w, p) => {
       for (const person of PEOPLE) await w.s.apply(addClient, person);
+      await w.s.apply(
+        prepareExistingCheckedNote,
+        p['earlierNote'] as { body: string; owner: string }
+      );
     },
     writeUnheard,
     hearBack: async (w, p) => {

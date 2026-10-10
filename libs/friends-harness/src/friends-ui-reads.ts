@@ -1,6 +1,8 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { openTab } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
+import { showKnownPerson } from './known-person-view';
 
 /**
  * Bring the actor's phone to the front without asserting anything on it:
@@ -30,16 +32,11 @@ export async function friendRequestCardVisible(
   actorId: string,
   fromUsername: string
 ): Promise<boolean> {
-  try {
-    const ui = await actorUi(s, actorId);
-    // Tapping focuses the actor (a parked actor's screen reads as empty).
-    await ui.get(Handles.tabNotifications).tap({ timeoutMs: 2_000 });
-    return await ui
-      .get(Handles.notificationsFriendRequestCard(fromUsername))
-      .isVisible();
-  } catch {
-    return false;
-  }
+  await Promise.resolve(openTab.act(s, actorId, Handles.tabNotifications));
+  const ui = await actorUi(s, actorId);
+  return await ui
+    .get(Handles.notificationsFriendRequestCard(fromUsername))
+    .isVisible();
 }
 
 /**
@@ -51,15 +48,10 @@ export async function friendRequestCardText(
   actorId: string,
   fromUsername: string
 ): Promise<string | null> {
-  try {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.tabNotifications).tap({ timeoutMs: 2_000 });
-    return await ui
-      .get(Handles.notificationsFriendRequestCard(fromUsername))
-      .text();
-  } catch {
-    return null;
-  }
+  await Promise.resolve(openTab.act(s, actorId, Handles.tabNotifications));
+  const ui = await actorUi(s, actorId);
+  const card = ui.get(Handles.notificationsFriendRequestCard(fromUsername));
+  return (await card.isVisible()) ? await card.text() : null;
 }
 
 /** A search result row for `username` offers Add (no friendship, no pending request). */
@@ -150,13 +142,16 @@ export async function personProfileShown(
   return await handleText(s, actorId, Handles.friendUserUsername);
 }
 
-/** The label on `username`'s Add pill — "Try again later" when refused (focuses the actor). */
-export async function addFriendLabel(
+/** The Add action shows the recent-decline refusal (focuses the actor). */
+export async function recentDeclineRefusalShown(
   s: ProductHarness,
   actorId: string,
   username: string
-): Promise<string | null> {
-  return await handleText(s, actorId, Handles.friendAdd(username));
+): Promise<boolean> {
+  return (
+    (await handleText(s, actorId, Handles.friendAdd(username))) ===
+    'Try again later'
+  );
 }
 
 /** The screen shows `username` as a friend (focuses the actor). */
@@ -183,6 +178,7 @@ export async function withdrawOffered(
   actorId: string,
   toUsername: string
 ): Promise<boolean> {
+  await showKnownPerson(s, actorId, toUsername);
   return await handleVisible(s, actorId, Handles.friendCancel(toUsername));
 }
 
@@ -210,12 +206,4 @@ export async function friendsEmptyShown(
   actorId: string
 ): Promise<boolean> {
   return await handleVisible(s, actorId, Handles.friendsEmpty);
-}
-
-/** The app says friend requests need a connection (focuses the actor). */
-export async function friendRequestNeedsConnection(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendRequestNeedsConnection);
 }

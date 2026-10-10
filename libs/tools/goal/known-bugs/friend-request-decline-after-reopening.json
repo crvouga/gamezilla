@@ -1,0 +1,4 @@
+{
+  "summary": "The request observer tried to read an inbox hidden by a person's profile, reported no received request, and never reached the later decline. The literal request, repeated reopenings and decline are pinned from model trace 13; the focused example checks the actual inbox before declining.",
+  "regressionTest": "libs/friends-harness/tests/quint/offline-friend-requests.binding.ts"
+}

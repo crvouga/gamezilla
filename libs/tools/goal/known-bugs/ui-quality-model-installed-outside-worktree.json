@@ -1,0 +1,4 @@
+{
+  "summary": "From apps/product/scripts, model setup resolved ../../../../.cache/ui-quality-model and installed outside its worktree, while the offline checker looked in the worktree's .cache/ui-quality-model. The same setup therefore could not satisfy the checker and leaked a mutable artifact between worktrees. One shared model location keeps both entrypoints in this worktree's cache.",
+  "regressionTest": "apps/product/tests/ui-quality-model-location.test.ts"
+}

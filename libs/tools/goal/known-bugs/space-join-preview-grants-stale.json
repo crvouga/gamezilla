@@ -1,0 +1,4 @@
+{
+  "summary": "A joined participant could reconnect with read-only preview grants before their membership reached the server.",
+  "regressionTest": "specs/chess/custom-game-connection.feature"
+}

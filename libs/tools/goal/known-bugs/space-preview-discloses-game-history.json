@@ -1,0 +1,4 @@
+{
+  "summary": "An unjoined public space preview could receive the room's full game history. Presence-only connections must receive availability without domain events or write access.",
+  "regressionTest": "pkgs/room-root-harness/tests/presence-only-connection.test.ts"
+}

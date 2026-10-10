@@ -1,0 +1,4 @@
+{
+  "summary": "The Work offline switch was placed inside an ARIA command menu, violating its required child roles. Settings sections are groups containing ordinary navigation links and switches.",
+  "regressionTest": "specs/runtime/accessibility.feature"
+}

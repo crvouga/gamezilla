@@ -24,7 +24,7 @@ Feature: Multiplayer chess follows the account across other changes
       Given Alice renamed herself to "alice_atlas" during her multiplayer game with Bob
       When Bob opens multiplayer chess
       Then Bob sees his opponent's username is "alice_atlas"
-      And Bob keeps his same multiplayer game with Alice
+      And Bob keeps their same multiplayer game with Alice
 
   Rule: Spaces and friendships do not own the multiplayer game
     No counter-example: space and friendship changes never express a move, resigning multiplayer chess or account deletion.
@@ -33,9 +33,9 @@ Feature: Multiplayer chess follows the account across other changes
       Given Alice ended her space while playing multiplayer chess with Bob
       And Alice is hosting another space
       When Alice opens multiplayer chess
-      Then Alice keeps her same multiplayer game with Bob
+      Then Alice keeps their same multiplayer game with Bob
 
     Scenario: Removing a friend keeps the accepted game
       Given Alice removed Bob from her friends list during their multiplayer game
       When Bob opens multiplayer chess
-      Then Bob keeps his same multiplayer game with Alice
+      Then Bob keeps their same multiplayer game with Alice

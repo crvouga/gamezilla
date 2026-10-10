@@ -1,0 +1,4 @@
+{
+  "summary": "Bun SQL ignored the startup search_path option, allowing pooled queries to resolve to public instead of the required schema.",
+  "regressionTest": "pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts"
+}

@@ -1,4 +1,4 @@
 {
   "summary": "A permanent refusal after earlier domain writes committed those writes instead of rolling them back.",
-  "regressionTest": "specs/sync-engine/checked-notes.feature"
+  "regressionTest": "pkgs/sync-engine-harness/tests/checked-note-storage.contract.test.ts"
 }

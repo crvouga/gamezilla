@@ -1,0 +1,4 @@
+{
+  "summary": "A guest's retained room connection could submit commands and request game history after the host went offline. Dependent connections must wait for a connected host and resume from retained history when the host returns.",
+  "regressionTest": "pkgs/room-root-harness/tests/authority-connection.test.ts"
+}

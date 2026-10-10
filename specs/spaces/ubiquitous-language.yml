@@ -14,7 +14,8 @@ terms:
     definition: >-
       A live place one person hosts and others join to be together. Everyone
       in it sees who else is there and what happens in it as it happens. It is
-      open until its host ends it or leaves it.
+      open until its host ends it or leaves it. The host can use it without
+      a connection; other people are disconnected while its host is offline.
     forms: [spaces, space's]
     avoid: [session, game room, lobby room, party]
     model: [InSpace, SpaceEvent, Space]
@@ -33,9 +34,11 @@ terms:
     definition: >-
       Come into someone else's open space, from its space link or, for a
       friend's space, from the lobby. A person who joins is in the space.
+      Joining needs both people to have a connection; creating and using
+      one's own space never needs a connection.
     forms: [joins, joined, joining]
     avoid: [enter the space]
-    model: [join, PersonJoined, joined]
+    model: [join, PersonJoined, joined, joinOffered]
     published: true
 
   - term: leave
@@ -64,13 +67,13 @@ terms:
       return to it.
     forms: [open spaces]
     avoid: [live space, active space, running space]
-    model: [openSpaces, SpaceOpened, OpenSpace]
+    model: [_openSpaces, SpaceOpened, OpenSpace]
     published: true
 
   - term: lobby
     definition: >-
       Where a person finds spaces: it lists every open space they host or
-      have joined, and every open space a friend of theirs hosts or has
+      have joined or been added to, and every open space a friend of theirs hosts or has
       joined, each of which they can return to or join.
     forms: [lobby's, lobbies]
     avoid: [space list, dashboard]
@@ -84,15 +87,19 @@ terms:
       a space that has ended or does not exist.
     forms: [space links, space's link, the link]
     avoid: [invite link, invite code, room code]
+    model: [openSpaceLink, linkDestination]
     published: true
 
   - term: hosting limit
     definition: >-
       How many spaces a person may host at once: one for a guest or a free
       account, no limit for a Plus member. Reaching it is an invitation to
-      Plus, never an error.
+      Plus, never an error. When paid access ends, existing spaces stay open;
+      a new space can be created only when the person is below the free
+      hosting limit.
     forms: [hosting limits]
     avoid: [space limit, space quota]
+    model: [hostedSpaces]
     published: true
 
   # This context's own language
@@ -100,7 +107,7 @@ terms:
   - term: create a space
     definition: >-
       Start a new space. The person who creates it is its host and is in it
-      straight away, and it is open. It needs a connection.
+      straight away, and it is open, with or without a connection.
     forms: [creates a space, created a space, creates another space, creating a space]
     avoid: [start a space, make a space, open a space]
     model: [createSpace]
@@ -122,26 +129,49 @@ terms:
     forms: [steps out, stepped out, stepping out]
     model: [stepOut]
 
+  - term: remove a person
+    definition: >-
+      The host ends another person's current participation in their space.
+      The space stays open. Removal is not a ban: the person may choose
+      to join again through the public space link once both connections
+      are available. A host can remove a person without a connection;
+      the person learns the removal once both connections are back.
+    forms: [removes someone from the space, removed someone from the space, removed from the space]
+    model: [removePerson]
+
+  - term: add a person
+    definition: >-
+      The host gives a known person access to their space. The space appears
+      in that person's lobby, and the person explicitly chooses Join to
+      participate. Adding never joins the person automatically. The host
+      can add a known person without a connection; the person learns the
+      addition once both connections are available.
+    forms: [adds someone to the space, added someone to the space, added to the space]
+    model: [addPerson]
+
   - term: go back to the lobby
     definition: >-
       Go to the lobby from wherever a person is in Spaces. From a space they
       are in, that is stepping out; from a space that has ended, it is all
       there is left to do.
     forms: [goes back to the lobby, gone back to the lobby, went back to the lobby]
-    model: [goBackToLobby]
+    model: [goBackToLobby, stepOut]
 
   - term: drop out
     definition: >-
       Stop counting among the people in a space after being without a
-      connection for a while, without having left it. Once the connection
-      comes back, the person is there again, once.
+      connection for a while, or when its host goes offline, without having
+      left it. Once both connections come back, the person is there again,
+      once. The host keeps using their own space while offline.
     forms: [drops out, dropped out]
+    model: [DroppedOut]
 
   - term: presence
     definition: >-
       Who is in a space right now, which everyone in it sees live as the
       people there and how many they are. Someone who leaves, steps out or
-      drops out stops showing; nobody ever shows twice.
+      drops out stops showing; nobody ever shows twice. An offline host sees
+      only themselves; other people see nobody while the host is offline.
     avoid: [roster, member list]
     model: [presence, presenceOf, ViewingPresence, viewPresence, stopViewingPresence, _counting]
 
@@ -183,22 +213,18 @@ terms:
   - term: no longer allowed
     definition: >-
       Said of a space name given before the rules stopped allowing it. The
-      host keeps it, but everyone sees the space named after its host, as if
-      it had never been given a name.
+      host keeps it. Once a device learns the changed rules, it shows the
+      space named after its host, as if it had never been given a name.
+      An offline device keeps applying the naming rules it already knows.
     avoid: [banned, flagged, censored, moderated]
-    model: [notAllowed]
+    model: [_notAllowed]
 
   - term: invited to Plus
     definition: >-
       What a person sees on reaching their hosting limit: an offer of Plus so
       they can host more spaces, instead of an error.
     forms: [invited to get Plus, invitation to Plus]
-
-  - term: spaces need a connection
-    definition: >-
-      Spaces are live and shared, so creating or joining one without a
-      connection tells the person it needs one, and nothing happens later on
-      its own.
+    model: [invitedToPlus]
 
   - term: what happens in a space
     definition: >-
@@ -222,6 +248,10 @@ terms:
     forms: [well-known passwords, default password, publicly known password]
 
   # Borrowed language
+  - term: connection
+    from: kernel
+    model: [loseConnection, connectionReturns]
+
   - term: account deletion
     from: profile
   - term: recently proven account
@@ -239,10 +269,15 @@ terms:
     from: billing
   - term: free account
     from: billing
+  - term: paid access
+    from: billing
+    model: [PaidAccessStarted, PaidAccessEnded]
   - term: friend
     from: friends
     model: [friend]
   - term: username
+    from: profile
+  - term: profile
     from: profile
   - term: rename themselves
     from: profile

@@ -4,7 +4,10 @@
  * server, so it answers the same at every fidelity — including a localhost
  * stack, where each actor's own database lives inside their browser.
  */
-import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
+import {
+  LAST_LOCAL_ACCOUNT_ID_KEY,
+  SESSION_TOKEN_KEY,
+} from '@libs/auth-shared/auth-storage-keys';
 import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
@@ -67,6 +70,16 @@ export function actorLocalSql(
   const actor = s.actors.get(actorId);
   if (actor !== undefined) return actor.localSql();
   return s.harness.clientSql(actorId)?.sqlClient ?? null;
+}
+
+/** The identity the device retains for local work, including a guest. */
+export async function deviceMemberIdOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const env = await s.harness.client(actorId);
+  const id = env.secureStorage.getValue(LAST_LOCAL_ACCOUNT_ID_KEY);
+  return typeof id === 'string' ? id : null;
 }
 
 /** The sign-in methods (providers) the server links to a product account. */

@@ -53,18 +53,24 @@ export const createSpaceMutation = defineMutation({
     `);
     await tx.run(sql`
       INSERT INTO spaces_users (
-        id, space_id, user_id, created_at, created_by_account_id, deleted_at
+        id, space_id, user_id, created_at, created_by_account_id, joined, participation_revision, deleted_at
       )
       VALUES (
         ${spaceUserEntityId(spaceId, actorMemberId)}, ${spaceId},
-        ${actorMemberId}, ${now}, ${actorAccountId}, ${null}
+        ${actorMemberId}, ${now}, ${actorAccountId}, ${true}, ${0}, ${null}
       )
       ON CONFLICT (id) DO UPDATE SET
         deleted_at = NULL,
+        joined = ${true},
         created_at = excluded.created_at,
         created_by_account_id = excluded.created_by_account_id
     `);
-    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
+    await changeSpaceRoomMembership(
+      { tx, env },
+      spaceId,
+      'joined',
+      actorMemberId
+    );
     await openSession(tx, env, spaceId, true);
   },
 });

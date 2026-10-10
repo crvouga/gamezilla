@@ -3,6 +3,18 @@ import sql from '@pkgs/sql-root-shared/sql';
 
 export type MutationStatus = 'pending' | 'confirmed' | 'rejected';
 
+/** Match a choice's argument fields, such as the person or document it concerns. */
+export type MutationFeedbackScope = Readonly<Record<string, string>>;
+
+/** Durable feedback for the latest accepted local choice of one kind. */
+export type MutationFeedback = {
+  readonly mutationId: string;
+  readonly status: MutationStatus;
+  readonly rejectionId: string | null;
+  readonly code: string | null;
+  readonly message: string | null;
+};
+
 /**
  * Derive confirmation status for a mutation id.
  * - rejected: sync_engine_write_rejections row exists for this mutation_id

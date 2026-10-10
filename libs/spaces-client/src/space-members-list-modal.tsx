@@ -43,7 +43,13 @@ export function SpaceMembersListModal(
       for (const client of participant.clients) {
         out.push({
           client,
-          title: <UserUsername profileId={client.id} withAt={false} />,
+          title: (
+            <UserUsername
+              profileId={client.id}
+              withAt={false}
+              dataSet={{ testid: Handles.spaceMemberName(client.id) }}
+            />
+          ),
           isYou: participant.isYou,
           isThisTab: client.clientId === selfClientId(),
           badges: (

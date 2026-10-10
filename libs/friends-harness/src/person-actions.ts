@@ -5,9 +5,11 @@
  */
 
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { backToTabs } from '@libs/harness/shell-actions';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared/user-search-types';
+import { showKnownPerson } from './known-person-view';
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
@@ -31,6 +33,7 @@ async function expectPersonScreen(
 export const openPersonFromSearch = scenarioAction({
   name: 'openPersonFromSearch',
   act: async (s, actorId: string, username: string) => {
+    await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
     const row = Handles.searchUserResultOpen(username);
@@ -98,9 +101,19 @@ export const sendRequestFromProfile = scenarioAction({
       (await ui.get(Handles.friendUserUsername).isVisible()) &&
       (await ui.get(Handles.friendUserUsername).text()) === `@${username}`;
     if (!onProfile) {
-      await Promise.resolve(openPersonFromSearch.act(s, actorId, username));
+      if (!(await showKnownPerson(s, actorId, username)))
+        await Promise.resolve(openPersonFromSearch.act(s, actorId, username));
     }
     await tapPill(s, actorId, Handles.friendAdd(username));
+  },
+});
+
+export const openKnownPersonProfile = scenarioAction({
+  name: 'openKnownPersonProfile',
+  act: async (s, actorId: string, username: string) => {
+    if (!(await showKnownPerson(s, actorId, username)))
+      throw new Error(`${actorId} has no known profile for ${username}`);
+    await expectPersonScreen(s, actorId, username);
   },
 });
 
@@ -180,6 +193,7 @@ export const keepFriend = scenarioAction({
 
 export const PERSON_HARNESS_ACTIONS = [
   openPersonFromSearch,
+  openKnownPersonProfile,
   viewProfileFromRequest,
   openAcceptedNotification,
   sendRequestFromProfile,

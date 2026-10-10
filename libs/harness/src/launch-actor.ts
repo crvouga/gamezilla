@@ -45,6 +45,7 @@ async function createSolidDomClientDriver(args: {
   readonly runFor: (durationMs: number) => Promise<void>;
   readonly history: MemoryHistory;
   readonly viewport: { width: number; height: number };
+  readonly shortcutsActive: () => boolean;
 }): Promise<Driver> {
   const live = await args.harness.spawnClient(args.id);
   const pump = createHarnessWaitPump({
@@ -58,12 +59,13 @@ async function createSolidDomClientDriver(args: {
       mount: async () => {
         const app = args.session.mountActor(
           args.id,
-          solidActorRoot(
+          solidActorRoot({
             live,
-            args.harness.browser(args.id),
-            args.history,
-            args.viewport
-          )
+            browser: args.harness.browser(args.id),
+            history: args.history,
+            viewport: args.viewport,
+            shortcutsActive: args.shortcutsActive,
+          })
         );
         await args.runFor(0);
         return app;
@@ -150,7 +152,8 @@ async function launchWebview(
     popupOptions: { dataStore },
     timers: wallTimers,
   });
-  const localSql = () => webviewLocalSql(view);
+  const pageSql = webviewLocalSql(view);
+  const localSql = () => pageSql;
   const closeResources = () => Promise.resolve();
   const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
   const currentPath = async () =>
@@ -215,11 +218,9 @@ async function launchSolid(
     runFor,
     history,
     viewport,
+    shortcutsActive: () => args.ui.focusedActor() === args.id,
   });
-  const openLink = async (path: string) => {
-    history.set({ value: path });
-    await runFor(0);
-  };
+  const openLink = (path: string) => navigateActor(history, runFor, path);
   const currentPath = () => Promise.resolve(history.get());
   await raw.launch();
   return {
@@ -250,6 +251,15 @@ export async function launchActor(args: LaunchActorArgs): Promise<ActorEntry> {
       ...device,
     },
   };
+}
+
+async function navigateActor(
+  history: MemoryHistory,
+  runFor: (durationMs: number) => Promise<void>,
+  path: string
+): Promise<void> {
+  history.set({ value: path });
+  await runFor(0);
 }
 
 export async function closeActorEntry(entry: ActorEntry): Promise<void> {

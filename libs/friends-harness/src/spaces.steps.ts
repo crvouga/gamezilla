@@ -24,6 +24,7 @@ import {
 } from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
+  closeSpaceScreen,
   createSpace,
   endSpace,
   joinFromLobby,
@@ -44,6 +45,7 @@ import {
   startAllowingSpaceName,
   stopAllowingSpaceName,
 } from '@libs/spaces-harness/space-name-rule-actions';
+import { returnToRetainedSpace } from '@libs/spaces-harness/space-retained-actions';
 import { spacePresenceDiagnostics } from '@libs/spaces-harness/space-screen-read';
 import {
   activeSpaceVisible,
@@ -51,8 +53,9 @@ import {
   hostedSpaceCount,
   hostingLimitShown,
   joinOffered,
-  lobbyCardText,
   lobbyCardVisible,
+  lobbySpaceCardText,
+  lobbySpaceCardVisible,
   readSpaceLink,
   readSpacePresenceCount,
   renameOffered,
@@ -70,7 +73,20 @@ const PRESENCE_SETTLES_MS = 20 * SECOND_MS;
 /** A link to a space that was never created. */
 const NO_SUCH_SPACE_LINK = '/space/no-such-space';
 const SPACE_LINK = 'spaceLink';
+
+export function rememberedSpaceLink(w: HarnessWorld): string {
+  return recall(w, SPACE_LINK) as string;
+}
 const SPACE_HOST = 'spaceHost';
+const hostSpaceLinkKey = (host: Actor) => `hostSpaceLink:${host}`;
+
+async function spaceLinkForHost(w: HarnessWorld, host: Actor): Promise<string> {
+  const remembered = w.memo.get(hostSpaceLinkKey(host));
+  if (typeof remembered === 'string') return remembered;
+  const link = await w.s.read(readSpaceLink, host);
+  if (link === null) throw new Error(`${host} has no shared space link`);
+  return link;
+}
 
 /**
  * Into `host`'s live space from `actor`'s lobby card, once it lists it.
@@ -115,6 +131,7 @@ async function shareLink(w: HarnessWorld, host: Actor): Promise<string> {
   const link = await w.s.read(readSpaceLink, host);
   if (link === null) throw new Error(`${host} is not in a space`);
   remember(w, SPACE_HOST, host);
+  remember(w, hostSpaceLinkKey(host), link);
   return remember(w, SPACE_LINK, link);
 }
 
@@ -125,6 +142,8 @@ async function untilPresence(
   count: number,
   maxMs: number
 ): Promise<void> {
+  if (!(await w.s.read(activeSpaceVisible, actor)))
+    await w.s.apply(openSpaceLink, actor, rememberedSpaceLink(w));
   await w.s.apply(openSpaceMembers, actor);
   try {
     await w.s.until((surf) => readSpacePresenceCount(surf, actor), {
@@ -157,6 +176,13 @@ Given('{actor} is hosting a space', async (w, actor: Actor) => {
   await hostSpace(w, actor);
 });
 
+Given(
+  '{actor} is hosting {int} spaces',
+  async (w, actor: Actor, count: number) => {
+    for (let index = 0; index < count; index++) await hostSpace(w, actor);
+  }
+);
+
 When('{actor} creates a space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
   await w.s.apply(startSpace, actor);
@@ -173,7 +199,7 @@ Given('{actor} has hosted a space and ended it', async (w, actor: Actor) => {
 });
 
 Then(
-  '{actor} is invited to get Plus to host more spaces',
+  '{actor} is told their hosting limit is reached and invited to get Plus',
   async (w, actor: Actor) => {
     expect(await w.s.read(hostingLimitShown, actor)).toBe(true);
   }
@@ -190,7 +216,7 @@ Then('{actor} hosts {int} space(s)', async (w, actor: Actor, count: number) => {
 });
 
 Then(
-  '{actor} is told spaces need a connection within {int} seconds',
+  '{actor} is told joining needs a connection within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
     await w.s.until((surf) => spacesNeedConnectionShown(surf, actor), {
       maxMs: seconds * SECOND_MS,
@@ -202,20 +228,27 @@ When('{actor} goes back to the lobby', async (w, actor: Actor) => {
   await w.s.apply(returnToLobby, actor);
 });
 
+When('{actor} steps out of the space', async (w, actor: Actor) => {
+  await w.s.apply(closeSpaceScreen, actor);
+});
+
 Given('{actor} has gone back to the lobby', async (w, actor: Actor) => {
   await w.s.apply(returnToLobby, actor);
 });
 
 When('{actor} returns to their space', async (w, actor: Actor) => {
-  await w.s.apply(returnToOwnSpace, actor);
+  const link = w.memo.get(hostSpaceLinkKey(actor));
+  if (typeof link === 'string')
+    await w.s.apply(returnToRetainedSpace, actor, link);
+  else await w.s.apply(returnToOwnSpace, actor);
 });
 
 Then(
   "{actor}'s lobby lists {actor}'s space",
   async (w, actor: Actor, host: Actor) => {
-    // Look at the lobby; the card arrives with the friend's space.
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+    await w.s.until((surf) => lobbySpaceCardVisible(surf, actor, link), {
       maxMs: PRESENCE_SETTLES_MS,
     });
   }
@@ -224,12 +257,13 @@ Then(
 Then(
   "{actor}'s lobby stops listing {actor}'s space within {int} seconds",
   async (w, actor: Actor, host: Actor, seconds: number) => {
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+    await w.s.until((surf) => lobbySpaceCardVisible(surf, actor, link), {
       pred: (listed) => !listed,
       maxMs: seconds * SECOND_MS,
     });
-    expect(await w.s.read(lobbyCardVisible, actor, host)).toBe(false);
+    expect(await w.s.read(lobbySpaceCardVisible, actor, link)).toBe(false);
   }
 );
 
@@ -245,6 +279,10 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ joining
 
+Given("{actor} has opened {actor}'s space link", async (w, actor: Actor) => {
+  await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
+});
+
 /** `actor` opens the shared space link and joins when it offers to. */
 export async function joinSpaceFromLink(
   w: HarnessWorld,
@@ -258,8 +296,16 @@ When('{actor} joins the space from the link', async (w, actor: Actor) => {
 });
 
 When('{actor} opens the space link again', async (w, actor: Actor) => {
-  await w.s.apply(reopenSpaceLink, actor, recall(w, SPACE_LINK) as string);
+  await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
 });
+
+Given(
+  '{actor} has opened a link to a space that does not exist',
+  async (w, actor: Actor) => {
+    remember(w, SPACE_LINK, NO_SUCH_SPACE_LINK);
+    await w.s.apply(openSpaceLink, actor, NO_SUCH_SPACE_LINK);
+  }
+);
 
 When(
   "{actor} joins {actor}'s space from the lobby",
@@ -317,9 +363,8 @@ Given('{actor} has left the space', async (w, actor: Actor) => {
 Given(
   '{actor} has lost the connection long enough to drop out of the space',
   async (w, actor: Actor) => {
-    const host = recall(w, SPACE_HOST) as Actor;
     await cutConnection(w, actor);
-    await untilPresence(w, host, 1, PRESENCE_SETTLES_MS);
+    await w.s.apply(letTimePass, 2 * SECOND_MS);
   }
 );
 
@@ -346,7 +391,9 @@ Then('{actor} is in the space', async (w, actor: Actor) => {
 });
 
 Then('{actor} is not in a space', async (w, actor: Actor) => {
-  expect(await w.s.read(activeSpaceVisible, actor)).toBe(false);
+  await w.s.until((surf) => activeSpaceVisible(surf, actor), {
+    pred: (visible) => !visible,
+  });
 });
 
 Then(
@@ -400,8 +447,9 @@ Then(
     w,
     ...[actor, host, title, seconds]: [Actor, Actor, string, number]
   ) => {
+    const link = await spaceLinkForHost(w, host);
     await w.s.apply(openSpacesTab, actor);
-    await w.s.until((surf) => lobbyCardText(surf, actor, host), {
+    await w.s.until((surf) => lobbySpaceCardText(surf, actor, link), {
       pred: (text) => text?.includes(title) === true,
       maxMs: seconds * SECOND_MS,
     });
@@ -493,5 +541,12 @@ Then('{actor} cannot rename the space', async (w, actor: Actor) => {
 });
 
 Then('{actor} is offered to join', async (w, actor: Actor) => {
-  await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
+  try {
+    await w.s.until((s) => joinOffered(s, actor), {
+      maxMs: PRESENCE_SETTLES_MS,
+    });
+  } catch (error) {
+    const detail = await w.s.read(spacePresenceDiagnostics);
+    throw new Error(`${String(error)}; ${detail}`, { cause: error });
+  }
 });

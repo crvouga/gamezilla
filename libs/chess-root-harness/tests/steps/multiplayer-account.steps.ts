@@ -113,21 +113,14 @@ Then(
   }
 );
 Then(
-  '{actor} keeps his same multiplayer game with {actor}',
+  '{actor} keeps their same multiplayer game with {actor}',
   async (w, actor: Actor, opponent: Actor) => {
     expect((await sameBoards(w, actor, opponent)).id).toBe(
       (w.memo.get('multiplayer:game') as MultiplayerGame).id
     );
   }
 );
-Then(
-  '{actor} keeps her same multiplayer game with {actor}',
-  async (w, actor: Actor, opponent: Actor) => {
-    expect((await sameBoards(w, actor, opponent)).id).toBe(
-      (w.memo.get('multiplayer:game') as MultiplayerGame).id
-    );
-  }
-);
+
 Given(
   '{actor} ended her space while playing multiplayer chess with {actor}',
   async (w, actor: Actor, opponent: Actor) => {

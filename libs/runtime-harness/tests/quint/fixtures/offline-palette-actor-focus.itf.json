@@ -1,0 +1,1290 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/runtime/app-platform.qnt",
+    "status": "ok"
+  },
+  "vars": [
+    "signedIn",
+    "workingOffline",
+    "_searchedFor",
+    "opened",
+    "lookup",
+    "_capacity",
+    "hosting",
+    "place",
+    "offline",
+    "_lastTab",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": []
+      },
+      "_searchedFor": {
+        "#map": []
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "part": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "tab": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": []
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": [
+          [
+            "bob",
+            {
+              "tag": "Denied",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "lookUp",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Search",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": []
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": [
+          [
+            "bob",
+            {
+              "tag": "Denied",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "open",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Search",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": [
+          [
+            "bob",
+            {
+              "tag": "Denied",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "openSettings",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "notifications"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Search",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": [
+          [
+            "bob",
+            {
+              "tag": "Denied",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "workOffline",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Search",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": ["bob"]
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "host",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "InSpace",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": ["bob"]
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "openSettings",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "notifications"
+        }
+      },
+      "offline": {
+        "#set": []
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "InSpace",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": ["bob"]
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "_cutOffOnTheWay",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": ["alice"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "InSpace",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": ["bob"]
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "cutOff",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "InSpace",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "end",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "notifications"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Ended",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "workOffline",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Ended",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice", "carol"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "leaveSettings",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Ended",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice", "carol"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "openSettings",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "notifications"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Ended",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice", "carol"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 13
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "openTab",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice", "carol"]
+      }
+    },
+    {
+      "#meta": {
+        "index": 14
+      },
+      "_capacity": {
+        "#bigint": "1"
+      },
+      "_lastTab": {
+        "#map": [["alice", "spaces"], ["carol", "spaces"]]
+      },
+      "_searchedFor": {
+        "#map": [["bob", "bob"]]
+      },
+      "hosting": {
+        "#set": []
+      },
+      "lookup": {
+        "#map": []
+      },
+      "mbt::actionTaken": "reopen",
+      "mbt::nondetPicks": {
+        "other": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "part": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "tab": {
+          "tag": "Some",
+          "value": "notifications"
+        }
+      },
+      "offline": {
+        "#set": ["alice", "bob"]
+      },
+      "opened": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "place": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "OnTab",
+              "value": "spaces"
+            }
+          ],
+          [
+            "carol",
+            {
+              "tag": "Settings",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      },
+      "signedIn": {
+        "#set": ["alice"]
+      },
+      "workingOffline": {
+        "#set": ["alice", "carol"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A joined account opening its space on another device saw the offline-host notice but had no Leave control, so leaving depended on the host returning.",
+  "regressionTest": "specs/spaces/space-leave-without-host.feature"
+}

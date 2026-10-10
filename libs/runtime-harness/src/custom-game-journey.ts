@@ -95,23 +95,6 @@ export async function expectCustomGameResigned(ui: Driver): Promise<void> {
   await expectVisible(ui, 'chess-custom-review-move-2');
 }
 
-export async function expectCustomGameOffline(ui: Driver): Promise<void> {
-  await ui
-    .get('chess-custom-error')
-    .expect.text('Reconnect before changing or playing the game.', {
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
-}
-
-export async function expectCustomGameUnstarted(ui: Driver): Promise<void> {
-  await ui
-    .get('chess-custom-status')
-    .expect.text('Ready to start.', { exact: false });
-  await expectVisible(ui, 'chess-custom-start');
-  await ui.get('chess-custom-resign').expect.hidden();
-  await ui.get('chess-custom-review-move-1').expect.hidden();
-}
-
 const SCREEN_POLLS = 10;
 const SCREEN_SETTLE_MS = JOURNEY_WAIT_MS / SCREEN_POLLS;
 

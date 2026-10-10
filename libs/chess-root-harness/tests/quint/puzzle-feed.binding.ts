@@ -49,6 +49,7 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(createSpace, 'alice');
       await w.s.apply(openPuzzleFromSpace, 'alice');
       await w.s.apply(returnToOwnSpace, 'charlie');
+      await w.s.apply(openPuzzleFromSpace, 'charlie');
     },
     startEditingFeed: async (w) => {
       await w.s.apply(focusActor, 'alice');
@@ -61,6 +62,7 @@ bindQuintModel<QuintHarnessWorld>({
     reopenApp: async (w) => {
       await w.s.apply(restartApp, 'alice');
       await w.s.apply(returnToOwnSpace, 'alice');
+      await w.s.apply(openPuzzleFromSpace, 'alice');
     },
     _loseConnection: (w, picks) =>
       w.s.apply(partition, String(picks['device'])),

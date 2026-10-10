@@ -1,4 +1,5 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client/use-current-user';
+import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { resolveSpaceHostProfileId } from '@libs/spaces-shared/resolve-space-host-profile-id';
 import { type Accessor, createMemo } from 'solid-js';
 import { SpaceField, useSpaceColumn } from './use-space-column';
@@ -19,7 +20,7 @@ export function useSpaceHostMembershipDisplay(
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   const myDeviceId = useMyDeviceId();
   const myId = useMyId();
-  return createMemo(() => {
+  const host = createMemo(() => {
     const deviceColumn = hostId();
     let profileId = resolveSpaceHostProfileId(hostMemberId(), hostAccountId());
     if (
@@ -39,4 +40,9 @@ export function useSpaceHostMembershipDisplay(
       deviceLabel: null,
     };
   });
+  useSyncedProfiles(() => {
+    const id = host()?.profileId;
+    return id === undefined ? [] : [id];
+  });
+  return host;
 }

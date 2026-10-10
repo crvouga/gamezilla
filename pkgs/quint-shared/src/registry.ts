@@ -77,6 +77,12 @@ export type QuintBinding<W> = {
   readonly inductiveInvariant?: string;
   /** Opt into independent solver phases for the same induction obligations. */
   readonly separateInduction?: boolean;
+  /** Share solver setup while retaining every alternative and its guards. */
+  readonly inductionCaseGroupSize?: number;
+  /** Share a bounded solver phase across this many safety targets, retaining all. */
+  readonly boundedInvariantGroupSize?: number;
+  /** Concrete inference still type-checks models without polymorphic operators. */
+  readonly inferPolymorphicTypes?: boolean;
   /**
    * The models check's deadline for this model, in milliseconds. Default
    * {@link DEFAULT_VERIFY_TIMEOUT_MS}. Raise it only for a proof whose cost
@@ -86,6 +92,8 @@ export type QuintBinding<W> = {
   readonly verifyTimeoutMs?: number;
   /** Opt into Apalache's array encoding without changing proof obligations. */
   readonly encoding?: 'fun-arrays';
+  /** Check each enabled transition separately, or their combined successor. */
+  readonly invariantMode?: 'before' | 'after';
   /**
    * How far the world's clock moves between re-checks while it settles.
    * Default: the world's. A model whose state is a count of seconds keeps it

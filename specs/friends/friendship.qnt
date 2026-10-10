@@ -17,9 +17,10 @@
 // stranger (they can ask), a friend, a friend request they sent, one they
 // received, someone they blocked, or hidden (that person blocked them).
 //
-// Asking, canceling, accepting, declining, removing, blocking and unblocking
-// all need a connection. A person without a connection keeps the last
-// relationships they knew; returning shows every change made while away.
+// This account follows choices made while connected and what other people
+// learn after time away. A separate account follows asking from a profile
+// already on the device while offline, keeping that choice, and sharing or
+// refusing it when the connection returns.
 module friendship {
   type Person = str
 
@@ -300,9 +301,9 @@ module friendship {
   /// A friend request declined today is not still waiting.
   val invDeclinedIsNotWaiting = declined.forall(d => not(friendRequests.contains(d)))
 
-  /// With no connection, a person asks, answers, removes and blocks no
-  /// further time. Their last known relationships remain available.
-  val invOfflineDoesNoMore = PEOPLE.forall(p =>
+  // This account schedules shared choices only while connected; choices
+  // kept on an offline device are followed separately.
+  val _sharedChoicesOnlyWhileConnected = PEOPLE.forall(p =>
     _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
   )
 
@@ -335,7 +336,7 @@ module friendship {
     invOfflineKeepsLastKnown,
     invBlockEndsTies,
     invDeclinedIsNotWaiting,
-    invOfflineDoesNoMore,
+    _sharedChoicesOnlyWhileConnected,
   }
 
 }

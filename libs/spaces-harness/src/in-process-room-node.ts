@@ -41,6 +41,10 @@ type TopicEntry = {
   readonly storage: InMemoryRoomStorage;
   readonly disposeSchedule: () => void;
   readonly ready: Promise<void>;
+  readonly connections: Map<
+    string,
+    { readonly identity: string; readonly close: () => void }
+  >;
 };
 
 export type RoomServerApp = HarnessRoomNode & {
@@ -55,7 +59,7 @@ export type RoomServerApp = HarnessRoomNode & {
 
 function withReadyGate(
   inner: ClientTransport,
-  ready: () => Promise<void>
+  ready: (cancelled: () => boolean) => Promise<void>
 ): ClientTransport {
   let destroyed = false;
   return {
@@ -64,7 +68,7 @@ function withReadyGate(
     },
     async connect() {
       try {
-        await ready();
+        await ready(() => destroyed);
       } catch (cause) {
         if (!destroyed) throw cause;
       }
@@ -119,6 +123,7 @@ function createTopicEntry(
     storage,
     disposeSchedule: schedule.dispose,
     ready: server.hydrateFromStorage(),
+    connections: new Map(),
   };
 }
 
@@ -151,14 +156,20 @@ function buildLoopbackTransport(
           actor.id,
           actor.clientId
         )) {
+          entry.connections.get(stale)?.close();
           entry.server.unregisterConnection(stale);
         }
         entry.server.registerConnection(id, send, actor, {
           ...options,
           grants,
         });
+        entry.connections.set(id, {
+          identity: actor.id,
+          close: () => transport.closeFromServer(),
+        });
       },
       unregisterConnection(id) {
+        entry.connections.delete(id);
         entry.server.unregisterConnection(id);
       },
       handleClientMessage(connectionId, identity, raw) {
@@ -169,12 +180,14 @@ function buildLoopbackTransport(
     identity: args.identity,
     clientId: args.clientId,
   });
-  return withReadyGate(transport, async () => {
+  return withReadyGate(transport, async (cancelled) => {
     await entry.ready;
+    if (cancelled()) return;
     // Every open asks the client for its session token first, as the web
     // transport's URL factory does (a host whose space was just created waits
     // there for it to reach the server before the socket opens).
     await args.getSessionToken();
+    if (cancelled()) return;
     grants = await gateway.roomGrants({
       topic: entry.server.topic,
       actor: actorOf(args),
@@ -183,7 +196,11 @@ function buildLoopbackTransport(
       args.module === 'space'
         ? PERMISSION.spacesLeave
         : PERMISSION.chessMultiplayerWatch;
-    if (!grants.includes(admissionKey)) throw new Error('not in the space');
+    if (
+      !grants.includes(admissionKey) &&
+      !(args.module === 'space' && grants.includes(PERMISSION.spacesJoin))
+    )
+      throw new Error('not in the space');
   });
 }
 
@@ -261,6 +278,10 @@ export function createInProcessRoomNode(
         const entry = getOrCreate(topic);
         await entry.ready;
         entry.server.disconnectActor(identity);
+        for (const connection of [...entry.connections.values()]) {
+          if (identity === null || connection.identity === identity)
+            connection.close();
+        }
       },
     },
     createTransport: (args) => {

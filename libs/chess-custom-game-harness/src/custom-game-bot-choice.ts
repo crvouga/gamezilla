@@ -14,17 +14,14 @@ export function customGameBotRoomNode(
 ): NonNullable<HarnessComposition['roomNode']> {
   return (env, gateway) => {
     const choice = { next: null as number | null };
-    const node = createNode(
-      {
-        ...env,
-        random: () => {
-          const next = choice.next;
-          choice.next = null;
-          return next ?? env.random();
-        },
-      },
-      gateway
-    );
+    const random = (): number => {
+      const next = choice.next;
+      choice.next = null;
+      return next ?? env.random();
+    };
+    const node = Object.assign(createNode({ ...env, random }, gateway), {
+      clientRandom: random,
+    });
     choices.set(node, choice);
     return node;
   };

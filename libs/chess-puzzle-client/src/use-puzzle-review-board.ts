@@ -12,14 +12,6 @@ import {
   PUZZLE_FIRST_SOLVE_IDX,
   resolvePuzzleNavTarget,
 } from '@libs/chess-puzzle-shared/puzzle-nav';
-import {
-  ChessMainMenuScreenAttr,
-  SeekChessPuzzleReview,
-} from '@libs/chess-root-shared/chess-main-menu';
-import {
-  useSpaceRoomDispatch,
-  useSpaceRoomSelector,
-} from '@libs/spaces-client/use-space-room-selector';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
@@ -38,14 +30,16 @@ export type PuzzleReviewBoardModel = {
   readonly onNavigate: (intent: PuzzleNavIntent) => void;
 };
 
+export type PuzzleReviewCursor = {
+  readonly solveIdx: Accessor<number>;
+  readonly seek: (index: number) => void;
+};
+
 export function usePuzzleReviewBoard(
   fen: string,
-  moves: string
+  moves: string,
+  cursor: PuzzleReviewCursor
 ): PuzzleReviewBoardModel {
-  const dispatch = useSpaceRoomDispatch();
-  const roomSolveIdx = useSpaceRoomSelector(
-    ChessMainMenuScreenAttr.selectedReviewSolveIdx.from
-  );
   const setup = createMemo(() => setupPuzzleStart(fen, moves));
   const tokensLength = createMemo(() => puzzleTokensLength(moves));
   // The board snaps unless the seek that produced this position was one ply.
@@ -53,12 +47,12 @@ export function usePuzzleReviewBoard(
 
   createEffect(() => {
     if (tokensLength() <= 0) return;
-    if (roomSolveIdx() !== 0) return;
-    dispatch(SeekChessPuzzleReview({ solveIdx: tokensLength() }));
+    if (cursor.solveIdx() !== 0) return;
+    cursor.seek(tokensLength());
   });
 
   const solveIdx = createMemo(() =>
-    roomSolveIdx() > 0 ? roomSolveIdx() : tokensLength()
+    cursor.solveIdx() > 0 ? cursor.solveIdx() : tokensLength()
   );
 
   const plies = createMemo(() =>
@@ -90,7 +84,7 @@ export function usePuzzleReviewBoard(
     const current = solveIdx();
     if (targetSolveIdx === current) return;
     setAnimated(isPuzzleSeekAnimated(current, targetSolveIdx));
-    dispatch(SeekChessPuzzleReview({ solveIdx: targetSolveIdx }));
+    cursor.seek(targetSolveIdx);
   };
 
   const onNavigate = (intent: PuzzleNavIntent): void => {

@@ -41,7 +41,7 @@ export async function readEmqxWssUrlFromLocalDb(
  * colon topics (Aedes, MQTT 3.1.1). `wss:` is AWS IoT: MQTT 5, and colon
  * topics are mapped to slash topics only on that path.
  */
-export function createClientPubSub(args: {
+export type ClientPubSubArgs = {
   readonly url: string;
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
@@ -50,7 +50,9 @@ export function createClientPubSub(args: {
   readonly timers: Timers;
   readonly random: Random;
   readonly logger: Logger;
-}): PubSub {
+};
+
+export function createClientPubSub(args: ClientPubSubArgs): PubSub {
   const deviceId = args.auth.getDeviceId() ?? 'device';
   const loopback = args.url.startsWith('ws:');
   const createPubSub = loopback ? createAedesPubSub : createEmqxPubSub;

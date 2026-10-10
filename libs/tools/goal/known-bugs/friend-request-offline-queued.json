@@ -1,4 +1,0 @@
-{
-  "summary": "A friend request sent offline was quietly queued and delivered later without the sender knowing. Fixed: it says friend requests need a connection and sends nothing.",
-  "regressionTest": "specs/friends/social-needs-connection.feature"
-}

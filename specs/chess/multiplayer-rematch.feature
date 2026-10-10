@@ -74,7 +74,7 @@ Feature: A multiplayer rematch after the game
       Given Bob has offered Alice a multiplayer rematch
       When Bob declines the multiplayer rematch
       Then Bob is told only Alice may answer his multiplayer rematch offer
-      And Alice is still offered a multiplayer rematch
+      And Alice is offered a multiplayer rematch
 
     Scenario: Finding a new opponent ends a waiting multiplayer rematch offer
       Given Bob has offered Alice a multiplayer rematch

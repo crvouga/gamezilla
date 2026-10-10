@@ -1,3 +1,4 @@
+import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Kv } from '@pkgs/kv-root-shared/interface';
 import { keyValueRoomClientKeywords } from '@pkgs/room-root-client/keys';
@@ -15,7 +16,7 @@ import type {
 } from '@pkgs/room-root-shared/types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import type { CreateRoomTransport } from './room-transport-factory';
-import { WebSocketRoomTransportFactory } from './room-transport-factory';
+import { startSpaceHostSchedules } from './space-host-schedules';
 import type { SpaceRoomModule } from './space-module-context';
 
 export type CreateSpaceRoomParams = {
@@ -36,6 +37,7 @@ export type CreateSpaceRoomParams = {
   kv: Kv;
   /** Member actor id (`accountId ?? deviceId`); space DO auth + local room handle. */
   myId: string;
+  hostsSpace: boolean;
   /** Install UUID — required with bearer JWT for `/room` device binding. */
   installId: string;
   /** Per-tab client id for the live roster. */
@@ -46,8 +48,8 @@ export type CreateSpaceRoomParams = {
    * refresh a rotated JWT before the socket upgrade.
    */
   getSessionToken: () => string | null | Promise<string | null>;
-  /** Defaults to WebSocket when omitted (production). */
-  createTransport?: CreateRoomTransport;
+  /** Injected by the client composition, including its offline boundary. */
+  createTransport: CreateRoomTransport;
 };
 
 export type CreateSpaceRoomResult = {
@@ -81,11 +83,7 @@ export class SpaceRoomFactory {
       createTransport,
     } = params;
     const topic = `space:${spaceId}`;
-    const wsFactory = new WebSocketRoomTransportFactory(
-      this.timers,
-      this.random
-    );
-    const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
+    const transport = createTransport({
       topic,
       module: module.name,
       apiUrl,
@@ -101,17 +99,37 @@ export class SpaceRoomFactory {
 
     // RoomClient.open is offline-first: hydrate + attach, connect in background.
     // Connect failures do not reject — the room client stays usable locally.
+    let stopSchedules = (): void => {};
     const room = await RoomClient.open({
+      onDestroy: () => stopSchedules(),
       topic,
-      module,
+      module: {
+        ...module,
+        handle: (state, command, identity) =>
+          module.handle(
+            params.hostsSpace
+              ? {
+                  ...state,
+                  ...SpaceMembersRoomAttr.seats({
+                    ...SpaceMembersRoomAttr.seats.from(state),
+                    [myId]: {
+                      joinedAt: new Date(this.clock.now()).toISOString(),
+                    },
+                  }),
+                }
+              : state,
+            command,
+            identity
+          ),
+      },
       storage: clientStorage,
       transport,
       identity: myId,
       clock: this.clock,
       timers: this.timers,
       createId: this.createId,
-      // Space schedules run on the authoritative room. Optimism recognizes
-      // their effects but never runs a bot or decides a timeout on a device.
+      // Game definitions separately recover host schedules from local state.
+      // Server effects remain recognized during optimistic command replay.
       effectHandlers: [
         {
           apply: (effect) =>
@@ -120,6 +138,13 @@ export class SpaceRoomFactory {
       ],
     });
 
+    if (params.hostsSpace)
+      stopSchedules = startSpaceHostSchedules(room, module, {
+        clock: this.clock,
+        timers: this.timers,
+        createId: this.createId,
+        topic,
+      });
     return { room, transport };
   }
 }

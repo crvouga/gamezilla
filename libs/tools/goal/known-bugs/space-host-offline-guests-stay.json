@@ -1,0 +1,4 @@
+{
+  "summary": "Guests kept using a shared space while its host was offline; the host lost their own local presence instead.",
+  "regressionTest": "specs/spaces/space-host-leaves.feature"
+}

@@ -178,7 +178,6 @@ export async function createEngineFromParts(
 }
 
 export type CreateMutationSideArgs = {
-  readonly db: SqlClient;
   readonly mutations: MutationRegistry;
   readonly getEnv: () => MutationEnv;
   readonly deviceId: string;
@@ -192,7 +191,7 @@ export function createMutationSide(
   args: CreateMutationSideArgs
 ): MutationClient {
   const client = createMutationClient({
-    db: args.db,
+    db: args.engine.db,
     registry: args.mutations,
     env: args.getEnv(),
     ids: { clientId: args.deviceId },

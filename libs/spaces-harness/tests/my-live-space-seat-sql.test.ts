@@ -74,13 +74,13 @@ async function seedSpaceUser(
   userId: string
 ): Promise<void> {
   await db.run(sql<void>`
-    INSERT INTO spaces_users (id, space_id, user_id, created_at, created_by_account_id)
+    INSERT INTO spaces_users (id, space_id, user_id, created_at, created_by_account_id, joined, participation_revision)
     VALUES (
       ${spaceUserEntityId(spaceId, userId)},
       ${spaceId},
       ${userId},
       ${'2026-01-01T00:00:00.000Z'},
-      ${OTHER_ACCOUNT}
+      ${OTHER_ACCOUNT}, ${true}, ${0}
     )
   `);
 }

@@ -12,10 +12,11 @@ Feature: Claim the win from a participant who stays away
       Then Bob sees the active Custom Game with White to move
       And Neither person has won the Custom Game
 
-    Scenario: An away participant's clock keeps running
+    Scenario: The host's clock keeps running while they are away
       Given Alice has an active Custom Game with 1 minute and 0 seconds increment
       And Alice is away from the Custom Game
-      When 60 seconds pass
+      And 60 seconds have passed in the Custom Game
+      When the connection comes back
       Then Bob wins the Custom Game on time
 
   Rule: After 60 seconds away, the other participant may claim the win

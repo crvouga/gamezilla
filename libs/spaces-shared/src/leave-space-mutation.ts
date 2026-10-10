@@ -37,10 +37,16 @@ export const leaveSpaceMutation = defineMutation({
     }
     const now = env.now().toISOString();
     const actorMemberId = memberId(env);
-    await changeSpaceRoomMembership({ tx, env }, spaceId, 'left');
+    await changeSpaceRoomMembership(
+      { tx, env },
+      spaceId,
+      'left',
+      actorMemberId
+    );
     await tx.run(sql`
       UPDATE spaces_users
-      SET deleted_at = ${now}
+      SET deleted_at = ${now}, joined = ${false},
+        participation_revision = participation_revision + 1
       WHERE id = ${spaceUserEntityId(spaceId, actorMemberId)}
         AND deleted_at IS NULL
     `);

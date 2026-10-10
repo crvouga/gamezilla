@@ -105,17 +105,21 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test.concurrent(
-    'separate induction checks a later guarded choice and its enclosing draws',
-    async () => {
+  test.concurrent.each([1, 8])(
+    'separate induction checks a later guarded choice and its enclosing draws in groups of %s',
+    async (inductionCaseGroupSize) => {
       // regression: quint-induction-redundant-state-zero
       const result = await verify({
         specPath: join(FIXTURES, 'door-induction-choices.qnt'),
         invariants: ['invNeverOpen'],
         inductiveInvariant: 'invNeverOpen',
         separateInduction: true,
+        inductionCaseGroupSize,
         maxSteps: 4,
-        outDir: join(OUT, 'invalid-later-induction-choice'),
+        outDir: join(
+          OUT,
+          `invalid-later-induction-choice-${inductionCaseGroupSize}`
+        ),
         timeoutMs: CHECK_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);

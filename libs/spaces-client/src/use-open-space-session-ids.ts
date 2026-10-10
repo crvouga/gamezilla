@@ -1,3 +1,4 @@
+import { useMyId } from '@libs/auth-client/use-current-user';
 import { useDeviceId } from '@libs/auth-client/use-device-id';
 import type { Sql } from '@pkgs/sql-root-shared/sql';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -33,12 +34,16 @@ export function useOpenSpaceSessionIds(): {
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
+  const memberId = useMyId();
   const query = createQuery(() =>
     paintReady()
       ? sql<SessionIdRow>`
-          SELECT space_id FROM spaces_open_sessions
-          WHERE deleted_at IS NULL AND device_id = ${localDeviceId()}
-          ORDER BY opened_at DESC
+          SELECT o.space_id FROM spaces_open_sessions AS o
+          INNER JOIN spaces_users AS u ON u.space_id = o.space_id
+          WHERE o.deleted_at IS NULL AND o.device_id = ${localDeviceId()}
+            AND u.user_id = ${memberId()} AND u.deleted_at IS NULL
+            AND u.joined = ${true} AND o.participation_revision = u.participation_revision
+          ORDER BY o.opened_at DESC
         `
       : sql<SessionIdRow>`
           SELECT space_id FROM spaces_open_sessions WHERE false
@@ -57,16 +62,19 @@ export function useIsSpaceOpenLocally(
 ): Accessor<boolean> {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
+  const memberId = useMyId();
   const enabled = createMemo(
     () => paintReady() && readSpaceId(spaceId).length > 0
   );
   const query = createQuery(() =>
     enabled()
       ? sql<SessionIdRow>`
-          SELECT space_id FROM spaces_open_sessions
-          WHERE space_id = ${readSpaceId(spaceId)}
-            AND device_id = ${localDeviceId()}
-            AND deleted_at IS NULL
+          SELECT o.space_id FROM spaces_open_sessions AS o
+          INNER JOIN spaces_users AS u ON u.space_id = o.space_id AND u.user_id = ${memberId()}
+          WHERE o.space_id = ${readSpaceId(spaceId)}
+            AND o.device_id = ${localDeviceId()} AND o.deleted_at IS NULL
+            AND u.deleted_at IS NULL AND u.joined = ${true}
+            AND o.participation_revision = u.participation_revision
           LIMIT 1
         `
       : sql<SessionIdRow>`
@@ -85,6 +93,7 @@ export function useSpaceOpenSession(spaceId: string | Accessor<string>): {
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
+  const memberId = useMyId();
   const enabled = createMemo(
     () => paintReady() && readSpaceId(spaceId).length > 0
   );
@@ -92,11 +101,13 @@ export function useSpaceOpenSession(spaceId: string | Accessor<string>): {
     (): Sql<SessionRow> =>
       enabled()
         ? sql<SessionRow>`
-          SELECT space_id, device_id, join_announced
-          FROM spaces_open_sessions
-          WHERE space_id = ${readSpaceId(spaceId)}
-            AND device_id = ${localDeviceId()}
-            AND deleted_at IS NULL
+          SELECT o.space_id, o.device_id, o.join_announced
+          FROM spaces_open_sessions AS o
+          INNER JOIN spaces_users AS u ON u.space_id = o.space_id AND u.user_id = ${memberId()}
+          WHERE o.space_id = ${readSpaceId(spaceId)}
+            AND o.device_id = ${localDeviceId()} AND o.deleted_at IS NULL
+            AND u.deleted_at IS NULL AND u.joined = ${true}
+            AND o.participation_revision = u.participation_revision
           LIMIT 1
         `
         : sql<SessionRow>`

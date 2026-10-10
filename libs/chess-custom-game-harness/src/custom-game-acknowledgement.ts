@@ -11,24 +11,44 @@ type Acknowledged = { commandId: string; choice: CustomGameChoice };
 const acknowledged = new WeakMap<ProductHarness, Map<string, Acknowledged>>();
 
 /** Capture the actual returned acknowledgement, together with its request. */
-export function rememberCustomGameAcknowledgement(
+export function customGameAcknowledgementTip(
+  s: ProductHarness,
+  spaceId: string
+): number {
+  return (
+    s.harness.roomNode.exportTopic(`space:${spaceId}`)?.entries.at(-1)?.seq ?? 0
+  );
+}
+
+export async function rememberCustomGameAcknowledgement(
   s: ProductHarness,
   spaceId: string,
-  choice: CustomGameChoice
-): void {
-  const entries =
-    s.harness.roomNode.exportTopic(`space:${spaceId}`)?.entries ?? [];
-  const returned = entries.findLast((entry) =>
-    CustomGamesChanged.is(entry.event)
-  );
-  if (returned === undefined || !CustomGamesChanged.is(returned.event))
-    throw new Error('No Custom Game acknowledgement was returned');
-  let rooms = acknowledged.get(s);
-  if (rooms === undefined) {
-    rooms = new Map();
-    acknowledged.set(s, rooms);
+  choice: CustomGameChoice,
+  afterSequence: number
+): Promise<void> {
+  for (let turn = 0; turn < 1000; turn += 1) {
+    const returned = s.harness.roomNode
+      .exportTopic(`space:${spaceId}`)
+      ?.entries.findLast(
+        (entry) =>
+          entry.seq > afterSequence && CustomGamesChanged.is(entry.event)
+      );
+    if (returned !== undefined && CustomGamesChanged.is(returned.event)) {
+      let rooms = acknowledged.get(s);
+      if (rooms === undefined) {
+        rooms = new Map();
+        acknowledged.set(s, rooms);
+      }
+      rooms.set(spaceId, {
+        commandId: returned.event.payload.commandId,
+        choice,
+      });
+      return;
+    }
+    await s.session.advanceTime(0);
+    await s.harness.drainServerFetch();
   }
-  rooms.set(spaceId, { commandId: returned.event.payload.commandId, choice });
+  throw new Error('No Custom Game acknowledgement was returned');
 }
 
 /** Replay an acknowledged request with its original deduplication identity. */

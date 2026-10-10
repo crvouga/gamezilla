@@ -40,6 +40,7 @@ async function joinedSpace(
     SELECT id FROM spaces_users
     WHERE id = ${spaceUserEntityId(spaceId, actor.memberId)}
       AND deleted_at IS NULL
+      AND joined = ${true}
     LIMIT 1
   `);
   return rows.length > 0;

@@ -1,0 +1,4 @@
+{
+  "summary": "Alice removes Bob from their connected public space, but Alice's presence still counts two. removeSpaceUser only tombstoned access; it never sent the target person's left membership delivery to remove their live seat and disconnect them.",
+  "regressionTest": "specs/spaces/space-remove-person.feature"
+}

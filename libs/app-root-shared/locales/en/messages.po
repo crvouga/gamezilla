@@ -71,6 +71,11 @@ msgstr "{0} / {1} runs measured"
 msgid "{0} active — expires {latestExpires}"
 msgstr "{0} active — expires {latestExpires}"
 
+#. placeholder {0}: props.addition.value()
+#: libs/spaces-client/src/space-addition-state.tsx
+msgid "{0} added"
+msgstr "{0} added"
+
 #. placeholder {0}: row.checks.length
 #: pkgs/harness-report-client/src/spec-report-parts.tsx
 msgid "{0} checks for this spec"
@@ -131,6 +136,11 @@ msgstr "{0} rated puzzles remaining today"
 #: pkgs/harness-report-client/src/report-parts-view.tsx
 msgid "{0} recorded checks"
 msgstr "{0} recorded checks"
+
+#. placeholder {0}: props.person.username
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "{0} removed"
+msgstr "{0} removed"
 
 #. placeholder {0}: group.entities.length
 #: pkgs/harness-report-client/src/entity-browser.tsx
@@ -374,6 +384,10 @@ msgstr "Add tab"
 #: pkgs/ui-root-client/src/combobox-trigger.tsx
 msgid "Add…"
 msgstr "Add…"
+
+#: libs/spaces-client/src/space-share-people-list.tsx
+msgid "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
+msgstr "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Adding puzzles failed"
@@ -737,6 +751,7 @@ msgstr "Check the spelling or try a different username."
 
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Chess"
 msgstr "Chess"
@@ -777,6 +792,10 @@ msgstr "Choose a sign-in method"
 #: pkgs/harness-report-client/src/spec-browser.tsx
 msgid "Choose a spec to read its promises and investigate its recorded evidence."
 msgstr "Choose a spec to read its promises and investigate its recorded evidence."
+
+#: libs/profile-client/src/username-change-feedback.tsx
+msgid "Choose a username"
+msgstr "Choose a username"
 
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Choose how you want to play."
@@ -921,6 +940,10 @@ msgstr "Confirmed"
 msgid "Confirming…"
 msgstr "Confirming…"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "connect"
+msgstr "connect"
+
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Connect"
 msgstr "Connect"
@@ -951,6 +974,7 @@ msgstr "Connection"
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
 
+#: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
 msgid "Connectivity"
 msgstr "Connectivity"
@@ -1027,6 +1051,10 @@ msgstr "Could not start local database"
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
 
+#: libs/spaces-client/src/space-addition-state.tsx
+msgid "Couldn't add person"
+msgstr "Couldn't add person"
+
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Couldn't cancel"
 msgstr "Couldn't cancel"
@@ -1080,20 +1108,20 @@ msgstr "Couldn't open billing"
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
 
-#: libs/spaces-client/src/space-share-people-list.tsx
-msgid "Couldn't remove"
-msgstr "Couldn't remove"
-
 #: libs/auth-client/src/unlink-method-modal.tsx
 msgid "Couldn't remove it"
 msgstr "Couldn't remove it"
+
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "Couldn't remove person"
+msgstr "Couldn't remove person"
 
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
 
@@ -1318,6 +1346,10 @@ msgstr "Discard"
 #: libs/profile-client/src/avatar-editor-screen.tsx
 msgid "Discard changes?"
 msgstr "Discard changes?"
+
+#: libs/app-root-client/src/app-commands.tsx
+msgid "disconnect"
+msgstr "disconnect"
 
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Disconnected"
@@ -1681,10 +1713,6 @@ msgid "Friend requests and space invites will land here."
 msgstr "Friend requests and space invites will land here."
 
 #: libs/friends-client/src/friend-action-status-renderers.tsx
-msgid "Friend requests need a connection. Try again once you're online."
-msgstr "Friend requests need a connection. Try again once you're online."
-
-#: libs/friends-client/src/friend-action-status-renderers.tsx
 #: libs/friends-client/src/friends-list-screen-view.tsx
 #: libs/friends-client/src/friends-permission-gate.tsx
 #: libs/profile-client/src/profile-screen.tsx
@@ -1719,7 +1747,7 @@ msgstr "Game drawn."
 msgid "Game finished"
 msgstr "Game finished"
 
-#: libs/chess-puzzle-client/src/chess-stats-screen.tsx
+#: libs/chess-puzzle-client/src/chess-stats-body.tsx
 msgid "Game log"
 msgstr "Game log"
 
@@ -1959,6 +1987,14 @@ msgid "Joined"
 msgstr "Joined"
 
 #: libs/spaces-client/src/space-join-button.tsx
+msgid "Joining someone else's space needs a connection."
+msgstr "Joining someone else's space needs a connection."
+
+#: libs/spaces-client/src/spaces-notices.tsx
+msgid "Joining someone else's space needs a connection. Your own spaces work offline."
+msgstr "Joining someone else's space needs a connection. Your own spaces work offline."
+
+#: libs/spaces-client/src/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
 
@@ -2030,6 +2066,7 @@ msgstr "Leave and end the space?"
 
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: libs/spaces-client/src/space-end-or-leave-button.tsx
+#: libs/spaces-client/src/space-join-prompt.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -2287,9 +2324,9 @@ msgstr "Name, spec, or package"
 msgid "Navigation"
 msgstr "Navigation"
 
-#: libs/friends-client/src/friend-action-status-renderers.tsx
-msgid "Needs a connection"
-msgstr "Needs a connection"
+#: libs/app-root-client/src/app-commands.tsx
+msgid "network"
+msgstr "network"
 
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Network reachability and server health"
@@ -2587,7 +2624,12 @@ msgstr "Offer a multiplayer rematch"
 msgid "Offer draw"
 msgstr "Offer draw"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "offline"
+msgstr "offline"
+
 #: libs/app-root-client/src/app-header-global-menu.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
@@ -2600,7 +2642,12 @@ msgstr "Offline"
 msgid "On"
 msgstr "On"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "online"
+msgstr "online"
+
 #: libs/app-root-client/src/app-header-global-menu.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
@@ -2905,10 +2952,6 @@ msgstr "Previous test"
 msgid "Pricing"
 msgstr "Pricing"
 
-#: libs/spaces-client/src/space-share-people-list.tsx
-msgid "Private spaces only sync for people you add here."
-msgstr "Private spaces only sync for people you add here."
-
 #. placeholder {0}: props.job.processedRows
 #. placeholder {1}: props.job.insertedRows
 #. placeholder {2}: props.job.failedRows
@@ -2982,6 +3025,7 @@ msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
@@ -2997,7 +3041,9 @@ msgstr "Puzzle solved!"
 msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
-#: libs/chess-puzzle-client/src/chess-stats-screen.tsx
+#: libs/chess-puzzle-client/src/chess-stats-body.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
@@ -3175,6 +3221,11 @@ msgstr "Remove"
 msgid "Remove {0} sign-in?"
 msgstr "Remove {0} sign-in?"
 
+#. placeholder {0}: props.person.username
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "Remove {0}?"
+msgstr "Remove {0}?"
+
 #: libs/friends-client/src/use-friend-user-overflow-menu.tsx
 msgid "Remove friend"
 msgstr "Remove friend"
@@ -3183,13 +3234,16 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "Remove person"
+msgstr "Remove person"
+
 #: libs/auth-client/src/unlink-method-modal.tsx
-#: libs/spaces-client/src/space-share-people-list.tsx
 msgid "Removed"
 msgstr "Removed"
 
 #: libs/auth-client/src/unlink-method-modal.tsx
-#: libs/spaces-client/src/space-share-people-list.tsx
+#: libs/spaces-client/src/remove-space-person-modal.tsx
 msgid "Removing…"
 msgstr "Removing…"
 
@@ -3519,6 +3573,7 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 #: libs/billing-client/src/billing-screen-view.tsx
+#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
@@ -3543,6 +3598,14 @@ msgstr "Share puzzle link"
 #: libs/spaces-client/src/space-share-sheet.tsx
 msgid "Share space"
 msgstr "Share space"
+
+#: libs/friends-client/src/friend-request-feedback.tsx
+msgid "Sharing your friend request…"
+msgstr "Sharing your friend request…"
+
+#: libs/profile-client/src/username-change-feedback.tsx
+msgid "Sharing your username change…"
+msgstr "Sharing your username change…"
 
 #: pkgs/harness-report-client/src/report-app.tsx
 msgid "Shortcuts"
@@ -3819,10 +3882,6 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
-#: libs/spaces-client/src/spaces-notices.tsx
-msgid "Spaces need a connection. Connect to the internet and try again."
-msgstr "Spaces need a connection. Connect to the internet and try again."
-
 #: pkgs/harness-report-client/src/entity-browser.tsx
 msgid "Spec"
 msgstr "Spec"
@@ -3926,6 +3985,10 @@ msgstr "Status"
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Status: {0}"
 msgstr "Status: {0}"
+
+#: libs/app-root-client/src/settings-screen.tsx
+msgid "Stop every network connection until you work online"
+msgstr "Stop every network connection until you work online"
 
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Stop finding an opponent"
@@ -4103,6 +4166,7 @@ msgid "That took too long. Start again."
 msgstr "That took too long. Start again."
 
 #: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "That username is not allowed"
 msgstr "That username is not allowed"
 
@@ -4150,6 +4214,10 @@ msgstr "The game ends with no result and no rating change."
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
 
+#: libs/spaces-client/src/space-connection-notice.tsx
+msgid "The host is offline. This space will reconnect when they return."
+msgstr "The host is offline. This space will reconnect when they return."
+
 #: libs/spaces-client/src/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
@@ -4194,6 +4262,10 @@ msgstr "The selected version has no readable copy of this spec."
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
+
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "The space stays open. They can join again through its link."
+msgstr "The space stays open. They can join again through its link."
 
 #: pkgs/harness-report-client/src/spec-browser.tsx
 msgid "The spec inventory could not be loaded. Refresh to try again; no missing evidence is counted as passed."
@@ -4244,9 +4316,17 @@ msgstr "These versions contain specs or report parts. A completed verification r
 msgid "They already asked you"
 msgstr "They already asked you"
 
+#: libs/spaces-client/src/space-addition-state.tsx
+msgid "They can find this space in their lobby and choose Join."
+msgstr "They can find this space in their lobby and choose Join."
+
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 msgid "They will be removed from your friends list."
 msgstr "They will be removed from your friends list."
+
+#: libs/spaces-client/src/remove-space-person-modal.tsx
+msgid "They will leave this space. They can choose to join again through the space link."
+msgstr "They will leave this space. They can choose to join again through the space link."
 
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 msgid "They won't be able to send you friend requests."
@@ -4308,6 +4388,10 @@ msgstr "This is your only way to sign in, so it can't be removed."
 msgid "This link is missing a device id."
 msgstr "This link is missing a device id."
 
+#: libs/friends-client/src/friend-request-error-label.tsx
+msgid "This person already sent you a friend request."
+msgstr "This person already sent you a friend request."
+
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "This person cannot be invited."
 msgstr "This person cannot be invited."
@@ -4344,6 +4428,10 @@ msgstr "This spec could not be loaded. Refresh to try again."
 #: libs/spaces-client/src/space-members-list-modal.tsx
 msgid "This tab"
 msgstr "This tab"
+
+#: libs/profile-client/src/username-change-feedback.tsx
+msgid "This username change could not be shared. Choose another username."
+msgstr "This username change could not be shared. Choose another username."
 
 #: pkgs/harness-report-client/src/spec-browser.tsx
 msgid "This version has no published inventory. Existing test reports remain available in Test runs. Run full verification to publish every spec for this version."
@@ -4392,6 +4480,10 @@ msgstr "Try again"
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Try again later"
 msgstr "Try again later"
+
+#: libs/friends-client/src/friend-request-error-label.tsx
+msgid "Try again later. This person recently declined your request."
+msgstr "Try again later. This person recently declined your request."
 
 #: pkgs/harness-report-client/src/commit-list.tsx
 msgid "Try another commit hash or branch."
@@ -4540,27 +4632,27 @@ msgstr "User ID"
 msgid "Username"
 msgstr "Username"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username can only use letters, numbers, and _"
 msgstr "Username can only use letters, numbers, and _"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username is required"
 msgstr "Username is required"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username is taken"
 msgstr "Username is taken"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username is too long"
 msgstr "Username is too long"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username is too short"
 msgstr "Username is too short"
 
-#: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
 
@@ -4681,6 +4773,16 @@ msgstr "Withdraw readiness"
 msgid "Work"
 msgstr "Work"
 
+#: libs/app-root-client/src/app-commands.tsx
+#: libs/app-root-client/src/settings-screen.tsx
+#: libs/app-root-client/src/work-offline-status.tsx
+msgid "Work offline"
+msgstr "Work offline"
+
+#: libs/app-root-client/src/app-commands.tsx
+msgid "Work online"
+msgstr "Work online"
+
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Worker Lease"
 msgstr "Worker Lease"
@@ -4712,6 +4814,10 @@ msgstr "Yes"
 #: libs/spaces-client/src/space-members-list.tsx
 msgid "You"
 msgstr "You"
+
+#: libs/friends-client/src/friend-request-error-label.tsx
+msgid "You are already friends with this person."
+msgstr "You are already friends with this person."
 
 #: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "You are Black."
@@ -4791,7 +4897,6 @@ msgstr "You're all caught up"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
-#: libs/profile-client/src/profile-handle-screen.tsx
 msgid "You're offline"
 msgstr "You're offline"
 
@@ -4850,6 +4955,18 @@ msgstr "Your checkout hasn't finished. Complete it to start your membership."
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
 msgstr "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
+
+#: libs/friends-client/src/friend-request-error-label.tsx
+msgid "Your friend request could not be shared because the person is unavailable."
+msgstr "Your friend request could not be shared because the person is unavailable."
+
+#: libs/friends-client/src/friend-request-error-label.tsx
+msgid "Your friend request could not be shared. Try again."
+msgstr "Your friend request could not be shared. Try again."
+
+#: libs/friends-client/src/friend-request-feedback.tsx
+msgid "Your friend request will be shared when the connection returns."
+msgstr "Your friend request will be shared when the connection returns."
 
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 msgid "Your friends. Your rules."
@@ -4911,6 +5028,10 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 msgid "Your rating"
 msgstr "Your rating"
 
+#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
+msgid "Your rating and game log, available offline"
+msgstr "Your rating and game log, available offline"
+
 #. placeholder {0}: (props.diff ?? 0) > 0 ? '+' : ''
 #. placeholder {1}: props.diff ?? 0
 #: libs/chess-matchmaking-client/src/multiplayer-board.tsx
@@ -4928,6 +5049,10 @@ msgstr "Your turn — find the best move for White"
 #: libs/chess-matchmaking-client/src/multiplayer-announcement.tsx
 msgid "Your turn."
 msgstr "Your turn."
+
+#: libs/profile-client/src/username-change-feedback.tsx
+msgid "Your username change will be shared when the connection returns."
+msgstr "Your username change will be shared when the connection returns."
 
 #: libs/profile-client/src/profile-handle-screen.tsx
 msgid "your_handle"

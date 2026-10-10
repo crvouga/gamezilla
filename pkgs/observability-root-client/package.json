@@ -15,11 +15,15 @@
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",
+    "@opentelemetry/core": "catalog:",
     "@opentelemetry/instrumentation": "catalog:",
     "@opentelemetry/instrumentation-fetch": "catalog:",
+    "@opentelemetry/otlp-transformer": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-web": "catalog:",
     "@pkgs/observability-root-shared": "workspace:*",
-    "@pkgs/observability-runtime-shared": "workspace:*"
+    "@pkgs/observability-runtime-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

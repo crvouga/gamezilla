@@ -66,8 +66,8 @@ export type ReplayMutationDeps = {
   /** Host guard run before every mutation body (server replay only). */
   readonly authorize?: MutationAuthorize;
   /**
-   * The app's content rules as they stood at a write's time (its
-   * `created_at`), handed to the mutation body as `env.contentRules`.
+   * The app's content rules at the time selected by the mutation,
+   * handed to its body as `env.contentRules`.
    */
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
@@ -159,7 +159,13 @@ async function applyReplayMutationInTxn(args: {
       : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
     ...(deps.contentRulesAt === undefined
       ? {}
-      : { contentRules: deps.contentRulesAt(Date.parse(m.createdAt)) }),
+      : {
+          contentRules: deps.contentRulesAt(
+            mutation.contentRulesTime === 'replayed'
+              ? deps.now()
+              : Date.parse(m.createdAt)
+          ),
+        }),
   };
 
   const wrapped = wrapMutationDb(txc, env);
