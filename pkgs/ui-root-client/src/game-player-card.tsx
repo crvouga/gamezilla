@@ -35,7 +35,7 @@ export function GamePlayerCard(props: {
           </Show>
         </span>
         <div class="box min-w-0 gap-1">
-          <p class={styles['eyebrow']}>{props.label}</p>
+          <p class={styles['meta']}>{props.label}</p>
           <div class={styles['playerName']}>{props.name}</div>
           <Show when={props.status}>
             <div class={styles['playerStatus']}>{props.status}</div>

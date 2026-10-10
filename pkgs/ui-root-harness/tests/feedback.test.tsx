@@ -129,7 +129,12 @@ describe('State blocks', () => {
       />
     ));
     expect(screen.getByText('No spaces yet')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Create space' }));
+    expect(screen.getByText('Create one to get started.').className).toContain(
+      'textBody'
+    );
+    const action = screen.getByRole('button', { name: 'Create space' });
+    expect(action).toHaveAttribute('data-face', 'primary');
+    fireEvent.click(action);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
@@ -165,6 +170,44 @@ describe('State blocks', () => {
     ).toBeInTheDocument();
     clock.advance(2000);
     expect(screen.getByRole('button', { name: 'Copy error' })).toBeVisible();
+  });
+
+  test('retry is the primary face and a second recovery stays outline', () => {
+    renderUi(() => (
+      <ErrorState
+        title="Could not save"
+        body="The write did not land."
+        retry={{ label: 'Try again', onClick: () => undefined }}
+        secondary={{ label: 'Reload', onClick: () => undefined }}
+      />
+    ));
+    const primary = screen.getByRole('button', { name: 'Try again' });
+    const secondary = screen.getByRole('button', { name: 'Reload' });
+    expect(primary).toHaveAttribute('data-face', 'primary');
+    expect(primary).toHaveAttribute('data-intent', 'primary');
+    expect(secondary).toHaveAttribute('data-face', 'neutral-outline');
+    expect(secondary).toHaveAttribute('data-intent', 'neutral');
+    expect(screen.getByRole('heading', { name: 'Could not save' })).toHaveClass(
+      'textHeading'
+    );
+  });
+
+  test('loading, empty, error, and success each render their state', () => {
+    renderUi(() => (
+      <>
+        <LoadingState caption="Loading spaces…" />
+        <EmptyState title="No spaces yet" />
+        <ErrorState title="Could not load spaces" />
+        <SuccessState title="Space saved" />
+      </>
+    ));
+    expect(screen.getAllByRole('status').length).toBeGreaterThan(0);
+    expect(screen.getByText('Loading spaces…')).toBeInTheDocument();
+    expect(screen.getByText('No spaces yet')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Could not load spaces'
+    );
+    expect(screen.getByText('Space saved')).toBeInTheDocument();
   });
 });
 

@@ -31,7 +31,7 @@ export function ProfileFriendsStats(): JSX.Element {
           >
             {String(friendsState.friends().length)}
           </h3>
-          <p class="text text-text-secondary">
+          <p class="text textBody text-text-secondary">
             {
               <Plural
                 value={friendsState.friends().length}

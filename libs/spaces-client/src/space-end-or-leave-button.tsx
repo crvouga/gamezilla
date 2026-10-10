@@ -36,13 +36,13 @@ export function SpaceEndOrLeaveButton(
 
   return (
     <button
-      class="clickable clickableTint py-2 px-4 bg-on-tint-scrim rounded-full"
+      class="clickable clickableTint py-2 px-4 bg-surface-muted rounded-full"
       type="button"
       onClick={onPress}
       role="button"
       aria-label={canEndSpace() ? t`End space` : t`Leave space`}
     >
-      <p class="text textFootnote text-on-primary">
+      <p class="text textFootnote">
         {
           <Show when={canEndSpace()} fallback={<Trans>Leave</Trans>}>
             <Trans>End</Trans>

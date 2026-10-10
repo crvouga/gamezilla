@@ -77,7 +77,7 @@ export function CustomGameConfiguration(props: {
         <Trans>Agree on the lineup and clock, then get ready.</Trans>
       }
     >
-      <p class="text" role="status" data-testid="chess-custom-startable">
+      <p class="text textBody" role="status" data-testid="chess-custom-startable">
         <Show
           when={startable()}
           fallback={

@@ -8,7 +8,7 @@ import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
-import { SpaceCardGradientBox } from './space-card-gradient';
+import { SpaceCardSurface } from './space-card-surface';
 import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceField, useSpaceColumn } from './use-space-column';
@@ -36,7 +36,7 @@ export function SpaceMiniplayerCard(
   });
   return (
     <Show when={live()}>
-      <SpaceCardGradientBox
+      <SpaceCardSurface
         dataSet={{ testid: Handles.spaceMiniplayer }}
         class="overflow-hidden flex-row items-center gap-2 min-h-18"
         style={{ 'border-radius': `${props.borderRadius}px` }}
@@ -45,20 +45,10 @@ export function SpaceMiniplayerCard(
           <div class="box p-3 flex-row items-center gap-3 flex-1 min-w-0 self-stretch">
             <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
             <div class="box flex-1 min-w-0 gap-0.5">
-              <MiniplayerSpaceTitle
-                spaceId={props.spaceId}
-                class="text-on-primary"
-              />
+              <MiniplayerSpaceTitle spaceId={props.spaceId} />
               <div class="box flex-row items-center gap-1.5 min-w-0">
-                <MiniplayerHostNameLine
-                  spaceId={props.spaceId}
-                  class="text-on-primary"
-                />
-                <p class="text textCaption text-on-primary">{'·'}</p>
-                <MiniplayerMemberCountText
-                  spaceId={props.spaceId}
-                  class="text-on-primary"
-                />
+                <MiniplayerHostNameLine spaceId={props.spaceId} />
+                <MiniplayerMemberCountText spaceId={props.spaceId} />
               </div>
             </div>
           </div>
@@ -71,7 +61,7 @@ export function SpaceMiniplayerCard(
             requestLeaveSpace={props.requestLeaveSpace}
           />
         </div>
-      </SpaceCardGradientBox>
+      </SpaceCardSurface>
     </Show>
   );
 }

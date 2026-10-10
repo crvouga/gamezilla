@@ -8,6 +8,9 @@
  * (typically the raw error message), optional copy-error button (when body
  * is stringifiable and a `copy` sink is injected), and optional retry button.
  *
+ * The retry is the thing to do, so it is the one blue primary. A second
+ * recovery stays an outline. Copy stays outline too.
+ *
  * Variants:
  *   - `'fill'`    (default) -- centered failure inside `flex: 1`. Use for
  *                              boot failures and full-screen errors.
@@ -34,6 +37,7 @@ import {
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { Button } from './button';
+import type { ButtonSize } from './button-parts';
 import type { IconComponent } from './create-icon';
 import { XIcon } from './icons';
 import type { StateBlockVariant } from './state-block';
@@ -41,6 +45,11 @@ import { StateBlock } from './state-block';
 
 export type ErrorStateRetry = {
   label?: JSX.Element | undefined;
+  onClick: () => void;
+};
+
+export type ErrorStateSecondary = {
+  label: JSX.Element;
   onClick: () => void;
 };
 
@@ -53,8 +62,12 @@ export type ErrorStateProps = {
   title: JSX.Element;
   /** Error detail (string or any node). */
   body?: JSX.Element | undefined;
-  /** Optional retry action button. */
+  /** Optional retry action button. This is the primary action. */
   retry?: ErrorStateRetry | undefined;
+  /** Optional second recovery. Outline, never a second primary. */
+  secondary?: ErrorStateSecondary | undefined;
+  /** Extra detail under the actions (a disclosure, a trace). */
+  details?: JSX.Element | undefined;
   /** Clipboard sink; when provided (and body is text) a "Copy error" button shows. */
   copy?: ErrorStateCopy | undefined;
   /** Layout density. Defaults to `'fill'`. */
@@ -120,24 +133,101 @@ function ErrorCopyButton(props: {
   );
 }
 
-function ErrorActions(props: {
+function needsErrorCatalog(props: {
+  copy: ErrorStateCopy | undefined;
+  retry: ErrorStateRetry | undefined;
+}): boolean {
+  if (props.copy !== undefined) return true;
+  return props.retry !== undefined && props.retry.label === undefined;
+}
+
+function ErrorActionRow(props: {
+  align: 'center' | 'start';
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class="box flex-row flex-wrap items-center gap-2 mt-1"
+      classList={{
+        'justify-center': props.align === 'center',
+        'justify-start': props.align === 'start',
+      }}
+    >
+      {props.children}
+    </div>
+  );
+}
+
+function PrimaryRecovery(props: {
+  label: JSX.Element;
+  onClick: () => void;
+  size: ButtonSize;
+}): JSX.Element {
+  return (
+    <Button
+      title={props.label}
+      intent="primary"
+      size={props.size}
+      onClick={() => props.onClick()}
+    />
+  );
+}
+
+function SecondaryRecovery(props: {
+  action: ErrorStateSecondary;
+  size: ButtonSize;
+}): JSX.Element {
+  return (
+    <Button
+      title={props.action.label}
+      intent="neutral"
+      variant="outline"
+      size={props.size}
+      onClick={() => props.action.onClick()}
+    />
+  );
+}
+
+type ErrorActionProps = {
   copyText: string | null;
   copy: ErrorStateCopy | undefined;
   retry: ErrorStateRetry | undefined;
+  secondary: ErrorStateSecondary | undefined;
   align: 'center' | 'start';
-}): JSX.Element {
+  size: ButtonSize;
+};
+
+function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
+  const show = (): boolean =>
+    (props.retry?.label !== undefined && props.retry.label !== null) ||
+    props.secondary !== undefined;
+  return (
+    <Show when={show()}>
+      <ErrorActionRow align={props.align}>
+        <Show when={props.retry?.label !== undefined}>
+          <PrimaryRecovery
+            label={props.retry?.label ?? ''}
+            onClick={() => props.retry?.onClick()}
+            size={props.size}
+          />
+        </Show>
+        <Show when={props.secondary}>
+          {(action) => (
+            <SecondaryRecovery action={action()} size={props.size} />
+          )}
+        </Show>
+      </ErrorActionRow>
+    </Show>
+  );
+}
+
+function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
   const { t } = useLingui();
   const showCopy = (): boolean =>
     props.copyText !== null && props.copy !== undefined;
   return (
-    <Show when={showCopy() || props.retry !== undefined}>
-      <div
-        class="box flex-row flex-wrap items-center gap-2"
-        style={{
-          'margin-top': `${(props.align === 'start' ? 1 : 0) * 4}px`,
-          'justify-content': props.align === 'center' ? 'center' : 'flex-start',
-        }}
-      >
+    <Show when={showCopy() || props.retry !== undefined || props.secondary}>
+      <ErrorActionRow align={props.align}>
         <Show when={showCopy()}>
           <ErrorCopyButton
             copyText={props.copyText ?? ''}
@@ -146,16 +236,40 @@ function ErrorActions(props: {
         </Show>
         <Show when={props.retry}>
           {(retry) => (
-            <Button
-              title={retry().label ?? t`Retry`}
-              intent="danger"
-              variant="outline"
-              size="sm"
+            <PrimaryRecovery
+              label={retry().label ?? t`Retry`}
               onClick={() => retry().onClick()}
+              size={props.size}
             />
           )}
         </Show>
-      </div>
+        <Show when={props.secondary}>
+          {(action) => (
+            <SecondaryRecovery action={action()} size={props.size} />
+          )}
+        </Show>
+      </ErrorActionRow>
+    </Show>
+  );
+}
+
+function ErrorActions(props: ErrorActionProps): JSX.Element {
+  return (
+    <Show
+      when={needsErrorCatalog({ copy: props.copy, retry: props.retry })}
+      fallback={<SpecifiedErrorActions {...props} />}
+    >
+      <CatalogErrorActions {...props} />
+    </Show>
+  );
+}
+
+function ErrorDetails(props: {
+  details: JSX.Element | undefined;
+}): JSX.Element {
+  return (
+    <Show when={props.details !== undefined && props.details !== null}>
+      <div class="box w-full items-stretch gap-3 mt-2">{props.details}</div>
     </Show>
   );
 }
@@ -172,11 +286,11 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
         size={ICON_SIZE_FILL}
         color="destructive"
       />
-      <p class="text textBodyBold text-destructive text-center">
+      <h1 class="text textHeading text-destructive text-center w-full">
         {props.title}
-      </p>
+      </h1>
       <Show when={props.body !== undefined && props.body !== null}>
-        <p class="text textCaption text-text-secondary text-center">
+        <p class="text textBody text-text-secondary text-center">
           {props.body}
         </p>
       </Show>
@@ -184,8 +298,11 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
         copyText={errorCopyText(props.title, props.body)}
         copy={props.copy}
         retry={props.retry}
+        secondary={props.secondary}
         align="center"
+        size="md"
       />
+      <ErrorDetails details={props.details} />
     </StateBlock>
   );
 }
@@ -213,8 +330,11 @@ function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
           copyText={errorCopyText(props.title, props.body)}
           copy={props.copy}
           retry={props.retry}
+          secondary={props.secondary}
           align="start"
+          size="sm"
         />
+        <ErrorDetails details={props.details} />
       </div>
     </div>
   );

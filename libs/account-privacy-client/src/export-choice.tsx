@@ -48,7 +48,7 @@ export function ExportChoice(props: {
         )}
       </Show>
       <Show when={props.row?.export_status === 'Preparing'}>
-        <p class="text" data-testid="privacy-export-preparing">
+        <p class="text textBody" data-testid="privacy-export-preparing">
           <Trans>
             Your personal-data export is being prepared. It will be ready within
             24 hours of asking.
@@ -56,7 +56,7 @@ export function ExportChoice(props: {
         </p>
       </Show>
       <Show when={props.row?.requested_at}>
-        <p class="text" data-testid="privacy-export-deadline">
+        <p class="text textBody" data-testid="privacy-export-deadline">
           <Trans>Ready by</Trans>{' '}
           {new Date(
             Date.parse(props.row?.requested_at ?? '') + 86_400_000
@@ -64,7 +64,7 @@ export function ExportChoice(props: {
         </p>
       </Show>
       <Show when={props.row?.export_status === 'ExportFailed'}>
-        <p class="text" data-testid="privacy-export-failed">
+        <p class="text textBody" data-testid="privacy-export-failed">
           <Trans>
             The export failed. You can ask again. No incomplete export is
             available.

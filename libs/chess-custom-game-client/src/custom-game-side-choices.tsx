@@ -15,7 +15,11 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
   return (
     <div class="box flex-row gap-2 flex-wrap">
       <Show when={mine()}>
-        <p role="status" data-testid={`chess-custom-${props.side}-invitation`}>
+        <p
+          class="text textBody"
+          role="status"
+          data-testid={`chess-custom-${props.side}-invitation`}
+        >
           <UserUsername
             profileId={props.model.current()?.creator ?? ''}
             withAt={false}
@@ -31,6 +35,7 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
       <Show when={mine() && props.model.canJoin()}>
         <GameActionButton
           title={<Trans>Accept</Trans>}
+          variant="solid"
           dataSet={{ testid: `chess-custom-${props.side}-accept` }}
           operation={() =>
             props.model.choose({ operation: 'accept', side: props.side })

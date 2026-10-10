@@ -18,7 +18,7 @@ export function GameClock(props: {
       aria-live="off"
       {...dataAttrs({ component: 'GameClock' })}
     >
-      <span class={styles['eyebrow']}>{props.label}</span>
+      <span class={styles['meta']}>{props.label}</span>
       <span
         class={styles['clockValue']}
         aria-label={props.ariaLabel}

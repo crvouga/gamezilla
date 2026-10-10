@@ -20,5 +20,5 @@ export function AccountDeviceOsText(
       ? EM_DASH
       : [name, version].filter((v) => v !== null).join(' ');
   });
-  return <p class="text line-clamp-4">{label()}</p>;
+  return <p class="text textBody line-clamp-4">{label()}</p>;
 }

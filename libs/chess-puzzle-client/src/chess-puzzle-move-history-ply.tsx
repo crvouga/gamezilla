@@ -20,7 +20,7 @@ function MoveNumberLabel(props: {
   const label = props.ellipsis
     ? `${props.moveNumber}...`
     : `${props.moveNumber}.`;
-  return <p class="text textCaption tabular-nums pr-1">{label}</p>;
+  return <p class="text textCaption textNumeral pr-1">{label}</p>;
 }
 
 export function moveNumberPrefix(
@@ -52,7 +52,7 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
       aria-label={props.ply.san}
     >
       <code
-        class="text textLabel tabular-nums"
+        class="text textLabel textNumeral"
         classList={{ 'text-success': props.selected }}
       >
         {formatSanNotation(props.ply.san, props.notation)}

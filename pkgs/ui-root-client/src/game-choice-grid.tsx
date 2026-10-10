@@ -25,7 +25,7 @@ export function GameChoiceGrid(props: {
       disabled={props.disabled}
       {...dataAttrs({ component: 'GameChoiceGrid' })}
     >
-      <legend class={styles['eyebrow']}>{props.label}</legend>
+      <legend class={styles['meta']}>{props.label}</legend>
       <div class={styles['choiceGrid']}>
         <For each={props.choices}>
           {(choice) => (

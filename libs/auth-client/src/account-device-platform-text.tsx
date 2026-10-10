@@ -13,5 +13,5 @@ export function AccountDevicePlatformText(
 ): JSX.Element {
   const platform = useDeviceColumn(() => props.deviceId, 'platform');
   const label = createMemo(() => platform() ?? EM_DASH);
-  return <p class="text line-clamp-4">{label()}</p>;
+  return <p class="text textBody line-clamp-4">{label()}</p>;
 }

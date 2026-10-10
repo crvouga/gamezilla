@@ -14,7 +14,7 @@ export function GameStat(props: {
       class={styles['stat']}
       {...dataAttrs({ component: 'GameStat', ...props.dataSet })}
     >
-      <span class={styles['eyebrow']}>{props.label}</span>
+      <span class={styles['meta']}>{props.label}</span>
       <strong class={styles['statValue']}>{props.value}</strong>
       <span class={styles['description']}>{props.detail}</span>
     </div>
