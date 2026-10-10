@@ -81,6 +81,38 @@ describe('createMultiAppSolidDomSession', () => {
     ).toBeNull();
   });
 
+  // regression: parked-actor-read-misses-screen
+  test("a parked actor's text and visibility are read from that actor", async () => {
+    session = createMultiAppSolidDomSession();
+    const live = session;
+    const harness = createDemoClock();
+    const driverFor = (id: string) =>
+      createSolidDomDriver({
+        clock: harness.clock,
+        pump: harness.pump,
+        harness: {
+          mount: () =>
+            Promise.resolve(
+              live.mountActor(id, () => <DemoApp harness={harness} />)
+            ),
+        },
+      });
+    const alice = driverFor('alice');
+    const bob = driverFor('bob');
+    await alice.launch();
+    await bob.launch();
+    expect(session.activeActorId()).toBe('bob');
+
+    expect(await alice.get('count').text()).toBe('0');
+    expect(session.activeActorId()).toBe('alice');
+    expect(await bob.snapshotHtml()).toContain('data-testid="count"');
+    expect(session.activeActorId()).toBe('bob');
+    expect(await bob.get('count').isVisible()).toBe(true);
+
+    await alice.close();
+    await bob.close();
+  });
+
   test('snapshotAllActors captures the active actor and reuses parked HTML', async () => {
     session = createMultiAppSolidDomSession();
     const harness = createDemoClock();

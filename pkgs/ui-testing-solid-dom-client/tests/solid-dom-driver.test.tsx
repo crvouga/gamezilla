@@ -89,9 +89,15 @@ describe('SolidDomDriver', () => {
     expect(await driver.get('count').isVisible()).toBe(true);
     expect(await driver.get('missing').isVisible()).toBe(false);
     expect(await driver.get('hidden-note').isVisible()).toBe(false);
+    expect(await driver.snapshotHtml()).toMatch(
+      /data-testid="count"[^>]*>\s*0\s*</
+    );
     await driver.get('inc').tap();
     await driver.get('inc').tap();
     await driver.get('count').expect.text('2');
+    const counted = await driver.snapshotHtml();
+    expect(counted).toMatch(/data-testid="count"[^>]*>\s*2\s*</);
+    expect(await driver.snapshotHtml()).toBe(counted);
     expect(await driver.get('count').text()).toBe('2');
     expect(await driver.get('count').attribute('data-testid')).toBe('count');
     expect(await driver.get('count').attribute('data-missing')).toBeNull();

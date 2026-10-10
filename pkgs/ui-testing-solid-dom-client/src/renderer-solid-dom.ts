@@ -22,6 +22,7 @@ import {
 } from './dom-query';
 import { fieldOf, isTextField, readDomText } from './dom-text';
 import { isDomVisible } from './dom-visibility';
+import { createHtmlSnapshotCache } from './html-snapshot-cache';
 import { createLayoutSynchronizer } from './layout-synchronizer';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
@@ -168,6 +169,9 @@ export function createSolidDomRenderedApp(
   const provider = scope.layoutProvider ?? synthesizeLayout;
   const layout = createLayoutSynchronizer(scope.container);
   const syncLayout = layout.sync;
+  const htmlCache = createHtmlSnapshotCache(scope.document, (options) =>
+    snapshotActorHtml(scope.document, scope.container(), options)
+  );
   return {
     query: (testId) => {
       syncLayout();
@@ -222,11 +226,13 @@ export function createSolidDomRenderedApp(
     },
     unmount: () => {
       layout.close();
+      htmlCache.close();
       return scope.unmount();
     },
     snapshotHtml: (options) => {
       syncLayout();
-      return snapshotActorHtml(scope.document, scope.container(), options);
+      if (scope.container() === null) return undefined;
+      return htmlCache.snapshot(options);
     },
     activate: async () => {
       await scope.activate?.();
