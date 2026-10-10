@@ -1,6 +1,5 @@
 import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { Clock } from '@pkgs/clock-shared/types';
-import { sessionGrantValid } from './session-grant';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { MAX_ROSTER_SIZE } from '@pkgs/room-root-shared/bounds';
 import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared/builtin';
@@ -34,6 +33,7 @@ import {
   WIRE_VERSION,
 } from '@pkgs/room-root-shared/wire';
 import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
+import { sessionGrantValid } from './session-grant';
 
 const crash: Assert = Assert.crash();
 
