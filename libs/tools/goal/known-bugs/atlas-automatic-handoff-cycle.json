@@ -1,0 +1,4 @@
+{
+  "summary": "The explorer could replay an automatic child completion that reentered its parent forever. The literal Cycle Host → Child Done → Again → Host input now fails with an explicit cycle instead of hanging.",
+  "regressionTest": "vendor/atlas/packages/visualizer/src/data/model/simulation.test.ts"
+}

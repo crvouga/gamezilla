@@ -141,6 +141,9 @@ The objective is not "high test coverage." It is:
                       performance objectives       product work over
                                                    time?
 
+  Product statechart  The connected product map    Where can a person go,
+                      and guided journeys          and what can happen next?
+
   Accessibility specs User-observable              Can supported users
                       accessibility requirements   operate the product
                                                    accessibly?
@@ -157,8 +160,9 @@ remain unchanged after deleting the implementation and rebuilding the
 product with a different language, database, framework, and
 architecture.
 
-The directory structure is intentionally flat. With the single
-root-level exception of `conformance.yaml`, every specification lives
+The directory structure is intentionally flat. With the root-level
+exceptions for the whole-product conformance manifest and product map,
+every bounded-context specification lives
 directly at:
 
 ``` text
@@ -176,6 +180,9 @@ Canonical shape:
 ``` text
 specs/
   conformance.yaml
+  product.machine.json
+  journeys.yaml
+  atlas.yaml
 
   membership/
     ubiquitous-language.yaml
@@ -225,6 +232,7 @@ The specification language is identified by extension:
 *.quint         Quint: dynamics and temporal properties
 *.als           Alloy: structural/relational invariants
 *.openslo.yaml  OpenSLO: quantitative quality objectives
+*.machine.json  statechart: the connected whole-product map
 *.ebnf          grammar, only when a public product language exists
 *.schema.json   public interchange format, only when the format is product truth
 ```
@@ -233,10 +241,17 @@ Additional specification languages may be introduced later without
 changing the directory hierarchy. A new language simply adds another
 file extension under the owning bounded context.
 
+The product statechart is the one cross-context exception: exactly one
+`product.machine.json` lives at the root, with `journeys.yaml` holding its
+guided paths and `atlas.yaml` naming the map. The machine links existing
+product contracts and does not restate them. Automated traversal rejects an
+unreachable state, transition or journey, and the Atlas explorer receives
+this one machine rather than a catalog of separate capability charts.
+
 **Flatness is a repository invariant.** Automated repository validation
-must reject nested specification taxonomy directories. Apart from
-`conformance.yaml`, a spec file must be directly under exactly one
-bounded-context directory.
+must reject nested specification taxonomy directories. Apart from the
+declared whole-product files, shared kernel and rulebook, a spec file must be
+directly under exactly one bounded-context directory.
 
 **Outside `specs/`:** database schemas, SQL queries, internal
 APIs/events, JWT claims, framework code, migrations, deployment
@@ -956,7 +971,8 @@ machine-generated evidence alone.
 
 Product acceptance behavior lives in specs: Gherkin features, Quint models,
 DMN decision tables, Alloy structures and OpenSLO objectives, plus the
-conformance manifest that says which of them a release needs. A spec is the product's contract in the product's language — what
+whole-product statechart, its guided journeys and the conformance manifest
+that says which contracts a release needs. A spec is the product's contract in the product's language — what
 people can do and what they observe — and never says how the product is
 built, so it stays true through any rewrite. Everything else (units,
 algorithms, wire shapes, storage, performance) is a code test under
@@ -986,6 +1002,9 @@ or softening a rule, answer its why.
 specs/README.md                            this rulebook
 specs/conformance.yaml                     the manifest: capabilities, contracts, environments, release evidence
 specs/ubiquitous-language.yml              the shared kernel: terms every context may use
+specs/product.machine.json                 the one connected statechart for the entire product
+specs/journeys.yaml                        guided paths through that product statechart
+specs/atlas.yaml                           the product map's Atlas title and description
 specs/<domain>/ubiquitous-language.yml     the context's ubiquitous language
 specs/<domain>/<feature>.feature           Gherkin: concrete scenarios
 specs/<domain>/<model>.qnt                 Quint: a feature's state under any sequence of actions
@@ -996,7 +1015,9 @@ specs/<domain>/<objective>.openslo.yaml    OpenSLO: how well, measured over time
 ```
 
 One directory per domain, no subdirectories, every feature tagged with its
-directory's `@domain`. Nothing else lives in `specs/`: a grammar (`.ebnf`) or
+directory's `@domain`. The three product-map files above are the only
+whole-product source files besides the conformance manifest and shared
+kernel. Nothing else lives in `specs/`: a grammar (`.ebnf`) or
 a public format (`.schema.json`) is refused until a runner checks it, since an
 unrun spec is a false green. The package whose steps run a domain lists it in its
 `package.json` `specDomains` (each domain in exactly one package) and adds
@@ -1697,7 +1718,10 @@ friends / friendship.qnt
 Nothing in a spec file (feature, model, decision table, structure,
 objective, glossary or the manifest) changes if the product is rewritten in
 another language, framework, database or host. No file paths, package names,
-or code identifiers appear in specs.
+or code identifiers appear in product prose. The product machine's
+`source` arrays and a journey's `gherkin` list are traceability metadata:
+they may point only to contracts in `specs/` and the statechart scope notes,
+and the statechart gate rejects a missing address.
 *Why: the spec is the contract the rewrite is checked against.*
 
 **D2 · Steps bind through the harness, this repo's port.** *Blocking.*
@@ -1788,8 +1812,9 @@ checks the rest. It fails on:
   outside `specs/` that is not test-only machinery marked `@spec-meta`
 - TypeScript, JavaScript, or a Quint model marked `@spec-meta` or
   `@spec-interpretation` inside an unregistered campaign domain in `specs/`
-- code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
-  this rulebook): a
+- code in product prose (D1, `libs/tools/scripts/spec-decoupling.ts`; every
+  file but this rulebook, excluding the product map's declared traceability
+  fields): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
   other than `@domain:`, `@regression:` and the exact tag `@synthetic`
 - a random walk outside a Quint model: `.explore(` or `randomActions(` in a

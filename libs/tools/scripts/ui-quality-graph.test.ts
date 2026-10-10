@@ -99,7 +99,7 @@ test('native inference waits for the existing product symbolic and renderer cont
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
 });
 
-test('PR Check and Deploy never run the visual gate or prepare its model', () => {
+test('release Check and Deploy never run the visual gate or prepare its model', () => {
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'turbo.json'
   );

@@ -9,33 +9,15 @@ const SCROLL_DOWN = '\u001b[B';
 const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
 
 describe('WORKFLOW_DISPATCH', () => {
-  test('check, verify and health follow the checkout; deploy ships main', () => {
-    expect(WORKFLOW_DISPATCH.check).toEqual({
-      workflow: 'check.yml',
-      sync: 'branch',
-      refuseOnMain: true,
-      printsReport: false,
-      inputs: { scope: 'pr' },
-    });
-    expect(WORKFLOW_DISPATCH.verify).toEqual({
-      workflow: 'check.yml',
-      sync: 'branch',
-      refuseOnMain: false,
-      printsReport: true,
-      inputs: { scope: 'full' },
-    });
+  test('health follows the checkout; deploy ships main', () => {
     expect(WORKFLOW_DISPATCH.health).toEqual({
       workflow: 'health.yml',
       sync: 'branch',
-      refuseOnMain: false,
-      printsReport: false,
       inputs: {},
     });
     expect(WORKFLOW_DISPATCH.deploy).toEqual({
       workflow: 'deploy.yml',
       sync: 'trunk',
-      refuseOnMain: false,
-      printsReport: false,
       inputs: {},
     });
   });
@@ -106,8 +88,8 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(Object.keys(deploy.on)).toEqual(['workflow_dispatch']);
     expect(deploy.jobs['deploy-verify']).toMatchObject({
       uses: './.github/workflows/check.yml',
-      with: { scope: 'full' },
     });
+    expect(deploy.jobs['deploy-verify']).not.toHaveProperty('with');
     expect(deploy.jobs['deploy-fleet']!.needs).toContain('deploy-verify');
     expect(deploy.jobs['deploy-production']!.needs).toContain('deploy-verify');
     expect(deploy.jobs['deploy-release']!.needs).toEqual(['deploy-production']);

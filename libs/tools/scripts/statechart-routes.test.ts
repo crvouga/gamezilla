@@ -1,0 +1,258 @@
+import { describe, expect, test } from 'bun:test';
+import type { MachineConfig } from '@crvouga/atlas';
+import {
+  declaredProductRoutes,
+  PRODUCT_ROUTE_ROOTS,
+  routeCoverageProblems,
+} from './statechart-routes';
+
+function sources(): Map<string, string> {
+  return new Map([
+    [
+      PRODUCT_ROUTE_ROOTS[0],
+      `
+      const HOME = '/';
+      // { path: '/comment-only' }
+      export const SHELL_ROUTE_TABLE = [{ path: HOME, component: Home }];
+      export const NOT_FOUND_ROUTE_PATH = '/*all';
+    `,
+    ],
+    [
+      PRODUCT_ROUTE_ROOTS[1],
+      `
+      import { CLIENT as ACTIVE } from '@libs/example-client/feature-client';
+      import { UNUSED } from '@libs/uncomposed-client/feature-client';
+      const ACTIVE_CLIENTS = [ACTIVE];
+      export const APP_FEATURE_CLIENTS = [...ACTIVE_CLIENTS];
+    `,
+    ],
+    [
+      'libs/example-client/src/feature-client.tsx',
+      `
+      import { defineFeatureClient as define } from '@libs/feature-client/client';
+      import { DETAIL } from '@libs/example-shared/paths';
+      const ROUTES = [{ path: DETAIL, component: Detail }];
+      export const CLIENT = define({ name: 'example', routes: ROUTES });
+    `,
+    ],
+    [
+      'libs/example-shared/src/paths.ts',
+      "export const DETAIL = '/example/:id';",
+    ],
+    [
+      PRODUCT_ROUTE_ROOTS[2],
+      `
+      import { HARNESS_PATH } from './console-nav-real';
+      import { isReportsPath } from './reports-path';
+      function isHarnessPath(pathname: string) {
+        return pathname === HARNESS_PATH || pathname.startsWith(HARNESS_PATH + '/');
+      }
+      function surfaceAt(pathname: string) {
+        if (isHarnessPath(pathname)) return 'harness';
+        if (isReportsPath(pathname)) return 'reports';
+        return 'app';
+      }
+    `,
+    ],
+    [PRODUCT_ROUTE_ROOTS[3], "export const HARNESS_PATH = '/harness';"],
+    [
+      PRODUCT_ROUTE_ROOTS[4],
+      `
+      export const REPORTS_PATH = '/reports';
+      export function isReportsPath(pathname: string) {
+        return pathname === REPORTS_PATH || pathname.startsWith(REPORTS_PATH + '/');
+      }
+      export function reportsPathFor(sha: string | null) {
+        return sha === null ? REPORTS_PATH : REPORT_PATTERN;
+      }
+    `.replace('REPORT_PATTERN', '`/reports/${sha}`'),
+    ],
+  ]);
+}
+
+function chart(): MachineConfig {
+  return {
+    id: 'product',
+    initial: 'Home',
+    states: {
+      Home: { meta: { route: '/' } },
+      Detail: {
+        meta: {
+          routes: [
+            '/example/:id',
+            '/*all',
+            '/harness',
+            '/reports',
+            '/reports/:sha',
+          ],
+        },
+      },
+    },
+  };
+}
+
+describe('declared product route closure', () => {
+  test('resolves the actual composition, aliases, shared constants and report patterns without loading product code', () => {
+    const routes = declaredProductRoutes(sources());
+    expect(routes.map((route) => route.path)).toEqual([
+      '/',
+      '/*all',
+      '/example/:id',
+      '/harness',
+      '/reports',
+      '/reports/:sha',
+    ]);
+    expect(routes.find((route) => route.path === '/example/:id')?.source).toBe(
+      'libs/example-client/src/feature-client.tsx'
+    );
+    expect(routeCoverageProblems(chart(), routes)).toEqual([]);
+  });
+
+  test('finds routes returned by a composed feature factory', () => {
+    const files = sources();
+    files.set(
+      PRODUCT_ROUTE_ROOTS[1],
+      `
+      import { createClient } from '@libs/example-client/feature-client';
+      const ACTIVE = createClient({ ports: injectedPorts });
+      export const APP_FEATURE_CLIENTS = [ACTIVE];
+    `
+    );
+    files.set(
+      'libs/example-client/src/feature-client.tsx',
+      `
+      import { defineFeatureClient } from '@libs/feature-client/client';
+      export function createClient(options) {
+        function Provider() { return options.children; }
+        return defineFeatureClient({ name: 'example', routes: [{ path: '/factory/:id' }] });
+      }
+    `
+    );
+    expect(
+      declaredProductRoutes(files).some(
+        (route) => route.path === '/factory/:id'
+      )
+    ).toBe(true);
+  });
+
+  test('rejects a dynamic route instead of treating a template as a complete declaration', () => {
+    const files = sources();
+    files.set(
+      'libs/example-shared/src/paths.ts',
+      'export const DETAIL = `/example/${process.env.ROUTE}`;'
+    );
+    expect(() => declaredProductRoutes(files)).toThrow('static pattern');
+    files.set(
+      'libs/example-shared/src/paths.ts',
+      'export const DETAIL = unknownPath;'
+    );
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'Unresolved route binding'
+    );
+  });
+
+  test('rejects missing dependencies, syntax errors and duplicate registered paths', () => {
+    const files = sources();
+    files.delete('libs/example-shared/src/paths.ts');
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'Missing route dependency'
+    );
+    files.set('libs/example-shared/src/paths.ts', 'export const DETAIL = ;');
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'Invalid route source syntax'
+    );
+    files.set('libs/example-shared/src/paths.ts', "export const DETAIL = '/';");
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'Duplicate public route pattern'
+    );
+  });
+
+  test('rejects route overrides and unrecognized product surfaces', () => {
+    const files = sources();
+    files.set(
+      PRODUCT_ROUTE_ROOTS[0],
+      "export const SHELL_ROUTE_TABLE = [{ path: '/', ...extra }]; export const NOT_FOUND_ROUTE_PATH = '/*all';"
+    );
+    expect(() => declaredProductRoutes(files)).toThrow('Route object spreads');
+    files.set(PRODUCT_ROUTE_ROOTS[0], sources().get(PRODUCT_ROUTE_ROOTS[0])!);
+    files.set(
+      PRODUCT_ROUTE_ROOTS[2],
+      sources()
+        .get(PRODUCT_ROUTE_ROOTS[2])!
+        .replace(
+          "return 'app';",
+          "if (isSimulatorPath(pathname)) return 'simulator'; return 'app';"
+        )
+    );
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'declare every public surface'
+    );
+  });
+
+  test('reports unowned and invented screen addresses while allowing several outcomes on one route', () => {
+    const machine = chart();
+    machine.states!['Another outcome'] = { meta: { route: '/' } };
+    const routes = declaredProductRoutes(sources());
+    expect(routeCoverageProblems(machine, routes)).toEqual([]);
+    machine.states!['Detail']!.meta!['routes'] = ['/example/:id', '/invented'];
+    const problems = routeCoverageProblems(machine, routes);
+    expect(
+      problems.some((problem) =>
+        problem.message.includes('undeclared public route /invented')
+      )
+    ).toBe(true);
+    expect(
+      problems.some((problem) =>
+        problem.message.includes('/reports/:sha: no chart state')
+      )
+    ).toBe(true);
+  });
+
+  test('detects additional literal top-level addresses and rejects unresolved path predicates', () => {
+    const files = sources();
+    const original = files.get(PRODUCT_ROUTE_ROOTS[2])!;
+    files.set(
+      PRODUCT_ROUTE_ROOTS[2],
+      original.replace(
+        'pathname === HARNESS_PATH ||',
+        "pathname === '/simulator' || pathname === HARNESS_PATH ||"
+      )
+    );
+    const routes = declaredProductRoutes(files);
+    expect(routes.some((route) => route.path === '/simulator')).toBe(true);
+    expect(
+      routeCoverageProblems(chart(), routes).some((problem) =>
+        problem.message.includes('/simulator: no chart state')
+      )
+    ).toBe(true);
+    files.set(
+      PRODUCT_ROUTE_ROOTS[2],
+      original.replace(
+        'pathname === HARNESS_PATH || pathname.startsWith(HARNESS_PATH +',
+        'pathname === unknownRoute || pathname.startsWith(HARNESS_PATH +'
+      )
+    );
+    expect(() => declaredProductRoutes(files)).toThrow(
+      'Unresolved route binding'
+    );
+  });
+
+  test('rejects malformed or repeated metadata instead of accepting it as route coverage', () => {
+    const machine = chart();
+    machine.states!['Home']!.meta!['routes'] = ['/', 5];
+    const problems = routeCoverageProblems(
+      machine,
+      declaredProductRoutes(sources())
+    );
+    expect(
+      problems.some((problem) =>
+        problem.message.includes('routes must contain non-empty strings')
+      )
+    ).toBe(true);
+    expect(
+      problems.some((problem) =>
+        problem.message.includes('duplicate route metadata')
+      )
+    ).toBe(true);
+  });
+});

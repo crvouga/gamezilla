@@ -55,8 +55,6 @@ export const globalFileSchema = z
         owner_id: z.string().regex(/^[1-9][0-9]*$/),
         repo: id,
         repo_id: z.string().regex(/^[1-9][0-9]*$/),
-        required_checks: z.array(id).min(1),
-        check_integration_id: z.number().int().positive(),
         settings: z
           .object({
             visibility: z.enum(['private', 'public', 'internal']),
