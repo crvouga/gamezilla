@@ -1,4 +1,4 @@
-@domain:population
+@domain:synthetic-population
 Feature: Observe and control the Synthetic Population
   When automated opponents are available, an authorized person wants to
   observe their activity and choose how many are available, so people can
@@ -6,37 +6,37 @@ Feature: Observe and control the Synthetic Population
 
   Rule: Only authorized people can use the Bot Observatory
 
-    Scenario: An authorized person sees the desired population
+    Scenario: An authorized person sees the desired synthetic population
       Given Alice is authorized to view the Bot Observatory
-      And the desired population is 4
+      And the desired synthetic population is 4
       When Alice opens the Bot Observatory
-      Then Alice sees a desired population of 4
+      Then Alice sees a desired synthetic population of 4
 
-    @regression:population-denial-removes-shell
+    @regression:synthetic-population-denial-removes-shell
     Scenario: An ordinary person cannot inspect Synthetic Users
       Given Bob is not authorized to view the Bot Observatory
       When Bob opens the Bot Observatory
       Then Bob is told that permission is required
       And Bob sees no Synthetic User activity
 
-  Rule: Changing the desired population requires permission
+  Rule: Changing the desired synthetic population requires permission
 
-    @regression:population-config-save-stays-disabled
-    Scenario: An authorized person changes the desired population
+    @regression:synthetic-population-config-save-stays-disabled
+    Scenario: An authorized person changes the desired synthetic population
       Given Alice is authorized to configure the Synthetic Population
-      When Alice changes the desired population to 6
-      Then Alice sees a desired population of 6
+      When Alice changes the desired synthetic population to 6
+      Then Alice sees a desired synthetic population of 6
 
-    Scenario: A person with observation permission cannot change the desired population
+    Scenario: A person with observation permission cannot change the desired synthetic population
       Given Alice is authorized to view the Bot Observatory
-      And the desired population is 4
-      When Alice changes the desired population to 6
+      And the desired synthetic population is 4
+      When Alice changes the desired synthetic population to 6
       Then Alice is told that permission is required
-      And the desired population remains 4
+      And the desired synthetic population remains 4
 
   Rule: Pausing preserves an ongoing game
 
-    @regression:population-chess-clicks-submit-no-move
+    @regression:synthetic-population-chess-clicks-submit-no-move
     Scenario: A paused Synthetic User finishes its ongoing game
       Given Alice is authorized to control the Synthetic Population
       And the Synthetic User "Cedar" has an ongoing game

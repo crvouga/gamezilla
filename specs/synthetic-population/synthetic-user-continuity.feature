@@ -1,4 +1,4 @@
-@domain:population
+@domain:synthetic-population
 Feature: Synthetic Users recover their current activity
   When a Synthetic User's app reopens, people want it to recover its current
   activity, so an interruption never takes away their ongoing game.
@@ -6,6 +6,8 @@ Feature: Synthetic Users recover their current activity
   Rule: Recovery keeps a Synthetic User's identity
     No counter-example: reopening never gives a Synthetic User a different account.
 
+    @regression:synthetic-population-browser-device-fencing
+    @regression:browser-reopening-deletes-device-storage
     Scenario: An available Synthetic User keeps its identity after reopening
       Given the Synthetic User "Cedar" is available
       When the Synthetic User "Cedar" closes and reopens the app
@@ -24,6 +26,9 @@ Feature: Synthetic Users recover their current activity
   Rule: Recovery preserves a finished multiplayer result
     No counter-example: reopening never makes a finished game ongoing again.
 
+    @regression:finished-game-fixture-observes-unsettled-result
+    @regression:synthetic-game-fixture-runs-before-position
+    @regression:multiplayer-snapshot-one-millisecond-focus
     Scenario: A Synthetic User keeps its finished game after reopening
       Given the Synthetic User "Cedar" has a finished multiplayer game
       When the Synthetic User "Cedar" closes and reopens the app

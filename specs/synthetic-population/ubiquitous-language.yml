@@ -4,14 +4,14 @@ purpose: >-
   observe their activity and choose how many are available.
 terms:
   - term: Synthetic Population
-    definition: The complete population of autonomous automated opponents.
+    definition: The complete synthetic population of autonomous automated opponents.
   - term: Synthetic User
     definition: A persistent account operated autonomously and identified as automated.
     forms: [Synthetic Users, Synthetic User's]
     model: [SyntheticUser, identity, invPersistentIdentity]
   - term: Bot Observatory
     definition: Where authorized people observe and control the Synthetic Population.
-  - term: desired population
+  - term: desired synthetic population
     definition: How many Synthetic Users should be available.
   - term: pause
     definition: Stop starting activities for a Synthetic User while preserving an ongoing game.

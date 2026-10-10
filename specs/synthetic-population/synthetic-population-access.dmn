@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="population-access-decisions" name="Bot Observatory access" namespace="https://gamezilla.dev/decisions">
-  <decision id="population-access" name="May this person use the Bot Observatory?">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="synthetic-population-access-decisions" name="Bot Observatory access" namespace="https://gamezilla.dev/decisions">
+  <decision id="synthetic-population-access" name="May this person use the Bot Observatory?">
     <description>Each Observatory capability requires authorization for that capability.</description>
-    <decisionTable id="population-access-table" hitPolicy="UNIQUE">
+    <decisionTable id="synthetic-population-access-table" hitPolicy="UNIQUE">
       <input id="authorized" label="authorized for this capability">
         <inputExpression id="authorized-expression" typeRef="string"><text>authorized for this capability</text></inputExpression>
         <inputValues id="authorized-values"><text>"yes","no"</text></inputValues>
