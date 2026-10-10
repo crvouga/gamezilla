@@ -284,6 +284,7 @@ msgid "Account deletion is permanent. Every device will be signed out, including
 msgstr "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
 
 #: libs/auth-client/src/account-devices-card.tsx
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
@@ -309,11 +310,28 @@ msgstr "Action required"
 msgid "Active · renews {0}"
 msgstr "Active · renews {0}"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Active match"
+msgstr "Active match"
+
 #: libs/auth-client/src/account-device-active-session-line.tsx
 msgid "Active sessions"
 msgstr "Active sessions"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Active space"
+msgstr "Active space"
+
+#: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
+msgid "Active state"
+msgstr "Active state"
+
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Active Synthetic Users"
+msgstr "Active Synthetic Users"
+
 #: libs/auth-client/src/account-device-meta-grid.tsx
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Activity"
 msgstr "Activity"
 
@@ -364,6 +382,15 @@ msgstr "Adding puzzles failed"
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Adjust feed"
 msgstr "Adjust feed"
+
+#: libs/synthetic-population-client/src/synthetic-population-settings.tsx
+msgid "Administration"
+msgstr "Administration"
+
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Admission limit per worker"
+msgstr "Admission limit per worker"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
@@ -452,6 +479,11 @@ msgstr "Appearance"
 msgid "Apple"
 msgstr "Apple"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Application version"
+msgstr "Application version"
+
 #: libs/notifications-client/src/notifications-filter-bar.tsx
 msgid "Archived"
 msgstr "Archived"
@@ -481,6 +513,18 @@ msgstr "Auto-advance"
 msgid "Automatic"
 msgstr "Automatic"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Available"
+msgstr "Available"
+
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Available capacity"
+msgstr "Available capacity"
+
+#: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
+msgid "Available transitions"
+msgstr "Available transitions"
+
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Avatar"
@@ -500,6 +544,10 @@ msgstr "Back to spaces"
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
+
+#: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
+msgid "Behavior Statechart"
+msgstr "Behavior Statechart"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
 msgid "Best streak"
@@ -569,8 +617,20 @@ msgstr "Block this user?"
 #: libs/chess-custom-game-client/src/custom-game-person.tsx
 #: libs/chess-custom-game-client/src/custom-game-side-choices.tsx
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
+#: libs/profile-client/src/account-automation-label.tsx
 msgid "Bot"
 msgstr "Bot"
+
+#: libs/synthetic-population-client/src/synthetic-population-denial.tsx
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-population-settings.tsx
+#: libs/synthetic-population-client/src/synthetic-user-screen.tsx
+msgid "Bot Observatory"
+msgstr "Bot Observatory"
+
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+msgid "Bot Observatory could not be loaded."
+msgstr "Bot Observatory could not be loaded."
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Both sides have moved. Resign instead of cancelling."
@@ -646,6 +706,18 @@ msgstr "Cancelling…"
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "Capacity is bounded by each worker's resource limit. An empty version allows every healthy version to accept assignments."
+msgstr "Capacity is bounded by each worker's resource limit. An empty version allows every healthy version to accept assignments."
+
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+msgid "Capture live DOM"
+msgstr "Capture live DOM"
+
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+msgid "Capture requested"
+msgstr "Capture requested"
+
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 msgid "Change participant"
 msgstr "Change participant"
@@ -654,6 +726,10 @@ msgstr "Change participant"
 #: pkgs/harness-report-client/src/revision-picker.tsx
 msgid "Change revision"
 msgstr "Change revision"
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Change the search or increase the desired synthetic population."
+msgstr "Change the search or increase the desired synthetic population."
 
 #: libs/search-client/src/search-screen-view.tsx
 msgid "Check the spelling or try a different username."
@@ -672,6 +748,10 @@ msgstr "Chess · Custom game"
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 msgid "Chess · Matchmaking"
 msgstr "Chess · Matchmaking"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Choice reproduced"
+msgstr "Choice reproduced"
 
 #: pkgs/ui-root-client/src/combobox.tsx
 #: pkgs/ui-root-client/src/picker.tsx
@@ -818,6 +898,10 @@ msgstr "Component not found"
 #: pkgs/ui-root-client/src/explorer-list.tsx
 msgid "Components"
 msgstr "Components"
+
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "Configuration"
+msgstr "Configuration"
 
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 #: libs/friends-client/src/friend-action-pill-buttons.tsx
@@ -1025,15 +1109,25 @@ msgstr "Couldn't sign out everywhere"
 msgid "Couldn't unblock"
 msgstr "Couldn't unblock"
 
+#: libs/auth-client/src/use-password-sign-in.tsx
+msgid "Create account"
+msgstr "Create account"
+
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 msgid "Create game"
 msgstr "Create game"
 
 #: libs/auth-client/src/account-device-meta-grid.tsx
+#: libs/auth-client/src/use-password-sign-in.tsx
 msgid "Created"
 msgstr "Created"
 
+#: libs/auth-client/src/use-password-sign-in.tsx
+msgid "Creating…"
+msgstr "Creating…"
+
 #: libs/spaces-client/src/space-live-badge.tsx
+#: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Current"
 msgstr "Current"
 
@@ -1044,6 +1138,11 @@ msgstr "Current checkout"
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
 msgid "Current game"
 msgstr "Current game"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+msgid "Current route"
+msgstr "Current route"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
 msgid "Current streak"
@@ -1092,6 +1191,10 @@ msgstr "day"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "debug"
 msgstr "debug"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Decision Policy replay"
+msgstr "Decision Policy replay"
 
 #: libs/chess-custom-game-client/src/custom-game-side-choices.tsx
 #: libs/friends-client/src/friend-request-decision-modal.tsx
@@ -1146,6 +1249,11 @@ msgstr "Demo code editor"
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Design system explorer"
 msgstr "Design system explorer"
+
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
+msgid "Desired synthetic population"
+msgstr "Desired synthetic population"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "dev"
@@ -1236,6 +1344,10 @@ msgstr "Download readable summary"
 msgid "Download reusable detail"
 msgstr "Download reusable detail"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Draining"
+msgstr "Draining"
+
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."
@@ -1262,6 +1374,19 @@ msgstr "Edit profile"
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
+
+#: libs/auth-client/src/password-sign-in-form.tsx
+msgid "Email address"
+msgstr "Email address"
+
+#: libs/auth-client/src/password-sign-in-form.tsx
+msgid "Email address and password"
+msgstr "Email address and password"
+
+#: libs/auth-client/src/auth-flow-messages.tsx
+#: libs/auth-client/src/sign-in-methods-section.tsx
+msgid "Email and password"
+msgstr "Email and password"
 
 #: libs/profile-client/src/avatar-editor-seed-field.tsx
 msgid "Empty: your default look"
@@ -1291,6 +1416,10 @@ msgstr "End space?"
 msgid "Ending space…"
 msgstr "Ending space…"
 
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+msgid "Enter a valid desired synthetic population."
+msgstr "Enter a valid desired synthetic population."
+
 #: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
 msgid "Environment"
 msgstr "Environment"
@@ -1298,6 +1427,10 @@ msgstr "Environment"
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
+
+#: libs/synthetic-population-client/src/synthetic-population-event-timeline.tsx
+msgid "Event timeline"
+msgstr "Event timeline"
 
 #: libs/auth-client/src/sign-out-everywhere.tsx
 msgid "Every device signed in to this account, including this one, will be signed out."
@@ -1451,6 +1584,10 @@ msgstr "Find people"
 msgid "Find specs"
 msgstr "Find specs"
 
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Find Synthetic Users"
+msgstr "Find Synthetic Users"
+
 #: pkgs/harness-report-client/src/entity-browser.tsx
 msgid "Find test runs"
 msgstr "Find test runs"
@@ -1482,6 +1619,10 @@ msgstr "Finish your Custom Game first"
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Finishing checkout…"
 msgstr "Finishing checkout…"
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "First page"
+msgstr "First page"
 
 #: libs/auth-client/src/account-device-meta-grid.tsx
 msgid "First seen"
@@ -1645,6 +1786,10 @@ msgstr "Has ever synced"
 msgid "Has synced"
 msgstr "Has synced"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Health"
+msgstr "Health"
+
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Hidden email · forwarding is off"
 msgstr "Hidden email · forwarding is off"
@@ -1703,6 +1848,10 @@ msgstr "I'm ready"
 msgid "Immediately"
 msgstr "Immediately"
 
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+msgid "In-process UI inspector"
+msgstr "In-process UI inspector"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Include played puzzles"
 msgstr "Include played puzzles"
@@ -1723,6 +1872,10 @@ msgstr "Infrastructure"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "inp"
 msgstr "inp"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Inputs unavailable"
+msgstr "Inputs unavailable"
 
 #: pkgs/harness-report-client/src/test-inspection.tsx
 msgid "Inspect test"
@@ -1781,6 +1934,10 @@ msgstr "It was taken out of the puzzles, so its link no longer opens it."
 msgid "Item not found"
 msgstr "Item not found"
 
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Its application reconnects and reconciles its ongoing activity before taking another action."
+msgstr "Its application reconnects and reconciles its ongoing activity before taking another action."
+
 #: libs/app-root-client/src/app-commands.tsx
 msgid "jank"
 msgstr "jank"
@@ -1837,14 +1994,26 @@ msgstr "Knight"
 msgid "Last error"
 msgstr "Last error"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Last heartbeat"
+msgstr "Last heartbeat"
+
 #: libs/auth-client/src/account-device-meta-grid.tsx
 msgid "Last seen"
 msgstr "Last seen"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Last successful action"
+msgstr "Last successful action"
 
 #. placeholder {0}: latestExpires()
 #: libs/auth-client/src/account-device-active-session-line.tsx
 msgid "Latest expires {0}"
 msgstr "Latest expires {0}"
+
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Lease renewal failures"
+msgstr "Lease renewal failures"
 
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 #: libs/spaces-client/src/space-end-or-leave-button.tsx
@@ -2001,6 +2170,7 @@ msgid "Matched with {0}, rated {1}, at {2}."
 msgstr "Matched with {0}, rated {1}, at {2}."
 
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
@@ -2101,6 +2271,10 @@ msgstr "Muted"
 msgid "Name"
 msgstr "Name"
 
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Name, activity, region or worker"
+msgstr "Name, activity, region or worker"
+
 #: pkgs/harness-report-client/src/spec-browser.tsx
 msgid "Name, context, or path"
 msgstr "Name, context, or path"
@@ -2151,6 +2325,10 @@ msgstr "Next frame"
 #: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
 msgid "Next move"
 msgstr "Next move"
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Next page"
+msgstr "Next page"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-celebration-overlay.tsx
 msgid "Next puzzle"
@@ -2314,6 +2492,10 @@ msgstr "No spaces yet"
 msgid "No specs match"
 msgstr "No specs match"
 
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "No Synthetic Users found"
+msgstr "No Synthetic Users found"
+
 #: pkgs/harness-report-client/src/report-app.tsx
 msgid "No test run has been published for this commit. Its specs and independently completed report parts remain available below."
 msgstr "No test run has been published for this commit. Its specs and independently completed report parts remain available below."
@@ -2323,6 +2505,7 @@ msgid "No versions match"
 msgstr "No versions match"
 
 #: libs/app-root-client/src/sync-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "None"
 msgstr "None"
 
@@ -2342,6 +2525,10 @@ msgstr "Not connected"
 msgid "Not found"
 msgstr "Not found"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Not registered"
+msgstr "Not registered"
+
 #: pkgs/harness-report-client/src/report-parts-view.tsx
 #: pkgs/harness-report-client/src/report-status.tsx
 msgid "Not run"
@@ -2350,6 +2537,10 @@ msgstr "Not run"
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Not set"
 msgstr "Not set"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Not started"
+msgstr "Not started"
 
 #: libs/notifications-client/src/notifications-empty-state.tsx
 msgid "Nothing archived"
@@ -2372,6 +2563,10 @@ msgstr "Notifications"
 #: libs/notifications-client/src/notifications-empty-state.tsx
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
+
+#: libs/synthetic-population-client/src/synthetic-population-settings.tsx
+msgid "Observe and control the Synthetic Population"
+msgstr "Observe and control the Synthetic Population"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/performance-screen.tsx
@@ -2409,6 +2604,10 @@ msgstr "On"
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
+
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
+msgid "Online Synthetic Users"
+msgstr "Online Synthetic Users"
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Only a participant can make this choice."
@@ -2500,6 +2699,10 @@ msgstr "Other people see you as {alias} until you choose a new username"
 msgid "Outcome"
 msgstr "Outcome"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Ownership generation"
+msgstr "Ownership generation"
+
 #: pkgs/harness-report-client/src/entity-browser.tsx
 msgid "Package"
 msgstr "Package"
@@ -2526,9 +2729,23 @@ msgstr "Pagination"
 msgid "Passed"
 msgstr "Passed"
 
+#: libs/auth-client/src/password-sign-in-form.tsx
+msgid "Password"
+msgstr "Password"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Pause"
+msgstr "Pause"
+
 #: pkgs/harness-report-client/src/scrubber.tsx
 msgid "Pause playback"
 msgstr "Pause playback"
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Paused"
+msgstr "Paused"
 
 #. placeholder {0}: date()
 #: libs/billing-client/src/billing-plan-card.tsx
@@ -2640,6 +2857,7 @@ msgstr "Play history"
 msgid "Played"
 msgstr "Played"
 
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
 #: pkgs/ui-root-client/src/sound-indicator.tsx
 msgid "Playing"
 msgstr "Playing"
@@ -2652,6 +2870,10 @@ msgstr "Plus"
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Plus credit · {0} left from your yearly plan"
 msgstr "Plus credit · {0} left from your yearly plan"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Policy changed"
+msgstr "Policy changed"
 
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Preferences"
@@ -2826,12 +3048,21 @@ msgstr "Rating offset"
 msgid "Rating trend and game log"
 msgstr "Rating trend and game log"
 
+#: libs/synthetic-population-client/src/synthetic-user-screen.tsx
+msgid "Reading activity…"
+msgstr "Reading activity…"
+
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+msgid "Reading Synthetic Population…"
+msgstr "Reading Synthetic Population…"
+
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Reading the latest result…"
 msgstr "Reading the latest result…"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
 msgid "Ready"
 msgstr "Ready"
 
@@ -2851,6 +3082,10 @@ msgstr "Ready, set, play"
 #: libs/search-client/src/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Recent failure"
+msgstr "Recent failure"
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Reconnect before changing or playing the game."
@@ -2888,10 +3123,20 @@ msgstr "Recorded test reports"
 msgid "Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below."
 msgstr "Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below."
 
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
+msgid "Recovering"
+msgstr "Recovering"
+
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-user-screen.tsx
 #: pkgs/harness-report-client/src/commit-list.tsx
 #: pkgs/harness-report-client/src/report-app.tsx
 msgid "Refresh"
 msgstr "Refresh"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Region"
+msgstr "Region"
 
 #: pkgs/harness-report-client/src/spec-report-parts.tsx
 msgid "Related report parts"
@@ -2900,6 +3145,10 @@ msgstr "Related report parts"
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 msgid "Release this side"
 msgstr "Release this side"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Released"
+msgstr "Released"
 
 #: libs/app-root-client/src/update-prompt.tsx
 msgid "Reload"
@@ -2914,6 +3163,7 @@ msgid "Rematch"
 msgstr "Rematch"
 
 #: libs/auth-client/src/sign-in-method-row.tsx
+#: libs/auth-client/src/sign-in-methods-section.tsx
 #: libs/auth-client/src/unlink-method-modal.tsx
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 #: libs/spaces-client/src/space-share-people-list.tsx
@@ -2954,6 +3204,18 @@ msgstr "Rename space"
 #: pkgs/harness-report-client/src/test-inspection.tsx
 msgid "Replay"
 msgstr "Replay"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Replay completed"
+msgstr "Replay completed"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Replay decisions"
+msgstr "Replay decisions"
+
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
+msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
+msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 
 #: pkgs/harness-report-client/src/report-explorer.tsx
 msgid "Report parts"
@@ -2999,6 +3261,10 @@ msgstr "Resets in {hours} h"
 msgid "Resets in {minutes} min"
 msgstr "Resets in {minutes} min"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Resident memory"
+msgstr "Resident memory"
+
 #: libs/chess-custom-game-client/src/custom-game-confirm.tsx
 msgid "Resign game"
 msgstr "Resign game"
@@ -3010,6 +3276,30 @@ msgstr "Resign multiplayer chess"
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Resign multiplayer chess?"
 msgstr "Resign multiplayer chess?"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Restart"
+msgstr "Restart"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Restart application"
+msgstr "Restart application"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Restart requested"
+msgstr "Restart requested"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Restart this Synthetic User?"
+msgstr "Restart this Synthetic User?"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Resume"
+msgstr "Resume"
+
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "Resumed"
+msgstr "Resumed"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
@@ -3060,14 +3350,20 @@ msgstr "Save"
 msgid "Save {0}%"
 msgstr "Save {0}%"
 
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
+msgid "Save synthetic population"
+msgstr "Save synthetic population"
+
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Saved"
 msgstr "Saved"
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
 #: libs/spaces-client/src/rename-space-modal.tsx
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Saving…"
 msgstr "Saving…"
 
@@ -3195,6 +3491,14 @@ msgstr "Server"
 msgid "Server status"
 msgstr "Server status"
 
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "Session duration (milliseconds)"
+msgstr "Session duration (milliseconds)"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Session started"
+msgstr "Session started"
+
 #: libs/auth-client/src/account-device-detail-body.tsx
 msgid "Sessions"
 msgstr "Sessions"
@@ -3218,6 +3522,7 @@ msgstr "Sessions"
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
+#: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Settings"
 msgstr "Settings"
 
@@ -3258,6 +3563,7 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 #: libs/auth-client/src/account-actions-row.tsx
 #: libs/auth-client/src/account-devices-card.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/use-password-sign-in.tsx
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"
@@ -3343,10 +3649,6 @@ msgstr "Sign-in"
 msgid "Sign-in failed"
 msgstr "Sign-in failed"
 
-#: libs/auth-client/src/sign-in-modal-body.tsx
-msgid "Sign-in is not available."
-msgstr "Sign-in is not available."
-
 #: libs/auth-client/src/sign-in-methods-section.tsx
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
@@ -3369,6 +3671,7 @@ msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/use-password-sign-in.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
@@ -3382,6 +3685,7 @@ msgstr "Signed out everywhere"
 
 #: libs/app-root-client/src/sso-callback.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/use-password-sign-in.tsx
 #: pkgs/ui-root-client/src/social-provider-config.tsx
 msgid "Signing in…"
 msgstr "Signing in…"
@@ -3416,6 +3720,10 @@ msgstr "Snapshot (JSON)"
 #: pkgs/harness-report-client/src/performance-overview.tsx
 msgid "Snapshots"
 msgstr "Snapshots"
+
+#: libs/auth-client/src/sign-in-modal-body.tsx
+msgid "Social sign-in is not available."
+msgstr "Social sign-in is not available."
 
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 msgid "Solution"
@@ -3666,6 +3974,38 @@ msgstr "Synced runtime configuration"
 msgid "Syncing"
 msgstr "Syncing"
 
+#: libs/synthetic-population-client/src/synthetic-population-summary.tsx
+msgid "Synthetic Population"
+msgstr "Synthetic Population"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Synthetic Population state"
+msgstr "Synthetic Population state"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Synthetic Population Worker"
+msgstr "Synthetic Population Worker"
+
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Synthetic Population Workers"
+msgstr "Synthetic Population Workers"
+
+#: libs/synthetic-population-client/src/synthetic-user-screen.tsx
+msgid "Synthetic User"
+msgstr "Synthetic User"
+
+#: libs/synthetic-population-client/src/synthetic-user-screen.tsx
+msgid "Synthetic User could not be loaded."
+msgstr "Synthetic User could not be loaded."
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Synthetic User directory could not be loaded."
+msgstr "Synthetic User directory could not be loaded."
+
+#: libs/synthetic-population-client/src/synthetic-population-users.tsx
+msgid "Synthetic Users"
+msgstr "Synthetic Users"
+
 #: libs/app-root-client/src/app-commands.tsx
 msgid "system"
 msgstr "system"
@@ -3859,6 +4199,10 @@ msgstr "The sign-in provider couldn't finish. Try again in a moment."
 msgid "The spec inventory could not be loaded. Refresh to try again; no missing evidence is counted as passed."
 msgstr "The spec inventory could not be loaded. Refresh to try again; no missing evidence is counted as passed."
 
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+msgid "The Synthetic Population Worker will recover this application."
+msgstr "The Synthetic Population Worker will recover this application."
+
 #: pkgs/harness-report-client/src/report-parts-view.tsx
 msgid "The UI quality check has not been completed for this version. Run the UI quality check independently to add its evidence."
 msgstr "The UI quality check has not been completed for this version. Run the UI quality check independently to add its evidence."
@@ -3952,6 +4296,10 @@ msgstr "This game is cancelled."
 msgid "This game is finished."
 msgstr "This game is finished."
 
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+msgid "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
+msgstr "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
+
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "This is your only way to sign in, so it can't be removed."
 msgstr "This is your only way to sign in, so it can't be removed."
@@ -4017,6 +4365,10 @@ msgstr "Timeline"
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Total CPU time"
+msgstr "Total CPU time"
+
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "Transparent"
 msgstr "Transparent"
@@ -4027,6 +4379,10 @@ msgstr "Try a different search term."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/use-password-sign-in.tsx
+#: libs/synthetic-population-client/src/synthetic-user-controls.tsx
+#: libs/synthetic-population-client/src/synthetic-user-dom.tsx
+#: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 #: pkgs/harness-report-client/src/commit-list.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
@@ -4053,6 +4409,10 @@ msgstr "Type a command or search…"
 msgid "Type something…"
 msgstr "Type something…"
 
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "UI action interval (milliseconds)"
+msgstr "UI action interval (milliseconds)"
+
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "UI components"
 msgstr "UI components"
@@ -4069,8 +4429,13 @@ msgstr "UI explorer, debug tools."
 msgid "UI quality"
 msgstr "UI quality"
 
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Unassigned"
+msgstr "Unassigned"
+
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/friends-client/src/friend-action-status-renderers.tsx
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
 msgid "Unavailable"
 msgstr "Unavailable"
 
@@ -4116,6 +4481,10 @@ msgstr "Unrated"
 msgid "Unrated · already played"
 msgstr "Unrated · already played"
 
+#: libs/synthetic-population-client/src/synthetic-population-workers.tsx
+msgid "Unreachable"
+msgstr "Unreachable"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Unseen"
@@ -4138,6 +4507,10 @@ msgstr "Update payment method"
 msgid "Update the app"
 msgstr "Update the app"
 
+#: libs/auth-client/src/password-sign-in-form.tsx
+msgid "Use 15 to 128 characters."
+msgstr "Use 15 to 128 characters."
+
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Use dark theme"
 msgstr "Use dark theme"
@@ -4157,6 +4530,10 @@ msgstr "Use the choice shown below to continue."
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "User ID"
+msgstr "User ID"
 
 #: libs/profile-client/src/profile-edit-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -4194,6 +4571,10 @@ msgstr "Verification is running. Completed test reports are available as they ar
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Version"
 msgstr "Version"
+
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "Version accepting new assignments"
+msgstr "Version accepting new assignments"
 
 #: pkgs/harness-report-client/src/report-explorer.tsx
 msgid "Version evidence"
@@ -4299,6 +4680,14 @@ msgstr "Withdraw readiness"
 #: pkgs/harness-report-client/src/performance-overview.tsx
 msgid "Work"
 msgstr "Work"
+
+#: libs/synthetic-population-client/src/synthetic-user-details.tsx
+msgid "Worker Lease"
+msgstr "Worker Lease"
+
+#: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
+msgid "Worker Lease duration (milliseconds)"
+msgstr "Worker Lease duration (milliseconds)"
 
 #: libs/notifications-client/src/notification-card-default.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx

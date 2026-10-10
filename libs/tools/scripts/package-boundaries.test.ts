@@ -186,3 +186,24 @@ test('flat package sources do not grow another layer hierarchy', () => {
     'src/shared/types.ts: src must be flat; split a vertical slice into its own package',
   ]);
 });
+
+test('Hono RPC contracts cross the client boundary through erased types only', () => {
+  expect(
+    categoryViolations(
+      {
+        name: '@libs/x-client',
+        category: 'client',
+        devDependencies: { '@libs/y-server': 'workspace:*' },
+      },
+      {
+        ...lib,
+        sources: [
+          {
+            path: 'src/api.ts',
+            text: 'import type { AppRPC } from "@libs/y-server/routes";',
+          },
+        ],
+      }
+    )
+  ).toEqual([]);
+});

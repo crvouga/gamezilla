@@ -66,6 +66,12 @@ export type RequestDbMiddlewareOptions = {
   readonly desiredClientConfig: DesiredClientConfig;
   readonly openSqlClient: OpenSqlClient;
   readonly skipDatabaseUrlPolicy?: boolean;
+  readonly authorizeSession?: (ctx: {
+    readonly db: SqlClient;
+    readonly accountId: string | null;
+    readonly deviceId: string;
+    readonly nowMs: number;
+  }) => Promise<void>;
 };
 
 type ClientConfigLatch = { done: boolean };
@@ -130,10 +136,20 @@ async function attachRequestDatabase(
   const raw = await openObservedSqlClient(options.openSqlClient);
   const sqlClient = wrapSqlClientForObservability(raw);
   const kv = new KvImplPostgres(sqlClient, clock.now);
-  const sessionAuth = new ObservedSessionAuth(authServer, {
-    clock,
-    createId,
-  });
+  const sessionAuth = new ObservedSessionAuth(
+    authServer,
+    {
+      clock,
+      createId,
+    },
+    async (db, auth) =>
+      options.authorizeSession?.({
+        db,
+        accountId: auth.accountId,
+        deviceId: auth.deviceId,
+        nowMs: clock.now(),
+      })
+  );
   const store = {
     objectStore: options.objectStore,
     sqlClient,

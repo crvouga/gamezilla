@@ -15,6 +15,7 @@ terraform {
     archive     = { source = "hashicorp/archive", version = "~> 2.7" }
     infisical   = { source = "infisical/infisical", version = "~> 0.19" }
     random      = { source = "hashicorp/random", version = "~> 3.9" }
+    railway     = { source = "jamesprnich/railway", version = "= 0.11.5" }
   }
 
   backend "s3" {
@@ -77,3 +78,7 @@ provider "infisical" {
 }
 
 provider "random" {}
+
+# One separate project per application environment; there are no shared Railway
+# environments into which an unscoped service could leak.
+provider "railway" { strict_env_scoping = false }

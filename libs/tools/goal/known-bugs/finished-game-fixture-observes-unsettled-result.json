@@ -1,0 +1,4 @@
+{
+  "summary": "The finished-game recovery fixture submits the mate from rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2 and saves the still-ongoing announcement before the browser receives the result. Await the actual selected application's completed result before reopening it.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

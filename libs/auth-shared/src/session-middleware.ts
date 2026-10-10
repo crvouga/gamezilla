@@ -5,8 +5,8 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import querySql from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { AnonUserService } from './anon-user-service';
-import type { AppAuthContext, AppClientContext } from './auth-context';
-import { buildAppAuthContext } from './auth-context';
+import type { AppAuth, AppAuthContext, AppClientContext } from './auth-context';
+import { appAuth, buildAppAuthContext } from './auth-context';
 import { BearerAuthResolver } from './bearer-resolve';
 import { assertDeviceId } from './device-id';
 
@@ -48,7 +48,8 @@ export class SessionAuth {
     private readonly time: {
       readonly clock: Clock;
       readonly createId: CreateId;
-    }
+    },
+    private readonly admit?: (db: SqlClient, auth: AppAuth) => Promise<void>
   ) {}
 
   async resolveAuthContext(
@@ -80,7 +81,11 @@ export class SessionAuth {
       this.authServer,
       this.time
     ).buildAppAuthContext(token, anonRaw);
-    if (ctx !== null) return ctx;
+    if (ctx !== null) {
+      const decoded = appAuth(ctx);
+      if (decoded !== null) await this.admit?.(sql, decoded);
+      return ctx;
+    }
     if (
       request.method === 'POST' &&
       new URL(request.url).pathname.endsWith('/mutations')

@@ -97,6 +97,7 @@ function assertCatalogsFresh(): void {
   // hundred ms of wall, and under a loaded `bun check` its workers failed to
   // init ("Did not receive an init message from worker").
   run('bunx', [
+    '--bun',
     'lingui',
     'extract',
     '--clean',
@@ -105,7 +106,14 @@ function assertCatalogsFresh(): void {
     '1',
     ...config,
   ]);
-  run('bunx', ['lingui', 'compile', '--typescript', '--strict', ...config]);
+  run('bunx', [
+    '--bun',
+    'lingui',
+    'compile',
+    '--typescript',
+    '--strict',
+    ...config,
+  ]);
   const poAfter = readFileSync(
     join(REPO_ROOT, SCRATCH_REL, 'en/messages.po'),
     'utf8'

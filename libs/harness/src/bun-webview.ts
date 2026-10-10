@@ -54,10 +54,12 @@ function postgresHandle(pg: {
   };
 }
 
-async function openRealPostgresSql(): Promise<HarnessSql> {
-  const { bootHarnessPostgres } = await import('./boot-harness-postgres');
+async function openRealPostgresSql(
+  composition: HarnessComposition
+): Promise<HarnessSql> {
+  const { isolatedPostgres } = await import('./isolated-postgres');
   await ensureRealStack();
-  return postgresHandle(await bootHarnessPostgres());
+  return postgresHandle(await isolatedPostgres(composition));
 }
 
 /** Stack mode owns no infrastructure — it attaches to what is already up. */
@@ -103,7 +105,7 @@ export function bunWebviewRuntime(
     }
     const sql =
       mode === 'real'
-        ? await openRealPostgresSql()
+        ? await openRealPostgresSql(opts.composition)
         : await openSeededServerSql(opts.composition);
     const webOrigin =
       process.env['HARNESS_WEB_ORIGIN'] ?? 'http://127.0.0.1:8081';

@@ -29,6 +29,7 @@ export const envFileSchema = z
           .optional(),
         retire: z.array(slug).default([]),
         puzzle_manager_account_ids: z.array(id).default([]),
+        population_operator_account_ids: z.array(id).default([]),
       })
       .strict(),
     protection: z.enum(['production', 'standard']),
@@ -46,6 +47,22 @@ export const envFileSchema = z
      * (rendered into the API Worker as `BILLING_PROVIDER`).
      */
     billing: z.object({ provider: z.enum(['stripe', 'paddle']) }).strict(),
+    population: z
+      .object({
+        replicas: z.number().int().min(1).max(100).default(1),
+        capacity: z.number().int().min(1).max(32).default(1),
+        vcpus: z.number().min(0.5).max(8).default(1),
+        memory_gb: z.number().min(0.5).max(32).default(2),
+        region: slug.default('us-west2'),
+      })
+      .strict()
+      .default({
+        replicas: 1,
+        capacity: 1,
+        vcpus: 1,
+        memory_gb: 2,
+        region: 'us-west2',
+      }),
     secrets: z
       .object({ regenerate: z.array(z.string()).optional() })
       .strict()
@@ -187,6 +204,9 @@ export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
     BILLING_PROVIDER: env.billing.provider,
     PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(
       env.worker.puzzle_manager_account_ids
+    ),
+    POPULATION_OPERATOR_ACCOUNT_IDS: JSON.stringify(
+      env.worker.population_operator_account_ids
     ),
   };
 }

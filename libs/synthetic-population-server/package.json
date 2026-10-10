@@ -1,0 +1,49 @@
+{
+  "name": "@libs/synthetic-population-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "catalog:",
+    "@libs/app-root-shared": "workspace:*",
+    "@libs/app-root-server": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/synthetic-population-shared": "workspace:*",
+    "@libs/pubsub-server": "workspace:*",
+    "@libs/pubsub-shared": "workspace:*",
+    "@pkgs/auth-root-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/profile-shared": "workspace:*",
+    "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

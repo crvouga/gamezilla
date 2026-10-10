@@ -31,8 +31,13 @@ import {
   EMQX_WSS_URL,
 } from '@libs/secrets-shared/pubsub-emqx-secrets';
 import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
+import { RAILWAY_TOKEN } from '@libs/secrets-shared/railway-token';
 import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
 import type { Secret } from '@libs/secrets-shared/secret';
+import {
+  POPULATION_CREDENTIAL_SECRET,
+  POPULATION_WORKER_TOKEN,
+} from '@libs/secrets-shared/synthetic-population-secrets';
 import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared/turbo-token';
 import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
@@ -63,11 +68,14 @@ export const SECRETS: readonly Secret[] = [
   FEEDBACK_GITHUB_TOKEN,
   FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,
+  RAILWAY_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,
   DATABASE_URL,
   HYPERDRIVE_ID,
   AUTH_SECRET,
   SYNTHETIC_MONITOR_TOKEN,
+  POPULATION_CREDENTIAL_SECRET,
+  POPULATION_WORKER_TOKEN,
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   ...BILLING_VENDOR_SECRETS,

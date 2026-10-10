@@ -9,7 +9,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -41,16 +41,19 @@ export function runSpecSuites(
   args: readonly string[]
 ): number {
   const dirs = specPackageDirs();
-  const paths = args.filter((arg) => /\.test\.[cm]?[jt]sx?$/.test(arg));
+  const paths = args.filter((arg) =>
+    /(?:\.test\.[cm]?[jt]sx?|\.feature)$/.test(arg)
+  );
   const flags = args.filter((arg) => !paths.includes(arg));
   const runs = new Map<string, string[]>();
   for (const path of paths) {
-    const dir = dirs.find((d) => path.startsWith(`${d}/`));
+    const dir = owningPackage(dirs, path);
     if (dir === undefined) {
       process.stderr.write(`[spec] no spec package owns ${path}\n`);
       return 1;
     }
-    runs.set(dir, [...(runs.get(dir) ?? []), path.slice(dir.length + 1)]);
+    const local = relative(join(REPO_ROOT, dir), resolve(REPO_ROOT, path));
+    runs.set(dir, [...(runs.get(dir) ?? []), local]);
   }
   if (paths.length === 0) for (const dir of dirs) runs.set(dir, []);
   let code = 0;
@@ -64,4 +67,23 @@ export function runSpecSuites(
     if (result.status !== 0 && code === 0) code = result.status ?? 1;
   }
   return code;
+}
+
+function owningPackage(
+  dirs: readonly string[],
+  path: string
+): string | undefined {
+  if (!path.endsWith('.feature'))
+    return dirs.find((dir) => path.startsWith(`${dir}/`));
+  const domain = relative(
+    join(REPO_ROOT, 'specs'),
+    resolve(REPO_ROOT, path)
+  ).split('/')[0];
+  const owners = dirs.filter((dir) => {
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
+    ) as { specDomains?: string[] };
+    return domain !== undefined && manifest.specDomains?.includes(domain);
+  });
+  return owners.length === 1 ? owners[0] : undefined;
 }

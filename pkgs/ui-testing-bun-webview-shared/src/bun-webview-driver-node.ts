@@ -72,7 +72,7 @@ function textFieldExpr(sel: string): string {
 /** Page-side counters of trusted `pointerdown`s / `pointerup`s (installed once per document). */
 const ARM_POINTER_COUNTER = `(function () {
   if (window.__uiTestingPointerCounts === undefined) {
-    var counts = { down: 0, up: 0 };
+    var counts = { down: 0, up: 0, click: 0 };
     window.__uiTestingPointerCounts = counts;
     document.addEventListener('pointerdown', function (e) {
       if (e.isTrusted) counts.down += 1;
@@ -80,8 +80,11 @@ const ARM_POINTER_COUNTER = `(function () {
     document.addEventListener('pointerup', function (e) {
       if (e.isTrusted) counts.up += 1;
     }, true);
+    document.addEventListener('click', function (e) {
+      if (e.isTrusted) counts.click += 1;
+    }, true);
   }
-  return [window.__uiTestingPointerCounts.down, window.__uiTestingPointerCounts.up];
+  return [window.__uiTestingPointerCounts.down, window.__uiTestingPointerCounts.up, window.__uiTestingPointerCounts.click];
 })()`;
 
 /** Pause between re-sends, page-side so the host process stays unscheduled. */
@@ -91,7 +94,11 @@ const RESEND_PAUSE =
 /** ~10s of re-sends: long enough to outlast a physical press elsewhere. */
 const NATIVE_CLICK_ATTEMPTS = 200;
 
-type PointerCounts = { readonly down: number; readonly up: number };
+type PointerCounts = {
+  readonly down: number;
+  readonly up: number;
+  readonly click: number;
+};
 
 async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
   const raw = await view.evaluate(ARM_POINTER_COUNTER);
@@ -102,7 +109,11 @@ async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
   ) {
     throw new UiTestError('Bun.WebView: pointer counter returned no counts');
   }
-  return { down: raw[0], up: raw[1] };
+  return {
+    down: raw[0],
+    up: raw[1],
+    click: typeof raw[2] === 'number' ? raw[2] : 0,
+  };
 }
 
 /**
@@ -124,7 +135,8 @@ async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
 async function nativeClick(
   view: BunWebView,
   point: { readonly x: number; readonly y: number },
-  button: PointerButton = 'primary'
+  button: PointerButton = 'primary',
+  completion: 'pointer' | 'click' = 'pointer'
 ): Promise<void> {
   const { x, y } = point;
   const awaitsRelease = button !== 'secondary';
@@ -136,6 +148,10 @@ async function nativeClick(
       button: button === 'secondary' ? 'right' : 'left',
     });
     const after = await readPointerCounts(view);
+    if (completion === 'click') {
+      if (after.click > before.click) return;
+      continue;
+    }
     pressed ||= after.down > before.down;
     if (pressed && (!awaitsRelease || after.up > before.up)) return;
   }
@@ -201,7 +217,10 @@ export class BunWebviewDriverNode implements DriverNode {
     const view = await this.view();
     const point = await view.evaluate(pressablePointScript(cssPath(this.path)));
     if (isPoint(point)) {
-      await view.click(point.x, point.y);
+      // A trusted click can arrive even when WebKit suppresses pointerup
+      // during a physical chord. Repeating that delivered button click
+      // would activate a menu twice; coordinate gestures still await pointers.
+      await nativeClick(view, point, 'primary', 'click');
       return;
     }
     // Nothing pressable yet: the selector click waits for actionability and
@@ -347,6 +366,13 @@ export class BunWebviewDriverNode implements DriverNode {
     return typeof result === 'string' ? result : String(result);
   }
 
+  async attribute(name: string): Promise<string | null> {
+    const result = await (await this.view()).evaluate(
+      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); return el?.getAttribute(${JSON.stringify(name)}) ?? null; })()`
+    );
+    return typeof result === 'string' ? result : null;
+  }
+
   private async view() {
     return await this.host.resolveView(cssPath(this.path));
   }
@@ -385,19 +411,25 @@ export class BunWebviewDriverNode implements DriverNode {
  * first match in document order is often covered.
  */
 function pressablePointScript(selector: string): string {
-  return `(function(){
+  return `(async function(){
     var all = document.querySelectorAll(${JSON.stringify(selector)});
     for (var i = 0; i < all.length; i++) {
       var el = all[i];
       var style = getComputedStyle(el);
       if (style.display === 'none' || style.visibility === 'hidden') continue;
-      el.scrollIntoView({ block: 'center', inline: 'center' });
-      var r = el.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) continue;
-      var x = r.left + r.width / 2;
-      var y = r.top + r.height / 2;
-      var hit = document.elementFromPoint(x, y);
-      if (hit !== null && (hit === el || el.contains(hit))) return { x: x, y: y };
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+      var previous = null;
+      for (var frame = 0; frame < 18; frame++) {
+        await new Promise(requestAnimationFrame);
+        var r = el.getBoundingClientRect();
+        var stable = previous !== null && previous.left === r.left && previous.top === r.top && previous.width === r.width && previous.height === r.height;
+        previous = { left: r.left, top: r.top, width: r.width, height: r.height };
+        if (!stable || r.width === 0 || r.height === 0) continue;
+        var x = r.left + r.width / 2;
+        var y = r.top + r.height / 2;
+        var hit = document.elementFromPoint(x, y);
+        if (hit !== null && (hit === el || el.contains(hit))) return { x: x, y: y };
+      }
     }
     return null;
   })()`;

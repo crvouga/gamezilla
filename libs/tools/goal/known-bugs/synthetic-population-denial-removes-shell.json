@@ -1,0 +1,4 @@
+{
+  "summary": "Opening /admin/synthetic-population as Bob without observation permission removed the normal shell and global account menu. Permission refusals now remain inside ScreenBase.",
+  "regressionTest": "specs/synthetic-population/observatory.feature"
+}

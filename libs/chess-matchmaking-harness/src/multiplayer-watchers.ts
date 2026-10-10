@@ -5,6 +5,7 @@ import {
   scenarioAction,
 } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { bringToFront } from '@libs/harness/observations';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
@@ -33,7 +34,7 @@ export async function multiplayerWatcherBoard(
   actor: string
 ) {
   const ui = await actorUi(s, actor);
-  await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
+  await bringToFront(s, actor);
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
   return {

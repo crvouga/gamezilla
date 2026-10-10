@@ -1,5 +1,4 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
@@ -7,6 +6,7 @@ import { ModalBody } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
+import { PasswordSignInForm } from './password-sign-in-form';
 
 /** The sign-in button test id for a provider. */
 export function signInMethodTestId(provider: OauthProviderId): string {
@@ -21,6 +21,7 @@ export function SignInModalBody(props: {
   providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
   onPress: (provider: OauthProviderId) => void;
+  startPassword: (runner: () => Promise<void>) => Promise<void>;
 }): JSX.Element {
   const methodsLoading = () => props.methodsLoading === true;
   const anyMethod = () => props.providers.length > 0;
@@ -28,6 +29,7 @@ export function SignInModalBody(props: {
   return (
     <ModalBody>
       <div class="box mt-0.75 self-stretch gap-2">
+        <PasswordSignInForm start={props.startPassword} pendingLink={null} />
         <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
         </Show>
@@ -54,7 +56,9 @@ export function SignInModalBody(props: {
 
         <Show when={!methodsLoading() && !anyMethod()}>
           <p class="text textCaption text-text-secondary">
-            {props.signInUnavailableReason ?? t`Sign-in is not available.`}
+            {props.signInUnavailableReason ?? (
+              <Trans>Social sign-in is not available.</Trans>
+            )}
           </p>
         </Show>
       </div>

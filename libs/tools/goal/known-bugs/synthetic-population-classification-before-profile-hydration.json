@@ -1,0 +1,4 @@
+{
+  "summary": "After Bob opens an assigned game with Cedar, resolving Cedar's signed-in identity can park Bob's in-process application. Inspecting the parked instance reports its Bot badge as invisible even though its recorded DOM contains the label. The observer must be brought to the front before reading visibility, and normal profile hydration must settle.",
+  "regressionTest": "specs/synthetic-population/recognizing-synthetic-users.feature"
+}

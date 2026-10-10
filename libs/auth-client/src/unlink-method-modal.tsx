@@ -2,7 +2,7 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import { useLogger } from '@pkgs/logger-client/solid';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import type { JSX } from 'solid-js';
@@ -12,7 +12,7 @@ import { authFlowErrorMessage, providerName } from './auth-flow-messages';
 import { useIdentityRefresh } from './use-identity-refresh';
 
 export function UnlinkMethodModal(props: {
-  readonly provider: OauthProviderId | null;
+  readonly provider: SignInMethodId | null;
   readonly onClose: () => void;
 }): JSX.Element {
   const { i18n } = useLingui();

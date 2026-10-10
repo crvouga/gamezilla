@@ -23,6 +23,7 @@
 
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { threadId } from 'node:worker_threads';
 import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { plugin } from 'bun';
@@ -88,7 +89,7 @@ function cachedTransform(path: string, source: string): string {
     const code = transformSolidTsx(path, source);
     mkdirSync(CACHE_DIR, { recursive: true });
     // Write-then-rename so a concurrent worker never reads a partial file.
-    const tmp = `${file}.${process.pid}.tmp`;
+    const tmp = `${file}.${process.pid}.${threadId}.tmp`;
     writeFileSync(tmp, code);
     renameSync(tmp, file);
     return code;
@@ -201,9 +202,27 @@ export function setDomWindow(options: {
   if (options.url !== undefined) happyDOM.setURL(options.url);
 }
 
+/** Release the in-process DOM's pending tasks at a process composition boundary. */
+export async function disposeDomWindow(): Promise<void> {
+  await GlobalRegistrator.unregister();
+}
+
 if (typeof document === 'undefined') {
   const saved = new Map<string, PropertyDescriptor>();
-  for (const key of KEEP_BUN_GLOBALS) {
+  // In a Bun Worker these globals belong to its parent channel. Replacing
+  // them with Window methods would silently disconnect the application realm.
+  const workerGlobals =
+    typeof globalThis.postMessage === 'function'
+      ? [
+          'postMessage',
+          'addEventListener',
+          'removeEventListener',
+          'dispatchEvent',
+          'onmessage',
+          'onmessageerror',
+        ]
+      : [];
+  for (const key of [...KEEP_BUN_GLOBALS, ...workerGlobals]) {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
     if (descriptor !== undefined) saved.set(key, descriptor);
   }

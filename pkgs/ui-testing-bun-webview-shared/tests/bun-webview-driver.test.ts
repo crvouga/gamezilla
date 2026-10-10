@@ -6,7 +6,7 @@ import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared/bun-webview
 /** Popup-load timeouts only; the fake view settles first, so none fire. */
 const timers = createHarnessClock().timers;
 
-type PointerCounts = { down: number; up: number };
+type PointerCounts = { down: number; up: number; click?: number };
 
 function createFakeView(): BunWebView & {
   pointer: PointerCounts;
@@ -18,19 +18,20 @@ function createFakeView(): BunWebView & {
   close: ReturnType<typeof mock>;
 } {
   // Native clicks reach the page as trusted pointerdown + pointerup the driver counts.
-  const pointer: PointerCounts = { down: 0, up: 0 };
+  const pointer: PointerCounts = { down: 0, up: 0, click: 0 };
   return {
     pointer,
     navigate: mock(() => Promise.resolve()),
     click: mock(() => {
       pointer.down += 1;
       pointer.up += 1;
+      pointer.click = (pointer.click ?? 0) + 1;
       return Promise.resolve();
     }),
     press: mock(() => Promise.resolve()),
     evaluate: mock(async (script: string) => {
       if (script.includes('__uiTestingPointerCounts')) {
-        return [pointer.down, pointer.up];
+        return [pointer.down, pointer.up, pointer.click ?? 0];
       }
       // Before `getComputedStyle`: the text read uses it to skip hidden branches.
       if (script.includes('visibleText') || script.includes('.value')) {
@@ -49,6 +50,67 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  it('does not repeat a delivered menu click when pointerup is suppressed', async () => {
+    // regression: browser-tap-repeats-delivered-click
+    const view = createFakeView();
+    const evaluate = view.evaluate.getMockImplementation();
+    view.evaluate.mockImplementation((script: string) =>
+      script.includes('document.elementFromPoint')
+        ? Promise.resolve({ x: 50, y: 25 })
+        : evaluate?.(script)
+    );
+    view.click.mockImplementation(() => {
+      view.pointer.down += 1;
+      view.pointer.click = (view.pointer.click ?? 0) + 1;
+      return Promise.resolve();
+    });
+    await new BunWebviewDriver({ view, timers })
+      .get('status-current-user')
+      .tap();
+    expect(view.click).toHaveBeenCalledTimes(1);
+    expect(view.pointer).toEqual({ down: 1, up: 0, click: 1 });
+  });
+
+  it('a menu tap completes a pointer press before returning', async () => {
+    // regression: browser-menu-tap-incomplete-pointer
+    const view = createFakeView();
+    const evaluate = view.evaluate.getMockImplementation();
+    view.evaluate.mockImplementation((script: string) =>
+      script.includes('document.elementFromPoint')
+        ? Promise.resolve({ x: 50, y: 25 })
+        : evaluate?.(script)
+    );
+    const deliveries: PointerCounts[] = [
+      { down: 1, up: 0 },
+      { down: 0, up: 1 },
+    ];
+    view.click.mockImplementation(() => {
+      const next = deliveries.shift()!;
+      view.pointer.down += next.down;
+      view.pointer.up += next.up;
+      if (next.up > 0) view.pointer.click = (view.pointer.click ?? 0) + 1;
+      return Promise.resolve();
+    });
+    await new BunWebviewDriver({ view, timers })
+      .get('global-menu-account')
+      .tap();
+    expect(view.pointer).toEqual({ down: 1, up: 1, click: 1 });
+    expect(view.click).toHaveBeenCalledTimes(2);
+  });
+
+  it('reads existing production attributes from the selected application', async () => {
+    const view = createFakeView();
+    const evaluate = view.evaluate.getMockImplementation();
+    view.evaluate.mockImplementation((script: string) =>
+      script.includes('getAttribute')
+        ? Promise.resolve(script.includes('data-fen') ? 'position' : null)
+        : evaluate?.(script)
+    );
+    const node = new BunWebviewDriver({ view, timers }).get('multiplayer-game');
+    expect(await node.attribute('data-fen')).toBe('position');
+    expect(await node.attribute('missing')).toBeNull();
+  });
+
   it('maps testIds and user intents onto Bun.WebView APIs', async () => {
     const view = createFakeView();
     const driver = new BunWebviewDriver({

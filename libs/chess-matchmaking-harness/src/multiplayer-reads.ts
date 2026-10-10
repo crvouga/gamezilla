@@ -1,12 +1,8 @@
-import {
-  LAST_LOCAL_ACCOUNT_ID_KEY,
-  SESSION_TOKEN_KEY,
-} from '@libs/auth-shared/auth-storage-keys';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from '@libs/chess-matchmaking-shared/game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { actorLocalSql } from '@libs/harness/identity';
+import { actorLocalSql, signedInAccountOf } from '@libs/harness/identity';
 import { bringToFront } from '@libs/harness/observations';
 import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
@@ -40,13 +36,7 @@ export async function multiplayerView(
   readonly ratings: readonly MultiplayerRatingView[];
 }> {
   const db = actorLocalSql(s, actor);
-  const env = await s.harness.client(actor);
-  const auth = env.createAuthClient().session.getSnapshot();
-  if (auth.isHydrated && auth.session === null && auth.error === null)
-    return NOTHING;
-  const owner = env.secureStorage.getValue(SESSION_TOKEN_KEY)
-    ? env.secureStorage.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)
-    : null;
+  const owner = await signedInAccountOf(s, actor);
   if (db === null || owner === null) return NOTHING;
   const games = await db.query(sql<MultiplayerGame>`SELECT ${GAME_COLUMNS}
     FROM chess_multiplayer_games AS g

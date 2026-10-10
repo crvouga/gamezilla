@@ -23,7 +23,7 @@ async function modalSettled(ui: Driver): Promise<boolean> {
   return false;
 }
 
-async function openSignInModal(ui: Driver): Promise<void> {
+export async function openSignInModal(ui: Driver): Promise<void> {
   if (!(await ui.get(Handles.accountSignIn).isVisible())) {
     await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });

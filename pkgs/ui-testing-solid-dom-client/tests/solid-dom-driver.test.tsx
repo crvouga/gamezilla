@@ -93,6 +93,8 @@ describe('SolidDomDriver', () => {
     await driver.get('inc').tap();
     await driver.get('count').expect.text('2');
     expect(await driver.get('count').text()).toBe('2');
+    expect(await driver.get('count').attribute('data-testid')).toBe('count');
+    expect(await driver.get('count').attribute('data-missing')).toBeNull();
   });
 
   test('Enter in the email field submits via onSubmitEditing', async () => {
@@ -179,6 +181,31 @@ describe('SolidDomDriver', () => {
     expect(frameLayout?.height).toBeGreaterThanOrEqual(390);
     expect(sizes.length).toBeGreaterThan(0);
     expect(sizes[sizes.length - 1]).toBe(390);
+  });
+
+  test('observing an application measures its controls before any gesture', async () => {
+    // regression: solid-dom-observation-leaves-board-unmeasured
+    driver = customDriver(() => {
+      const [width, setWidth] = createSignal(0);
+      let host: HTMLElement | undefined;
+      onMount(() => {
+        host?.addEventListener('ui-testing:element-layout', () => {
+          setWidth(host?.getBoundingClientRect().width ?? 0);
+        });
+      });
+      return (
+        <div
+          class="box w-full"
+          ref={(element) => {
+            host = element;
+          }}
+        >
+          <span data-testid="measured-width">{width()}</span>
+        </div>
+      );
+    });
+    await driver.launch();
+    expect(await driver.get('measured-width').text()).toBe('390');
   });
 
   test('layout synthesizes a box from inline size and tapAt/drag hit it', async () => {

@@ -6,10 +6,23 @@
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { Button } from '@pkgs/ui-root-client/button';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { createMemo, createSignal, For, type JSX, onMount } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  onMount,
+  Show,
+} from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
@@ -18,10 +31,11 @@ import { UnlinkMethodModal } from './unlink-method-modal';
 import { useLinkedIdentities } from './use-linked-identities';
 
 export function SignInMethodsSection(): JSX.Element {
+  const { t } = useLingui();
   const capabilities = useSignInCapabilities();
   const port = useAuthClientPort();
   const linked = useLinkedIdentities();
-  const [removing, setRemoving] = createSignal<OauthProviderId | null>(null);
+  const [removing, setRemoving] = createSignal<SignInMethodId | null>(null);
   const providers = createMemo<readonly OauthProviderId[]>(() => {
     const enabled = [
       ...(capabilities.google ? (['google'] as const) : []),
@@ -30,6 +44,7 @@ export function SignInMethodsSection(): JSX.Element {
     // A method linked earlier stays listed even if its provider is now off.
     const extra = linked()
       .map((row) => row.provider)
+      .filter(isOauthProviderId)
       .filter((provider) => !enabled.includes(provider));
     return [...enabled, ...extra];
   });
@@ -41,6 +56,29 @@ export function SignInMethodsSection(): JSX.Element {
   return (
     <div class="box" data-testid={Handles.accountSignInMethods}>
       <MenuSection title={<Trans>Sign-in methods</Trans>}>
+        <Show when={linked().find((row) => row.provider === 'password')}>
+          {(identity) => (
+            <MenuRow
+              title={<Trans>Email and password</Trans>}
+              caption={identity().email ?? ''}
+              hideChevron
+              trailing={
+                <Button
+                  title={t`Remove`}
+                  variant="ghost"
+                  intent="danger"
+                  size="sm"
+                  disabled={linked().length <= 1}
+                  onClick={() => setRemoving('password')}
+                  dataSet={{
+                    testid: Handles.accountUnlinkProvider('password'),
+                  }}
+                />
+              }
+              dataSet={{ testid: Handles.accountSignInMethod('password') }}
+            />
+          )}
+        </Show>
         <For each={providers()}>
           {(provider) => (
             <SignInMethodRow

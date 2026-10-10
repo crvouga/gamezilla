@@ -152,6 +152,16 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       when: { accountId: [] },
       permissions: [PERMISSION.puzzlesManage],
     },
+    [ROLE.syntheticPopulationOperator]: {
+      when: { accountId: [] },
+      permissions: [
+        PERMISSION.syntheticPopulationView,
+        PERMISSION.syntheticPopulationInspect,
+        PERMISSION.syntheticPopulationConfigure,
+        PERMISSION.syntheticPopulationControl,
+        PERMISSION.syntheticPopulationReplay,
+      ],
+    },
     [ROLE.spaceMember]: {
       permissions: [
         PERMISSION.spacesLeave,

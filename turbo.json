@@ -59,7 +59,8 @@
     "JVM_GC_ARGS",
     "GOMAXPROCS",
     "DEV_OWNER_*",
-    "NODE_OPTIONS"
+    "NODE_OPTIONS",
+    "RAILWAY_TOKEN"
   ],
   "tasks": {
     "install:deps": {
@@ -395,6 +396,7 @@
         "libs/notifications-client/src/**/*.{ts,tsx}",
         "libs/permissions-client/src/**/*.{ts,tsx}",
         "libs/profile-client/src/**/*.{ts,tsx}",
+        "libs/synthetic-population-client/src/**/*.{ts,tsx}",
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
@@ -732,7 +734,8 @@
       "cache": false,
       "dependsOn": [
         "@libs/infra-server#apply:edge",
-        "@libs/billing-server#billing:sync"
+        "@libs/billing-server#billing:sync",
+        "@apps/synthetic-population-worker#deploy"
       ],
       "outputLogs": "errors-only"
     },
@@ -1916,6 +1919,10 @@
       ],
       "outputs": [],
       "outputLogs": "errors-only"
+    },
+    "@apps/synthetic-population-worker#deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server#apply:edge"]
     },
     "//#ci:statecharts": {
       "dependsOn": ["@libs/tools#src"],

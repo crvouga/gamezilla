@@ -23,8 +23,10 @@
 
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
@@ -51,7 +53,7 @@ export type LinkOutcome =
       /** The existing account's address, masked for display. */
       readonly email: string;
       /** Providers that can prove the existing account. */
-      readonly providers: readonly OauthProviderId[];
+      readonly providers: readonly SignInMethodId[];
       readonly provider: OauthProviderId;
     };
 
@@ -240,9 +242,7 @@ export class IdentityLinker {
     identity: ProviderIdentity
   ): Promise<LinkOutcome> {
     const theirs = await this.identities.listForUser(target.userId);
-    const providers = [
-      ...new Set(theirs.map((row) => row.provider).filter(isOauthProviderId)),
-    ];
+    const providers = [...new Set(theirs.map((row) => row.provider))];
     const token = await this.pending.create({
       targetUserId: target.userId,
       identity,
@@ -254,6 +254,15 @@ export class IdentityLinker {
       providers,
       provider: identity.provider,
     };
+  }
+
+  /** The person declined to link: the parked identity becomes its own user. */
+  async confirmPassword(userId: string, token: string): Promise<LinkOutcome> {
+    const pending = await this.pending.findByToken(token);
+    if (pending === null) return error(AUTH_ERROR.expired);
+    await this.pending.consume(pending.id);
+    if (pending.targetUserId !== userId) return error(AUTH_ERROR.linkMismatch);
+    return this.attach(userId, pending.identity);
   }
 
   /** The person declined to link: the parked identity becomes its own user. */

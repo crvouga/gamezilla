@@ -1,0 +1,4 @@
+{
+  "summary": "Starting the Observatory before its asynchronous overview loaded captured a permanently disabled save action. Entering the valid desired population 6 did not save it. The form action now reads validation reactively.",
+  "regressionTest": "specs/synthetic-population/observatory.feature"
+}

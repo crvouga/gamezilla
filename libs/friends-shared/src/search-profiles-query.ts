@@ -81,7 +81,7 @@ export const searchProfiles = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT
         p.id, p.created_at, p.username, p.avatar_config,
-        p.username_changed_at, p.username_norm, p.deleted_at
+        p.username_changed_at, p.username_norm, p.account_kind, p.deleted_at
       FROM profile AS p
       LEFT JOIN friends_blocks AS block
         ON block.blocker_id = p.id
