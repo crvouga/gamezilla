@@ -10,8 +10,11 @@ import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import { isAuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
+import {
+  isOauthProviderId,
+  isSignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 
 export type CallbackOutcome =
   | { readonly kind: 'code'; readonly code: string }
@@ -19,8 +22,8 @@ export type CallbackOutcome =
   | { readonly kind: 'link_required'; readonly error: AuthLinkRequiredError }
   | { readonly kind: 'none' };
 
-function providers(raw: string | null): OauthProviderId[] {
-  return (raw ?? '').split(',').filter(isOauthProviderId);
+function providers(raw: string | null): SignInMethodId[] {
+  return (raw ?? '').split(',').filter(isSignInMethodId);
 }
 
 export function readCallbackOutcome(url: string): CallbackOutcome {

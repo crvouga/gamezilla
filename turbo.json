@@ -57,7 +57,10 @@
     "CHECK_LINT_THREADS",
     "JAVA_TOOL_OPTIONS",
     "JVM_GC_ARGS",
-    "GOMAXPROCS"
+    "GOMAXPROCS",
+    "DEV_OWNER_*",
+    "NODE_OPTIONS",
+    "RAILWAY_TOKEN"
   ],
   "tasks": {
     "install:deps": {
@@ -86,7 +89,6 @@
     },
     "@apps/product#dev": {
       "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
-      "with": ["dev:services"],
       "persistent": true,
       "cache": false,
       "passThroughEnv": ["WORKSPACE_*", "PRODUCT_DEV_*", "VITE_*"]
@@ -394,6 +396,7 @@
         "libs/notifications-client/src/**/*.{ts,tsx}",
         "libs/permissions-client/src/**/*.{ts,tsx}",
         "libs/profile-client/src/**/*.{ts,tsx}",
+        "libs/synthetic-population-client/src/**/*.{ts,tsx}",
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
@@ -731,7 +734,8 @@
       "cache": false,
       "dependsOn": [
         "@libs/infra-server#apply:edge",
-        "@libs/billing-server#billing:sync"
+        "@libs/billing-server#billing:sync",
+        "@apps/synthetic-population-worker#deploy"
       ],
       "outputLogs": "errors-only"
     },
@@ -1915,6 +1919,10 @@
       ],
       "outputs": [],
       "outputLogs": "errors-only"
+    },
+    "@apps/synthetic-population-worker#deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server#apply:edge"]
     },
     "//#ci:statecharts": {
       "dependsOn": ["@libs/tools#src"],

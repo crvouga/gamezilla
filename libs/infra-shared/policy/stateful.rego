@@ -31,6 +31,10 @@ deletable := {
 	"infisical_secret",
 	"infisical_secret_import",
 	"terraform_data",
+	"railway_project",
+	"railway_service",
+	"railway_service_instance",
+	"railway_variable_collection",
 	"aws_acm_certificate",
 	"aws_acm_certificate_validation",
 	"aws_cloudwatch_log_group",
@@ -44,6 +48,8 @@ deletable := {
 	"aws_iot_domain_configuration",
 	"aws_lambda_function",
 	"aws_lambda_permission",
+	# Synthetic Population Workers hold only disposable client instances; identity, leases,
+	# matchmaking and games remain in the existing durable services.
 }
 
 # An array, not a set: two identical change objects are still two changes.

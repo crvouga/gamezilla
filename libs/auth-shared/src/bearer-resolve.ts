@@ -13,32 +13,47 @@ import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case
 const ACCOUNT_CACHE_TTL_MS = 60_000;
 const ACCOUNT_CACHE_MAX = 128;
 type AccountCacheEntry = { readonly accountId: string; readonly exp: number };
-const accountIdCache = new Map<string, AccountCacheEntry>();
+type AccountCache = Map<string, AccountCacheEntry>;
+const accountIdCaches = new WeakMap<SqlClient, AccountCache>();
+
+function cacheFor(db: SqlClient): AccountCache {
+  let cache = accountIdCaches.get(db);
+  if (cache === undefined) {
+    cache = new Map();
+    accountIdCaches.set(db, cache);
+  }
+  return cache;
+}
 
 function accountCacheKey(deviceId: string, externalUserId: string): string {
   return `${deviceId}\0${externalUserId}`;
 }
 
-function readCachedAccountId(key: string, now: () => number): string | null {
-  const hit = accountIdCache.get(key);
+function readCachedAccountId(
+  cache: AccountCache,
+  key: string,
+  now: () => number
+): string | null {
+  const hit = cache.get(key);
   if (hit === undefined) return null;
   if (hit.exp <= now()) {
-    accountIdCache.delete(key);
+    cache.delete(key);
     return null;
   }
   return hit.accountId;
 }
 
 function writeCachedAccountId(
+  cache: AccountCache,
   key: string,
   accountId: string,
   now: () => number
 ): void {
-  if (accountIdCache.size >= ACCOUNT_CACHE_MAX) {
-    const oldest = accountIdCache.keys().next().value;
-    if (oldest !== undefined) accountIdCache.delete(oldest);
+  if (cache.size >= ACCOUNT_CACHE_MAX) {
+    const oldest = cache.keys().next().value;
+    if (oldest !== undefined) cache.delete(oldest);
   }
-  accountIdCache.set(key, {
+  cache.set(key, {
     accountId,
     exp: now() + ACCOUNT_CACHE_TTL_MS,
   });
@@ -71,7 +86,8 @@ export class BearerAuthResolver {
     if (session === null) return null;
 
     const cacheKey = accountCacheKey(deviceId, session.externalUserId);
-    const cached = readCachedAccountId(cacheKey, this.time.clock.now);
+    const cache = cacheFor(this.sql);
+    const cached = readCachedAccountId(cache, cacheKey, this.time.clock.now);
     if (cached !== null) {
       const live = await this.sql.query(
         sql<
@@ -101,7 +117,7 @@ export class BearerAuthResolver {
         >`SELECT id FROM auth_users WHERE id = ${accountId} AND deleted_at IS NULL`
       );
       if (live.length === 0) return null;
-      writeCachedAccountId(cacheKey, accountId, this.time.clock.now);
+      writeCachedAccountId(cache, cacheKey, accountId, this.time.clock.now);
     }
     return accountId;
   }

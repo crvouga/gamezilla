@@ -18,17 +18,16 @@ export function createWallScheduler(opts?: {
   readonly settleMs?: number;
 }): Scheduler {
   const settleMs = opts?.settleMs ?? 0;
-  let nowMs = Date.now();
   const clock: VirtualClock = {
-    now: () => nowMs,
-    advance(ms) {
-      nowMs += ms;
+    now: () => Date.now(),
+    advance() {
+      throw new Error('a wall clock cannot jump ahead');
     },
-    set(ms) {
-      nowMs = ms;
+    set() {
+      throw new Error('a wall clock cannot be reassigned');
     },
-    reset(ms) {
-      nowMs = ms;
+    reset() {
+      throw new Error('a wall clock cannot be reset');
     },
   };
 
@@ -39,7 +38,6 @@ export function createWallScheduler(opts?: {
       const delay = Math.max(0, at - Date.now());
       const t = setTimeout(() => {
         timers.delete(t);
-        nowMs = Date.now();
         void run();
       }, delay);
       timers.add(t);
@@ -48,7 +46,6 @@ export function createWallScheduler(opts?: {
       const t = setTimeout(
         () => {
           timers.delete(t);
-          nowMs = Date.now();
           void run();
         },
         Math.max(0, ms)
@@ -63,15 +60,12 @@ export function createWallScheduler(opts?: {
     },
     async runFor(durationMs: number) {
       await new Promise<void>((r) => setTimeout(r, Math.max(0, durationMs)));
-      nowMs = Date.now();
     },
     async runUntilQuiescent() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
-      nowMs = Date.now();
     },
     async runUntil() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
-      nowMs = Date.now();
       return true;
     },
     sleep: cannotSleep,
@@ -104,11 +98,9 @@ export function createWallScheduler(opts?: {
     },
     async advance(ms) {
       await new Promise<void>((r) => setTimeout(r, Math.max(0, ms)));
-      nowMs = Date.now();
     },
     async waitForIdle() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
-      nowMs = Date.now();
     },
   };
 }

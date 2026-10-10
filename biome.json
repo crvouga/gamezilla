@@ -1662,6 +1662,8 @@
         "!**/pkgs/observability-mcp-server/tests/**",
         "!**/apps/client/src/main.tsx",
         "!**/apps/server/src/room.ts",
+        "!**/apps/synthetic-population-worker/src/wall-telemetry.ts",
+        "!**/apps/synthetic-population-worker/src/wall-metrics.ts",
         "!**/apps/server/src/product-server.ts",
         "!**/libs/app-root-client/src/browser-boundaries.ts",
         "!**/libs/app-root-client/src/browser-identity.ts",
@@ -1732,6 +1734,8 @@
         "!**/pkgs/observability-mcp-shared/src/**",
         "!**/pkgs/observability-mcp-server/tests/**",
         "!**/libs/harness/src/preload.ts",
+        "!**/apps/synthetic-population-worker/src/wall-telemetry.ts",
+        "!**/apps/synthetic-population-worker/src/wall-metrics.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]

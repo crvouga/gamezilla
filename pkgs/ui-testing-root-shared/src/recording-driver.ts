@@ -179,6 +179,7 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
     expect: recordingExpect(node, ctx),
     isVisible: () => node.isVisible(),
     text: () => node.text(),
+    attribute: (name) => node.attribute(name),
   };
 }
 

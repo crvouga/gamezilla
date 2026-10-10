@@ -73,6 +73,9 @@ export function createAuthServerAdapter(
     deleteUser: async (externalUserId) => {
       const tx = deps.getSql();
       await tx.run(
+        sql`DELETE FROM idp_passwords WHERE user_id = ${externalUserId}`
+      );
+      await tx.run(
         sql`DELETE FROM idp_sessions WHERE user_id = ${externalUserId}`
       );
       await tx.run(

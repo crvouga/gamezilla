@@ -1,0 +1,14 @@
+.git
+**/node_modules
+**/.cache
+.turbo
+.observability
+.feedback
+**/.env*
+.secrets.json
+.super.engineering
+.superconductor
+.superset
+**/.terraform
+**/*.tfstate*
+**/dist

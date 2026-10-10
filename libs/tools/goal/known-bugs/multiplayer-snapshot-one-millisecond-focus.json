@@ -1,0 +1,4 @@
+{
+  "summary": "The finished-game browser fixture fails with Timed out after 1ms waiting for hidden because its board reader uses an assertion against a nonexistent focus probe to select the application. Select the actual actor with bringToFront before reading its board, without a one-millisecond deadline.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

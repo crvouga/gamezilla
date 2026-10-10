@@ -9,6 +9,7 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { Button } from '@pkgs/ui-root-client/button';
 import {
   ModalBody,
@@ -16,15 +17,16 @@ import {
   ModalFooter,
 } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
-import { For, type JSX } from 'solid-js';
-
+import { For, type JSX, Show } from 'solid-js';
 import { providerName } from './auth-flow-messages';
+import { PasswordSignInForm } from './password-sign-in-form';
 
 export function SignInLinkRequiredContent(props: {
   readonly link: AuthLinkRequiredError;
   readonly onProve: (provider: OauthProviderId) => void;
   readonly onSeparate: () => void;
   readonly onClose: () => void;
+  readonly startPassword: (runner: () => Promise<void>) => Promise<void>;
 }): JSX.Element {
   const { i18n, t } = useLingui();
   const newProvider = () => providerName(i18n(), props.link.provider);
@@ -38,7 +40,13 @@ export function SignInLinkRequiredContent(props: {
           <p class="text text-text-secondary">
             {t`An account already uses ${props.link.email}. Sign in to it to add ${newProvider()} as another way to sign in, or keep a separate account.`}
           </p>
-          <For each={props.link.providers}>
+          <Show when={props.link.providers.includes('password')}>
+            <PasswordSignInForm
+              start={props.startPassword}
+              pendingLink={props.link.token}
+            />
+          </Show>
+          <For each={props.link.providers.filter(isOauthProviderId)}>
             {(provider) => (
               <SocialSignInButton
                 provider={provider}

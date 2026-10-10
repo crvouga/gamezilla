@@ -6,6 +6,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
+import { AccountAutomationLabel } from './account-automation-label';
 import { useProfileColumn } from './use-profile-column';
 
 export type UserUsernameProps = {
@@ -59,34 +60,37 @@ function UserUsernameInner(props: {
     })
   );
   return (
-    <p
-      class="text min-w-0"
-      classList={{
-        textBodyBold: String(props.variant) === 'bodyBold',
-        textCaption: String(props.variant) === 'caption',
-        textLabel: String(props.variant) === 'label',
-        textTitle: String(props.variant) === 'title',
-        textSubtitle: String(props.variant) === 'subtitle',
-        textHeading: String(props.variant) === 'heading',
-        textNavigationTitle: String(props.variant) === 'navigationTitle',
-        textLink: String(props.variant) === 'link',
-        textMono: String(props.variant) === 'mono',
-        'line-clamp-1': props.numberOfLines === 1,
-        [String(props.class)]: true,
-      }}
-      style={
-        props.numberOfLines !== undefined && props.numberOfLines > 1
-          ? {
-              display: '-webkit-box',
-              '-webkit-box-orient': 'vertical',
-              '-webkit-line-clamp': props.numberOfLines,
-              overflow: 'hidden',
-            }
-          : undefined
-      }
-      {...dataAttrs(props.dataSet)}
-    >
-      {label()}
-    </p>
+    <div class="inline-flex min-w-0 items-center gap-1">
+      <p
+        class="text min-w-0"
+        classList={{
+          textBodyBold: String(props.variant) === 'bodyBold',
+          textCaption: String(props.variant) === 'caption',
+          textLabel: String(props.variant) === 'label',
+          textTitle: String(props.variant) === 'title',
+          textSubtitle: String(props.variant) === 'subtitle',
+          textHeading: String(props.variant) === 'heading',
+          textNavigationTitle: String(props.variant) === 'navigationTitle',
+          textLink: String(props.variant) === 'link',
+          textMono: String(props.variant) === 'mono',
+          'line-clamp-1': props.numberOfLines === 1,
+          [String(props.class)]: true,
+        }}
+        style={
+          props.numberOfLines !== undefined && props.numberOfLines > 1
+            ? {
+                display: '-webkit-box',
+                '-webkit-box-orient': 'vertical',
+                '-webkit-line-clamp': props.numberOfLines,
+                overflow: 'hidden',
+              }
+            : undefined
+        }
+        {...dataAttrs(props.dataSet)}
+      >
+        {label()}
+      </p>
+      <AccountAutomationLabel profileId={props.profileId} />
+    </div>
   );
 }

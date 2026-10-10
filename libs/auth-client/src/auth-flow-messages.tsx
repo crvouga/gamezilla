@@ -10,7 +10,7 @@ import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 
 const MESSAGES = {
   cancelled: msg`Sign-in was cancelled or didn't finish.`,
@@ -22,12 +22,16 @@ const MESSAGES = {
   expired: msg`That took too long. Start again.`,
 } as const satisfies Record<AuthErrorCode, unknown>;
 
+// A translated display label, not a credential value.
+const EMAIL_SIGN_IN_LABEL = msg`Email and password`;
+
 const PROVIDER_NAMES = {
   google: msg`Google`,
   apple: msg`Apple`,
-} as const satisfies Record<OauthProviderId, unknown>;
+  password: EMAIL_SIGN_IN_LABEL,
+} as const satisfies Record<SignInMethodId, unknown>;
 
-export function providerName(i18n: I18n, provider: OauthProviderId): string {
+export function providerName(i18n: I18n, provider: SignInMethodId): string {
   return i18n._(PROVIDER_NAMES[provider]);
 }
 

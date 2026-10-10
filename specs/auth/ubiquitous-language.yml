@@ -13,6 +13,20 @@ purpose: >-
   Apple does lets anyone into the wrong account.
 
 terms:
+  - term: password
+    definition: A secret phrase a person chooses to get into their password account.
+    forms: [passwords, correct password, wrong password]
+    published: true
+
+  - term: password account
+    definition: An account reached with an email address and a password rather than an outside account.
+    forms: [password accounts, registered account]
+    published: true
+
+  - term: register
+    definition: Start a new password account with an email address and a password.
+    forms: [registers, registered, registration, registering]
+    published: true
   # --- Borrowed -----------------------------------------------------------------
 
   - term: account

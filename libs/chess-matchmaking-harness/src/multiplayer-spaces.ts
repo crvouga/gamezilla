@@ -1,17 +1,18 @@
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { signedInAccountOf } from '@libs/harness/identity';
 import {
   createSpace,
   selectChessGame,
 } from '@libs/spaces-harness/space-actions';
 import sql from '@pkgs/sql-root-shared/sql';
-import { multiplayerClient } from './multiplayer-client';
 
 export async function multiplayerSpaceId(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  const { owner: id } = await multiplayerClient(s, actor);
+  const id = await signedInAccountOf(s, actor);
+  if (id === null) throw new Error('Multiplayer actor has no bound identity');
   const rows = await s.harness.serverSql.sqlClient.query(sql<{
     id: string;
   }>`SELECT s.id FROM spaces AS s

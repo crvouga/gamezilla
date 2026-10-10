@@ -1,0 +1,4 @@
+{
+  "summary": "Recovery discarded active game references from an incompatible snapshot and could start a different match. Unsupported snapshots now discard behavior and pending actions while preserving validated references for authoritative UI reconciliation.",
+  "regressionTest": "libs/synthetic-population-shared/tests/policies.test.ts"
+}

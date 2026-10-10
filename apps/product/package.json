@@ -23,7 +23,7 @@
     "check:ui-quality": "bun run scripts/check.ts",
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
-    "dev": "bun run scripts/dev-web.ts",
+    "dev": "bun run scripts/dev-run.ts",
     "dev:prepare": "bun run scripts/dev-prepare.ts",
     "dev:services": "bun run scripts/cli.ts",
     "explore:quint-system": "bun tests/quint/explore-campaign.ts",

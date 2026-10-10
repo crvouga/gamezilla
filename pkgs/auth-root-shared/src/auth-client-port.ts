@@ -1,6 +1,6 @@
 import type { AuthIdentity } from './auth-identity';
 import type { AuthSessionStore } from './auth-session-state';
-import type { OauthProviderId } from './sign-in-method';
+import type { OauthProviderId, SignInMethodId } from './sign-in-method';
 
 export type GetFreshTokenOptions = {
   /** Force a network mint (bypass any cached token) after an auth 401. */
@@ -33,6 +33,13 @@ export interface AuthClientPort {
   readonly session: AuthSessionStore;
   /** Sign in with a social provider. */
   signIn(provider: OauthProviderId, options?: SignInOptions): Promise<void>;
+  /** Normal password authentication, available to people and automated users alike. */
+  signInWithPassword(
+    email: string,
+    password: string,
+    options?: SignInOptions
+  ): Promise<void>;
+  registerWithPassword(email: string, password: string): Promise<void>;
   /** Ends this device's session with the service. */
   signOut(): Promise<void>;
   /** Revoke every session the user holds, on every device, then sign out. */
@@ -48,7 +55,7 @@ export interface AuthClientPort {
   /** Add a sign-in method to the signed-in user. */
   linkProvider(provider: OauthProviderId): Promise<void>;
   /** Remove a sign-in method; refused (`last_identity`) for the last one. */
-  unlinkProvider(provider: OauthProviderId): Promise<readonly AuthIdentity[]>;
+  unlinkProvider(provider: SignInMethodId): Promise<readonly AuthIdentity[]>;
   /** Decline a pending link: the parked identity becomes its own user. */
   createSeparateAccount(pendingLinkToken: string): Promise<void>;
   /**

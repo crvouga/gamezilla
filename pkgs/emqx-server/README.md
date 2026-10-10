@@ -22,3 +22,9 @@ Default ports (dev):
 | 1883 | MQTT TCP |
 | 8083 | MQTT WebSocket (`/mqtt`) |
 | 18083 | Dashboard + HTTP API |
+
+The pinned broker runs without dependency patches. Its launcher generates an
+unquoted Erlang crash-dump argument, so the adapter sets `EMQX_LOG_DIR` to a
+whitespace-free temporary path when the application's data directory contains
+whitespace. That path is derived from the data directory and isolates brokers.
+Application data continues to use the configured durable data directory.

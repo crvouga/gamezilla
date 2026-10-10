@@ -60,6 +60,7 @@ export type ApiWorkerEnv = {
   DEPLOYMENT_PROTECTION?: string;
   /** JSON array rendered from this environment's infrastructure file. */
   PUZZLE_MANAGER_ACCOUNT_IDS?: string;
+  POPULATION_OPERATOR_ACCOUNT_IDS?: string;
   BUILD_SHA?: string;
   FEEDBACK_GITHUB_TOKEN?: string;
   FEEDBACK_GITHUB_REPOSITORY?: string;
@@ -137,14 +138,33 @@ export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
 export function readPuzzleManagerAccountIds(
   env: Pick<ApiWorkerEnv, 'PUZZLE_MANAGER_ACCOUNT_IDS'>
 ): readonly string[] {
-  const raw = readOptionalBinding(env.PUZZLE_MANAGER_ACCOUNT_IDS);
+  return readAccountIds(
+    env.PUZZLE_MANAGER_ACCOUNT_IDS,
+    'PUZZLE_MANAGER_ACCOUNT_IDS'
+  );
+}
+
+export function readSyntheticPopulationOperatorAccountIds(
+  env: Pick<ApiWorkerEnv, 'POPULATION_OPERATOR_ACCOUNT_IDS'>
+): readonly string[] {
+  return readAccountIds(
+    env.POPULATION_OPERATOR_ACCOUNT_IDS,
+    'POPULATION_OPERATOR_ACCOUNT_IDS'
+  );
+}
+
+function readAccountIds(
+  value: string | undefined,
+  name: string
+): readonly string[] {
+  const raw = readOptionalBinding(value);
   if (raw === null) return [];
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
     throw new ConfigurationError(
-      'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'
+      `${name} must be a JSON array of non-empty strings`
     );
   }
   if (
@@ -154,7 +174,7 @@ export function readPuzzleManagerAccountIds(
     )
   ) {
     throw new ConfigurationError(
-      'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'
+      `${name} must be a JSON array of non-empty strings`
     );
   }
   const accountIds = parsed as string[];

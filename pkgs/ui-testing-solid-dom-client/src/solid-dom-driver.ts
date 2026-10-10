@@ -1,5 +1,7 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
+import { readDomInventory } from '@pkgs/ui-testing-root-shared/dom-inventory';
+import type { Inventory } from '@pkgs/ui-testing-root-shared/inventory';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import type { RenderedApp } from '@pkgs/ui-testing-root-shared/render-adapter';
@@ -109,6 +111,15 @@ export class SolidDomDriver<TContext = void> implements Driver {
 
   get(testId: string): DriverNode {
     return new SolidDomDriverNode(this, [testId]);
+  }
+
+  async inventory(): Promise<Inventory> {
+    await this.activate();
+    const inventory = readDomInventory(this.document);
+    const pressables = [];
+    for (const item of inventory.pressables)
+      if (await this.get(item.testId).isVisible()) pressables.push(item);
+    return { ...inventory, pressables };
   }
 
   async key(key: DriverKey): Promise<void> {

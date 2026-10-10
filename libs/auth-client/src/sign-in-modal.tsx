@@ -2,10 +2,9 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Idle flow is a method picker (Google, and Apple where enabled). Every
- * method uses an OAuth auth-session with a durable pending marker across the
- * redirect/popup handoff. A sign-in whose address matched another account
- * lands on "Connect your accounts" instead of an error.
+ * Password authentication and enabled OAuth providers share the session
+ * lifecycle. OAuth keeps its durable pending marker across redirects. An
+ * address match asks the person to prove their existing account before linking.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -132,11 +131,13 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
           onSeparate={(token) => {
             trigger(props.onCreateSeparate, token);
           }}
+          startPassword={lifecycle.start}
           idleBody={
             <SignInIdleBody
               methodsLoading={props.methodsLoading}
               providers={props.providers}
               signInUnavailableReason={props.signInUnavailableReason}
+              startPassword={lifecycle.start}
               onPress={(provider) => {
                 trigger(props.onSignIn, provider);
               }}
@@ -157,6 +158,7 @@ function SignInPhaseContent(props: {
   onRetry: () => void;
   onProveLink: (provider: OauthProviderId, token: string) => void;
   onSeparate: (token: string) => void;
+  startPassword: (runner: () => Promise<void>) => Promise<void>;
   idleBody: JSX.Element;
   idleFooter: JSX.Element;
 }): JSX.Element {
@@ -177,7 +179,7 @@ function SignInPhaseContent(props: {
       </Match>
       <Match when={props.phase() === 'success'}>
         <>
-          <StateArea>
+          <StateArea outcome>
             <SuccessState
               title={t`Signed in`}
               body={t`You're signed in on this device.`}
@@ -209,6 +211,7 @@ function SignInPhaseContent(props: {
               onProve={(provider) => props.onProveLink(provider, link().token)}
               onSeparate={() => props.onSeparate(link().token)}
               onClose={props.onClose}
+              startPassword={props.startPassword}
             />
           )}
         </Show>
@@ -233,7 +236,7 @@ function SignInErrorContent(props: {
   };
   return (
     <div class="box" data-testid={Handles.authSignInFailed}>
-      <StateArea>
+      <StateArea outcome>
         <ErrorState
           title={t`Sign-in failed`}
           body={message() ?? t`Sign-in was cancelled or didn't finish.`}
@@ -251,10 +254,14 @@ function SignInErrorContent(props: {
   );
 }
 
-function StateArea(props: { children: JSX.Element }): JSX.Element {
+function StateArea(props: {
+  children: JSX.Element;
+  outcome?: boolean;
+}): JSX.Element {
   return (
     <div
       class="box justify-center"
+      data-testid={props.outcome ? 'auth-sign-in-outcome' : undefined}
       style={{ 'min-height': `${STATE_AREA_MIN_HEIGHT}px` }}
     >
       {props.children}

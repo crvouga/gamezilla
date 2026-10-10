@@ -26,6 +26,7 @@ import { NOTIFICATIONS_CLIENT } from '@libs/notifications-client/feature-client'
 import { PROFILE_CLIENT } from '@libs/profile-client/feature-client';
 import { SEARCH_CLIENT } from '@libs/search-client/feature-client';
 import { createSpacesClient } from '@libs/spaces-client/feature-client';
+import { SYNTHETIC_POPULATION_CLIENT } from '@libs/synthetic-population-client/feature-client';
 
 /**
  * Games depend on spaces, so the composition root hands spaces its plugin
@@ -64,4 +65,5 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   SEARCH_CLIENT,
   BILLING_CLIENT,
   PUZZLE_MANAGEMENT_CLIENT,
+  SYNTHETIC_POPULATION_CLIENT,
 ];

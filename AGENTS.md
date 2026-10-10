@@ -19,6 +19,8 @@ than restating it.
 
 - **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Check: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
+- **Own every long-lived command.** Use the launch and cleanup entry points in [`README.md`](README.md#laptop). Never start an unmanaged background server, watcher, compiler, database, browser, simulator, or media worker.
+
 - **Agents never create branches or worktrees.** Commit to the branch and worktree you started in: no `EnterWorktree`, no `isolation: "worktree"` subagents, no `git worktree add`, no `git checkout -b` / `git switch -c`. Parallel agents split work by files and commit only their own paths (never `git add -A` over another agent's edits), then `git pull --rebase` before pushing. Enforced by `.claude/hooks/no-agent-worktrees.sh`.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.

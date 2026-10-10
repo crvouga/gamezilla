@@ -73,3 +73,21 @@ export function createClientPubSub(args: ClientPubSubArgs): PubSub {
       }),
   });
 }
+
+export function createObservationPubSub(input: {
+  url: string;
+  clientIdPrefix: string;
+  timers: Timers;
+  random: Random;
+  logger: Logger;
+  auth: () => Promise<{ username: string; password: string }>;
+}) {
+  const createPubSub = input.url.startsWith('ws:')
+    ? createAedesPubSub
+    : createEmqxPubSub;
+  return createPubSub({
+    ...input,
+    protocolVersion: input.url.startsWith('ws:') ? 4 : 5,
+    ...(input.url.startsWith('wss:') ? { toWireTopic: iotWireTopic } : {}),
+  });
+}

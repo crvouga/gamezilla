@@ -31,6 +31,10 @@ export function createOfflineAuthClient(
     session: offlineSession(offline, inner.session),
     signIn: (provider, options) =>
       requireOnline(() => inner.signIn(provider, options)),
+    signInWithPassword: (email, password, options) =>
+      requireOnline(() => inner.signInWithPassword(email, password, options)),
+    registerWithPassword: (email, password) =>
+      requireOnline(() => inner.registerWithPassword(email, password)),
     signOut: () => requireOnline(() => inner.signOut()),
     signOutEverywhere: () => requireOnline(() => inner.signOutEverywhere()),
     listIdentities: () => requireOnline(() => inner.listIdentities()),

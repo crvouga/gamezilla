@@ -66,6 +66,7 @@
     "@pkgs/os-server": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/postgres-local-shared": "workspace:*",
+    "@pkgs/postgres-mockingbird-server": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/quint-server": "workspace:*",
     "@pkgs/quint-shared": "workspace:*",

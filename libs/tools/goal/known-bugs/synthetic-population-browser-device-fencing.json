@@ -1,0 +1,4 @@
+{
+  "summary": "The browser Synthetic User fixture bound ownership to the harness metadata device instead of the actual application's device. Normal UI writes were fenced and username setup could not finish. Both runtimes now read the selected application's device identity.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

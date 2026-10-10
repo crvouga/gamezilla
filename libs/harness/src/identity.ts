@@ -153,7 +153,11 @@ export async function signedInAccountOf(
   actorId: string
 ): Promise<string | null> {
   const env = await s.harness.client(actorId);
-  const token = env.secureStorage.getValue(SESSION_TOKEN_KEY);
+  const actor = s.actors.get(actorId);
+  const token =
+    actor === undefined
+      ? env.secureStorage.getValue(SESSION_TOKEN_KEY)
+      : await actor.sessionToken();
   if (typeof token !== 'string' || token.length === 0) return null;
   const rows = await s.harness.serverSql.sqlClient.query(sql<{
     readonly user_id: string;

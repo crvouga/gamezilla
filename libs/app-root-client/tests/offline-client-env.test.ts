@@ -74,6 +74,8 @@ test('auth receives gated HTTP so going offline aborts requests already underway
         },
       },
       signIn: async () => undefined,
+      signInWithPassword: async () => undefined,
+      registerWithPassword: async () => undefined,
       signOut: async () => undefined,
       signOutEverywhere: async () => undefined,
       listIdentities: async () => [],

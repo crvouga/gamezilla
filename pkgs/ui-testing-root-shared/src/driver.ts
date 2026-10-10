@@ -100,6 +100,9 @@ export type DriverNode = {
   /** Narrow to a descendant testId within this node. */
   get(testId: string): DriverNode;
 
+  /** Read an attribute on the actual selected UI element. Missing attributes return null. */
+  attribute(name: string): Promise<string | null>;
+
   /** Wait until visible, then tap / click. */
   tap(options?: UiWaitOptions): Promise<void>;
 
