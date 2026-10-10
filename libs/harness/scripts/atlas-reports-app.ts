@@ -7,6 +7,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { createLayeredObjectStore } from '@pkgs/object-store-root-shared/impl-layered';
 import { RecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
 import { Hono } from 'hono';
 import { workspaceOutline } from './atlas-outline';
@@ -36,10 +37,24 @@ export async function openReportsDevApp(
   workspace: () => Promise<WorkspaceReports> = () => workspaceReports(repoRoot),
   outline = () => workspaceOutline(repoRoot)
 ): Promise<FetchApp> {
-  const store = await createReportsObjectStore(
+  const remoteStore = await createReportsObjectStore(
     new RecordSecretStore(loadReportsDevSecrets(repoRoot)),
     { http: createGlobalHttpClient() }
   );
+  const cacheStore = createNodeFsObjectStore({
+    rootDir: join(repoRoot, '.cache/atlas-reports-cache'),
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+  const store = remoteStore
+    ? createLayeredObjectStore({
+        primary: remoteStore,
+        caches: [cacheStore],
+        now: () => wallClock.now(),
+        cacheTtlMs: 2_000,
+        staleOnError: true,
+      })
+    : null;
   return new Hono().route(
     '/api/reports',
     createReportsApp({
