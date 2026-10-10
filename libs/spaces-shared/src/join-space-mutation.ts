@@ -11,6 +11,7 @@ import {
   spaceIdArgs,
 } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
+import { playerJoinedEvent } from './telemetry';
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
@@ -72,12 +73,20 @@ export const joinSpaceMutation = defineMutation({
         WHERE id = ${spaceId}
       `);
     }
-    await changeSpaceRoomMembership(
+    const membershipEventId = await changeSpaceRoomMembership(
       { tx, env },
       spaceId,
       'joined',
       actorMemberId
     );
     await openSession(tx, env, spaceId);
+    if (present.length === 0)
+      await playerJoinedEvent.record(
+        { tx, env },
+        {
+          id: membershipEventId,
+          attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
+        }
+      );
   },
 });

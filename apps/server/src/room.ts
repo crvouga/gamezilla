@@ -12,6 +12,8 @@ type RoomWorkerEnv = {
   readonly BUILD_SHA?: string;
   readonly OBSERVABILITY_COLLECTOR_TOKEN?: string;
   readonly OBSERVABILITY_COLLECTOR_URL?: string;
+  readonly OBSERVABILITY_LOGS_URL?: string;
+  readonly OBSERVABILITY_METRICS_URL?: string;
   readonly OBSERVABILITY_COLLECTOR_USER?: string;
   readonly OBSERVABILITY_ENABLED?: string;
   /** Stamped by libs/infra render-wrangler on deployed Workers only. */
@@ -66,11 +68,18 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    instanceId: crypto.randomUUID(),
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
     otlpUrl: collectorUrl,
+    ...(env.OBSERVABILITY_LOGS_URL?.trim()
+      ? { logsUrl: env.OBSERVABILITY_LOGS_URL.trim() }
+      : {}),
+    ...(env.OBSERVABILITY_METRICS_URL?.trim()
+      ? { metricsUrl: env.OBSERVABILITY_METRICS_URL.trim() }
+      : {}),
     ...(authorization === undefined
       ? {}
       : { otlpHeaders: { Authorization: authorization } }),

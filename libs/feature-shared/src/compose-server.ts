@@ -23,6 +23,7 @@ import type {
 } from './server';
 
 export type ComposedFeatureServers = {
+  readonly telemetryEvents?: NonNullable<FeatureServer['telemetryEvents']>;
   readonly featureNames: readonly string[];
   /** Sub-apps to mount at the API root, in feature order. */
   readonly routers: (ctx: FeatureServerCtx) => readonly FeatureRouter[];
@@ -69,6 +70,7 @@ export function composeFeatureServers(
   const outboxConsumers = new OutboxConsumerRegistry();
   for (const server of servers) server.registerOutbox?.(outboxConsumers);
   return {
+    telemetryEvents: servers.flatMap((server) => server.telemetryEvents ?? []),
     featureNames: servers.map((s) => s.name),
     routers: (ctx) => servers.flatMap((s) => (s.routes ? [s.routes(ctx)] : [])),
     outboxConsumers,

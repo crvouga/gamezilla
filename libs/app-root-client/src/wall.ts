@@ -16,6 +16,7 @@ import {
   EMPTY_PERF_SNAPSHOT,
 } from '@libs/app-root-shared/types';
 import type { Timers } from '@pkgs/clock-shared/types';
+import { recordWebVital } from '@pkgs/observability-root-shared/web-vital';
 import { onCLS, onINP, onLCP } from 'web-vitals/attribution';
 
 const FRAME_BUDGET_MS = 1000 / 60;
@@ -236,4 +237,29 @@ export function createWallPerfSampler(args: {
   const frames = readFrameScheduler();
   if (frames === null) return createNoopPerfSampler();
   return new WallPerfSampler(args.timers, frames);
+}
+
+/** Independent of the optional performance HUD. Values are events so readings
+ * from many browsers cannot overwrite one shared cumulative metric series. */
+export function installBrowserPerformanceTelemetry(
+  now: () => number
+): () => void {
+  let active = true;
+  const emit = (
+    name: 'inp' | 'lcp' | 'cls',
+    metric: { id: string; value: number }
+  ) => {
+    if (active)
+      recordWebVital({ name, id: metric.id, value: metric.value }, now);
+  };
+  try {
+    onINP((metric) => emit('inp', metric));
+    onLCP((metric) => emit('lcp', metric));
+    onCLS((metric) => emit('cls', metric));
+  } catch {
+    // Hosts without Performance Timeline support retain ordinary diagnostics.
+  }
+  return () => {
+    active = false;
+  };
 }

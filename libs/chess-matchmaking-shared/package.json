@@ -11,10 +11,12 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@libs/friends-shared": "workspace:*",
+    "@libs/observability-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
@@ -25,6 +27,7 @@
     "@pkgs/matchmaking-root-shared": "workspace:*",
     "@pkgs/matchmaking-sql-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
@@ -37,7 +40,8 @@
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*"
   },
   "category": "isomorphic"
 }

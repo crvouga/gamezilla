@@ -8,6 +8,7 @@ import { liveHostedSpacesCountSql } from './hosted-spaces-sql';
 import { spaceUserEntityId } from './participation-ids';
 import { memberId, openSession } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
+import { spaceCreatedEvent } from './telemetry';
 
 /**
  * Open a space the actor hosts. Guests and free accounts host one live space
@@ -72,5 +73,13 @@ export const createSpaceMutation = defineMutation({
       actorMemberId
     );
     await openSession(tx, env, spaceId, true);
+    if (owner === undefined)
+      await spaceCreatedEvent.record(
+        { tx, env },
+        {
+          id: spaceId,
+          attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
+        }
+      );
   },
 });

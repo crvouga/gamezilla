@@ -222,7 +222,7 @@ export function createSolidDomRenderedApp(
     },
     unmount: () => {
       layout.close();
-      return scope.unmount();
+      scope.unmount();
     },
     snapshotHtml: (options) => {
       syncLayout();

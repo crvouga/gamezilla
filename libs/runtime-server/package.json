@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@libs/account-privacy-server": "workspace:*",
+    "@libs/auth-server": "workspace:*",
     "@libs/billing-server": "workspace:*",
     "@libs/chess-root-server": "workspace:*",
     "@libs/db-server": "workspace:*",

@@ -30,7 +30,7 @@ export async function changeSpaceRoomMembership(
   spaceId: string,
   change: 'joined' | 'left' | 'ended',
   memberId: string
-): Promise<void> {
+): Promise<string> {
   const id = ctx.env.createId();
   await new Outbox(ctx).send({
     id,
@@ -41,4 +41,5 @@ export async function changeSpaceRoomMembership(
       change,
     }),
   });
+  return id;
 }

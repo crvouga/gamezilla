@@ -31,7 +31,8 @@
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/tailwind-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/observability-runtime-shared": "workspace:*"
   },
   "devDependencies": {
     "@libs/app-config-shared": "workspace:*",

@@ -3,6 +3,7 @@ const cp = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const moduleApi = require('node:module');
+const { threadId } = require('node:worker_threads');
 const { ownedBunArgs } = require('./dev-owner-command.cjs');
 const gate = 'kill -STOP $$; exec "$@"';
 const retained = new Set();
@@ -43,7 +44,7 @@ function persist(pid, command, cwd) {
   const dir = path.join(root, '.cache/dev-owner');
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, `pid-${pid}.json`);
-  const temp = `${file}.${process.pid}.tmp`;
+  const temp = `${file}.${process.pid}.${threadId}.tmp`;
   fs.writeFileSync(
     temp,
     JSON.stringify({

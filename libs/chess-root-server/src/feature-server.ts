@@ -4,6 +4,8 @@ import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { MultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
 import { settleDueGame } from '@libs/chess-matchmaking-shared/settle-due-game';
+import { MULTIPLAYER_TELEMETRY } from '@libs/chess-matchmaking-shared/telemetry';
+import { PUZZLE_TELEMETRY } from '@libs/chess-puzzle-shared/telemetry';
 import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
@@ -41,6 +43,7 @@ async function customGameRoomGrants(
 
 export function createChessServer(rooms: RoomServicePort) {
   return defineFeatureServer({
+    telemetryEvents: [...MULTIPLAYER_TELEMETRY, ...PUZZLE_TELEMETRY],
     name: 'chess',
     routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
     roomGrants: async (ctx) => [

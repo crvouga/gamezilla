@@ -9,6 +9,7 @@
 import { notifyUserChannels } from '@libs/app-root-server/notify-user-channels';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { appAuth } from '@libs/auth-shared/auth-context';
+import { BILLING_TELEMETRY } from '@libs/billing-shared/telemetry';
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { requirePermission } from '@libs/permissions-shared/require-permission';
@@ -67,6 +68,7 @@ export function createBillingSubApp(
  */
 export function createBillingServer(billing: MembershipProviders | null) {
   return defineFeatureServer({
+    telemetryEvents: BILLING_TELEMETRY,
     name: 'billing',
     registerOutbox: (registry) =>
       registerBillingPrivacyConsumers(registry, billing),

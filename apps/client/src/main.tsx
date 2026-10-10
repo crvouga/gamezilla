@@ -3,9 +3,11 @@ import {
   setBrowserTraceFlush,
 } from '@libs/app-root-client/browser-boundaries';
 import { createOfflineHttp } from '@libs/app-root-client/offline-network-http';
+import { installBrowserPerformanceTelemetry } from '@libs/app-root-client/wall';
 import { APP } from '@libs/runtime-shared/app-features';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
+import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
 /**
@@ -66,11 +68,28 @@ function initializeObservability() {
         url: otlpUrl,
         http: { fetch: createOfflineHttp(offline, clientEnv.server) },
       }),
+      otlpUrl: new URL(
+        '/api/observability/v1/traces',
+        clientEnv.serverUrl
+      ).toString(),
+      logExporter: new AcknowledgedLogExporter(
+        new URL('/api/observability/v1/logs', clientEnv.serverUrl).toString(),
+        {},
+        { fetch: createOfflineHttp(offline, clientEnv.server) },
+        clientEnv.timers
+      ),
     })
   );
   const boundaries = telemetry.then((runtime) => {
+    const removePerformance = installBrowserPerformanceTelemetry(
+      clientEnv.clock.now
+    );
     setBrowserTraceFlush(() => runtime.forceFlush());
-    return installBrowserObservabilityBoundaries();
+    const removeBoundaries = installBrowserObservabilityBoundaries();
+    return () => {
+      removePerformance();
+      removeBoundaries();
+    };
   });
   return { boundaries, telemetry };
 }

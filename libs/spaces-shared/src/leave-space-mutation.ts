@@ -15,6 +15,7 @@ import {
   spaceIdArgs,
 } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
+import { playerLeftEvent } from './telemetry';
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
@@ -37,7 +38,7 @@ export const leaveSpaceMutation = defineMutation({
     }
     const now = env.now().toISOString();
     const actorMemberId = memberId(env);
-    await changeSpaceRoomMembership(
+    const membershipEventId = await changeSpaceRoomMembership(
       { tx, env },
       spaceId,
       'left',
@@ -51,5 +52,12 @@ export const leaveSpaceMutation = defineMutation({
         AND deleted_at IS NULL
     `);
     await closeSession(tx, env, spaceId);
+    await playerLeftEvent.record(
+      { tx, env },
+      {
+        id: membershipEventId,
+        attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
+      }
+    );
   },
 });

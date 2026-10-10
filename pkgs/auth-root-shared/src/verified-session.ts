@@ -3,6 +3,8 @@
  * and surfaced on the client via `AuthClientPort.session`.
  */
 export type VerifiedSession = {
+  /** Trusted provider provenance. Absent means unknown, never real by default. */
+  readonly synthetic?: boolean;
   /** Id in the auth service's namespace (`AuthUser.externalUserId`). */
   readonly externalUserId: string;
   /** Product account UUID when the adapter knows it; usually `null`. */

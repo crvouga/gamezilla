@@ -1,6 +1,5 @@
 import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { Clock } from '@pkgs/clock-shared/types';
-import { sessionGrantValid } from './session-grant';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { MAX_ROSTER_SIZE } from '@pkgs/room-root-shared/bounds';
 import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared/builtin';
@@ -42,6 +41,7 @@ import {
   broadcastToConnections,
   sendConnectionWelcome,
 } from './room-server-fanout';
+import { sessionDenial } from './session-grant';
 
 const crash: Assert = Assert.crash();
 
@@ -504,15 +504,9 @@ export class RoomServer<
     };
     const denied = await this.authorizeOrNull(identity, command, conn.grants);
     if (refuseConnectionCommand(conn, this.connections, commandId)) return;
-    if (denied !== null || !sessionGrantValid(conn.grants, this.clock.now())) {
-      await this.reject(
-        commandId,
-        denied ?? {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: 'session expired',
-        },
-        send
-      );
+    const refusal = sessionDenial(denied, conn.grants, this.clock.now());
+    if (refusal !== null) {
+      await this.reject(commandId, refusal, send);
       return;
     }
     const result = this.module.handle(this.committedState, command, identity);
