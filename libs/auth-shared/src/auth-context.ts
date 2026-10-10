@@ -28,6 +28,9 @@ function readBool(v: unknown): boolean {
 }
 
 export const AuthClaimAttr = {
+  telemetryPopulation: authNs.text('telemetry-population', (value) =>
+    value === 'real' || value === 'synthetic' ? value : 'unknown'
+  ),
   /** Install UUID (`devices.id`). Never used as user/profile identity. */
   deviceId: authNs.text('device-id', readNonEmptyString),
   /** `users.id` when resolved (anon or signed-in), else `null`. */
@@ -56,6 +59,7 @@ export type AppClientContext = Readonly<Record<string, unknown>>;
  * call repeating `AuthClaimAttr.X.from(ctx)`.
  */
 export type AppAuth = {
+  readonly synthetic?: boolean;
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly myId: string;
@@ -71,6 +75,7 @@ export function appAuth(
   const deviceId = AuthClaimAttr.deviceId.from(state);
   if (deviceId === '') return null;
   return {
+    ...syntheticClaim(AuthClaimAttr.telemetryPopulation.from(state)),
     deviceId,
     accountId: AuthClaimAttr.accountId.from(state),
     myId: AuthClaimAttr.myId.from(state),
@@ -85,6 +90,7 @@ export function appAuth(
  * system without any caller in between reading it.
  */
 export type SyncActor = {
+  readonly synthetic?: boolean;
   readonly actorId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
@@ -94,6 +100,7 @@ export type SyncActor = {
 
 export function syncActorOf(auth: AppAuth): SyncActor {
   return {
+    ...(auth.synthetic === undefined ? {} : { synthetic: auth.synthetic }),
     actorId: auth.myId,
     deviceId: auth.deviceId,
     accountId: auth.accountId,
@@ -139,6 +146,7 @@ export function localSyncActor(args: {
 }
 
 export type BuildAppAuthContextArgs = {
+  readonly synthetic?: boolean;
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly myId: string;
@@ -151,10 +159,23 @@ export function buildAppAuthContext(
   args: BuildAppAuthContextArgs
 ): AppAuthContext {
   return {
+    ...AuthClaimAttr.telemetryPopulation(
+      args.synthetic === undefined
+        ? 'unknown'
+        : args.synthetic
+          ? 'synthetic'
+          : 'real'
+    ),
     ...AuthClaimAttr.deviceId(args.deviceId),
     ...AuthClaimAttr.accountId(args.accountId),
     ...AuthClaimAttr.myId(args.myId),
     ...AuthClaimAttr.isAnon(args.isAnon ?? false),
     ...AuthClaimAttr.authenticatedAtMs(args.authenticatedAtMs ?? null),
   };
+}
+
+function syntheticClaim(population: string): { readonly synthetic?: boolean } {
+  return population === 'unknown'
+    ? {}
+    : { synthetic: population === 'synthetic' };
 }

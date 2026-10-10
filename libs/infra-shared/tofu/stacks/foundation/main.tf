@@ -75,6 +75,8 @@ module "secrets" {
     IOT_SECRET_ACCESS_KEY           = module.pubsub.publisher_secret_access_key
     IOT_REGION                      = module.pubsub.region
     OBSERVABILITY_COLLECTOR_URL     = module.observability.collector_url
+    OBSERVABILITY_LOGS_URL          = var.observability.logs_url
+    OBSERVABILITY_METRICS_URL       = var.observability.metrics_url
     OBSERVABILITY_COLLECTOR_USER    = module.observability.collector_user
     OBSERVABILITY_COLLECTOR_TOKEN   = module.observability.collector_token
     OBS_TEMPO_URL                   = module.observability.tempo_url

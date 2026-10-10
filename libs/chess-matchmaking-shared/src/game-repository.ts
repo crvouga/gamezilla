@@ -10,6 +10,7 @@ import { MULTIPLAYER_GAME_COLUMNS } from './game-state';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
 import { publishMatchGame } from './publish-match-game';
 import { rateFinishedGame } from './rate-finished-game';
+import { recordGameTransition } from './telemetry';
 
 const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
 
@@ -87,7 +88,10 @@ export class MultiplayerGameRepository {
     nowMs: number,
     write: {
       readonly server: boolean;
-      readonly publish?: { readonly createId: () => string };
+      readonly publish?: {
+        readonly createId: () => string;
+        readonly synthetic?: boolean;
+      };
     }
   ): Promise<MultiplayerGame> {
     const { server, publish } = write;
@@ -109,6 +113,14 @@ export class MultiplayerGameRepository {
         game
       );
     if (!server) return game;
+    await recordGameTransition(this.tx, {
+      before,
+      after: game,
+      nowMs,
+      ...(publish?.synthetic === undefined
+        ? {}
+        : { synthetic: publish.synthetic }),
+    });
     if (ended)
       for (const ownerId of [game.white_id, game.black_id])
         await changeAvailability(this.tx, { ownerId, available: true, nowMs });

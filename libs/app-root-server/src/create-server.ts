@@ -43,6 +43,7 @@ import { createHealthApp } from './health-route';
 import { notifyUserChannels } from './notify-user-channels';
 import {
   drainAndNotifyOutbox,
+  requestOutboxRegistry,
   setOutboxConsumerRegistry,
 } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
@@ -54,6 +55,7 @@ import {
 } from './request-telemetry';
 import { createRoomApp } from './room-route';
 import { createSyncApp } from './sync-app';
+import { registerTelemetryConsumers } from './telemetry-consumers';
 
 function createAppLogger(env: ServerEnv) {
   return createLogger({ name: 'server:app', now: env.clock.now });
@@ -371,7 +373,7 @@ function createServerRouter(args: {
   const { secrets, protection } = env;
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
-    .use('*', createRequestTelemetryMiddleware())
+    .use('*', createRequestTelemetryMiddleware(env.clock.now))
     // Ahead of the database middleware: report streams never touch Postgres.
     .route(
       '/reports',
@@ -416,7 +418,7 @@ function createServerRouter(args: {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       await drainAndNotifyOutbox({
-        consumerRegistry: servers.outboxConsumers,
+        consumerRegistry: requestOutboxRegistry(servers.outboxConsumers),
         objectStore: env.blob,
         db: store.sqlClient,
         clock: store.clock,
@@ -481,6 +483,7 @@ async function pushChangedAuthUser(
  */
 export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   const log = createAppLogger(env);
+  registerTelemetryConsumers(args.servers, env);
   setOutboxConsumerRegistry(args.servers.outboxConsumers);
 
   if (env.events !== null) {

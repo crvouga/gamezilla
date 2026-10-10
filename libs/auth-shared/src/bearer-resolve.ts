@@ -138,6 +138,9 @@ export class BearerAuthResolver {
       accountId,
       myId: accountId,
       isAnon: false,
+      ...(session.synthetic === undefined
+        ? {}
+        : { synthetic: session.synthetic }),
       ...(session.authenticatedAt === null
         ? {}
         : { authenticatedAtMs: session.authenticatedAt.getTime() }),

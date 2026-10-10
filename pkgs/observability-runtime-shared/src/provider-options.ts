@@ -9,7 +9,10 @@ import {
 
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { installLogEventBridge } from '@pkgs/observability-root-shared/log';
-import { createAllowlistRedactor } from '@pkgs/observability-root-shared/redaction';
+import {
+  allowlistedAttributes,
+  createAllowlistRedactor,
+} from '@pkgs/observability-root-shared/redaction';
 import { IdentitySpanProcessor } from './identity-span-processor';
 import type { TelemetryOptions } from './options';
 import { RedactingSpanProcessor } from './redacting-span-processor';
@@ -18,7 +21,7 @@ export function createProviderConfig(
   options: TelemetryOptions,
   exportMode: 'batch' | 'simple'
 ): TracerConfig {
-  installLogEventBridge();
+  if (options.registerGlobal !== false) installLogEventBridge();
   const processors: SpanProcessor[] = [];
   if (options.identity !== undefined) {
     processors.push(new IdentitySpanProcessor(options.identity));
@@ -46,11 +49,11 @@ export function createProviderConfig(
       : { idGenerator: options.idGenerator }),
     ...(options.sampler === undefined ? {} : { sampler: options.sampler }),
     resource: resourceFromAttributes({
+      ...allowlistedAttributes(options.resourceAttributes ?? {}),
       [ATTR.SERVICE_NAME]: options.serviceName,
       [ATTR.SERVICE_VERSION]: options.serviceVersion,
       [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: options.environment,
       [ATTR.APP_BUILD_SHA]: options.buildSha,
-      ...options.resourceAttributes,
     }),
     spanProcessors: processors,
   };

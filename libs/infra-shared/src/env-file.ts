@@ -33,6 +33,13 @@ export const envFileSchema = z
       })
       .strict(),
     protection: z.enum(['production', 'standard']),
+    observability: z
+      .object({
+        logs_url: z.url().optional(),
+        metrics_url: z.url().optional(),
+      })
+      .strict()
+      .optional(),
     cloudflare: z.object({ account_id: id, zone_name: hostname }).strict(),
     hosts: z
       .object({

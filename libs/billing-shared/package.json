@@ -17,11 +17,13 @@
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
     "@libs/feature-shared": "workspace:*",
+    "@libs/observability-shared": "workspace:*",
     "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",

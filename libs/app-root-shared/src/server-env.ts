@@ -6,12 +6,20 @@ import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Kv } from '@pkgs/kv-root-shared/interface';
 import type { LlmProvider } from '@pkgs/llm-root-shared/llm-provider';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import type { EventContract } from '@pkgs/observability-root-shared/event-contract';
+import type { PendingTelemetryEvent } from '@pkgs/observability-root-shared/event-outbox';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import type { TtsProvider } from '@pkgs/tts-root-shared/tts-provider';
 import type { DeploymentProtection } from './env';
 
 export type ServerEnv = {
+  /** Injected acknowledged OTLP delivery, absent only when not configured. */
+  readonly deliverBusinessEvent?: (input: {
+    readonly contract: EventContract;
+    readonly event: PendingTelemetryEvent;
+    readonly observedAtMs: number;
+  }) => Promise<void>;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: () => string;

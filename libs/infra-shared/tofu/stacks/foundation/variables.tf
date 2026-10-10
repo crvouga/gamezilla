@@ -149,6 +149,15 @@ variable "grafana" {
   })
 }
 
+variable "observability" {
+  type = object({
+    logs_url    = optional(string, "")
+    metrics_url = optional(string, "")
+  })
+  default     = {}
+  description = "Explicit OTLP signal endpoints; empty disables a signal until its backend is provisioned."
+}
+
 variable "secrets" {
   type = object({
     regenerate = optional(list(string), [])

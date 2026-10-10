@@ -50,6 +50,7 @@ export type MutationRow = {
 };
 
 export type ReplayAuth = {
+  readonly synthetic?: boolean;
   readonly actorId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
@@ -147,6 +148,9 @@ async function applyReplayMutationInTxn(args: {
 }): Promise<ReplayOutcome> {
   const { txc, deps, m, mutation, parsedValue } = args;
   const env: MutationEnv = {
+    ...(deps.auth.synthetic === undefined
+      ? {}
+      : { synthetic: deps.auth.synthetic }),
     actorId: deps.auth.actorId,
     deviceId: deps.auth.deviceId,
     accountId: deps.auth.accountId,

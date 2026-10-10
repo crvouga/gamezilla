@@ -36,6 +36,35 @@ async function validateNonEmpty(input: SecretInput, name: string) {
   requireNonEmpty(input.secretValue, name);
 }
 
+function signalEndpoint(name: string, signal: 'logs' | 'metrics') {
+  return new Secret({
+    name,
+    optional: true,
+    managedBy: 'tofu',
+    pushToApiWorker: true,
+    hint: `Exact OTLP HTTP ${signal} endpoint. ${PROVISIONED}`,
+    async validate(input) {
+      const url = new URL(input.secretValue.trim());
+      if (
+        !url.pathname.endsWith(`/v1/${signal}`) ||
+        url.username ||
+        url.password ||
+        url.search ||
+        url.hash ||
+        !['http:', 'https:'].includes(url.protocol)
+      )
+        throw new Error(`Invalid ${signal} endpoint`);
+      if (isProductionEnv(input.env)) requireHttpsUrl(input.secretValue, name);
+    },
+  });
+}
+
+export const OBSERVABILITY_LOGS_URL = signalEndpoint(Name.logsUrl, 'logs');
+export const OBSERVABILITY_METRICS_URL = signalEndpoint(
+  Name.metricsUrl,
+  'metrics'
+);
+
 export const GRAFANA_CLOUD_API_TOKEN = new Secret({
   name: Name.grafanaCloudApiToken,
   hint: [

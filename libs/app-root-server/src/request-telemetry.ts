@@ -5,6 +5,7 @@ import {
   currentCorrelation,
   deserializeTraceContext,
 } from '@pkgs/observability-root-shared/correlation';
+import { createHttpMetrics } from '@pkgs/observability-root-shared/http-metrics';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { MiddlewareHandler } from 'hono';
 import { routePath } from 'hono/route';
@@ -19,8 +20,12 @@ export function takeRequestTraceId(request: Request): string | undefined {
 }
 
 /** One server span per request, including where the connection appeared. */
-export function createRequestTelemetryMiddleware(): MiddlewareHandler {
+export function createRequestTelemetryMiddleware(
+  now: () => number
+): MiddlewareHandler {
+  const record = createHttpMetrics();
   return async (c, next) => {
+    const started = now();
     const traceparent = c.req.header('traceparent');
     const parent =
       traceparent === undefined
@@ -50,6 +55,10 @@ export function createRequestTelemetryMiddleware(): MiddlewareHandler {
         },
         { kind: SpanKind.SERVER }
       );
-    return parent === undefined ? run() : context.with(parent, run);
+    try {
+      return await (parent === undefined ? run() : context.with(parent, run));
+    } finally {
+      record(c.req.method, c.res.status, now() - started);
+    }
   };
 }

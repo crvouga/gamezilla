@@ -12,6 +12,7 @@ import type {
   TelemetryRuntime,
 } from '@pkgs/observability-runtime-shared/options';
 import { createProviderConfig } from '@pkgs/observability-runtime-shared/provider-options';
+import { createSignals } from '@pkgs/observability-runtime-shared/signals';
 
 export const CONTEXT_CAPABILITY = 'callback' as const;
 
@@ -69,6 +70,7 @@ export function createBrowserTelemetry(
         : { contextManager: options.contextManager }
     );
   }
+  const signals = createSignals(options, false);
   const unregisterFetch =
     options.instrumentFetch === false
       ? undefined
@@ -87,16 +89,18 @@ export function createBrowserTelemetry(
         });
   const documentRef = options.document;
   const flushOnHidden = () => {
-    void provider.forceFlush();
+    void Promise.allSettled([provider.forceFlush(), signals.forceFlush()]);
   };
   documentRef?.addEventListener('visibilitychange', flushOnHidden);
   return {
     provider,
-    forceFlush: () => provider.forceFlush(),
+    forceFlush: async () => {
+      await Promise.all([provider.forceFlush(), signals.forceFlush()]);
+    },
     async shutdown() {
       documentRef?.removeEventListener('visibilitychange', flushOnHidden);
       unregisterFetch?.();
-      await provider.shutdown();
+      await Promise.all([provider.shutdown(), signals.shutdown()]);
     },
   };
 }

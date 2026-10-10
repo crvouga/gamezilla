@@ -16,6 +16,7 @@ import {
   EMPTY_PERF_SNAPSHOT,
 } from '@libs/app-root-shared/types';
 import type { Timers } from '@pkgs/clock-shared/types';
+import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import { onCLS, onINP, onLCP } from 'web-vitals/attribution';
 
 const FRAME_BUDGET_MS = 1000 / 60;
@@ -102,9 +103,13 @@ function flushBucket(bucket: FrameBucket, snap: MutableSnapshot): void {
 }
 
 function attachWebVitals(snap: MutableSnapshot): void {
+  const recordInp = vitalMetric('inp', 'ms');
+  const recordLcp = vitalMetric('lcp', 'ms');
+  const recordCls = vitalMetric('cls', '1');
   try {
     onINP(
       (metric) => {
+        recordInp(metric.value, {});
         snap.inpMs = Math.round(metric.value);
         const attr = metric.attribution;
         snap.inpTarget =
@@ -125,14 +130,26 @@ function attachWebVitals(snap: MutableSnapshot): void {
       { reportAllChanges: true }
     );
     onLCP((metric) => {
+      recordLcp(metric.value, {});
       snap.lcpMs = Math.round(metric.value);
     });
     onCLS((metric) => {
+      recordCls(metric.value, {});
       snap.cls = Math.round(metric.value * 1000) / 1000;
     });
   } catch {
     // Hosts without the Performance Timeline (test DOMs) keep the fields null.
   }
+}
+
+function vitalMetric(name: 'inp' | 'lcp' | 'cls', unit: 'ms' | '1') {
+  return createMetric({
+    name: `web.vital.${name}`,
+    description: `Reported ${name.toUpperCase()} observations`,
+    unit,
+    type: 'histogram',
+    dimensions: {},
+  });
 }
 
 function attachLongTasks(snap: MutableSnapshot): PerformanceObserver | null {

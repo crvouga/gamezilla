@@ -5,6 +5,8 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 export type MutationDb = Pick<SqlClient, 'query' | 'run'>;
 
 export type MutationEnv = {
+  /** Host-verified provenance; absent means unknown. Never read from mutation args. */
+  readonly synthetic?: boolean;
   readonly actorId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
