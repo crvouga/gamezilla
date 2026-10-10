@@ -93,11 +93,7 @@
   display: grid;
   place-items: center;
   align-self: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--ui-radius-full);
-  color: var(--ui-color-text);
-  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text-secondary);
   font-family: var(--ui-font-display);
   font-weight: 600;
   font-size: var(--ui-font-size-xs);
@@ -108,10 +104,6 @@
   gap: var(--ui-space-4);
   min-width: 0;
   height: 100%;
-  padding: var(--ui-space-4);
-  background: var(--ui-color-surface);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-lg);
 }
 .player[data-ready="true"] .playerStatus {
   color: var(--ui-color-success);
@@ -250,19 +242,8 @@
 .search {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--ui-space-3);
-  text-align: center;
-  padding: var(--ui-space-6) var(--ui-space-5);
-}
-.radar {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  color: var(--ui-color-icon);
-  background: var(--ui-color-surface-muted);
-  border-radius: var(--ui-radius-full);
 }
 .elapsed {
   font-family: var(--ui-font-display);
@@ -325,9 +306,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-1);
-  padding: var(--ui-space-3);
-  border-radius: var(--ui-radius-md);
-  background: var(--ui-color-surface-muted);
   min-width: 0;
 }
 .statValue {
@@ -374,9 +352,6 @@
   }
   .versus[data-stacked="true"] .playerIdentity {
     flex-direction: row;
-  }
-  .player {
-    padding: var(--ui-space-3);
   }
 }
 @media (prefers-reduced-motion: reduce) {
