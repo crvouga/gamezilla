@@ -18,6 +18,7 @@
     "@libs/harness": "workspace:*",
     "@libs/secrets-server": "workspace:*",
     "@libs/secrets-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
     "@pkgs/conformance-server": "workspace:*",
     "@pkgs/conformance-shared": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",

@@ -34,6 +34,20 @@ function store(rootDir: string) {
 }
 
 async function collect(): Promise<void> {
+  const packageDirArg = process.argv.indexOf('--package-dir');
+  const requestedPackageDir =
+    packageDirArg < 0 ? null : process.argv[packageDirArg + 1];
+  const attemptIdArg = process.argv.indexOf('--attempt-id');
+  const attemptId = attemptIdArg < 0 ? null : process.argv[attemptIdArg + 1];
+  if (
+    packageDirArg >= 0 &&
+    !/^(apps|libs|pkgs)\/[a-z0-9-]+$/.test(requestedPackageDir ?? '')
+  )
+    throw new Error(
+      '--package-dir must name an apps/, libs/, or pkgs/ package'
+    );
+  if (attemptIdArg >= 0 && !attemptId)
+    throw new Error('--attempt-id needs a completed-run identifier');
   const origin = reportOrigin(ROOT);
   const target = store(join(ROOT, '.cache/local-reports'));
   const opened = new Set<string>();
@@ -43,10 +57,17 @@ async function collect(): Promise<void> {
     '{apps,libs,pkgs}/*/.cache/harness-report/*/complete.json'
   ).scanSync({ cwd: ROOT, onlyFiles: true })) {
     const packageDir = completion.split('/').slice(0, 2).join('/');
+    if (packageDirArg >= 0 && packageDir !== requestedPackageDir) continue;
     const bucket = completion.split('/')[4]!;
     const local = store(
       join(ROOT, packageDir, '.cache/harness-report', bucket)
     );
+    const finished = JSON.parse((await readUtf8(local, 'complete.json'))!) as {
+      status: number;
+      completedAtMs?: number;
+      attemptId?: string;
+    };
+    if (attemptIdArg >= 0 && finished.attemptId !== attemptId) continue;
     const raw = await readUtf8(local, 'origin.json');
     const produced = raw === null ? null : (JSON.parse(raw) as ReportOrigin);
     const sha = produced?.sha ?? origin.sha;
@@ -61,10 +82,6 @@ async function collect(): Promise<void> {
       });
       opened.add(sha);
     }
-    const finished = JSON.parse((await readUtf8(local, 'complete.json'))!) as {
-      status: number;
-      completedAtMs?: number;
-    };
     const source = await publishSource(target, {
       sha,
       ...(finished.completedAtMs === undefined

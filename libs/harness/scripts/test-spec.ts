@@ -324,6 +324,11 @@ const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report', BUCKET);
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec', BUCKET);
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 const ORIGIN = reportOrigin(REPO_ROOT);
+const ACTIVE_REPORT = join(
+  REPO_ROOT,
+  '.cache/local-reports/active',
+  `${relative(REPO_ROOT, PACKAGE_DIR).replaceAll('/', '--')}-${BUCKET}.json`
+);
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
 
@@ -346,6 +351,17 @@ if (scope.length === 0) {
   process.exit(1);
 }
 
+mkdirSync(join(REPO_ROOT, '.cache/local-reports/active'), { recursive: true });
+writeFileSync(
+  ACTIVE_REPORT,
+  JSON.stringify({
+    packageDir: relative(REPO_ROOT, PACKAGE_DIR),
+    bucket: BUCKET,
+    startedAtMs: wallClock.now(),
+    plannedChecks: stubs.length,
+  })
+);
+
 const result = spawnSync(
   'bun',
   [
@@ -367,6 +383,7 @@ const result = spawnSync(
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,
+    '--bail=1',
     ...cli.bunArgs,
     ...scope,
   ],
@@ -383,7 +400,11 @@ const result = spawnSync(
   }
 );
 
-appendFailureTraces();
+try {
+  appendFailureTraces();
+} catch (cause) {
+  console.error(`test-spec: could not append failure traces: ${String(cause)}`);
+}
 finishReport(result.status ?? 1);
 
 process.exit(result.status ?? 1);
@@ -395,8 +416,15 @@ function finishReport(status: number): void {
   );
   writeFileSync(
     join(REPORT_DIR, REPORT_COMPLETION),
-    JSON.stringify({ status, completedAtMs: wallClock.now() })
+    JSON.stringify({
+      status,
+      completedAtMs: wallClock.now(),
+      ...(process.env['ATLAS_REPORT_ATTEMPT_ID'] === undefined
+        ? {}
+        : { attemptId: process.env['ATLAS_REPORT_ATTEMPT_ID'] }),
+    })
   );
+  rmSync(ACTIVE_REPORT, { force: true });
   console.log(REPORT_READY);
 }
 

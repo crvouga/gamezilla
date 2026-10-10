@@ -9,9 +9,10 @@
  * (`liveDomains`) run through `bun run health`, never here.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { wallClock } from '@pkgs/clock-shared/wall';
 import { REPO_ROOT, specPackages } from './spec-packages';
 
 type Cli = {
@@ -76,6 +77,9 @@ if (unknown.length > 0) {
 }
 if (selected.length === 0) throw new Error('no spec packages selected');
 
+const collectors: Promise<number>[] = [];
+let collectionTail: Promise<number> = Promise.resolve(0);
+let failure: number | null = null;
 for (const pkg of selected) {
   if (!hasSpecScript(pkg.dir)) {
     throw new Error(`${pkg.name} runs specDomains but has no test:spec script`);
@@ -85,10 +89,53 @@ for (const pkg of selected) {
     const domain = domainOfPath(arg);
     return domain === null || pkg.specDomains.includes(domain);
   });
+  const attemptId = `${pkg.dir}:${process.pid}:${wallClock.now()}`;
   const result = spawnSync(
     'bun',
     ['run', '--filter', pkg.name, 'test:spec', ...args],
-    { cwd: REPO_ROOT, env: process.env, stdio: 'inherit' }
+    {
+      cwd: REPO_ROOT,
+      env: {
+        ...process.env,
+        ATLAS_REPORT_ATTEMPT_ID: attemptId,
+      },
+      stdio: 'inherit',
+    }
   );
-  if (result.status !== 0) process.exit(result.status ?? 1);
+  // Publish each package as soon as it finishes so Atlas fills in while the
+  // remaining packages continue running. Failed packages also have useful
+  // partial evidence and must be collected before returning their status.
+  collectionTail = collectionTail.then(
+    () =>
+      new Promise<number>((resolve) => {
+        const collected = spawn(
+          'bun',
+          [
+            'run',
+            'libs/harness/scripts/reports-local.ts',
+            'collect',
+            '--package-dir',
+            pkg.dir,
+            '--attempt-id',
+            attemptId,
+          ],
+          { cwd: REPO_ROOT, env: process.env, stdio: 'inherit' }
+        );
+        collected.once('error', (error) => {
+          console.error(
+            `Could not start local report collection: ${error.message}`
+          );
+          resolve(1);
+        });
+        collected.once('exit', (status) => resolve(status ?? 1));
+      })
+  );
+  collectors.push(collectionTail);
+  if (result.status !== 0) {
+    failure = result.status ?? 1;
+    break;
+  }
 }
+const collectionStatuses = await Promise.all(collectors);
+if (collectionStatuses.some((status) => status !== 0)) process.exit(1);
+if (failure !== null) process.exit(failure);
