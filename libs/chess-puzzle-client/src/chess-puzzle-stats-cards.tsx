@@ -33,13 +33,7 @@ export function ChessPuzzleStatsCards(
   props: ChessPuzzleStatsCardsProps
 ): JSX.Element {
   return (
-    <div
-      class="box gap-2"
-      style={{
-        display: 'grid',
-        'grid-template-columns': 'repeat(2, minmax(0, 1fr))',
-      }}
-    >
+    <div class="box grid grid-cols-2 gap-2">
       <StatTile
         label={<Trans>Played</Trans>}
         value={String(props.stats.totalPlayed)}

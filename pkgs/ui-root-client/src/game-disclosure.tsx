@@ -19,7 +19,7 @@ export function GameDisclosure(props: {
     >
       <button
         type="button"
-        class={styles['disclosureTrigger']}
+        class={`${styles['disclosureTrigger']} text textLabel`}
         aria-expanded={open()}
         aria-controls={id}
         onClick={() => setOpen(!open())}

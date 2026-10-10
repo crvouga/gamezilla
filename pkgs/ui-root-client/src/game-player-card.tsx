@@ -35,10 +35,12 @@ export function GamePlayerCard(props: {
           </Show>
         </span>
         <div class="box min-w-0 gap-1">
-          <p class={styles['meta']}>{props.label}</p>
-          <div class={styles['playerName']}>{props.name}</div>
+          <p class={`${styles['meta']} text textFootnote`}>{props.label}</p>
+          <div class="text textLabel">{props.name}</div>
           <Show when={props.status}>
-            <div class={styles['playerStatus']}>{props.status}</div>
+            <div class={`${styles['playerStatus']} text textCaption`}>
+              {props.status}
+            </div>
           </Show>
         </div>
       </div>

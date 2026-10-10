@@ -25,7 +25,9 @@ export function GameChoiceGrid(props: {
       disabled={props.disabled}
       {...dataAttrs({ component: 'GameChoiceGrid' })}
     >
-      <legend class={styles['meta']}>{props.label}</legend>
+      <legend class={`${styles['meta']} text textFootnote`}>
+        {props.label}
+      </legend>
       <div class={styles['choiceGrid']}>
         <For each={props.choices}>
           {(choice) => (
@@ -42,9 +44,13 @@ export function GameChoiceGrid(props: {
                 onChange={() => props.onChange(choice.value)}
                 {...dataAttrs({ component: 'GameChoice', ...choice.dataSet })}
               />
-              <span class={styles['choiceTitle']}>{choice.title}</span>
+              <span class={`${styles['choiceTitle']} text textLabel`}>
+                {choice.title}
+              </span>
               <Show when={choice.detail}>
-                <span class={styles['choiceDetail']}>{choice.detail}</span>
+                <span class={`${styles['choiceDetail']} text textFootnote`}>
+                  {choice.detail}
+                </span>
               </Show>
             </label>
           )}

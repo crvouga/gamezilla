@@ -15,11 +15,15 @@ export function GameSearchState(props: {
       {...dataAttrs({ component: 'GameSearchState' })}
     >
       <div class="box gap-2">
-        <h2 class={styles['sectionTitle']}>{props.title}</h2>
-        <div class={styles['description']} role="status" aria-live="polite">
+        <h2 class="text textNavigationTitle">{props.title}</h2>
+        <div
+          class="text textBody text-text-secondary"
+          role="status"
+          aria-live="polite"
+        >
           {props.description}
         </div>
-        <div class={styles['elapsed']} role="timer" aria-live="off">
+        <div class="text textCaption textNumeral" role="timer" aria-live="off">
           {props.elapsed} <Trans>seconds</Trans>
         </div>
       </div>
