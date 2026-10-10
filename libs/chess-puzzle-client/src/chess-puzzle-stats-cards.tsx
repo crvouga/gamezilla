@@ -16,7 +16,7 @@ function StatTile(props: StatTileProps): JSX.Element {
         {props.label}
       </p>
       <p
-        class="text textBodyBold line-clamp-1 text-text"
+        class="text textBodyBold textNumeral line-clamp-1 text-text"
         data-testid={props.testId}
       >
         {props.value}

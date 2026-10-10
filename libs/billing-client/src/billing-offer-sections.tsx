@@ -34,14 +34,17 @@ function PriceTile(props: {
     <div
       class="box min-w-0 flex-1 gap-1 rounded-card border p-4"
       classList={{
-        'border-tint-active bg-tint-subtle': props.current,
+        'border-tint-active bg-tint-active': props.current,
         'border-border bg-surface': !props.current,
       }}
       data-testid={Handles.billingPrice(props.price.key)}
       aria-current={props.current ? 'true' : undefined}
     >
       <div class="box flex-row items-center justify-between gap-2">
-        <p class="text textLabel">
+        <p
+          class="text textLabel"
+          classList={{ 'text-on-primary': props.current }}
+        >
           <Switch>
             <Match when={props.price.interval === 'month'}>
               <Trans>Monthly</Trans>
@@ -64,11 +67,16 @@ function PriceTile(props: {
       </div>
       <p
         class="text textHeading textNumeral"
+        classList={{ 'text-on-primary': props.current }}
         data-testid={Handles.billingPriceAmount}
       >
         {amount()}
       </p>
-      <p class="text textCaption" data-testid={Handles.billingPriceTerms}>
+      <p
+        class="text textCaption"
+        classList={{ 'text-on-primary': props.current }}
+        data-testid={Handles.billingPriceTerms}
+      >
         <Switch>
           <Match when={props.price.interval === 'month'}>
             <Trans>per month</Trans>
@@ -120,7 +128,7 @@ function Benefit(props: { readonly children: JSX.Element }): JSX.Element {
   return (
     <li class="box flex-row items-start gap-3">
       <div class="box h-6 w-5 shrink-0 items-center justify-center">
-        <CheckIcon size={18} color="tint" />
+        <CheckIcon size={18} color="icon" />
       </div>
       <p class="text textBody flex-1">{props.children}</p>
     </li>
