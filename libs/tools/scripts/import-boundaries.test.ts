@@ -209,7 +209,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'libs/zz-client/src/report-user.ts',
-    source: "import { r } from '@pkgs/harness-report-client/report-app';",
+    source: "import { r } from '@pkgs/harness-console-client/app';",
     message: null,
   },
   {

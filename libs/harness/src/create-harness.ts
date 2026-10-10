@@ -186,7 +186,6 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     }),
     kv: shared.kv,
     blob: shared.blob,
-    reports: null,
     billing: args.billing,
     tts: shared.tts,
     llm: shared.llm,

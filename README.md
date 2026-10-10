@@ -230,7 +230,7 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared` (`assertProperty` only) |
-| Harness report UI | [Reports explorer](pkgs/harness-report-client/README.md), `@pkgs/harness-report-client` at `/reports` |
+| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](vendor/atlas/packages/reports/README.md). |
 | Chess rules and board | `@pkgs/chess-rules-shared`, `@pkgs/chess-board-core-shared`, `@pkgs/chess-board` |
 | Rating math | `@pkgs/glicko2-shared` |
 | i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |
@@ -330,7 +330,7 @@ existing OpenTofu backend encrypts both state and saved plans.
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
-| R2 bucket `gamezilla-reports`, latest report per deployed branch | Deploy verification publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
+| R2 bucket `gamezilla-reports`, latest report per deployed branch | Deploy verification publishes `commits/<sha>/`. Atlas reads commit-scoped reports. Reports are build output. |
 
 ### Each environment (foundation, then edge)
 
@@ -339,7 +339,7 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 | Resource | Why |
 | --- | --- |
 | R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any feature prefix. |
-| Read token and write token on `gamezilla-reports` | The API reads. Check writes. Each token is scoped to that bucket. |
+| Read token and write token on `gamezilla-reports` | Atlas reads. Check writes. Each token is scoped to that bucket. |
 | Grafana write policy and token; read policy and token | Workers ingest on the write token. `bun obs` queries on the read token. One environment rotates without touching the other. Deploy requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
 | Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets-server/src/registry.ts`. `bun health` checks each required secret live. |
@@ -453,7 +453,7 @@ Merging to `main` deploys nothing, so `main` may hold unverified work between re
 
 If Check terminates before Turbo returns a task verdict, the shard retains that task's exact planned hash as a failure. Report-producing tasks also retain a termination report alongside any partial timelines, so failed evidence can still be published without a successful cache artifact. Missing verdicts never supply a passing result or a measured duration.
 
-Pull requests have no `check` status. In Deploy, the `check` job reflects `check:verify`; report publication has its own visible job result and does not delay that release verdict. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns; successful sources are reused across commits with identical task inputs. Check keeps only the latest report per branch and preserves its referenced shared content; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. Local checks do not.
+Pull requests have no `check` status. In Deploy, the `check` job reflects `check:verify`; report publication has its own visible job result and does not delay that release verdict. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. The standalone Atlas server reads it through the storage adapter in `libs/harness/scripts/atlas-reports-app.ts`; the product app exposes no reports screen or API. Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns; successful sources are reused across commits with identical task inputs. Check keeps only the latest report per branch and preserves its referenced shared content; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. Local checks do not.
 
 `@apps/product#check:ui-quality` is an on-demand visual gate. It is not part of `//#check` or Deploy: the full corpus takes minutes on a 16-core runner, too slow for the standard release gate. Its artifact producer waits for every product spec part listed in [sources.json](apps/product/scripts/ui-quality/sources.json), copies unique recorded states into the product's own cache, and compiles the same local stylesheet used by the reports viewer. Before replay, the producer deduplicates unreferenced DOM metadata and generated SVG identifiers while retaining visible text, styles, classes, image geometry, and every scenario reference. On the first complete CI corpus, that reduces 30,355 HTML documents to 10,565 inputs from 101,035 references across 789 reports. The gate replays existing HTML snapshots through four reusable headless Chrome pages at their recorded 390×844 phone viewport, reuses scores for identical rendered PNGs, scores remaining screenshots in batches with one local [ui-quality-check](pkgs/ui-quality-check-server/README.md) instance, and checks any existing WebM/MP4 recordings directly. Matching document heads reuse their stylesheet and font context; one bounded replay batch is prefetched while the single model scores the current batch. Native inference waits for the existing product model contracts so it does not compete with symbolic verification. No scenario instrumentation or second UI exploration run is needed. Missing, failed, corrupt, or entirely absent evidence fails closed.
 
@@ -556,3 +556,9 @@ Feature titles, one line each, so a session can route without listing the tree. 
 **Live checks** (`@synthetic`, in the owning context): reaching the app; serving people; the environment as planned; outside services; uploads; the request trail; signing in; payments; spaces; live updates; finding a person's trouble. Availability: `specs/runtime/availability.openslo.yaml`.
 
 **Journeys** (`specs/journeys/`): critical journeys; joining from a link, and opening with no connection.
+
+### Atlas specification explorer
+
+`bun atlas:viz` opens the standalone Atlas development server. Its **Specs and evidence** view reads every supported document under `specs/`, including Gherkin, Quint, DMN, Alloy, OpenSLO and supporting documents. Gherkin scenarios and examples and DMN decisions have structured views; Quint recordings expose captured states and traces. **Evidence** selects a full commit revision, then its checks, measurements, scenarios and recorded moments. Working-tree documents are distinct from recorded commit evidence.
+
+`bun atlas:run` builds a standalone static Atlas site and exports available commit evidence into it. Export reads existing results; it never executes tests or turns missing evidence into a pass. `bun reports:collect`, `bun reports:part` and `bun reports:performance` remain producer adapters. Report models, publication, retention, readers, API and visualization belong to Atlas.

@@ -1,11 +1,16 @@
+import {
+  mediaExtension,
+  testFrameKey,
+} from '@crvouga/atlas-reports/recording-keys';
+import type {
+  ReportSnapshotBlob,
+  SnapshotMedia,
+} from '@crvouga/atlas-reports/report-types';
+import { sanitizeTestId } from '@crvouga/atlas-reports/report-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
-
 import type { CatalogSnapshot } from './define-snapshot';
 import type { EncodedSnapshot } from './encode';
 import { encodeSnapshotValue, padFrame, splitCaptureNodes } from './encode';
-import { mediaExtension, testFrameKey } from './keys';
-import type { ReportSnapshotBlob, SnapshotMedia } from './report-types';
-import { sanitizeTestId } from './report-types';
 
 export type CapturedPart = {
   readonly name: string;

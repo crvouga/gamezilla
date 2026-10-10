@@ -235,8 +235,6 @@
       "@pkgs/glob-match-shared/*": ["./pkgs/glob-match-shared/src/*"],
       "@pkgs/harness-console-client/*": ["./pkgs/harness-console-client/src/*"],
       "@pkgs/harness-console-shared/*": ["./pkgs/harness-console-shared/src/*"],
-      "@pkgs/harness-report-client/*": ["./pkgs/harness-report-client/src/*"],
-      "@pkgs/harness-report-shared/*": ["./pkgs/harness-report-shared/src/*"],
       "@pkgs/harness-root-shared/*": ["./pkgs/harness-root-shared/src/*"],
       "@pkgs/http-client-client/*": ["./pkgs/http-client-client/src/*"],
       "@pkgs/http-client-shared/*": ["./pkgs/http-client-shared/src/*"],

@@ -1,20 +1,17 @@
 // @io-wall-ok — local evidence assembly, never a remote publication or a gate.
 import { join, resolve } from 'node:path';
-import { compileFrameCss } from '@libs/harness/wall-frame-css';
-import { wallClock } from '@pkgs/clock-shared/wall';
-import type { ReportPart } from '@pkgs/harness-report-shared/explorer-types';
-import { viewerTestId } from '@pkgs/harness-report-shared/keys';
-import { performancePart } from '@pkgs/harness-report-shared/performance-part';
+import type { ReportPart } from '@crvouga/atlas-reports/explorer-types';
+import { viewerTestId } from '@crvouga/atlas-reports/keys';
+import { performancePart } from '@crvouga/atlas-reports/performance-part';
 import {
   closeCommit,
   openCommit,
   publishSource,
-} from '@pkgs/harness-report-shared/publish';
-import {
-  listSourceRecords,
-  readTestReport,
-} from '@pkgs/harness-report-shared/read';
-import { publishPart } from '@pkgs/harness-report-shared/report-parts';
+} from '@crvouga/atlas-reports/publish';
+import { listSourceRecords, readTestReport } from '@crvouga/atlas-reports/read';
+import { publishPart } from '@crvouga/atlas-reports/report-parts';
+import { compileFrameCss } from '@libs/harness/wall-frame-css';
+import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';

@@ -1,6 +1,4 @@
-import { ApiSecretName } from '@libs/app-root-shared/secret-names';
 import { appObjectStoreRootPrefix } from '@libs/db-shared/scope';
-import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report-shared/keys';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
@@ -70,48 +68,6 @@ export async function createApiObjectStore(
     endpoint: secrets[S3SecretName.endpoint]!.readSecretValue(),
     region: secrets[S3SecretName.region]!.readSecretValue(),
     rootPrefix: appObjectStoreRootPrefix(),
-    http: options.http,
-  });
-}
-
-const REPORTS_SECRET_NAMES = [
-  ApiSecretName.reportsBucket,
-  ApiSecretName.reportsEndpoint,
-  ApiSecretName.reportsAccessKeyId,
-  ApiSecretName.reportsSecretAccessKey,
-] as const;
-
-/**
- * The shared spec reports store (one R2 bucket every environment reads, keyed
- * by commit; `/api/reports`), through this environment's read-only
- * credential. Null without one: the reports routes then answer 503.
- */
-export async function createReportsObjectStore(
-  secretStore: SecretStore,
-  options: { readonly http: HttpClient }
-): Promise<ObjectStore | null> {
-  const secrets = await secretStore.getOptionalMany(REPORTS_SECRET_NAMES);
-  const value = (name: (typeof REPORTS_SECRET_NAMES)[number]): string | null =>
-    secrets[name]?.readSecretValue().trim() || null;
-  const bucket = value(ApiSecretName.reportsBucket);
-  const endpoint = value(ApiSecretName.reportsEndpoint);
-  const accessKeyId = value(ApiSecretName.reportsAccessKeyId);
-  const secretAccessKey = value(ApiSecretName.reportsSecretAccessKey);
-  if (
-    bucket === null ||
-    endpoint === null ||
-    accessKeyId === null ||
-    secretAccessKey === null
-  ) {
-    return null;
-  }
-  return createS3ObjectStore({
-    accessKeyId,
-    secretAccessKey,
-    bucket,
-    endpoint,
-    region: 'auto',
-    rootPrefix: REPORTS_ROOT_PREFIX,
     http: options.http,
   });
 }

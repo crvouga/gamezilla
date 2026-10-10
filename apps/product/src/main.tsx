@@ -1,10 +1,9 @@
 import { APP } from '@libs/runtime-shared/app-features';
 import { HarnessBoot } from './harness-boot';
-import { ReportsScreen } from './reports-screen';
-// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`, spec reports at `/reports`)
+// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
 /**
- * Path-gated boot: `/harness` mounts the Harness screen, `/reports` the spec
- * reports screen; every other path mounts the real wall
+ * Path-gated boot: `/harness` mounts the Harness screen; every other path
+ * mounts the real wall
  * client (`wallClientEnv` + production/synced config). They are flat
  * siblings — the app and the harness reach each other through their command
  * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
@@ -25,7 +24,6 @@ import { createSignal, type JSX, Match, onCleanup, Switch } from 'solid-js';
 import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
-import { isReportsPath } from './reports-path';
 import './styles.css';
 
 const root = document.getElementById('root');
@@ -63,11 +61,10 @@ function AppBoot(): JSX.Element {
   return <client.App />;
 }
 
-type Surface = 'app' | 'harness' | 'reports';
+type Surface = 'app' | 'harness';
 
 function surfaceAt(pathname: string): Surface {
   if (isHarnessPath(pathname)) return 'harness';
-  if (isReportsPath(pathname)) return 'reports';
   return 'app';
 }
 
@@ -84,9 +81,6 @@ function Boot(): JSX.Element {
     <Switch fallback={<AppBoot />}>
       <Match when={surface() === 'harness'}>
         <HarnessBoot />
-      </Match>
-      <Match when={surface() === 'reports'}>
-        <ReportsScreen />
       </Match>
     </Switch>
   );

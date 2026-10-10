@@ -1,4 +1,4 @@
 {
   "summary": "The deep-linked libs-billing-harness--part-0/ci-interruption test in report e14700dd1 had no explicit All reports control to return to the root catalog.",
-  "regressionTest": "pkgs/harness-report-client/tests/report-navigation.test.tsx"
+  "regressionTest": "vendor/atlas/packages/visualizer/tests/reports.test.tsx"
 }

@@ -21,7 +21,6 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import { GLOBAL } from '@libs/infra-shared/global';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
@@ -39,10 +38,6 @@ import { startLoadBalancer } from './load-balancer';
 import type { StackManifest } from './manifest';
 import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
-import {
-  loadReportsDevSecrets,
-  reportsDevEnv,
-} from './reports-dev-credentials';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
 import { startStackIdps } from './start-idps';
@@ -153,14 +148,6 @@ async function stopChild(child: ChildProcess): Promise<void> {
   await exited;
 }
 
-/**
- * Read credential for the shared reports bucket. Loaded once per stack and
- * handed to every API instance, so they list the same commits.
- */
-function reportsEnvForStack(): Readonly<Record<string, string>> {
-  return reportsDevEnv(loadReportsDevSecrets(REPO_ROOT), GLOBAL.reports.bucket);
-}
-
 function startApiNode(args: {
   readonly id: string;
   readonly port: number;
@@ -169,7 +156,6 @@ function startApiNode(args: {
   readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
-  readonly reportsEnv: Readonly<Record<string, string>>;
   readonly roomServiceToken: string;
 }): ChildProcess {
   return spawn('bun', ['run', 'apps/server/scripts/serve-api-node.ts'], {
@@ -178,7 +164,6 @@ function startApiNode(args: {
     env: {
       ...process.env,
       ...args.infraEnv,
-      ...args.reportsEnv,
       ...args.idpEnv,
       API_NODE_ID: args.id,
       API_NODE_PORT: String(args.port),
@@ -261,13 +246,7 @@ async function startApiTier(args: {
   readonly infra: InfraHandles;
   readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
 }): Promise<ApiTier> {
-  const reportsEnv = reportsEnvForStack();
   const roomServiceToken = crypto.randomUUID();
-  process.stdout.write(
-    reportsEnv['REPORTS_BUCKET']
-      ? `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
-      : '[stack] spec reports unavailable: shared read credentials are missing or invalid; continuing startup.\n'
-  );
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
   for (let index = 0; index < args.options.apiNodes; index += 1) {
@@ -283,7 +262,6 @@ async function startApiTier(args: {
         billing: args.billing,
         webOrigin: args.webOrigin,
         infraEnv: { ...args.infra.env, ...args.syntheticPopulationSecrets },
-        reportsEnv,
         roomServiceToken,
       })
     );

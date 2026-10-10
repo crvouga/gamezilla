@@ -1,14 +1,14 @@
 // @io-wall-ok — CI report publication over a local bucket and injected remote store.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { sourceId } from '@crvouga/atlas-reports/keys';
+import { publicationStore } from '@crvouga/atlas-reports/publication';
+import { publishSource } from '@crvouga/atlas-reports/publish';
+import type { SourceIdentity } from '@crvouga/atlas-reports/source-content';
+import { reuseSource } from '@crvouga/atlas-reports/source-content';
 import type { ReportTask } from '@libs/harness/report-ready';
 import { REPORT_COMPLETION, reportTask } from '@libs/harness/report-ready';
 import { wallClock } from '@pkgs/clock-shared/wall';
-import { sourceId } from '@pkgs/harness-report-shared/keys';
-import { publicationStore } from '@pkgs/harness-report-shared/publication';
-import { publishSource } from '@pkgs/harness-report-shared/publish';
-import type { SourceIdentity } from '@pkgs/harness-report-shared/source-content';
-import { reuseSource } from '@pkgs/harness-report-shared/source-content';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';

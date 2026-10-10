@@ -1,6 +1,6 @@
-import type { SourceRecord } from '@pkgs/harness-report-shared/protocol';
-import { publishPart } from '@pkgs/harness-report-shared/report-parts';
-import { sourceParts } from '@pkgs/harness-report-shared/source-part';
+import type { SourceRecord } from '@crvouga/atlas-reports/protocol';
+import { publishPart } from '@crvouga/atlas-reports/report-parts';
+import { sourceParts } from '@crvouga/atlas-reports/source-part';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 export async function publishPartOutput(args: {

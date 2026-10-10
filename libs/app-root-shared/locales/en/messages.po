@@ -60,21 +60,10 @@ msgstr "{0} · {1}"
 msgid "{0} / {1}"
 msgstr "{0} / {1}"
 
-#. placeholder {0}: measured().length
-#. placeholder {1}: props.tests.length
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "{0} / {1} runs measured"
-msgstr "{0} / {1} runs measured"
-
 #. placeholder {0}: active()
 #: libs/auth-client/src/account-device-session-caption-text.tsx
 msgid "{0} active — expires {latestExpires}"
 msgstr "{0} active — expires {latestExpires}"
-
-#. placeholder {0}: row.checks.length
-#: pkgs/harness-report-client/src/spec-report-parts.tsx
-msgid "{0} checks for this spec"
-msgstr "{0} checks for this spec"
 
 #. placeholder {0}: count()
 #: libs/spaces-client/src/space-miniplayer.tsx
@@ -126,21 +115,6 @@ msgstr "{0} ran out of time."
 #: libs/chess-puzzle-client/src/use-puzzle-allowance.tsx
 msgid "{0} rated puzzles remaining today"
 msgstr "{0} rated puzzles remaining today"
-
-#. placeholder {0}: props.part.checks.length
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "{0} recorded checks"
-msgstr "{0} recorded checks"
-
-#. placeholder {0}: group.entities.length
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "{0} shown"
-msgstr "{0} shown"
-
-#. placeholder {0}: filtered().length
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "{0} specs"
-msgstr "{0} specs"
 
 #. placeholder {0}: themes.length
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
@@ -408,27 +382,6 @@ msgstr "Agree on the lineup and clock, then get ready."
 msgid "All"
 msgstr "All"
 
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "All clients"
-msgstr "All clients"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "All contexts"
-msgstr "All contexts"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "All outcomes"
-msgstr "All outcomes"
-
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "All reports"
-msgstr "All reports"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "All specs"
-msgstr "All specs"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 msgid "All themes"
 msgstr "All themes"
@@ -464,10 +417,6 @@ msgstr "App"
 #: libs/app-root-client/src/boot-error-screen.tsx
 msgid "App failed to start"
 msgstr "App failed to start"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "App performance"
-msgstr "App performance"
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/settings-screen.tsx
@@ -656,10 +605,6 @@ msgstr "Bright surfaces, dark text"
 msgid "Browse design system primitives in this space."
 msgstr "Browse design system primitives in this space."
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Browse the specs of the version checked out on this machine."
-msgstr "Browse the specs of the version checked out on this machine."
-
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Build"
 msgstr "Build"
@@ -679,7 +624,6 @@ msgstr "Bullet"
 #: libs/auth-client/src/sign-in-link-required.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
-#: pkgs/harness-report-client/src/revision-picker.tsx
 #: pkgs/ui-root-client/src/confirmation-modal.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Cancel"
@@ -722,11 +666,6 @@ msgstr "Capture requested"
 msgid "Change participant"
 msgstr "Change participant"
 
-#: pkgs/harness-report-client/src/report-app.tsx
-#: pkgs/harness-report-client/src/revision-picker.tsx
-msgid "Change revision"
-msgstr "Change revision"
-
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
@@ -758,10 +697,6 @@ msgstr "Choice reproduced"
 msgid "Choose"
 msgstr "Choose"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Choose a commit to explore its specs, test runs, and quality evidence."
-msgstr "Choose a commit to explore its specs, test runs, and quality evidence."
-
 #: libs/chess-custom-game-client/src/custom-game-side-choices.tsx
 msgid "Choose a person"
 msgstr "Choose a person"
@@ -774,10 +709,6 @@ msgstr "Choose a position from the moves actually played."
 msgid "Choose a sign-in method"
 msgstr "Choose a sign-in method"
 
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Choose a spec to read its promises and investigate its recorded evidence."
-msgstr "Choose a spec to read its promises and investigate its recorded evidence."
-
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
@@ -789,10 +720,6 @@ msgstr "Choose who plays White and Black. Anyone in this space can watch."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
-
-#: libs/app-root-client/src/app-commands.tsx
-msgid "ci"
-msgstr "ci"
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "Claim the win"
@@ -811,12 +738,6 @@ msgstr "Classical"
 msgid "Clear"
 msgstr "Clear"
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Clear filters"
-msgstr "Clear filters"
-
 #: libs/app-config-client/src/client-config-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Client config"
@@ -834,14 +755,9 @@ msgstr "Client events are available in the embedded product-harness."
 msgid "Client SQL"
 msgstr "Client SQL"
 
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "Clients"
-msgstr "Clients"
-
 #: libs/auth-client/src/sign-in-idle-content.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
-#: pkgs/harness-report-client/src/help-modal.tsx
 #: pkgs/ui-devtools-client/src/tab-strip-tab.tsx
 #: pkgs/ui-root-client/src/close-icon-button.tsx
 msgid "Close"
@@ -855,10 +771,6 @@ msgstr "Close place"
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Closed place"
 msgstr "Closed place"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Code revisions"
-msgstr "Code revisions"
 
 #: pkgs/ui-devtools-client/src/json-view.tsx
 msgid "Collapse all"
@@ -880,10 +792,6 @@ msgstr "Commit"
 #: pkgs/ui-root-client/src/copy-to-clipboard-field.example.tsx
 msgid "Commit hash"
 msgstr "Commit hash"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Commit hash or branch"
-msgstr "Commit hash or branch"
 
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Committed"
@@ -955,10 +863,6 @@ msgstr "Connection needed to change or play this game."
 msgid "Connectivity"
 msgstr "Connectivity"
 
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Context"
-msgstr "Context"
-
 #: pkgs/ui-root-client/src/social-provider-config.tsx
 msgid "Continue with Apple"
 msgstr "Continue with Apple"
@@ -1012,12 +916,6 @@ msgstr "Copy value"
 #: libs/spaces-client/src/space-share-link-section.tsx
 msgid "Copying…"
 msgstr "Copying…"
-
-#. placeholder {0}: testId()
-#. placeholder {1}: message()
-#: pkgs/harness-report-client/src/test-view.tsx
-msgid "Could not load {0}: {1}"
-msgstr "Could not load {0}: {1}"
 
 #: libs/app-root-client/src/boot-error-screen.tsx
 msgid "Could not start local database"
@@ -1130,10 +1028,6 @@ msgstr "Creating…"
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Current"
 msgstr "Current"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Current checkout"
-msgstr "Current checkout"
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
 msgid "Current game"
@@ -1465,29 +1359,9 @@ msgstr "Everyone will leave this space. This cannot be undone."
 msgid "Everything in the free plan, synced across your devices"
 msgstr "Everything in the free plan, synced across your devices"
 
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Evidence could not be read. Refresh to try again; the outcome of missing checks is unknown."
-msgstr "Evidence could not be read. Refresh to try again; the outcome of missing checks is unknown."
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Evidence not recorded"
-msgstr "Evidence not recorded"
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Evidence unavailable"
-msgstr "Evidence unavailable"
-
 #: pkgs/ui-devtools-client/src/json-view.tsx
 msgid "Expand all"
 msgstr "Expand all"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Explore a spec"
-msgstr "Explore a spec"
-
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Explore evidence"
-msgstr "Explore evidence"
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Export requested"
@@ -1498,9 +1372,6 @@ msgstr "Export requested"
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 #: libs/notifications-client/src/notification-card-default.tsx
 #: libs/notifications-client/src/notifications-screen.tsx
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-#: pkgs/harness-report-client/src/report-status.tsx
 msgid "Failed"
 msgstr "Failed"
 
@@ -1513,19 +1384,11 @@ msgstr "Failed · {0}"
 msgid "Failed · {puzzleRating}"
 msgstr "Failed · {puzzleRating}"
 
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Failed reports"
-msgstr "Failed reports"
-
 #: pkgs/ui-devtools-client/src/data-table-status.tsx
 #: pkgs/ui-root-client/src/combobox-body.tsx
 #: pkgs/ui-root-client/src/picker.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Failures first"
-msgstr "Failures first"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Features"
@@ -1551,17 +1414,9 @@ msgstr "Find a chess opponent"
 msgid "Find a new opponent"
 msgstr "Find a new opponent"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Find a version"
-msgstr "Find a version"
-
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Find an opponent and watch together"
 msgstr "Find an opponent and watch together"
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Find checks"
-msgstr "Find checks"
 
 #: libs/friends-client/src/friends-list-screen-view.tsx
 #: libs/friends-client/src/profile-friends-actions-view.tsx
@@ -1580,17 +1435,9 @@ msgstr "Find items"
 msgid "Find people"
 msgstr "Find people"
 
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Find specs"
-msgstr "Find specs"
-
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 msgid "Find Synthetic Users"
 msgstr "Find Synthetic Users"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Find test runs"
-msgstr "Find test runs"
 
 #: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Find your next rival"
@@ -1628,14 +1475,6 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "Fit"
-msgstr "Fit"
-
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "Focused"
-msgstr "Focused"
-
 #: libs/app-root-client/src/theme-screen.tsx
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
@@ -1647,16 +1486,6 @@ msgstr "Forward"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "fps"
 msgstr "fps"
-
-#. placeholder {0}: idx() + 1
-#. placeholder {1}: props.frames.length
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Frame {0} of {1}"
-msgstr "Frame {0} of {1}"
-
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Frame scrubber"
-msgstr "Frame scrubber"
 
 #: libs/app-root-client/src/performance-screen.tsx
 msgid "Frames per second"
@@ -1766,10 +1595,6 @@ msgstr "Go to Spaces"
 msgid "Google"
 msgstr "Google"
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Group"
-msgstr "Group"
-
 #: libs/spaces-client/src/space-members-guests-block.tsx
 msgid "Guests"
 msgstr "Guests"
@@ -1802,10 +1627,6 @@ msgstr "Hidden email ({0})"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Hide performance monitor"
 msgstr "Hide performance monitor"
-
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "Highlight press"
-msgstr "Highlight press"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 msgid "Hint"
@@ -1861,10 +1682,6 @@ msgstr "Include played puzzles"
 msgid "Increase {0}"
 msgstr "Increase {0}"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Independent evidence"
-msgstr "Independent evidence"
-
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Infrastructure"
 msgstr "Infrastructure"
@@ -1876,10 +1693,6 @@ msgstr "inp"
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Inputs unavailable"
 msgstr "Inputs unavailable"
-
-#: pkgs/harness-report-client/src/test-inspection.tsx
-msgid "Inspect test"
-msgstr "Inspect test"
 
 #: libs/auth-client/src/account-screen.tsx
 msgid "Installs signed into this account"
@@ -1966,10 +1779,6 @@ msgstr "Joining…"
 msgid "Jump to end"
 msgstr "Jump to end"
 
-#: pkgs/harness-report-client/src/fail-banner.tsx
-msgid "Jump to failure"
-msgstr "Jump to failure"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
 msgid "Jump to start"
 msgstr "Jump to start"
@@ -1981,10 +1790,6 @@ msgstr "just now"
 #: libs/auth-client/src/sign-in-link-required.tsx
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
-
-#: pkgs/harness-report-client/src/help-modal.tsx
-msgid "Keyboard shortcuts"
-msgstr "Keyboard shortcuts"
 
 #: pkgs/chess-board-root-client/src/chess-board-promotion.tsx
 msgid "Knight"
@@ -2072,33 +1877,13 @@ msgstr "Live metrics"
 msgid "LLM"
 msgstr "LLM"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Load older versions"
-msgstr "Load older versions"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Loading recorded test runs…"
-msgstr "Loading recorded test runs…"
-
 #: libs/auth-client/src/sign-in-modal-body.tsx
 msgid "Loading sign-in methods…"
 msgstr "Loading sign-in methods…"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Loading spec inventory…"
-msgstr "Loading spec inventory…"
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "Loading spec…"
-msgstr "Loading spec…"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Loading versions…"
-msgstr "Loading versions…"
 
 #: pkgs/ui-devtools-client/src/data-table-status.tsx
 #: pkgs/ui-root-client/src/spinner.tsx
@@ -2116,10 +1901,6 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 #: libs/app-root-client/src/performance-screen.tsx
 msgid "Long tasks"
 msgstr "Long tasks"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Longest first"
-msgstr "Longest first"
 
 #. placeholder {0}: props.search.time_control ?? ''
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
@@ -2174,10 +1955,6 @@ msgstr "Matched with {0}, rated {1}, at {2}."
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Measurements unavailable"
-msgstr "Measurements unavailable"
-
 #: libs/account-privacy-client/src/privacy-screen.tsx
 msgid "Membership cancellation has completed."
 msgstr "Membership cancellation has completed."
@@ -2214,10 +1991,6 @@ msgstr "Monthly"
 #: pkgs/ui-root-client/src/action-bar-parts.tsx
 msgid "More"
 msgstr "More"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Most expensive runs"
-msgstr "Most expensive runs"
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
 msgid "Move number to review"
@@ -2266,7 +2039,6 @@ msgid "Muted"
 msgstr "Muted"
 
 #: libs/app-root-client/src/about-screen.tsx
-#: pkgs/harness-report-client/src/entity-browser.tsx
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
@@ -2274,14 +2046,6 @@ msgstr "Name"
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 msgid "Name, activity, region or worker"
 msgstr "Name, activity, region or worker"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Name, context, or path"
-msgstr "Name, context, or path"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Name, spec, or package"
-msgstr "Name, spec, or package"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Navigation"
@@ -2317,10 +2081,6 @@ msgstr "New version available — reload to update"
 msgid "Next"
 msgstr "Next"
 
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Next frame"
-msgstr "Next frame"
-
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
 msgid "Next move"
@@ -2342,10 +2102,6 @@ msgstr "Next puzzle after one second"
 msgid "Next puzzle immediately"
 msgstr "Next puzzle immediately"
 
-#: pkgs/harness-report-client/src/test-nav.tsx
-msgid "Next test"
-msgstr "Next test"
-
 #: libs/app-root-client/src/app-commands.tsx
 msgid "night"
 msgstr "night"
@@ -2361,22 +2117,6 @@ msgstr "No active session"
 #: pkgs/ui-root-client/src/catalog-detail.tsx
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "No checks match"
-msgstr "No checks match"
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "No completed performance check is recorded for this version. Run a performance report independently to add measured evidence."
-msgstr "No completed performance check is recorded for this version. Run a performance report independently to add measured evidence."
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "No completed report part is recorded for this version."
-msgstr "No completed report part is recorded for this version."
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "No completed test report is recorded for this spec. Missing evidence is not a passing result."
-msgstr "No completed test report is recorded for this spec. Missing evidence is not a passing result."
 
 #: libs/chess-shared-client/src/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "No component selected"
@@ -2394,17 +2134,9 @@ msgstr "No devices yet"
 msgid "No example registered for \"{id}\"."
 msgstr "No example registered for \"{id}\"."
 
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "No frames"
-msgstr "No frames"
-
 #: libs/friends-client/src/friends-list-screen-view.tsx
 msgid "No friends yet"
 msgstr "No friends yet"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "No grouping"
-msgstr "No grouping"
 
 #: libs/spaces-client/src/no-guests-text.tsx
 #: libs/spaces-client/src/space-members-guests-block.tsx
@@ -2460,10 +2192,6 @@ msgstr "No people found"
 msgid "No people found for “{0}”"
 msgstr "No people found for “{0}”"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "No published reports yet"
-msgstr "No published reports yet"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
@@ -2488,21 +2216,9 @@ msgstr "No results"
 msgid "No spaces yet"
 msgstr "No spaces yet"
 
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "No specs match"
-msgstr "No specs match"
-
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 msgid "No Synthetic Users found"
 msgstr "No Synthetic Users found"
-
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "No test run has been published for this commit. Its specs and independently completed report parts remain available below."
-msgstr "No test run has been published for this commit. Its specs and independently completed report parts remain available below."
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "No versions match"
-msgstr "No versions match"
 
 #: libs/app-root-client/src/sync-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
@@ -2528,11 +2244,6 @@ msgstr "Not found"
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Not registered"
 msgstr "Not registered"
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-#: pkgs/harness-report-client/src/report-status.tsx
-msgid "Not run"
-msgstr "Not run"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Not set"
@@ -2648,18 +2359,10 @@ msgstr "Open Harness"
 msgid "Open place"
 msgstr "Open place"
 
-#: libs/app-root-client/src/app-commands.tsx
-msgid "Open Reports"
-msgstr "Open Reports"
-
 #. placeholder {0}: resolvedTitle()
 #: libs/spaces-client/src/space-card-open-link.tsx
 msgid "Open space {0}"
 msgstr "Open space {0}"
-
-#: pkgs/harness-report-client/src/report-outcome.tsx
-msgid "Open verification details"
-msgstr "Open verification details"
 
 #: libs/billing-client/src/billing-plan-card.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
@@ -2694,18 +2397,9 @@ msgstr "OS"
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Outcome"
-msgstr "Outcome"
-
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Ownership generation"
 msgstr "Ownership generation"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Package"
-msgstr "Package"
 
 #: pkgs/ui-devtools-client/src/data-table-pagination.tsx
 msgid "Page {current} of {total}"
@@ -2723,12 +2417,6 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-#: pkgs/harness-report-client/src/report-status.tsx
-msgid "Passed"
-msgstr "Passed"
-
 #: libs/auth-client/src/password-sign-in-form.tsx
 msgid "Password"
 msgstr "Password"
@@ -2736,10 +2424,6 @@ msgstr "Password"
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 msgid "Pause"
 msgstr "Pause"
-
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Pause playback"
-msgstr "Pause playback"
 
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
@@ -2784,7 +2468,6 @@ msgstr "perf"
 
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: pkgs/harness-report-client/src/report-explorer.tsx
 msgid "Performance"
 msgstr "Performance"
 
@@ -2845,10 +2528,6 @@ msgstr "Platform"
 msgid "Play a bot"
 msgstr "Play a bot"
 
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Play frames"
-msgstr "Play frames"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Play history"
 msgstr "Play history"
@@ -2888,18 +2567,10 @@ msgstr "Preferences and developer tools"
 msgid "Previous"
 msgstr "Previous"
 
-#: pkgs/harness-report-client/src/scrubber.tsx
-msgid "Previous frame"
-msgstr "Previous frame"
-
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
 msgid "Previous move"
 msgstr "Previous move"
-
-#: pkgs/harness-report-client/src/test-nav.tsx
-msgid "Previous test"
-msgstr "Previous test"
 
 #: libs/billing-client/src/billing-offer-sections.tsx
 msgid "Pricing"
@@ -2935,18 +2606,6 @@ msgstr "Profile"
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Published evidence appears after automated verification. The current checkout's specs remain available above when running locally."
-msgstr "Published evidence appears after automated verification. The current checkout's specs remain available above when running locally."
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Published reports are unavailable because this environment has no reports read credential."
-msgstr "Published reports are unavailable because this environment has no reports read credential."
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Published versions"
-msgstr "Published versions"
 
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
@@ -3091,56 +2750,18 @@ msgstr "Recent failure"
 msgid "Reconnect before changing or playing the game."
 msgstr "Reconnect before changing or playing the game."
 
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "Recorded action timing includes harness work and waits. It is diagnostic evidence; browser paint and release performance obligations are checked separately."
-msgstr "Recorded action timing includes harness work and waits. It is diagnostic evidence; browser paint and release performance obligations are checked separately."
-
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "Recorded evidence"
-msgstr "Recorded evidence"
-
-#: pkgs/harness-report-client/src/fail-banner.tsx
-msgid "Recorded failure"
-msgstr "Recorded failure"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Recorded order"
-msgstr "Recorded order"
-
-#: pkgs/harness-report-client/src/report-outcome.tsx
-msgid "Recorded run"
-msgstr "Recorded run"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Recorded run timing"
-msgstr "Recorded run timing"
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "Recorded test reports"
-msgstr "Recorded test reports"
-
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below."
-msgstr "Recorded test reports could not be loaded. The reports store may be unavailable or this environment may lack its read credential. Refresh to try again. Available specs and evidence remain below."
-
 #: libs/synthetic-population-client/src/synthetic-population-summary.tsx
 msgid "Recovering"
 msgstr "Recovering"
 
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-screen.tsx
-#: pkgs/harness-report-client/src/commit-list.tsx
-#: pkgs/harness-report-client/src/report-app.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Region"
 msgstr "Region"
-
-#: pkgs/harness-report-client/src/spec-report-parts.tsx
-msgid "Related report parts"
-msgstr "Related report parts"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 msgid "Release this side"
@@ -3201,10 +2822,6 @@ msgstr "Rename"
 msgid "Rename space"
 msgstr "Rename space"
 
-#: pkgs/harness-report-client/src/test-inspection.tsx
-msgid "Replay"
-msgstr "Replay"
-
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Replay completed"
 msgstr "Replay completed"
@@ -3216,18 +2833,6 @@ msgstr "Replay decisions"
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
-
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Report parts"
-msgstr "Report parts"
-
-#: libs/app-root-client/src/app-commands.tsx
-msgid "reports"
-msgstr "reports"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Reports"
-msgstr "Reports"
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Request personal-data export"
@@ -3325,15 +2930,6 @@ msgstr "Revoke invitation"
 #: pkgs/chess-board-root-client/src/chess-board-promotion.tsx
 msgid "Rook"
 msgstr "Rook"
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-#: pkgs/harness-report-client/src/report-status.tsx
-msgid "Running"
-msgstr "Running"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Runtime"
-msgstr "Runtime"
 
 #: libs/app-root-client/src/performance-screen.tsx
 msgid "Sampled from this tab while the monitor is on."
@@ -3447,11 +3043,6 @@ msgstr "See plans"
 msgid "Seed"
 msgstr "Seed"
 
-#. placeholder {0}: meta().seed
-#: pkgs/harness-report-client/src/test-inspection.tsx
-msgid "Seed {0}"
-msgstr "Seed {0}"
-
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Seen"
@@ -3543,10 +3134,6 @@ msgstr "Share puzzle link"
 #: libs/spaces-client/src/space-share-sheet.tsx
 msgid "Share space"
 msgstr "Share space"
-
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "Shortcuts"
-msgstr "Shortcuts"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Show performance monitor"
@@ -3700,14 +3287,8 @@ msgid "Skip"
 msgstr "Skip"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
-#: pkgs/harness-report-client/src/entity-browser.tsx
-#: pkgs/harness-report-client/src/report-status.tsx
 msgid "Skipped"
 msgstr "Skipped"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Slow steps"
-msgstr "Slow steps"
 
 #: libs/app-root-client/src/performance-screen.tsx
 msgid "Slowest script"
@@ -3716,10 +3297,6 @@ msgstr "Slowest script"
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Snapshots"
-msgstr "Snapshots"
 
 #: libs/auth-client/src/sign-in-modal-body.tsx
 msgid "Social sign-in is not available."
@@ -3754,10 +3331,6 @@ msgstr "Solved · {puzzleRating}"
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
-
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Sort"
-msgstr "Sort"
 
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/settings-screen.tsx
@@ -3823,42 +3396,6 @@ msgstr "Spaces"
 msgid "Spaces need a connection. Connect to the internet and try again."
 msgstr "Spaces need a connection. Connect to the internet and try again."
 
-#: pkgs/harness-report-client/src/entity-browser.tsx
-msgid "Spec"
-msgstr "Spec"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Spec and evidence"
-msgstr "Spec and evidence"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Spec inventory"
-msgstr "Spec inventory"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Spec inventory unavailable"
-msgstr "Spec inventory unavailable"
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "Spec unavailable"
-msgstr "Spec unavailable"
-
-#: libs/app-root-client/src/app-commands.tsx
-msgid "specs"
-msgstr "specs"
-
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Specs"
-msgstr "Specs"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Specs and report parts"
-msgstr "Specs and report parts"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Specs available"
-msgstr "Specs available"
-
 #: pkgs/ui-root-client/src/spectator-indicator.tsx
 msgid "Spectating"
 msgstr "Spectating"
@@ -3870,10 +3407,6 @@ msgstr "Spectating — controls are disabled"
 #: libs/auth-client/src/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
-
-#: pkgs/harness-report-client/src/fail-banner.tsx
-msgid "Stack trace"
-msgstr "Stack trace"
 
 #: pkgs/ui-root-client/src/pagination-controls.tsx
 msgid "Start"
@@ -3909,8 +3442,6 @@ msgid "Starting…"
 msgstr "Starting…"
 
 #: libs/app-root-client/src/sync-screen.tsx
-#: pkgs/harness-report-client/src/test-inspection.tsx
-#: pkgs/harness-report-client/src/toolbar.tsx
 msgid "State"
 msgstr "State"
 
@@ -4050,22 +3581,6 @@ msgstr "Target rating"
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
 
-#: pkgs/harness-report-client/src/fail-banner.tsx
-msgid "Test failed"
-msgstr "Test failed"
-
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Test reports"
-msgstr "Test reports"
-
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Test runs"
-msgstr "Test runs"
-
-#: pkgs/harness-report-client/src/test-nav.tsx
-msgid "Tests"
-msgstr "Tests"
-
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Text to speech"
 msgstr "Text to speech"
@@ -4154,10 +3669,6 @@ msgstr "The host hasn't started a puzzle yet."
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "The inventory or report parts could not be read. Refresh to try again. Missing evidence is not a passing result."
-msgstr "The inventory or report parts could not be read. Refresh to try again. Missing evidence is not a passing result."
-
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "The latest PostgreSQL result is shown on this screen."
 msgstr "The latest PostgreSQL result is shown on this screen."
@@ -4179,33 +3690,13 @@ msgstr "The multiplayer game was aborted."
 msgid "The other participant may still return. Wait before claiming the win."
 msgstr "The other participant may still return. Wait before claiming the win."
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "The reports service could not be reached or returned unreadable evidence. Refresh to try again."
-msgstr "The reports service could not be reached or returned unreadable evidence. Refresh to try again."
-
-#: pkgs/harness-report-client/src/report-outcome.tsx
-msgid "The run failed beyond its individual recorded test outcomes. Passing individual checks do not mean the run completed successfully. The verification details contain the remaining failures."
-msgstr "The run failed beyond its individual recorded test outcomes. Passing individual checks do not mean the run completed successfully. The verification details contain the remaining failures."
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "The selected version has no readable copy of this spec."
-msgstr "The selected version has no readable copy of this spec."
-
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
 
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "The spec inventory could not be loaded. Refresh to try again; no missing evidence is counted as passed."
-msgstr "The spec inventory could not be loaded. Refresh to try again; no missing evidence is counted as passed."
-
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 msgid "The Synthetic Population Worker will recover this application."
 msgstr "The Synthetic Population Worker will recover this application."
-
-#: pkgs/harness-report-client/src/report-parts-view.tsx
-msgid "The UI quality check has not been completed for this version. Run the UI quality check independently to add its evidence."
-msgstr "The UI quality check has not been completed for this version. Run the UI quality check independently to add its evidence."
 
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/theme-screen.tsx
@@ -4227,18 +3718,6 @@ msgstr "There is no legal preservation obligation on this account unless one is 
 #: libs/app-root-client/src/route-stub.tsx
 msgid "There is nothing at this address."
 msgstr "There is nothing at this address."
-
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "These are recorded outcomes. Full verification decides whether every obligation is satisfied."
-msgstr "These are recorded outcomes. Full verification decides whether every obligation is satisfied."
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "These reports contain no recorded performance measurements."
-msgstr "These reports contain no recorded performance measurements."
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "These versions contain specs or report parts. A completed verification run is shown separately when available."
-msgstr "These versions contain specs or report parts. A completed verification run is shown separately when available."
 
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "They already asked you"
@@ -4336,18 +3815,10 @@ msgstr "This space can't be found"
 msgid "This space has ended"
 msgstr "This space has ended"
 
-#: pkgs/harness-report-client/src/spec-detail.tsx
-msgid "This spec could not be loaded. Refresh to try again."
-msgstr "This spec could not be loaded. Refresh to try again."
-
 #: libs/spaces-client/src/member-this-tab-badge.tsx
 #: libs/spaces-client/src/space-members-list-modal.tsx
 msgid "This tab"
 msgstr "This tab"
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "This version has no published inventory. Existing test reports remain available in Test runs. Run full verification to publish every spec for this version."
-msgstr "This version has no published inventory. Existing test reports remain available in Test runs. Run full verification to publish every spec for this version."
 
 #: libs/app-root-client/src/app-update-required.tsx
 msgid "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
@@ -4356,10 +3827,6 @@ msgstr "This version of the app is out of date. Update it to keep playing with o
 #: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Time control"
 msgstr "Time control"
-
-#: pkgs/harness-report-client/src/test-inspection.tsx
-msgid "Timeline"
-msgstr "Timeline"
 
 #: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
@@ -4383,7 +3850,6 @@ msgstr "Try a different search term."
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
-#: pkgs/harness-report-client/src/commit-list.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Try again"
@@ -4392,14 +3858,6 @@ msgstr "Try again"
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Try again later"
 msgstr "Try again later"
-
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Try another commit hash or branch."
-msgstr "Try another commit hash or branch."
-
-#: pkgs/harness-report-client/src/spec-browser.tsx
-msgid "Try another search or context."
-msgstr "Try another search or context."
 
 #: pkgs/ui-root-client/src/command-palette-input.tsx
 msgid "Type a command or search…"
@@ -4425,10 +3883,6 @@ msgstr "UI Components"
 msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "UI quality"
-msgstr "UI quality"
-
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
@@ -4451,18 +3905,9 @@ msgstr "Unblocked"
 msgid "Unblocking…"
 msgstr "Unblocking…"
 
-#: pkgs/harness-report-client/src/commit-list.tsx
-msgid "Uncommitted changes are present. This explorer shows the committed specs; those changes are excluded from commit evidence."
-msgstr "Uncommitted changes are present. This explorer shows the committed specs; those changes are excluded from commit evidence."
-
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Unique handle for search and invites"
 msgstr "Unique handle for search and invites"
-
-#. placeholder {0}: testId()
-#: pkgs/harness-report-client/src/test-view.tsx
-msgid "Unknown test: {0}"
-msgstr "Unknown test: {0}"
 
 #: libs/billing-client/src/billing-offer-sections.tsx
 msgid "Unlimited access to Gamezilla servers"
@@ -4564,10 +4009,6 @@ msgstr "Username is too short"
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
 
-#: pkgs/harness-report-client/src/report-app.tsx
-msgid "Verification is running. Completed test reports are available as they arrive."
-msgstr "Verification is running. Completed test reports are available as they arrive."
-
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Version"
 msgstr "Version"
@@ -4576,10 +4017,6 @@ msgstr "Version"
 msgid "Version accepting new assignments"
 msgstr "Version accepting new assignments"
 
-#: pkgs/harness-report-client/src/report-explorer.tsx
-msgid "Version evidence"
-msgstr "Version evidence"
-
 #: pkgs/ui-root-client/src/game-versus.tsx
 msgid "Versus"
 msgstr "Versus"
@@ -4587,11 +4024,6 @@ msgstr "Versus"
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "View profile"
 msgstr "View profile"
-
-#. placeholder {0}: testId()
-#: pkgs/harness-report-client/src/test-view.tsx
-msgid "Waiting for {0}…"
-msgstr "Waiting for {0}…"
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Waiting for participants and readiness."
@@ -4676,10 +4108,6 @@ msgstr "White: {white}. Black: {black}. {state}"
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "Withdraw readiness"
 msgstr "Withdraw readiness"
-
-#: pkgs/harness-report-client/src/performance-overview.tsx
-msgid "Work"
-msgstr "Work"
 
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Worker Lease"
@@ -4932,7 +4360,3 @@ msgstr "Your turn."
 #: libs/profile-client/src/profile-handle-screen.tsx
 msgid "your_handle"
 msgstr "your_handle"
-
-#: pkgs/harness-report-client/src/toolbar.tsx
-msgid "Zoom"
-msgstr "Zoom"

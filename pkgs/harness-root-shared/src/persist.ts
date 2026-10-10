@@ -1,16 +1,18 @@
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
-
-import { RUNS_INDEX_KEY, runManifestKey } from './keys';
+import {
+  RUNS_INDEX_KEY,
+  runManifestKey,
+} from '@crvouga/atlas-reports/recording-keys';
 import type {
   ReportStep,
-  ReportTestStatus,
   RunReport,
   RunSummary,
   RunsIndex,
   SuiteManifest,
   SuiteTestSummary,
-} from './report-types';
+} from '@crvouga/atlas-reports/report-types';
+import { suiteStatus } from '@crvouga/atlas-reports/status';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 const JSON_TYPE = 'application/json; charset=utf-8';
 
@@ -53,16 +55,6 @@ export function countSteps(steps: readonly ReportStep[]): number {
 
 export function countFrames(steps: readonly ReportStep[]): number {
   return steps.reduce((n, s) => n + s.frames.length + countFrames(s.steps), 0);
-}
-
-export function suiteStatus(
-  tests: readonly { readonly status: ReportTestStatus }[]
-): ReportTestStatus {
-  if (tests.some((t) => t.status === 'failed')) return 'failed';
-  if (tests.length > 0 && tests.every((t) => t.status === 'skipped')) {
-    return 'skipped';
-  }
-  return 'passed';
 }
 
 export function summarizeReport(report: RunReport): SuiteTestSummary {

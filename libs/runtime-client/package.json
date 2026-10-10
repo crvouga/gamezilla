@@ -24,10 +24,10 @@
     "@libs/games-client": "workspace:*",
     "@libs/games-shared": "workspace:*",
     "@libs/notifications-client": "workspace:*",
-    "@libs/synthetic-population-client": "workspace:*",
     "@libs/profile-client": "workspace:*",
     "@libs/search-client": "workspace:*",
-    "@libs/spaces-client": "workspace:*"
+    "@libs/spaces-client": "workspace:*",
+    "@libs/synthetic-population-client": "workspace:*"
   },
   "devDependencies": {
     "@libs/app-root-shared": "workspace:*",

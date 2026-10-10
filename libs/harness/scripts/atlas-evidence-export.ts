@@ -1,0 +1,25 @@
+// @io-wall-ok — Atlas static-site evidence composition.
+import { resolve } from 'node:path';
+import { exportEvidence } from '@crvouga/atlas-reports/export-evidence';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { openReportsDevApp } from './atlas-reports-app';
+import { workspaceReports } from './atlas-workspace-reports';
+
+const root = resolve(import.meta.dir, '../../..');
+const output = process.argv[2];
+if (!output) throw new Error('Supply the Atlas evidence output directory');
+const workspace = await workspaceReports(root);
+const app = await openReportsDevApp(root, async () => workspace);
+const result = await exportEvidence({
+  fetch: (path) =>
+    Promise.resolve(app.fetch(new Request(`http://atlas/api/reports${path}`))),
+  target: createNodeFsObjectStore({
+    rootDir: resolve(output),
+    fs: wallNodeFs(),
+    layout: 'tree',
+  }),
+});
+console.log(
+  `Atlas evidence: ${result.revisions} revisions exported; ${result.missing.length} unavailable artifacts remain visibly missing.`
+);

@@ -38,7 +38,6 @@
     "apps/product/src/developer-checkpoints.ts",
     "apps/product/src/developer-notebook.ts",
     "apps/product/src/developer-release.ts",
-    "apps/product/src/developer-report.ts",
     "apps/product/src/developer-tools-state.ts",
     "apps/product/src/developer-world-views.ts",
     "apps/product/src/live-browser.ts",

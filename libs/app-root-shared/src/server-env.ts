@@ -21,11 +21,6 @@ export type ServerEnv = {
   readonly events: PubSub | null;
   readonly kv: Kv | null;
   readonly blob: ObjectStore;
-  /**
-   * The shared spec reports store every environment reads (`/api/reports`);
-   * null when this deployment holds no credential for it.
-   */
-  readonly reports: ObjectStore | null;
   readonly billing: MembershipProviders | null;
   readonly tts: TtsProvider | null;
   readonly llm: LlmProvider | null;

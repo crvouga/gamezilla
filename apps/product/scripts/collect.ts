@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type {
   ReportStep,
   RunReport,
-} from '@pkgs/harness-root-shared/report-types';
+} from '@crvouga/atlas-reports/report-types';
 import {
   readObjectBytes,
   readUtf8,

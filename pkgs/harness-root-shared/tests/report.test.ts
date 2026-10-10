@@ -3,7 +3,7 @@ import {
   RUNS_INDEX_KEY,
   runManifestKey,
   testReportKey,
-} from '@pkgs/harness-root-shared/keys';
+} from '@crvouga/atlas-reports/recording-keys';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { boom, exampleApp, inc, put } from './example-app';

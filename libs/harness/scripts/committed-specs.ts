@@ -1,7 +1,7 @@
 // @io-wall-ok — read specification bytes at an exact committed revision.
 import { spawnSync } from 'node:child_process';
-import { isCommitSha } from '@pkgs/harness-report-shared/keys';
-import { isSpecPath } from '@pkgs/harness-report-shared/spec-inventory';
+import { isCommitSha } from '@crvouga/atlas-reports/keys';
+import { isSpecPath } from '@crvouga/atlas-reports/spec-inventory';
 
 function git(
   repoRoot: string,

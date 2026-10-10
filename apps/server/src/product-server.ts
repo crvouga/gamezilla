@@ -11,10 +11,7 @@ import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules
 import './install-native-als';
 
 import { createServer } from '@libs/app-root-server/create-server';
-import {
-  createApiObjectStore,
-  createReportsObjectStore,
-} from '@libs/app-root-server/object-store';
+import { createApiObjectStore } from '@libs/app-root-server/object-store';
 import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
@@ -269,9 +266,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     now: wallClock.now,
     http: { fetch: (input, init) => globalThis.fetch(input, init) },
   });
-  const reports = await createReportsObjectStore(secretStore, {
-    http: { fetch: (input, init) => globalThis.fetch(input, init) },
-  });
   const dbScope = appPostgresDbScope();
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
@@ -304,7 +298,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     events: null,
     kv: null,
     blob: objectStore,
-    reports,
     billing,
     tts: localStack ? new InMemoryTtsProvider() : null,
     llm: localStack ? new InMemoryLlmProvider() : null,

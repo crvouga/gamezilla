@@ -46,7 +46,6 @@ import {
   setOutboxConsumerRegistry,
 } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
-import { createReportsApp } from './reports-route';
 import { createRequestDbMiddleware } from './request-db-middleware';
 import {
   createRequestTelemetryMiddleware,
@@ -372,15 +371,6 @@ function createServerRouter(args: {
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
     .use('*', createRequestTelemetryMiddleware())
-    // Ahead of the database middleware: report streams never touch Postgres.
-    .route(
-      '/reports',
-      createReportsApp({
-        store: env.reports,
-        clock: env.clock,
-        timers: env.timers,
-      })
-    )
     .use(
       '*',
       createRequestDbMiddleware(secrets, {

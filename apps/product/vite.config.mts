@@ -10,7 +10,6 @@ import {
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
-import { reportsDevPlugin } from './scripts/reports-dev-plugin.ts';
 
 const consoleDir = import.meta.dirname;
 const repoRoot = resolve(consoleDir, '../..');
@@ -39,10 +38,6 @@ export default defineConfig(({ mode }) => {
       sqliteWasmDir: resolve(consoleDir, 'public/generated/sqlite-wasm'),
     }),
     tailwindcss(),
-    reportsDevPlugin({
-      repoRoot,
-      appModule: resolve(consoleDir, 'scripts/reports-dev-app.ts'),
-    }),
     solid({
       babel: {
         plugins: [

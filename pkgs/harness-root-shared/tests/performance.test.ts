@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import type { RunReport } from '@pkgs/harness-root-shared/report-types';
+import type { RunReport } from '@crvouga/atlas-reports/report-types';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { exampleApp, put } from './example-app';

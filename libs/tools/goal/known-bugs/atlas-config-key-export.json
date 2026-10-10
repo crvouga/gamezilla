@@ -1,0 +1,4 @@
+{
+  "summary": "The product explorer imported configKey from Atlas, but the pinned Atlas API did not export it and the explorer could not start.",
+  "regressionTest": "libs/tools/scripts/atlas-config-key.test.ts"
+}

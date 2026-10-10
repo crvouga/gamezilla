@@ -30,7 +30,6 @@
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/auth-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/harness-report-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/kv-postgres-shared": "workspace:*",
     "@pkgs/llm-openai-server": "workspace:*",

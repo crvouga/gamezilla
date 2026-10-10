@@ -25,7 +25,7 @@ Runtime supplies those. Root policy: [`README.md`](../../README.md#correctness-m
 | **record** | `s.record({ kind, title, selector?, actorId? }, fn)` — one labeled report step. Steps nest: `record` / `apply` inside an open step become its children. `advanceTime` never opens a step. |
 | **describe** | Optional `defineAction({ describe: (...args) => string })` — report title for `s.apply`; default `name(arg, …)`. `report: false` hides a harness-only action from the timeline. |
 | **fail** | `s.fail(err)` — mark the run failed for an error raised outside any step (test-body assertion). |
-| **Report viewer** | `@pkgs/harness-report` — CI publishes each run's buckets to a shared object store keyed by commit (`@pkgs/harness-report/remote/publish`), a reports API streams them out, and the Solid viewer (`@pkgs/harness-report/client`) renders them as they arrive. UI suites (`html` / `png`) get phone panels + press overlays; a frame with no UI snapshot, including a Quint step, is painted as HTML from the step's recorded state. `parseJunit` / `applyJunitOutcomes` stay in `@pkgs/harness-root-shared`. |
+| **Report viewer** | `@crvouga/atlas-reports` — CI publishes each run's buckets to a shared object store keyed by commit (`@crvouga/atlas-reports/publish`), a reports API streams them out, and the standalone Atlas visualizer renders them as they arrive. UI suites (`html` / `png`) get phone panels + press overlays; a frame with no UI snapshot, including a Quint step, is painted as HTML from the step's recorded state. `parseJunit` / `applyJunitOutcomes` live in `@crvouga/atlas-reports/junit`. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
 | **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
@@ -163,7 +163,7 @@ await s.record({ kind: 'ui', title: 'tap', selector: 'testId("ok")' }, tapOk);
 ```
 
 CI publishes the bucket to the shared reports store keyed by commit
-(`@pkgs/harness-report/remote/publish`); the reports screen streams it back.
+(`@crvouga/atlas-reports/publish`); Atlas reads it.
 
 Frames come only from `defineSystem({ snapshots })`. Media is suite-agnostic:
 `json` / `text` / `bytes` for headless state (sync-engine, matchmaking, …),

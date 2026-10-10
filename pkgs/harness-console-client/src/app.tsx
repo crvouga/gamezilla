@@ -14,7 +14,7 @@ import { useProductHarnessSession } from './use-product-harness-session';
  * the "Exit harness" palette command and toolbar button).
  *
  * Harness nav is controlled by the host so it can sync to browser history.
- * Test reports are the host's reports screen (`@pkgs/harness-report`), not a
+ * Test reports live in the standalone Atlas explorer, not a
  * screen here.
  */
 export function HarnessConsoleApp(props: {

@@ -3,7 +3,7 @@
 import {
   planReportRetention,
   pruneReports,
-} from '@pkgs/harness-report-shared/retention';
+} from '@crvouga/atlas-reports/retention';
 import { capture } from '@pkgs/os-server/command';
 import type {
   BranchCleanupPort,
@@ -104,8 +104,8 @@ async function main(): Promise<void> {
     throw new Error('Refusing report cleanup with an empty branch inventory');
   const store = reportsStore();
   const plan = apply
-    ? await pruneReports(store, branches)
-    : await planReportRetention(store, branches);
+    ? await pruneReports(store)
+    : await planReportRetention(store);
   console.log(
     JSON.stringify({
       apply,

@@ -176,7 +176,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
 `<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; every
 `bun check` publishes every bucket to the shared reports store, per
-commit, where `/reports/<sha>` streams it
+commit, where the standalone Atlas explorer reads it
 ([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`

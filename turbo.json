@@ -399,7 +399,6 @@
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
-        "pkgs/harness-report-client/src/**/*.{ts,tsx}",
         "pkgs/ui-root-client/src/**/*.{ts,tsx}",
         "pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
         "lingui.config.ts",
@@ -1938,7 +1937,7 @@
         "libs/chess-puzzle-shared/src/puzzle-link.ts",
         "apps/product/src/main.tsx",
         "apps/product/src/console-nav-real.ts",
-        "apps/product/src/reports-path.ts"
+        "vendor/atlas/packages/reports/src/**/*.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"

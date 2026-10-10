@@ -48,12 +48,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { parseJunit } from '@crvouga/atlas-reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
 import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
-import { parseJunit } from '@pkgs/harness-root-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';

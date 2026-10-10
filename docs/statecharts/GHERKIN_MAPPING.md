@@ -16,7 +16,7 @@ every rule in a feature.
 | [Chess](../../specs/chess/) | Game choices, puzzles, feed, links, history, import, Custom Games, multiplayer |
 | [Chessboard](../../specs/chess-board/) | Independent chessboard contract |
 | [Database maintenance](../../specs/db-indexes/) | Maintenance contract |
-| [Developer tools](../../specs/developer-tools/) | Test worlds, notebooks, reports, release evidence, inspection scope |
+| [Developer tools](../../specs/developer-tools/) | Test worlds, notebooks, release evidence, inspection scope |
 | [Feedback](../../specs/feedback/) | Feedback |
 | [Friends](../../specs/friends/) | Friendships, inbox |
 | [Journeys](../../specs/journeys/) | Whole-product root |
